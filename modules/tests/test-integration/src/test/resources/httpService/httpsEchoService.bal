@@ -39,3 +39,20 @@ service<http> echoOne {
 
     }
 }
+
+
+@http:configuration {
+    basePath:"/echoDummy"
+}
+service<http> echoDummy {
+
+    @http:POST{}
+    @http:Path {value:"/"}
+    resource echoDummy (message m) {
+        message resp = {};
+        messages:setStringPayload(resp, "hello world");
+        reply resp;
+
+    }
+
+}

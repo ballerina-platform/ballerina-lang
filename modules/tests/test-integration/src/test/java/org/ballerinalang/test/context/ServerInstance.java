@@ -50,7 +50,7 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
-    private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
+    private int httpServerPort = 9092; //Constant.DEFAULT_HTTP_PORT;
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
@@ -68,6 +68,41 @@ public class ServerInstance implements Server {
         this.httpServerPort = serverHttpPort;
 
         initialize();
+    }
+
+    /**
+     * Method to start Ballerina server given the port and bal file.
+     *
+     * @param port                  In which server starts.
+     * @return ballerinaServer      Started server instance.
+     * @throws BallerinaTestException
+     */
+    public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        ServerInstance ballerinaServer = new ServerInstance(serverZipPath, port);
+
+        return ballerinaServer;
+    }
+
+    /**
+     * Method to start Ballerina server in default port 9092 with given bal file.
+     *
+     * @return ballerinaServer      Started server instance.
+     * @throws BallerinaTestException
+     */
+    public static ServerInstance initBallerinaServer() throws BallerinaTestException {
+        int defaultPort = Constant.DEFAULT_HTTP_PORT;
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        ServerInstance ballerinaServer = new ServerInstance(serverZipPath, defaultPort);
+
+        return ballerinaServer;
+    }
+
+    public void startBallerinaServer(String balFile) throws BallerinaTestException {
+        String[] args = {balFile};
+        setArguments(args);
+
+        startServer();
     }
 
     /**
@@ -358,13 +393,13 @@ public class ServerInstance implements Server {
         try {
             if (Utils.getOSName().toLowerCase().contains("windows")) {
                 commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run", "service"};
+                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "service"};
+                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
