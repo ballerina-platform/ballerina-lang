@@ -73,6 +73,6 @@ public class LanguageInjectorUtils {
         if (quotedLiteralStrings.size() > 1) {
             return false;
         }
-        return packageNames.contains(packageNameNode.getText()) || functionNames.contains(functionName.getText());
+        return packageNames.contains(packageNameNode.getText()) && functionNames.contains(functionName.getText());
     }
 }

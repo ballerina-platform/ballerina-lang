@@ -180,6 +180,7 @@
 
         <!--language injection-->
         <languageInjector implementation="org.ballerinalang.plugins.idea.psi.injector.XmlLanguageInjector"/>
+        <languageInjector implementation="org.ballerinalang.plugins.idea.psi.injector.JsonLanguageInjector"/>
 
         <!--inspections-->
         <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
