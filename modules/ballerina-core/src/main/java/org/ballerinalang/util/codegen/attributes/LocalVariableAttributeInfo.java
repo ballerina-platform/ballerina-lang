@@ -43,6 +43,10 @@ public class LocalVariableAttributeInfo implements AttributeInfo {
         return localVariables;
     }
 
+    public LocalVariableInfo[] getLocalVariableInfoEntries() {
+        return localVariables.toArray(new LocalVariableInfo[0]);
+    }
+
     public void setLocalVariables(List<LocalVariableInfo> localVariables) {
         this.localVariables = localVariables;
     }

@@ -124,11 +124,13 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SEQ] = "seq";
         mnemonics[InstructionCodes.BEQ] = "beq";
         mnemonics[InstructionCodes.REQ] = "req";
+        mnemonics[InstructionCodes.TEQ] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
         mnemonics[InstructionCodes.FNE] = "fne";
         mnemonics[InstructionCodes.SNE] = "sne";
         mnemonics[InstructionCodes.BNE] = "bne";
         mnemonics[InstructionCodes.RNE] = "rne";
+        mnemonics[InstructionCodes.TNE] = "tne";
 
         mnemonics[InstructionCodes.IGT] = "igt";
         mnemonics[InstructionCodes.FGT] = "fgt";
@@ -152,6 +154,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NACALL] = "nacall";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
+        mnemonics[InstructionCodes.FPCALL] = "fp_call";
+        mnemonics[InstructionCodes.FPLOAD] = "fp_load";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -178,6 +182,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2F] = "json2f";
         mnemonics[InstructionCodes.JSON2S] = "json2s";
         mnemonics[InstructionCodes.JSON2B] = "json2b";
+        mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
+        mnemonics[InstructionCodes.LENGTHOFJSON] = "lengthofjson";
+
+        mnemonics[InstructionCodes.TYPEOF] = "typeof";
+        mnemonics[InstructionCodes.TYPELOAD] = "typeload";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";
@@ -228,13 +237,18 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LRET] = "lret";
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
-        
+
         mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2xmlattrs";
         mnemonics[InstructionCodes.XMLATTRLOAD] = "xmlattrload";
         mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
         mnemonics[InstructionCodes.S2QNAME] = "s2qname";
         mnemonics[InstructionCodes.XMLATTRS2MAP] = "xmlattr2map";
         mnemonics[InstructionCodes.NEWQNAME] = "newqname";
+        mnemonics[InstructionCodes.NEWXMLELEMENT] = "newqxmlelement";
+        mnemonics[InstructionCodes.NEWXMLCOMMENT] = "newxmlcomment";
+        mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
+        mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
+        mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
     }
 
     public static String getMnem(int opcode) {

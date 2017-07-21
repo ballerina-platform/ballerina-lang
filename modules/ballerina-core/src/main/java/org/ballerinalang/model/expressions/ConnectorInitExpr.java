@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 
 /**
@@ -29,6 +30,9 @@ import org.ballerinalang.model.types.SimpleTypeName;
  */
 public class ConnectorInitExpr extends RefTypeInitExpr {
     private SimpleTypeName typeName;
+    private ConnectorInitExpr parentConnectorInitExpr;
+    // This variable has been introduced to support the filter connector framework
+    private BType filterSupportedType;
 
     public ConnectorInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
                              Expression[] argExprs) {
@@ -36,8 +40,24 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
         this.typeName = typeName;
     }
 
+    public ConnectorInitExpr getParentConnectorInitExpr() {
+        return parentConnectorInitExpr;
+    }
+
+    public void setParentConnectorInitExpr(ConnectorInitExpr parentConnectorInitExpr) {
+        this.parentConnectorInitExpr = parentConnectorInitExpr;
+    }
+
     public SimpleTypeName getTypeName() {
         return typeName;
+    }
+
+    public BType getFilterSupportedType() {
+        return filterSupportedType;
+    }
+
+    public void setFilterSupportedType(BType filterSupportedType) {
+        this.filterSupportedType = filterSupportedType;
     }
 
     @Override

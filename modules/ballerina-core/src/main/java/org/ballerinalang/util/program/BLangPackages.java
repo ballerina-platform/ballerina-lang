@@ -29,7 +29,6 @@ import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 import org.ballerinalang.util.repository.ProgramDirRepository;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -86,15 +85,14 @@ public class BLangPackages {
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
         if (pkgSource == null) {
-            throw new RuntimeException("package not found: " + packagePath.toString().replace(File.separator, "."));
+            throw new RuntimeException("package not found: " + convertToPackageName(packagePath).toString());
         }
 
         if (pkgSource.getSourceFileStreamMap().isEmpty()) {
-            throw new RuntimeException("no bal files in package: " +
-                    packagePath.toString().replace(File.separator, "."));
+            throw new RuntimeException("no bal files in package: " + convertToPackageName(packagePath).toString());
         }
 
-        String pkgPathStr = getPackagePathFromPath(packagePath);
+        String pkgPathStr = convertToPackageName(packagePath).toString();
         BLangPackage.PackageBuilder packageBuilder =
                 new BLangPackage.PackageBuilder(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
 
@@ -111,37 +109,13 @@ public class BLangPackages {
         return loadPackageInternal(pkgSource, packageBuilder, bLangProgram, currentDepPath);
     }
 
-    public static Path getPathFromPackagePath(String packagePath) {
-        if (packagePath.equals(".")) {
-            return Paths.get(packagePath);
-        }
-
-        String[] dirs = packagePath.split("\\.");
-        return (dirs.length == 1) ? Paths.get(dirs[0]) :
-                Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
-    }
-
-    public static String getPackagePathFromPath(Path path) {
-        if (path.getNameCount() == 1) {
-            return path.toString();
-        }
-
-        StringBuilder strBuilder = new StringBuilder();
-        for (int i = 0; i < path.getNameCount() - 1; i++) {
-            strBuilder.append(path.getName(i)).append(".");
-        }
-
-        strBuilder.append(path.getName(path.getNameCount() - 1));
-        return strBuilder.toString();
-    }
-
     private static BLangPackage loadPackageInternal(PackageRepository.PackageSource pkgSource,
                                                     BLangPackage.PackageBuilder packageBuilder,
                                                     BLangProgram bLangProgram,
                                                     LinkedHashSet<SymbolName> currentDepPath) {
 
         Path packagePath = pkgSource.getPackagePath();
-        String pkgPathStr = getPackagePathFromPath(packagePath);
+        String pkgPathStr = convertToPackageName(packagePath).toString();
         packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
                 .stream()
                 .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
@@ -179,7 +153,7 @@ public class BLangPackages {
         for (ImportPackage importPackage : parentPackage.getImportPackages()) {
 
             // Check whether this package is already resolved.
-            Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
+            Path packagePath = convertToPackagePath(importPackage.getSymbolName().getName());
 
             BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
 
@@ -236,4 +210,28 @@ public class BLangPackages {
         return pkgSet.toArray(pkgArray);
     }
 
+    public static Path convertToPackageName(Path packagePath) {
+        int nameCount = packagePath.getNameCount();
+        StringBuilder sb = new StringBuilder(nameCount);
+        sb.append(packagePath.getName(0));
+        for (int i = 1; i < nameCount; i++) {
+            sb.append(".").append(packagePath.getName(i));
+        }
+
+        return Paths.get(sb.toString());
+    }
+
+    public static Path convertToPackagePath(String packagePath) {
+        if (packagePath.equals(".")) {
+            return Paths.get(packagePath);
+        }
+
+        String[] dirs = packagePath.split("\\.");
+        return (dirs.length == 1) ? Paths.get(dirs[0]) :
+                Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
+    }
+
+    public static Path convertToPackagePath(Path packageName) {
+        return convertToPackagePath(packageName.toString());
+    }
 }

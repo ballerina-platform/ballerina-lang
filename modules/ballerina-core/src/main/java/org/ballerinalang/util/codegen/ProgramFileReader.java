@@ -24,6 +24,7 @@ import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -37,6 +38,8 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -65,7 +68,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
@@ -353,6 +358,8 @@ public class ProgramFileReader {
         // Resolve unresolved CP entries.
         resolveCPEntries();
 
+        resolveConnectorMethodTables(packageInfo);
+
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
 
@@ -423,6 +430,21 @@ public class ProgramFileReader {
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
 
+            Map<Integer, Integer> methodTableInteger = new HashMap<>();
+            int count = dataInStream.readInt();
+
+            for (int k = 0; k < count; k++) {
+                int key = dataInStream.readInt();
+                int value = dataInStream.readInt();
+                methodTableInteger.put(new Integer(key), new Integer(value));
+
+            }
+
+            connectorInfo.setMethodTableIndex(methodTableInteger);
+
+            boolean isFilterConnector = dataInStream.readBoolean();
+            connectorInfo.setFilterConnector(isFilterConnector);
+
             // Read action info entries
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
@@ -476,6 +498,17 @@ public class ProgramFileReader {
 
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
+        }
+
+        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
+            switch (cpEntry.getEntryType()) {
+                case CP_ENTRY_TYPE_REF:
+                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
+                    String typeSig = typeRefCPEntry.getTypeSig();
+                    BType bType = getBTypeFromDescriptor(typeSig);
+                    typeRefCPEntry.setType(bType);
+                    break;
+            }
         }
     }
 
@@ -716,6 +749,9 @@ public class ProgramFileReader {
             case 'L':
                 typeStack.push(BTypes.typeBlob);
                 return index + 1;
+            case 'Y':
+                typeStack.push(BTypes.typeType);
+                return index + 1;
             case 'A':
                 typeStack.push(BTypes.typeAny);
                 return index + 1;
@@ -770,6 +806,10 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
+            case 'U':
+                // TODO : Fix this for type casting.
+                typeStack.push(new BFunctionType());
+                return index + 1;
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + chars[index]);
@@ -787,6 +827,8 @@ public class ProgramFileReader {
                 return BTypes.typeString;
             case 'B':
                 return BTypes.typeBoolean;
+            case 'Y':
+                return BTypes.typeType;
             case 'L':
                 return BTypes.typeBlob;
             case 'A':
@@ -818,6 +860,9 @@ public class ProgramFileReader {
             case '[':
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
+            case 'U':
+                // TODO : Fix this for type casting.
+                return new BFunctionType();
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + ch);
@@ -972,6 +1017,7 @@ public class ProgramFileReader {
         switch (attribKind) {
             case CODE_ATTRIBUTE:
                 CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
+                codeAttributeInfo.setAttributeNameIndex(attribNameCPIndex);
                 codeAttributeInfo.setCodeAddrs(dataInStream.readInt());
 
                 codeAttributeInfo.setMaxLongLocalVars(dataInStream.readUnsignedShort());
@@ -1033,7 +1079,21 @@ public class ProgramFileReader {
             case PARAMETER_ANNOTATIONS_ATTRIBUTE:
                 return null;
             case LOCAL_VARIABLES_ATTRIBUTE:
-                return null;
+                LocalVariableAttributeInfo localVarAttrInfo = new LocalVariableAttributeInfo(attribNameCPIndex);
+                int localVarInfoCount = dataInStream.readShort();
+                for (int i = 0; i < localVarInfoCount; i++) {
+                    LocalVariableInfo localVariableInfo = getLocalVariableInfo(dataInStream, constantPool);
+                    localVarAttrInfo.addLocalVarInfo(localVariableInfo);
+                }
+                return localVarAttrInfo;
+            case LINE_NUMBER_TABLE_ATTRIBUTE:
+                LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
+                int lineNoInfoCount = dataInStream.readShort();
+                for (int i = 0; i < lineNoInfoCount; i++) {
+                    LineNumberInfo lineNumberInfo = getLineNumberInfo(dataInStream, constantPool);
+                    lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
+                }
+                return lnNoTblAttrInfo;
         }
 
         // TODO Support other attributes
@@ -1061,6 +1121,47 @@ public class ProgramFileReader {
 
         return attachmentInfo;
     }
+
+    private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,
+                                                ConstantPool constantPool) throws IOException {
+        int varNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry varNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(varNameCPIndex);
+        int variableIndex = dataInStream.readInt();
+
+        int typeSigCPIndex = dataInStream.readInt();
+
+        UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
+
+        BType type = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+        LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
+                variableIndex, typeSigCPIndex, type);
+        int attchmntIndexesLength = dataInStream.readShort();
+        int[] attachmentIndexes = new int[attchmntIndexesLength];
+        for (int i = 0; i < attchmntIndexesLength; i++) {
+            attachmentIndexes[i] = dataInStream.readInt();
+        }
+        localVariableInfo.setAttachmentIndexes(attachmentIndexes);
+
+        return localVariableInfo;
+    }
+
+    private LineNumberInfo getLineNumberInfo(DataInputStream dataInStream,
+                                                   ConstantPool constantPool) throws IOException {
+        int lineNumber = dataInStream.readInt();
+        int fileNameCPIndex = dataInStream.readInt();
+        int ip = dataInStream.readInt();
+
+        UTF8CPEntry fileNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(fileNameCPIndex);
+
+        LineNumberInfo lineNumberInfo = new LineNumberInfo(lineNumber, fileNameCPIndex,
+                fileNameCPEntry.getValue(), ip);
+
+        //In here constant pool is always a packageInfo since only package info has lineNumberTableAttribute
+        lineNumberInfo.setPackageInfo((PackageInfo) constantPool);
+
+        return lineNumberInfo;
+    }
+
 
     private AnnAttributeValue getAnnAttributeValue(DataInputStream dataInStream,
                                                    ConstantPool constantPool) throws IOException {
@@ -1199,6 +1300,8 @@ public class ProgramFileReader {
                 case InstructionCodes.NCALL:
                 case InstructionCodes.ACALL:
                 case InstructionCodes.NACALL:
+                case InstructionCodes.FPCALL:
+                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:
@@ -1216,6 +1319,13 @@ public class ProgramFileReader {
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTHOFJSON:
+                case InstructionCodes.TYPEOF:
+                case InstructionCodes.TYPELOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1327,6 +1437,9 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
+                case InstructionCodes.NEWXMLPI:
+                case InstructionCodes.TEQ:
+                case InstructionCodes.TNE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1339,6 +1452,7 @@ public class ProgramFileReader {
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1432,13 +1546,28 @@ public class ProgramFileReader {
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
             structType.setStructFields(structFields);
         }
+    }
 
+    private void resolveConnectorMethodTables(PackageInfo packageInfo) {
         ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
         for (ConnectorInfo connectorInfo : connectorInfoEntries) {
             BConnectorType connectorType = connectorInfo.getType();
+
             VarTypeCountAttributeInfo attributeInfo = (VarTypeCountAttributeInfo)
                     connectorInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             connectorType.setFieldTypeCount(attributeInfo.getVarTypeCount());
+
+            Map<Integer, Integer> methodTableInteger = connectorInfo.getMethodTableIndex();
+            Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
+            for (Integer key : methodTableInteger.keySet()) {
+                int keyType = methodTableInteger.get(key);
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(key);
+                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) packageInfo.getCPEntry(keyType);
+                ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
+                methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
+            }
+
+            connectorInfo.setMethodTableType(methodTableType);
 
             for (ActionInfo actionInfo : connectorInfo.getActionInfoEntries()) {
                 setCallableUnitSignature(actionInfo, actionInfo.getSignature(), packageInfo);

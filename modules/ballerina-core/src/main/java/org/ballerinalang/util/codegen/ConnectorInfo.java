@@ -38,11 +38,53 @@ public class ConnectorInfo extends StructureTypeInfo {
 
     private Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
+    private boolean isFilterConnector = false;
+
+    // This variable holds the method table for this type.
+    protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
+    protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
+
     public ConnectorInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name,
                          int signatureCPIndex, String signature) {
         super(pkgPathCPIndex, packagePath, nameCPIndex, name);
         this.signatureCPIndex = signatureCPIndex;
         this.signature = signature;
+    }
+
+    public Map<Integer, Integer> getMethodTableIndex() {
+        return methodTableIndex;
+    }
+
+    public void setMethodTableIndex(Map<Integer, Integer> methodTable) {
+        this.methodTableIndex = methodTable;
+    }
+
+    public void addMethodIndex(int methodNameCPIndex, int ip) {
+        methodTableIndex.put(methodNameCPIndex, new Integer(ip));
+    }
+
+    public void addMethodType(BConnectorType connectorType, ConnectorInfo connectorInfo) {
+        methodTableType.put(connectorType, connectorInfo);
+    }
+
+    public void setMethodTableType(Map<BConnectorType, ConnectorInfo> methodTable) {
+        this.methodTableType = methodTable;
+    }
+
+    public ConnectorInfo getMethodTypeStructure(BConnectorType connectorType) {
+        if (methodTableType.containsKey(connectorType)) {
+            return methodTableType.get(connectorType);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
     }
 
     public int getSignatureCPIndex() {

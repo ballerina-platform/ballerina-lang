@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.core.interpreter;
 
-import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
@@ -41,9 +40,6 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
@@ -211,16 +207,8 @@ public class VMDebuggerTest {
         Context setup(DebugSessionObserverImpl debugSessionObserver, BreakPointDTO[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
             String sourceFilePath = "samples/debug/testDebug.bal";
-            Path path;
 
-            try {
-                path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("error while running test: " + e.getMessage());
-            }
-
-            programFile = BLangCompiler.compile(path, Paths.get(sourceFilePath));
-
+            programFile = BTestUtils.getProgramFile(sourceFilePath);
 
             bContext = new Context(programFile);
             bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
