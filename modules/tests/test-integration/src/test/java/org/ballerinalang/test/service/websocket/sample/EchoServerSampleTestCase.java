@@ -1,9 +1,14 @@
 package org.ballerinalang.test.service.websocket.sample;
 
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.WebSocketClient;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import javax.net.ssl.SSLException;
 
@@ -16,6 +21,16 @@ public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
     private final int threadSleepTime = 100;
     private final int clientCount = 10;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
+    private ServerInstance ballerinaServer;
+
+    @BeforeClass
+    private void setup() throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
+        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+        String balFile = serviceSampleDir + File.separator + "websocket" + File.separator + "echoServer"
+                + File.separator + "server" + File.separator + "websocketEchoServer.bal";
+        ballerinaServer.startBallerinaServer(balFile);
+    }
 
     {
         for (int i = 0; i < clientCount; i++) {
@@ -44,5 +59,10 @@ public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
         Thread.sleep(threadSleepTime);
         Assert.assertFalse(wsClients[0].isOpen());
         shutDownAllClients(wsClients);
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        ballerinaServer.stopServer();
     }
 }

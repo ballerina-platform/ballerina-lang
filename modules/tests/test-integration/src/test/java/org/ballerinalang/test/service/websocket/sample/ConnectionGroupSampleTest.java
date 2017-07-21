@@ -1,10 +1,15 @@
 package org.ballerinalang.test.service.websocket.sample;
 
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.websocket.WebSocketClient;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -19,6 +24,16 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
     private final int threadSleepTime = 500;
     private final int clientCount = 10;
     private final WebSocketClient[] clients = new WebSocketClient[clientCount];
+    private ServerInstance ballerinaServer;
+
+    @BeforeClass
+    private void setup() throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
+        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+        String balFile = serviceSampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample"
+                + File.separator + "oddEvenWebSocketSample.balx";
+        ballerinaServer.startBallerinaServer(balFile);
+    }
 
     {
         for (int i = 0; i < clientCount; i++) {
@@ -46,8 +61,8 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         String evenString = "hi even";
         String oddString = "hi odd";
         Map<String, String> headers = new HashMap<>();
-        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/even"), evenString, headers);
-        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/odd"), oddString, headers);
+        HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/even"), evenString, headers);
+        HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/odd"), oddString, headers);
         Thread.sleep(threadSleepTime);
         for (int i = 0; i < clientCount; i++) {
             if (i % 2 == 0) {
@@ -64,7 +79,7 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         clients[0].sendText("removeMe");
         Map<String, String> headers = new HashMap<>();
         String oddString = "hi even 0 removed";
-        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/odd"), oddString, headers);
+        HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/odd"), oddString, headers);
         Thread.sleep(threadSleepTime);
         Assert.assertEquals(clients[0].getTextReceived(), null);
         for (int i = 1; i < clientCount; i++) {
@@ -78,13 +93,13 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
 
     @Test(priority = 3)
     public void testRemoveGroup() throws InterruptedException, IOException {
-        HttpClientRequest.doGet(getServiceURLHttp("groupInfo/rm-odd"));
+        HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("groupInfo/rm-odd"));
 
         String evenString = "hi even";
         String oddString = "hi odd";
         Map<String, String> headers = new HashMap<>();
-        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/even"), evenString, headers);
-        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/odd"), oddString, headers);
+        HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/even"), evenString, headers);
+        HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/odd"), oddString, headers);
 
         Thread.sleep(threadSleepTime);
 
@@ -101,7 +116,7 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
 
     @Test(priority = 4)
     public void testCloseGroup() throws InterruptedException, IOException {
-        HttpClientRequest.doGet(getServiceURLHttp("groupInfo/close-even"));
+        HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("groupInfo/close-even"));
         Thread.sleep(threadSleepTime);
         for (int i = 1; i < clientCount; i++) {
             if (i % 2 == 0) {
@@ -113,4 +128,8 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         shutDownAllClients(clients);
     }
 
+    @AfterClass
+    private void cleanup() throws Exception {
+        ballerinaServer.stopServer();
+    }
 }

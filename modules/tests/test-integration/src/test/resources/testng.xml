@@ -29,8 +29,11 @@
             <!--<package name="org.ballerinalang.test.service.websocket.sample"/>-->
         <!--</packages>-->
         <classes>
-            <class name="org.ballerinalang.test.service.http.sample.HelloWorldSampleTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.http.sample.HelloWorldSampleTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>-->
+            <class name="org.ballerinalang.test.service.websocket.sample.EchoServerSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.ConnectionGroupSampleTest"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.ConnectionStoreSampleTest"/>
         </classes>
     </test>
 </suite>
