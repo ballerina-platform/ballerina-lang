@@ -64,6 +64,7 @@ ABORTED         : 'aborted';
 COMMITTED       : 'committed';
 LENGTHOF        : 'lengthof' ;
 TYPEOF          : 'typeof' ;
+WITH            : 'with' ;
 
 // Separators
 

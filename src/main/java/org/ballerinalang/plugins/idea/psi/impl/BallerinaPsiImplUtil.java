@@ -1481,4 +1481,32 @@ public class BallerinaPsiImplUtil {
         }
         return false;
     }
+
+    @Nullable
+    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement definitionNode) {
+        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return null;
+        }
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(typeNameNode, NameReferenceNode.class);
+        if (nameReferenceNode == null) {
+            return null;
+        }
+        PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return null;
+        }
+        PsiReference typeNameNodeReference = nameIdentifier.getReference();
+        if (typeNameNodeReference == null) {
+            return null;
+        }
+        PsiElement resolvedDefElement = typeNameNodeReference.resolve();
+        if (resolvedDefElement == null) {
+            return null;
+        }
+        if (!(resolvedDefElement.getParent() instanceof ConnectorDefinitionNode)) {
+            return null;
+        }
+        return ((ConnectorDefinitionNode) resolvedDefElement.getParent());
+    }
 }

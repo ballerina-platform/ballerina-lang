@@ -158,6 +158,7 @@ public class BallerinaTypes {
     public static final TokenIElementType VAR = tokenIElementTypes.get(BallerinaLexer.VAR);
     public static final TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);
     public static final TokenIElementType WORKER = tokenIElementTypes.get(BallerinaLexer.WORKER);
+    public static final TokenIElementType WITH = tokenIElementTypes.get(BallerinaLexer.WITH);
     public static final TokenIElementType XMLNS = tokenIElementTypes.get(BallerinaLexer.XMLNS);
     public static final TokenIElementType XML = tokenIElementTypes.get(BallerinaLexer.TYPE_XML);
 

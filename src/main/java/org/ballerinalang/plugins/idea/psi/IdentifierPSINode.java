@@ -174,6 +174,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                         return checkDefinitionAndSuggestReference(((VariableDefinitionNode)
                                                 definitionNode));
                                     } else if (definitionNode instanceof CodeBlockParameterNode) {
+                                        ConnectorDefinitionNode connectorNode =
+                                                BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode
+                                                        (definitionNode);
+                                        if (connectorNode != null) {
+                                            return new ActionInvocationReference(this);
+                                        }
                                         return new FieldReference(this);
                                     }
                                 }
@@ -229,6 +235,13 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if (structDefinitionNode != null) {
             return new FieldReference(this);
         }
+
+        ConnectorDefinitionNode connectorNode =
+                BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinitionNode);
+        if (connectorNode != null) {
+            return new ActionInvocationReference(this);
+        }
+
         return new VariableReference(this);
     }
 

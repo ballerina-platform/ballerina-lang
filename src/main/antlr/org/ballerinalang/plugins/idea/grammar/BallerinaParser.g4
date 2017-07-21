@@ -77,7 +77,7 @@ lambdaFunction
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
+    :   CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
     ;
 
 connectorBody
@@ -277,7 +277,15 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+    ;
+
+filterInitExpression
+    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+filterInitExpressionList
+    : filterInitExpression (COMMA filterInitExpression)*
     ;
 
 assignmentStatement
