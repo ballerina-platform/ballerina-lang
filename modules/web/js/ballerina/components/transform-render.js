@@ -272,13 +272,13 @@ class TransformRender {
             + this.sourceTargetSeperator + connection.targetId;
             const typeMappers = this.getExistingTypeMappers(this.typeConverterView, sourceType, targetType);
             $.each(typeMappers, (i, item) => {
-                $(typeMapperId).append($('<option>', {
+                this.container.find(typeMapperId).append($('<option>', {
                     value: item,
                     text: item,
                 }));
             });
-            $(typeMapperId).attr('id', updatedTypeMapperId);
-            $('#' + updatedTypeMapperId).change(() => {
+            this.container.find(typeMapperId).attr('id', updatedTypeMapperId);
+            this.container.find('#' + updatedTypeMapperId).change(() => {
                 self.onChangeTypeMapper(updatedTypeMapperId);
             });
         } else {
@@ -320,7 +320,7 @@ class TransformRender {
         const connection = this.getConnectionObject(id, sourceId, targetId);
         this.disconnectCallback(connection);
         connection.isComplexMapping = true;
-        connection.complexMapperName = $('#' + listId + ' option:selected').val();
+        connection.complexMapperName = this.container.find('#' + listId + ' option:selected').val();
         this.connectCallback(connection);
     }
 
@@ -330,15 +330,15 @@ class TransformRender {
  */
     removeType(name) {
         const typeId = name + this.viewIdSeperator + this.viewId;
-        if ($('#' + typeId).attr('class') != null) {
+        if (this.container.find('#' + typeId).attr('class') != null) {
             let typeConns;
             let lookupClass = 'property';
 
-            if ($('#' + typeId).attr('class').includes('struct')) {
+            if (this.container.find('#' + typeId).attr('class').includes('struct')) {
                 lookupClass = 'jstree-anchor';
                 typeConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + typeId + '"]')
                 .find('.' + lookupClass);
-            } else if ($('#' + typeId).attr('class').includes('variable')) {
+            } else if (this.container.find('#' + typeId).attr('class').includes('variable')) {
                 lookupClass = 'variable-content';
                 typeConns = $('div[id^="' + typeId + '"]').find('.' + lookupClass);
             } else {
@@ -352,7 +352,7 @@ class TransformRender {
                     self.jsPlumbInstance.remove(structCon.id);
                 }
             });
-            $('#' + typeId).remove();
+            this.container.find('#' + typeId).remove();
             this.reposition(this);
         }
     }
@@ -468,12 +468,12 @@ class TransformRender {
         $.jstree.plugins.noclose = function () {
             this.close_node = $.noop;
         };
-        $('#' + jsTreeId).jstree({ plugins: ['noclose'] }).on('ready.jstree', () => {
-            const sourceElements = $('#' + structId).find('.jstree-anchor');
+        this.container.find('#' + jsTreeId).jstree({ plugins: ['noclose'] }).on('ready.jstree', () => {
+            const sourceElements = this.container.find('#' + structId).find('.jstree-anchor');
             _.forEach(sourceElements, (element) => {
                 createCallback(element, self);
             });
-            $('#' + jsTreeId).jstree('open_all');
+            this.container.find('#' + jsTreeId).jstree('open_all');
             self.existingJsTrees.push(structId);
             self.reposition(self);
             _.forEach(self.connectionPool, (conPoolObj) => {
@@ -503,7 +503,7 @@ class TransformRender {
         }).on('after_open.jstree', (event, data) => {
             self.reposition(self);
             const parentId = data.node.id;
-            const sourceElements = $('#' + parentId).find('.jstree-anchor');
+            const sourceElements = this.container.find('#' + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, (element) => {
                 createCallback(element, self);
             });
@@ -517,7 +517,7 @@ class TransformRender {
     }
 
     repaintAll(jsTreeId) {
-        const children = $('#' + jsTreeId).jstree().get_node('#').children_d;
+        const children = this.container.find('#' + jsTreeId).jstree().get_node('#').children_d;
         _.forEach(children, (child) => {
             self.jsPlumbInstance.repaint(child.id + '_anchor');
         });
@@ -533,10 +533,10 @@ class TransformRender {
         const self = this;
         _.forEach(struct.properties, (property) => {
             if (property.innerType != null && property.innerType.properties.length > 0) {
-                const complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type);
+                const complexStructEl = self.makeProperty(this.container.find('#' + parentId), property.name, property.type);
                 self.addComplexProperty(complexStructEl.attr('id'), property.innerType);
             } else {
-                self.makeProperty($('#' + parentId), property.name, property.type);
+                self.makeProperty(this.container.find('#' + parentId), property.name, property.type);
             }
         });
     }
@@ -551,10 +551,10 @@ addComplexParameter(parentId, struct) {
     const self = this;
     _.forEach(struct.getParameters(), (property) => {
         if (property.innerType != null && property.innerType.properties.length > 0) {
-        const complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type, true);
+        const complexStructEl = self.makeProperty(this.container.find('#' + parentId), property.name, property.type, true);
         self.addComplexProperty(complexStructEl.attr('id'), property.innerType);
     } else {
-        self.makeProperty($('#' + parentId), property.name, property.type, true);
+        self.makeProperty(this.container.find('#' + parentId), property.name, property.type, true);
     }
 });
 }
@@ -610,7 +610,6 @@ addComplexParameter(parentId, struct) {
         this.container.find('.' + subPlaceHolder).append(newStruct);
         this.onRemove(struct.id, struct, removeCallback, struct.name);
     }
-
 
     addVariable(variable, type, removeCallback) {
         const id = variable.name + this.viewIdSeperator + this.viewId;
@@ -669,7 +668,7 @@ addComplexParameter(parentId, struct) {
                    functionInvocationModelId;
 
         const id = func.name + this.viewIdSeperator + this.viewId;
-        if ($('#' + id).length === 0) {
+        if (this.container.find('#' + id).length === 0) {
             this.references.push({ name: id, refObj: reference });
             const newFunc = $('<div>').attr('id', id).addClass('func');
             const self = this;
@@ -695,7 +694,7 @@ addComplexParameter(parentId, struct) {
             this.processJSTree(jsTreeIdIn, jsTreeIdIn, this.addTarget);
 
             _.forEach(func.getReturnParams(), (parameter) => {
-                const property =  self.makeProperty($('#' + jsTreeIdOut), parameter.name, parameter.type);
+                const property =  self.makeProperty(this.container.find('#' + jsTreeIdOut), parameter.name, parameter.type);
             });
             this.processJSTree(jsTreeIdOut, jsTreeIdOut, this.addSource);
 
@@ -719,7 +718,7 @@ addComplexParameter(parentId, struct) {
         property.append(propertyName);
         property.append(seperator);
         property.append(propertyType);
-        $(parentId).append(property);
+        this.container.find(parentId).append(property);
         return property;
     }
 
@@ -735,7 +734,7 @@ addComplexParameter(parentId, struct) {
         const ul = $('<ul class="property">');
         const li = $('<li class="property">').attr('id', id).text(name + ' : ' + type);
         ul.append(li);
-        $(parentId).append(ul);
+        this.container.find(parentId).append(ul);
         return li;
     }
 
@@ -771,8 +770,8 @@ addComplexParameter(parentId, struct) {
  * @returns {boolean} has a connection or not
  */
     hasFunction(connection, self) {
-        return $('#' + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes('func')
-        || $('#' + connection.targetStruct + self.viewIdSeperator + self.viewId).attr('class').includes('func');
+        return this.container.find('#' + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes('func')
+        || this.container.find('#' + connection.targetStruct + self.viewIdSeperator + self.viewId).attr('class').includes('func');
     }
 
 /**
@@ -804,7 +803,7 @@ addComplexParameter(parentId, struct) {
 
     disableParentsJsTree(connectionId, self) {
         const sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
-        const sourceJsTree = $('#' + sourceJsTreeId).jstree(true);
+        const sourceJsTree = this.container.find('#' + sourceJsTreeId).jstree(true);
         const node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
         _.forEach(node.parents, (parentNodeId) => {
             if (parentNodeId !== '#') {
@@ -816,7 +815,7 @@ addComplexParameter(parentId, struct) {
 
     enableParentsJsTree(connectionId, self, connections, isSource) {
         const sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
-        const sourceJsTree = $('#' + sourceJsTreeId).jstree(true);
+        const sourceJsTree = this.container.find('#' + sourceJsTreeId).jstree(true);
         const node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
         _.forEach(node.parents, (parentNodeId) => {
             if (parentNodeId !== '#' && !self.isChildConnectionExists(sourceJsTree, self, connections, isSource)) {
@@ -980,23 +979,23 @@ addComplexParameter(parentId, struct) {
         // Traverse through all the function divs
         _.forEach(funcs, (func) => {
             // Position functions and increase yFunctionPointer with gaps
-            $('#' + func.id).css('left', xFunctionPointer + 'px');
-            $('#' + func.id).css('top', yFunctionPointer + 'px');
-            yFunctionPointer += $('#' + func.id).height() + functionGap;
+            this.container.find('#' + func.id).css('left', xFunctionPointer + 'px');
+            this.container.find('#' + func.id).css('top', yFunctionPointer + 'px');
+            yFunctionPointer += this.container.find('#' + func.id).height() + functionGap;
         });
 
         _.forEach(sourceStructs, (structType) => {
             // Position functions and increase yFunctionPointer with gaps
-            $('#' + structType.id).css('left', xSourcePointer + 'px');
-            $('#' + structType.id).css('top', ySourcePointer + 'px');
-            ySourcePointer += $('#' + structType.id).height() + functionGap;
+            this.container.find('#' + structType.id).css('left', xSourcePointer + 'px');
+            this.container.find('#' + structType.id).css('top', ySourcePointer + 'px');
+            ySourcePointer += this.container.find('#' + structType.id).height() + functionGap;
         });
 
         _.forEach(targetStructs, (structType) => {
             // Position functions and increase yFunctionPointer with gaps
-            $('#' + structType.id).css('left', xTargetPointer + 'px');
-            $('#' + structType.id).css('top', yTargetPointer + 'px');
-            yTargetPointer += $('#' + structType.id).height() + functionGap;
+            this.container.find('#' + structType.id).css('left', xTargetPointer + 'px');
+            this.container.find('#' + structType.id).css('top', yTargetPointer + 'px');
+            yTargetPointer += this.container.find('#' + structType.id).height() + functionGap;
         });
         self.jsPlumbInstance.repaintEverything();
     }
