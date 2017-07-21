@@ -39,6 +39,7 @@ class LaunchManager extends EventChannel {
         this.active = false;
         this.tryItUrl = undefined;
         this.console = Console;
+        this.debugFile = null;
     }
     /**
      *
@@ -127,6 +128,7 @@ class LaunchManager extends EventChannel {
             commandArgs: this.getApplicationConfigs(file),
         };
         this.channel.sendMessage(message);
+        this.debugFile = file;
     }
     /**
      * Send message to debugging ballerina service
@@ -140,6 +142,7 @@ class LaunchManager extends EventChannel {
             fileName: file.getName(),
             filePath: file.getPath(),
         };
+        this.debugFile = file;
         this.channel.sendMessage(message);
     }
     /**
