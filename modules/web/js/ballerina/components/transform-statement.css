@@ -409,7 +409,7 @@ svg.plumbConnect path {
 }
 
 .transform-button:hover{
-    fill:ghg;
+    fill:green;
     cursor: pointer;
 }
 .function-header-label{
