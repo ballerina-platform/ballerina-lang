@@ -114,9 +114,13 @@ public class SwaggerServiceMapper {
                     List<Scheme> schemes = new LinkedList<>();
                     for (AnnotationAttributeValue schemeValue : swaggerConfigAnnotation.get()
                             .getAttribute("schemes").getValueArray()) {
-                        schemes.add(Scheme.forValue(schemeValue.getLiteralValue().stringValue()));
+                        if (null != Scheme.forValue(schemeValue.getLiteralValue().stringValue())) {
+                            schemes.add(Scheme.forValue(schemeValue.getLiteralValue().stringValue()));
+                        }
                     }
-                    swagger.setSchemes(schemes);
+                    if (schemes.size() > 0) {
+                        swagger.setSchemes(schemes);
+                    }
                 }
             }
             this.createSecurityDefinitionsModel(swaggerConfigAnnotation.get().getAttributeNameValuePairs()
