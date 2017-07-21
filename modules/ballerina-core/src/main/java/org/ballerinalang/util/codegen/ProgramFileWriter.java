@@ -18,8 +18,15 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.TypeSignature;
-import org.ballerinalang.util.codegen.attributes.*;
+import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind;
+import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
