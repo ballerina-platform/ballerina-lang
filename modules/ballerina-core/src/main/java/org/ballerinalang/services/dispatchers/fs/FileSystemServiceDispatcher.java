@@ -20,7 +20,7 @@ package org.ballerinalang.services.dispatchers.fs;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -30,6 +30,8 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.HashMap;
 import java.util.Map;
+
+//import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
 
 /**
  * Service dispatcher for File System Server Connector.
@@ -66,7 +68,7 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        AnnotationAttachmentInfo configInfo =
+        AnnAttachmentInfo configInfo =
                 service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME, Constants.ANNOTATION_CONFIG);
 
         if (configInfo != null) {
@@ -107,7 +109,7 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         }
     }
 
-    private Map<String, String> getServerConnectorParamMap(AnnotationAttachmentInfo info) {
+    private Map<String, String> getServerConnectorParamMap(AnnAttachmentInfo info) {
         Map<String, String> params = new HashMap<>();
 
         addAnnotationAttributeValue(info, Constants.ANNOTATION_DIR_URI, params);
@@ -133,11 +135,11 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         return params;
     }
 
-    private void addAnnotationAttributeValue(AnnotationAttachmentInfo info, String attribute,
+    private void addAnnotationAttributeValue(AnnAttachmentInfo info, String attribute,
                                              Map<String, String> params) {
-        if (info.getAnnotationAttributeValue(attribute) != null &&
-                !info.getAnnotationAttributeValue(attribute).getStringValue().trim().isEmpty()) {
-            params.put(attribute, info.getAnnotationAttributeValue(attribute).getStringValue());
+        if (info.getAttributeValue(attribute) != null &&
+                !info.getAttributeValue(attribute).getStringValue().trim().isEmpty()) {
+            params.put(attribute, info.getAttributeValue(attribute).getStringValue());
         }
     }
 }
