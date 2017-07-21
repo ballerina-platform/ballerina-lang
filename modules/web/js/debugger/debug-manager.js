@@ -74,7 +74,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stop() {
-        const message = { command: 'STOP' };
+        const message = { command: 'STOP', threadId: this.currentThreadId };
         if (this.launchManager.active) {
             this.launchManager.stopProgram();
             this.trigger('resume-execution');
@@ -92,7 +92,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stepOver() {
-        const message = { command: 'STEP_OVER' };
+        const message = { command: 'STEP_OVER', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -102,7 +102,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     resume() {
-        const message = { command: 'RESUME' };
+        const message = { command: 'RESUME', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
