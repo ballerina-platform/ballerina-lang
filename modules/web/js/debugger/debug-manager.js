@@ -124,6 +124,23 @@ class DebugManager extends EventChannel {
     processMesssage(message) {
         if (message.code === 'DEBUG_HIT') {
             this.active = true;
+            const { debugFile } = this.launchManager;
+            // open file if not file is open already
+            if (this.launchManager.debugFile) {
+                const debugStartedFilePath = debugFile.getPath();
+                let packagePath = debugFile.getPackageName() || '';
+
+                if (packagePath.length > 0) {
+                    packagePath = packagePath.replace(/\./g, '/');
+                    const programDir = debugStartedFilePath.split(`/${packagePath}`)[0];
+                    const filePath = `${programDir}/${message.location.fileName}`;
+                    this.application.commandManager.dispatch('open-file', filePath);
+                    const { tabController } = this.application;
+                    this.listenTo(tabController, 'active-tab-changed', () => {
+                        this.trigger('debug-hit', message);
+                    });
+                }
+            }
             this.trigger('debug-hit', message);
             this.currentThreadId = message.threadId;
         }
@@ -166,6 +183,7 @@ class DebugManager extends EventChannel {
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
+        this.application = options.application;
         this.launchManager.on('debug-active', (url) => {
             this.startDebugger(url);
         });
