@@ -1,6 +1,6 @@
 # To run the program, put the code in `websocket-basic-functions.bal`
 # and use `ballerina run service websocket-basic-functions.bal` command.
-$ ballerina run service websocket-basic-functions.bal
+$ ballerina run websocket-basic-functions.bal
 
 # To check the sample,use Chrome or Firefox javascript console and run the below commands <br>
 $ var ws = new WebSocket("ws://localhost:9090/functions/ws");
