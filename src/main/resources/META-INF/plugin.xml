@@ -178,6 +178,9 @@
         <!--documentation-->
         <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
+        <!--language injection-->
+        <languageInjector implementation="org.ballerinalang.plugins.idea.psi.injector.XmlLanguageInjector"/>
+
         <!--inspections-->
         <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
                          enabledByDefault="true" level="WARNING"
