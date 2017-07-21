@@ -2107,9 +2107,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     private String generateTypeSting(SimpleTypeName typename) {
-        StringBuilder sb = new StringBuilder();
-        generateTypeSting(typename, sb);
-        return sb.toString();
+        if (typename instanceof FunctionTypeName) {
+            StringBuilder sb = new StringBuilder();
+            generateTypeSting(typename, sb);
+            return sb.toString();
+        } else {
+            return typename.getName();
+        }
     }
 
     private void generateTypeSting(SimpleTypeName typename, StringBuilder sb) {
@@ -2135,7 +2139,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 sb.append(typename.getPackageName());
                 sb.append(":");
             }
-            sb.append(typename.getSymbolName());
+            sb.append(typename.getName());
         }
     }
 
