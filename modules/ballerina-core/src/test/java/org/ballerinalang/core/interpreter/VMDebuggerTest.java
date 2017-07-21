@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.codegen.ProgramFileWriter;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
@@ -40,6 +42,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -219,8 +222,24 @@ public class VMDebuggerTest {
                 throw new IllegalArgumentException("error while running test: " + e.getMessage());
             }
 
-            programFile = BLangCompiler.compile(path, Paths.get(sourceFilePath));
+            ProgramFile programFileToWrite = BLangCompiler.compile(path, Paths.get(sourceFilePath));
 
+            Path targetPath;
+            Path sourcePath = path.resolve(sourceFilePath);
+            if (sourcePath.endsWith(".bal")) {
+                String sourcePathStr = sourcePath.toString();
+                targetPath = Paths.get(sourcePathStr.substring(0, sourcePathStr.length() - 4) + ".balx");
+            } else {
+                targetPath = Paths.get(sourcePath.getName(sourcePath.getNameCount() - 1).toString() + ".balx");
+            }
+
+            try {
+                ProgramFileWriter.writeProgram(programFileToWrite, targetPath);
+                ProgramFileReader reader = new ProgramFileReader();
+                programFile = reader.readProgram(targetPath);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("error while running test: " + e.getMessage());
+            }
 
             bContext = new Context(programFile);
             bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());

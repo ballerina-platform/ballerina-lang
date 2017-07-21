@@ -39,7 +39,8 @@ public interface AttributeInfo {
         PARAMETER_ANNOTATIONS_ATTRIBUTE("ParameterAnnotations"),
         LOCAL_VARIABLES_ATTRIBUTE("LocalVariables"),
         VARIABLE_TYPE_COUNT_ATTRIBUTE("VariableTypeCount"),
-        ERROR_TABLE("ErrorTable");
+        ERROR_TABLE("ErrorTable"),
+        LINE_NUMBER_TABLE_ATTRIBUTE("LineNumberTable");
 
         private String name;
 

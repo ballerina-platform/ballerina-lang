@@ -17,51 +17,42 @@
 */
 package org.ballerinalang.util.codegen.attributes;
 
-import org.ballerinalang.util.codegen.LocalVariableInfo;
+import org.ballerinalang.util.codegen.LineNumberInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code LocalVariableAttributeInfo} contains common metadata of parameters
- * of a Ballerina function/resource/action in the program file.
+ * {@code LineNumberTableAttributeInfo} contains metadata of Ballerina line number info.
  *
- * @since 0.88
+ * @since 0.90
  */
-public class LocalVariableAttributeInfo implements AttributeInfo {
+public class LineNumberTableAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
 
-    protected List<LocalVariableInfo> localVariables = new ArrayList<>();
+    private List<LineNumberInfo> lineNumberInfos = new ArrayList<>();
 
-    public LocalVariableAttributeInfo(int attributeNameIndex) {
+    public LineNumberTableAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;
     }
 
-    public List<LocalVariableInfo> getLocalVariables() {
-        return localVariables;
+    public void addLineNumberInfo(LineNumberInfo lineNumberInfo) {
+        lineNumberInfos.add(lineNumberInfo);
     }
 
-    public LocalVariableInfo[] getLocalVariableInfoEntries() {
-        return localVariables.toArray(new LocalVariableInfo[0]);
+    public LineNumberInfo[] getLineNumberInfoEntries() {
+        return lineNumberInfos.toArray(new LineNumberInfo[0]);
     }
 
-    public void setLocalVariables(List<LocalVariableInfo> localVariables) {
-        this.localVariables = localVariables;
-    }
-
-    public void addLocalVarInfo(LocalVariableInfo localVariableInfo) {
-        this.localVariables.add(localVariableInfo);
-    }
-
-    public LocalVariableInfo getLocalVariableDetails(int index) {
-        return this.localVariables.get(index);
+    public List<LineNumberInfo> getLineNumberInfoList() {
+        return lineNumberInfos;
     }
 
     @Override
     public Kind getKind() {
-        return Kind.LOCAL_VARIABLES_ATTRIBUTE;
+        return Kind.LINE_NUMBER_TABLE_ATTRIBUTE;
     }
 
     @Override
