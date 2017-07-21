@@ -49,9 +49,11 @@ public class ProgramDirRepository extends PackageRepository {
             return pkgSource;
         }
 
-        pkgSource = userRepo.loadPackage(packageDirPath);
-        if (pkgSource != null) {
-            return pkgSource;
+        if (userRepo != null) {
+            pkgSource = userRepo.loadPackage(packageDirPath);
+            if (pkgSource != null) {
+                return pkgSource;
+            }
         }
 
         return loadPackageFromDirectory(packageDirPath, sourceRootPath);
