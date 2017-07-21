@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 
 /**
- * A custom file handler for handling the error log
+ * A custom file handler for handling the error log.
  *
  * @since 0.89
  */
