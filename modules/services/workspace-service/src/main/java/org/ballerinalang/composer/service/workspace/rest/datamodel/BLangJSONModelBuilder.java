@@ -669,9 +669,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName());
 
         SimpleTypeName typeName = parameterDef.getTypeName();
-        String parameterName = ((typeName.getPackageName() != null) ?
-                (typeName.getPackageName() + ":") : "") + typeName.getSymbolName()
-                .getName();
 
         if (typeName instanceof ConstraintTypeName) {
             SimpleTypeName constraint = ((ConstraintTypeName) typeName).getConstraint();
@@ -683,7 +680,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             paramObj.add(BLangJSONModelConstants.TYPE_CONSTRAINT, constraintObj);
         }
 
-        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterName);
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, typeName.getSymbolName().getName());
+        paramObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, typeName.getPackageName());
         this.addPosition(paramObj, parameterDef.getNodeLocation());
         this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());

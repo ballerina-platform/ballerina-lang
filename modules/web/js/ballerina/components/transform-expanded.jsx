@@ -802,6 +802,7 @@ class TransformExpanded extends React.Component {
                     id: argument.getID(),
                     type: argument.getTypeName(),
                     name: argument.getName(),
+                    pkgName: argument.getPkgName(),
                     constraint: argument.getTypeConstraint(),
                 };
                 argArray.push(arg);
