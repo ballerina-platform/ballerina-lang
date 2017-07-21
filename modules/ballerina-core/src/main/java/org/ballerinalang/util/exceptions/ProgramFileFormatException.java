@@ -18,17 +18,17 @@
 package org.ballerinalang.util.exceptions;
 
 /**
- * {@code BallerinaRuntimeException} represents an error happened in the Ballerina runtime.
+ * This exception is thrown when the Ballerina program file is malformed.
  *
- * @since 0.8.0
+ * @since 0.90
  */
-public class BLangRuntimeException extends RuntimeException {
+public class ProgramFileFormatException extends RuntimeException {
 
-    public BLangRuntimeException(String message) {
+    public ProgramFileFormatException(String message) {
         super(message);
     }
 
-    public BLangRuntimeException(String message, Throwable cause) {
+    public ProgramFileFormatException(String message, Throwable cause) {
         super(message, cause);
     }
 }

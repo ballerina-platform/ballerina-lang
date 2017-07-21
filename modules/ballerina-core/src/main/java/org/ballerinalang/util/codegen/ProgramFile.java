@@ -33,6 +33,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
+import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
+
 /**
  * {@code ProgramFile} is the runtime representation of a compiled Ballerina program.
  *
@@ -43,9 +46,9 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     public static final int EP_MAIN_FLAG = 1;
     public static final int EP_SERVICE_FLAG = 2;
 
-    // TODO Finalize the magic value;
-    private int magicValue = 0xBA1DA4CE;
-    private short version = (short) 11;
+    private int magicValue = MAGIC_NUMBER;
+    // TODO Finalize the version number;
+    private short version = VERSION_NUMBER;
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
@@ -63,7 +66,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private StructureType globalMemoryBlock;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-
 
     public int getMagicValue() {
         return magicValue;
