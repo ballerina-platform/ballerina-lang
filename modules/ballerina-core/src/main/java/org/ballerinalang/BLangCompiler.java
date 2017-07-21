@@ -31,7 +31,7 @@ import org.ballerinalang.util.codegen.ProgramFileWriter;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
+import org.ballerinalang.util.repository.ProgramDirRepository;
 import org.ballerinalang.util.semantics.SemanticAnalyzer;
 
 import java.io.IOException;
@@ -53,7 +53,8 @@ public class BLangCompiler {
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
         NativeScope nativeScope = BLangPrograms.populateNativeScope();
 
-        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
+        // Create program repository
+        ProgramDirRepository programDirRepo = BLangPrograms.initProgramDirRepository(sourceRootPath);
 
         // Creates program scope for this Ballerina program
         BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope);
@@ -61,7 +62,7 @@ public class BLangCompiler {
 
         // Load entry package
         BLangPackage entryPackage = BLangPackages.loadEntryPackage(sourceRootPath,
-                packagePath, bLangProgram, builtinPkgRepositories);
+                packagePath, bLangProgram, programDirRepo);
         bLangProgram.setEntryPackage(entryPackage);
         bLangProgram.define(new SymbolName(entryPackage.getPackagePath()), entryPackage);
 

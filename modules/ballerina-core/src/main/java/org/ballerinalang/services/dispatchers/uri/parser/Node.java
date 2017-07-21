@@ -144,13 +144,10 @@ public abstract class Node {
             this.resource.add(newResource);
             isFirstTraverse = false;
         } else {
-            for (ResourceInfo previousResource : this.resource) {
-                for (String methods : this.httpMethods) {
-                    if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
-                        if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
-                            throw new BallerinaException("Seems two resources have the same addressable URI");
-                        }
-                    }
+            for (ResourceInfo previousResource: this.resource) {
+                boolean prevResourceHasMethod = validateMethodsOfSameURIResources(previousResource, newResource);
+                if (!prevResourceHasMethod) {
+                    validateMethodOfNewResource(newResource);
                 }
             }
             this.resource.add(newResource);
