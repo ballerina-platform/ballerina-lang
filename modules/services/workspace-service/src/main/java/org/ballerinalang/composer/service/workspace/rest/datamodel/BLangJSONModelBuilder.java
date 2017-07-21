@@ -45,8 +45,8 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SimpleVariableDef;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
@@ -1576,37 +1576,37 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(nullLiteralObj, nullLiteral.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(nullLiteralObj);
     }
-    
+
     @Override
     public void visit(XMLLiteral xmlLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLElementLiteral xmlElementLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLCommentLiteral xmlCommentLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLTextLiteral xmlTextLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLPILiteral xmlpiLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(LambdaExpression lambdaExpr) {
         JsonObject lambdaExprObj = new JsonObject();
