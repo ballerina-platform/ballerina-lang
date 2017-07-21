@@ -23,14 +23,11 @@
     </listeners>
 
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.http.sample"/>-->
+        <packages>
+            <package name="org.ballerinalang.test.service.http.sample"/>
+            <!--TODO fix jms test cases-->
             <!--<package name="org.ballerinalang.test.service.jms.sample" />-->
             <!--<package name="org.ballerinalang.test.service.websocket.sample"/>-->
-        <!--</packages>-->
-        <classes>
-            <class name="org.ballerinalang.test.service.http.sample.HelloWorldSampleTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
-        </classes>
+        </packages>
     </test>
 </suite>
