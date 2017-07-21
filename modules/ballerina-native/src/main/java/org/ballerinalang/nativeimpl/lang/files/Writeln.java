@@ -54,11 +54,8 @@ public class Writeln extends AbstractNativeFunction {
                 throw new BallerinaException("file is not opened in write or append mode:"
                         + destination.getStringField(0));
             }
-
             outputStream.write(content);
             outputStream.write(newLine);
-
-
             outputStream.flush();
 
         } catch (Throwable e) {
