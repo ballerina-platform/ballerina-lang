@@ -1308,17 +1308,17 @@ public class BLangVM {
                     j = operands[1];
 
                     BValue value = sf.refRegs[i];
-                    
+
                     if (value == null) {
                         handleNullRefError();
                         break;
                     }
-                    
+
                     if (value.getType().getTag() == TypeTags.JSON_TAG) {
                         sf.longRegs[j] = ((BJSON) value).value().size();
                         break;
                     }
-                    
+
                     sf.longRegs[j] = ((BNewArray) value).size();
                     break;
                 case InstructionCodes.FNEWARRAY:
@@ -2622,7 +2622,7 @@ public class BLangVM {
 
     private boolean checkCast(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue.getType();
-        
+
         if (sourceType.equals(targetType)) {
             return true;
         }
@@ -2635,12 +2635,12 @@ public class BLangVM {
         if (targetType.getTag() == TypeTags.ANY_TAG) {
             return true;
         }
-        
+
         // Check JSON casting
         if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
             return JSONUtils.checkJSONCast(((BJSON) sourceValue).value(), targetType);
         }
-        
+
         // Array casting
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return checkArrayCast(sourceType, targetType);
@@ -2648,7 +2648,7 @@ public class BLangVM {
 
         return false;
     }
-    
+
     private boolean checkArrayCast(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -2664,15 +2664,15 @@ public class BLangVM {
 
         return sourceType.equals(targetType);
     }
-    
+
     private BType getElementType(BType type) {
         if (type.getTag() != TypeTags.ARRAY_TAG) {
             return type;
         }
-        
+
         return getElementType(((BArrayType) type).getElementType());
     }
-    
+
     public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
         // Struct Type equivalency
         BStructType.StructField[] sFields = sourceType.getStructFields();
@@ -2777,7 +2777,7 @@ public class BLangVM {
             handleError();
             return;
         }
-        
+
         if (jsonNode.isTextual()) {
             sf.stringRegs[j] = jsonNode.textValue();
             return;

@@ -668,14 +668,14 @@ public class JSONUtils {
                 return true;
         }
     }
-    
+
     /**
      * Convert a JSON node to an array.
      *
-     * @param jsonNode        JSON to convert
+     * @param jsonNode JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
-     * of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
+     *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
     private static BNewArray jsonNodeToBArray(JsonNode jsonNode, BArrayType targetArrayType) {
         if (!jsonNode.isArray()) {
