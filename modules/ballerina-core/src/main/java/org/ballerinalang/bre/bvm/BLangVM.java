@@ -52,6 +52,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
@@ -1007,6 +1008,47 @@ public class BLangVM {
                     j = operands[1];
                     sf.longRegs[j] = -sf.longRegs[i];
                     break;
+                case InstructionCodes.LENGTHOF:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    BNewArray newArray = (BNewArray) sf.refRegs[i];
+                    sf.longRegs[j] = newArray.size();
+                    break;
+                case InstructionCodes.LENGTHOFJSON:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
+                        sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+                    } else {
+                        sf.longRegs[j] = -1;
+                        break;
+                    }
+                    break;
+
+                case InstructionCodes.TYPELOAD:
+                    cpIndex = operands[0];
+                    j = operands[1];
+                    TypeRefCPEntry typeEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[j] = new BTypeValue(typeEntry.getType());
+                    break;
+                case InstructionCodes.TYPEOF:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    sf.refRegs[j] = new BTypeValue(sf.refRegs[i].getType());
+                    break;
+
                 case InstructionCodes.FNEG:
                     i = operands[0];
                     j = operands[1];
@@ -1048,6 +1090,15 @@ public class BLangVM {
                     k = operands[2];
                     sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                     break;
+                case InstructionCodes.TEQ:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                        handleNullRefError();
+                    }
+                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                    break;
 
                 case InstructionCodes.INE:
                     i = operands[0];
@@ -1078,6 +1129,15 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
                     sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.TNE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                        handleNullRefError();
+                    }
+                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                     break;
 
                 case InstructionCodes.IGT:

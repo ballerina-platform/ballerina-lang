@@ -1293,6 +1293,36 @@ public class CodeGenerator implements NodeVisitor {
             exprIndex = opcodeAndIndex.index;
             emit(opcode, rExpr.getTempOffset(), exprIndex);
 
+        } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
+            BType rType = unaryExpr.getRExpr().getType();
+            if (rType == BTypes.typeJSON) {
+                opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                        InstructionCodes.LENGTHOFJSON, regIndexes);
+            } else {
+                opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                        InstructionCodes.LENGTHOF, regIndexes);
+
+            }
+            opcode = opcodeAndIndex.opcode;
+            exprIndex = opcodeAndIndex.index;
+            emit(opcode, rExpr.getTempOffset(), exprIndex);
+
+        } else if (Operator.TYPEOF.equals(unaryExpr.getOperator())) {
+
+            if (rExpr.getType() == BTypes.typeAny) {
+                exprIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.TYPEOF, rExpr.getTempOffset(), exprIndex);
+            } else {
+                TypeSignature typeSig = rExpr.getType().getSig();
+                UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
+                int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
+                typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
+                int typeCPindex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+                exprIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.TYPELOAD, typeCPindex, exprIndex);
+            }
+
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
             opcode = InstructionCodes.BNOT;
             exprIndex = ++regIndexes[BOOL_OFFSET];
@@ -1414,15 +1444,25 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpr) {
-        emitBinaryCompareAndEqualityExpr(equalExpr, InstructionCodes.IEQ);
+        // Handle type equality as a special case.
+        if ((equalExpr.getRExpr().getType() == equalExpr.getLExpr().getType())
+                && equalExpr.getRExpr().getType() == BTypes.typeType) {
+            emitBinaryTypeEqualityExpr(equalExpr, InstructionCodes.TEQ);
+        } else {
+            emitBinaryCompareAndEqualityExpr(equalExpr, InstructionCodes.IEQ);
+        }
     }
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
-        emitBinaryCompareAndEqualityExpr(notEqualExpr, InstructionCodes.INE);
+        // Handle type not equality as a special case.
+        if ((notEqualExpr.getRExpr().getType() == notEqualExpr.getLExpr().getType())
+                && notEqualExpr.getRExpr().getType() == BTypes.typeType) {
+            emitBinaryTypeEqualityExpr(notEqualExpr, InstructionCodes.TNE);
+        } else {
+            emitBinaryCompareAndEqualityExpr(notEqualExpr, InstructionCodes.INE);
+        }
     }
-
-
     // Binary comparison expressions
 
     @Override
@@ -2328,6 +2368,18 @@ public class CodeGenerator implements NodeVisitor {
         emit(opcode, lExpr.getTempOffset(), rExpr.getTempOffset(), exprIndex);
     }
 
+    private void emitBinaryTypeEqualityExpr(BinaryExpression binaryExpr, int baseOpcode) {
+        Expression lExpr = binaryExpr.getLExpr();
+        lExpr.accept(this);
+
+        Expression rExpr = binaryExpr.getRExpr();
+        rExpr.accept(this);
+
+        int exprIndex = ++regIndexes[BOOL_OFFSET];
+        binaryExpr.setTempOffset(exprIndex);
+        emit(baseOpcode, lExpr.getTempOffset(), rExpr.getTempOffset(), exprIndex);
+    }
+
     private int emit(int opcode, int... operands) {
         return currentPkgInfo.addInstruction(InstructionFactory.get(opcode, operands));
     }
@@ -2354,6 +2406,8 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.getTypeFromName(typeSig.getName());
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
+            case TypeSignature.SIG_TYPE:
+                return BTypes.typeType;
             case TypeSignature.SIG_STRUCT:
                 packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
                 StructInfo structInfo = packageInfo.getStructInfo(typeSig.getName());

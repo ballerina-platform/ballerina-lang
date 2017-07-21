@@ -1846,6 +1846,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 throwInvalidUnaryOpError(unaryExpr);
             }
 
+        } else if (Operator.TYPEOF.equals(unaryExpr.getOperator())) {
+            unaryExpr.setType(BTypes.typeType);
+        } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
+            BType rType = unaryExpr.getRExpr().getType();
+            if (!((rType instanceof BArrayType) || (rType == BTypes.typeJSON))) {
+                throwInvalidUnaryOpError(unaryExpr);
+            }
+            unaryExpr.setType(BTypes.typeInt);
         } else {
             BLangExceptionHelper.throwSemanticError(unaryExpr, SemanticErrors.UNKNOWN_OPERATOR_IN_UNARY,
                     unaryExpr.getOperator());
@@ -2508,11 +2516,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         binaryExpr.setType(BTypes.typeBoolean);
+
         if (type != BTypes.typeInt &&
                 type != BTypes.typeFloat &&
                 type != BTypes.typeBoolean &&
                 type != BTypes.typeString &&
-                type != BTypes.typeNull) {
+                type != BTypes.typeNull &&
+                type != BTypes.typeType) {
             throwInvalidBinaryOpError(binaryExpr);
         }
     }

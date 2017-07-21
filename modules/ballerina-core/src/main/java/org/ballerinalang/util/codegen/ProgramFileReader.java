@@ -718,6 +718,9 @@ public class ProgramFileReader {
             case 'L':
                 typeStack.push(BTypes.typeBlob);
                 return index + 1;
+            case 'Y':
+                typeStack.push(BTypes.typeType);
+                return index + 1;
             case 'A':
                 typeStack.push(BTypes.typeAny);
                 return index + 1;
@@ -789,6 +792,8 @@ public class ProgramFileReader {
                 return BTypes.typeString;
             case 'B':
                 return BTypes.typeBoolean;
+            case 'Y':
+                return BTypes.typeType;
             case 'L':
                 return BTypes.typeBlob;
             case 'A':
@@ -1274,6 +1279,10 @@ public class ProgramFileReader {
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTHOFJSON:
+                case InstructionCodes.TYPEOF:
+                case InstructionCodes.TYPELOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1385,6 +1394,8 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
+                case InstructionCodes.TEQ:
+                case InstructionCodes.TNE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
