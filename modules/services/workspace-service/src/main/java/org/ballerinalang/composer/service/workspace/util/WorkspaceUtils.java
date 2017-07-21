@@ -39,8 +39,8 @@ import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.util.exceptions.NativeException;
 import org.ballerinalang.util.program.BLangPackages;
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
-import org.ballerinalang.util.repository.FileSystemPackageRepository;
+import org.ballerinalang.util.program.BLangPrograms;
+import org.ballerinalang.util.repository.ProgramDirRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class WorkspaceUtils {
         loadConstructs(globalScope, nativeScope);
 
         // create program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope);
         return getResolvedPackagesMap(bLangProgram, packagesArray);
     }
 
@@ -88,9 +88,8 @@ public class WorkspaceUtils {
      */
     public static Map<String, ModelPackage> getResolvedPackagesMap(BLangProgram bLangProgram, String[] packagesArray) {
         final Map<String, ModelPackage> packages = new HashMap<>();
-        BuiltinPackageRepository[] pkgRepos = loadPackageRepositories();
+        ProgramDirRepository fileRepo = BLangPrograms.initProgramDirRepository(Paths.get("."));
         // this is just a dummy FileSystemPackageRepository instance. Paths.get(".") has no meaning here
-        FileSystemPackageRepository fileRepo = new FileSystemPackageRepository(Paths.get("."), pkgRepos);
         // turn off skipping native function parsing
         System.setProperty("skipNatives", "false");
 
@@ -420,23 +419,7 @@ public class WorkspaceUtils {
             }
         }
     }
-
-    /**
-     * Load Package Repositories
-     * @return {BuiltinPackageRepository[]} BuiltinPackageRepository
-     * */
-    private static BuiltinPackageRepository[] loadPackageRepositories() {
-        Iterator<BuiltinPackageRepository> ballerinaBuiltinPackageRepositories =
-                ServiceLoader.load(BuiltinPackageRepository.class).iterator();
-        List<BuiltinPackageRepository> pkgRepositories = new ArrayList<>();
-        while (ballerinaBuiltinPackageRepositories.hasNext()) {
-            BuiltinPackageRepository constructLoader = ballerinaBuiltinPackageRepositories.next();
-            pkgRepositories.add(constructLoader);
-        }
-        return pkgRepositories.toArray(new BuiltinPackageRepository[0]);
-    }
-
-
+    
     /**
      * Get program directory
      * @param filePath    - file path to parent directory of the .bal file

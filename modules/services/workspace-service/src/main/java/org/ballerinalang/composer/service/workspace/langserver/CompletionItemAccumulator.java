@@ -181,26 +181,15 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(BLangProgram bLangProgram) {
-        BLangPackage mainPkg = bLangProgram.getMainPackage();
-
-        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
-            mainPkg.accept(this);
-
-        } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
-            BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-            for (BLangPackage servicePkg : servicePackages) {
-                servicePkg.accept(this);
-            }
+        BLangPackage entryPkg = bLangProgram.getEntryPackage();
+        if (entryPkg != null) {
+            entryPkg.accept(this);
         } else {
-            BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
-            for (BLangPackage libraryPkg : libraryPackages) {
-                libraryPkg.accept(this);
+            BLangPackage[] blangPackages = bLangProgram.getLibraryPackages();
+            for (BLangPackage bLangPackage : blangPackages) {
+                bLangPackage.accept(this);
             }
         }
-
-        int setSizeOfStaticMem = staticMemAddrOffset + 1;
-        bLangProgram.setSizeOfStaticMem(setSizeOfStaticMem);
-        staticMemAddrOffset = -1;
     }
 
     @Override

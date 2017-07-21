@@ -25,7 +25,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
@@ -70,6 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 /**
  * Language server Manager which manage langServer requests from the clients.
  */
@@ -183,7 +184,6 @@ public class LangServerManager {
 
     /**
      * Send Ping Reply
-     *
      */
     private void sendPong() {
         ResponseMessage responseMessage = new ResponseMessage();
@@ -521,6 +521,7 @@ public class LangServerManager {
 
     /**
      * Get packages
+     *
      * @return a map contains package details
      */
     private Set<Map.Entry<String, ModelPackage>> getPackages() {
@@ -529,6 +530,7 @@ public class LangServerManager {
 
     /**
      * Set packages
+     *
      * @param packages - packages set
      */
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
@@ -588,14 +590,14 @@ public class LangServerManager {
             String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
                     filePath.toString().length());
             try {
-                BLangProgram bLangProgram = new BLangProgramLoader()
-                        .loadMain(programDirPath, Paths.get(sourcePath));
+                BLangProgram bLangProgram = new BLangASTBuilder()
+                        .build(programDirPath, Paths.get(sourcePath));
 
                 //
                 java.nio.file.Path path = programDirPath.resolve(sourcePath);
                 programMap.put(path, bLangProgram);
 
-                String[] packageNames = {bLangProgram.getMainPackage().getName()};
+                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
                 modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
             } catch (BallerinaException e) {
                 logger.warn(e.getMessage());
