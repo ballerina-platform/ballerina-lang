@@ -69,7 +69,13 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -588,6 +594,36 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(NullLiteral nullLiteral) {
 
+    }
+    
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLCommentLiteral xmlCommentLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLTextLiteral xmlTextLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLPILiteral xmlpiLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
+        
     }
     
     @Override
