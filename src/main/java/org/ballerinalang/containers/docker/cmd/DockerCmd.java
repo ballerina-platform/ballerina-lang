@@ -175,6 +175,12 @@ public class DockerCmd implements BLauncherCmd {
     }
 
     @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("Creates docker images for Ballerina programs." + System.lineSeparator());
+        out.append(System.lineSeparator());
+    }
+
+    @Override
     public void printUsage(StringBuilder out) {
         out.append("ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] " +
                 "--help | -h --yes | -y\n");
