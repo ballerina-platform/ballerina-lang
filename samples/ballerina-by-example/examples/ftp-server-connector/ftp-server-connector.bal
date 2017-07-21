@@ -17,29 +17,29 @@ import ballerina.lang.system;
 }
 service<ftp> ftpServerConnector {
     resource fileResource (message m){
-        // Use the FTP Client Connector to connect to a remote FTP server
+        // Use the FTP Client Connector to connect to a remote FTP server.
         ftp:ClientConnector c = create ftp:ClientConnector();
 
-        // Create a File struct using the URL returned by 'm'
+        // Create a File struct using the URL returned by 'm'.
         string url = messages:getStringPayload(m);
         files:File file = {path: url};
 
-        // Read the specified file and get its string content
+        // Read the specified file and get its string content.
         blob txt = ftp:ClientConnector.read(c, file);
         string content = blobs:toString(txt, "UTF-8");
 
-        // Print the content of the file to the console
+        // Print the content of the file to the console.
         system:println("Content of the file at: " + url);
         system:println(content);
 
-        // Append to the content and convert it to a blob
+        // Append to the content and convert it to a blob.
         content = content + "ballerina";
         blob output = strings:toBlob(content, "UTF-8");
 
-        // A File struct for the pointing to the location
+        // A File struct for the pointing to the location.
         files:File target = {path: "ftp://127.0.0.1/another-dir/current-output.txt"};
 
-        // Write that content to another remote location
+        // Write that content to another remote location.
         ftp:ClientConnector.write(c, output, target);
 
         reply m;
