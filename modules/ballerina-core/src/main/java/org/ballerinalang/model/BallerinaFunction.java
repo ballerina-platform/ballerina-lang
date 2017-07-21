@@ -18,11 +18,14 @@
 
 package org.ballerinalang.model;
 
+import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -59,6 +62,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     protected boolean isPublic;
     protected SymbolName symbolName;
     protected boolean isNative;
+    protected boolean isLambda = false;
 
     private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
@@ -83,7 +87,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     // Linker related variables
     private int tempStackFrameSize;
-    private boolean isFlowBuilderVisited;
+    private BType bType;
 
     private BallerinaFunction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
@@ -307,12 +311,40 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
-    public boolean isFlowBuilderVisited() {
-        return isFlowBuilderVisited;
+    @Override
+    public BType getType() {
+        if (bType == null) {
+            BFunctionType functionType = new BFunctionType(this.getSymbolScope().getEnclosingScope(), parameterTypes,
+                    returnParamTypes);
+            bType = functionType;
+        }
+        return bType;
     }
 
-    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
-        isFlowBuilderVisited = flowBuilderVisited;
+    @Override
+    public void setType(BType type) {
+    }
+
+    @Override
+    public MemoryLocation getMemoryLocation() {
+        return null;
+    }
+
+    @Override
+    public void setMemoryLocation(MemoryLocation memoryLocation) {
+    }
+
+    @Override
+    public SimpleTypeName getTypeName() {
+        return null;
+    }
+
+    public boolean isLambda() {
+        return isLambda;
+    }
+
+    public void setLambda(boolean lambda) {
+        isLambda = lambda;
     }
 
     /**

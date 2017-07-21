@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 0.87
  */
-public class GlobalVariableDef extends VariableDef implements CompilationUnit {
+public class GlobalVariableDef extends SimpleVariableDef implements CompilationUnit {
     private List<AnnotationAttachment> annotations;
 
     private VariableDefStmt variableDefStmt;

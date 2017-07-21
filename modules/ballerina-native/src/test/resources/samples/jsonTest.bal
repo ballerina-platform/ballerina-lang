@@ -19,7 +19,6 @@ function getBoolean(json msg, string jsonPath) (boolean){
     return jsons:getBoolean(msg, jsonPath);
 }
 
-
 function setString(json msg, string jsonPath, string value) (string) {
     jsons:set(msg, jsonPath, value);
     return jsons:getString(msg, jsonPath);
@@ -44,7 +43,6 @@ function setJson(json msg, string jsonPath, json value) (json) {
     jsons:set(msg, jsonPath, value);
     return jsons:getJson(msg, jsonPath);
 }
-
 
 function addStringToObject(json msg, string jsonPath, string key, string value) (json) {
     jsons:addToObject(msg, jsonPath, key, value);
@@ -71,7 +69,6 @@ function addElementToObject(json msg, string jsonPath, string key, json value) (
     return msg;
 }
 
-
 function addStringToArray(json msg, string jsonPath, string value) (json){
     jsons:addToArray(msg, jsonPath, value);
     return msg;
@@ -97,8 +94,6 @@ function addElementToArray(json msg, string jsonPath, json value) (json){
     return msg;
 }
 
-
-
 function remove(json msg, string jsonPath) (json){
     jsons:remove(msg, jsonPath);
     return msg;
@@ -116,4 +111,12 @@ function toString(json msg) (string){
 
 function testParse(string jsonStr) (json){
     return jsons:parse(jsonStr);
+}
+
+function testGetKeys() (string[], string[], string[], string[]){
+    json j1 = {fname:"Jhon", lname:"Doe", age:40};
+    json j2 = ["cat", "dog", "horse"];
+    json j3 = "Hello";
+    json j4 = 5;
+    return jsons:getKeys(j1), jsons:getKeys(j2), jsons:getKeys(j3), jsons:getKeys(j4) ;
 }

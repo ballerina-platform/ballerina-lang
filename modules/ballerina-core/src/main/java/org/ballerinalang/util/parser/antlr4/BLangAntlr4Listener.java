@@ -28,7 +28,7 @@ import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
-import org.ballerinalang.model.types.ConstraintTypeName;
+import org.ballerinalang.model.types.FunctionTypeName;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.BallerinaParser.ActionDefinitionContext;
@@ -83,7 +83,6 @@ import org.ballerinalang.util.parser.BallerinaParser.XmlSingleQuotedStringContex
 import org.ballerinalang.util.parser.BallerinaParserListener;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -110,7 +109,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     protected String typeName;
     // private String schemaID;
 
-    protected boolean processingReturnParams = false;
+    protected int processingReturnParams = 0;
     protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
     protected Stack<BLangModelBuilder.NameReference> nameReferenceStack = new Stack<>();
 
@@ -126,6 +125,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     // flag to indicate whether additional information
     // from source needs to be captured, eg: whitespace
     private boolean isVerboseMode = false;
+
+    // counter for function type processing.
+    protected int functionTypeStarted = 0;
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path sourceFilePath) {
         this.modelBuilder = modelBuilder;
@@ -311,6 +313,29 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
         }
         modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName, isNative);
+    }
+
+    @Override
+    public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startLambdaFunctionDef();
+    }
+
+    @Override
+    public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        // TODO : Fix WhiteSpaces
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
+//        }
+        modelBuilder.addLambdaFunction(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        modelBuilder.createLambdaExpression(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        modelBuilder.endLambdaFunctionDef();
     }
 
     @Override
@@ -848,14 +873,16 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        String valueTypeName = ctx.getChild(0).getText();
-        SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
-        simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
-        if (isVerboseMode) {
-            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
-            simpleTypeName.setWhiteSpaceDescriptor(ws);
+        if (ctx.getChild(0) != null) {
+            String valueTypeName = ctx.getChild(0).getText();
+            SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
+            simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
+            if (isVerboseMode) {
+                WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
+                simpleTypeName.setWhiteSpaceDescriptor(ws);
+            }
+            typeNameStack.push(simpleTypeName);
         }
-        typeNameStack.push(simpleTypeName);
     }
 
     @Override
@@ -868,28 +895,79 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
+        if (ctx.functionTypeName() != null) {
+            return;
+        }
 
         String builtInRefTypeName = ctx.getChild(0).getText();
         SimpleTypeName simpleTypeName = new SimpleTypeName(builtInRefTypeName);
-
-        if (ctx.nameReference() != null) {
-            BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-            modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
-            if (nameReference != null) {
-                SimpleTypeName constraint =
-                        new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
-                                           nameReference.getPackagePath());
-                simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
-                ((ConstraintTypeName) simpleTypeName).setConstraint(constraint);
-            }
-        }
-
         simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
             simpleTypeName.setWhiteSpaceDescriptor(ws);
         }
         typeNameStack.push(simpleTypeName);
+    }
+
+    @Override
+    public void enterFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) {
+        this.functionTypeStarted++;
+    }
+
+    @Override
+    public void exitFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        SimpleTypeName[] paramTypes = new SimpleTypeName[0];
+        SimpleTypeName[] returnParamTypes = new SimpleTypeName[0];
+        String[] paramArgNames = new String[0];
+        String[] returnParamArgNames = new String[0];
+        boolean isReturnWordAvailable = false;
+        if (ctx.parameterList() != null) {
+            paramTypes = new SimpleTypeName[ctx.parameterList().parameter().size()];
+            paramArgNames = new String[ctx.parameterList().parameter().size()];
+            int i = 0;
+            for (BallerinaParser.ParameterContext paramCtx : ctx.parameterList().parameter()) {
+                paramArgNames[i++] = paramCtx.Identifier().getText();
+            }
+        } else if (ctx.typeList() != null) {
+            paramTypes = new SimpleTypeName[ctx.typeList().typeName().size()];
+        }
+
+        if (ctx.returnParameters() != null) {
+            BallerinaParser.ReturnParametersContext returnCtx = ctx.returnParameters();
+            if (returnCtx.parameterList() != null) {
+                returnParamTypes = new SimpleTypeName[returnCtx.parameterList().parameter().size()];
+                returnParamArgNames = new String[returnCtx.parameterList().parameter().size()];
+                int i = 0;
+                for (BallerinaParser.ParameterContext paramCtx : returnCtx.parameterList().parameter()) {
+                    returnParamArgNames[i++] = paramCtx.Identifier().getText();
+                }
+            } else if (returnCtx.typeList() != null) {
+                returnParamTypes = new SimpleTypeName[returnCtx.typeList().typeName().size()];
+            }
+            isReturnWordAvailable = "returns".equals(returnCtx.getChild(0).getText());
+        }
+
+        for (int i = returnParamTypes.length - 1; i >= 0; i--) {
+            returnParamTypes[i] = typeNameStack.pop();
+        }
+        for (int i = paramTypes.length - 1; i >= 0; i--) {
+            paramTypes[i] = typeNameStack.pop();
+        }
+        FunctionTypeName functionTypeName = new FunctionTypeName(paramTypes, returnParamTypes);
+        functionTypeName.setNodeLocation(getCurrentLocation(ctx));
+        functionTypeName.setParamFieldNames(paramArgNames);
+        functionTypeName.setReturnParamFieldNames(returnParamArgNames);
+        functionTypeName.setReturnWordAvailable(isReturnWordAvailable);
+        // TODO : Fix WhiteSpaces.
+//        if (isVerboseMode) {
+//            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
+//            functionTypeName.setWhiteSpaceDescriptor(ws);
+//        }
+        typeNameStack.push(functionTypeName);
+        this.functionTypeStarted--;
     }
 
     @Override
@@ -1100,17 +1178,19 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
-        String varName = ctx.Identifier().getText();
-        boolean exprAvailable = ctx.expression() != null ||
-                ctx.connectorInitExpression() != null ||
-                ctx.actionInvocation() != null;
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+        if (!typeNameStack.isEmpty()) {
+            SimpleTypeName typeName = typeNameStack.pop();
+            String varName = ctx.Identifier().getText();
+            boolean exprAvailable = ctx.expression() != null ||
+                    ctx.connectorInitExpression() != null ||
+                    ctx.actionInvocation() != null;
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+            }
+            modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
+                    exprAvailable);
         }
-        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
-                exprAvailable);
     }
 
     @Override
@@ -1733,6 +1813,27 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+    }
+
+    @Override
+    public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean argsAvailable = ctx.expressionList() != null;
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
+        }
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        modelBuilder.addFunctionInvocationExpr(currentLocation, whiteSpaceDescriptor, argsAvailable);
+    }
+
+    @Override
     public void enterFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
 
     }
@@ -1830,14 +1931,13 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationStmtWS(tokenStream, ctx);
-            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
+            if (!nameReferenceStack.empty()) {
+                whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
+            }
         }
 
         NodeLocation currentLocation = getCurrentLocation(ctx);
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
-        modelBuilder.createFunctionInvocationStmt(currentLocation, whiteSpaceDescriptor,
-                nameReference, argsAvailable);
+        modelBuilder.createFunctionInvocationStmt(currentLocation, whiteSpaceDescriptor, argsAvailable);
     }
 
     @Override
@@ -2031,27 +2131,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
-    public void enterFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
+    public void enterLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) {
     }
 
     @Override
-    public void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean argsAvailable = ctx.expressionList() != null;
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
-            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
-        }
-
-        NodeLocation currentLocation = getCurrentLocation(ctx);
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
-        modelBuilder.addFunctionInvocationExpr(currentLocation, whiteSpaceDescriptor,
-                nameReference, argsAvailable);
+    public void exitLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) {
     }
 
     @Override
@@ -2237,27 +2321,31 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
     @Override
     public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
-        processingReturnParams = true;
+        processingReturnParams++;
     }
 
     @Override
     public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
-        processingReturnParams = false;
+        processingReturnParams--;
     }
 
     @Override
-    public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
+    public void enterTypeList(BallerinaParser.TypeListContext ctx) {
     }
 
     @Override
-    public void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
+    public void exitTypeList(BallerinaParser.TypeListContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        List<SimpleTypeName> list = new ArrayList<>(typeNameStack);
-        modelBuilder.addReturnTypes(getCurrentLocation(ctx), list.toArray(new SimpleTypeName[0]));
-        typeNameStack.removeAllElements();
+        if (functionTypeStarted == 0 && processingReturnParams == 1) {
+            SimpleTypeName[] list = new SimpleTypeName[ctx.typeName().size()];
+            for (int i = ctx.typeName().size() - 1; i >= 0; i--) {
+                list[i] = typeNameStack.pop();
+            }
+            modelBuilder.addReturnTypes(getCurrentLocation(ctx), list);
+        }
     }
 
     @Override
@@ -2283,8 +2371,10 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getParamWS(tokenStream, ctx);
         }
-        modelBuilder.addParam(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop(),
-                ctx.Identifier().getText(), annotationCount, processingReturnParams);
+        if (functionTypeStarted == 0) {
+            modelBuilder.addParam(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop(),
+                    ctx.Identifier().getText(), annotationCount, processingReturnParams == 1);
+        }
     }
 
     @Override

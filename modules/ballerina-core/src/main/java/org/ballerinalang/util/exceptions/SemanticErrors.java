@@ -126,7 +126,8 @@ public enum SemanticErrors {
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102"),
     INCOMPATIBLE_TYPES_IN_XML_TEMPLATE("incompatible.types.in.xml.template", "SEMANTIC_0103"),
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration", "SEMANTIC_0104"),
-    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0105")
+    INCORRECT_FUNCTION_ARGUMENTS("incorrect.function.arguments", "SEMANTIC_105"),
+    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0106")
     ;
 
     private String errorMsgKey;

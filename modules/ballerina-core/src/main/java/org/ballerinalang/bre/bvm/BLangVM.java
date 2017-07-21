@@ -42,6 +42,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -1360,6 +1361,28 @@ public class BLangVM {
                     sf.refLocalVars[i] = context.getError();
                     // clear error.
                     context.setError(null);
+                    break;
+                case InstructionCodes.FPCALL:
+                    i = operands[0];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[((BFunctionPointer) sf.refRegs[i]).value()];
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
+                    if (functionInfo.isNative()) {
+                        invokeNativeFunction(functionInfo, funcCallCPEntry);
+                    } else {
+                        invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    }
+                    break;
+                case InstructionCodes.FPLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BFunctionPointer(i);
                     break;
 
                 case InstructionCodes.I2ANY:
