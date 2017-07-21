@@ -5,7 +5,7 @@ import ballerina.lang.blobs;
 import ballerina.lang.strings;
 import ballerina.lang.system;
 
-@ftp:config {
+@ftp:configuration {
     dirURI: "ftp://127.0.0.1/observed-dir/",
     pollingInterval: "2000",
     actionAfterProcess: "MOVE",
