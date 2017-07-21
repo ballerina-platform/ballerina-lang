@@ -47,6 +47,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - Variable definition expression string
      */
     getStatementString() {
+        const isIdentifierLiteral = this.getChildren()[0].isIdentifierLiteral;
         if (this.viewState.source) {
             return this.viewState.source.replace(/;\s*$/, '');
         }
@@ -58,7 +59,9 @@ class VariableDefinitionStatement extends Statement {
                 variableDefinitionStatementString += '[]';
             }
         }
-        variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
+        variableDefinitionStatementString += this.getWSRegion(0)
+            + (isIdentifierLiteral ? '|' : '') + this.getIdentifier()
+            + (isIdentifierLiteral ? '|' : '');
         if (!_.isNil(this.children[1])) {
             variableDefinitionStatementString +=
               this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();

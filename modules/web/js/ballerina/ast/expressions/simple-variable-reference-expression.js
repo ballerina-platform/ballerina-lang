@@ -35,6 +35,7 @@ class SimpleVariableReferenceExpression extends Expression {
             3: '',
 
         };
+        this.isIdentifierLiteral = false;
         this.setVariableName(_.get(args, 'variableName'));
         this._packageName = _.get(args, 'packageName');
     }
@@ -101,6 +102,7 @@ class SimpleVariableReferenceExpression extends Expression {
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
+        this.isIdentifierLiteral = jsonNode.is_identifier_literal;
         this.setVariableName(jsonNode.variable_reference_name, { doSilently: true });
         this.setPackageName(jsonNode.package_name, { doSilently: true });
     }
@@ -135,7 +137,10 @@ class SimpleVariableReferenceExpression extends Expression {
     getExpressionString() {
         return (!_.isNil(this.getPackageName()) ? (this.getPackageName()
                 + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
-                + this.getVariableName() + this.getWSRegion(3);
+                + (this.isIdentifierLiteral ? '|' : '')
+                + this.getVariableName()
+                + (this.isIdentifierLiteral ? '|' : '')
+                + this.getWSRegion(3);
     }
 
 }

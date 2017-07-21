@@ -615,7 +615,7 @@ addComplexParameter(parentId, struct) {
 
     addVariable(variable, type, removeCallback) {
         const id = variable.name + this.viewIdSeperator + this.viewId;
-        const propId = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+        const propId = variable.name + this.idNameSeperator + this.viewId  + this.nameTypeSeperator + variable.type;
         const newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
         const varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
         const property = $('<a>').attr('id', propId).addClass('variable-content');
