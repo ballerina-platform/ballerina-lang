@@ -302,7 +302,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
         varRefExpr.setVariableDef(constDef);
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
                 new Expression[]{varRefExpr}, constDef.getVariableDefStmt().getRExpr());
-        pkgInitFuncStmtBuilder.addStmt(assignStmt);
+        if (pkgInitFuncStmtBuilder != null) {
+            pkgInitFuncStmtBuilder.addStmt(assignStmt);
+        }
 
         addToCompletionItems(constDef);
     }
@@ -1047,13 +1049,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
-
-            if (!(parameter.getType() instanceof BMapType)) {
-                throw new SemanticException("Incompatible types: expected map in " +
-                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().
-                        getLineNumber());
-            }
-
         }
 
         // Visit join body

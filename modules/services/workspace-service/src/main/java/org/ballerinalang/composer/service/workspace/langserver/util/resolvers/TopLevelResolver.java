@@ -3,6 +3,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.GlobalScope;
@@ -34,6 +35,7 @@ public class TopLevelResolver extends AbstractItemResolver {
 
             addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
             addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
+            addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ");
             addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
@@ -49,6 +51,8 @@ public class TopLevelResolver extends AbstractItemResolver {
                     resolvers.get(GlobalScope.class).resolveItems(dataModel, symbols, resolvers));
         }
         if (errorContextResolver instanceof PackageNameContextResolver) {
+            completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
+        } else if (errorContextResolver instanceof ParserRuleConstantDefinitionContextResolver) {
             completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
         } else {
             completionItems.addAll(
