@@ -1020,4 +1020,11 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<name xmlns=\"http://sample.com/test\"><newFname xmlns=\"\">supun-new</newFname></name>");
     }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "defineEmptyNamespace.bal:2: cannot bind a prefix \\('ns0'\\) to the "
+                    + "empty namespace name")
+    public void testDefineEmptyNamespace() {
+        BTestUtils.getProgramFile("samples/xml/defineEmptyNamespace.bal");
+    }
 }

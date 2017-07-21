@@ -2444,6 +2444,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(NamespaceDeclaration namespaceDclr) {
+        if (namespaceDclr.getNamespaceUri().isEmpty() && !namespaceDclr.getPrefix().isEmpty()) {
+            BLangExceptionHelper.throwSemanticError(namespaceDclr, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
+                    namespaceDclr.getPrefix());
+        }
+
         // Check whether this namespace is already defined, if not define it.
         NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(namespaceDclr.getPrefix());
 
@@ -2477,9 +2482,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             Expression attrValueExpr = attribute.getValueExpr();
-            attrValueExpr.accept(this);
             XMLQNameExpr xmlQNameRefExpr = (XMLQNameExpr) attrNameExpr;
             if (xmlQNameRefExpr.getPrefix().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                attrValueExpr.accept(this);
+                
+                if (attrValueExpr instanceof BasicLiteral
+                        && ((BasicLiteral) attrValueExpr).getBValue().stringValue().isEmpty()) {
+                    BLangExceptionHelper.throwSemanticError(attribute, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
+                            xmlQNameRefExpr.getLocalname());
+                }
+                
                 namespaces.put(xmlQNameRefExpr.getLocalname(), attrValueExpr);
                 attrItr.remove();
                 continue;
@@ -2488,6 +2500,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // if the default namesapce is declared inline, then override default namepsace defined at the
             // parent scope level
             if (xmlQNameRefExpr.getLocalname().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                attrValueExpr.accept(this);
                 xmlElementLiteral.setDefaultNamespaceUri(attrValueExpr);
                 attrItr.remove();
             }

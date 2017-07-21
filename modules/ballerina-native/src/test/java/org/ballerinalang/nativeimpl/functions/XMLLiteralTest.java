@@ -317,4 +317,11 @@ public class XMLLiteralTest {
     public void testTextWithMultiTypeExpressions() {
         BTestUtils.getProgramFile("samples/xml/xmlTemplateWithNonXML.bal");
     }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "defineEmptyNamespaceInline.bal:2: cannot bind a prefix \\('ns0'\\) to"
+                    + " the empty namespace name")
+    public void testDefineEmptyNamespaceInline() {
+        BTestUtils.getProgramFile("samples/xml/defineEmptyNamespaceInline.bal");
+    }
 }

@@ -125,6 +125,7 @@ public enum SemanticErrors {
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix", "SEMANTIC_0101"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102"),
     INCOMPATIBLE_TYPES_IN_XML_TEMPLATE("incompatible.types.in.xml.template", "SEMANTIC_0103"),
+    INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration", "SEMANTIC_0104")
     ;
 
     private String errorMsgKey;
