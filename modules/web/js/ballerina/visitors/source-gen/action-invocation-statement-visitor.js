@@ -56,7 +56,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     beginVisitActionInvocationExpression(actionInvocationExpr) {
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
-        actionInvocationExpr.setLineNumber(lineNumber);
+        actionInvocationExpr.setLineNumber(lineNumber, { doSilently: true });
 
         const constructedSourceSegment = actionInvocationExpr.getExpressionString();
         this.appendSource(constructedSourceSegment);
