@@ -63,7 +63,7 @@ public class WebSocketServicesRegistry {
         } else {
             String upgradePath = findFullWebSocketUpgradePath(service);
             String listenerInterface = getListenerInterface(service);
-            if (upgradePath != null && !isClientService) {
+            if (upgradePath != null) {
                 if (serviceEndpoints.containsKey(listenerInterface)) {
                     serviceEndpoints.get(listenerInterface).put(upgradePath, service);
                 } else {
@@ -192,21 +192,6 @@ public class WebSocketServicesRegistry {
     }
 
     /**
-     * Check whether the given service is a WebSocket server endpoint.
-     *
-     * @param serviceName name of the service.
-     * @return true if the service given by service name is a client service. Else return false.
-     */
-    public boolean isWebSocketServerEndpoint(String serviceName) {
-        for (Map.Entry<String, Map<String, ServiceInfo>> endpoints: serviceEndpoints.entrySet()) {
-            if (endpoints.getValue().containsKey(serviceName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Refactor the given URI.
      *
      * @param uri URI to refactor.
@@ -227,6 +212,12 @@ public class WebSocketServicesRegistry {
         return uri;
     }
 
+    /**
+     * Find the Full path for WebSocket upgrade.
+     *
+     * @param service {@link ServiceInfo} which the full path should be found.
+     * @return the full path of the WebSocket upgrade.
+     */
     private String findFullWebSocketUpgradePath(ServiceInfo service) {
         // Find Base path for WebSocket
         String serviceName = service.getName();
@@ -266,21 +257,33 @@ public class WebSocketServicesRegistry {
         return refactorUri(basePath.concat(webSocketUpgradePath));
     }
 
+    /**
+     * Find out the given service is a WebSocket client service or not.
+     *
+     * @param service {@link ServiceInfo} which should be identified.
+     * @return true if the given service is a client service.
+     */
     private boolean isWebSocketClientService(ServiceInfo service) {
         AnnAttachmentInfo annotation = service.getAnnotationAttachmentInfo(
                 Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
-        if (annotation == null) {
-            return false;
-        }
-        return true;
+        return !(annotation == null);
     }
 
+    /**
+     * Find the listener interface of a given service.
+     *
+     * @param service {@link ServiceInfo} which the listener interface should be found.
+     * @return the listener interface of the service.
+     */
     private String getListenerInterface(ServiceInfo service) {
         // TODO : Handle correct interface addition to default interface.
         String listenerInterface = org.ballerinalang.services.dispatchers.http.Constants.DEFAULT_INTERFACE;
         return listenerInterface;
     }
 
+    /**
+     * This class holds the necessary details of a WebSocket client service.
+     */
     private class ClientServiceInfo {
         private final String clientServiceName;
         private ServiceInfo clientService;
@@ -295,23 +298,23 @@ public class WebSocketServicesRegistry {
             this.clientServiceName = clientService.getName();
         }
 
-        public ServiceInfo getClientService() {
+        private ServiceInfo getClientService() {
             return clientService;
         }
 
-        public void setClientService(ServiceInfo clientService) {
+        private void setClientService(ServiceInfo clientService) {
             this.clientService = clientService;
         }
 
-        public void setParentService(ServiceInfo parentService) {
+        private void setParentService(ServiceInfo parentService) {
             this.parentService = parentService;
         }
 
-        public ServiceInfo getParentService() {
+        private ServiceInfo getParentService() {
             return parentService;
         }
 
-        public String getClientServiceName() {
+        private String getClientServiceName() {
             return clientServiceName;
         }
     }

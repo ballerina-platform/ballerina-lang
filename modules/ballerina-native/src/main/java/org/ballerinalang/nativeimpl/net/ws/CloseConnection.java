@@ -55,7 +55,7 @@ public class CloseConnection extends AbstractNativeFunction {
             CarbonMessage carbonMessage = context.getCarbonMessage();
             Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
             session.close(new CloseReason(() -> 1000, "Normal closure"));
-            WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
+            WebSocketConnectionManager.getInstance().removeSessionFromAll(session);
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred in removing the connection");
         }

@@ -64,31 +64,45 @@ public class WebSocketConnectionManager {
     }
 
     /**
+     * Adding new connection to the connection manager.
+     * This adds the server session to the related maps and create necessary client connections to the client
+     * connectors.
+     *
+     * @param service {@link ServiceInfo} of the service which session is related.
+     * @param session Session of the connection.
+     * @param carbonMessage carbon message received.
+     */
+    public synchronized void addServerSession(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
+        /*
+            If service is in the parentServiceToClientConnectorsMap means it might have client connectors relates to
+            the service. So for each client connector new connections should be created for remote server.
+         */
+        if (parentServiceToClientConnectorsMap.containsKey(service.getName())) {
+            for (BConnector bConnector : parentServiceToClientConnectorsMap.get(service.getName())) {
+                Session clientSession = initializeClientConnection(bConnector, carbonMessage);
+                Session serverSession = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                clientConnectorSessionsMap.get(bConnector).put(serverSession.getId(), clientSession);
+                addClinetSessionForServerSession(serverSession, clientSession);
+            }
+        }
+
+        // Adding connection to broadcast group.
+        addConnectionToBroadcast(service, session);
+    }
+
+    /**
      * Add {@link Session} to session the broadcast group of a given service.
      *
      * @param service {@link ServiceInfo} of the service.
      * @param session {@link Session} to add to the broadcast group.
      */
-    public synchronized void addConnectionToBroadcast(ServiceInfo service, Session session) {
+    private synchronized void addConnectionToBroadcast(ServiceInfo service, Session session) {
         if (broadcastSessions.containsKey(service.getName())) {
             broadcastSessions.get(service.getName()).put(session.getId(), session);
         } else {
             Map<String, Session> sessionMap = new HashMap<>();
             sessionMap.put(session.getId(), session);
             broadcastSessions.put(service.getName(), sessionMap);
-        }
-    }
-
-    /**
-     * Remove {@link Session} from a broadcast group. This should be mostly called when a WebSocket connection is
-     * Closed.
-     *
-     * @param service {@link ServiceInfo} of the service.
-     * @param session {@link Session} to remove from the broadcast group.
-     */
-    public synchronized void removeConnectionFromBroadcast(ServiceInfo service, Session session) {
-        if (broadcastSessions.containsKey(service.getName())) {
-            broadcastSessions.get(service.getName()).remove(session.getId());
         }
     }
 
@@ -204,33 +218,6 @@ public class WebSocketConnectionManager {
         return connectionStore.get(connectionName);
     }
 
-    /**
-     * Adding new connection to the connection manager.
-     * This adds the server session to the related maps and create necessary client connections to the client
-     * connectors.
-     *
-     * @param service {@link ServiceInfo} of the service which session is related.
-     * @param session Session of the connection.
-     * @param carbonMessage carbon message received.
-     */
-    public synchronized void addServerSession(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
-        /*
-            If service is in the parentServiceToClientConnectorsMap means it might have client connectors relates to
-            the service. So for each client connector new connections should be created for remote server.
-         */
-        if (parentServiceToClientConnectorsMap.containsKey(service.getName())) {
-            for (BConnector bConnector : parentServiceToClientConnectorsMap.get(service.getName())) {
-                Session clientSession = initializeClientConnection(bConnector, carbonMessage);
-                Session serverSession = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                clientConnectorSessionsMap.get(bConnector).put(serverSession.getId(), clientSession);
-                addClinetSessionForServerSession(serverSession, clientSession);
-            }
-        }
-
-        // Adding connection to broadcast group.
-        addConnectionToBroadcast(service, session);
-    }
-
     private synchronized void addClinetSessionForServerSession(Session serverSession, Session clientSession) {
         String serverSessionID = serverSession.getId();
         if (serverSessionToClientSessionsMap.containsKey(serverSessionID)) {
@@ -248,7 +235,7 @@ public class WebSocketConnectionManager {
      *
      * @param parentService {@link ServiceInfo} where the connector is created.
      * @param connector {@link BConnector} which should be added to the connection manager.
-     * @Param clientSession newly created client session for the client connector.
+     * @param clientSession newly created client session for the client connector.
      */
     public synchronized void addClientConnector(ServiceInfo parentService, BConnector connector,
                                                 Session clientSession) {
@@ -273,28 +260,13 @@ public class WebSocketConnectionManager {
      * This also add the initial connection to the the same mapping but using "Default" keyword as the
      * parent service name.
      *
-     * @param bConnector
-     * @param session
+     * @param bConnector {@link BConnector} which created in other than WebSocket endpoint.
+     * @param session The default WebSocket session for the Connector.
      */
     public synchronized void addClientConnectorWithoutParentService(BConnector bConnector, Session session) {
         Map<String, Session> sessions = new HashMap<>();
         sessions.put(Constants.DEFAULT, session);
         clientConnectorSessionsMap.put(bConnector, sessions);
-    }
-
-    /**
-     * Get all the client sessions created against the given connector.
-     *
-     * @param bConnector {@link BConnector} to retrieve the client sessions.
-     * @return a list of client sessions related to given client connector.
-     */
-    public synchronized List<Session> getSessionsForConnector(BConnector bConnector) {
-        if (clientConnectorSessionsMap.containsKey(bConnector)) {
-            return clientConnectorSessionsMap.get(bConnector).entrySet().stream().
-                    map(Map.Entry::getValue).collect(Collectors.toList());
-        }
-
-        return new LinkedList<>();
     }
 
     /**
@@ -315,7 +287,7 @@ public class WebSocketConnectionManager {
      *
      * @param session {@link Session} which should be removed from all the places.
      */
-    public synchronized void removeConnectionFromAll(Session session) {
+    public synchronized void removeSessionFromAll(Session session) {
 
         // Remove all the server session related client sessions.
         if (serverSessionToClientSessionsMap.containsKey(session.getId())) {

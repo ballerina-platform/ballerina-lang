@@ -41,7 +41,7 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
         boolean isServer = (boolean) cMsg.getProperty(Constants.IS_WEBSOCKET_SERVER);
 
         if (isServer) {
-            String serviceUri = (String) cMsg.getProperty(org.ballerinalang.services.dispatchers.http.Constants.TO);
+            String serviceUri = (String) cMsg.getProperty(Constants.TO);
             serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
             if (serviceUri == null) {
                 return null;
@@ -84,13 +84,13 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
         WebSocketServicesRegistry.getInstance().unregisterService(service);
     }
 
-    protected String getListenerInterface(CarbonMessage cMsg) {
+    private String getListenerInterface(CarbonMessage cMsg) {
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (log.isDebugEnabled()) {
                 log.debug("Interface id not found on the message, hence using the default interface");
             }
-            interfaceId = org.ballerinalang.services.dispatchers.http.Constants.DEFAULT_INTERFACE;
+            interfaceId = Constants.DEFAULT_INTERFACE;
         }
 
         return interfaceId;

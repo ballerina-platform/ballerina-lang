@@ -68,7 +68,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
                     Session serverSession = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(serverSession);
+                    WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
                     Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
