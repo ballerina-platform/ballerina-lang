@@ -196,7 +196,6 @@ public class CodeGenerator implements NodeVisitor {
     private PackageInfo currentPkgInfo;
     private int baseConnectorIndex = -1;
     private int lastFilterConnectorIndex = -1;
-    private BType baseType = null;
     private ConnectorInfo baseConnectorInfo = null;
     private String childConnectorType = null;
 
@@ -1668,21 +1667,19 @@ public class CodeGenerator implements NodeVisitor {
             baseConnectorInfo = currentPkgInfo.getConnectorInfo(connectorDef.getName());
         }
 
-        TypeSignature typeSig = connectorInitExpr.getInheritedType().getSig();
-        UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
-        int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
-        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
-        typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
-        int typeEntry = currentPkgInfo.addCPEntry(typeRefCPEntry);
+        if (baseConnectorInfo != null) {
 
-        baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
+            TypeSignature typeSig = connectorInitExpr.getInheritedType().getSig();
+            UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
+            int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
+            typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
+            int typeEntry = currentPkgInfo.addCPEntry(typeRefCPEntry);
+
+            baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
+        }
 //        baseConnectorInfo.addMethodTypeStructure
 //                ((BConnectorType) connectorInitExpr.getFilterSupportedType(), structureRefCPEntry);
-
-        if (baseType == null) {
-            baseType = getVMTypeFromSig(connectorDef.getSig());
-        }
-        baseType.addMethod(connectorDef.getName(), structureRefCPIndex);
 
         if (connectorInitExpr.getParentConnectorInitExpr() == null && !connectorDef.isFilterConnector()) {
             connectorInitExpr.setTempOffset(connectorRegIndex);
@@ -1737,7 +1734,6 @@ public class CodeGenerator implements NodeVisitor {
             connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
         }
 
-        baseType = null;
         childConnectorType = null;
         baseConnectorInfo = null;
         // Invoke Connector init native action if any

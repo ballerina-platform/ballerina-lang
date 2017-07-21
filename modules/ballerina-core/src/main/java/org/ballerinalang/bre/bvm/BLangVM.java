@@ -2153,7 +2153,8 @@ public class BLangVM {
         BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
         ActionInfo newActionInfo = null;
 
-        if (!callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType())) {
+        if (connector != null && !(callableUnitInfo.getConnectorInfo().getType().
+                equals(connector.getConnectorType()))) {
             if (connector != null && connector.getConnectorType() != null) {
                 ConnectorInfo connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
                 ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(

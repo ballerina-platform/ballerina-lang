@@ -23,9 +23,6 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.values.BValue;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * {@code BType} represents a type in Ballerina.
  * <p>
@@ -42,8 +39,6 @@ public abstract class BType implements BLangSymbol {
     protected SymbolName symbolName;
     protected SymbolScope symbolScope;
     protected Class<? extends BValue> valueClass;
-    // This variable holds the method table for this type.
-    protected Map<String, Integer> methodTable = new HashMap<>();
 
     protected BType(SymbolScope symbolScope) {
         this.symbolScope = symbolScope;
@@ -55,18 +50,6 @@ public abstract class BType implements BLangSymbol {
         this.symbolName = new SymbolName(typeName, pkgPath);
         this.symbolScope = symbolScope;
         this.valueClass = valueClass;
-    }
-
-    public void addMethod(String methodName, int ip) {
-        methodTable.put(methodName, new Integer(ip));
-    }
-
-    public int getMethodIP(String methodName) {
-        if (methodTable.containsKey(methodName)) {
-            return methodTable.get(methodName);
-        } else {
-            return -1;
-        }
     }
 
     @SuppressWarnings("unchecked")
