@@ -1,5 +1,5 @@
 # To run the program, put the code in `websocket-basic-functions.bal`
-# and use `ballerina run service websocket-basic-functions.bal` command.
+# and use `ballerina run websocket-basic-functions.bal` command.
 $ ballerina run websocket-basic-functions.bal
 
 # To check the sample,use Chrome or Firefox javascript console and run the below commands <br>
