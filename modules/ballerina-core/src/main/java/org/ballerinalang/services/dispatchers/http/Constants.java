@@ -49,6 +49,7 @@ public class Constants {
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
+    public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
     public static final String WS_PACKAGE_PATH = "ballerina.net.ws";
@@ -63,11 +64,12 @@ public class Constants {
 
     /* Annotations */
     public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String ANNOTATION_NAME_CONFIG = "config";
+    public static final String ANNOTATION_NAME_CONFIGURATION = "configuration";
     public static final String ANNOTATION_NAME_CONSUMES = "Consumes";
     public static final String ANNOTATION_NAME_PRODUCES = "Produces";
     public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
     public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
+    public static final String ANNOTATION_ATTRIBUTE_HTTPS_PORT = "httpsPort";
     public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
     public static final String ANNOTATION_ATTRIBUTE_SCHEME = "scheme";
     public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";

@@ -1,7 +1,7 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/echo"}
+@http:configuration {basePath:"/echo"}
 service<http> echo {
 
     string serviceLevelStr;
@@ -28,5 +28,11 @@ service<http> echo {
         // messages:setStringPayload(response, serviceLevelStr);
         messages:setStringPayload(response, "hello");
         reply response;
+    }
+
+    @http:GET {}
+    resource removeHeaders (message m) {
+        messages:removeAllHeaders(m);
+        reply m;
     }
 }

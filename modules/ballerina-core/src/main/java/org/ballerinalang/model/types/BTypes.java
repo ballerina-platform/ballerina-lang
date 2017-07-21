@@ -50,7 +50,8 @@ public class BTypes {
     public static BType typeConnector;
     public static BType typeNull;
     public static BType typeXMLAttributes;
-    
+    public static BType typeType;
+
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
 
@@ -73,6 +74,7 @@ public class BTypes {
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
+        globalScope.define(typeType.getSymbolName(), typeType);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
@@ -89,6 +91,7 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
         builtInTypeNames.add(TypeConstants.ANY_TNAME);
         builtInTypeNames.add(TypeConstants.NULL_TNAME);
+        builtInTypeNames.add(TypeConstants.TYPE_TNAME);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -96,7 +99,11 @@ public class BTypes {
 
     }
 
-    private static void createBuiltInTypes(GlobalScope globalScope) {
+    public static void createBuiltInTypes(GlobalScope globalScope) {
+        if (initialized) {
+            return;
+        }
+
         typeInt = new BIntegerType(TypeConstants.INT_TNAME, null, globalScope);
         typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null, globalScope);
         typeString = new BStringType(TypeConstants.STRING_TNAME, null, globalScope);
@@ -107,6 +114,7 @@ public class BTypes {
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
+        typeType = new BTypeType(TypeConstants.TYPE_TNAME, null, globalScope);
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);

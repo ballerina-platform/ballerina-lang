@@ -24,7 +24,7 @@ package org.ballerinalang.util.codegen.cpentries;
  */
 public class FloatCPEntry implements ConstantPoolEntry {
 
-    double value;
+    private double value;
 
     public FloatCPEntry(double value) {
         this.value = value;
@@ -39,12 +39,22 @@ public class FloatCPEntry implements ConstantPoolEntry {
     }
 
     @Override
-    public int hashCode() {
-        return (int) value;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FloatCPEntry that = (FloatCPEntry) o;
+        return Double.compare(that.value, value) == 0;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof FloatCPEntry && value == (((FloatCPEntry) obj).value);
+    public int hashCode() {
+        long temp = Double.doubleToLongBits(value);
+        return (int) (temp ^ (temp >>> 32));
     }
 }

@@ -65,7 +65,8 @@ public class SessionManager {
         sessionExpiryChecker.scheduleAtFixedRate(() ->
                         sessionMap.values().parallelStream()
                                 .filter(session ->
-                                        (System.currentTimeMillis() - session.getLastAccessedTime() >=
+                                        (session.getMaxInactiveInterval() >= 0 &&
+                                                System.currentTimeMillis() - session.getLastAccessedTime() >=
                                                 session.getMaxInactiveInterval() * 1000))
                                 .forEach(Session::invalidate),
                 30, 30, TimeUnit.SECONDS);
@@ -100,7 +101,7 @@ public class SessionManager {
     }
 
     /**
-     * Stop ScheduledExecutorService
+     * Stop ScheduledExecutorService.
      *
      */
     public void stop() {

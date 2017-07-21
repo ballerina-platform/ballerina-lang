@@ -42,5 +42,6 @@ public class TypeTags {
     public static final int ANNOTATION_TAG = 17;
     public static final int NULL_TAG = 18;
     public static final int XML_ATTRIBUTES_TAG = 19;
-    public static final int C_JSON_TAG = 20;
+    public static final int TYPE_TAG = 20;
+    public static final int C_JSON_TAG = 21;
 }

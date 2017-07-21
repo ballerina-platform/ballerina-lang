@@ -122,7 +122,11 @@ public enum SemanticErrors {
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0098"),
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0099"),
     UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0100"),
-    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0101")
+    INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix", "SEMANTIC_0101"),
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102"),
+    INCOMPATIBLE_TYPES_IN_XML_TEMPLATE("incompatible.types.in.xml.template", "SEMANTIC_0103"),
+    INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration", "SEMANTIC_0104"),
+    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0105")
     ;
 
     private String errorMsgKey;

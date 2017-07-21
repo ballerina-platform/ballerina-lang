@@ -17,10 +17,14 @@
 */
 package org.ballerinalang.nativeimpl.util;
 
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangASTBuilder;
+import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.codegen.ProgramFileWriter;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,8 +49,8 @@ public class BTestUtils {
         Path programPath;
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            return new BLangProgramLoader().loadLibrary(programPath,
-                Paths.get(sourceFilePath));
+            return new BLangASTBuilder().build(programPath,
+                    Paths.get(sourceFilePath));
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
@@ -56,10 +60,25 @@ public class BTestUtils {
         Path programPath;
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            return new BLangProgramLoader().loadProgramFile(programPath,
+            ProgramFile programFile = BLangCompiler.compile(programPath,
                     Paths.get(sourceFilePath));
+            Path targetPath;
+            Path sourcePath = programPath.resolve(sourceFilePath);
+            if (sourcePath.endsWith(".bal")) {
+                String sourcePathStr = sourcePath.toString();
+                targetPath = Paths.get(sourcePathStr.substring(0, sourcePathStr.length() - 4) + ".balx");
+            } else {
+                targetPath = Paths.get(sourcePath.getName(sourcePath.getNameCount() - 1).toString() + ".balx");
+            }
+
+            targetPath = programPath.resolve(targetPath);
+            ProgramFileWriter.writeProgram(programFile, targetPath);
+            ProgramFileReader reader = new ProgramFileReader();
+            return reader.readProgram(targetPath);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

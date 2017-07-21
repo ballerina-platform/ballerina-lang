@@ -308,7 +308,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
