@@ -94,14 +94,11 @@ public class HTTPServicesRegistry {
         if (annotationInfo != null) {
             AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
                     (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
-            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
-                    !annAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annAttributeValue.getStringValue();
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null) {
-                if (annotationAttributeValue.getStringValue().trim().isEmpty()) {
+            if (annAttributeValue != null && annAttributeValue.getStringValue() != null) {
+                if (annAttributeValue.getStringValue().trim().isEmpty()) {
                     basePath = Constants.DEFAULT_BASE_PATH;
                 } else {
-                    basePath = annotationAttributeValue.getStringValue();
+                    basePath = annAttributeValue.getStringValue();
                 }
             }
         }
