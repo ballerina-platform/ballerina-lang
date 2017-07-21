@@ -957,7 +957,7 @@ class TransformExpanded extends React.Component {
                     onMouseOver={this.onTransformDropZoneActivate}
                     onMouseOut={this.onTransformDropZoneDeactivate}>
                     <div id ="transformHeader" className="transform-header">
-                        <i onClick={this.onClose} className="fw fw-left-arrow icon close-transform"></i>
+                        <i onClick={this.onClose} className="fw fw-left icon close-transform"></i>
                         <p className="transform-header-text ">
                             <i className="transform-header-icon fw fw-type-converter"></i>
                             Transform
@@ -982,7 +982,9 @@ class TransformExpanded extends React.Component {
                         </span>
                     </div>
                     <div className="leftType"></div>
-                    <div className="middle-content"></div>
+                    <div className="middle-content">
+                        <span className="middle-content-title">Drag Function here</span>
+                    </div>
                     <div className="target-view">
                         <SuggestionsDropdown
                             value={this.state.typedTarget}

@@ -74,6 +74,20 @@ class VariableDefinitionStatement extends Statement {
     }
 
     /**
+     * Gets the variable type of the variable definition statement inclusive of dimensions and constraints.
+     * @return {string} - The variable type.
+     */
+    getVariableType() {
+        let variableType = this.getBType();
+        if (this.getChildren()[0].getChildren()[0].isArray()) {
+            for (let itr = 0; itr < this.getChildren()[0].getChildren()[0].getDimensions(); itr++) {
+                variableType += '[]';
+            }
+        }
+        return variableType;
+    }
+
+    /**
      * Gets the identifier of the variable definition statement.
      * @return {string} - The identifier.
      */
