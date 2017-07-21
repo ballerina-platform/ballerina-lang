@@ -7,7 +7,7 @@ Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little d
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `<ballerina_home>/samples/helloWorld` directory with a single command:
 
 ```
-ballerina run main helloWorld.bal
+ballerina run helloWorld.bal
 ```
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
@@ -139,10 +139,10 @@ Your service is now deployed and running on the Ballerina server.
 
 ### Send the request
 
-In a new command prompt, use curl to send the following request to your program:
+In a new command prompt, use cURL to send the following request to your program:
 
 ```
-curl -v http://localhost:9090/myecho -d "Hello World......"
+curl -v http://localhost:9090/myecho/myEchoResource -d "Hello World......"
 ```
 
 The service receives the request, takes the text `Hello World......` from the incoming message, converts it into a response without the client headers, and sends it back to the command line where the request was sent.
@@ -156,5 +156,3 @@ Now that you're familiar with running Ballerina in standalone and server mode, u
 * Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the primary features you need to know about.
 * Read about the [Tools](../tools.md) that you can use with Ballerina, such as using an IDE instead of the Composer. 
 * Run through the rest of the [Tutorials](index.md) to get hands-on experience.  
-* Browse through the [Samples](../samples.md) and use them as templates for your own programs.
-* See the [Language Reference](../lang-ref/lang-overview.md) for complete information on using the Ballerina language. 
