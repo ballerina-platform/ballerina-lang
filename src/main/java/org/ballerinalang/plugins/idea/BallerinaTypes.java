@@ -42,8 +42,6 @@ public class BallerinaTypes {
     public static final TokenIElementType COMMENT_STATEMENT = tokenIElementTypes.get(BallerinaLexer.LINE_COMMENT);
     public static final TokenIElementType QUOTED_STRING = tokenIElementTypes.get(BallerinaLexer.QuotedStringLiteral);
     public static final TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
-    public static final TokenIElementType BACKTICKED_STRING =
-            tokenIElementTypes.get(BallerinaLexer.BacktickStringLiteral);
     public static final TokenIElementType ERRCHAR = tokenIElementTypes.get(BallerinaLexer.ERRCHAR);
     public static final TokenIElementType DOUBLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.DOUBLEQUOTE);
     public static final TokenIElementType BACK_TICK = tokenIElementTypes.get(BallerinaLexer.BACKTICK);
@@ -122,7 +120,7 @@ public class BallerinaTypes {
     public static final TokenIElementType ABORTED = tokenIElementTypes.get(BallerinaLexer.ABORTED);
     public static final TokenIElementType ACTION = tokenIElementTypes.get(BallerinaLexer.ACTION);
     public static final TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
-    public static final TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.ANY);
+    public static final TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.TYPE_ANY);
     public static final TokenIElementType AS = tokenIElementTypes.get(BallerinaLexer.AS);
     public static final TokenIElementType ATTACH = tokenIElementTypes.get(BallerinaLexer.ATTACH);
     public static final TokenIElementType BREAK = tokenIElementTypes.get(BallerinaLexer.BREAK);
@@ -139,9 +137,9 @@ public class BallerinaTypes {
     public static final TokenIElementType IMPORT = tokenIElementTypes.get(BallerinaLexer.IMPORT);
     public static final TokenIElementType ITERATE = tokenIElementTypes.get(BallerinaLexer.ITERATE);
     public static final TokenIElementType JOIN = tokenIElementTypes.get(BallerinaLexer.JOIN);
-    public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.JSON);
-    public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.MAP);
-    public static final TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.MESSAGE);
+    public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.TYPE_JSON);
+    public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
+    public static final TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.TYPE_MESSAGE);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
@@ -158,33 +156,32 @@ public class BallerinaTypes {
     public static final TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);
     public static final TokenIElementType WORKER = tokenIElementTypes.get(BallerinaLexer.WORKER);
     public static final TokenIElementType XMLNS = tokenIElementTypes.get(BallerinaLexer.XMLNS);
-    public static final TokenIElementType XML = tokenIElementTypes.get(BallerinaLexer.XML);
-    public static final TokenIElementType XML_DOCUMENT = tokenIElementTypes.get(BallerinaLexer.XML_DOCUMENT);
+    public static final TokenIElementType XML = tokenIElementTypes.get(BallerinaLexer.TYPE_XML);
 
     // Other tokens
-    public static final TokenIElementType SENDARROW = tokenIElementTypes.get(BallerinaLexer.SENDARROW);
-    public static final TokenIElementType RECEIVEARROW = tokenIElementTypes.get(BallerinaLexer.RECEIVEARROW);
+    public static final TokenIElementType SENDARROW = tokenIElementTypes.get(BallerinaLexer.RARROW);
+    public static final TokenIElementType RECEIVEARROW = tokenIElementTypes.get(BallerinaLexer.LARROW);
 
-    public static final TokenIElementType LPAREN = tokenIElementTypes.get(BallerinaLexer.LPAREN);
-    public static final TokenIElementType RPAREN = tokenIElementTypes.get(BallerinaLexer.RPAREN);
-    public static final TokenIElementType LBRACE = tokenIElementTypes.get(BallerinaLexer.LBRACE);
-    public static final TokenIElementType RBRACE = tokenIElementTypes.get(BallerinaLexer.RBRACE);
-    public static final TokenIElementType LBRACK = tokenIElementTypes.get(BallerinaLexer.LBRACK);
-    public static final TokenIElementType RBRACK = tokenIElementTypes.get(BallerinaLexer.RBRACK);
-    public static final TokenIElementType SEMI = tokenIElementTypes.get(BallerinaLexer.SEMI);
+    public static final TokenIElementType LPAREN = tokenIElementTypes.get(BallerinaLexer.LEFT_PARENTHESIS);
+    public static final TokenIElementType RPAREN = tokenIElementTypes.get(BallerinaLexer.RIGHT_PARENTHESIS);
+    public static final TokenIElementType LBRACE = tokenIElementTypes.get(BallerinaLexer.LEFT_BRACE);
+    public static final TokenIElementType RBRACE = tokenIElementTypes.get(BallerinaLexer.RIGHT_BRACE);
+    public static final TokenIElementType LBRACK = tokenIElementTypes.get(BallerinaLexer.LEFT_BRACKET);
+    public static final TokenIElementType RBRACK = tokenIElementTypes.get(BallerinaLexer.RIGHT_BRACKET);
+    public static final TokenIElementType SEMI = tokenIElementTypes.get(BallerinaLexer.SEMICOLON);
     public static final TokenIElementType COMMA = tokenIElementTypes.get(BallerinaLexer.COMMA);
     public static final TokenIElementType DOT = tokenIElementTypes.get(BallerinaLexer.DOT);
 
     public static final TokenIElementType ASSIGN = tokenIElementTypes.get(BallerinaLexer.ASSIGN);
     public static final TokenIElementType GT = tokenIElementTypes.get(BallerinaLexer.GT);
     public static final TokenIElementType LT = tokenIElementTypes.get(BallerinaLexer.LT);
-    public static final TokenIElementType BANG = tokenIElementTypes.get(BallerinaLexer.BANG);
+    public static final TokenIElementType BANG = tokenIElementTypes.get(BallerinaLexer.NOT);
     public static final TokenIElementType TILDE = tokenIElementTypes.get(BallerinaLexer.TILDE);
     public static final TokenIElementType COLON = tokenIElementTypes.get(BallerinaLexer.COLON);
     public static final TokenIElementType EQUAL = tokenIElementTypes.get(BallerinaLexer.EQUAL);
-    public static final TokenIElementType LE = tokenIElementTypes.get(BallerinaLexer.LE);
-    public static final TokenIElementType GE = tokenIElementTypes.get(BallerinaLexer.GE);
-    public static final TokenIElementType NOTEQUAL = tokenIElementTypes.get(BallerinaLexer.NOTEQUAL);
+    public static final TokenIElementType LE = tokenIElementTypes.get(BallerinaLexer.LT_EQUAL);
+    public static final TokenIElementType GE = tokenIElementTypes.get(BallerinaLexer.GT_EQUAL);
+    public static final TokenIElementType NOTEQUAL = tokenIElementTypes.get(BallerinaLexer.NOT_EQUAL);
     public static final TokenIElementType AND = tokenIElementTypes.get(BallerinaLexer.AND);
     public static final TokenIElementType OR = tokenIElementTypes.get(BallerinaLexer.OR);
     public static final TokenIElementType ADD = tokenIElementTypes.get(BallerinaLexer.ADD);
@@ -193,7 +190,7 @@ public class BallerinaTypes {
     public static final TokenIElementType DIV = tokenIElementTypes.get(BallerinaLexer.DIV);
     public static final TokenIElementType BITAND = tokenIElementTypes.get(BallerinaLexer.BITAND);
     public static final TokenIElementType BITOR = tokenIElementTypes.get(BallerinaLexer.BITOR);
-    public static final TokenIElementType CARET = tokenIElementTypes.get(BallerinaLexer.CARET);
+    public static final TokenIElementType CARET = tokenIElementTypes.get(BallerinaLexer.POW);
     public static final TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
 

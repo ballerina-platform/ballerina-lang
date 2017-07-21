@@ -1468,4 +1468,15 @@ public class BallerinaPsiImplUtil {
         ((LeafElement) valueNode).replaceWithText(text);
         return quotedLiteralString;
     }
+
+    public static boolean isValidVarVariable(@NotNull AssignmentStatementNode assignmentStatementNode,
+                                             @NotNull IdentifierPSINode identifier) {
+        List<IdentifierPSINode> variablesFromVarAssignment = getVariablesFromVarAssignment(assignmentStatementNode);
+        for (IdentifierPSINode identifierNode : variablesFromVarAssignment) {
+            if (identifier.equals(identifierNode)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

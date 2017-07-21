@@ -30,15 +30,18 @@ import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
+import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,7 +109,7 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
 
         Collection<NameReferenceNode> nameReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
                 NameReferenceNode.class);
-        problemDescriptors.addAll(getUnresolvedReferenceDescriptors(manager, isOnTheFly, availableFixes,
+        problemDescriptors.addAll(getUnresolvedNameReferenceDescriptors(manager, isOnTheFly, availableFixes,
                 nameReferenceNodes));
 
         Collection<AnnotationAttributeNode> annotationAttributeNodes = PsiTreeUtil.findChildrenOfType(file,
@@ -130,6 +133,50 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                 functionReferenceNodes));
 
         return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
+    }
+
+    private List<ProblemDescriptor> getUnresolvedNameReferenceDescriptors(@NotNull InspectionManager manager,
+                                                                          boolean isOnTheFly,
+                                                                          @NotNull LocalQuickFix[] availableFixes,
+                                                                          @NotNull Collection<NameReferenceNode>
+                                                                                  nodes) {
+        List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
+        for (NameReferenceNode annotationAttributeNode : nodes) {
+            ProgressManager.checkCanceled();
+            if (annotationAttributeNode == null) {
+                continue;
+            }
+            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(annotationAttributeNode,
+                    PackageNameNode.class);
+            if (packageNameNode != null) {
+                PsiReference reference = packageNameNode.findReferenceAt(0);
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null && resolvedElement.getParent() instanceof NamespaceDeclarationNode) {
+                        continue;
+                    }
+                }
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(annotationAttributeNode, IdentifierPSINode.class);
+            if (identifier == null) {
+                continue;
+            }
+            AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
+                    AssignmentStatementNode.class);
+            if (assignmentStatementNode == null) {
+                continue;
+            }
+            boolean isValidVarVariable = BallerinaPsiImplUtil.isValidVarVariable(assignmentStatementNode, identifier);
+            if (isValidVarVariable) {
+                continue;
+            }
+
+            PsiReference reference = identifier.getReference();
+            if (reference == null || reference.resolve() == null) {
+                problemDescriptors.add(createProblemDescriptor(manager, identifier, isOnTheFly, availableFixes));
+            }
+        }
+        return problemDescriptors;
     }
 
     private <T extends PsiElement> List<ProblemDescriptor> getUnresolvedReferenceDescriptors(
