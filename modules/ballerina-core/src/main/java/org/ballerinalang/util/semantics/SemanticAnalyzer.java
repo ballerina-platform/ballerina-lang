@@ -3945,17 +3945,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     /**
-<<<<<<< HEAD
      * Get the XML namespaces that are visible to to the current scope.
      * 
      * @param location Source location of the ballerina file
-     * @return XML namespaces that are visible to to the current scope, as a map
-=======
-     * Populate the namespace map of a {@link XMLAttributesRefExpr}.
-     * Namespaces are looked-up in the scopes visible to the provided expression.
-     *
-     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the namespaces
->>>>>>> 1ad5208353274f85b1738ffb0baaf9d94c0a3d7e
+     * @return XML namespaces that are visible to the current scope, as a map
      */
     private Map<String, Expression> getNamespaceInScope(NodeLocation location) {
         Map<String, Expression> namespaces = new HashMap<String, Expression>();
