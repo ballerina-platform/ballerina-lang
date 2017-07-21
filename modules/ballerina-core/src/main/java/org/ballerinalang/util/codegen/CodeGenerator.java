@@ -134,6 +134,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
@@ -198,6 +199,7 @@ public class CodeGenerator implements NodeVisitor {
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private LineNumberTableAttributeInfo lineNumberTableAttributeInfo;
     private CallableUnitInfo currentCallableUnitInfo;
     private int workerChannelCount = 0;
 
@@ -269,6 +271,12 @@ public class CodeGenerator implements NodeVisitor {
         packageRefCPEntry.setPackageInfo(currentPkgInfo);
         currentPkgCPIndex = currentPkgInfo.addCPEntry(packageRefCPEntry);
 
+        // Create lineNumberTableAttributeInfo object to collect line number details.
+        UTF8CPEntry lineNumberAttribUTF8CPEntry = new UTF8CPEntry(
+                AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.toString());
+        int lineNumberAttribNameIndex = currentPkgInfo.addCPEntry(lineNumberAttribUTF8CPEntry);
+        lineNumberTableAttributeInfo = new LineNumberTableAttributeInfo(lineNumberAttribNameIndex);
+
         visitConstants(bLangPackage.getConsts());
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
@@ -288,6 +296,7 @@ public class CodeGenerator implements NodeVisitor {
         pkgInitFunction.accept(this);
         currentPkgInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(pkgInitFunction.getName()));
 
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNumberTableAttributeInfo);
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
@@ -2702,11 +2711,14 @@ public class CodeGenerator implements NodeVisitor {
 
             paramAnnotationFound = true;
             ParamAnnAttachmentInfo paramAttachmentInfo = new ParamAnnAttachmentInfo(i);
+            int j = 0;
+            int[] attachmentIndexes = new int[paramAnnotationAttachments.length];
             for (AnnotationAttachment annotationAttachment : paramAnnotationAttachments) {
                 AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
                 paramAttachmentInfo.addAnnotationAttachmentInfo(attachmentInfo);
-                localVarInfo.addAttachmentIndex(attachmentInfo.nameCPIndex);
+                attachmentIndexes[j] = attachmentInfo.nameCPIndex;
             }
+            localVarInfo.setAttachmentIndexes(attachmentIndexes);
 
             paramAttributeInfo.addParamAttachmentInfo(i, paramAttachmentInfo);
         }
@@ -2806,9 +2818,23 @@ public class CodeGenerator implements NodeVisitor {
         if (nodeLocation == null) {
             return;
         }
-        LineNumberInfo lineNumberInfo = LineNumberInfo.Factory.create(nodeLocation, currentPkgInfo,
+        LineNumberInfo lineNumberInfo = createLineNumberInfo(nodeLocation, currentPkgInfo,
                 currentPkgInfo.getInstructionCount());
-        currentPkgInfo.addLineNumberInfo(lineNumberInfo);
+        lineNumberTableAttributeInfo.addLineNumberInfo(lineNumberInfo);
+    }
+
+    private LineNumberInfo createLineNumberInfo(NodeLocation nodeLocation, PackageInfo packageInfo, int ip) {
+        if (nodeLocation == null) {
+            return null;
+        }
+        UTF8CPEntry fileNameUTF8CPEntry = new UTF8CPEntry(nodeLocation.getFileName());
+        int fileNameCPEntryIndex = packageInfo.addCPEntry(fileNameUTF8CPEntry);
+
+        LineNumberInfo lineNumberInfo = new LineNumberInfo(nodeLocation.getLineNumber(),
+                fileNameCPEntryIndex, nodeLocation.getFileName(), ip);
+        lineNumberInfo.setPackageInfo(packageInfo);
+        lineNumberInfo.setIp(ip);
+        return lineNumberInfo;
     }
 
     private LocalVariableInfo getLocalVarAttributeInfo(VariableDef variableDef) {
@@ -2828,7 +2854,12 @@ public class CodeGenerator implements NodeVisitor {
             memLocationOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
         }
 
-        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
+        BType varType = variableDef.getType();
+        String sig = varType.getSig().toString();
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(sig);
+        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+
+        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, sigCPIndex, varType);
     }
 
     private void assignVariableDefMemoryLocation(VariableDef variableDef) {

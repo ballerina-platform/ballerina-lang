@@ -5,7 +5,6 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -32,7 +31,6 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 public class Main {
     private static final String JC_UNKNOWN_OPTION_PREFIX = "Unknown option:";
     private static final String JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX = "Expected a value after parameter";
-    private static final String USER_DIR = "user.dir";
 
     private static PrintStream outStream = System.err;
 
@@ -77,12 +75,6 @@ public class Main {
             JCommander jcRunCmd = addSubCommand(cmdParser, "run", runCmd);
             runCmd.setParentCmdParser(cmdParser);
             runCmd.setSelfCmdParser(jcRunCmd);
-
-            // Build command
-            BuildCmd buildCmd = new BuildCmd();
-            JCommander jcBuildCmd = addSubCommand(cmdParser, "build", buildCmd);
-            buildCmd.setParentCmdParser(cmdParser);
-            buildCmd.setSelfCmdParser(jcBuildCmd);
 
             HelpCmd helpCmd = new HelpCmd();
             cmdParser.addCommand("help", helpCmd);
@@ -262,86 +254,6 @@ public class Main {
         @Override
         public void printUsage(StringBuilder out) {
             out.append("  ballerina run [flags] <balfile | packagename | balxfile> [args...] \n");
-        }
-
-        @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
-        }
-    }
-
-    /**
-     * This class represents the "build" command and it holds arguments and flags specified by the user.
-     *
-     * @since 0.8.0
-     */
-    @Parameters(commandNames = "build", commandDescription = "compile Ballerina program")
-    private static class BuildCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
-
-        @Parameter(names = {"-o"}, description = "write output to the given file")
-        private String outputFileName;
-
-        @Parameter(arity = 1)
-        private List<String> argList;
-
-        @Parameter(names = {"--help", "-h"}, hidden = true)
-        private boolean helpFlag;
-
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
-
-        public void execute() {
-            if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
-                outStream.println(commandUsageInfo);
-                return;
-            }
-
-            if (argList == null || argList.size() == 0) {
-                throw LauncherUtils.createUsageException("no ballerina program given");
-            }
-
-            if (argList.size() > 1) {
-                throw LauncherUtils.createUsageException("too many arguments");
-            }
-
-            // Get source root path.
-            Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-            Path packagePath = Paths.get(argList.get(0));
-
-            Path targetPath = null;
-            if (outputFileName != null && !outputFileName.isEmpty()) {
-                targetPath = Paths.get(outputFileName);
-            }
-
-            BLangCompiler.compileAndWrite(sourceRootPath, packagePath, targetPath);
-        }
-
-        @Override
-        public String getName() {
-            return "build";
-        }
-
-        @Override
-        public void printLongDesc(StringBuilder out) {
-            out.append("Compiles Ballerina sources and writes the output to a file. \n");
-            out.append("\n");
-            out.append("By default, output filename is the last part of packagename \n");
-            out.append("or the filename (minus the extension) with the extension \".balx\". \n");
-            out.append("\n");
-            out.append("If the output file is specified with the -o flag, the output \n");
-            out.append("will be written to that file. \n");
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina build <balfile | packagename> [-o output] \n");
         }
 
         @Override
