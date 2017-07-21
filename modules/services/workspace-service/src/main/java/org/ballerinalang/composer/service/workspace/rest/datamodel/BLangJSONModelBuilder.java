@@ -47,6 +47,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SimpleVariableDef;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangModelBuilder;
@@ -66,7 +67,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
-import org.ballerinalang.model.expressions.LambdaFunctionExpression;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -201,6 +202,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
         //service definitions //connector definitions //function definition
         for (CompilationUnit node : bFile.getCompilationUnits()) {
+            if (node instanceof BallerinaFunction) {
+                BallerinaFunction function = (BallerinaFunction) node;
+                if (function.isLambda()) {
+                    continue;
+                }
+            }
             node.accept(this);
         }
 
@@ -330,7 +337,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (resource.getVariableDefs() != null) {
-            for (SimpleVariableDef variableDef : resource.getVariableDefs()) {
+            for (VariableDef variableDef : resource.getVariableDefs()) {
                 variableDef.accept(this);
             }
         }
@@ -356,6 +363,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonFunc.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.FUNCTION_DEFINITION);
         jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
+        jsonFunc.addProperty(BLangJSONModelConstants.IS_LAMBDA_FUNCTION, function.isLambda());
         this.addPosition(jsonFunc, function.getNodeLocation());
         this.addWhitespaceDescriptor(jsonFunc, function.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -368,7 +376,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (function.getVariableDefs() != null) {
-            for (SimpleVariableDef variableDef : function.getVariableDefs()) {
+            for (VariableDef variableDef : function.getVariableDefs()) {
                 variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
@@ -437,7 +445,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (typeMapper.getVariableDefs() != null) {
-            for (SimpleVariableDef variableDef : typeMapper.getVariableDefs()) {
+            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
                 variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
@@ -503,7 +511,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (action.getVariableDefs() != null) {
-            for (SimpleVariableDef variableDef : action.getVariableDefs()) {
+            for (VariableDef variableDef : action.getVariableDefs()) {
                 variableDef.accept(this);
             }
         }
@@ -1603,9 +1611,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
     
     @Override
-    public void visit(LambdaFunctionExpression lambdaExpr) {
+    public void visit(LambdaExpression lambdaExpr) {
         JsonObject lambdaExprObj = new JsonObject();
-        lambdaExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "lambda-function-expression");
+        lambdaExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "lambda_function_expression");
+        tempJsonArrayRef.push(new JsonArray());
+        lambdaExpr.getFunction().accept(this);
+        lambdaExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.pop());
         tempJsonArrayRef.peek().add(lambdaExprObj);
     }
 

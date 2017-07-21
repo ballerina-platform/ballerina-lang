@@ -43,6 +43,8 @@ public class BLangJSONModelConstants {
 
     public static final String IS_PUBLIC_FUNCTION = "is_public_function";
 
+    public static final String IS_LAMBDA_FUNCTION = "is_lambda_function";
+
     public static final String ANNOTATION_NAME = "annotation_name";
 
     public static final String ANNOTATION_ATTACHMENT_NAME = "annotation_attachment_name";
