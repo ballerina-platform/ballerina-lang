@@ -17,16 +17,26 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.sender.websocket;
+package org.wso2.carbon.transport.http.netty.listener;
 
-import io.netty.channel.ChannelHandlerContext;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
- * Utility class for WebSocket client connector.
+ * Callback for WebSocket handshake.
  */
-public class Utils {
+public class WebSocketCallback implements CarbonCallback {
 
-    public static String getClientID(ChannelHandlerContext ctx) {
-        return ctx.channel().id().asLongText();
+    CountDownLatch countDownLatch;
+
+    public WebSocketCallback(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
+    }
+
+    @Override
+    public void done(CarbonMessage cMsg) {
+        countDownLatch.countDown();
     }
 }

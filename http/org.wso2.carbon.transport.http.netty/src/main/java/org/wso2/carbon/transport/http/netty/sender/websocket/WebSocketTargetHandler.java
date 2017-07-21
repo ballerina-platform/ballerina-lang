@@ -44,6 +44,7 @@ import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.websocket.Util;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
@@ -100,7 +101,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         handshaker.handshake(ctx.channel());
-        clientSession = new WebSocketSessionImpl(ctx, isSecure, requestedUri, Utils.getClientID(ctx));
+        clientSession = Util.getSession(ctx, isSecure, requestedUri);
         if (sourceHandler != null) {
             sourceHandler.addClientSession(clientSession);
         }
@@ -123,7 +124,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
-            clientSession = new WebSocketSessionImpl(ctx, isSecure, requestedUri, Utils.getClientID(ctx));
+            clientSession = Util.getSession(ctx, isSecure, requestedUri);
             if (sourceHandler != null) {
                 sourceHandler.addClientSession(clientSession);
             }

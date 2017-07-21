@@ -77,7 +77,7 @@ public class WebSocketMessageProcessor implements CarbonMessageProcessor {
                         } else if (carbonMessage instanceof BinaryCarbonMessage) {
                             handleBinaryMessage(carbonMessage);
                         } else if (carbonMessage instanceof StatusCarbonMessage) {
-                            handleStatusMessage(carbonMessage);
+                            handleStatusMessage(carbonMessage, carbonCallback);
                         }
                     } else {
                         // If the message coming from WebSocket client it is processed here.
@@ -128,9 +128,10 @@ public class WebSocketMessageProcessor implements CarbonMessageProcessor {
      * Handle incoming status messages when opening a connection and closing a connection.
      * @param carbonMessage {@link CarbonMessage} to process.
      */
-    private void handleStatusMessage(CarbonMessage carbonMessage) {
+    private void handleStatusMessage(CarbonMessage carbonMessage, CarbonCallback callback) {
         StatusCarbonMessage statusCarbonMessage = (StatusCarbonMessage) carbonMessage;
         if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusCarbonMessage.getStatus())) {
+            callback.done(carbonMessage);
             lastOnOpenCarbonMessage = statusCarbonMessage;
             log.info("Status open carbon message received.");
             Session session = (Session) statusCarbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);

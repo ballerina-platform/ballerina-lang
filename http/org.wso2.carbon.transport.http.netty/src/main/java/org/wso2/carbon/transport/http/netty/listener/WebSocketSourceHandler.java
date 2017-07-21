@@ -44,7 +44,6 @@ import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionI
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,18 +74,13 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     public WebSocketSourceHandler(String channelId, ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration, HttpRequest httpRequest,
-                                  boolean isSecured, ChannelHandlerContext ctx) throws Exception {
+                                  boolean isSecured, ChannelHandlerContext ctx,
+                                  WebSocketSessionImpl serverSession) throws Exception {
         super(connectionManager, listenerConfiguration);
         this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.isSecured = isSecured;
-        this.serverSession = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
-        httpRequest.headers().entries().forEach(
-                header -> {
-                    serverSession.addUserProperty(header.getKey(), header.getValue());
-                }
-        );
-        sendOnOpenMessage(ctx, isSecured, uri);
+        this.serverSession = serverSession;
     }
 
     /**
@@ -197,15 +191,6 @@ public class WebSocketSourceHandler extends SourceHandler {
             logger.error("Cannot find registered MessageProcessor to forward the message.");
             ctx.channel().close();
         }
-    }
-
-
-    private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) throws URISyntaxException {
-        cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        setupCarbonMessage(ctx);
-        cMsg.setProperty(Constants.CONNECTION, Constants.UPGRADE);
-        cMsg.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
-        publishToMessageProcessor(cMsg);
     }
 
     /*
