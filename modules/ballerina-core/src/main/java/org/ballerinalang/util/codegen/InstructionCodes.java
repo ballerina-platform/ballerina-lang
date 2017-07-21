@@ -18,7 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 /**
- * Bytecode instructions of a Ballerina compiled program.
+ * Bytecode instructions of a compiled Ballerina program.
  *
  * @since 0.87
  */
@@ -191,7 +191,7 @@ public interface InstructionCodes {
     int JSON2T = 155;
     int XML2JSON = 156;
     int JSON2XML = 157;
-    
+
     // Type cast
     int I2ANY = 160;
     int F2ANY = 161;

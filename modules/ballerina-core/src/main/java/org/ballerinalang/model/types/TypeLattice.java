@@ -187,7 +187,7 @@ public class TypeLattice {
 
         conversionLattice.addEdge(floatV, stringV, SAFE, InstructionCodes.F2S);
         conversionLattice.addEdge(floatV, booleanV, SAFE, InstructionCodes.F2B);
-        conversionLattice.addEdge(floatV, intV, UNSAFE, InstructionCodes.F2I);
+        conversionLattice.addEdge(floatV, intV, SAFE, InstructionCodes.F2I);
 
         conversionLattice.addEdge(stringV, floatV, UNSAFE, InstructionCodes.S2F);
         conversionLattice.addEdge(stringV, intV, UNSAFE, InstructionCodes.S2I);
@@ -356,7 +356,7 @@ public class TypeLattice {
         conversionLattice.addVertex(structV, false);
 
         conversionLattice.addEdge(structV, mapV, SAFE, InstructionCodes.T2MAP);
-        conversionLattice.addEdge(structV, jsonV, SAFE, InstructionCodes.T2JSON);
+        conversionLattice.addEdge(structV, jsonV, UNSAFE, InstructionCodes.T2JSON);
         conversionLattice.addEdge(jsonV, structV, UNSAFE, InstructionCodes.JSON2T);
         conversionLattice.addEdge(mapV, structV, UNSAFE, InstructionCodes.MAP2T);
     }

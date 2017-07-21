@@ -35,6 +35,8 @@ public class MessageDTO {
 
     private String message;
 
+    private String threadId;
+
     private BreakPointDTO location;
 
     private List<FrameDTO> frames = new ArrayList<FrameDTO>();
@@ -55,12 +57,21 @@ public class MessageDTO {
         this.message = message;
     }
 
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
+    }
+
     public BreakPointDTO getLocation() {
         return location;
     }
 
     public void setLocation(NodeLocation location) {
-        this.location = new BreakPointDTO(location.getFileName(), location.getLineNumber());
+        this.location = new BreakPointDTO(location.getPackageDirPath(), location.getFileName(),
+                location.getLineNumber());
     }
 
     public void setLocation(BreakPointDTO location) {
@@ -71,40 +82,9 @@ public class MessageDTO {
         for (FrameInfo frame: frameInfos) {
             frames.add(new FrameDTO(frame));
         }
-        duplicateMainFix();
     }
 
     public List<FrameDTO> getFrames() {
         return frames;
-    }
-
-    /**
-     *  This function will remove the extra main frame returned by the debugger.
-     *  Todo : Properly fix this issue in the debugger implementation.
-     */
-    private void duplicateMainFix() {
-        FrameDTO main1 = null;
-        FrameDTO main2 = null;
-        //check if there are two main frames
-        for (FrameDTO frame: this.frames) {
-            if ("main".equals(frame.getFrameName())) {
-                if (main1 == null) {
-                    main1 = frame;
-                } else {
-                    main2 = frame;
-                }
-            }
-        }
-        //remove the one without variables
-        if (main1 != null && main2 != null) {
-            if (main1.getVariables().isEmpty()) {
-                this.frames.remove(main1);
-            } else if (main2.getVariables().isEmpty()) {
-                this.frames.remove(main2);
-            } else {
-                //or remove the first one
-                this.frames.remove(main1);
-            }
-        }
     }
 }
