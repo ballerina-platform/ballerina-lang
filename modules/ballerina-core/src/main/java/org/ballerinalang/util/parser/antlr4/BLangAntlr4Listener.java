@@ -125,9 +125,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     // flag to indicate whether additional information
     // from source needs to be captured, eg: whitespace
     private boolean isVerboseMode = false;
-    
-    private StringBuilder xmlLiteralBuilder = new StringBuilder();
-    
+
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path sourceFilePath) {
         this.modelBuilder = modelBuilder;
         this.fileName = sourceFilePath.getFileName().toString();
@@ -2325,7 +2323,6 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
 
         modelBuilder.createXMLQName(getCurrentLocation(ctx), null, localname, prefix);
-        xmlLiteralBuilder.append(ctx.getText());
     }
 
     @Override

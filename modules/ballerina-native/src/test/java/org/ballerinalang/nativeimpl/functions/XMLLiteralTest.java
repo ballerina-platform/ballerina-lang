@@ -357,9 +357,11 @@ public class XMLLiteralTest {
             inputStreamREader = new InputStreamReader(is);
             br = new BufferedReader(inputStreamREader);
             String content = br.readLine();
-            if (content != null) {
-                sb.append(content);
+            if (content == null) {
+                return sb.toString();
             }
+
+            sb.append(content);
 
             while ((content = br.readLine()) != null) {
                 sb.append("\n" + content);

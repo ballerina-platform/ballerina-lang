@@ -27,7 +27,6 @@ import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.BallerinaParserErrorStrategy;
-import org.ballerinalang.util.parser.antlr4.BLangANTLRInputStream;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class BLangFiles {
         }
 
         try {
-            ANTLRInputStream antlrInputStream = new BLangANTLRInputStream(inputStream);
+            ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
 
             // Setting the name of the source file being parsed, to the ANTLR input stream.
             // This is required by the parser-error strategy.

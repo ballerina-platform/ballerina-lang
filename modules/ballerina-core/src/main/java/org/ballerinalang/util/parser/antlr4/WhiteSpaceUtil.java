@@ -963,16 +963,6 @@ public class WhiteSpaceUtil {
 //        return ws;
 //    }
 
-//    public static WhiteSpaceDescriptor getBacktickStringWS(CommonTokenStream tokenStream,
-//                                                           BallerinaParser.BacktickStringContext ctx) {
-//        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-//        ws.addWhitespaceRegion(WhiteSpaceRegions.BACK_TICK_LIT_PRECEDING_WHITESPACE,
-//                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-//        ws.addWhitespaceRegion(WhiteSpaceRegions.BACK_TICK_LIT_FOLLOWING_WHITESPACE,
-//                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
-//        return ws;
-//    }
-
     public static WhiteSpaceDescriptor getTypeCastingExpWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.TypeCastingExpressionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();

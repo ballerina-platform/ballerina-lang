@@ -20,7 +20,6 @@ package org.ballerinalang.core.parser.negative;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.ParserException;
 //import org.ballerinalang.util.exceptions.ParserException;
 import org.testng.annotations.Test;
 
@@ -118,9 +117,4 @@ public class InvalidSyntaxParserTest {
 //        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal");
 //    }
 
-    @Test(expectedExceptions = {ParserException.class},
-            expectedExceptionsMessageRegExp = "testXML.bal:2:23: unwanted token 'world'")
-    public void testXML() {
-        BTestUtils.getProgramFile("samples/parser/invalidSyntax/testXML.bal");
-    }
 }
