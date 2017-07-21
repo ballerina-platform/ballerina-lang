@@ -1,6 +1,6 @@
 package ballerina.net.ftp;
 
-annotation config attach service {
+annotation configuration attach service<> {
     string dirURI;
     string fileNamePattern;
     string pollingInterval;
