@@ -142,4 +142,10 @@ under the License.
             <class name="org.ballerinalang.debug.VMDebuggerTryCatchTest"/>
         </classes>
     </test>
+
+    <test name="ballerina-lambda-native-test-suite">
+        <classes>
+            <class name="org.ballerinalang.core.lang.functions.FunctionPointersNativeTest" />
+        </classes>
+    </test>
 </suite>

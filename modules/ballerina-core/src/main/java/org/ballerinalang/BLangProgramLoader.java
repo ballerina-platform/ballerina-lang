@@ -19,6 +19,8 @@ package org.ballerinalang;
 
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 import org.ballerinalang.util.program.BLangPrograms;
 
 import java.io.IOException;
@@ -40,12 +42,14 @@ public class BLangProgramLoader {
 
         ProgramFileReader programFileReader = new ProgramFileReader();
         try {
-            ProgramFile programFile = programFileReader.readProgram(balxFilePath);
-            programFile.setProgramFilePath(balxFilePath);
-            return programFile;
+            return programFileReader.readProgram(balxFilePath);
         } catch (IOException e) {
-            // TODO Handle the error properly
-            throw new RuntimeException(e.getMessage(), e);
+            throw new BLangRuntimeException("ballerina: error reading program file '" +
+                    balxFilePath.toString() + "'", e);
+        } catch (BLangRuntimeException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new ProgramFileFormatException("ballerina: invalid program file format", e);
         }
     }
 }

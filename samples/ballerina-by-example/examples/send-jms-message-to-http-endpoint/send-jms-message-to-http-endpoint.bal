@@ -3,7 +3,7 @@ import ballerina.lang.messages;
 import ballerina.net.jms;
 import ballerina.net.http;
 
-@jms:config {
+@jms:configuration {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl:
            "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",

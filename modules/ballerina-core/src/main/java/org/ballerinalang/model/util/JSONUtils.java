@@ -25,6 +25,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.OMText;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BArrayType;
@@ -50,11 +55,16 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -66,6 +76,10 @@ import java.util.Set;
 public class JSONUtils {
 
     private static final String NULL = "null";
+    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
+    private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
+    private static final String XSI_PREFIX = "xsi";
+    private static final String NIL = "nil";
 
     /**
      * Convert {@link BMap} to {@link BJSON}.
@@ -432,7 +446,128 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
-    
+
+    /**
+     * Converts given json object to the corresponding xml.
+     *
+     * @param json JSON object to get the corresponding xml
+     * @return BXML XML representation of the given json object
+     */
+    public static BXML convertToXML(BJSON json, String attributePrefix, String arrayEntryTag) {
+        try {
+            BXML xml;
+            JsonNode jsonNode = json.value();
+            ArrayList<BXML> omElementArrayList = traverseTree(jsonNode, attributePrefix, arrayEntryTag);
+            if (omElementArrayList.size() == 1) {
+                xml = omElementArrayList.get(0);
+            } else {
+                //There is a multi rooted node and create xml sequence from it
+                BRefValueArray elementsSeq = new BRefValueArray();
+                int count = omElementArrayList.size();
+                for (int i = 0; i < count; i++) {
+                    elementsSeq.add(i, omElementArrayList.get(i));
+                }
+                xml = new BXMLSequence(elementsSeq);
+            }
+            return xml;
+        } catch (Throwable t) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
+        }
+    }
+
+    /**
+     * Traverse a JSON root node and produces the corresponding xml items.
+     *
+     * @param node {@link JsonNode} to be traversed
+     * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
+     * @return List of xml items genereated during the traversal.
+     */
+    private static ArrayList<BXML> traverseTree(JsonNode node, String attributePrefix, String arrayEntryTag)
+            throws Exception {
+        ArrayList<BXML> xmlArray = new ArrayList<>();
+        if (node.isValueNode()) {
+            BXML xml = XMLUtils.parse(node.asText());
+            xmlArray.add(xml);
+        } else {
+            traverseJsonNode(node, null, null, xmlArray, attributePrefix, arrayEntryTag);
+        }
+        return xmlArray;
+    }
+
+    /**
+     * Traverse a JSON node ad produces the corresponding xml items.
+     *
+     * @param node {@link JsonNode} to be traversed
+     * @param nodeName name of the current traversing node
+     * @param parentElement parent element of the current node
+     * @param omElementArrayList List of xml iterms generated
+     * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
+     * @return List of xml items genereated during the traversal.
+     */
+    private static OMElement traverseJsonNode(JsonNode node, String nodeName, OMElement parentElement,
+            ArrayList<BXML> omElementArrayList, String attributePrefix, String arrayEntryTag) throws Exception {
+        OMElement currentRoot = null;
+        boolean processNode = true;
+        if (nodeName != null) {
+            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
+            //Extract attributes and set to the immidiate parent.
+            if (nodeName.startsWith(attributePrefix)) {
+                if (!node.isValueNode()) {
+                    throw new BallerinaException("attribute cannot be an object or array");
+                }
+                if (parentElement != null) {
+                    String attributeKey = nodeName.substring(1);
+                    parentElement.addAttribute(attributeKey, node.asText(), null);
+                    processNode = false;
+                }
+            }
+        }
+        if (node.isObject()) {
+            Iterator<Entry<String, JsonNode>> nodeIterator = node.fields();
+            while (nodeIterator.hasNext()) {
+                Entry<String, JsonNode> nodeEntry = nodeIterator.next();
+                JsonNode objectNode = nodeEntry.getValue();
+                currentRoot = traverseJsonNode(objectNode, nodeEntry.getKey(), currentRoot, omElementArrayList,
+                        attributePrefix, arrayEntryTag);
+                if (nodeName == null) { //Outermost object
+                    omElementArrayList.add(new BXMLItem(currentRoot));
+                    currentRoot = null;
+                }
+            }
+        } else if (node.isArray()) {
+            Iterator<JsonNode> arrayItemsIterator = node.elements();
+            while (arrayItemsIterator.hasNext()) {
+                JsonNode arrayNode = arrayItemsIterator.next();
+                currentRoot = traverseJsonNode(arrayNode, arrayEntryTag, currentRoot, omElementArrayList,
+                        attributePrefix, arrayEntryTag);
+                if (nodeName == null) { //Outermost array
+                    omElementArrayList.add(new BXMLItem(currentRoot));
+                    currentRoot = null;
+                }
+            }
+        } else if (node.isValueNode() && currentRoot != null) {
+            if (node.isNull()) {
+                OMNamespace xsiNameSpace = OM_FACTORY.createOMNamespace(XSI_NAMESPACE, XSI_PREFIX);
+                currentRoot.addAttribute(NIL, "true", xsiNameSpace);
+            } else {
+                OMText txt1 = OM_FACTORY.createOMText(currentRoot, node.asText());
+                currentRoot.addChild(txt1);
+            }
+        } else {
+            throw new BallerinaException("error in converting json to xml");
+        }
+        //Set the current constructed root the parent element
+        if (parentElement != null) {
+            if (processNode) {
+                parentElement.addChild(currentRoot);
+            }
+            currentRoot = parentElement;
+        }
+        return currentRoot;
+    }
+
     /**
      * Convert {@link JsonNode} to {@link BInteger}.
      * 
@@ -657,12 +792,72 @@ public class JSONUtils {
     }
 
     /**
+     * Check the compatibility of casting a JSON to a target type.
+     * 
+     * @param json json to cast
+     * @param targetType Target type
+     * @return Runtime compatibility for casting
+     */
+    public static boolean checkJSONCast(JsonNode json, BType targetType) {
+        switch (targetType.getTag()) {
+            case TypeTags.STRING_TAG:
+                return json.isTextual();
+            case TypeTags.INT_TAG:
+                return json.isInt() || json.isLong();
+            case TypeTags.FLOAT_TAG:
+                return json.isFloat() || json.isDouble();
+            case TypeTags.ARRAY_TAG:
+                if (!json.isArray()) {
+                    return false;
+                }
+
+                boolean castable;
+                BArrayType arrayType = (BArrayType) targetType;
+                ArrayNode array = (ArrayNode) json;
+                for (int i = 0; i < array.size(); i++) {
+                    castable = checkJSONCast(array.get(i), arrayType.getElementType());
+                    if (!castable) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Returns the keys of a JSON as a {@link BStringArray}.
+     * 
+     * @param json {@link BJSON} to get the keys
+     * @return Keys of the JSON as a {@link BStringArray}
+     */
+    public static BStringArray getKeys(BJSON json) {
+        if (json == null) {
+            return new BStringArray();
+        }
+
+        JsonNode node = json.value();
+
+        if (node.getNodeType() != JsonNodeType.OBJECT) {
+            return new BStringArray();
+        }
+
+        List<String> keys = new ArrayList<String>();
+        Iterator<String> keysItr = ((ObjectNode) node).fieldNames();
+        while (keysItr.hasNext()) {
+            keys.add(keysItr.next());
+        }
+        return new BStringArray(keys.toArray(new String[keys.size()]));
+    }
+
+    /**
      * Convert a JSON node to an array.
      *
-     * @param jsonNode        JSON to convert
+     * @param jsonNode JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
-     * of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
+     *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
     private static BNewArray jsonNodeToBArray(JsonNode jsonNode, BArrayType targetArrayType) {
         if (!jsonNode.isArray()) {

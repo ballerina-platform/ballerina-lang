@@ -40,11 +40,11 @@ import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.StructuredUnit;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -61,6 +61,7 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.ModExpression;
@@ -153,12 +154,17 @@ public class BLangModelBuilder {
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
     protected SymbolScope currentScope;
+    protected SymbolScope currentParentScope;
 
     // Builds connectors and services.
     protected CallableUnitGroupBuilder currentCUGroupBuilder;
 
     // Builds functions, actions and resources.
     protected CallableUnitBuilder currentCUBuilder;
+    protected CallableUnitBuilder currentParentCUBuilder;
+
+    protected Stack<BallerinaFunction> lambdaFunctions = new Stack<>();
+    protected int lambdaFunctionCount = 0;
 
     // Keep the parent CUBuilder for worker
     protected Stack<CallableUnitBuilder> parentCUBuilder = new Stack<>();
@@ -252,6 +258,7 @@ public class BLangModelBuilder {
         currentPackagePath = pkgPath;
         bFileBuilder.setPackagePath(currentPackagePath);
         bFileBuilder.setPackageLocation(location);
+        lambdaFunctionCount = 0;
     }
 
     public void addImplicitImportPackages() {
@@ -379,7 +386,8 @@ public class BLangModelBuilder {
         }
 
         if (currentScope instanceof StructDef) {
-            VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
+            SimpleVariableDef fieldDef = new SimpleVariableDef(location, null, identifier, typeName, symbolName,
+                    currentScope);
             SimpleVarRefExpr fieldRefExpr = new SimpleVarRefExpr(location, null, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
@@ -798,19 +806,20 @@ public class BLangModelBuilder {
     }
 
     public void addFunctionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                          NameReference nameReference, boolean argsAvailable) {
+                                          boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
 
+        SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) exprStack.pop();
         if (argsAvailable) {
             List<Expression> argExprList = exprListStack.pop();
             checkArgExprValidity(location, argExprList);
             cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(nameReference.name);
-        cIExprBuilder.setPkgName(nameReference.pkgName);
-        cIExprBuilder.setPkgPath(nameReference.pkgPath);
+        cIExprBuilder.setName(varRefExpr.getVarName());
+        cIExprBuilder.setPkgName(varRefExpr.getPkgName());
+        cIExprBuilder.setPkgPath(varRefExpr.getPkgPath());
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         invocationExpr.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         exprStack.push(invocationExpr);
@@ -911,6 +920,54 @@ public class BLangModelBuilder {
         exprStack.push(connectorInitExpr);
     }
 
+    public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                  SimpleTypeName typeName, boolean argsAvailable,
+                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
+                                                  List<BLangModelBuilder.NameReference> filterNameReferenceList,
+                                                  List<Boolean> argExistenceList) {
+        List<List<Expression>> filterArgExprList = new ArrayList<>();
+        for (int i = 0; i < argExistenceList.size(); i++) {
+            List<Expression> filterArgExpr;
+            if (argExistenceList.get(i)) {
+                filterArgExpr = exprListStack.pop();
+                checkArgExprValidity(location, filterArgExpr);
+            } else {
+                filterArgExpr = new ArrayList<>(0);
+            }
+            filterArgExprList.add(filterArgExpr);
+        }
+
+        List<Expression> argExprList;
+        if (argsAvailable) {
+            argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+        } else {
+            argExprList = new ArrayList<>(0);
+        }
+
+        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
+                argExprList.toArray(new Expression[argExprList.size()]));
+
+        ConnectorInitExpr currentConnectorInitExpr = connectorInitExpr;
+
+        //int j = 0;
+        for (int j = filterNameReferenceList.size() - 1; j >= 0; j--) {
+            BLangModelBuilder.NameReference filterNameReference = filterNameReferenceList.get(j);
+            SimpleTypeName filterTypeName = new SimpleTypeName(filterNameReference.getName(),
+                    filterNameReference.getPackageName(), null);
+            List<Expression> argExpr = filterArgExprList.get(j);
+            filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
+            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
+                    filterTypeName,
+                    argExpr.toArray(new Expression[argExpr.size()]));
+            currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
+            currentConnectorInitExpr = filterConnectorInitExpr;
+        }
+
+        //exprStack.push(filterConnectorInitExpr);
+        exprStack.push(connectorInitExpr);
+    }
+
 
     // Functions, Actions and Resources
 
@@ -940,6 +997,38 @@ public class BLangModelBuilder {
     public void startFunctionDef() {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
+    }
+
+    public void startLambdaFunctionDef() {
+        currentParentCUBuilder = currentCUBuilder;
+        currentParentScope = currentScope;
+        currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
+    }
+
+    public void endLambdaFunctionDef() {
+        currentCUBuilder = currentParentCUBuilder;
+        currentScope = currentParentScope;
+    }
+
+    public void createLambdaExpression(NodeLocation location, WhiteSpaceDescriptor wd) {
+        LambdaExpression expression = new LambdaExpression(location, wd, lambdaFunctions.pop());
+        exprStack.push(expression);
+    }
+
+    public void addLambdaFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        String id = currentPackagePath + "$lambda$" + lambdaFunctionCount++;
+        currentCUBuilder.setIdentifier(new Identifier(id));
+        currentCUBuilder.setPkgPath(currentPackagePath);
+        currentCUBuilder.setNative(false);
+        currentCUBuilder.setPublic(false);
+        currentCUBuilder.setNodeLocation(location);
+
+        BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setLambda(true);
+        bFileBuilder.addFunction(function);
+        lambdaFunctions.push(function);
     }
 
     public void startWorkerUnit() {
@@ -1105,21 +1194,25 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                                boolean isFilterConnector, String filterSupportedType) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
-
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
+        connector.setFilterConnector(isFilterConnector);
+        if (isFilterConnector) {
+            connector.setFilterSupportedType(connector.getParameterDefs()[0].getTypeName());
+        }
+
         bFileBuilder.addConnector(connector);
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
-
 
     // Statements
     public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -1129,11 +1222,12 @@ public class BLangModelBuilder {
         SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(location,  whiteSpaceDescriptor, identifier.getName());
         SymbolName symbolName = new SymbolName(identifier.getName());
 
-        VariableDef variableDef = new VariableDef(location, whiteSpaceDescriptor, identifier, typeName, symbolName,
+        SimpleVariableDef variableDef = new SimpleVariableDef(location, whiteSpaceDescriptor, identifier, typeName,
+                symbolName,
                 currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
-        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        Expression rhsExpr = exprAvailable && !exprStack.isEmpty() ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
         variableDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
@@ -1658,15 +1752,17 @@ public class BLangModelBuilder {
     }
 
     public void createFunctionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                             NameReference nameReference, boolean argsAvailable) {
+                                             boolean argsAvailable) {
 
-        addFunctionInvocationExpr(location, whiteSpaceDescriptor, nameReference, argsAvailable);
-        FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
+        VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.peek();
+        if (varRefExpr instanceof SimpleVarRefExpr) {
+            addFunctionInvocationExpr(location, whiteSpaceDescriptor, argsAvailable);
+            FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
 
-
-        FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
-        functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+            FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
+            functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+            blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+        }
     }
 
     public void createWorkerInvocationStmt(String workerName, NodeLocation sourceLocation,
@@ -1983,11 +2079,15 @@ public class BLangModelBuilder {
 
     private void collectAnnotationAttachments(List<AnnotationAttachment> annonAttachmentList, int depth, int index) {
         if (index == depth) {
-            annonAttachmentList.add(annonAttachmentStack.pop());
+            if (!annonAttachmentStack.isEmpty()) {
+                annonAttachmentList.add(annonAttachmentStack.pop());
+            }
         } else {
-            AnnotationAttachment attachment = annonAttachmentStack.pop();
-            collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
-            annonAttachmentList.add(attachment);
+            if (!annonAttachmentStack.isEmpty()) {
+                AnnotationAttachment attachment = annonAttachmentStack.pop();
+                collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
+                annonAttachmentList.add(attachment);
+            }
         }
     }
 

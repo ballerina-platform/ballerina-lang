@@ -20,10 +20,12 @@ package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
@@ -59,8 +61,21 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 public class AnyArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BNewArray arrayFrom = (BNewArray) getRefArgument(context, 0);
-        BNewArray arrayTo = (BNewArray) getRefArgument(context, 1);
+        BValue valueFrom = getRefArgument(context, 0);
+        BValue valueTo = getRefArgument(context, 1);
+        
+        if (valueFrom instanceof BJSON && valueTo instanceof BJSON) {
+            BJSON jsonArrayFrom = (BJSON) valueFrom;
+            BJSON jsonArrayTo = (BJSON) valueTo;
+            for (int i = 0; i < jsonArrayFrom.value().size(); i++) {
+                BJSON element = JSONUtils.getArrayElement(jsonArrayFrom, i);
+                JSONUtils.setArrayElement(jsonArrayTo, i, element);
+            }
+            return getBValues(new BInteger(jsonArrayTo.value().size()));
+        }
+        
+        BNewArray arrayFrom = (BNewArray) valueFrom;
+        BNewArray arrayTo = (BNewArray) valueTo;
 
         if (arrayFrom instanceof BIntArray && arrayTo instanceof BIntArray) {
             BIntArray intArrayFrom = (BIntArray) arrayFrom;

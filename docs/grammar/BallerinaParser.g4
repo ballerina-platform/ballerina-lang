@@ -60,12 +60,16 @@ functionDefinition
     |   FUNCTION callableUnitSignature callableUnitBody
     ;
 
+lambdaFunction
+    :  FUNCTION LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
+    ;
+
 callableUnitSignature
     :   Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters?
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
@@ -162,6 +166,11 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT LEFT_BRACE QuotedStringLiteral RIGHT_BRACE GT)?
     |   TYPE_DATATABLE
+    |   functionTypeName
+    ;
+
+functionTypeName
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | typeList)? RIGHT_PARENTHESIS returnParameters?
     ;
 
 xmlNamespaceName
@@ -256,7 +265,15 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+    ;
+
+filterInitExpression
+    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+filterInitExpressionList
+    : filterInitExpression (COMMA filterInitExpression)*
     ;
 
 assignmentStatement
@@ -371,10 +388,11 @@ commentStatement
     ;
 
 variableReference
-    :   nameReference                               # simpleVariableReference
-    |   variableReference index                     # mapArrayVariableReference
-    |   variableReference field                     # fieldVariableReference
-    |   variableReference xmlAttrib                 # xmlAttribVariableReference
+    :   nameReference                                                           # simpleVariableReference
+    |   variableReference index                                                 # mapArrayVariableReference
+    |   variableReference field                                                 # fieldVariableReference
+    |   variableReference xmlAttrib                                             # xmlAttribVariableReference
+    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationReference
     ;
 
 field
@@ -394,7 +412,7 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
+    :   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
     ;
 
 actionInvocationStatement
@@ -442,7 +460,7 @@ expression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
-    |   nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationExpression
+    |   lambdaFunction                                                      # lambdaFunctionExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName GT expression                                           # typeConversionExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
@@ -463,10 +481,10 @@ nameReference
     ;
 
 returnParameters
-    : LEFT_PARENTHESIS (parameterList | returnTypeList) RIGHT_PARENTHESIS
+    : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
     ;
 
-returnTypeList
+typeList
     :   typeName (COMMA typeName)*
     ;
 

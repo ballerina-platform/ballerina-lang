@@ -41,6 +41,7 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NodeLocation;
@@ -49,6 +50,7 @@ import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
@@ -71,6 +73,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -122,6 +125,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -204,6 +208,9 @@ public class CodeGenerator implements NodeVisitor {
     private String currentPkgPath;
     private int currentPkgCPIndex = -1;
     private PackageInfo currentPkgInfo;
+    private int baseConnectorIndex = -1;
+    private int lastFilterConnectorIndex = -1;
+    private ConnectorInfo baseConnectorInfo = null;
 
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
@@ -685,6 +692,23 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(BallerinaConnectorDef connectorDef) {
         BallerinaFunction initFunction = connectorDef.getInitFunction();
         visit(initFunction);
+
+        if (connectorDef.isFilterConnector()) {
+            BallerinaConnectorDef filterConnectorDef = (BallerinaConnectorDef) connectorDef.getFilteredType();
+            PackageInfo connectorPkgInfo = programFile.getPackageInfo(filterConnectorDef.getPackagePath());
+            int pkgCPIndex = addPackageCPEntry(filterConnectorDef.getPackagePath());
+
+            UTF8CPEntry nameUTF8CPEntry = new UTF8CPEntry(filterConnectorDef.getName());
+            int nameIndex = currentPkgInfo.addCPEntry(nameUTF8CPEntry);
+
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex,
+                    filterConnectorDef.getPackagePath(), nameIndex, filterConnectorDef.getName());
+            ConnectorInfo connectorInfo = connectorPkgInfo.getConnectorInfo(filterConnectorDef.getName());
+            connectorInfo.setFilterConnector(filterConnectorDef.isFilterConnector());
+            structureRefCPEntry.setStructureTypeInfo(connectorInfo);
+            currentPkgInfo.addCPEntry(structureRefCPEntry);
+        }
+
         BallerinaAction initAction = connectorDef.getInitAction();
         if (initAction != null) {
             visit(initAction);
@@ -749,7 +773,7 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDef variableDef) {
+    public void visit(SimpleVariableDef variableDef) {
     }
 
     @Override
@@ -1288,6 +1312,27 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
+    public void visit(LambdaExpression lambdaExpr) {
+        Function function = lambdaExpr.getFunction();
+        String pkgPath = function.getPackagePath();
+        int pkgCPIndex = addPackageCPEntry(pkgPath);
+        String funcName = function.getName();
+        UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(funcName);
+        int funcNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
+
+        // Find the package info entry of the function and from the package info entry find the function info entry
+        PackageInfo funcPackageInfo = programFile.getPackageInfo(pkgPath);
+        FunctionInfo functionInfo = funcPackageInfo.getFunctionInfo(funcName);
+
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, pkgPath, funcNameCPIndex, funcName);
+        funcRefCPEntry.setFunctionInfo(functionInfo);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
+        lambdaExpr.setTempOffset(nextIndex);
+        emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpr) {
         Expression rExpr = unaryExpr.getRExpr();
         rExpr.accept(this);
@@ -1304,7 +1349,7 @@ public class CodeGenerator implements NodeVisitor {
 
         } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
             BType rType = unaryExpr.getRExpr().getType();
-            if (rType == BTypes.typeJSON) {
+            if (rType == BTypes.typeJSON || getElementType(rType) == BTypes.typeJSON) {
                 opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
                         InstructionCodes.LENGTHOFJSON, regIndexes);
             } else {
@@ -1499,6 +1544,21 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
+        int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
+        // First check whether this is a function pointer invocation.
+        if (funcIExpr.isFunctionPointerInvocation()
+                && funcIExpr.getFunctionPointerVariableDef() instanceof SimpleVariableDef) {
+            // Treat this as a SimpleVarRefExpr point to function pointer.
+            // visiting this expression to load function pointer in to the refReg.
+            SimpleVarRefExpr expr = new SimpleVarRefExpr(funcIExpr.getNodeLocation(), null, funcIExpr.getName());
+            expr.setVariableDef(funcIExpr.getFunctionPointerVariableDef());
+            expr.accept(this);
+            // invoke loaded function.
+            emit(InstructionCodes.FPCALL, regIndexes[REF_OFFSET], funcCallIndex);
+            return;
+        }
+        // Else is normal function invocation.
+
         int pkgCPIndex = addPackageCPEntry(funcIExpr.getPackagePath());
 
         String funcName = funcIExpr.getName();
@@ -1514,7 +1574,6 @@ public class CodeGenerator implements NodeVisitor {
                 funcNameCPIndex, funcName);
         funcRefCPEntry.setFunctionInfo(functionInfo);
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
 
         if (functionInfo.isNative()) {
             // TODO Move this to the place where we create function info entry
@@ -1528,12 +1587,27 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
         int pkgCPIndex = addPackageCPEntry(actionIExpr.getPackagePath());
+        if (actionIExpr.isFunctionInvocation()) {
+            // This is not an action invocation, but a filed based function invocation in a struct.
+            int funcCallIndex = getCallableUnitCallCPIndex(actionIExpr);
+            SimpleVarRefExpr expr = new SimpleVarRefExpr(actionIExpr.getNodeLocation(), null,
+                    actionIExpr.getName());
+            expr.setVariableDef(actionIExpr.getVariableDef());
+            // Load function pointer.
+            FieldBasedVarRefExpr fieldRefExpr = new FieldBasedVarRefExpr(actionIExpr.getNodeLocation(), null, expr, new
+                    Identifier(actionIExpr.getName()));
+            expr.setParentVarRefExpr(fieldRefExpr);
+            fieldRefExpr.setFieldDef(actionIExpr.getFieldDef());
+            fieldRefExpr.accept(this);
+            // invoke loaded function.
+            emit(InstructionCodes.FPCALL, regIndexes[REF_OFFSET], funcCallIndex);
+            return;
+        }
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
 
         String pkgPath = actionIExpr.getPackagePath();
         PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
-        // Get the connector ref CP index
         ConnectorInfo connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
 
         UTF8CPEntry connectorNameCPEntry = new UTF8CPEntry(connectorDef.getName());
@@ -1560,6 +1634,7 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
         }
+
     }
 
     @Override
@@ -1702,25 +1777,62 @@ public class CodeGenerator implements NodeVisitor {
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, connectorDef.getPackagePath(),
                 nameIndex, connectorDef.getName());
         ConnectorInfo connectorInfo = connectorPkgInfo.getConnectorInfo(connectorDef.getName());
+        connectorInfo.setFilterConnector(connectorDef.isFilterConnector());
         structureRefCPEntry.setStructureTypeInfo(connectorInfo);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
+        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-        connectorInitExpr.setTempOffset(connectorRegIndex);
+
+        if (baseConnectorInfo == null) {
+            if (filterConnectorInitExpr != null) {
+                baseConnectorInfo = connectorInfo;
+            }
+        }
+
+        if (baseConnectorInfo != null) {
+
+            TypeSignature typeSig = connectorInitExpr.getInheritedType().getSig();
+            UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
+            int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
+            typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
+            int typeEntry = currentPkgInfo.addCPEntry(typeRefCPEntry);
+
+            baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
+            baseConnectorInfo.addMethodType((BConnectorType) getVMTypeFromSig(typeSig), connectorInfo);
+        }
+//        baseConnectorInfo.addMethodTypeStructure
+//                ((BConnectorType) connectorInitExpr.getFilterSupportedType(), structureRefCPEntry);
+
+        if (connectorInitExpr.getParentConnectorInitExpr() == null && !connectorDef.isFilterConnector()) {
+            connectorInitExpr.setTempOffset(connectorRegIndex);
+        }
 
         // Set all the connector arguments
         Expression[] argExprs = connectorInitExpr.getArgExprs();
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
             argExpr.accept(this);
+            int j = i;
+            if (connectorDef.isFilterConnector()) {
+                j += 1;
+            }
 
-            ParameterDef paramDef = connectorDef.getParameterDefs()[i];
+            ParameterDef paramDef = connectorDef.getParameterDefs()[j];
             int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
 
             int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.getTempOffset());
+        }
+
+        if (connectorDef.isFilterConnector()) {
+            ParameterDef paramDef = connectorDef.getParameterDefs()[0];
+            int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
+            emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, fieldIndex, baseConnectorIndex);
+            lastFilterConnectorIndex = connectorRegIndex;
         }
 
         // Invoke Connector init function
@@ -1739,6 +1851,16 @@ public class CodeGenerator implements NodeVisitor {
 
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
 
+        baseConnectorIndex = connectorRegIndex;
+
+        // Generate code for filterConnectors if there are any
+        //ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
+        if (filterConnectorInitExpr != null) {
+            visit(filterConnectorInitExpr);
+            connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
+        }
+
+        baseConnectorInfo = null;
         // Invoke Connector init native action if any
         BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {
@@ -1971,6 +2093,28 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
         }
+
+        // Check whether this is a function pointer pointing to ballerina/native function. Then load it to refReg.
+        if (!variableStore && simpleVarRefExpr.getVariableDef() instanceof Function) {
+
+            Function function = (Function) simpleVarRefExpr.getVariableDef();
+            String pkgPath = function.getPackagePath();
+            int pkgCPIndex = addPackageCPEntry(pkgPath);
+            String funcName = function.getName();
+            UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(funcName);
+            int funcNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
+
+            // Find the package info entry of the function and from the package info entry find the function info entry
+            PackageInfo funcPackageInfo = programFile.getPackageInfo(pkgPath);
+            FunctionInfo functionInfo = funcPackageInfo.getFunctionInfo(funcName);
+
+            FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, pkgPath, funcNameCPIndex, funcName);
+            funcRefCPEntry.setFunctionInfo(functionInfo);
+            int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+            int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
+            simpleVarRefExpr.setTempOffset(nextIndex);
+            emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+        }
     }
 
     @Override
@@ -2050,28 +2194,10 @@ public class CodeGenerator implements NodeVisitor {
 
         // Type of the varRefExpr can be either Array, Map, JSON.
         BType varRefType = varRefExpr.getType();
-        if (varRefType instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) varRefType;
-            if (variableStore) {
-                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
-                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-            } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
-                        InstructionCodes.IALOAD, regIndexes);
-                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
-                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
-            }
-
-        } else if (varRefType == BTypes.typeMap) {
-            if (variableStore) {
-                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-            } else {
-                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
-                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
-            }
-
-        } else if (varRefType == BTypes.typeJSON) {
+        
+        // We check for JSON first, because a JSON array is also a JSON, and is accessed different to 
+        // the other array types.
+        if (getElementType(varRefType) == BTypes.typeJSON) {
             int jsonValueRegIndex;
             if (indexExpr.getType() == BTypes.typeString) {
                 if (variableStore) {
@@ -2090,6 +2216,27 @@ public class CodeGenerator implements NodeVisitor {
                     emit(InstructionCodes.JSONALOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
                     indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
                 }
+            }
+
+        } else if (varRefType instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) varRefType;
+            if (variableStore) {
+                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
+                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
+                        InstructionCodes.IALOAD, regIndexes);
+                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
+                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
+            }
+
+        } else if (varRefType == BTypes.typeMap) {
+            if (variableStore) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
+                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
         } else if (varRefType instanceof StructDef) {
@@ -2563,6 +2710,9 @@ public class CodeGenerator implements NodeVisitor {
                 TypeSignature elementTypeSig = typeSig.getElementTypeSig();
                 BType elementType = getVMTypeFromSig(elementTypeSig);
                 return new BArrayType(elementType);
+            case TypeSignature.SIG_FUNCTION:
+                // TODO : Fix this for type casting.
+                return new BFunctionType();
             default:
                 throw new IllegalStateException("Unknown type signature");
         }
@@ -3084,6 +3234,14 @@ public class CodeGenerator implements NodeVisitor {
             parent = parent.getParent();
         }
         this.regIndexes = regIndexesOriginal;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+        
+        return getElementType(((BArrayType) type).getElementType());
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo) {

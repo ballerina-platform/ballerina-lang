@@ -39,7 +39,8 @@ public enum RuntimeErrors {
     JSON_GET_ERROR("json.get.error", "RUNTIME_0014"),
     ARRAY_TYPE_MISMATCH("from.and.to.array.type.mismatch", "RUNTIME_0015"),
     SERVER_CONNECTOR_ALREADY_EXIST("server.connector.already.exist", "RUNTIME_0016"),
-    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "RUNTIME_0017");
+    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "RUNTIME_0017"),
+    CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT("connector.input.types.are.not.equivalent", "RUNTIME_0018");
     
     private String errorMsgKey;
     private String errorCode;

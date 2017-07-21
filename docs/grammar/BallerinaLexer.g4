@@ -22,6 +22,7 @@ CONST       : 'const' ;
 TYPEMAPPER  : 'typemapper' ;
 WORKER      : 'worker' ;
 XMLNS       : 'xmlns' ;
+RETURNS     : 'returns';
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -63,6 +64,7 @@ ABORTED     : 'aborted' ;
 COMMITTED   : 'committed' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
+WITH        : 'with' ;
 
 // Separators
 
