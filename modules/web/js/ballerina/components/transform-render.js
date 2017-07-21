@@ -733,7 +733,12 @@ addComplexParameter(parentId, struct) {
     makeProperty(parentId, name, type) {
         const id = parentId.selector.replace('#', '') + this.idNameSeperator + name + this.nameTypeSeperator + type;
         const ul = $('<ul class="property">');
-        const li = $('<li class="property">').attr('id', id).text(name + ' : ' + type);
+        let li = $('<li class="property">').attr('id', id);
+        if(!_.isUndefined(name)) {
+           li.text(name + ' : ' + type);
+        } else {
+            li.text(type);
+        }
         ul.append(li);
         $(parentId).append(ul);
         return li;
@@ -962,7 +967,7 @@ addComplexParameter(parentId, struct) {
         const xTargetPointer = 0;
         let yTargetPointer = 0;
         const functionGap = 30;
-        const svgLines = this.container.find('#' + self.placeHolderName + '> svg');
+        const svgLines = $('#' + self.placeHolderName + '> svg');
 
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {

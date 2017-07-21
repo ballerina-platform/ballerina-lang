@@ -236,9 +236,13 @@ class TransformExpanded extends React.Component {
             if (BallerinaASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
                   BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
                 _.forEach(leftExpressions.getChildren(), (expression) => {
-                    const target = this.getConnectionProperties('target', expression);
-                    const source = this.getConnectionProperties('source', rightExpression);
-                    this.drawConnection(statement.getID(), source, target);
+                    try {
+                       const target = this.getConnectionProperties('target', expression);
+                       const source = this.getConnectionProperties('source', rightExpression);
+                       this.drawConnection(statement.getID(), source, target);
+                    } catch (e) {
+                         log.error(e);
+                    }
                 });
             } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
                 // draw the function nodes first to fix issues related to rendering arrows with function nodes
