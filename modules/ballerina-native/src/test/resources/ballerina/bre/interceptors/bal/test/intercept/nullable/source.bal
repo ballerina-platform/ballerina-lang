@@ -1,4 +1,4 @@
-package ballerina.test.intercept.nullable;
+package bal.test.intercept.nullable;
 
 import ballerina.lang.system;
 
