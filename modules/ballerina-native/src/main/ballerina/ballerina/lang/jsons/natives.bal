@@ -2,6 +2,12 @@ package ballerina.lang.jsons;
 
 import ballerina.doc;
 
+@doc:Description { value: "Options struct for JSON to XML conversion "}
+struct Options {
+    string attributePrefix = "@";
+    string arrayEntryTag = "item";
+}
+
 @doc:Description { value:"Inserts a Boolean to a JSON array. This function will add a new Boolean element to the end of the JSON array identified by the given JSONPath."}
 @doc:Param { value:"j: A JSON array object" }
 @doc:Param { value:"jsonPath: The path of the JSON element" }
@@ -77,3 +83,9 @@ native function parse(string jsonStr) (json);
 @doc:Param { value:"j: A JSON object" }
 @doc:Return { value:"string[]: A string array of keys contained in the specified JSON" }
 native function getKeys(json j) (string[]);
+
+@doc:Description { value:"Converts a JSON object to a XML representation"}
+@doc:Param { value:"j: A JSON object" }
+@doc:Return { value:"xml: XML value of the converted JSON" }
+native function toXML (json j, Options options) (xml);
+

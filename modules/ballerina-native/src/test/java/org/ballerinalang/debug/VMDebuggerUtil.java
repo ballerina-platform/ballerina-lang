@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.debug;
 
-import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
@@ -30,18 +29,12 @@ import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.codegen.ProgramFileWriter;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
@@ -139,32 +132,8 @@ public class VMDebuggerUtil {
         Context setup(String sourceFilePath, DebugSessionObserverImpl debugSessionObserver,
                       BreakPointDTO[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
-            Path path;
 
-            try {
-                path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("error while running test: " + e.getMessage());
-            }
-
-            ProgramFile programFileToWrite = BLangCompiler.compile(path, Paths.get(sourceFilePath));
-
-            Path targetPath;
-            Path sourcePath = path.resolve(sourceFilePath);
-            if (sourcePath.endsWith(".bal")) {
-                String sourcePathStr = sourcePath.toString();
-                targetPath = Paths.get(sourcePathStr.substring(0, sourcePathStr.length() - 4) + ".balx");
-            } else {
-                targetPath = Paths.get(sourcePath.getName(sourcePath.getNameCount() - 1).toString() + ".balx");
-            }
-
-            try {
-                ProgramFileWriter.writeProgram(programFileToWrite, targetPath);
-                ProgramFileReader reader = new ProgramFileReader();
-                programFile = reader.readProgram(targetPath);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("error while running test: " + e.getMessage());
-            }
+            programFile = BTestUtils.getProgramFile(sourceFilePath);
 
             bContext = new Context(programFile);
             bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
