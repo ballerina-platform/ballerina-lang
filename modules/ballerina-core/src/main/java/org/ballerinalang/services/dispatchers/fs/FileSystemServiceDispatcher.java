@@ -76,9 +76,13 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
             if (dir == null) {
                 throw new BallerinaException("Cannot create file system server without dirURI");
             }
+
             String serviceName = service.getName();
             ServerConnector fsServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
                     Constants.PROTOCOL_FILE_SYSTEM, serviceName, paramMap);
+            fsServerConnector.setServerConnectorErrorHandler(BallerinaConnectorManager.getInstance()
+                                                                     .getServerConnectorErrorHandler(
+                                                                             Constants.PROTOCOL_FILE_SYSTEM).get());
             try {
                 fsServerConnector.start();
                 serviceInfoMap.put(serviceName, service);
