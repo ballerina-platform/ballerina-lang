@@ -83,6 +83,7 @@ import org.ballerinalang.util.parser.BallerinaParser.XmlSingleQuotedStringContex
 import org.ballerinalang.util.parser.BallerinaParserListener;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
