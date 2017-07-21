@@ -108,7 +108,7 @@ class Channel extends EventChannel {
     onError() {
         clearInterval(this.ping);
         this.debugger.active = false;
-        this.debugger.trigger('session-error');
+        this.debugger.trigger('session-error', this.endpoint);
     }
     /**
      * Handles websocket onOpen event

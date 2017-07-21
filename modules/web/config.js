@@ -127,7 +127,7 @@ const config = {
             menu_bar: 'dropdown-menu file-dropdown-menu',
         },
         help_urls: {
-            user_guide_url: 'http://ballerinalang.org/docs/user-guide/0.8/',
+            user_guide_url: 'http://ballerinalang.org/docs/user-guide/',
             report_issue_url: 'https://github.com/ballerinalang/composer/issues/',
         },
     },

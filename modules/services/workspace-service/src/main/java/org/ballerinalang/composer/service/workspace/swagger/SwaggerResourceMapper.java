@@ -206,10 +206,10 @@ public class SwaggerResourceMapper {
                 AnnotationAttachment headerAnnotationAttachment = headersValue.getAnnotationValue();
                 Map<String, Property> headers = new HashMap<>();
                 if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("name") &&
-                    null != headerAnnotationAttachment.getAttributeNameValuePairs().get("type")) {
+                    null != headerAnnotationAttachment.getAttributeNameValuePairs().get("headerType")) {
                     String headerName = headerAnnotationAttachment.getAttributeNameValuePairs().get("name")
                             .getLiteralValue().stringValue();
-                    String type = headerAnnotationAttachment.getAttributeNameValuePairs().get("type")
+                    String type = headerAnnotationAttachment.getAttributeNameValuePairs().get("headerType")
                             .getLiteralValue().stringValue();
                     Property property = null;
                     if ("string".equals(type)) {

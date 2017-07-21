@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.service.workspace.api.StringUtil;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
@@ -109,6 +110,7 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Stack;
@@ -1892,8 +1894,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_NAME,
                 annotationDef.getSymbolName().getName());
         if (annotationDef.getAttachmentPoints().length > 0) {
+            AnnotationAttachmentPoint[] attachmentPointsList = annotationDef.getAttachmentPoints();
+            ArrayList<String> attachmentPoints = new ArrayList<String>();
+            for (AnnotationAttachmentPoint annotationAttachmentPoint : attachmentPointsList) {
+                attachmentPoints.add(annotationAttachmentPoint.getAttachmentPoint().getValue());
+            }
+            String[] attachmentPointsString = new String[attachmentPoints.size()];
+            attachmentPointsString = attachmentPoints.toArray(attachmentPointsString);
             annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTACHMENT_POINTS, StringUtil
-                    .join(annotationDef.getAttachmentPoints(), ","));
+                    .join(attachmentPointsString, ","));
         }
 
         tempJsonArrayRef.push(new JsonArray());

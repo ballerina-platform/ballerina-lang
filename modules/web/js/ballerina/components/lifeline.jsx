@@ -28,7 +28,6 @@ import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import { SOURCE_VIEW } from './../views/ballerina-file-editor.jsx';
 import _ from 'lodash';
-import ImageUtil from './image-util';
 
 class LifeLine extends React.Component {
 
@@ -89,7 +88,7 @@ class LifeLine extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
-        const iconSize = 15;
+        const iconSize = 13;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;

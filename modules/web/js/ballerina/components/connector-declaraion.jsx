@@ -26,6 +26,7 @@ import * as DesignerDefaults from './../configs/designer-defaults';
 import StatementDecorator from './statement-decorator';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import ImageUtil from './image-util';
+import { util } from './../visitors/sizing-utils';
 
 /**
  * Get all components.
@@ -125,7 +126,7 @@ class ConnectorDeclaration extends React.Component {
                 }
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
                 <LifeLine
-                    title={connectorName}
+                    title={util.getTextWidth(connectorName, 0, DesignerDefaults.lifeLine.width - 30).text}
                     bBox={connectorBBox}
                     editorOptions={this.editorOptions}
                     onDelete={this.onDelete}
