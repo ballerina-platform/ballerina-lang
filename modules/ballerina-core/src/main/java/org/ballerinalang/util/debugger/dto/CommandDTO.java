@@ -33,6 +33,8 @@ public class CommandDTO {
 
     private String command;
 
+    private String threadId;
+
     private ArrayList<BreakPointDTO> points;
 
     public String getCommand() {
@@ -41,6 +43,14 @@ public class CommandDTO {
 
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
     }
 
     public ArrayList<BreakPointDTO> getPoints() {

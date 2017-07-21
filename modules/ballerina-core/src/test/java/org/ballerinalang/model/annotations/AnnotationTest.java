@@ -47,7 +47,7 @@ public class AnnotationTest {
 
     @Test(description = "Test function annotation")
     public void testFunctionAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getFunctions()[0].getAnnotations();
         
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "This is a test function");
@@ -61,7 +61,7 @@ public class AnnotationTest {
 
     @Test(description = "Test function parameter annotation")
     public void testParameterAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getFunctions()[0]
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getFunctions()[0]
                 .getParameterDefs()[0].getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "args: input parameter : type string");
@@ -69,14 +69,14 @@ public class AnnotationTest {
     
     @Test(description = "Test service annotation")
     public void testServiceAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getServices()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getServices()[0].getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Pizza service");
     }
     
     @Test(description = "Test resource annotation")
     public void testResourceAnnotation() {
-        Resource orderPizzaResource = bLangProgram.getLibraryPackages()[0].getServices()[0].getResources()[0];
+        Resource orderPizzaResource = bLangProgram.getEntryPackage().getServices()[0].getResources()[0];
         AnnotationAttachment[] annottations = orderPizzaResource.getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Order pizza");
@@ -87,21 +87,21 @@ public class AnnotationTest {
     
     @Test(description = "Test typemapper annotation")
     public void testTypemapperAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getTypeMappers()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getTypeMappers()[0].getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Length to boolean type mapper");
     }
     
     @Test(description = "Test connector annotation")
     public void testConnectorAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getConnectors()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getConnectors()[0].getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Test connector");
     }
     
     @Test(description = "Test action annotation")
     public void testActionAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getConnectors()[0].getActions()[0]
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getConnectors()[0].getActions()[0]
                 .getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Test action of test connector");
@@ -109,14 +109,14 @@ public class AnnotationTest {
     
     @Test(description = "Test struct annotation")
     public void testStructAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getStructDefs()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getStructDefs()[0].getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "User defined struct : Person");
     }
 
     @Test(description = "Test constant annotation")
     public void testConstantAnnotation() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getConsts()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getConsts()[0].getAnnotations();
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Constant holding the name of the current ballerina program");
     }
@@ -124,7 +124,7 @@ public class AnnotationTest {
     @Test(description = "Test self annotating and annotation")
     public void testSelfAnnotating() {
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/annotations/doc/");
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getAnnotationDefs()[0]
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getAnnotationDefs()[0]
                 .getAnnotations();
         
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
@@ -137,7 +137,7 @@ public class AnnotationTest {
     
     @Test(description = "Test annotation array")
     public void testAnnotationArray() {
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getEntryPackage().getFunctions()[0].getAnnotations();
         
         AnnotationAttributeValue[] annotationArray = annottations[0].getAttribute("queryParamValue").getValueArray();
         Assert.assertEquals(annotationArray.length, 3, "Wrong annotation array length");
@@ -263,7 +263,7 @@ public class AnnotationTest {
     @Test(description = "Test default values for annotation")
     public void testDefaultValues() {
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/annotations/default-values.bal");
-        AnnotationAttachment[] annotations = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getAnnotations();
+        AnnotationAttachment[] annotations = bLangProgram.getEntryPackage().getFunctions()[0].getAnnotations();
         
         // check for default values for basic literal attributes
         Assert.assertEquals(annotations[0].getAttribute("value").getLiteralValue().stringValue(),

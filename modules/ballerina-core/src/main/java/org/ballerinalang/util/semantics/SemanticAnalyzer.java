@@ -159,6 +159,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
+import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program.
  *
@@ -169,7 +171,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String BALLERINA_CAST_ERROR = "TypeCastError";
     private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
-    
+
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
@@ -196,26 +198,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BLangProgram bLangProgram) {
-        BLangPackage mainPkg = bLangProgram.getMainPackage();
-
-        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
-            mainPkg.accept(this);
-
-        } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
-            BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-            for (BLangPackage servicePkg : servicePackages) {
-                servicePkg.accept(this);
-            }
+        BLangPackage entryPkg = bLangProgram.getEntryPackage();
+        if (entryPkg != null) {
+            entryPkg.accept(this);
         } else {
-            BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
-            for (BLangPackage libraryPkg : libraryPackages) {
-                libraryPkg.accept(this);
+            BLangPackage[] blangPackages = bLangProgram.getLibraryPackages();
+            for (BLangPackage bLangPackage : blangPackages) {
+                bLangPackage.accept(this);
             }
         }
-
-        int setSizeOfStaticMem = staticMemAddrOffset + 1;
-        bLangProgram.setSizeOfStaticMem(setSizeOfStaticMem);
-        staticMemAddrOffset = -1;
     }
 
     @Override
@@ -248,7 +239,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                 new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
         functionBuilder.setNodeLocation(pkgLocation);
-        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + ".<init>"));
+        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + INIT_FUNCTION_SUFFIX));
         functionBuilder.setPkgPath(bLangPackage.getPackagePath());
         pkgInitFuncStmtBuilder = new BlockStmt.BlockStmtBuilder(bLangPackage.getNodeLocation(),
                 bLangPackage);
@@ -488,6 +479,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                         setWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
                                         setEnclosingCallableUnitName(callableUnit.getName());
+                                callableUnit.addWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
                                 ((WorkerInvocationStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
@@ -543,6 +535,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                         setWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
                                         setEnclosingCallableUnitName(callableUnit.getName());
+                                callableUnit.addWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
                                 ((WorkerReplyStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
@@ -594,6 +587,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             WorkerDataChannel workerDataChannel = new WorkerDataChannel
                                     (sourceWorkerName, targetWorkerName);
                             ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
+                            currentCallableUnit.addWorkerDataChannel(workerDataChannel);
                         }
                     }
                 }
@@ -2109,8 +2103,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Resolve package path from the give package name
         if (simpleVarRefExpr.getPkgName() != null && simpleVarRefExpr.getPkgPath() == null) {
             throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
-                SemanticErrors.UNDEFINED_PACKAGE_NAME, simpleVarRefExpr.getPkgName(),
-                simpleVarRefExpr.getPkgName() + ":" + simpleVarRefExpr.getVarName());
+                    SemanticErrors.UNDEFINED_PACKAGE_NAME, simpleVarRefExpr.getPkgName(),
+                    simpleVarRefExpr.getPkgName() + ":" + simpleVarRefExpr.getVarName());
         }
 
         SymbolName symbolName = simpleVarRefExpr.getSymbolName();
@@ -2230,7 +2224,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefType);
         }
     }
-    
+
     @Override
     public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
         VariableReferenceExpr varRefExpr = xmlAttributesRefExpr.getVarRefExpr();
@@ -2281,7 +2275,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         xmlQNameRefExpr.setNamepsaceUri(namepsaceUri);
         xmlQNameRefExpr.setType(BTypes.typeString);
     }
-    
+
     @Override
     public void visit(TypeCastExpression typeCastExpr) {
         // Evaluate the expression and set the type
@@ -2855,13 +2849,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to match the callable unit with invocation (check whether parameters map, do cast if applicable).
      *
-     * @param callableIExpr     invocation expression
-     * @param symbolName        callable symbol name
-     * @param callableSymbol    matching symbol
-     * @return  callableSymbol  matching symbol
+     * @param callableIExpr  invocation expression
+     * @param symbolName     callable symbol name
+     * @param callableSymbol matching symbol
+     * @return callableSymbol  matching symbol
      */
     private BLangSymbol matchAndUpdateArguments(AbstractExpression callableIExpr,
-                                                      CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
+                                                CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
         if (callableSymbol == null) {
             return null;
         }
@@ -3615,33 +3609,71 @@ public class SemanticAnalyzer implements NodeVisitor {
         return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
+    /**
+     * Helper method to add return statement if required.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to which to add the return statement.
+     */
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
-        if (returnParamCount != 0) {
-            return;
-        }
-
-        Statement[] statements = blockStmt.getStatements();
-        int length = statements.length;
-        if (length > 0) {
-            Statement lastStatement = statements[length - 1];
-            if (!(lastStatement instanceof ReturnStmt)) {
-                NodeLocation location = lastStatement.getNodeLocation();
-                ReturnStmt returnStmt = new ReturnStmt(
-                        new NodeLocation(location.getFileName(),
-                                location.getLineNumber() + 1), null, new Expression[0]);
-                statements = Arrays.copyOf(statements, length + 1);
-                statements[length] = returnStmt;
-                blockStmt.setStatements(statements);
-            }
-        } else {
-            NodeLocation location = blockStmt.getNodeLocation();
-            ReturnStmt returnStmt = new ReturnStmt(
-                    new NodeLocation(location.getFileName(),
-                            location.getLineNumber() + 1), null, new Expression[0]);
+        ReturnStmt returnStmt = buildReturnStatement(returnParamCount, blockStmt);
+        if (returnStmt != null) {
+            Statement[] statements = blockStmt.getStatements();
+            int length = statements.length;
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
         }
+    }
+
+    /**
+     * Helper method to build the correct return statement.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to help generate return.
+     * @return                  Generated returnStmt.
+     */
+    private ReturnStmt buildReturnStatement(int returnParamCount, BlockStmt blockStmt) {
+        if (returnParamCount != 0) {
+            return null;
+        }
+
+        Statement[] statements = blockStmt.getStatements();
+        int length = statements.length;
+        NodeLocation location = null;
+        if (length > 0) {
+            Statement lastStatement = statements[length - 1];
+            if (lastStatement instanceof IfElseStmt) {
+                IfElseStmt ifElseStmt = (IfElseStmt) lastStatement;
+                if (ifElseStmt.getElseBody() != null) {
+                    return buildReturnStatement(returnParamCount, (BlockStmt) ifElseStmt.getElseBody());
+                } else if (ifElseStmt.getElseIfBlocks().length > 0) {
+                    int lastElseIf = ifElseStmt.getElseIfBlocks().length - 1;
+                    location = ifElseStmt.getElseIfBlocks()[lastElseIf].getNodeLocation();
+                }
+            } else if (lastStatement instanceof TryCatchStmt) {
+                TryCatchStmt tryCatchStmt = (TryCatchStmt) lastStatement;
+                if (tryCatchStmt.getFinallyBlock() != null) {
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt());
+                } else if (tryCatchStmt.getCatchBlocks().length > 0) {
+                    int lastCatch = tryCatchStmt.getCatchBlocks().length - 1;
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getCatchBlocks()[lastCatch].getCatchBlockStmt());
+                }
+            } else if (!(lastStatement instanceof ReturnStmt)) {
+                location = lastStatement.getNodeLocation();
+            }
+        } else {
+            location = blockStmt.getNodeLocation();
+        }
+        if (location != null) {
+            ReturnStmt returnStmt = new ReturnStmt(
+                    new NodeLocation(location.getFileName(),
+                            location.getLineNumber() + 1), null, new Expression[0]);
+            return returnStmt;
+        }
+        return null;
     }
 
     private void checkAndAddReplyStmt(BlockStmt blockStmt) {
@@ -3688,7 +3720,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Populate the namespace map of a {@link XMLAttributesRefExpr}.
      * Namespaces are looked-up in the scopes visible to the provided expression.
-     * 
+     *
      * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the namespaces
      */
     private void populateNamespaceMap(XMLAttributesRefExpr xmlAttributesRefExpr) {

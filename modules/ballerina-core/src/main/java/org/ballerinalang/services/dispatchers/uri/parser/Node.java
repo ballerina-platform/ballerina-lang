@@ -19,8 +19,8 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -63,7 +63,7 @@ public abstract class Node {
     }
 
     public ResourceInfo matchAll(String uriFragment, Map<String, String> variables, CarbonMessage carbonMessage,
-            int start) {
+                                 int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -181,12 +181,15 @@ public abstract class Node {
     }
 
     abstract String expand(Map<String, String> variables);
+
     abstract int match(String uriFragment, Map<String, String> variables);
+
     abstract String getToken();
+
     abstract char getFirstCharacter();
 
     private Node isAlreadyExist(String token, List<Node> childList) {
-        for (Node node: childList) {
+        for (Node node : childList) {
             if (node.getToken().equals(token)) {
                 return node;
             }
@@ -257,14 +260,14 @@ public abstract class Node {
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
-        AnnotationAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+        AnnAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                 Constants.ANNOTATION_NAME_CONSUMES);
 
         if (consumeInfo != null) {
             //when Content-Type header is not set, treat it as "application/octet-stream"
             contentMediaType = (contentMediaType != null ? contentMediaType : Constants.VALUE_ATTRIBUTE);
-            for (AnnotationAttributeValue attributeValue : consumeInfo.getAnnotationAttributeValue
-                    (Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+            for (AnnAttributeValue attributeValue : consumeInfo.getAttributeValue(
+                    Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
                 if (contentMediaType.equals(attributeValue.getStringValue().trim())) {
                     isConsumeMatched = true;
                     break;
@@ -292,7 +295,7 @@ public abstract class Node {
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
-        AnnotationAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+        AnnAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                 Constants.ANNOTATION_NAME_PRODUCES);
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
@@ -306,7 +309,7 @@ public abstract class Node {
                             .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
                             .collect(Collectors.toList());
                     List<String> subAttributeValues = Arrays.stream(produceInfo
-                            .getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
+                            .getAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
                             .map(mediaType -> mediaType.getStringValue().trim()
                                     .substring(0, mediaType.getStringValue().indexOf("/")))
                             .distinct().collect(Collectors.toList());
@@ -322,8 +325,8 @@ public abstract class Node {
                 if (!isProduceMatched) {
                     List<String> noWildCardMediaTypes = acceptMediaTypes.stream()
                             .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
-                    for (AnnotationAttributeValue attributeValue : produceInfo.getAnnotationAttributeValue
-                            (Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+                    for (AnnAttributeValue attributeValue : produceInfo.getAttributeValue(
+                            Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
                         for (String mediaType : noWildCardMediaTypes) {
                             if (mediaType.equals(attributeValue.getStringValue())) {
                                 isProduceMatched = true;
