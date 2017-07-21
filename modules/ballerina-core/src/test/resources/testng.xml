@@ -65,8 +65,6 @@ under the License.
         <classes>
             <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
-            <class name="org.ballerinalang.model.json.JSONStructConstraintTest"/>
-
         </classes>
     </test>
 
