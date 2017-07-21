@@ -25,6 +25,7 @@ import { addAttribute, deleteNode, getArrayValue } from './utils/annotation-butt
 import AnnotationHelper from '../env/helpers/annotation-helper';
 import EnvAnnotationDefinition from './../env/annotation-definition';
 import PopoutButton from './popout-button';
+import { util } from './../visitors/sizing-utils';
 
 /**
  * React component for an annoation attribute.
@@ -252,6 +253,7 @@ class AnnotationAttribute extends React.Component {
 
             const bValue = attributeValue.getChildren()[0];
             if (this.state.isBValueEdit) {
+                const width = util.getTextWidth(this.state.bValueText, 150, 1000);
                 return (
                     <ul
                         className="attribute-value-bvalue"
@@ -266,6 +268,7 @@ class AnnotationAttribute extends React.Component {
                                     onChange={this.onBValueChange}
                                     onBlur={this.onBValueEditFinished}
                                     onKeyPress={this.onBValueKeyPress}
+                                    style={{ width: parseInt(width.w + 20, 10) }}
                                 />
                             </span>
                             <PopoutButton buttons={buttons} />
