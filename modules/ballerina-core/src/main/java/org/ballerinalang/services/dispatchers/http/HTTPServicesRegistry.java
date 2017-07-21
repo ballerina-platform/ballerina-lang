@@ -20,8 +20,8 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -88,15 +88,15 @@ public class HTTPServicesRegistry {
     public void registerService(ServiceInfo service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getName();
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIGURATION);
 
         if (annotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
+            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
                     (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
-                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeValue.getStringValue();
+            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
+                    !annAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annAttributeValue.getStringValue();
             }
         }
 
@@ -175,24 +175,24 @@ public class HTTPServicesRegistry {
      * @param configInfo            In which listener configurations are specified.
      * @return listenerConfMap      With required properties
      */
-    private Map<String, Map<String, String>> buildListerProperties(AnnotationAttachmentInfo configInfo) {
+    private Map<String, Map<String, String>> buildListerProperties(AnnAttachmentInfo configInfo) {
         if (configInfo == null) {
             return null;
         }
         //key - listenerId, value - listener config property map
         Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
 
-        AnnotationAttributeValue hostAttrVal = configInfo.getAnnotationAttributeValue
+        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue
                 (Constants.ANNOTATION_ATTRIBUTE_HOST);
-        AnnotationAttributeValue portAttrVal = configInfo.getAnnotationAttributeValue
+        AnnAttributeValue portAttrVal = configInfo.getAttributeValue
                 (Constants.ANNOTATION_ATTRIBUTE_PORT);
-        AnnotationAttributeValue httpsPortAttrVal = configInfo.getAnnotationAttributeValue
+        AnnAttributeValue httpsPortAttrVal = configInfo.getAttributeValue
                 (Constants.ANNOTATION_ATTRIBUTE_HTTPS_PORT);
-        AnnotationAttributeValue keyStoreFileAttrVal = configInfo.getAnnotationAttributeValue
+        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue
                 (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE);
-        AnnotationAttributeValue keyStorePassAttrVal = configInfo.getAnnotationAttributeValue
+        AnnAttributeValue keyStorePassAttrVal = configInfo.getAttributeValue
                 (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS);
-        AnnotationAttributeValue certPassAttrVal = configInfo.getAnnotationAttributeValue
+        AnnAttributeValue certPassAttrVal = configInfo.getAttributeValue
                 (Constants.ANNOTATION_ATTRIBUTE_CERT_PASS);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -259,15 +259,15 @@ public class HTTPServicesRegistry {
     public void unregisterService(ServiceInfo service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getName();
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.BASE_PATH);
 
         if (annotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
+            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
                     (Constants.VALUE_ATTRIBUTE);
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
-                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeValue.getStringValue();
+            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
+                    !annAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annAttributeValue.getStringValue();
             }
         }
 

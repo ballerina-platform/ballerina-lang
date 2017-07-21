@@ -201,6 +201,23 @@ service<http> echo44 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:Path {value:"echo2"}
+    resource echo221 (message m) {
+        message response = {};
+        json responseJson = {"first":"zzz"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"echo2"}
+    resource echo222 (message m) {
+        message response = {};
+        json responseJson = {"first":"bar"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }
 
 @http:configuration {basePath:"/echo55"}
@@ -209,6 +226,14 @@ service<http> echo55 {
     resource echo1 (message m, string foo) {
         message response = {};
         json responseJson = {"echo55":"echo55"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:Path {value:"/*"}
+    resource echo2 (message m, string foo) {
+        message response = {};
+        json responseJson = {"echo55":"default"};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }

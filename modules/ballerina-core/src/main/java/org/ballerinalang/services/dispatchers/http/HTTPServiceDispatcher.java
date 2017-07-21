@@ -21,8 +21,8 @@ package org.ballerinalang.services.dispatchers.http;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -96,15 +96,15 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);
-        for (ResourceInfo resource : service.getResourceInfoList()) {
-            AnnotationAttachmentInfo pathAnnotationInfo = resource
+        for (ResourceInfo resource : service.getResourceInfoEntries()) {
+            AnnAttachmentInfo pathAnnotationInfo = resource
                     .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
             String subPathAnnotationVal;
             if (pathAnnotationInfo != null
-                    && pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null
-                    && !pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
+                    && pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE) != null
+                    && !pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE)
                     .getStringValue().trim().isEmpty()) {
-                subPathAnnotationVal = pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
+                subPathAnnotationVal = pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE)
                         .getStringValue();
             } else {
                 if (log.isDebugEnabled()) {
@@ -158,15 +158,15 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     private String getServiceBasePath(ServiceInfo service) {
         String basePath = service.getName();
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIGURATION);
 
         if (annotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
+            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
                     (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
-                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeValue.getStringValue();
+            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
+                    !annAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annAttributeValue.getStringValue();
             }
         }
 

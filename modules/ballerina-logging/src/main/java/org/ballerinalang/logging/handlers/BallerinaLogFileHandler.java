@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 
 /**
- * A custom file handler for handling Ballerina user level log file
+ * A custom file handler for handling Ballerina user level log file.
  *
  * @since 0.89
  */
