@@ -59,7 +59,7 @@ public class ServerConnector {
     }
 
     /**
-     * Initialize all the
+     * Initialize all the.
      */
     public void init() {
         // TODO : Add actual server connector initialization here.
@@ -96,7 +96,7 @@ public class ServerConnector {
     }
 
     /**
-     * Builds a {@link ServerConnector}
+     * Builds a {@link ServerConnector}.
      *
      * @since 0.89
      */
