@@ -25,7 +25,7 @@ importDeclaration
     ;
 
 fullyQualifiedPackageName
-    :   packageName ('.' packageName)*
+    :   packageName (DOT packageName)*
     ;
 
 packageName
@@ -168,7 +168,7 @@ builtInReferenceTypeName
     :   TYPE_MESSAGE
     |   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
-    |   TYPE_JSON (LT LEFT_BRACE QuotedStringLiteral RIGHT_BRACE GT)?
+    |   TYPE_JSON (LT structReference GT)?
     |   TYPE_DATATABLE
     |   functionTypeName
     ;
@@ -517,6 +517,10 @@ annotationReference
     :   (packageName COLON)? Identifier
     ;
 
+structReference
+    :   (packageName COLON)? Identifier
+    ;
+
 returnParameters
     : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
     ;
@@ -548,68 +552,5 @@ simpleLiteral
 // XML parsing
 
 xmlLiteral
-    :   XMLLiteralStart xmlItem XMLLiteralEnd
-    ;
-
-xmlItem
-    :   element
-    |   procIns
-    |   comment
-    |   text
-    |   CDATA
-    ;
-
-content
-    :   text? ((element | CDATA | procIns | comment) text?)*
-    ;
-
-comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
-    ;
-
-element
-    :   startTag content closeTag
-    |   emptyTag
-    ;
-
-startTag
-    :   XML_TAG_OPEN xmlQualifiedName attribute* XML_TAG_CLOSE
-    ;
-
-closeTag
-    :   XML_TAG_OPEN_SLASH xmlQualifiedName XML_TAG_CLOSE
-    ;
-
-emptyTag
-    :   XML_TAG_OPEN xmlQualifiedName attribute* XML_TAG_SLASH_CLOSE
-    ;
-
-procIns
-    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
-    ;
-
-attribute
-    :   xmlQualifiedName EQUALS xmlQuotedString;
-
-text
-    :   (XMLTemplateText expression ExpressionEnd)+ XMLText?
-    |   XMLText
-    ;
-
-xmlQuotedString
-    :   xmlSingleQuotedString
-    |   xmlDoubleQuotedString
-    ;
-
-xmlSingleQuotedString
-    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression ExpressionEnd)* XMLSingleQuotedString? SINGLE_QUOTE_END
-    ;
-
-xmlDoubleQuotedString
-    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression ExpressionEnd)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
-    ;
-
-xmlQualifiedName
-    :   (XMLQName QNAME_SEPARATOR)? XMLQName
-    |   XMLTagExpressionStart expression ExpressionEnd
+    :   TYPE_XML BacktickStringLiteral
     ;
