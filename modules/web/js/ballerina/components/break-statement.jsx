@@ -24,7 +24,7 @@ import StatementDecorator from './statement-decorator';
  * Break statement decorator.
  *
  * @class BreakStatement
- * @extends {React.PureComponent}
+ * @extends {React.Component}
  */
 class BreakStatement extends React.Component {
     /**

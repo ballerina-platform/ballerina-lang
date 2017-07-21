@@ -34,7 +34,7 @@ import breakpointHOC from './../../debugger/breakpoint-hoc';
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class StatementDecorator extends React.PureComponent {
+class StatementDecorator extends React.Component {
 
     /**
      * Calculate statement box.
