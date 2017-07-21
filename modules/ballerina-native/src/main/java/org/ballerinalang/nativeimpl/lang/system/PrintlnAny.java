@@ -53,13 +53,8 @@ public class PrintlnAny extends AbstractNativeFunction {
         if (result != null) {
             out.println(result.stringValue());
         } else {
-//            out.println(String.valueOf(null));
-//            out.println("null");
-//           out.println((String) null);
-//            out.println((char[]) null);
             out.println((Object) null);
         }
-//        out.println((char[])null);
         return VOID_RETURN;
     }
 
