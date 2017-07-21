@@ -99,7 +99,7 @@ class ToolGroupView extends React.Component {
                     <ToolView
                         tool={element}
                         group={group}
-                        key={element.get('title')}
+                        key={element.cid}
                         toolOrder={group.get('toolOrder')}
                     />);
             }

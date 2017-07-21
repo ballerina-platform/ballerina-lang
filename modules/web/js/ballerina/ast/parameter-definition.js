@@ -79,14 +79,13 @@ class ParameterDefinition extends VariableDefinition {
 
         argAsString += (this.getPkgName()) ? this.getPkgName() + ':' : '';
         argAsString += this.getTypeName();
-
         if (this.getTypeConstraint()) {
             const constraint = this.getTypeConstraint();
             const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
                                   + constraint.type + '>');
             argAsString += constraintStr;
         }
-        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : '';
+        argAsString += !_.isNil(this.getName()) ? /* FIXME*/ (this.getWSRegion(1) || ' ') + this.getName() : '';
         argAsString += this.getWSRegion(2);
         return argAsString;
     }

@@ -264,6 +264,7 @@ const createAbortStatementTool = {
 const createNamespaceDeclarationStatementTool = {
     id: 'Namespace',
     name: 'Namespace',
+    cssClass: 'icon fw fw-namespace',
     title: 'Namespace',
     nodeFactoryMethod: DefaultBallerinaASTFactory.createNamespaceDeclarationStatement,
 };

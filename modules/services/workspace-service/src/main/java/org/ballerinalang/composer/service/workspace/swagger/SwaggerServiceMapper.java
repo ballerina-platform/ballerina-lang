@@ -135,9 +135,9 @@ public class SwaggerServiceMapper {
             for (AnnotationAttributeValue authorizationValues : annotationAttributeValue.getValueArray()) {
                 AnnotationAttachment authAnnotationAttachment = authorizationValues.getAnnotationValue();
                 if (null != authAnnotationAttachment.getAttribute("name") &&
-                    null != authAnnotationAttachment.getAttribute("type")) {
+                    null != authAnnotationAttachment.getAttribute("authType")) {
                     String name = authAnnotationAttachment.getAttribute("name").getLiteralValue().stringValue();
-                    String type = authAnnotationAttachment.getAttribute("type").getLiteralValue().stringValue();
+                    String type = authAnnotationAttachment.getAttribute("authType").getLiteralValue().stringValue();
                     String description = "";
                     if (null != authAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
                         description = authAnnotationAttachment.getAttributeNameValuePairs().get("description")

@@ -16,7 +16,6 @@
  * under the License.
  */
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import { util } from '../sizing-utils';
 
 /**
  * Dimension visitor for annotation attribute.
@@ -64,7 +63,11 @@ class AnnotationAttributeDimensionCalculatorVisitor {
 
         viewState.bBox.h = DesignerDefaults.annotationAttributeDefinition.body.height;
         viewState.bBox.w = DesignerDefaults.annotationAttributeDefinition.body.width;
-        viewState.textLength = util.getTextWidth(node.getAttributeStatementString(), viewState.bBox.w, 500);
+        // TODO: Remove the text length from annotation related classes.
+        viewState.textLength = {
+            text: "",
+            w: 0,
+        };
 
         viewState.components = components;
     }

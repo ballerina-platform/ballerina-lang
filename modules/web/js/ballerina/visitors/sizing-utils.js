@@ -408,6 +408,7 @@ class SizingUtil {
         const parent = statement.getParent();
         const statements = parent.filterChildren(BallerinaASTFactory.isStatement);
         const currentStatementIndex = _.indexOf(statements, statement);
+        const connectors = [];
         const statementsBefore = _.slice(statements, 0, currentStatementIndex);
 
         let height = 0;
@@ -451,6 +452,21 @@ class SizingUtil {
 
             totalHeight += child.getViewState().bBox.h;
         });
+
+        // add any connector declaration heights.
+        const connectors = [];
+        parent.children.forEach((child) => {
+            if (childNode.getNodeIndex() > child.getNodeIndex() &&
+                BallerinaASTFactory.isConnectorDeclaration(child)) {
+                connectors.push(child);
+            }
+        });
+        // here we will add any connector declaration statement height.
+        _.forEach(connectors, (stmt) => {
+            totalHeight += stmt.getViewState().components.statementViewState.bBox.h;
+        });
+
+
 
         totalHeight += childNode.getViewState().bBox.h;
 

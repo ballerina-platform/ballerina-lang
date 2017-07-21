@@ -131,6 +131,16 @@ class SwaggerParser {
             const versionBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.version });
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'version', versionBValue);
         }
+
+        if (!_.isNil(this._swaggerJson.host)) {
+            const hostAndPort = this._swaggerJson.host.split(':');
+
+            const hostBValue = ASTFactory.createBValue({ stringValue: hostAndPort[0] });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'host', hostBValue);
+
+            const portBValue = ASTFactory.createBValue({ type: 'int', stringValue: hostAndPort[1] });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'port', portBValue);
+        }
     }
 
     /**
@@ -389,7 +399,14 @@ class SwaggerParser {
         });
 
         if (!_.isNil(this._swaggerJson.host)) {
-            const hostBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.host });
+            let hostBValue;
+            if (!_.isNil(this._swaggerJson.schemes) && this._swaggerJson.schemes.length > 0) {
+                hostBValue = ASTFactory.createBValue({
+                    stringValue: `${this._swaggerJson.schemes[0]}://${this._swaggerJson.host}`,
+                });
+            } else {
+                hostBValue = ASTFactory.createBValue({ stringValue: `http://:${this._swaggerJson.host}` });
+            }
             SwaggerParser.setAnnotationAttribute(serviceConfigAnnotation, 'host', hostBValue);
         }
 
@@ -614,7 +631,7 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.type)) {
                     const typeBValue = ASTFactory.createBValue({ stringValue: parameter.type });
-                    SwaggerParser.setAnnotationAttribute(responseAnnotation, 'type', typeBValue);
+                    SwaggerParser.setAnnotationAttribute(responseAnnotation, 'parameterType', typeBValue);
                 }
 
                 if (!_.isNil(parameter.format)) {

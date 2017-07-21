@@ -34,7 +34,7 @@ class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback, container) {
         this.container = container;
         this.references = [];
-        this.viewId = 'transformer';
+        this.viewId = container.attr("id");
         this.contextMenu = 'transformContextMenu';
         this.jsTreePrefix = 'jstree-container';
         this.viewIdSeperator = '___';
@@ -408,8 +408,10 @@ class TransformRender {
 
         if (isSourceExists && isTargetExists) {
             for (var i = 0; i < connection.sourceProperty.length; i++) {
-                sourceId += this.idNameSeperator
-                + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+                if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
+                    sourceId += this.idNameSeperator
+                        + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+                }
             }
             if (connection.sourceStruct != connection.sourceProperty[0]) {
                 sourceId += anchorEnd;
@@ -613,7 +615,7 @@ addComplexParameter(parentId, struct) {
 
     addVariable(variable, type, removeCallback) {
         const id = variable.name + this.viewIdSeperator + this.viewId;
-        const propId = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+        const propId = variable.name + this.idNameSeperator + this.viewId  + this.nameTypeSeperator + variable.type;
         const newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
         const varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
         const property = $('<a>').attr('id', propId).addClass('variable-content');
@@ -969,7 +971,7 @@ addComplexParameter(parentId, struct) {
         const xTargetPointer = 0;
         let yTargetPointer = 0;
         const functionGap = 30;
-        const svgLines = $('#' + self.placeHolderName + '> svg');
+        const svgLines = $('#' + self.viewId + '> svg');
 
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {

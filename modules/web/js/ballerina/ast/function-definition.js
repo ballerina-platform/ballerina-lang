@@ -38,6 +38,7 @@ class FunctionDefinition extends CallableDefinition {
         this._isPublic = _.get(args, 'isPublic') || false;
         this._annotations = _.get(args, 'annotations', []);
         this._isNative = _.get(args, 'isNative', false);
+        this._isLambda = _.get(args, 'isLambda', false);
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
@@ -52,7 +53,7 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     setFunctionName(name, options) {
-        if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
+        if (this.isLambda() || (!_.isNil(name) && ASTNode.isValidIdentifier(name))) {
             this.setAttribute('_functionName', name, options);
         } else {
             const errorString = 'Invalid function name: ' + name;
@@ -300,6 +301,8 @@ class FunctionDefinition extends CallableDefinition {
      * Override the super call to addChild
      * @param {object} child
      * @param {number} index
+     * @param ignoreTreeModifiedEvent {boolean}
+     * @param ignoreChildAddedEvent {boolean}
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
@@ -310,7 +313,7 @@ class FunctionDefinition extends CallableDefinition {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
             });
 
-            if (firstWorkerIndex > -1 && _.isNil(index)) {
+            if (firstWorkerIndex > -1 && (_.isNil(index) || index < 0)) {
                 index = firstWorkerIndex;
             }
             Object.getPrototypeOf(this.constructor.prototype)
@@ -352,6 +355,13 @@ class FunctionDefinition extends CallableDefinition {
         this._isNative = isNative;
     }
 
+    isLambda(isLambda) {
+        if (!_.isNil(isLambda)) {
+            this._isLambda = isLambda;
+        }
+        return this._isLambda;
+    }
+
     /**
      * initialize FunctionDefinition from json object
      * @param {Object} jsonNode to initialize from
@@ -360,6 +370,7 @@ class FunctionDefinition extends CallableDefinition {
      * @param {boolean} [jsonNode.is_public_function] - Public or not of the function
      */
     initFromJson(jsonNode) {
+        this.isLambda(jsonNode.is_lambda_function);
         this.setFunctionName(jsonNode.function_name, { doSilently: true });
         this.setIsPublic(jsonNode.is_public_function, { doSilently: true });
         this._annotations = jsonNode.annotations;
@@ -379,7 +390,7 @@ class FunctionDefinition extends CallableDefinition {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
-            self.addChild(child);
+            self.addChild(child, -1, true, true);
             child.initFromJson(childNodeTemp);
         });
     }

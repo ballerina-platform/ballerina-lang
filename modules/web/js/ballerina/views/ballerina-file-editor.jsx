@@ -37,7 +37,6 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
-import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 
@@ -328,7 +327,7 @@ class BallerinaFileEditor extends React.Component {
                                     resolve(newState);
 
                                     // fetch program packages
-                                    getProgramPackages(file, getLangServerClientInstance())
+                                    getProgramPackages(file)
                                         .then((data) => {
                                             // if any packages were found
                                             const packages = data.result.packages;
@@ -357,9 +356,10 @@ class BallerinaFileEditor extends React.Component {
         newAst.accept(findBreakpointsVisiter);
         const breakpoints = findBreakpointsVisiter.getBreakpoints();
         const fileName = this.props.file.getName();
+        const packagePath = newAst.getPackageDefinition().getPackageName() || '.';
         DebugManager.removeAllBreakpoints(fileName);
         breakpoints.forEach((lineNumber) => {
-            DebugManager.addBreakPoint(lineNumber, fileName);
+            DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         });
     }
     markBreakpointsOnAST(ast) {

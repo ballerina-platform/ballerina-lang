@@ -25,6 +25,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
@@ -52,6 +53,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
@@ -76,6 +78,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -90,7 +93,13 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -291,7 +300,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         constDef.getVariableDefStmt().accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONSTANT, null));
             annotationAttachment.accept(this);
         }
 
@@ -345,9 +354,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(service);
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.SERVICE,
+                    service.getProtocolPkgPath()));
             annotationAttachment.accept(this);
         }
+
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
@@ -372,7 +383,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(connectorDef);
 
         for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONNECTOR, null));
             annotationAttachment.accept(this);
         }
 
@@ -413,7 +424,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.RESOURCE, null));
             annotationAttachment.accept(this);
         }
 
@@ -473,7 +484,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -533,7 +544,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(typeMapper);
 
         for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.TYPEMAPPER, null));
             annotationAttachment.accept(this);
         }
 
@@ -595,7 +606,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(action);
 
         for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ACTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -714,7 +725,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     public void visit(StructDef structDef) {
         checkAndSetClosestScope(structDef);
         for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.STRUCT, null));
             annotationAttachment.accept(this);
         }
         addToCompletionItems(structDef);
@@ -766,7 +777,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ANNOTATION, null));
             annotationAttachment.accept(this);
         }
         addToCompletionItems(annotationDef);
@@ -781,15 +792,15 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.PARAMETER, null));
             annotationAttachment.accept(this);
         }
     }
 
     @Override
-    public void visit(VariableDef varDef) {
-    }
+    public void visit(SimpleVariableDef simpleVariableDef) {
 
+    }
 
     // Visit statements
 
@@ -1469,6 +1480,41 @@ public class CompletionItemAccumulator implements NodeVisitor {
         nullLiteral.setType(BTypes.typeNull);
     }
 
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLCommentLiteral xmlCommentLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLTextLiteral xmlTextLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLPILiteral xmlpiLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
+
+    }
+
+    @Override
+    public void visit(LambdaExpression lambdaExpression) {
+
+    }
+
 
     // Private methods.
 
@@ -1520,7 +1566,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
                 Identifier identifier = new Identifier(varName);
                 SymbolName symbolName = new SymbolName(identifier.getName());
-                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                SimpleVariableDef variableDef = new SimpleVariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         null, symbolName, currentScope);
 

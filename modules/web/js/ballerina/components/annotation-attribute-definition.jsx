@@ -22,10 +22,22 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Alerts from 'alerts';
 import './annotation-definition.css';
-import EditableText from './editable-text';
 import { util } from './../visitors/sizing-utils';
+import ExpressionEditor from '../../expression-editor/expression-editor-utils';
+import SimpleBBox from "../ast/simple-bounding-box";
 
 class AnnotationAttributeDefinition extends React.Component {
+    /**
+     * calculate the component BBox.
+     * @param {object} props - props.
+     * @return {SimpleBBox} bBox.
+     * */
+    static calculateComponentBBox(props) {
+        const bBox = props.model.viewState.bBox;
+        return new SimpleBBox(bBox.x,
+            bBox.y + 1, bBox.w, bBox.h - 1);
+    }
+
     constructor(props) {
         super(props);
         this.model = this.props.model;
@@ -34,19 +46,50 @@ class AnnotationAttributeDefinition extends React.Component {
             inputValue: this.props.model.getAttributeStatementString().replace(';', ''),
             editing: false,
             editValue: this.props.model.getAttributeStatementString().replace(';', ''),
+            inputBox: AnnotationAttributeDefinition.calculateComponentBBox(props),
         };
         this.setAnnotationAttributeDefinition = this.setAnnotationAttributeDefinition.bind(this);
+        this.getStatementString = this.getStatementString.bind(this);
+    }
+
+    componentWillReceiveProps(props) {
+        this.setState({
+            inputBox: AnnotationAttributeDefinition.calculateComponentBBox(props),
+        });
+    }
+
+    getStatementString() {
+        return this.props.model.getAttributeStatementString().replace(';', '');
     }
 
     /** q
      * Render Edit mode for attribute definition.
      * */
     onClickVariableTextBox() {
-        this.setState({ editing: true, editValue: this.props.model.getAttributeStatementString().replace(';', '') });
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'VariableDefinition',
+            model: this.props.model,
+            getterMethod: this.getStatementString,
+            setterMethod: this.setAnnotationAttributeDefinition,
+            fontSize: 12,
+            isCustomHeight: true,
+        };
+        const options = this.editorOptions;
+        const packageScope = this.context.environment;
+        if (options) {
+            new ExpressionEditor(this.state.inputBox,
+                text => this.onUpdate(text), options, packageScope).render(this.context.getOverlayContainer());
+        }
+        this.setState({editing: true, editValue: this.props.model.getAttributeStatementString().replace(';', '')});
+    }
+
+    onUpdate(text) {
+        // TODO: Implement the on update.
     }
 
     onInputBlur(e) {
-        this.setState({ editing: false, editValue: this.props.model.getAttributeStatementString().replace(';', '') });
+        this.setState({editing: false, editValue: this.props.model.getAttributeStatementString().replace(';', '')});
     }
 
     onInputChange(e) {
@@ -80,7 +123,7 @@ class AnnotationAttributeDefinition extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const { environment } = this.context;
+        const {environment} = this.context;
         const dropdownData = [];
         // Adding items to the type dropdown.
         const bTypes = environment.getTypes();
@@ -97,50 +140,52 @@ class AnnotationAttributeDefinition extends React.Component {
      * */
     setAnnotationAttributeDefinition(input) {
         const model = this.props.model;
-        try {
-            const variableDeclaration = input.trim();
-            if (variableDeclaration && variableDeclaration !== '') {
-                const splitedExpression = variableDeclaration.split('=');
-                const leftHandSideExpression = splitedExpression[0].trim();
-                let rightHandSideExpression;
-                if (splitedExpression.length > 1) {
-                    rightHandSideExpression = splitedExpression[1].trim();
-                }
+        if (input !== '') {
+            try {
+                const variableDeclaration = input.trim();
+                if (variableDeclaration && variableDeclaration !== '') {
+                    const splitedExpression = variableDeclaration.split('=');
+                    const leftHandSideExpression = splitedExpression[0].trim();
+                    let rightHandSideExpression;
+                    if (splitedExpression.length > 1) {
+                        rightHandSideExpression = splitedExpression[1].trim();
+                    }
 
-                if (leftHandSideExpression.split(' ').length <= 1) {
-                    const errorString = `Invalid variable declaration: ${variableDeclaration}`;
+                    if (leftHandSideExpression.split(' ').length <= 1) {
+                        const errorString = `Invalid variable declaration: ${variableDeclaration}`;
+                        Alerts.error(errorString);
+                        return false;
+                    }
+
+                    const bType = leftHandSideExpression.split(' ')[0];
+                    if (!this.validateType(bType)) {
+                        const errorString = `Invalid type for a variable: ${bType}`;
+                        Alerts.error(errorString);
+                        return false;
+                    }
+
+                    const identifier = leftHandSideExpression.split(' ')[1];
+                    model.setAttributeName(identifier);
+
+                    let defaultValue = '';
+                    if (rightHandSideExpression) {
+                        defaultValue = rightHandSideExpression;
+                    }
+
+                    model.setAttributeType(bType);
+                    model.setAttributeValue(defaultValue);
+
+                    this.setState({
+                        inputValue: this.props.model.getAttributeStatementString().replace(';', ''),
+                    });
+                } else {
+                    const errorString = 'Annotation Attribute Cannot be Empty';
                     Alerts.error(errorString);
                     return false;
                 }
-
-                const bType = leftHandSideExpression.split(' ')[0];
-                if (!this.validateType(bType)) {
-                    const errorString = `Invalid type for a variable: ${bType}`;
-                    Alerts.error(errorString);
-                    return false;
-                }
-
-                const identifier = leftHandSideExpression.split(' ')[1];
-                model.setAttributeName(identifier);
-
-                let defaultValue = '';
-                if (rightHandSideExpression) {
-                    defaultValue = rightHandSideExpression;
-                }
-
-                model.setAttributeType(bType);
-                model.setAttributeValue(defaultValue);
-
-                this.setState({
-                    inputValue: this.props.model.getAttributeStatementString().replace(';', ''),
-                });
-            } else {
-                const errorString = 'Annotation Attribute Cannot be Empty';
-                Alerts.error(errorString);
-                return false;
+            } catch (e) {
+                Alerts.error(e);
             }
-        } catch (e) {
-            Alerts.error(e);
         }
     }
 
@@ -191,33 +236,13 @@ class AnnotationAttributeDefinition extends React.Component {
                         x={this.bBox.x} y={this.bBox.y} width={this.bBox.w + 30} height={this.bBox.h}
                         className="annotation-attribute-wrapper "
                     />
-
-                    <EditableText
-                        x={this.bBox.x}
-                        y={this.bBox.y + 15}
-                        width={this.bBox.w}
-                        height={this.bBox.h}
-                        labelClass={'annotation-attribute-wrapper-text'}
-                        inputClass={'annotation-attribute-input-text-box'}
-                        displayText={
-                            util.getTextWidth(this.props.model.getAttributeStatementString().replace(';', '')).text
-                        }
-                        onKeyDown={(e) => {
-                            this.onKeyDown(e);
-                        }}
-                        onBlur={(e) => {
-                            this.onInputBlur(e);
-                        }}
-                        onClick={() => {
-                            this.onClickVariableTextBox();
-                        }}
-                        editing={this.state.editing}
-                        onChange={(e) => {
-                            this.onInputChange(e);
-                        }}
+                    <text
+                        x={this.bBox.x + 4}
+                        y={this.bBox.y + 18}
+                        className={"annotation-attribute-wrapper-text"}
                     >
-                        {this.state.editValue}
-                    </EditableText>
+                        {util.getTextWidth(this.props.model.getAttributeStatementString().replace(';', '')).text}
+                    </text>
                 </g>
                 <g onClick={() => this.deleteAttribute()}>
                     <rect
@@ -225,8 +250,8 @@ class AnnotationAttributeDefinition extends React.Component {
                         className="annotation-delete-wrapper"
                     />
                     <image
-                        x={this.bBox.x + this.bBox.w + 5} y={this.bBox.y + 5} width={20} height={20}
-                        className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
+                        x={this.bBox.x + this.bBox.w + 5} y={this.bBox.y + 7} width={20} height={20}
+                        className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('cancel')}
                     >
                         <title>Remove</title>
                     </image>
@@ -237,6 +262,7 @@ class AnnotationAttributeDefinition extends React.Component {
 }
 
 AnnotationAttributeDefinition.contextTypes = {
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
 

@@ -18,6 +18,8 @@
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import ReturnStatement from '../../ast/statements/return-statement';
+import ASTFactory from '../../ast/ballerina-ast-factory';
+import FunctionDefinitionVisitor from './function-definition-visitor';
 
 /**
  * Source generation for return statement
@@ -51,11 +53,33 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         returnStatement.setLineNumber(lineNumber, { doSilently: true });
-        const constructedSourceSegment = returnStatement.getStatementString();
+        let constructedSourceSegment = '';
+        this.appendSource('return' + returnStatement.getWSRegion(1));
+
+        const children = returnStatement.children;
+        let spaces = '';
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            const ws = (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
+            if (ASTFactory.isLambdaExpression(child)) {
+                child.children[0].accept(new FunctionDefinitionVisitor(this));
+                if (i !== 0) {
+                    constructedSourceSegment += ',' + ws;
+                    spaces += ws + ',';
+                }
+            } else {
+                if (i !== 0) {
+                    constructedSourceSegment += ',' + ws;
+                }
+                constructedSourceSegment += child.getExpressionString();
+            }
+        }
+        this.appendSource(constructedSourceSegment);
+        constructedSourceSegment = 'return ' + constructedSourceSegment + spaces;
+
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         // Increase the total number of lines
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-        this.appendSource(constructedSourceSegment);
     }
 
     /**
@@ -71,7 +95,9 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
 
         this.appendSource(constructedSourceSegment);
-        this.getParent().appendSource(this.getGeneratedSource());
+        const generatedSource = this.getGeneratedSource();
+        this.getParent().appendSource(generatedSource);
+        returnStatement.viewState.source = generatedSource;
     }
 }
 

@@ -51,6 +51,7 @@ class ReturnStatement extends Statement {
         const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            this.viewState.source = null;
             let nodeToFireEvent = this;
             if (_.isEqual(parsedJson.type, 'return_statement')) {
                 this.initFromJson(parsedJson);
@@ -106,6 +107,9 @@ class ReturnStatement extends Statement {
      * @return {string} return statement string
      */
     getStatementString() {
+        if (this.viewState.source) {
+            return this.viewState.source.replace(/;\s*$/, '');
+        }
         let expressionString = '';
         this.children.forEach((child, index) => {
             if (index !== 0) {

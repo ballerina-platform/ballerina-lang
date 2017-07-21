@@ -23,8 +23,10 @@ import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
 import { getServiceEndpoint } from './../api-client/api-client';
 
-//holds the singleton of lang server client
-let instance = undefined;
+const BUILT_IN_PACKAGES = 'ballerina/packages';
+
+// holds the singleton of lang server client
+let instance;
 
 /**
  * Class for language server client controller
@@ -47,9 +49,9 @@ class LangServerClientController extends EventChannel {
      */
     init() {
         return new Promise((resolve, reject) => {
-            this.langserverChannel = new LangserverChannel({ 
+            this.langserverChannel = new LangserverChannel({
                 /** fetch endpoint from util */
-                endpoint: getServiceEndpoint('langserver'), 
+                endpoint: getServiceEndpoint('langserver'),
                 clientController: this });
             this.langserverChannel.on('connected', () => {
                 this.initializeRequest()
@@ -84,7 +86,6 @@ class LangServerClientController extends EventChannel {
             this.requestSessions.push(session);
             this.langserverChannel.sendMessage(message);
         });
-        
     }
 
     /**
@@ -196,7 +197,7 @@ class LangServerClientController extends EventChannel {
                 position: options.position,
                 fileName: options.fileName,
                 filePath: options.filePath,
-                packageName: options.packageName
+                packageName: options.packageName,
             },
         };
 
@@ -210,11 +211,35 @@ class LangServerClientController extends EventChannel {
 
 
     /**
+     * Get built-in packages request processor
+     */
+    getBuiltInPackages() {
+        return new Promise((resolve, reject) => {
+            const session = new RequestSession();
+            const message = {
+                id: session.getId(),
+                jsonrpc: '2.0',
+                method: BUILT_IN_PACKAGES,
+                params: {},
+            };
+            session.setCallback((responseMsg) => {
+                resolve(responseMsg);
+            });
+            session.setMessage(message);
+            this.requestSessions.push(session);
+            this.langserverChannel.on('error', (error) => {
+                reject(error);
+            });
+            this.langserverChannel.sendMessage(message);
+        });
+    }
+
+    /**
      * Get program packages request processor
      * @param {object} options - get program packages' options
      * @param {function} callback - callback function to set the program packages in the editor
      */
-    getProgramPackages(options, callback){
+    getProgramPackages(options, callback) {
         const session = new RequestSession();
         const message = {
             id: session.getId(),
@@ -225,7 +250,7 @@ class LangServerClientController extends EventChannel {
                 position: options.position,
                 fileName: options.fileName,
                 filePath: options.filePath,
-                packageName: options.packageName
+                packageName: options.packageName,
             },
         };
 
@@ -278,7 +303,7 @@ function initLangServerClientInstance() {
             .catch((error) => {
                 instance = undefined;
                 reject(error);
-            })
+            });
     });
 }
 
@@ -291,8 +316,8 @@ export function getLangServerClientInstance() {
             resolve(instance);
         } else {
             initLangServerClientInstance()
-                .then(() => { resolve(instance) })
+                .then(() => { resolve(instance); })
                 .catch(reject);
         }
-    })
+    });
 }

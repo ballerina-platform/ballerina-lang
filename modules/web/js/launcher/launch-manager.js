@@ -38,6 +38,7 @@ class LaunchManager extends EventChannel {
         this.channel = undefined;
         this.active = false;
         this.tryItUrl = undefined;
+        this.console = Console;
     }
     /**
      *
@@ -200,6 +201,13 @@ class LaunchManager extends EventChannel {
      */
     openConsole() {
         Console.clear();
+        Console.show();
+    }
+    /**
+     * Open console view
+     * @memberof LaunchManager
+     */
+    showConsole() {
         Console.show();
     }
     /**

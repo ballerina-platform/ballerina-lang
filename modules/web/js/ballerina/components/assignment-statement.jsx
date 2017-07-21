@@ -29,6 +29,8 @@ import StatementDecorator from './statement-decorator';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ConnectorActivationContainer from './connector-activation-container';
 import LifeLine from './lifeline.jsx';
+import ImageUtil from './image-util';
+import { util } from './../visitors/sizing-utils';
 
 /**
  * Assignment statement decorator.
@@ -152,12 +154,14 @@ class AssignmentStatement extends React.Component {
             <g>
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
                 <LifeLine
-                    title={connectorName}
+                    title={util.getTextWidth(connectorName, 0, DesignerDefaults.lifeLine.width - 30).text}
                     bBox={connectorBBox}
                     onDelete={this.onDelete}
                     classes={classes}
                     editorOptions={this.editorOptions}
                     startSolidLineFrom={connectorInitializeStartY}
+                    icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
+                    iconColor='#1a8278'
                 />
             </g>
         );
