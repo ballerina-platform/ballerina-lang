@@ -77,7 +77,18 @@ function debuggerHOC(WrappedComponent) {
         debugHit(message) {
             const fileName = this.props.file.getName();
             const position = message.location;
-            if (fileName === position.fileName) {
+            const packagePath = this.props.file.getPackageName() || '.';
+
+            // remove package path from file name
+            let fileIdentifier;
+            if (position.fileName.includes('/')) {
+                const fileArray = position.fileName.split('/');
+                fileIdentifier = fileArray[fileArray.length - 1];
+            } else {
+                fileIdentifier = position.fileName;
+            }
+
+            if (fileName === fileIdentifier && packagePath === position.packagePath) {
                 this.setState({
                     debugHit: position.lineNumber - 1,
                 });
@@ -96,14 +107,16 @@ function debuggerHOC(WrappedComponent) {
          */
         addBreakpoint(lineNumber) {
             const fileName = this.props.file.getName();
-            DebugManager.addBreakPoint(lineNumber, fileName);
+            const packagePath = this.props.file.getPackageName() || '.';
+            DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         }
         /**
          * remove breakpoint
          */
         removeBreakpoint(lineNumber) {
             const fileName = this.props.file.getName();
-            DebugManager.removeBreakPoint(lineNumber, fileName);
+            const packagePath = this.props.file.getPackageName() || '.';
+            DebugManager.removeBreakPoint(lineNumber, fileName, packagePath);
         }
 
         /**
