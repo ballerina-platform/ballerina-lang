@@ -18,6 +18,8 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
@@ -25,7 +27,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,96 +37,145 @@ import java.util.Map;
  * Request message should be returned as response message
  */
 public class EchoServiceSampleTestCase extends IntegrationTestCase {
+    private ServerInstance ballerinaServer;
     private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
 
     @Test(description = "Test echo service sample test case invoking base path")
-    public void testEchoServiceByBasePath() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("echo"), requestMessage, headers);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        //request should be returned as response
-        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+    public void testEchoServiceByBasePath() throws Exception {
+        try {
+            String relativePath = "echoService" + File.separator + "echoService.bal";
+            startServer(relativePath, true);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+                    .getServiceURLHttp("echo"), requestMessage, headers);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                    , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+            //request should be returned as response
+            Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+        } finally {
+            ballerinaServer.stopServer();
+        }
     }
 
     @Test(description = "Test echo service with dynamic port sample test case")
-    public void testEchoServiceWithDynamicPortByBasePath() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        String serviceUrl = "http://localhost:9094/echo";
-        String requestMsg = "{\"key\":\"value\"}";
-        HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
-        if (response == null) {
-            //Retrying to avoid intermittent test failure
-            response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+    public void testEchoServiceWithDynamicPortByBasePath() throws Exception {
+        try {
+            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                    + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
+            startServer(relativePath, false);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            String serviceUrl = "http://localhost:9094/echo";
+            String requestMsg = "{\"key\":\"value\"}";
+            HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+            if (response == null) {
+                //Retrying to avoid intermittent test failure
+                response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+            }
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                    , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+            String respMsg = "hello world";
+            Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+        } finally {
+            ballerinaServer.stopServer();
         }
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        String respMsg = "hello world";
-        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+
     }
 
     @Test(description = "Test echo service with dynamic port shared")
-    public void testEchoServiceWithDynamicPortShared() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        String serviceUrl = "http://localhost:9094/echoOne/abc";
-        String requestMsg = "{\"key\":\"value\"}";
-        HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
-        if (response == null) {
-            //Retrying to avoid intermittent test failure
-            response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+    public void testEchoServiceWithDynamicPortShared() throws Exception {
+        try {
+            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                    + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
+            startServer(relativePath, false);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            String serviceUrl = "http://localhost:9094/echoOne/abc";
+            String requestMsg = "{\"key\":\"value\"}";
+            HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+            if (response == null) {
+                //Retrying to avoid intermittent test failure
+                response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+            }
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                    , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+            String respMsg = "hello world";
+            Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+        } finally {
+            ballerinaServer.stopServer();
         }
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        String respMsg = "hello world";
-        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+
     }
 
     @Test(description = "Test echo service with dynamic port and scheme https")
-    public void testEchoServiceWithDynamicPortHttpsByBasePath() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        String serviceUrl = "https://localhost:9095/echo";
-        String serverHome = getServerInstance().getServerHome();
-        String requestMsg = "{\"key\":\"value\"}";
-        HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
-        if (response == null) {
-            //Retrying to avoid intermittent test failure 
-            response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+    public void testEchoServiceWithDynamicPortHttpsByBasePath() throws Exception {
+        try {
+            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                    + File.separator + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath();
+            startServer(relativePath, false);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            String serviceUrl = "https://localhost:9095/echo";
+            String serverHome = getServerInstance().getServerHome();
+            String requestMsg = "{\"key\":\"value\"}";
+            HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+            if (response == null) {
+                //Retrying to avoid intermittent test failure
+                response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+            }
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                    , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+            String respMsg = "hello world";
+            Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+        } finally {
+            ballerinaServer.stopServer();
         }
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        String respMsg = "hello world";
-        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+
     }
 
     @Test(description = "Test echo service with dynamic port and scheme https with port shared")
-    public void testEchoServiceWithDynamicPortHttpsShared() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        String serviceUrl = "https://localhost:9095/echoOne/abc";
-        String serverHome = getServerInstance().getServerHome();
-        String requestMsg = "{\"key\":\"value\"}";
-        HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
-        if (response == null) {
-            //Retrying to avoid intermittent test failure
-            response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+    public void testEchoServiceWithDynamicPortHttpsShared() throws Exception {
+        try {
+            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                    + File.separator + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath();
+            startServer(relativePath, false);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            String serviceUrl = "https://localhost:9095/echoOne/abc";
+            String serverHome = getServerInstance().getServerHome();
+            String requestMsg = "{\"key\":\"value\"}";
+            HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+            if (response == null) {
+                //Retrying to avoid intermittent test failure
+                response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+            }
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                    , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+            String respMsg = "hello world";
+            Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+        } finally {
+            ballerinaServer.stopServer();
         }
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        String respMsg = "hello world";
-        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+
+    }
+
+    private void startServer(String balFile, boolean isRelativePath) throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
+        if (isRelativePath) {
+            String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+            balFile = serviceSampleDir + File.separator + balFile;
+        }
+        ballerinaServer.startBallerinaServer(balFile);
     }
 
 

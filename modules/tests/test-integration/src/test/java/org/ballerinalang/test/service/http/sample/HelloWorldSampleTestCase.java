@@ -36,16 +36,15 @@ import java.io.IOException;
  * ballerina_home/samples/helloWorldService/helloWorldService.bal.
  */
 public class HelloWorldSampleTestCase extends IntegrationTestCase {
-    private String serverZipPath;
     private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
         String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
         String balFile = serviceSampleDir + File.separator + "helloWorldService" + File.separator
                 + "helloWorldService.bal";
-
-        ballerinaServer = ServerInstance.startBallerinaServer(balFile);
+        ballerinaServer.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test hello world sample test case invoking base path")
