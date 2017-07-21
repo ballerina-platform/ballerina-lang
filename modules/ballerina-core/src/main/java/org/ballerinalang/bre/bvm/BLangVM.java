@@ -2089,6 +2089,7 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
         BConnector bConnector = new BConnector(connectorInfo.getType());
+        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
     }
 
@@ -2138,15 +2139,12 @@ public class BLangVM {
 
         if (connector != null && connector.getConnectorType() != null) {
             ConnectorInfo connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
-            StructureRefCPEntry connectorStruct = connectorInfoIncoming.getMethodTypeStructure(
+            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
                     (BConnectorType) connector.getConnectorType());
-            if (connectorStruct != null) {
-                if (connectorStruct.getStructureTypeInfo() instanceof ConnectorInfo) {
-                    ConnectorInfo connectorInfo = (ConnectorInfo) connectorStruct.getStructureTypeInfo();
-                    if (!connectorInfo.getName().equals(callableUnitInfo.getConnectorInfo().getName())) {
-                        newActionInfo = connectorInfo.getActionInfo(callableUnitInfo.getName());
+            if (connectorInfoFilter != null) {
+                    if (!connectorInfoFilter.getName().equals(callableUnitInfo.getConnectorInfo().getName())) {
+                        newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
                     }
-                }
             } else {
                 ConnectorInfo connectorInfo = callableUnitInfo.getConnectorInfo();
                 int[] inputTypes = connectorInfo.getType().getFieldTypeCount();
@@ -2161,9 +2159,10 @@ public class BLangVM {
                         handleError();
                         return;
                     }
+                }
 
-                    // TODO: This is a temporary hack to get rid of FilterConnector runtime equivalence
-                    if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length - 1]) {
+                if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length - 1]) {
+                    if (connectorInfo.isFilterConnector() && !connector.isFilterConnector()) {
                         if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length - 1]++) {
                             String errorMsg = BLangExceptionHelper.getErrorMessage(
                                     RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
@@ -2172,46 +2171,27 @@ public class BLangVM {
                             handleError();
                             return;
                         }
+                    } else if (!connectorInfo.isFilterConnector() && connector.isFilterConnector()) {
+                        if (matchingTypes[inputTypes.length - 1] != inputTypes[matchingTypes.length - 1]++) {
+                            String errorMsg = BLangExceptionHelper.getErrorMessage(
+                                    RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                                    connectorInfo.getName(), connector.getConnectorType().getName());
+                            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                            handleError();
+                            return;
+                        }
+                    } else {
+                        String errorMsg = BLangExceptionHelper.getErrorMessage(
+                                RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                                connectorInfo.getName(), connector.getConnectorType().getName());
+                        context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                        handleError();
+                        return;
                     }
                 }
             }
 
         }
-
-//        if (connector != null && connector.getConnectorType() != null) {
-//            String connectorName = connector.getConnectorType().getName();
-//            int connectorIndex = connectorType.getMethodIP(connectorName);
-//            if (connectorIndex > -1) {
-//                StructureRefCPEntry connectorStruct = (StructureRefCPEntry) constPool[connectorIndex];
-//                if (connectorStruct.getStructureTypeInfo() instanceof ConnectorInfo) {
-//                    ConnectorInfo connectorInfo = (ConnectorInfo) connectorStruct.getStructureTypeInfo();
-//                    if (!connectorInfo.getName().equals(callableUnitInfo.getConnectorInfo().getName())) {
-//                        newActionInfo = connectorInfo.getActionInfo(callableUnitInfo.getName());
-//                    }
-//                }
-//            } else {
-//                ConnectorInfo connectorInfo = callableUnitInfo.getConnectorInfo();
-//                int[] inputTypes = connectorInfo.getType().getFieldTypeCount();
-//                int[] matchingTypes = ((BConnectorType) connector.getConnectorType()).getFieldTypeCount();
-//
-//                for (int i = 0; i < inputTypes.length - 1; i++) {
-//                    if (inputTypes[i] != matchingTypes[i]) {
-//                        String errorMsg = BLangExceptionHelper.getErrorMessage(
-//                                RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-//                                connectorInfo.getName(), connector.getConnectorType().getName());
-//                        context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-//                        handleError();
-//                        return;
-//                    }
-//
-//                    // TODO: This is a temporary hack to get rid of FilterConnector runtime equivalence
-//                    if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length -1]) {
-//
-//                    }
-//                }
-//            }
-//
-//        }
 
         WorkerInfo defaultWorkerInfo;
         if (newActionInfo != null) {

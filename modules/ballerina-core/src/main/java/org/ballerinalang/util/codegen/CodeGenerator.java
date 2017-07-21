@@ -1636,6 +1636,7 @@ public class CodeGenerator implements NodeVisitor {
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, connectorDef.getPackagePath(),
                 nameIndex, connectorDef.getName());
         ConnectorInfo connectorInfo = connectorPkgInfo.getConnectorInfo(connectorDef.getName());
+        connectorInfo.setFilterConnector(connectorDef.isFilterConnector());
         structureRefCPEntry.setStructureTypeInfo(connectorInfo);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
@@ -1661,7 +1662,7 @@ public class CodeGenerator implements NodeVisitor {
         typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
         int typeEntry = currentPkgInfo.addCPEntry(typeRefCPEntry);
 
-        baseConnectorInfo.addMethodInteger(typeEntry, structureRefCPIndex);
+        baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
 //        baseConnectorInfo.addMethodTypeStructure
 //                ((BConnectorType) connectorInitExpr.getFilterSupportedType(), structureRefCPEntry);
 

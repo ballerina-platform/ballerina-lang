@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BConnectorType;
-import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,9 +38,11 @@ public class ConnectorInfo extends StructureTypeInfo {
 
     private Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
+    private boolean isFilterConnector = false;
+
     // This variable holds the method table for this type.
-    protected Map<Integer, Integer> methodTableInteger = new HashMap<>();
-    protected Map<BConnectorType, StructureRefCPEntry> methodTableType = new HashMap<>();
+    protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
+    protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
 
     public ConnectorInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name,
                          int signatureCPIndex, String signature) {
@@ -50,28 +51,36 @@ public class ConnectorInfo extends StructureTypeInfo {
         this.signature = signature;
     }
 
-    public Map<Integer, Integer> getMethodTableInteger() {
-        return methodTableInteger;
+    public Map<Integer, Integer> getMethodTableIndex() {
+        return methodTableIndex;
     }
 
-    public void setMethodTableInteger(Map<Integer, Integer> methodTable) {
-        this.methodTableInteger = methodTable;
+    public void setMethodTableIndex(Map<Integer, Integer> methodTable) {
+        this.methodTableIndex = methodTable;
     }
 
-    public void addMethodInteger(int methodNameCPIndex, int ip) {
-        methodTableInteger.put(methodNameCPIndex, new Integer(ip));
+    public void addMethodIndex(int methodNameCPIndex, int ip) {
+        methodTableIndex.put(methodNameCPIndex, new Integer(ip));
     }
 
-    public void setMethodTableType(Map<BConnectorType, StructureRefCPEntry> methodTable) {
+    public void setMethodTableType(Map<BConnectorType, ConnectorInfo> methodTable) {
         this.methodTableType = methodTable;
     }
 
-    public StructureRefCPEntry getMethodTypeStructure(BConnectorType connectorType) {
+    public ConnectorInfo getMethodTypeStructure(BConnectorType connectorType) {
         if (methodTableType.containsKey(connectorType)) {
             return methodTableType.get(connectorType);
         } else {
             return null;
         }
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
     }
 
     public int getSignatureCPIndex() {

@@ -37,7 +37,7 @@ public final class BConnector implements BRefType, StructureType {
     private BRefType[] refFields;
 
     private BConnectorType connectorType;
-    private BConnector filterConnector;
+    private boolean isFilterConnector;
     //private BType connectorType;
 
     // TODO Remove this when old executor is removed
@@ -67,12 +67,12 @@ public final class BConnector implements BRefType, StructureType {
         this.fieldTypes = fieldTypes;
     }
 
-    public BConnector getFilterConnector() {
-        return filterConnector;
+    public boolean isFilterConnector() {
+        return isFilterConnector;
     }
 
-    public void setFilterConnector(BConnector filterConnector) {
-        this.filterConnector = filterConnector;
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
     }
 
     @Override

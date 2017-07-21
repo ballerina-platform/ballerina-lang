@@ -327,6 +327,8 @@ public class ProgramFileReader {
         // Resolve unresolved CP entries.
         resolveCPEntries();
 
+        resolveConnectorMethodTables(packageInfo);
+
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
 
@@ -407,7 +409,10 @@ public class ProgramFileReader {
 
             }
 
-            connectorInfo.setMethodTableInteger(methodTableInteger);
+            connectorInfo.setMethodTableIndex(methodTableInteger);
+
+            boolean isFilterConnector = dataInStream.readBoolean();
+            connectorInfo.setFilterConnector(isFilterConnector);
 
             // Read action info entries
             int actionCount = dataInStream.readShort();
@@ -1304,7 +1309,9 @@ public class ProgramFileReader {
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
             structType.setStructFields(structFields);
         }
+    }
 
+    private void resolveConnectorMethodTables(PackageInfo packageInfo) {
         ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
         for (ConnectorInfo connectorInfo : connectorInfoEntries) {
             BConnectorType connectorType = connectorInfo.getType();
@@ -1313,13 +1320,14 @@ public class ProgramFileReader {
                     connectorInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             connectorType.setFieldTypeCount(attributeInfo.getVarTypeCount());
 
-            Map<Integer, Integer> methodTableInteger = connectorInfo.getMethodTableInteger();
-            Map<BConnectorType, StructureRefCPEntry> methodTableType = new HashMap<>();
+            Map<Integer, Integer> methodTableInteger = connectorInfo.getMethodTableIndex();
+            Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
             for (Integer key : methodTableInteger.keySet()) {
                 int keyType = methodTableInteger.get(key);
                 TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(key);
                 StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) packageInfo.getCPEntry(keyType);
-                methodTableType.put((BConnectorType) typeRefCPEntry.getType(), structureRefCPEntry);
+                ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
+                methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
             }
 
             connectorInfo.setMethodTableType(methodTableType);
