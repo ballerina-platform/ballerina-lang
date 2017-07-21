@@ -22,6 +22,7 @@ import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
@@ -46,6 +47,8 @@ import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.StoreQuery;
+import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -193,6 +196,14 @@ public class SiddhiAppRuntime {
         }
         callback.setQuery(queryRuntime.getQuery());
         queryRuntime.addCallback(callback);
+    }
+
+    public Event[] query(StoreQuery storeQuery) {
+
+    }
+
+    public Event[] query(String storeQuery) {
+        return query(SiddhiCompiler.parseStoreQuery(storeQuery));
     }
 
     public InputHandler getInputHandler(String streamId) {

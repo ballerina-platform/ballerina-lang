@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.util.parser;
+package org.wso2.siddhi.core.aggregation;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -18,6 +18,9 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Aggregation runtime managing aggregation operations for aggregation definition
+ */
 public class AggregationRuntime {
     private final AggregationDefinition aggregationDefinition;
     private final Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap;

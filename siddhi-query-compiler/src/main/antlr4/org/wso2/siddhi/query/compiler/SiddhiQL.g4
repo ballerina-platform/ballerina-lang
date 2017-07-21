@@ -66,6 +66,18 @@ definition_window
     : annotation* DEFINE WINDOW source '(' attribute_name attribute_type (',' attribute_name attribute_type )* ')' function_operation ( OUTPUT output_event_type )?
     ;
 
+store_query_final
+    : store_query ';'? EOF
+    ;
+
+store_query
+    : FROM store_input query_section?
+    ;
+
+store_input
+    : source_id (AS alias)? (ON expression)? (within_time_range per)?
+    ;
+
 definition_function_final
     : definition_function ';'? EOF
     ;
@@ -183,7 +195,7 @@ join_stream
     ;
 
 join_source
-    :source basic_source_stream_handlers? window? (AS stream_alias)?
+    :source basic_source_stream_handlers? window? (AS alias)?
     ;
 
 pattern_stream
@@ -386,7 +398,11 @@ stream_id
     :name
     ;
 
-stream_alias
+source_id
+    :name
+    ;
+
+alias
     :name
     ;
 
