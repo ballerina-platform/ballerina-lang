@@ -34,7 +34,7 @@ class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback, container) {
         this.container = container;
         this.references = [];
-        this.viewId = 'transformer';
+        this.viewId = container.attr("id");
         this.contextMenu = 'transformContextMenu';
         this.jsTreePrefix = 'jstree-container';
         this.viewIdSeperator = '___';

@@ -954,7 +954,7 @@ class TransformExpanded extends React.Component {
 
         return (
             <div id='transformOverlay' className='transformOverlay'>
-                <div id={'transformOverlay-content'} className='transformOverlay-content'
+                <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay-content'
                     ref={div => this.transformOverlayContentDiv=div }
                     onMouseOver={this.onTransformDropZoneActivate}
                     onMouseOut={this.onTransformDropZoneDeactivate}>
