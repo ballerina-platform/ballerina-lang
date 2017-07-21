@@ -41,7 +41,7 @@ import java.util.ServiceLoader;
  */
 @BallerinaAction(
         packageName = "ballerina.net.jms",
-        actionName = "init",
+        actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
         },

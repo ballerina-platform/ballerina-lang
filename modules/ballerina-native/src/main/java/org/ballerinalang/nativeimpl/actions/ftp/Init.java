@@ -41,7 +41,7 @@ import java.util.ServiceLoader;
  */
 @BallerinaAction(
         packageName = "ballerina.net.ftp",
-        actionName = "init",
+        actionName = "<init>",
         connectorName = FileConstants.CONNECTOR_NAME,
         args = {@Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
