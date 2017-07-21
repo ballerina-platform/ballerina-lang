@@ -153,7 +153,7 @@ class SwaggerView extends React.Component {
         const id = command.id;
         const hasShortcut = _.has(command, 'shortcuts');
         const self = this;
-        if (hasShortcut) {
+        if (hasShortcut && (id !== 'undo' && id !== 'redo' && id !== 'format')) {
             const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
             const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.swaggerAce.commands.addCommand({
