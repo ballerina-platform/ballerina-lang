@@ -18,6 +18,7 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
@@ -40,13 +41,17 @@ public class GlobalScopeResolver extends AbstractItemResolver {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (dataModel.getParserRuleContext() == null) {
+
+        ParserRuleContext parserRuleContext = dataModel.getParserRuleContext();
+
+        if (parserRuleContext == null ||
+                (parserRuleContext instanceof BallerinaParser.GlobalVariableDefinitionContext)) {
             // If the parser rule context is null we don't have any errors. In this case we add the types
             List<SymbolInfo> bTypeSymbolInfo = symbols.stream()
                     .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
                     .collect(Collectors.toList());
             this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
-        } else if (dataModel.getParserRuleContext() instanceof BallerinaParser.TypeNameContext) {
+        } else if (parserRuleContext instanceof BallerinaParser.TypeNameContext) {
             return resolvers.get(dataModel.getParserRuleContext().getClass())
                     .resolveItems(dataModel, symbols, resolvers);
         }

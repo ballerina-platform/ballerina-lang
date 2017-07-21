@@ -41,7 +41,6 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
-import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
@@ -162,6 +161,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     private SymbolScope currentScope;
     private SymbolScope nativeScope;
+    private SymbolScope globalScope;
 
     private BlockStmt.BlockStmtBuilder pkgInitFuncStmtBuilder;
 
@@ -172,7 +172,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     public CompletionItemAccumulator(List completionItems,
                                      org.ballerinalang.composer.service.workspace.langserver.dto.Position position) {
-        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        this.globalScope = BLangPrograms.populateGlobalScope();
         currentScope = globalScope;
         this.nativeScope = BLangPrograms.populateNativeScope();
         this.completionItems = completionItems;
@@ -270,7 +270,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
-        getSymbolMap(closestScope, completionItems);
+        if (closestScope != null) {
+            getSymbolMap(closestScope, completionItems);
+        } else {
+            getSymbolMap(this.globalScope, completionItems);
+        }
         getSymbolMap(this.nativeScope, completionItems);
     }
 
