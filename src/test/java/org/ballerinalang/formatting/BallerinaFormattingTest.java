@@ -80,6 +80,10 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         doTest();
     }
 
+    public void testLambdaFunction() {
+        doTest();
+    }
+
     public void testNative() {
         doTest();
     }
