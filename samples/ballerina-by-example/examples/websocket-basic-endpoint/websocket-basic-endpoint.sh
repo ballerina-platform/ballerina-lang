@@ -1,5 +1,5 @@
 # To run the program, put the code in `websocket-basic-endpoint.bal`
-# and use `ballerina run service websocket-basic-endpoint.bal` command.
+# and use `ballerina run websocket-basic-endpoint.bal` command.
 $ ballerina run websocket-basic-endpoint.bal
 
 # To invoke the service, use Chrome or Firefox javascript console and run the below commands <br>
