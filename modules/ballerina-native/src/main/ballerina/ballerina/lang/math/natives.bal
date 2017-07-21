@@ -22,7 +22,7 @@ native function random () (float);
 @doc:Param { value:"start: range start value" }
 @doc:Param { value:"end: range end value" }
 @doc:Return { value:"float: random value" }
-native function randomRange (int start, int end) (int);
+native function randomInRange (int start, int end) (int);
 
 @doc:Description { value:"Returns rounded positive square root of the given value"}
 @doc:Param { value:"val: value to get square root" }

@@ -80,7 +80,7 @@ public class MathTest {
     @Test(description = "Test 'randomRange' function in ballerina.lang.math package")
     public void testRandomRange() {
         BValue[] args = {new BInteger(5), new BInteger(10)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "randomRangeTest", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "randomInRangeTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BInteger) returns[0]).floatValue() >= 5 && ((BInteger) returns[0]).floatValue() < 10);

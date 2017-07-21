@@ -16,6 +16,6 @@ function sqrtTest(float val) (float) {
     return math:sqrt(val);
 }
 
-function randomRangeTest(int a, int b) (int) {
-    return math:randomRange(a, b);
+function randomInRangeTest(int a, int b) (int) {
+    return math:randomInRange(a, b);
 }
