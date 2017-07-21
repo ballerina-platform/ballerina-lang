@@ -1702,7 +1702,6 @@ public class BLangVM {
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
                 } else if (checkConstraintJSONCast(typeCPEntry.getType(), sf.refRegs[i])) {
-                    ((BJSON) sf.refRegs[i]).setType(typeCPEntry.getType());
                     sf.refRegs[j] = sf.refRegs[i];
                     break;
                 } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
@@ -1725,7 +1724,14 @@ public class BLangVM {
         BStructType.StructField[] tFields = targetType.getStructFields();
         for (int i = 0; i < tFields.length; i++) {
             if (JSONUtils.hasElement(json, tFields[i].getFieldName())) {
-                continue;
+                if (tFields[i].getFieldType() instanceof BStructType) {
+                    if (checkConstraintJSONEquivalency(JSONUtils.getElement(json, tFields[i].getFieldName()),
+                            (BStructType) tFields[i].getFieldType())) {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
             }
             return false;
         }

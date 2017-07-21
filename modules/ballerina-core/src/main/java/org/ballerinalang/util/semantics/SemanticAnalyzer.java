@@ -3430,10 +3430,30 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(keyExpr);
 
             Expression valueExpr = keyValueExpr.getValueExpr();
-            if (valueExpr instanceof RefTypeInitExpr) {
-                valueExpr = getNestedInitExpr(valueExpr, inheritedType);
-                keyValueExpr.setValueExpr(valueExpr);
+            if (inheritedType instanceof BJSONConstraintType) {
+                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
+                StructDef constraintStructDef = (StructDef) ((BJSONConstraintType) inheritedType).getConstraint();
+                if (constraintStructDef != null) {
+                    BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
+                            new SymbolName(key, constraintStructDef.getPackagePath()));
+                    if (varDefSymbol == null) {
+                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                                SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
+                    }
+                    VariableDef varDef = (VariableDef) varDefSymbol;
+                    BType cJSONFieldType = new BJSONConstraintType(varDef.getType());
+                    if (valueExpr instanceof RefTypeInitExpr) {
+                        valueExpr = getNestedInitExpr(valueExpr, cJSONFieldType);
+                        keyValueExpr.setValueExpr(valueExpr);
+                    }
+                }
+            } else {
+                if (valueExpr instanceof RefTypeInitExpr) {
+                    valueExpr = getNestedInitExpr(valueExpr, inheritedType);
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
             }
+
             valueExpr.accept(this);
             BType valueExprType = valueExpr.getType();
 
@@ -3450,19 +3470,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
                 continue;
-            }
-
-            if (inheritedType instanceof BJSONConstraintType) {
-                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
-                StructDef constraintStructDef = (StructDef) ((BJSONConstraintType) inheritedType).getConstraint();
-                if (constraintStructDef != null) {
-                    BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
-                            new SymbolName(key, constraintStructDef.getPackagePath()));
-                    if (varDefSymbol == null) {
-                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
-                            SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
-                    }
-                }
             }
 
             // for JSON init expr, check the type compatibility of the value.
@@ -3509,6 +3516,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
+            return true;
+        }
+
+        if (lhsType == BTypes.typeJSON && rhsType.getTag() == TypeTags.C_JSON_TAG) {
             return true;
         }
 
