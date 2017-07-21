@@ -144,8 +144,11 @@ while (BooleanExpression) {
 1. Add a `variable` and declare it as a `float`. A `float` supports 64-bit IEEE754 arithmetic. The sum of all the temperatures can be assigned to this value type.
 
     ![alt text](../images/AddFloat.png)
-1. Add another `variable` and declare it as a `float`. This must be inside the `while` condition. This is used to calculate the temperature for each data set.
-    ![alt text](../images/AssignFloatTemp.png)
+1. Add another `variable` and declare the value calculated as a `float`. This must be inside the `while` condition. This is used to calculate the temperature for each data set. In this case, `forecastDataList[i].main.temp` is basically used to get the temperature from the JSON for each data set. This is then assigned to the `float` using the `<float>` statement. The whole thing is assigned to the variable `temp`.
+
+    ![alt text](../images/AssignFloatTemp2.png)
+1. Add another assignment to add each temperature value the `sumTemp` float that was declared earlier.
+    ![alt text](../images/SumTemp.png)
 
 ## Get information from the weather forecast API
 
