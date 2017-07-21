@@ -203,6 +203,13 @@ class LaunchManager extends EventChannel {
         Console.show();
     }
     /**
+     * Open console view
+     * @memberof LaunchManager
+     */
+    showConsole() {
+        Console.show();
+    }
+    /**
      * Init launch manager
      * @param {any} options - Config options
      *
