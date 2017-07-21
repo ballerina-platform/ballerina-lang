@@ -299,6 +299,8 @@ public class BLangJSONModelConstants {
 
     public static final String DIMENSIONS = "dimensions";
 
+    public static final String TYPE_CONSTRAINT = "type_constraint";
+
     public static final String EXPRESSION_LIST = "expression_list";
 
     public static final String WORKER_REPLY_EXPRESSION = "worker_reply_expression";

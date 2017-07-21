@@ -793,8 +793,11 @@ addComplexParameter(parentId, struct) {
             beforeDrop(params) {
                 // Checks property types are equal or type is any
                 const sourceType = self.getPropertyType(params.sourceId).toLowerCase();
-                const targetType = self.getPropertyType(params.targetId).toLowerCase()
-                const isValidTypes = sourceType === targetType || sourceType === "any" || targetType === "any"
+                const targetType = self.getPropertyType(params.targetId).toLowerCase();
+
+                // TODO do the valid type check by incorporating the type lattice
+                const isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
+                                        || sourceType === 'json' || targetType === 'json';
                 const connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint += self.midpointVariance;
