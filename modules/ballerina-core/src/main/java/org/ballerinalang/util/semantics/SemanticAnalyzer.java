@@ -3609,33 +3609,71 @@ public class SemanticAnalyzer implements NodeVisitor {
         return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
+    /**
+     * Helper method to add return statement if required.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to which to add the return statement.
+     */
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
-        if (returnParamCount != 0) {
-            return;
-        }
-
-        Statement[] statements = blockStmt.getStatements();
-        int length = statements.length;
-        if (length > 0) {
-            Statement lastStatement = statements[length - 1];
-            if (!(lastStatement instanceof ReturnStmt)) {
-                NodeLocation location = lastStatement.getNodeLocation();
-                ReturnStmt returnStmt = new ReturnStmt(
-                        new NodeLocation(location.getFileName(),
-                                location.getLineNumber() + 1), null, new Expression[0]);
-                statements = Arrays.copyOf(statements, length + 1);
-                statements[length] = returnStmt;
-                blockStmt.setStatements(statements);
-            }
-        } else {
-            NodeLocation location = blockStmt.getNodeLocation();
-            ReturnStmt returnStmt = new ReturnStmt(
-                    new NodeLocation(location.getFileName(),
-                            location.getLineNumber() + 1), null, new Expression[0]);
+        ReturnStmt returnStmt = buildReturnStatement(returnParamCount, blockStmt);
+        if (returnStmt != null) {
+            Statement[] statements = blockStmt.getStatements();
+            int length = statements.length;
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
         }
+    }
+
+    /**
+     * Helper method to build the correct return statement.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to help generate return.
+     * @return                  Generated returnStmt.
+     */
+    private ReturnStmt buildReturnStatement(int returnParamCount, BlockStmt blockStmt) {
+        if (returnParamCount != 0) {
+            return null;
+        }
+
+        Statement[] statements = blockStmt.getStatements();
+        int length = statements.length;
+        NodeLocation location = null;
+        if (length > 0) {
+            Statement lastStatement = statements[length - 1];
+            if (lastStatement instanceof IfElseStmt) {
+                IfElseStmt ifElseStmt = (IfElseStmt) lastStatement;
+                if (ifElseStmt.getElseBody() != null) {
+                    return buildReturnStatement(returnParamCount, (BlockStmt) ifElseStmt.getElseBody());
+                } else if (ifElseStmt.getElseIfBlocks().length > 0) {
+                    int lastElseIf = ifElseStmt.getElseIfBlocks().length - 1;
+                    location = ifElseStmt.getElseIfBlocks()[lastElseIf].getNodeLocation();
+                }
+            } else if (lastStatement instanceof TryCatchStmt) {
+                TryCatchStmt tryCatchStmt = (TryCatchStmt) lastStatement;
+                if (tryCatchStmt.getFinallyBlock() != null) {
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt());
+                } else if (tryCatchStmt.getCatchBlocks().length > 0) {
+                    int lastCatch = tryCatchStmt.getCatchBlocks().length - 1;
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getCatchBlocks()[lastCatch].getCatchBlockStmt());
+                }
+            } else if (!(lastStatement instanceof ReturnStmt)) {
+                location = lastStatement.getNodeLocation();
+            }
+        } else {
+            location = blockStmt.getNodeLocation();
+        }
+        if (location != null) {
+            ReturnStmt returnStmt = new ReturnStmt(
+                    new NodeLocation(location.getFileName(),
+                            location.getLineNumber() + 1), null, new Expression[0]);
+            return returnStmt;
+        }
+        return null;
     }
 
     private void checkAndAddReplyStmt(BlockStmt blockStmt) {
