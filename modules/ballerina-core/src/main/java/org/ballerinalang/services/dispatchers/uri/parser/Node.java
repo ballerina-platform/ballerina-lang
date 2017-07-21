@@ -114,9 +114,16 @@ public abstract class Node {
         if (this.resource == null) {
             return null;
         }
+        ResourceInfo resource = validateHTTPMethod(this.resource, carbonMessage);
+        validateConsumes(resource, carbonMessage);
+        validateProduces(resource, carbonMessage);
+        return resource;
+    }
+
+    private ResourceInfo validateHTTPMethod(List<ResourceInfo> resources, CarbonMessage carbonMessage) {
         ResourceInfo resource = null;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
-        for (ResourceInfo resourceInfo : this.resource) {
+        for (ResourceInfo resourceInfo : resources) {
             if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
                 resource =  resourceInfo;
             }
@@ -128,8 +135,6 @@ public abstract class Node {
             carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
             throw new BallerinaException();
         }
-        validateConsumes(resource, carbonMessage);
-        validateProduces(resource, carbonMessage);
         return resource;
     }
 
@@ -140,15 +145,38 @@ public abstract class Node {
             isFirstTraverse = false;
         } else {
             for (ResourceInfo previousResource: this.resource) {
-                for (String methods : this.httpMethods) {
-                    if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
-                        if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
-                            throw new BallerinaException("Seems two resources have the same addressable URI");
-                        }
-                    }
+                boolean prevResourceHasMethod = validateMethodsOfSameURIResources(previousResource, newResource);
+                if (!prevResourceHasMethod) {
+                    validateMethodOfNewResource(newResource);
                 }
             }
             this.resource.add(newResource);
+        }
+    }
+
+    private boolean validateMethodsOfSameURIResources(ResourceInfo previousResource, ResourceInfo newResource) {
+        boolean prevResourceHasMethod = false;
+        for (String method : this.httpMethods) {
+            if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                prevResourceHasMethod = true;
+                if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                    throw new BallerinaException("Seems two resources have the same addressable URI");
+                }
+            }
+        }
+        return prevResourceHasMethod;
+    }
+
+    private void validateMethodOfNewResource(ResourceInfo newResource) {
+        boolean newResourceHasMethod = false;
+        for (String method : this.httpMethods) {
+            if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                newResourceHasMethod = true;
+            }
+        }
+        if (!newResourceHasMethod) {
+            //if both resources do not have methods but same URI, then throw following error.
+            throw new BallerinaException("Seems two resources have the same addressable URI");
         }
     }
 
@@ -211,18 +239,16 @@ public abstract class Node {
     }
 
     private ResourceInfo tryMatchingToDefaultVerb(String method) {
-        if ("GET".equalsIgnoreCase(method)) {
-            for (ResourceInfo resourceInfo : this.resource) {
-                boolean isMethodAnnotationFound = false;
-                for (String httpMethod : this.httpMethods) {
-                    if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
-                        isMethodAnnotationFound = true;
-                        break;
-                    }
+        for (ResourceInfo resourceInfo : this.resource) {
+            boolean isMethodAnnotationFound = false;
+            for (String httpMethod : this.httpMethods) {
+                if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
+                    isMethodAnnotationFound = true;
+                    break;
                 }
-                if (!isMethodAnnotationFound) {
-                    return resourceInfo;
-                }
+            }
+            if (!isMethodAnnotationFound) {
+                return resourceInfo;
             }
         }
         return null;
