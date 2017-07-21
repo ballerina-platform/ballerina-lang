@@ -42,7 +42,7 @@ Connectors may need to have usage specific parameters and hence must be instanti
     ![alt text](../images/MoreConnectors.png)
 1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
     ![alt text](../images/addConnector.gif)
-1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
+1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable. For more information on how to get this URL and call it to get the JSON content, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
     ![alt text](../images/ConnectorEndpoint.gif)
 
 ## Call the connector
@@ -139,22 +139,14 @@ while (BooleanExpression) {
 1. Add an `assignment` to the `while` loop by dragging it from the tool palette to the canvas.
     ![alt text](../images/AddAssignment.gif)
 1. Specify the assignment value as `i = i + 1`. This increments `i` until it is equal to the `dataCount`. So if there are 5 data sets, `i` will be 5 when it comes out of the `while` loop.
+
     ![alt text](../images/AssignmentValue.png)
-
-
-## Call the API
-
-The URL with the API key and the contry code is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
-
-> Here the `appid` is the API key and the country code is `Washington,US`.
-
-Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**) in Kelvin.
-
-![alt text](../images/PostmanWeather.png)
+1. Add a variable and declare it as a `float`. A `float` supports 64-bit IEEE754 arithmetic. The temperature can be assigned to this value type.
+    ![alt text](../images/AddFloat.png)
 
 ## Get information from the weather forecast API
 
-In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina.
+In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina. This section showcases how to get the URL and how to call it.
 
 ### Get the API key
 
