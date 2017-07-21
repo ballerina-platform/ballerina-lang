@@ -8,8 +8,6 @@ import ballerina.lang.system;
 @ftp:config {
     dirURI: "ftp://127.0.0.1/observed-dir/",
     pollingInterval: "2000",
-    fileSortAscending: "true",
-    fileSortAttribute: "name",
     actionAfterProcess: "MOVE",
     moveAfterProcess: "ftp://127.0.0.1/move-to/",
     parallel: "false",

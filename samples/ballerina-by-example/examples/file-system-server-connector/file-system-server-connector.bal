@@ -3,11 +3,12 @@ import ballerina.lang.system;
 import ballerina.lang.messages;
 import ballerina.doc;
 
+@doc:Description {value:"In this particular scenario, the connector is listening to the directory specified by dirURI. "}
+@doc:Description {value:"The connector will be notified of any addition of files to the directory. "}
+@doc:Description {value:"Once the file is processed, it will be moved to another directory, specified by 'moveAfterProcess'."}
 @fs:config {
     dirURI:"/home/ballerina/fs-server-connector/observed-dir",
     pollingInterval:"5000",
-    fileSortAttribute:"name",
-    fileSortAscending:"true",
     actionAfterProcess:"MOVE",
     moveAfterProcess:"/home/ballerina/fs-server-connector/moveDir/",
     createMoveDir:"true"
