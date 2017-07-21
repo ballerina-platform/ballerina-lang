@@ -1143,27 +1143,26 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 
 #parse-pending-loader:after {
     overflow: hidden;
-    display: inline-block;
     vertical-align: bottom;
-    -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+    -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
     animation: ellipsis steps(4,end) 900ms infinite;
-    content: "\2026";
-    width: 35px;
-    font-size: 50px;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0px;
     display: block;
     margin-top: -40px;
-    margin-left: 100px;
+    margin-left: 93px;
+    font-size: 50px;
 }
 
 @keyframes ellipsis {
   to {
-    width: 20px;
+    width: 1.25em;
   }
 }
 
 @-webkit-keyframes ellipsis {
   to {
-    width: 20px;
+    width: 1.25em;
   }
 }
 
