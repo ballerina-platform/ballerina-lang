@@ -116,7 +116,11 @@ public class ClientRequestWorker implements Runnable {
 
             boolean written = false;
             if (targetChannel.getChannel() != null) {
-                written = ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
+                try {
+                    written = ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
+                } catch (Exception e) {
+                    log.error("Unsupported message type");
+                }
             }
             if (written) {
                 targetChannel.setRequestWritten(true);
