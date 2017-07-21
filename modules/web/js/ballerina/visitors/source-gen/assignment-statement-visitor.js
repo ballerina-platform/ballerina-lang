@@ -18,6 +18,8 @@
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AssignmentStatement from '../../ast/statements/assignment-statement';
+import ASTFactory from '../../ast/ballerina-ast-factory';
+import FunctionDefinitionVisitor from './function-definition-visitor';
 
 /**
  * Assignment statement source generation visitor
@@ -47,12 +49,27 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         assignmentStatement.setLineNumber(lineNumber, { doSilently: true });
-        const constructedSourceSegment = assignmentStatement.getStatementString();
-        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        const rightExpression = assignmentStatement.getRightExpression();
+        // TODO: replace with
+        if (ASTFactory.isLambdaExpression(rightExpression)) {
+            const varStr = assignmentStatement.getIsDeclaredWithVar() ? 'var' + assignmentStatement.getWSRegion(1) : '';
+            const leftStr = !_.isNil(assignmentStatement.getChildren()[0]) ?
+                assignmentStatement.getLeftExpression().getExpressionString() : '';
+            const spaceStr = ((!_.isNil(assignmentStatement.getLeftExpression()) &&
+            !_.isEmpty(assignmentStatement.getLeftExpression().getChildren()) &&
+            _.last(assignmentStatement.getLeftExpression().getChildren()).whiteSpace.useDefault) ? ' ' : '');
+            const prefix = (varStr + leftStr + spaceStr) + '=' + assignmentStatement.getWSRegion(3);
+            this.appendSource(prefix);
+            const child = rightExpression.children[0];
+            child.accept(new FunctionDefinitionVisitor(this));
+        } else {
+            const constructedSourceSegment = assignmentStatement.getStatementString();
+            const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
 
-        // Increase the total number of lines
-        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-        this.appendSource(constructedSourceSegment);
+            // Increase the total number of lines
+            this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+            this.appendSource(constructedSourceSegment);
+        }
     }
 
     /**
@@ -68,7 +85,10 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
 
         this.appendSource(constructedSourceSegment);
-        this.getParent().appendSource(this.getGeneratedSource());
+        const generatedSource = this.getGeneratedSource();
+        this.getParent().appendSource(generatedSource);
+
+        assignmentStatement.getViewState().source = generatedSource;
     }
 }
 
