@@ -662,14 +662,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        String valueTypeName = ctx.getChild(0).getText();
-        SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
-        simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
-        if (isVerboseMode) {
-            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
-            simpleTypeName.setWhiteSpaceDescriptor(ws);
+        if (ctx.getChild(0) != null) {
+            String valueTypeName = ctx.getChild(0).getText();
+            SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
+            simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
+            if (isVerboseMode) {
+                WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
+                simpleTypeName.setWhiteSpaceDescriptor(ws);
+            }
+            typeNameStack.push(simpleTypeName);
         }
-        typeNameStack.push(simpleTypeName);
     }
 
     @Override
