@@ -21,6 +21,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.GlobalScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +48,8 @@ public class ServiceContextResolver extends AbstractItemResolver {
 
         // Add annotations
         completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+        // Add global symbols such as variable types(int, string etc.)
+        completionItems.addAll(resolvers.get(GlobalScope.class).resolveItems(dataModel, symbols, resolvers));
 
         HashMap<String, Integer> prioritiesMap = new HashMap<>();
         prioritiesMap.put(ItemResolverConstants.RESOURCE_TYPE, ItemResolverConstants.PRIORITY_7);
