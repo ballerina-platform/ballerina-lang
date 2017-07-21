@@ -220,10 +220,10 @@ class TagController extends React.Component {
                         {defaultInputValue}
                     </text>
                     <SuggestionsText
-                        x={componentData.components.closingBracket.x - 124}
-                        y={componentData.components.closingBracket.y + 6}
+                        x={componentData.components.closingBracket.x - 130}
+                        y={componentData.components.closingBracket.y + 5}
                         width={123}
-                        height={20}
+                        height={22}
                         className="tag-component-editable-text-box"
                         onEnter={(input) => {
                             this.onEnter(input);
