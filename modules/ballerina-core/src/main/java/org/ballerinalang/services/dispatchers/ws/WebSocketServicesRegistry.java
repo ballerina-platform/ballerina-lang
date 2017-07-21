@@ -224,7 +224,7 @@ public class WebSocketServicesRegistry {
         String basePath;
         AnnAttachmentInfo configAnnotationInfo = service.getAnnotationAttachmentInfo(
                 org.ballerinalang.services.dispatchers.http.Constants.HTTP_PACKAGE_PATH,
-                org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_NAME_CONFIG);
+                org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_NAME_CONFIGURATION);
         if (configAnnotationInfo != null) {
             AnnAttributeValue annotationAttributeBasePathValue = configAnnotationInfo.getAttributeValue
                     (org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);

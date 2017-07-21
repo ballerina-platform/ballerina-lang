@@ -1,4 +1,5 @@
 org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher
 org.ballerinalang.services.dispatchers.ws.WebSocketServiceDispatcher
 org.ballerinalang.services.dispatchers.jms.JMSServiceDispatcher
-org.ballerinalang.services.dispatchers.ftp.FTPServiceDispatcherorg.ballerinalang.services.dispatchers.fs.FileSystemServiceDispatcher
+org.ballerinalang.services.dispatchers.ftp.FTPServiceDispatcher
+org.ballerinalang.services.dispatchers.fs.FileSystemServiceDispatcher

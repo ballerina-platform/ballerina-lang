@@ -3,7 +3,7 @@ import ballerina.net.ws;
 import ballerina.lang.messages;
 import ballerina.lang.system;
 
-@http:config {basePath:"/client-connector"}
+@http:configuration {basePath:"/client-connector"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> serverConnector {
 

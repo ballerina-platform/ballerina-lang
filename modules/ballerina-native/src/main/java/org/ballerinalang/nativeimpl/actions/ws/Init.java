@@ -46,7 +46,7 @@ import javax.websocket.Session;
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "init",
+        actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),

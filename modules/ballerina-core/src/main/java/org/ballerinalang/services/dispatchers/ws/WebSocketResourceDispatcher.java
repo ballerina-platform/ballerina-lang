@@ -61,9 +61,9 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             if (cMsg instanceof TextCarbonMessage) {
                 return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
             } else if (cMsg instanceof BinaryCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
+                throw new BallerinaException("Binary messages are not supported!");
             } else if (cMsg instanceof ControlCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
+                throw new BallerinaException("Pong messages are not supported!");
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
@@ -76,6 +76,8 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     callback.done(cMsg);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                 }
+            } else {
+                throw new BallerinaException("Cannot identify the message type to dispatch!");
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred in WebSocket resource dispatchers : " + e.getMessage());
