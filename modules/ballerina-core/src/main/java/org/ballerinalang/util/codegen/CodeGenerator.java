@@ -1332,7 +1332,7 @@ public class CodeGenerator implements NodeVisitor {
 
         } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
             BType rType = unaryExpr.getRExpr().getType();
-            if (rType == BTypes.typeJSON) {
+            if (rType == BTypes.typeJSON || getElementType(rType) == BTypes.typeJSON) {
                 opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
                         InstructionCodes.LENGTHOFJSON, regIndexes);
             } else {
@@ -2181,28 +2181,10 @@ public class CodeGenerator implements NodeVisitor {
 
         // Type of the varRefExpr can be either Array, Map, JSON.
         BType varRefType = varRefExpr.getType();
-        if (varRefType instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) varRefType;
-            if (variableStore) {
-                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
-                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-            } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
-                        InstructionCodes.IALOAD, regIndexes);
-                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
-                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
-            }
-
-        } else if (varRefType == BTypes.typeMap) {
-            if (variableStore) {
-                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-            } else {
-                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
-                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
-            }
-
-        } else if (varRefType == BTypes.typeJSON) {
+        
+        // We check for JSON first, because a JSON array is also a JSON, and is accessed different to 
+        // the other array types.
+        if (getElementType(varRefType) == BTypes.typeJSON) {
             int jsonValueRegIndex;
             if (indexExpr.getType() == BTypes.typeString) {
                 if (variableStore) {
@@ -2221,6 +2203,27 @@ public class CodeGenerator implements NodeVisitor {
                     emit(InstructionCodes.JSONALOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
                     indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
                 }
+            }
+
+        } else if (varRefType instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) varRefType;
+            if (variableStore) {
+                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
+                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
+                        InstructionCodes.IALOAD, regIndexes);
+                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
+                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
+            }
+
+        } else if (varRefType == BTypes.typeMap) {
+            if (variableStore) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
+                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
         } else if (varRefType instanceof StructDef) {
@@ -3218,6 +3221,14 @@ public class CodeGenerator implements NodeVisitor {
             parent = parent.getParent();
         }
         this.regIndexes = regIndexesOriginal;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+        
+        return getElementType(((BArrayType) type).getElementType());
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo) {

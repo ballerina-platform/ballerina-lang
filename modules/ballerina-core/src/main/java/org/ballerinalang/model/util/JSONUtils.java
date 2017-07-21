@@ -54,7 +54,9 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -657,12 +659,72 @@ public class JSONUtils {
     }
 
     /**
+     * Check the compatibility of casting a JSON to a target type.
+     * 
+     * @param json json to cast
+     * @param targetType Target type
+     * @return Runtime compatibility for casting
+     */
+    public static boolean checkJSONCast(JsonNode json, BType targetType) {
+        switch (targetType.getTag()) {
+            case TypeTags.STRING_TAG:
+                return json.isTextual();
+            case TypeTags.INT_TAG:
+                return json.isInt() || json.isLong();
+            case TypeTags.FLOAT_TAG:
+                return json.isFloat() || json.isDouble();
+            case TypeTags.ARRAY_TAG:
+                if (!json.isArray()) {
+                    return false;
+                }
+
+                boolean castable;
+                BArrayType arrayType = (BArrayType) targetType;
+                ArrayNode array = (ArrayNode) json;
+                for (int i = 0; i < array.size(); i++) {
+                    castable = checkJSONCast(array.get(i), arrayType.getElementType());
+                    if (!castable) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Returns the keys of a JSON as a {@link BStringArray}.
+     * 
+     * @param json {@link BJSON} to get the keys
+     * @return Keys of the JSON as a {@link BStringArray}
+     */
+    public static BStringArray getKeys(BJSON json) {
+        if (json == null) {
+            return new BStringArray();
+        }
+
+        JsonNode node = json.value();
+
+        if (node.getNodeType() != JsonNodeType.OBJECT) {
+            return new BStringArray();
+        }
+
+        List<String> keys = new ArrayList<String>();
+        Iterator<String> keysItr = ((ObjectNode) node).fieldNames();
+        while (keysItr.hasNext()) {
+            keys.add(keysItr.next());
+        }
+        return new BStringArray(keys.toArray(new String[keys.size()]));
+    }
+
+    /**
      * Convert a JSON node to an array.
      *
-     * @param jsonNode        JSON to convert
+     * @param jsonNode JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
-     * of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
+     *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
     private static BNewArray jsonNodeToBArray(JsonNode jsonNode, BArrayType targetArrayType) {
         if (!jsonNode.isArray()) {

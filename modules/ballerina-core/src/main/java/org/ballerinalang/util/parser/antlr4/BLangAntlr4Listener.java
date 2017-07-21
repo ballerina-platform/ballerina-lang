@@ -890,14 +890,16 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        String valueTypeName = ctx.getChild(0).getText();
-        SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
-        simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
-        if (isVerboseMode) {
-            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
-            simpleTypeName.setWhiteSpaceDescriptor(ws);
+        if (ctx.getChild(0) != null) {
+            String valueTypeName = ctx.getChild(0).getText();
+            SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
+            simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
+            if (isVerboseMode) {
+                WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
+                simpleTypeName.setWhiteSpaceDescriptor(ws);
+            }
+            typeNameStack.push(simpleTypeName);
         }
-        typeNameStack.push(simpleTypeName);
     }
 
     @Override
@@ -1193,17 +1195,19 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
-        String varName = ctx.Identifier().getText();
-        boolean exprAvailable = ctx.expression() != null ||
-                ctx.connectorInitExpression() != null ||
-                ctx.actionInvocation() != null;
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+        if (!typeNameStack.isEmpty()) {
+            SimpleTypeName typeName = typeNameStack.pop();
+            String varName = ctx.Identifier().getText();
+            boolean exprAvailable = ctx.expression() != null ||
+                    ctx.connectorInitExpression() != null ||
+                    ctx.actionInvocation() != null;
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+            }
+            modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
+                    exprAvailable);
         }
-        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
-                exprAvailable);
     }
 
     @Override

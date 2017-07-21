@@ -1401,12 +1401,19 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
 
-                    BNewArray array = (BNewArray) sf.refRegs[i];
-                    if (array == null) {
+                    BValue value = sf.refRegs[i];
+
+                    if (value == null) {
                         handleNullRefError();
                         break;
                     }
-                    sf.longRegs[j] = array.size();
+
+                    if (value.getType().getTag() == TypeTags.JSON_TAG) {
+                        sf.longRegs[j] = ((BJSON) value).value().size();
+                        break;
+                    }
+
+                    sf.longRegs[j] = ((BNewArray) value).size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
@@ -1751,10 +1758,12 @@ public class BLangVM {
                 typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
 
                 bRefType = sf.refRegs[i];
+                
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
-                } else if (checkCast(bRefType.getType(), typeRefCPEntry.getType())) {
+                } else if (checkCast(bRefType, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
+                    sf.refRegs[k] = null;
                 } else {
                     sf.refRegs[j] = null;
                     handleTypeCastError(sf, k, bRefType.getType(), typeRefCPEntry.getType());
@@ -2880,7 +2889,9 @@ public class BLangVM {
         }
     }
 
-    private boolean checkCast(BType sourceType, BType targetType) {
+    private boolean checkCast(BValue sourceValue, BType targetType) {
+        BType sourceType = sourceValue.getType();
+
         if (sourceType.equals(targetType)) {
             return true;
         }
@@ -2892,6 +2903,11 @@ public class BLangVM {
 
         if (targetType.getTag() == TypeTags.ANY_TAG) {
             return true;
+        }
+
+        // Check JSON casting
+        if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
+            return JSONUtils.checkJSONCast(((BJSON) sourceValue).value(), targetType);
         }
 
         // Array casting
@@ -2916,6 +2932,14 @@ public class BLangVM {
         }
 
         return sourceType.equals(targetType);
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 
     public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
@@ -3011,15 +3035,25 @@ public class BLangVM {
             return;
         }
 
+        JsonNode jsonNode;
         try {
-            sf.stringRegs[j] = jsonValue.stringValue();
+            jsonNode = jsonValue.value();
         } catch (BallerinaException e) {
             sf.stringRegs[j] = "";
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             context.setError(BLangVMErrors.createError(context, ip, errorMsg));
             handleError();
+            return;
         }
+
+        if (jsonNode.isTextual()) {
+            sf.stringRegs[j] = jsonNode.textValue();
+            return;
+        }
+
+        sf.stringRegs[j] = "";
+        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private void convertJSONToBoolean(int[] operands, StackFrame sf) {
@@ -3160,7 +3194,7 @@ public class BLangVM {
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
                 }
 
-                if (mapVal != null && !checkCast(mapVal.getType(), fieldType)) {
+                if (mapVal != null && !checkCast(mapVal, fieldType)) {
                     throw BLangExceptionHelper.getRuntimeException(
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
                 }
