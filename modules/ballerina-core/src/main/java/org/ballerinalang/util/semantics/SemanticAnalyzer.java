@@ -98,7 +98,13 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -153,12 +159,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+
+import javax.xml.XMLConstants;
 
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 
@@ -2271,7 +2280,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(indexExpr, SemanticErrors.NON_STRING_MAP_INDEX,
                     indexExpr.getType());
         }
-        populateNamespaceMap(xmlAttributesRefExpr);
+
+        Map<String, Expression> namespaces = getNamespaceInScope(xmlAttributesRefExpr.getNodeLocation());
+        xmlAttributesRefExpr.setNamespaces(namespaces);
     }
 
     @Override
@@ -2279,16 +2290,29 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (xmlQNameRefExpr.isLHSExpr()) {
             BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.XML_QNAME_UPDATE_NOT_ALLOWED);
         }
-        NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(xmlQNameRefExpr.getPrefix());
+
+        xmlQNameRefExpr.setType(BTypes.typeString);
+        String prefix = xmlQNameRefExpr.getPrefix();
+        if (prefix.isEmpty()) {
+            return;
+        }
+
+        if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.INVALID_NAMESPACE_PREFIX, prefix);
+        }
+
+        NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(prefix);
         BLangSymbol symbol = currentScope.resolve(nsSymbolName);
 
         if (symbol == null) {
-            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.UNDEFINED_NAMESPACE,
-                    xmlQNameRefExpr.getPrefix());
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.UNDEFINED_NAMESPACE, prefix);
         }
+
         String namepsaceUri = ((NamespaceDeclaration) symbol).getNamespaceUri();
-        xmlQNameRefExpr.setNamepsaceUri(namepsaceUri);
-        xmlQNameRefExpr.setType(BTypes.typeString);
+        BasicLiteral namespaceUriLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null,
+                new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(namepsaceUri));
+        namespaceUriLiteral.accept(this);
+        xmlQNameRefExpr.setNamepsaceUri(namespaceUriLiteral);
     }
 
     @Override
@@ -2435,6 +2459,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(NamespaceDeclaration namespaceDclr) {
+        if (namespaceDclr.getNamespaceUri().isEmpty() && !namespaceDclr.getPrefix().isEmpty()) {
+            BLangExceptionHelper.throwSemanticError(namespaceDclr, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
+                    namespaceDclr.getPrefix());
+        }
+
         // Check whether this namespace is already defined, if not define it.
         NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(namespaceDclr.getPrefix());
 
@@ -2445,6 +2474,195 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         currentScope.define(nsSymbolName, namespaceDclr);
+    }
+
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+    }
+
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+        Expression startTagName = xmlElementLiteral.getStartTagName();
+        Map<String, Expression> namespaces;
+        XMLElementLiteral parent = xmlElementLiteral.getParent();
+        if (parent == null) {
+            namespaces = getNamespaceInScope(xmlElementLiteral.getNodeLocation());
+        } else {
+            namespaces = parent.getNamespaces();
+            xmlElementLiteral.setDefaultNamespaceUri(parent.getDefaultNamespaceUri());
+        }
+        xmlElementLiteral.setNamespaces(namespaces);
+        
+        // add the inline declared namespaces to the namespace map
+        List<KeyValueExpr> attributes = xmlElementLiteral.getAttributes();
+        Iterator<KeyValueExpr> attrItr = attributes.iterator();
+        while (attrItr.hasNext()) {
+            KeyValueExpr attribute = attrItr.next();
+            Expression attrNameExpr = attribute.getKeyExpr();
+            if (!(attrNameExpr instanceof XMLQNameExpr)) {
+                continue;
+            }
+
+            Expression attrValueExpr = attribute.getValueExpr();
+            XMLQNameExpr xmlQNameRefExpr = (XMLQNameExpr) attrNameExpr;
+            if (xmlQNameRefExpr.getPrefix().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                attrValueExpr.accept(this);
+                
+                if (attrValueExpr instanceof BasicLiteral
+                        && ((BasicLiteral) attrValueExpr).getBValue().stringValue().isEmpty()) {
+                    BLangExceptionHelper.throwSemanticError(attribute, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
+                            xmlQNameRefExpr.getLocalname());
+                }
+                
+                namespaces.put(xmlQNameRefExpr.getLocalname(), attrValueExpr);
+                attrItr.remove();
+                continue;
+            }
+
+            // if the default namesapce is declared inline, then override default namepsace defined at the
+            // parent scope level
+            if (xmlQNameRefExpr.getLocalname().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                attrValueExpr.accept(this);
+                xmlElementLiteral.setDefaultNamespaceUri(attrValueExpr);
+                attrItr.remove();
+            }
+        }
+
+        if (xmlElementLiteral.getDefaultNamespaceUri() == null) {
+            BasicLiteral defaultnsUriLiteral = new BasicLiteral(xmlElementLiteral.getNodeLocation(), null,
+                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.XMLNS_ATTRIBUTE_NS_URI));
+            defaultnsUriLiteral.setType(BTypes.typeString);
+            defaultnsUriLiteral.accept(this);
+            xmlElementLiteral.setDefaultNamespaceUri(defaultnsUriLiteral);
+        }
+        
+        validateXMLLiteralAttributes(attributes, namespaces);
+
+        // Validate start tag
+        if (startTagName instanceof XMLQNameExpr) {
+            validateXMLQname((XMLQNameExpr) startTagName, namespaces);
+        } else {
+            startTagName.accept(this);
+        }
+
+        if (startTagName.getType() != BTypes.typeString) {
+            // Implicit cast from right to left
+            startTagName = createImplicitStringConversionExpr(startTagName, startTagName.getType());
+            xmlElementLiteral.setStartTagName(startTagName);
+        }
+
+        // Validate the ending tag of the XML element
+        validateXMLLiteralEndTag(xmlElementLiteral);
+        
+        // Visit children
+        XMLSequenceLiteral children = xmlElementLiteral.getContent();
+        if (children != null) {
+            children.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(XMLCommentLiteral xmlComment) {
+        Expression contentExpr = xmlComment.getContent();
+        if (contentExpr != null) {
+            contentExpr.accept(this);
+        }
+
+        if (contentExpr.getType() != BTypes.typeString) {
+            contentExpr = createImplicitStringConversionExpr(contentExpr, contentExpr.getType());
+            xmlComment.setContent(contentExpr);
+        }
+    }
+
+    @Override
+    public void visit(XMLTextLiteral xmlText) {
+        Expression contentExpr = xmlText.getContent();
+        if (contentExpr != null) {
+            contentExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequence) {
+        Expression[] items = xmlSequence.getItems();
+        List<Expression> newItems = new ArrayList<Expression>();
+
+        // Consecutive non-xml type items are converted to string, and combined together using binary add expressions.
+        Expression addExpr = null;
+        for (int i = 0; i < items.length; i++) {
+            Expression currentItem = items[i];
+            currentItem.accept(this);
+
+            if (xmlSequence.hasParent() && currentItem.getType() == BTypes.typeXML) {
+                if (addExpr != null) {
+                    newItems.add(addExpr);
+                    addExpr = null;
+                }
+                newItems.add(currentItem);
+                continue;
+            }
+
+            if (currentItem.getType() != BTypes.typeString) {
+                Expression castExpr = getImplicitConversionExpr(currentItem, currentItem.getType(), BTypes.typeString);
+
+                if (castExpr == null) {
+                    if (xmlSequence.hasParent()) {
+                        BLangExceptionHelper.throwSemanticError(currentItem,
+                                SemanticErrors.INCOMPATIBLE_TYPES_IN_XML_TEMPLATE, currentItem.getType());
+                    }
+                    BLangExceptionHelper.throwSemanticError(currentItem, SemanticErrors.INCOMPATIBLE_TYPES,
+                            BTypes.typeString, currentItem.getType());
+                }
+
+                currentItem = castExpr;
+            }
+
+            if (addExpr == null) {
+                addExpr = currentItem;
+                continue;
+            }
+
+            if (addExpr.getType() == BTypes.typeString) {
+                addExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                        addExpr, currentItem);
+            } else {
+                newItems.add(addExpr);
+                addExpr = currentItem;
+            }
+            addExpr.setType(BTypes.typeString);
+        }
+
+        if (addExpr != null) {
+            newItems.add(addExpr);
+        }
+
+        // Replace the existing items with the new reduced items
+        items = newItems.toArray(new Expression[newItems.size()]);
+        xmlSequence.setItems(items);
+
+        // Create and set XML concatenation expression using all the items in the sequence
+        xmlSequence.setConcatExpr(getXMLConcatExpression(items));
+    }
+
+    @Override
+    public void visit(XMLPILiteral xmlPI) {
+        Expression target = xmlPI.getTarget();
+        target.accept(this);
+
+        if (target.getType() != BTypes.typeString) {
+            target = createImplicitStringConversionExpr(target, target.getType());
+            xmlPI.setTarget(target);
+        }
+
+        Expression data = xmlPI.getData();
+        if (data != null) {
+            data.accept(this);
+        }
+
+        if (data.getType() != BTypes.typeString) {
+            data = createImplicitStringConversionExpr(data, data.getType());
+            xmlPI.setData(data);
+        }
     }
 
     // Private methods.
@@ -2568,18 +2786,27 @@ public class SemanticAnalyzer implements NodeVisitor {
         throw getInvalidBinaryOpError(binaryExpr);
     }
 
-    private Expression createConversionExpr(BinaryExpression binaryExpr, Expression sExpr,
-                                            BType sType, BType tType) {
+    private Expression createConversionExpr(BinaryExpression binaryExpr, Expression sExpr, BType sType, BType tType) {
+        Expression conversionExpr = getImplicitConversionExpr(sExpr, sType, tType);
+        if (conversionExpr != null) {
+            return conversionExpr;
+        }
+
+        throw getInvalidBinaryOpError(binaryExpr);
+    }
+
+    private Expression getImplicitConversionExpr(Expression sExpr, BType sType, BType tType) {
         TypeEdge newEdge;
         newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sType, tType, null);
         if (newEdge != null) {
-            TypeConversionExpr newExpr = new TypeConversionExpr(sExpr.getNodeLocation(),
-                    sExpr.getWhiteSpaceDescriptor(), sExpr, tType);
+            TypeConversionExpr newExpr =
+                    new TypeConversionExpr(sExpr.getNodeLocation(), sExpr.getWhiteSpaceDescriptor(), sExpr, tType);
             newExpr.setOpcode(newEdge.getOpcode());
             newExpr.accept(this);
             return newExpr;
         }
-        throw getInvalidBinaryOpError(binaryExpr);
+
+        return null;
     }
 
     private void visitBinaryLogicalExpr(BinaryLogicalExpression expr) {
@@ -3735,13 +3962,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     /**
-     * Populate the namespace map of a {@link XMLAttributesRefExpr}.
-     * Namespaces are looked-up in the scopes visible to the provided expression.
-     *
-     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the namespaces
+     * Get the XML namespaces that are visible to to the current scope.
+     * 
+     * @param location Source location of the ballerina file
+     * @return XML namespaces that are visible to the current scope, as a map
      */
-    private void populateNamespaceMap(XMLAttributesRefExpr xmlAttributesRefExpr) {
-        Map<String, String> namespaces = new HashMap<String, String>();
+    private Map<String, Expression> getNamespaceInScope(NodeLocation location) {
+        Map<String, Expression> namespaces = new HashMap<String, Expression>();
         SymbolScope scope = currentScope;
         while (true) {
             for (Entry<SymbolName, BLangSymbol> symbols : scope.getSymbolMap().entrySet()) {
@@ -3751,9 +3978,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
 
                 NamespaceDeclaration namespaceDecl = (NamespaceDeclaration) symbols.getValue();
-                if (!namespaceDecl.isDefaultNamespace() && !namespaces.containsKey(namespaceDecl.getPrefix())
+                if (!namespaces.containsKey(namespaceDecl.getPrefix())
                         && !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
-                    namespaces.put(namespaceDecl.getPrefix(), namespaceDecl.getNamespaceUri());
+
+                    BasicLiteral namespaceUriLiteral =
+                            new BasicLiteral(location, null, new SimpleTypeName(TypeConstants.STRING_TNAME),
+                                    new BString(namespaceDecl.getNamespaceUri()));
+                    namespaceUriLiteral.accept(this);
+                    namespaces.put(namespaceDecl.getPrefix(), namespaceUriLiteral);
                 }
             }
 
@@ -3763,7 +3995,132 @@ public class SemanticAnalyzer implements NodeVisitor {
             scope = scope.getEnclosingScope();
         }
 
-        xmlAttributesRefExpr.setNamespaces(namespaces);
+        return namespaces;
+    }
+
+    /**
+     * Create and return an XML concatenation expression using using the provided expressions.
+     * Expressions can only be either XML type or string type. All the string type expressions
+     * will be converted to XML text literals ({@link XMLTextLiteral}).
+     * 
+     * @param items Expressions to create concatenating expression.
+     * @return XML concatenating expression
+     */
+    private Expression getXMLConcatExpression(Expression[] items) {
+        if (items.length == 0) {
+            return null;
+        }
+
+        Expression concatExpr = null;
+        for (int i = 0; i < items.length; i++) {
+            Expression currentItem = items[i];
+            if (currentItem.getType() == BTypes.typeString) {
+                currentItem = new XMLTextLiteral(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                        currentItem);
+                items[0] = currentItem;
+            }
+
+            if (concatExpr == null) {
+                concatExpr = currentItem;
+                continue;
+            }
+
+            concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                    concatExpr, currentItem);
+            concatExpr.setType(BTypes.typeXML);
+        }
+
+        return concatExpr;
+    }
+
+    private void validateXMLQname(XMLQNameExpr qname, Map<String, Expression> namespaces) {
+        qname.setType(BTypes.typeString);
+        String prefix = qname.getPrefix();
+
+        if (prefix.isEmpty()) {
+            BasicLiteral emptyNsUriLiteral = new BasicLiteral(qname.getNodeLocation(), null,
+                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.NULL_NS_URI));
+            emptyNsUriLiteral.accept(this);
+            qname.setNamepsaceUri(emptyNsUriLiteral);
+            return;
+        }
+
+        if (namespaces.containsKey(qname.getPrefix())) {
+            Expression namespaceUri = namespaces.get(qname.getPrefix());
+            qname.setNamepsaceUri(namespaceUri);
+        } else if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.INVALID_NAMESPACE_PREFIX, prefix);
+        } else {
+            BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.UNDEFINED_NAMESPACE, qname.getPrefix());
+        }
+    }
+
+    private void validateXMLLiteralAttributes(List<KeyValueExpr> attributes, Map<String, Expression> namespaces) {
+        // Validate attributes
+        for (KeyValueExpr attribute : attributes) {
+            Expression attrNameExpr = attribute.getKeyExpr();
+
+            if (attrNameExpr instanceof XMLQNameExpr) {
+                XMLQNameExpr attrQNameRefExpr = (XMLQNameExpr) attrNameExpr;
+                attrQNameRefExpr.isUsedInXML();
+                validateXMLQname(attrQNameRefExpr, namespaces);
+            } else {
+                attrNameExpr.accept(this);
+                if (attrNameExpr.getType() != BTypes.typeString) {
+                    attrNameExpr =
+                            createImplicitStringConversionExpr(attrNameExpr, attrNameExpr.getType());
+                    attribute.setKeyExpr(attrNameExpr);
+                }
+            }
+
+            Expression attrValueExpr = attribute.getValueExpr();
+            attrValueExpr.accept(this);
+            if (attrValueExpr.getType() != BTypes.typeString) {
+                attrValueExpr = createImplicitStringConversionExpr(attrValueExpr, attrValueExpr.getType());
+                attribute.setValueExpr(attrValueExpr);
+            }
+        }
+    }
+
+    private void validateXMLLiteralEndTag(XMLElementLiteral xmlElementLiteral) {
+        Expression startTagName = xmlElementLiteral.getStartTagName();
+        Expression endTagName = xmlElementLiteral.getEndTagName();
+
+        // Compare start and end tags
+        if (endTagName != null) {
+            if (startTagName instanceof XMLQNameExpr && endTagName instanceof XMLQNameExpr) {
+                XMLQNameExpr startName = (XMLQNameExpr) startTagName;
+                XMLQNameExpr endName = (XMLQNameExpr) endTagName;
+                if (!startName.getPrefix().equals(endName.getPrefix())
+                        || !startName.getLocalname().equals(endName.getLocalname())) {
+                    BLangExceptionHelper.throwSemanticError(endTagName, SemanticErrors.XML_TAGS_MISMATCH);
+                }
+            }
+
+            if (((startTagName instanceof XMLQNameExpr) && !(endTagName instanceof XMLQNameExpr))
+                    || (!(startTagName instanceof XMLQNameExpr) && (endTagName instanceof XMLQNameExpr))) {
+                BLangExceptionHelper.throwSemanticError(endTagName, SemanticErrors.XML_TAGS_MISMATCH);
+            }
+
+            if (endTagName instanceof XMLQNameExpr) {
+                validateXMLQname((XMLQNameExpr) endTagName, xmlElementLiteral.getNamespaces());
+            } else {
+                endTagName.accept(this);
+            }
+
+            if (endTagName.getType() != BTypes.typeString) {
+                endTagName = createImplicitStringConversionExpr(endTagName, endTagName.getType());
+                xmlElementLiteral.setEndTagName(endTagName);
+            }
+        }
+    }
+
+    private Expression createImplicitStringConversionExpr(Expression sExpr, BType sType) {
+        Expression conversionExpr = getImplicitConversionExpr(sExpr, sType, BTypes.typeString);
+        if (conversionExpr == null) {
+            BLangExceptionHelper.throwSemanticError(sExpr, SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeString, sType);
+        }
+        return conversionExpr;
     }
 
     /**

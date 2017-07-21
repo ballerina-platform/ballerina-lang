@@ -1279,6 +1279,9 @@ public class ProgramFileReader {
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.XMLSTORE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.LENGTHOFJSON:
                 case InstructionCodes.TYPEOF:
@@ -1394,6 +1397,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
+                case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                     i = codeStream.readInt();
@@ -1408,6 +1412,7 @@ public class ProgramFileReader {
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

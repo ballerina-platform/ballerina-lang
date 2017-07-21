@@ -85,7 +85,13 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -155,10 +161,13 @@ import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
+
+import javax.xml.XMLConstants;
 
 import static org.ballerinalang.util.BLangConstants.BLOB_OFFSET;
 import static org.ballerinalang.util.BLangConstants.BOOL_OFFSET;
@@ -2146,8 +2155,9 @@ public class CodeGenerator implements NodeVisitor {
         // If the QName is use outside of XML, treat it as string.
         if (!xmlQNameRefExpr.isUsedInXML()) {
             String qName;
-            if (!xmlQNameRefExpr.getNamepsaceUri().isEmpty()) {
-                qName = "{" + xmlQNameRefExpr.getNamepsaceUri() + "}" + xmlQNameRefExpr.getLocalname();
+            if (xmlQNameRefExpr.getNamepsaceUri() != null) {
+                qName = "{" + ((BasicLiteral) xmlQNameRefExpr.getNamepsaceUri()).getBValue().stringValue() + "}"
+                        + xmlQNameRefExpr.getLocalname();
             } else {
                 qName = xmlQNameRefExpr.getLocalname();
             }
@@ -2161,18 +2171,17 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         // Else, treat it as QName
-        BasicLiteral localNameLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
-                null, new BString(xmlQNameRefExpr.getLocalname()));
+
+        Expression namespaceUriLiteral = xmlQNameRefExpr.getNamepsaceUri();
+        namespaceUriLiteral.accept(this);
+
+        BasicLiteral localNameLiteral =
+                new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getLocalname()));
         localNameLiteral.setType(BTypes.typeString);
         localNameLiteral.accept(this);
 
-        BasicLiteral namespaceUriLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
-                null, new BString(xmlQNameRefExpr.getNamepsaceUri()));
-        namespaceUriLiteral.setType(BTypes.typeString);
-        namespaceUriLiteral.accept(this);
-
-        BasicLiteral prefixLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
-                null, new BString(xmlQNameRefExpr.getPrefix()));
+        BasicLiteral prefixLiteral =
+                new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getPrefix()));
         prefixLiteral.setType(BTypes.typeString);
         prefixLiteral.accept(this);
 
@@ -2180,6 +2189,140 @@ public class CodeGenerator implements NodeVisitor {
         emit(InstructionCodes.NEWQNAME, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(),
                 prefixLiteral.getTempOffset(), qnameLoadedRegIndex);
         xmlQNameRefExpr.setTempOffset(qnameLoadedRegIndex);
+    }
+
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+    }
+
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+        int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
+        xmlElementLiteral.setTempOffset(xmlVarRegIndex);
+
+        Expression startTagName = xmlElementLiteral.getStartTagName();
+        startTagName.accept(this);
+        int startTagNameRegIndex = startTagName.getTempOffset();
+        
+        // If this is a string representation of element name
+        if (!(startTagName instanceof XMLQNameExpr)) {
+            int localNameRegIndex = ++regIndexes[STRING_OFFSET];
+            int uriRegIndex = ++regIndexes[STRING_OFFSET];
+            emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
+
+            startTagNameRegIndex = ++regIndexes[REF_OFFSET];
+            generateUriLookupInstructions(xmlElementLiteral.getNamespaces(), localNameRegIndex, uriRegIndex,
+                    startTagNameRegIndex, xmlElementLiteral.getNodeLocation());
+        }
+
+        Expression endTagName = xmlElementLiteral.getEndTagName();
+        int endTagNameRegIndex;
+        if (endTagName != null) {
+            endTagName.accept(this);
+            endTagNameRegIndex = endTagName.getTempOffset();
+            
+            // If this is a string representation of element name
+            if (!(endTagName instanceof XMLQNameExpr)) {
+                int localNameRegIndex = ++regIndexes[STRING_OFFSET];
+                int uriRegIndex = ++regIndexes[STRING_OFFSET];
+                emit(InstructionCodes.S2QNAME, endTagNameRegIndex, localNameRegIndex, uriRegIndex);
+                
+                endTagNameRegIndex = ++regIndexes[REF_OFFSET];
+                generateUriLookupInstructions(xmlElementLiteral.getNamespaces(), localNameRegIndex, uriRegIndex,
+                        endTagNameRegIndex, xmlElementLiteral.getNodeLocation());
+            }
+        } else {
+            endTagNameRegIndex = startTagNameRegIndex;
+        }
+
+        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
+        defaultNamespaceUri.accept(this);
+
+        // Create an empty xml with the given QName
+        emit(InstructionCodes.NEWXMLELEMENT, xmlVarRegIndex, startTagNameRegIndex, endTagNameRegIndex,
+                defaultNamespaceUri.getTempOffset());
+
+        // Add namespaces in the current scope, as attributes to the XML
+        addNamespacesToXML(xmlElementLiteral.getNamespaces(), xmlVarRegIndex, defaultNamespaceUri.getTempOffset(),
+                xmlElementLiteral.getNodeLocation());
+
+        // Add attributes
+        int attrQnameRegIndex;
+        List<KeyValueExpr> attributes = xmlElementLiteral.getAttributes();
+        for (KeyValueExpr attribute : attributes) {
+            Expression attrNameExpr = attribute.getKeyExpr();
+            attrNameExpr.accept(this);
+            attrQnameRegIndex = attrNameExpr.getTempOffset();
+
+            // If this is a string representation of qname
+            if (!(attrNameExpr instanceof XMLQNameExpr)) {
+                int localNameRegIndex = ++regIndexes[STRING_OFFSET];
+                int uriRegIndex = ++regIndexes[STRING_OFFSET];
+                emit(InstructionCodes.S2QNAME, attrQnameRegIndex, localNameRegIndex, uriRegIndex);
+
+                attrQnameRegIndex = ++regIndexes[REF_OFFSET];
+                generateUriLookupInstructions(new HashMap<>(), localNameRegIndex, uriRegIndex, attrQnameRegIndex,
+                        xmlElementLiteral.getNodeLocation());
+            }
+
+            Expression attrValueExpr = attribute.getValueExpr();
+            attrValueExpr.accept(this);
+
+            emit(InstructionCodes.XMLATTRSTORE, xmlVarRegIndex, attrQnameRegIndex, attrValueExpr.getTempOffset());
+        }
+
+        // Add children
+        XMLSequenceLiteral children = xmlElementLiteral.getContent();
+        if (children != null && !children.isEmpty()) {
+            children.accept(this);
+            emit(InstructionCodes.XMLSTORE, xmlVarRegIndex, children.getTempOffset());
+        }
+    }
+
+    @Override
+    public void visit(XMLCommentLiteral xmlComment) {
+        int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
+        xmlComment.setTempOffset(xmlVarRegIndex);
+
+        Expression contentExpr = xmlComment.getContent();
+        contentExpr.accept(this);
+
+        // Create an XML comment item
+        emit(InstructionCodes.NEWXMLCOMMENT, xmlVarRegIndex, contentExpr.getTempOffset());
+    }
+
+    @Override
+    public void visit(XMLTextLiteral xmlText) {
+        int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
+        xmlText.setTempOffset(xmlVarRegIndex);
+
+        Expression contentExpr = xmlText.getContent();
+        contentExpr.accept(this);
+
+        // Create an XML text item
+        emit(InstructionCodes.NEWXMLTEXT, xmlVarRegIndex, contentExpr.getTempOffset());
+    }
+
+    @Override
+    public void visit(XMLPILiteral xmlPI) {
+        int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
+        xmlPI.setTempOffset(xmlVarRegIndex);
+
+        Expression target = xmlPI.getTarget();
+        target.accept(this);
+
+        Expression data = xmlPI.getData();
+        data.accept(this);
+
+        // Create an XML text item
+        emit(InstructionCodes.NEWXMLPI, xmlVarRegIndex, target.getTempOffset(), data.getTempOffset());
+    }
+
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequence) {
+        Expression concatExpr = xmlSequence.getConcatExpr();
+        concatExpr.accept(this);
+        xmlSequence.setTempOffset(concatExpr.getTempOffset());
     }
 
     // Private methods
@@ -2978,8 +3121,18 @@ public class CodeGenerator implements NodeVisitor {
         return errorTable;
     }
 
-    private void generateUriLookupInstructions(Map<String, String> namespaces, int localNameRegIndex, int uriRegIndex,
-                                               int targetQnameRegIndex, NodeLocation location) {
+    /**
+     * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
+     * get the prefix of it as the prefix to be used.
+     * 
+     * @param namespaces namespace map
+     * @param localNameRegIndex Registry index of the local name
+     * @param uriRegIndex Registry index of the uri
+     * @param targetQnameRegIndex Registry index of the target qname
+     * @param location Node location
+     */
+    private void generateUriLookupInstructions(Map<String, Expression> namespaces, int localNameRegIndex,
+            int uriRegIndex, int targetQnameRegIndex, NodeLocation location) {
         if (namespaces.isEmpty()) {
             createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
             return;
@@ -2988,13 +3141,19 @@ public class CodeGenerator implements NodeVisitor {
         List<Instruction> gotoInstructionList = new ArrayList<>();
         Instruction ifInstruction;
         Instruction gotoInstruction;
-        for (Entry<String, String> keyValues : namespaces.entrySet()) {
+        String prefix;
+        for (Entry<String, Expression> keyValues : namespaces.entrySet()) {
+            prefix = keyValues.getKey();
+
+            // skip the default namespace
+            if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                continue;
+            }
 
             // Below section creates the condition to compare the namespace uri's
 
             // store the comparing uri as string
-            BasicLiteral uriLiteral = new BasicLiteral(location, null, new BString(keyValues.getValue()));
-            uriLiteral.setType(BTypes.typeString);
+            Expression uriLiteral = keyValues.getValue();
             uriLiteral.accept(this);
 
             int opcode = getOpcode(BTypes.typeString.getTag(), InstructionCodes.IEQ);
@@ -3007,7 +3166,7 @@ public class CodeGenerator implements NodeVisitor {
             // Below section creates instructions to be executed, if the above condition succeeds (then body)
 
             // create the prifix literal
-            BasicLiteral prefixLiteral = new BasicLiteral(location, null, new BString(keyValues.getKey()));
+            BasicLiteral prefixLiteral = new BasicLiteral(location, null, new BString(prefix));
             prefixLiteral.setType(BTypes.typeString);
             prefixLiteral.accept(this);
 
@@ -3038,6 +3197,42 @@ public class CodeGenerator implements NodeVisitor {
 
         emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.getTempOffset(),
                 targetQnameRegIndex);
+    }
+
+    /**
+     * Generate instructions to add namespace declarations that are visible to the current scope.
+     * 
+     * @param namepsaces Namespaces that are visible to the current scope
+     * @param xmlVarRegIndex Registry index of the XML variable
+     * @param defaultNsUriOffset Registry offset of the default namespace URI
+     * @param location Node location
+     */
+    private void addNamespacesToXML(Map<String, Expression> namepsaces, int xmlVarRegIndex, int defaultNsUriOffset,
+            NodeLocation location) {
+        int qnameRegIndex = ++regIndexes[REF_OFFSET];
+        String localname;
+
+        // Prefix for namespaces is always 'xmlns'
+        BasicLiteral prefixLiteral = new BasicLiteral(location, null, new BString(XMLConstants.XMLNS_ATTRIBUTE));
+        prefixLiteral.setType(BTypes.typeString);
+        prefixLiteral.accept(this);
+
+        // declare the remaining namespaces
+        for (Entry<String, Expression> namespace : namepsaces.entrySet()) {
+            localname = namespace.getKey();
+
+            BasicLiteral localNameLiteral = new BasicLiteral(location, null, new BString(localname));
+            localNameLiteral.setType(BTypes.typeString);
+            localNameLiteral.accept(this);
+
+            Expression valueLiteral = namespace.getValue();
+            valueLiteral.accept(this);
+
+            qnameRegIndex = ++regIndexes[REF_OFFSET];
+            emit(InstructionCodes.NEWQNAME, localNameLiteral.getTempOffset(), defaultNsUriOffset,
+                    prefixLiteral.getTempOffset(), qnameRegIndex);
+            emit(InstructionCodes.XMLATTRSTORE, xmlVarRegIndex, qnameRegIndex, valueLiteral.getTempOffset());
+        }
     }
 
     /**

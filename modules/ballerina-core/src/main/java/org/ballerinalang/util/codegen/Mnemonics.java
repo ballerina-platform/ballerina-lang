@@ -235,13 +235,18 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LRET] = "lret";
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
-        
+
         mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2xmlattrs";
         mnemonics[InstructionCodes.XMLATTRLOAD] = "xmlattrload";
         mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
         mnemonics[InstructionCodes.S2QNAME] = "s2qname";
         mnemonics[InstructionCodes.XMLATTRS2MAP] = "xmlattr2map";
         mnemonics[InstructionCodes.NEWQNAME] = "newqname";
+        mnemonics[InstructionCodes.NEWXMLELEMENT] = "newqxmlelement";
+        mnemonics[InstructionCodes.NEWXMLCOMMENT] = "newxmlcomment";
+        mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
+        mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
+        mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
     }
 
     public static String getMnem(int opcode) {
