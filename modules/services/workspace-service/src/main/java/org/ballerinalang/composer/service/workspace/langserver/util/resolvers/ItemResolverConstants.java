@@ -103,6 +103,7 @@ public class ItemResolverConstants {
     // Package Name Context Constants
     public static final String PACKAGE = "package";
     public static final String IMPORT = "import";
+    public static final String CONST = "const";
     // End of Package Name Context Constants
 
     // Symbol Types Constants
