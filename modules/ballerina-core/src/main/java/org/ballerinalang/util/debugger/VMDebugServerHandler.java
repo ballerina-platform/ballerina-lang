@@ -46,6 +46,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.TOO_MANY_REQUESTS;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -100,7 +101,13 @@ public class VMDebugServerHandler extends SimpleChannelInboundHandler<Object> {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
             VMDebugManager debugManager = VMDebugManager.getInstance();
-            debugManager.addDebugSession(ctx.channel());
+            try {
+                debugManager.addDebugSession(ctx.channel());
+            } catch (DebugException e) {
+                FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, TOO_MANY_REQUESTS);
+                sendHttpResponse(ctx, req, res);
+                return;
+            }
             handshaker.handshake(ctx.channel(), req);
         }
     }
