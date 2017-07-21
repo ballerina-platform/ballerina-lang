@@ -54,7 +54,9 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -654,6 +656,31 @@ public class JSONUtils {
         }
 
         return bStruct;
+    }
+
+    /**
+     * Returns the keys of a JSON as a {@link BStringArray}.
+     * 
+     * @param json {@link BJSON} to get the keys
+     * @return Keys of the JSON as a {@link BStringArray}
+     */
+    public static BStringArray getKeys(BJSON json) {
+        if (json == null) {
+            return new BStringArray();
+        }
+
+        JsonNode node = json.value();
+
+        if (node.getNodeType() != JsonNodeType.OBJECT) {
+            return new BStringArray();
+        }
+
+        List<String> keys = new ArrayList<String>();
+        Iterator<String> keysItr = ((ObjectNode) node).fieldNames();
+        while (keysItr.hasNext()) {
+            keys.add(keysItr.next());
+        }
+        return new BStringArray(keys.toArray(new String[keys.size()]));
     }
 
     /**
