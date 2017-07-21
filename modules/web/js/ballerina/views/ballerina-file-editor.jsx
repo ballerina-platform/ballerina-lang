@@ -122,6 +122,10 @@ class BallerinaFileEditor extends React.Component {
                 });
             }
         }, this);
+        // Resize the canvas
+        props.commandManager.registerHandler('resize', () => {
+            this.update();
+        }, this);
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
     }
@@ -420,7 +424,7 @@ class BallerinaFileEditor extends React.Component {
                         </div>
                     }
                 </CSSTransitionGroup>
-                <DesignView model={this.state.model} show={showDesignView}/>
+                <DesignView model={this.state.model} show={showDesignView} />
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
                     <SourceView
                         displayErrorList={popupErrorListInSourceView}
