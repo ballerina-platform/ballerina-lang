@@ -72,7 +72,6 @@ public class BTestUtils {
             }
 
             targetPath = programPath.resolve(targetPath);
-//            return programFile;
             ProgramFileWriter.writeProgram(programFile, targetPath);
             ProgramFileReader reader = new ProgramFileReader();
             return reader.readProgram(targetPath);

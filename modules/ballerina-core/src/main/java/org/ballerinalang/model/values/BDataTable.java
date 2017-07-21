@@ -40,14 +40,12 @@ public class BDataTable implements BRefType<Object> {
     private List<ColumnDefinition> columnDefs;
     private int columnCount;
     private BStruct bStruct;
-    private boolean lastRecordProcessed;
 
     public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
         this.columnDefs = columnDefs;
         this.columnCount = columnDefs.size();
         generateStruct();
-        lastRecordProcessed = false;
     }
 
     @Override
@@ -65,18 +63,19 @@ public class BDataTable implements BRefType<Object> {
         return BTypes.typeDatatable;
     }
 
-    public boolean hasNext() {
-        if (lastRecordProcessed) {
-            return false;
+    public boolean hasNext(boolean isInTransaction) {
+        boolean hasNext = iterator.next();
+        if (!hasNext) {
+            close(isInTransaction);
         }
-        return iterator.next();
+        return hasNext;
     }
 
     public void close(boolean isInTransaction) {
         iterator.close(isInTransaction);
     }
 
-    public BStruct getNext(boolean isInTransaction) {
+    public BStruct getNext() {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
@@ -141,11 +140,6 @@ public class BDataTable implements BRefType<Object> {
             default:
                 throw new BallerinaException("unsupported sql type " + sqlType + " found for the column " + columnName);
             }
-        }
-        boolean isLast = iterator.isLast();
-        if (isLast) {
-            close(isInTransaction);
-            lastRecordProcessed = true;
         }
         return bStruct;
     }

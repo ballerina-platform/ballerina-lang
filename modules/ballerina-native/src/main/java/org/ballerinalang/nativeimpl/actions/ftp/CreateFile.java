@@ -26,14 +26,14 @@ import java.util.Map;
         args = { @Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files"),
-                 @Argument(name = "type", type = TypeEnum.STRING)})
+                 @Argument(name = "fileType", type = TypeEnum.STRING)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Create a file or folder") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
         value = "ftp client connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "File struct containing path information") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "type",
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "fileType",
         value = "Specification whether file or folder") })
 public class CreateFile extends AbstractFtpAction {
     @Override

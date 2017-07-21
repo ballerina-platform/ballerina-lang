@@ -21,14 +21,18 @@ import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 /**
  * {@link DebugInfoHolder} holds information relevant to current debugging session.
@@ -59,10 +63,15 @@ public class DebugInfoHolder {
      */
     public void processPkgInfo(PackageInfo packageInfo) {
         DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo();
-//        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList().stream().sorted(
-//                Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
+
+        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
+                .getAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
+
+        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList().stream().sorted(
+                Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
+
         //TODO remove above line if already sorted
-        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList();
+//        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoEntries();
         LineNumberInfo currentLineNoInfo = null;
         for (LineNumberInfo lineNoInfo : lineNumberInfos) {
             if (currentLineNoInfo == null) {

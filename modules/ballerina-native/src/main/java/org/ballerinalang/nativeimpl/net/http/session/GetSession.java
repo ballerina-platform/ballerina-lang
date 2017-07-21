@@ -96,7 +96,7 @@ public class GetSession extends AbstractNativeFunction {
                         throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                     }
                 } else {
-                    //Return null as the session is invalid.
+                    //Return null as the session is invalidated.
                     logger.info("Failed to get session: session is not available");
                     return new BValue[]{};
                 }

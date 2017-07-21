@@ -3,7 +3,7 @@ package servicechaining.samples;
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:config {basePath:"/bankinfo"}
+@http:configuration {basePath:"/bankinfo"}
 service<http> Bankinfo {
     
     @http:POST{}

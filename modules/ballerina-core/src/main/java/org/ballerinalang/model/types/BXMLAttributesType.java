@@ -21,7 +21,7 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * @code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.
+ * {@code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.
  *
  * @since 0.89
  */

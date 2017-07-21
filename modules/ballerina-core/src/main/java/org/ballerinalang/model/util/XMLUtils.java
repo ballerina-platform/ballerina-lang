@@ -28,15 +28,18 @@ import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
 import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 
+import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMComment;
 import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
+import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.DataTableOMDataSource;
@@ -45,6 +48,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -58,6 +62,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
@@ -80,12 +86,10 @@ import javax.xml.transform.stax.StAXSource;
  */
 public class XMLUtils {
     
+    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     private static final String XML_ROOT = "root";
-
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
-
     private static final String XML_VALUE_TAG = "#text";
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
      * Create a XML item from string literal.
@@ -103,7 +107,6 @@ public class XMLUtils {
             // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
             // This is to overcome the issue of axiom not allowing to parse xml-comments,
             // xml-text nodes, and pi nodes, without having a xml-element node.
-            // TODO: improve this logic once the xml parsing is supported from the grammar.
             OMElement omElement = AXIOMUtil.stringToOM("<root>" + xmlStr + "</root>");
             Iterator<OMNode> children = omElement.getChildren();
             OMNode omNode = null;
@@ -118,7 +121,7 @@ public class XMLUtils {
             // Here the node is detached from the dummy root, and added to a
             // document element. This is to get the xpath working correctly
             omNode = omNode.detach();
-            OMDocument doc = new OMDocumentImpl();
+            OMDocument doc = OM_FACTORY.createOMDocument();
             doc.addChild(omNode);
             return new BXMLItem(omNode);
         } catch (BallerinaException e) {
@@ -231,7 +234,7 @@ public class XMLUtils {
         json = new BJSON(results);
         return json;
     }
-    
+
     /**
      * Converts a {@link BJSON} to {@link BXML}.
      * 
@@ -305,6 +308,75 @@ public class XMLUtils {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
         omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null, isInTransaction));
         return new BXMLItem(omSourcedElement);
+    }
+
+    /**
+     * Create an element type BXML.
+     *
+     * @param startTagName Name of the start tag of the element
+     * @param endTagName Name of the end tag of element
+     * @param defaultNsUri Default namespace URI
+     * @return BXML Element type BXML
+     */
+    public static BXML<?> createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
+        if (!startTagName.getLocalName().equals(endTagName.getLocalName())
+                || !startTagName.getUri().equals(endTagName.getUri())
+                || !startTagName.getPrefix().equals(endTagName.getPrefix())) {
+            throw new BallerinaException(
+                    "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
+        }
+
+        String nsUri = startTagName.getUri();
+        OMElement omElement;
+        if (nsUri.isEmpty()) {
+            if (defaultNsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
+                defaultNsUri = XMLConstants.NULL_NS_URI;
+            }
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, startTagName.getPrefix());
+        } else {
+            QName qname = new QName(nsUri, startTagName.getLocalName(), startTagName.getPrefix());
+            omElement = OM_FACTORY.createOMElement(qname);
+            if (!defaultNsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
+                omElement.declareDefaultNamespace(defaultNsUri);
+            }
+        }
+
+        return new BXMLItem(omElement);
+    }
+
+    /**
+     * Create a comment type BXML.
+     *
+     * @param content Comment content
+     * @return BXML Comment type BXML
+     */
+    public static BXML<?> createXMLComment(String content) {
+        OMComment omComment = OM_FACTORY.createOMComment(OM_FACTORY.createOMDocument(), content);
+        return new BXMLItem(omComment);
+    }
+
+    /**
+     * Create a comment type BXML.
+     *
+     * @param content Text content
+     * @return BXML Text type BXML
+     */
+    public static BXML<?> createXMLText(String content) {
+        OMText omText = OM_FACTORY.createOMText(content);
+        return new BXMLItem(omText);
+    }
+
+    /**
+     * Create a processing instruction type BXML.
+     *
+     * @param tartget PI target
+     * @param data PI data
+     * @return BXML Processing instruction type BXML
+     */
+    public static BXML<?> createXMLProcessingInstruction(String tartget, String data) {
+        OMProcessingInstruction omText = OM_FACTORY.createOMProcessingInstruction(OM_FACTORY.createOMDocument(),
+                tartget, data);
+        return new BXMLItem(omText);
     }
 
     /**
