@@ -1763,6 +1763,10 @@ public class CodeGenerator implements NodeVisitor {
         connectorInfo.setFilterConnector(connectorDef.isFilterConnector());
         structureRefCPEntry.setStructureTypeInfo(connectorInfo);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+        StructureRefCPEntry tempStructRef = (StructureRefCPEntry) currentPkgInfo.getCPEntry(structureRefCPIndex);
+        if (tempStructRef.getStructureTypeInfo() == null) {
+            tempStructRef.setStructureTypeInfo(connectorInfo);
+        }
 
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
