@@ -21,8 +21,11 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -38,6 +41,7 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,6 +53,13 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
+
+        if (element instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) element).getElementType();
+            if (elementType == BallerinaTypes.FLOATING_POINT) {
+                return;
+            }
+        }
 
         if (parent instanceof NameReferenceNode /*|| parent instanceof PsiErrorElement*/) {
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
@@ -86,8 +97,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
         if (parent instanceof PsiErrorElement) {
 
-            FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                    FunctionDefinitionNode.class);
+            PsiElement functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    FunctionDefinitionNode.class, ServiceDefinitionNode.class, ConnectorDefinitionNode.class);
             if (functionDefinitionNode != null) {
 
                 PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
