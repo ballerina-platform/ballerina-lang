@@ -101,6 +101,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
     }
 
     @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("Generates the API documentation of give Ballerina programs." + System.lineSeparator());
+        out.append(System.lineSeparator());
+    }
+
+    @Override
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder
                 .append("ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedpackages] [-v]"
