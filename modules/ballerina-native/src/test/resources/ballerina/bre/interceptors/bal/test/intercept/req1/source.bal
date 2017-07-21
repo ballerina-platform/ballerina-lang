@@ -1,10 +1,11 @@
-package ballerina.test.intercept.faulty;
+package bal.test.intercept.req1;
 
+import ballerina.lang.messages;
 import ballerina.lang.system;
 
 function requestInterceptor (message msg) (boolean, message) {
-    string[] a;
-    a[5] = "abc";
+    string header = "req1";
+    messages:setHeader(msg, "test", header);
     return true, msg;
 }
 
