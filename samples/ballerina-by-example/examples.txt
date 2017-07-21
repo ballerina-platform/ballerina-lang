@@ -28,6 +28,11 @@ Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
+WebSocket Basic Endpoint
+WebSocket Basic Functions
+WebSocket Connection Store
+WebSocket Connection Groups
+WebSocket Client Connector
 Datatables
 SQL Connector
 Transactions

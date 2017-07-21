@@ -1,0 +1,5 @@
+// This example explains the basic WebSocket client connector.
+// After defining a client connector in a service you should give a client service to handle inbound messages from remote WebSocket server.
+// Those messages will be received to client service which is bound to the client connector.
+// If and only if the client connector defined inside a WebSocket service then you can use pushText and broadcastText functions to
+// send messages from the client service to the original clients who have connected to WebSocket service.
