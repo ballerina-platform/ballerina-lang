@@ -101,17 +101,12 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                     .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
             String subPathAnnotationVal;
             if (pathAnnotationInfo != null
-                    && pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE) != null
-                    && !pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE)
-                    .getStringValue().trim().isEmpty()) {
-                subPathAnnotationVal = pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE)
-                        .getStringValue();
-                    && pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
-                if (pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue()
+                    && pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
+                if (pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue()
                         .trim().isEmpty()) {
                     subPathAnnotationVal = Constants.DEFAULT_BASE_PATH;
                 } else {
-                    subPathAnnotationVal = pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
+                    subPathAnnotationVal = pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE)
                             .getStringValue();
                 }
             } else {
