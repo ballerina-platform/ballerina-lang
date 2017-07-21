@@ -70,6 +70,7 @@ public class LangServerConstants {
     public static final String TEXT_DOCUMENT_DOCUMENT_SYMBOL = "textDocument/documentSymbol";
     public static final String TEXT_DOCUMENT_COMPLETION = "textDocument/completion";
     public static final String PROGRAM_DIRECTORY_PACKAGES = "programDirectory/packages";
+    public static final String BUILT_IN_PACKAGES = "ballerina/packages";
 
     public static final String WORKSPACE_SYMBOL = "workspace/symbol";
 

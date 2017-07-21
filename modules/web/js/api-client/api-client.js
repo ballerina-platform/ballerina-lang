@@ -15,15 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import axios from 'axios';
+import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
 
- import axios from 'axios';
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
 
 /**
+ * Gives the endpoint for a paticular backend service
+ *
+ * @param {string} serviceName Name of the service
+ */
+export function getServiceEndpoint(serviceName) {
+    return endpoints[serviceName].endpoint;
+}
+
+/**
  * Fetch information about available API endpoints from config service
  * return A promise that resolves the get request
- */
+*/
 export function fetchConfigs() {
     // PRODUCTION is a global variable set by webpack DefinePlugin
     // it will be set to "true" in the production build.
@@ -103,7 +113,7 @@ export function parseContent(content) {
         fileName: 'untitle',
         filePath: '/temp',
         packageName: 'test.package',
-        content: content,
+        content,
     };
     const endpoint = getServiceEndpoint('parser');
     const headers = {
@@ -118,39 +128,49 @@ export function parseContent(content) {
     });
 }
 
-
 /**
- * Invoke packages service for the given file
- * and returns a promise with packages
+ * Returns a promise with program packages of the given file
+ * 
  * @param {File} file
  */
-export function getProgramPackages(file, langServerClientInstance) {
+export function getProgramPackages(file) {
     const fileOptions = {
         fileName: file.getName(),
         filePath: file.getPath(),
         packageName: file.getPackageName(),
         content: file.getContent(),
-        isDirty: file.isDirty()
-    };
-    const payload = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
-    };
-    const endpoint = getServiceEndpoint('programPackages');
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
+        isDirty: file.isDirty(),
     };
 
     return new Promise((resolve, reject) => {
-        langServerClientInstance
+        getLangServerClientInstance()
             .then((langserverClient) => {
                 langserverClient.getProgramPackages(fileOptions, (data) => {
                     resolve(data);
                 });
             })
             .catch(error => reject(error));
+    });
+}
+
+/**
+ * Returns a promise that resolves built in packages
+ */
+export function getBuiltInPackages() {
+    return new Promise((resolve, reject) => {
+        getLangServerClientInstance()
+            .then((langserverClient) => {
+                langserverClient.getBuiltInPackages()
+                    .then((data) => {
+                        if (!data.error && data.result) {
+                            resolve(data.result.packages);
+                        } else {
+                            reject(data);
+                        }
+                    })
+                    .catch(reject);
+            })
+            .catch(reject);
     });
 }
 
@@ -169,15 +189,6 @@ export function getPackages() {
                 resolve(response.data);
             }).catch(error => reject(error));
     });
-}
-
-/**
- * Gives the endpoint for a paticular backend service
- * 
- * @param {string} serviceName Name of the service
- */
-export function getServiceEndpoint(serviceName) {
-    return endpoints[serviceName].endpoint;
 }
 
 export function getSwaggerDefinition(ballerinaSource, serviceName) {

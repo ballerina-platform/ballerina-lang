@@ -25,13 +25,19 @@ class PackageScopedEnvironment {
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
         this._annotationAttachmentTypes = [];
+        this._initialized = false;
     }
 
     init() {
+        if (this._initialized) {
+            return;
+        }
+        this._packages = _.union(this._packages, Environment.getPackages());
         this._types = _.union(this._types, Environment.getTypes());
         this._currentPackage = new Package({ name: 'Current Package' });
         this._packages.push(this._currentPackage);
         this.initializeAnnotationAttachmentPoints();
+        this._initialized = true;
     }
 
     /**
