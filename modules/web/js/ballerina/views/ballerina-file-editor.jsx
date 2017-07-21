@@ -405,7 +405,7 @@ class BallerinaFileEditor extends React.Component {
         }
 
         return (
-            <div id={`bal-file-editor-${this.props.file.id}`}>
+            <div id={`bal-file-editor-${this.props.file.id}`} className='bal-file-editor'>
                 <CSSTransitionGroup
                     transitionName="loading-overlay"
                     transitionEnterTimeout={300}
@@ -420,9 +420,7 @@ class BallerinaFileEditor extends React.Component {
                         </div>
                     }
                 </CSSTransitionGroup>
-                <div style={{ display: showDesignView ? 'block' : 'none' }}>
-                    <DesignView model={this.state.model} />
-                </div>
+                <DesignView model={this.state.model} show={showDesignView}/>
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
                     <SourceView
                         displayErrorList={popupErrorListInSourceView}
