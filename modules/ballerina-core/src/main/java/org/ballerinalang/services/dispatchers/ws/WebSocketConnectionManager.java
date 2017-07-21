@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.websocket.Session;
 
@@ -41,19 +40,19 @@ import javax.websocket.Session;
 public class WebSocketConnectionManager {
 
     // Map<serviceName, Map<sessionId, session>>
-    private final Map<String, Map<String, Session>> broadcastSessions = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Session>> broadcastSessions = new HashMap<>();
     // Map<groupName, Map<sessionId, session>>
-    private final Map<String, Map<String, Session>> connectionGroups = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Session>> connectionGroups = new HashMap<>();
     // Map<NameToStoreConnection, Session>
-    private final Map<String, Session> connectionStore = new ConcurrentHashMap<>();
+    private final Map<String, Session> connectionStore = new HashMap<>();
 
     // Map <parentServiceName, Connector>
-    private final Map<String, List<BConnector>> parentServiceToClientConnectorsMap = new ConcurrentHashMap<>();
+    private final Map<String, List<BConnector>> parentServiceToClientConnectorsMap = new HashMap<>();
 
     // Map<Connector, Map<serverSessionID, ClientSession>>
-    private final Map<BConnector, Map<String, Session>> clientConnectorSessionsMap = new ConcurrentHashMap<>();
+    private final Map<BConnector, Map<String, Session>> clientConnectorSessionsMap = new HashMap<>();
     // Map<serverSessionID, clientSessionList>
-    private final Map<String, List<Session>> serverSessionToClientSessionsMap = new ConcurrentHashMap<>();
+    private final Map<String, List<Session>> serverSessionToClientSessionsMap = new HashMap<>();
 
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
 
@@ -70,11 +69,11 @@ public class WebSocketConnectionManager {
      * @param service {@link ServiceInfo} of the service.
      * @param session {@link Session} to add to the broadcast group.
      */
-    public void addConnectionToBroadcast(ServiceInfo service, Session session) {
+    public synchronized void addConnectionToBroadcast(ServiceInfo service, Session session) {
         if (broadcastSessions.containsKey(service.getName())) {
             broadcastSessions.get(service.getName()).put(session.getId(), session);
         } else {
-            Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+            Map<String, Session> sessionMap = new HashMap<>();
             sessionMap.put(session.getId(), session);
             broadcastSessions.put(service.getName(), sessionMap);
         }
@@ -87,7 +86,7 @@ public class WebSocketConnectionManager {
      * @param service {@link ServiceInfo} of the service.
      * @param session {@link Session} to remove from the broadcast group.
      */
-    public void removeConnectionFromBroadcast(ServiceInfo service, Session session) {
+    public synchronized void removeConnectionFromBroadcast(ServiceInfo service, Session session) {
         if (broadcastSessions.containsKey(service.getName())) {
             broadcastSessions.get(service.getName()).remove(session.getId());
         }
@@ -99,7 +98,7 @@ public class WebSocketConnectionManager {
      * @param service name of the service.
      * @return the list of sessions which are connected to a given service.
      */
-    public List<Session> getBroadcastConnectionList(ServiceInfo service) {
+    public synchronized List<Session> getBroadcastConnectionList(ServiceInfo service) {
         if (broadcastSessions.containsKey(service.getName())) {
             return broadcastSessions.get(service.getName()).entrySet().stream()
                     .map(Map.Entry::getValue)
@@ -115,11 +114,11 @@ public class WebSocketConnectionManager {
      * @param groupName name of the group.
      * @param session {@link Session} to remove from the broadcast group.
      */
-    public void addConnectionToGroup(String groupName, Session session) {
+    public synchronized void addConnectionToGroup(String groupName, Session session) {
         if (connectionGroups.containsKey(groupName)) {
             connectionGroups.get(groupName).put(session.getId(), session);
         } else {
-            Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+            Map<String, Session> sessionMap = new HashMap<>();
             sessionMap.put(session.getId(), session);
             connectionGroups.put(groupName, sessionMap);
         }
@@ -133,7 +132,7 @@ public class WebSocketConnectionManager {
      * @param session {@link Session} to remove from the group.
      * @return true if the connection name was found and connection is removed.
      */
-    public boolean removeConnectionFromGroup(String groupName, Session session) {
+    public synchronized boolean removeConnectionFromGroup(String groupName, Session session) {
         if (connectionGroups.containsKey(groupName)) {
             connectionGroups.get(groupName).remove(session.getId());
             return true;
@@ -147,7 +146,7 @@ public class WebSocketConnectionManager {
      * @param groupName name of the group.
      * @return true if connection group name exists and connection group is removed successfully.
      */
-    public boolean removeConnectionGroup(String groupName) {
+    public synchronized boolean removeConnectionGroup(String groupName) {
         if (connectionGroups.containsKey(groupName)) {
             connectionGroups.remove(groupName);
             return true;
@@ -161,7 +160,7 @@ public class WebSocketConnectionManager {
      * @param groupName name of the connection group.
      * @return a list of connections belongs to the mentioned group name.
      */
-    public List<Session> getConnectionGroup(String groupName) {
+    public synchronized List<Session> getConnectionGroup(String groupName) {
         if (connectionGroups.containsKey(groupName)) {
             return connectionGroups.get(groupName).entrySet().stream()
                     .map(Map.Entry::getValue)
@@ -177,7 +176,7 @@ public class WebSocketConnectionManager {
      * @param connectionName name of the connection given by the user.
      * @param session {@link Session} to store.
      */
-    public void storeConnection(String connectionName, Session session) {
+    public synchronized void storeConnection(String connectionName, Session session) {
         connectionStore.put(connectionName, session);
     }
 
@@ -187,7 +186,7 @@ public class WebSocketConnectionManager {
      * @param connectionName connection name which should be removed from the store.
      * @return true if connection name was found in connection store and removed successfully.
      */
-    public boolean removeConnectionFromStore(String connectionName) {
+    public synchronized boolean removeConnectionFromStore(String connectionName) {
         if (connectionStore.containsKey(connectionName)) {
             connectionStore.remove(connectionName);
             return true;
@@ -201,7 +200,7 @@ public class WebSocketConnectionManager {
      * @param connectionName name of the connection which should be removed.
      * @return Session of the stored connection if connections is found else return null.
      */
-    public Session getStoredConnection(String connectionName) {
+    public synchronized Session getStoredConnection(String connectionName) {
         return connectionStore.get(connectionName);
     }
 
@@ -214,7 +213,7 @@ public class WebSocketConnectionManager {
      * @param session Session of the connection.
      * @param carbonMessage carbon message received.
      */
-    public void addServerSession(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
+    public synchronized void addServerSession(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
         /*
             If service is in the parentServiceToClientConnectorsMap means it might have client connectors relates to
             the service. So for each client connector new connections should be created for remote server.
@@ -232,7 +231,7 @@ public class WebSocketConnectionManager {
         addConnectionToBroadcast(service, session);
     }
 
-    private void addClinetSessionForServerSession(Session serverSession, Session clientSession) {
+    private synchronized void addClinetSessionForServerSession(Session serverSession, Session clientSession) {
         String serverSessionID = serverSession.getId();
         if (serverSessionToClientSessionsMap.containsKey(serverSessionID)) {
             serverSessionToClientSessionsMap.get(serverSessionID).add(clientSession);
@@ -251,7 +250,8 @@ public class WebSocketConnectionManager {
      * @param connector {@link BConnector} which should be added to the connection manager.
      * @Param clientSession newly created client session for the client connector.
      */
-    public void addClientConnector(ServiceInfo parentService, BConnector connector, Session clientSession) {
+    public synchronized void addClientConnector(ServiceInfo parentService, BConnector connector,
+                                                Session clientSession) {
         if (parentServiceToClientConnectorsMap.containsKey(parentService.getName())) {
             parentServiceToClientConnectorsMap.get(parentService.getName()).add(connector);
         } else {
@@ -276,7 +276,7 @@ public class WebSocketConnectionManager {
      * @param bConnector
      * @param session
      */
-    public void addClientConnectorWithoutParentService(BConnector bConnector, Session session) {
+    public synchronized void addClientConnectorWithoutParentService(BConnector bConnector, Session session) {
         Map<String, Session> sessions = new HashMap<>();
         sessions.put(Constants.DEFAULT, session);
         clientConnectorSessionsMap.put(bConnector, sessions);
@@ -288,7 +288,7 @@ public class WebSocketConnectionManager {
      * @param bConnector {@link BConnector} to retrieve the client sessions.
      * @return a list of client sessions related to given client connector.
      */
-    public List<Session> getSessionsForConnector(BConnector bConnector) {
+    public synchronized List<Session> getSessionsForConnector(BConnector bConnector) {
         if (clientConnectorSessionsMap.containsKey(bConnector)) {
             return clientConnectorSessionsMap.get(bConnector).entrySet().stream().
                     map(Map.Entry::getValue).collect(Collectors.toList());
@@ -304,7 +304,7 @@ public class WebSocketConnectionManager {
      * @param serverSession server session of the {@link BConnector} related to the client session.
      * @return the client session of relate to the {@link BConnector} and the relevant server session.
      */
-    public Session getClientSessionForConnector(BConnector bConnector, Session serverSession) {
+    public synchronized Session getClientSessionForConnector(BConnector bConnector, Session serverSession) {
         return clientConnectorSessionsMap.get(bConnector).get(serverSession.getId());
     }
 
@@ -315,7 +315,7 @@ public class WebSocketConnectionManager {
      *
      * @param session {@link Session} which should be removed from all the places.
      */
-    public void removeConnectionFromAll(Session session) {
+    public synchronized void removeConnectionFromAll(Session session) {
 
         // Remove all the server session related client sessions.
         if (serverSessionToClientSessionsMap.containsKey(session.getId())) {
