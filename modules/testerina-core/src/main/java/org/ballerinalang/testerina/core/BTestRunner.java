@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
+import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
@@ -61,7 +60,7 @@ public class BTestRunner {
     }
 
     private static ProgramFile buildTestModel(Path sourceFilePath) {
-        return new BLangProgramLoader().loadServiceProgramFile(programDirPath, sourceFilePath);
+        return BLangCompiler.compile(programDirPath, sourceFilePath);
     }
 
     private static void executeTestFunctions(ProgramFile[] programFiles) {

@@ -73,8 +73,8 @@ public class TesterinaContext {
      * @param programFile {@link ProgramFile}.
      */
     private void extractTestFunctions(ProgramFile programFile) {
-        Arrays.stream(programFile.getPackageInfoCollection())
-                .map(PackageInfo::getFunctionInfoCollection)
+        Arrays.stream(programFile.getPackageInfoEntries())
+                .map(PackageInfo::getFunctionInfoEntries)
                 .flatMap(Arrays::stream)
                 .forEachOrdered(f -> addTestFunctions(programFile, f));
     }

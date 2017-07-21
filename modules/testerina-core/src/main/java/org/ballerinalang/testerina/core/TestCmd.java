@@ -83,9 +83,16 @@ public class TestCmd implements BLauncherCmd {
     }
 
     @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("Complies and Run Ballerina test sources (*_test.bal) and prints " + System.lineSeparator());
+        out.append("a summary of test results" + System.lineSeparator() + System.lineSeparator());
+    }
+
+    @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina test <filename>\n");
-        stringBuilder.append("ballerina test command will have -mock flag enabled by default\n\n");
+        stringBuilder.append("ballerina test <filename>" + System.lineSeparator());
+        stringBuilder.append("ballerina test command will have -mock flag enabled by default" + System.lineSeparator());
+        stringBuilder.append(System.lineSeparator());
     }
 
     private static void printCommandUsageInfo(JCommander cmdParser, String commandName) {

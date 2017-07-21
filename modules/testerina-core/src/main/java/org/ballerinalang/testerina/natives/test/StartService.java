@@ -33,7 +33,7 @@ import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.core.TesterinaUtils;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -50,7 +50,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -94,28 +93,27 @@ public class StartService extends AbstractNativeFunction {
         ctx.disableNonBlocking = true;
         String serviceName = getStringArgument(ctx, 0);
 
-        Optional<ServiceInfo> matchingService = Optional.empty();
+        ServiceInfo matchingService = null;
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             // 1) First, we get the Service for the given serviceName from the original ProgramFile
-            matchingService = Arrays.stream(programFile.getServicePackageNameList())
-                    .map(sName -> programFile.getPackageInfo(sName).getServiceInfoList())
-                    .flatMap(Arrays::stream)
-                    .filter(serviceInfo -> serviceInfo.getName().equals(serviceName))
-                    .findAny();
-            matchingService.ifPresent(serviceInfo -> startService(programFile, serviceInfo));
+            matchingService = programFile.getEntryPackage().getServiceInfo(serviceName);
+            if (matchingService != null) {
+                startService(programFile, matchingService);
+                break;
+            }
         }
 
         // 3) fail if no matching service for the given 'serviceName' argument is found.
-        if (!matchingService.isPresent()) {
+        if (matchingService == null) {
             String listOfServices = TesterinaRegistry.getInstance().getProgramFiles().stream()
-                    .map(ProgramFile::getServicePackageNameList).flatMap(Arrays::stream)
-                    .collect(Collectors.joining(", "));
+                    .map(ProgramFile::getEntryPackage).map(PackageInfo::getServiceInfoEntries).flatMap(Arrays::stream)
+                    .map(serviceInfo -> serviceInfo.getName()).collect(Collectors.joining(", "));
             throw new BallerinaException(MSG_PREFIX + "No service with the name " + serviceName + " found. "
                     + "Did you mean to start one of these services? " + listOfServices);
         }
 
         // 6) return the service url
-        BString str = new BString(getServiceURL(matchingService.get()));
+        BString str = new BString(getServiceURL(matchingService));
         return getBValues(str);
     }
 
@@ -126,9 +124,9 @@ public class StartService extends AbstractNativeFunction {
         bContext.disableNonBlocking = true;
 
         PackageInfo packageInfo = matchingService.getPackageInfo();
-        
-        BLangFunctions.invokeFunction(programFile, packageInfo, packageInfo.getInitFunctionInfo(), bContext);
-        BLangFunctions.invokeFunction(programFile, packageInfo, matchingService.getInitFunctionInfo(), bContext);
+
+        BLangFunctions.invokeFunction(programFile, packageInfo.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokeFunction(programFile, matchingService.getInitFunctionInfo(), bContext);
         DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                                                                                  dispatcher.serviceRegistered(
                                                                                          matchingService));
@@ -164,11 +162,10 @@ public class StartService extends AbstractNativeFunction {
             String listenerInterface = Constants.DEFAULT_INTERFACE;
             String basePath = service.getName();
 
-            AnnotationAttachmentInfo annotation = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                                                                                      Constants
-                                                                                              .ANNOTATION_NAME_CONFIG);
+            AnnAttachmentInfo annotation = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                    Constants.ANNOTATION_NAME_CONFIGURATION);
             if (annotation != null) {
-                basePath = annotation.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH)
+                basePath = annotation.getAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH)
                         .getStringValue();
             }
             if (basePath.startsWith("\"")) {
