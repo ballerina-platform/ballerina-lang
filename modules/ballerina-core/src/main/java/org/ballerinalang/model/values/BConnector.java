@@ -40,8 +40,6 @@ public final class BConnector implements BRefType, StructureType {
     private boolean isFilterConnector;
     //private BType connectorType;
 
-    // TODO Remove this when old executor is removed
-    private BType[] fieldTypes;
 
     public BConnector(BConnectorType connectorType) {
         this.connectorType = connectorType;
@@ -57,14 +55,6 @@ public final class BConnector implements BRefType, StructureType {
 
     public BType getConnectorType() {
         return connectorType;
-    }
-
-    public BType[] getFieldTypes() {
-        return fieldTypes;
-    }
-
-    public void setFieldTypes(BType[] fieldTypes) {
-        this.fieldTypes = fieldTypes;
     }
 
     public boolean isFilterConnector() {

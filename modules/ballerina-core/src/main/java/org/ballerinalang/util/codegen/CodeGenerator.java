@@ -197,7 +197,6 @@ public class CodeGenerator implements NodeVisitor {
     private int baseConnectorIndex = -1;
     private int lastFilterConnectorIndex = -1;
     private ConnectorInfo baseConnectorInfo = null;
-    private String childConnectorType = null;
 
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
@@ -1655,13 +1654,7 @@ public class CodeGenerator implements NodeVisitor {
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
         ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
-        if (childConnectorType != null) {
-            emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-        } else {
-            emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-        }
-
-        childConnectorType = connectorDef.getName();
+        emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
 
         if (baseConnectorInfo == null) {
             baseConnectorInfo = currentPkgInfo.getConnectorInfo(connectorDef.getName());
@@ -1735,7 +1728,6 @@ public class CodeGenerator implements NodeVisitor {
             connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
         }
 
-        childConnectorType = null;
         baseConnectorInfo = null;
         // Invoke Connector init native action if any
         BallerinaAction action = connectorDef.getInitAction();
