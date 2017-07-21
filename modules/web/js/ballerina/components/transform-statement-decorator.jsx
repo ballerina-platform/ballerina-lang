@@ -230,8 +230,11 @@ class TransformStatementDecorator extends React.Component {
                     onClick={e => this.onExpand()}
                 />
                 <g className="statement-body">
-                    <text x={text_x} y={text_y} className="transform-action" onClick={e => this.onExpand()}>{expression}</text>
-                    <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={iconSize} height={iconSize} onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
+                    <text x={text_x - 10 } y={text_y} className="transform-action" onClick={e => this.onExpand()}>{expression}</text>
+                    <g className="transform-button">
+                        <rect x={ expand_button_x - 8 } y={ expand_button_y - 8 } width={iconSize} height={iconSize} className="transform-action-button" onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
+                        <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={iconSize} height={iconSize} onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
+                    </g>
                 </g>
                 <ActionBox
                     bBox={actionBbox}

@@ -276,10 +276,17 @@ a.tool-palette-add-button:focus, a.tool-palette-add-button:hover{
     margin-right:10px ;
 }
 
-.tool-pane-header .icon{
+.tool-pane-header .icon {
     font-size: 15px;
-    color:#ccc;
+    color: #fff;
+    background: #f17b31;
+    height: 29px;
+    width: 29px;
+    padding: 6px 9px;
+    margin-left: -10px;
+    margin-top: -10px;
 }
+
 i.fw-search {
     position: absolute;
     padding-left: 5px;
