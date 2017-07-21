@@ -799,7 +799,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(SimpleVariableDef simpleVariableDef) {
-        
+
     }
 
     // Visit statements
@@ -1479,35 +1479,35 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(nullLiteral);
         nullLiteral.setType(BTypes.typeNull);
     }
-    
+
     @Override
     public void visit(XMLLiteral xmlLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLElementLiteral xmlElementLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLCommentLiteral xmlCommentLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLTextLiteral xmlTextLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLPILiteral xmlpiLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
-        
+
     }
 
     @Override

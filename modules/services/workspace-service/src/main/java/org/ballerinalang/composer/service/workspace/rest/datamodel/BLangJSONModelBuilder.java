@@ -45,6 +45,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -66,6 +67,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -113,6 +115,7 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.FunctionTypeName;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
@@ -200,6 +203,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
         //service definitions //connector definitions //function definition
         for (CompilationUnit node : bFile.getCompilationUnits()) {
+            if (node instanceof BallerinaFunction) {
+                BallerinaFunction function = (BallerinaFunction) node;
+                if (function.isLambda()) {
+                    continue;
+                }
+            }
             node.accept(this);
         }
 
@@ -355,6 +364,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonFunc.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.FUNCTION_DEFINITION);
         jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
+        jsonFunc.addProperty(BLangJSONModelConstants.IS_LAMBDA_FUNCTION, function.isLambda());
         this.addPosition(jsonFunc, function.getNodeLocation());
         this.addWhitespaceDescriptor(jsonFunc, function.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -451,8 +461,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             for (ParameterDef parameterDef : typeMapper.getReturnParameters()) {
                 JsonObject paramObj = new JsonObject();
                 paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
-                paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getSymbolName
-                        ().getName());
+                paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE,
+                        generateTypeSting(parameterDef.getTypeName()));
                 this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
                 this.tempJsonArrayRef.push(new JsonArray());
                 if (parameterDef.getAnnotations() != null) {
@@ -675,11 +685,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.PARAMETER_DEFINITION);
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName());
 
-        String parameterName = ((parameterDef.getTypeName().getPackageName() != null) ?
-                (parameterDef.getTypeName().getPackageName() + ":") : "") + parameterDef.getTypeName().getSymbolName()
-                .getName();
-
-        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterName);
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, generateTypeSting(parameterDef.getTypeName()));
         this.addPosition(paramObj, parameterDef.getNodeLocation());
         this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -695,7 +701,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDef variableDef) {
+    public void visit(SimpleVariableDef variableDef) {
         JsonObject variableDefObj = new JsonObject();
         this.addPosition(variableDefObj, variableDef.getNodeLocation());
         this.addWhitespaceDescriptor(variableDefObj, variableDef.getWhiteSpaceDescriptor());
@@ -704,7 +710,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getIdentifier().getName());
         variableDefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL,
                 variableDef.getIdentifier().isLiteral());
-        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().getName());
+        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, generateTypeSting(variableDef.getTypeName()));
         variableDefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableDef.getTypeName().getPackageName());
         variableDefObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, variableDef.getTypeName().isArrayType());
         variableDefObj.addProperty(BLangJSONModelConstants.DIMENSIONS, variableDef.getTypeName().getDimensions());
@@ -1570,37 +1576,47 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(nullLiteralObj, nullLiteral.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(nullLiteralObj);
     }
-    
+
     @Override
     public void visit(XMLLiteral xmlLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLElementLiteral xmlElementLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLCommentLiteral xmlCommentLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLTextLiteral xmlTextLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLPILiteral xmlpiLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
-        
+
     }
-    
+
+    @Override
+    public void visit(LambdaExpression lambdaExpr) {
+        JsonObject lambdaExprObj = new JsonObject();
+        lambdaExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "lambda_function_expression");
+        tempJsonArrayRef.push(new JsonArray());
+        lambdaExpr.getFunction().accept(this);
+        lambdaExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.pop());
+        tempJsonArrayRef.peek().add(lambdaExprObj);
+    }
+
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         JsonObject typeCastEprObj = new JsonObject();
@@ -2088,6 +2104,55 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
 
+    }
+
+    private String generateTypeSting(SimpleTypeName typename) {
+        StringBuilder sb = new StringBuilder();
+        generateTypeSting(typename, sb);
+        return sb.toString();
+    }
+
+    private void generateTypeSting(SimpleTypeName typename, StringBuilder sb) {
+        if (typename instanceof FunctionTypeName) {
+            sb.append("function ");
+            FunctionTypeName functionTypeName = (FunctionTypeName) typename;
+
+            getParamList(sb, functionTypeName.getParamTypes(), functionTypeName.getParamFieldNames());
+            if (functionTypeName.isReturnWordAvailable()) {
+                sb.append(" returns ");
+            }
+
+            SimpleTypeName[] returnParamsTypes = functionTypeName.getReturnParamsTypes();
+            if (returnParamsTypes.length > 0) {
+                getParamList(sb, returnParamsTypes, functionTypeName.getReturnParamFieldNames());
+            }
+
+            if (functionTypeName.isArrayType()) {
+                sb.append("[]");
+            }
+        } else {
+            if (typename.getPackageName() != null) {
+                sb.append(typename.getPackageName());
+                sb.append(":");
+            }
+            sb.append(typename.getSymbolName());
+        }
+    }
+
+    private void getParamList(StringBuilder sb, SimpleTypeName[] paramTypes, String[] paramFieldNames) {
+        sb.append("( ");
+        for (int i = 0; i < paramTypes.length; i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            SimpleTypeName childType = paramTypes[i];
+            generateTypeSting(childType, sb);
+            sb.append(" ");
+            if (paramFieldNames.length == paramTypes.length) {
+                sb.append(paramFieldNames[i]);
+            }
+        }
+        sb.append(")");
     }
 
 }

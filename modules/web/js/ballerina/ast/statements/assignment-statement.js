@@ -63,6 +63,9 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
+        if (this.viewState.source) {
+            return this.viewState.source.replace(/;\s*$/, '');
+        }
         return ((this.getIsDeclaredWithVar() ? 'var' + this.getWSRegion(1) : '')
                 + (!_.isNil(this.getChildren()[0])
                 ? this.getLeftExpression().getExpressionString() : '')
@@ -104,6 +107,7 @@ class AssignmentStatement extends Statement {
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {
+            this.viewState.source = null;
             if (parsedJson.children.length !== 1) {
                 // Only checks for the simple literals
                 if (parsedJson.children[1].type === 'basic_literal_expression') {

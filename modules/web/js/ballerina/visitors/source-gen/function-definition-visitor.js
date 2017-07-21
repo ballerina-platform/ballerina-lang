@@ -74,7 +74,8 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         constructedSourceSegment += ((functionDefinition.isNative()
                     ? 'native' + functionDefinition.getWSRegion(0) : ''));
         constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
-                    + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2)
+                    + (functionDefinition.isLambda() ? '' : functionDefinition.getFunctionName())
+                    + functionDefinition.getWSRegion(2)
                     + '(' + functionDefinition.getWSRegion(3)
                     + functionDefinition.getArgumentsAsString() + ')';
         constructedSourceSegment += (!_.isNil(functionReturnTypesSource) ? functionReturnTypesSource : '');
