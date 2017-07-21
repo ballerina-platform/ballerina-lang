@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
@@ -507,6 +508,12 @@ public class ProgramFileWriter {
                 }
                 break;
             case PARAMETER_ANNOTATIONS_ATTRIBUTE:
+                ParamAnnotationAttributeInfo prmAnnAtrInfo = (ParamAnnotationAttributeInfo) attributeInfo;
+                ParamAnnAttachmentInfo[] prmAnnAtchmntInfo = prmAnnAtrInfo.getAttachmentInfoArray();
+                dataOutStream.writeShort(prmAnnAtchmntInfo.length);
+                for (ParamAnnAttachmentInfo prmAtchInfo : prmAnnAtchmntInfo) {
+                    writeParamAnnAttachmentInfo(dataOutStream, prmAtchInfo);
+                }
                 break;
             case LOCAL_VARIABLES_ATTRIBUTE:
                 LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) attributeInfo;
@@ -561,6 +568,17 @@ public class ProgramFileWriter {
         for (AnnAttributeKeyValuePair keyValuePair : attribKeyValuePairs) {
             dataOutStream.writeInt(keyValuePair.getAttributeNameCPIndex());
             writeAnnAttributeValue(dataOutStream, keyValuePair.getAttributeValue());
+        }
+    }
+
+    private static void writeParamAnnAttachmentInfo(DataOutputStream dataOutStream,
+                                               ParamAnnAttachmentInfo attachmentInfo) throws IOException {
+        dataOutStream.writeInt(attachmentInfo.getParamIdex());
+
+        AnnAttachmentInfo[] annAttachmentInfos = attachmentInfo.getAnnAttachmentInfos();
+        dataOutStream.writeShort(annAttachmentInfos.length);
+        for (AnnAttachmentInfo annAttachmentInfo : annAttachmentInfos) {
+            writeAnnAttachmentInfo(dataOutStream, annAttachmentInfo);
         }
     }
 

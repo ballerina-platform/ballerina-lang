@@ -1,3 +1,5 @@
+package connectionStoreSample.sample;
+
 import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
