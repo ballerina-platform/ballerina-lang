@@ -127,6 +127,7 @@ while (BooleanExpression) {
 ```
 
 1. Add a `variable` and define an integer that gets the number of instances of the data. Set this as `int dataCount = jsons:getInt(forcastDataList,"$.length()")`. The weather API lists multiple instances of the temperature and this variable ensures that you find the number of instances of the temperature in the data sets and assigns it to `dataCount`.
+
     ![alt text](../images/dataCount.png)
     > You use a **.length** JSON path here to access an inbuilt function of the JSON. In this case, length is an inbuilt function of JSON.
     
@@ -149,6 +150,8 @@ while (BooleanExpression) {
     ![alt text](../images/AssignFloatTemp2.png)
 1. Add another assignment to add each temperature value the `sumTemp` float that was declared earlier.
     ![alt text](../images/SumTemp.png)
+1. Add an assignment to calculate the average temperature. This is done by dividing the sum of all the temperatures by the number of temperatures or the `dataCount`.
+    ![alt text](../images/AverageTemp.png)
 
 ## Get information from the weather forecast API
 
@@ -173,7 +176,7 @@ The weather forecast API can be done for any country. Washington (USA) is used i
 1. The page that appears provides details about the API and provides sample calls for different types of requirements. Under the **By city ID** section, you can access a JSON file from http://bulk.openweathermap.org/sample/. This includes all the country codes available.
     ![alt text](../images/WeatherJSON.png)
 
-### Call the API
+### Call the API using the URL
 
 Now that you have got the API key and the country code, you can identify the URL that you need to call from Ballerina. The URL is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
 
