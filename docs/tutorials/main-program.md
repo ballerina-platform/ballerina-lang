@@ -11,7 +11,9 @@ This tutorial consists of the following main sections.
 - [Call the connector](#call-the-connector)
 - [View the response](#view-the-response)
 - [Extract content from JSON](#extract-content-from-json)
-- [Do the calculations](#do-the-calculations)
+- [Calculate average temperature](#calculate-average-temperature)
+- [Convert Kelvin to Celcius](#convert-kelvin-to-celcius)
+- [Call the function and print the result](#call-the-function-and-print-the-result)
 - [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). For more information on the weather forecast API, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
@@ -83,7 +85,9 @@ Prior to doing further changes, you can view the output to see if the call to th
 1. Save your file by clicking **File** and **Save As**. Provide an appropriate name for you **.bal** file.
 1. Click the **Run** button and click **Application** to run this file. You can see the output in the console of the Ballerina Composer.
 
-The output contains a JSON payload. This tutorial aims to access the JSON payload and extract the contents under **list**. This enables you to obtain the temperature forecast in Kelvin for the next five days. For more information, see [Call the API](#call-the-api)
+The output contains a JSON payload. This tutorial aims to access the JSON payload and extract the contents under **list**. This enables you to obtain the temperature forecast in Kelvin for the next five days. For more information, see [Call the API using the URL](#call-the-api-using-the-url).
+
+Once you have viewed this, you can remove the `print` function by hovering over it and clicking the trash can icon.
 
 ## Extract content from JSON
 
@@ -112,7 +116,7 @@ This is a variable that may hold any JSON document.
     ![alt text](../images/forecastDataList.png)
     > The dot notation (**.**) enables you to invoke any of the attributes available in the JSON. These JSON paths can be used to access the contents of an attribute. For example, if `json j = {a:"hello"}` you can access `hello` using `j.a`. When considering the example used in this tutorial, if `json j = {list:[1,2,3]}` you can access the list using `j.list`. This is done because all the content that you need resides within the list attribute in the JSON file.
 
-## Do the calculations
+## Calculate average temperature
 
 Now that you have extracted the content from the JSON, Ballerina needs to do the calculations. This involves using a conditional statement like `while`.
 
@@ -152,6 +156,29 @@ while (BooleanExpression) {
     ![alt text](../images/SumTemp.png)
 1. Add an assignment to calculate the average temperature. This is done by dividing the sum of all the temperatures by the number of temperatures or the `dataCount`.
     ![alt text](../images/AverageTemp.png)
+
+## Convert Kelvin to Celcius
+
+The next aspect of this tutorial is to convert the average temperature from Kelvin to Celcius.
+
+1. Add a `function` by dragging it from the tool palette to the canvas. A function is a single operation that is intended to be a unit of reusable functionality. You can define additional functions within your Ballerina programs. All library functions are found in `ballerina.*` packages under the `src` directory in your Ballerina distribution. If the function is in another package and is marked public, you can import that package using the Imports box in the upper left corner of the canvas, and then drag the Function Invocation icon to the canvas. All functions are private to the package unless explicitly declared to be public with the `public` keyword. You can invoke functions from a resource or a function within the same package without importing.
+    ![alt text](../images/AddFunction.gif)
+1. Provide a name for the `function` and also add a parameter called `float KelvinTemp` that returns a `float` value. 
+    ![alt text](../images/FunctionDefinition.png)
+1. Add a `return` statement by dragging it from the tool palette to the canvas. The `return` statement evaluates the expression, stops the current function, and returns the result of the expression to the caller.
+    ![alt text](../images/AddReturn.gif)
+1. In the `return` statement, do the calculation to convert Kelvin to Celcius by subtracting 273.15 from the Kelvin temperature.
+    ![alt text](../images/KelvinToCelcius.png)
+
+## Call the function and print the result
+
+Once the function is added, it is available on the tool palette and can be dragged onto the canvas when you need to call it.
+![alt text](../images/FunctionPackage.png)
+
+1. Drag the function you created onto the canvas, assign a float value, and apply the function on the average Celcius temperature.
+    ![alt text](../images/ConvertFunction.png)
+1. Drag two `println` functions to the canvas and assign `avgTemp` to one to display the average temperature in Kelvin and assign `celciusTemp` to the other to display the average temperature in Celcius.
+    ![alt text](../images/PrintLn.png)
 
 ## Get information from the weather forecast API
 
