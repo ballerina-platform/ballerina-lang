@@ -38,7 +38,7 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private int[] intFields;
     private byte[][] byteFields;
     private BRefType[] refFields;
-
+    private BConnector filterConnector;
     private BType connectorType;
 
     // TODO Remove this when old executor is removed
@@ -52,6 +52,10 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     public BConnector(Connector connector, BValue[] connectorMemBlock) {
         this.connector = connector;
         this.connectorMemBlock = connectorMemBlock;
+    }
+
+    public BType getConnectorType() {
+        return connectorType;
     }
 
     public BValue getValue(int offset) {
@@ -68,6 +72,14 @@ public final class BConnector implements BRefType<Connector>, StructureType {
 
     public void setFieldTypes(BType[] fieldTypes) {
         this.fieldTypes = fieldTypes;
+    }
+
+    public BConnector getFilterConnector() {
+        return filterConnector;
+    }
+
+    public void setFilterConnector(BConnector filterConnector) {
+        this.filterConnector = filterConnector;
     }
 
     @Override

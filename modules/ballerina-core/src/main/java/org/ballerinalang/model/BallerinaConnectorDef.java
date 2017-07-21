@@ -58,6 +58,8 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaAction[] actions;
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
+    private boolean isFilterConnector;
+    private String filterSupportedType;
 
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
@@ -118,6 +120,22 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     public int getSizeOfConnectorMem() {
         return sizeOfConnectorMem;
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
+    }
+
+    public String getFilterSupportedType() {
+        return filterSupportedType;
+    }
+
+    public void setFilterSupportedType(String filterSupportedType) {
+        this.filterSupportedType = filterSupportedType;
     }
 
     // Methods in Node interface
@@ -226,6 +244,22 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     @Override
     public Map<SymbolName, BLangSymbol> getSymbolMap() {
         return Collections.unmodifiableMap(this.symbolMap);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof BallerinaConnectorDef) {
+            BallerinaConnectorDef other = (BallerinaConnectorDef) obj;
+                if (this.actions.length == other.actions.length) {
+                    for (int i = 0; i < this.actions.length; i++) {
+                        if (!this.actions[i].equals(other.actions[i])) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+
+        return false;
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

@@ -79,6 +79,12 @@ under the License.
         </packages>
     </test>
 
+    <test name="ballerina-filter-connector-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.connectors"/>
+        </packages>
+    </test>
+
     <!-- Service Related Test Cases -->
 
     <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
