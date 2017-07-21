@@ -21,11 +21,11 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.testFramework.LexerTestCase;
-import org.antlr.jetbrains.adaptor.lexer.ANTLRLexerAdaptor;
 import org.antlr.jetbrains.adaptor.lexer.PSIElementTypeFactory;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
+import org.ballerinalang.plugins.idea.lexer.BallerinaLexerAdaptor;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +89,7 @@ public class BallerinaLexerTest extends LexerTestCase {
     @Override
     protected Lexer createLexer() {
         BallerinaLexer lexer = new BallerinaLexer(null);
-        return new ANTLRLexerAdaptor(BallerinaLanguage.INSTANCE, lexer);
+        return new BallerinaLexerAdaptor(BallerinaLanguage.INSTANCE, lexer);
     }
 
     @Override
