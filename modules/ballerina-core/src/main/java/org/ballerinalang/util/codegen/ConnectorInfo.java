@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BConnectorType;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,35 +28,12 @@ import java.util.Objects;
  */
 public class ConnectorInfo extends StructureTypeInfo {
 
-    // Connector constructor signature
-    private int signatureCPIndex;
-    private String signature;
-
-    private BConnectorType connectorType;
-
     private Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
-    public ConnectorInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name,
-                         int signatureCPIndex, String signature) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
-        this.signatureCPIndex = signatureCPIndex;
-        this.signature = signature;
-    }
+    protected Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public int getSignatureCPIndex() {
-        return signatureCPIndex;
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public BConnectorType getType() {
-        return connectorType;
-    }
-
-    public void setType(BConnectorType connectorType) {
-        this.connectorType = connectorType;
+    public ConnectorInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
+        super(pkgPathCPIndex, connectorNameCPIndex);
     }
 
     public void addActionInfo(String actionName, ActionInfo actionInfo) {
@@ -69,8 +44,12 @@ public class ConnectorInfo extends StructureTypeInfo {
         return actionInfoMap.get(actionName);
     }
 
-    public ActionInfo[] getActionInfoEntries() {
-        return actionInfoMap.values().toArray(new ActionInfo[0]);
+    public AttributeInfo getAttributeInfo(String attributeName) {
+        return attributeInfoMap.get(attributeName);
+    }
+
+    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeName, attributeInfo);
     }
 
     @Override

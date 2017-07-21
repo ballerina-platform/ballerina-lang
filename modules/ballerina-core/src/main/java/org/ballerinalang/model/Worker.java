@@ -24,7 +24,6 @@ import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
@@ -243,16 +242,6 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     @Override
     public Worker[] getWorkers() {
         return workers;
-    }
-
-    @Override
-    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-        //todo implement when there can be workers inside workers.
-    }
-
-    @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return null;
     }
 
     @Override

@@ -34,8 +34,6 @@ public interface BLauncherCmd {
 
     String getName();
 
-    void printLongDesc(StringBuilder out);
-
     void printUsage(StringBuilder out);
 
     void setParentCmdParser(JCommander parentCmdParser);
@@ -47,7 +45,7 @@ public interface BLauncherCmd {
         JCommander jCommander = cmdParser.getCommands().get(commandName);
         BLauncherCmd bLauncherCmd = (BLauncherCmd) jCommander.getObjects().get(0);
 
-        bLauncherCmd.printLongDesc(out);
+        out.append(cmdParser.getCommandDescription(commandName)).append("\n");
         out.append("\n");
         out.append("Usage:\n");
         bLauncherCmd.printUsage(out);

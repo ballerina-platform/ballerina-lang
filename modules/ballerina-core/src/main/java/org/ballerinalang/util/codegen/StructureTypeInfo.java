@@ -17,43 +17,59 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 
 /**
  * @since 0.87
  */
-public class StructureTypeInfo implements AttributeInfoPool {
+public class StructureTypeInfo {
+
     protected int pkgPathCPIndex;
-    protected String packagePath;
 
     protected int nameCPIndex;
-    protected String name;
 
+    protected int[] fieldCount;
+
+    // TODO Remove. Temporary field
+    protected BType[] fieldTypes;
+
+    protected BType structureType;
+    // Cache Values.
+    private String name;
     private PackageInfo packageInfo;
 
-    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-
-    public StructureTypeInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
+    public StructureTypeInfo(int pkgPathCPIndex, int nameCPIndex) {
         this.pkgPathCPIndex = pkgPathCPIndex;
-        this.packagePath = packagePath;
         this.nameCPIndex = nameCPIndex;
-        this.name = name;
     }
 
-    public int getNameCPIndex() {
-        return nameCPIndex;
+    public int[] getFieldCount() {
+        return fieldCount;
+    }
+
+    public void setFieldCount(int[] fieldCount) {
+        this.fieldCount = fieldCount;
+    }
+
+    public BType[] getFieldTypes() {
+        return fieldTypes;
+    }
+
+    public void setFieldTypes(BType[] fieldTypes) {
+        this.fieldTypes = fieldTypes;
+    }
+
+    public BType getType() {
+        return structureType;
+    }
+
+    public void setType(BType type) {
+        this.structureType = type;
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getPackagePath() {
-        return packagePath;
     }
 
     public PackageInfo getPackageInfo() {
@@ -63,21 +79,6 @@ public class StructureTypeInfo implements AttributeInfoPool {
     protected void setPackageInfo(PackageInfo packageInfo) {
         this.packageInfo = packageInfo;
         // Update Cache values.
-//        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
-    }
-
-    @Override
-    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
-        return attributeInfoMap.get(attributeKind);
-    }
-
-    @Override
-    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
-        attributeInfoMap.put(attributeKind, attributeInfo);
-    }
-
-    @Override
-    public AttributeInfo[] getAttributeInfoEntries() {
-        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
+        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
     }
 }

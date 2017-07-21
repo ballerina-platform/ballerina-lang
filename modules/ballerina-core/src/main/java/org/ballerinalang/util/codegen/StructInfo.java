@@ -17,10 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BStructType;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,27 +26,8 @@ import java.util.Objects;
  */
 public class StructInfo extends StructureTypeInfo {
 
-    private BStructType structType;
-    private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
-
-    public StructInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
-    }
-
-    public BStructType getType() {
-        return structType;
-    }
-
-    public void setType(BStructType structType) {
-        this.structType = structType;
-    }
-
-    public void addFieldInfo(StructFieldInfo fieldInfo) {
-        fieldInfoEntries.add(fieldInfo);
-    }
-
-    public StructFieldInfo[] getFieldInfoEntries() {
-        return fieldInfoEntries.toArray(new StructFieldInfo[0]);
+    public StructInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
+        super(pkgPathCPIndex, connectorNameCPIndex);
     }
 
     @Override

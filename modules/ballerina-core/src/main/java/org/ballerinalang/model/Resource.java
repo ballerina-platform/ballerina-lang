@@ -23,7 +23,6 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
@@ -66,9 +65,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private Worker[] workers;
     private BlockStmt resourceBody;
     private Queue<Statement> workerInteractionStatements;
-
-    // Key -  workerDataChannelName
-    private Map<String, WorkerDataChannel> workerDataChannelMap = new HashMap<>();
 
 
     // Scope related variables
@@ -115,16 +111,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     @Override
     public Worker[] getWorkers() {
         return workers;
-    }
-
-    @Override
-    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-        workerDataChannelMap.put(workerDataChannel.getChannelName(), workerDataChannel);
-    }
-
-    @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return workerDataChannelMap;
     }
 
     @Override

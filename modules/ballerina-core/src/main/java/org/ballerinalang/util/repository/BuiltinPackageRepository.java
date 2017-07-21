@@ -38,8 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-
 /**
  * Represents a repository contains built in ballerina packages.
  *
@@ -53,20 +51,12 @@ public class BuiltinPackageRepository extends PackageRepository {
     private static final String NATIVE_BAL_FILE = "natives.bal";
     private static final String FALSE = "false";
     private boolean skipNatives = false;
-    private boolean isSystemRepo = false;
+
 
     private String packageDirPath;
 
     public BuiltinPackageRepository(Class providerClass) {
         this.nativePackageProvider = providerClass;
-    }
-
-    public boolean isSystemRepo() {
-        return isSystemRepo;
-    }
-
-    public void setSystemRepo(boolean systemRepo) {
-        isSystemRepo = systemRepo;
     }
 
     /**
@@ -78,20 +68,16 @@ public class BuiltinPackageRepository extends PackageRepository {
             skipNatives = false;
         }
 
-        // Load from the system repository if the first part of the package is "ballerina"
-        PackageSource pkgSource;
-        if (!isSystemRepo &&
-                packageDirPath.getName(0).toString().equals(BALLERINA_BUILTIN_PKG_PREFIX) &&
-                systemRepo != null) {
-            pkgSource = systemRepo.loadPackage(packageDirPath);
-            if (pkgSource != null) {
+        if (internalPkgRepo != null) {
+            PackageSource pkgSource = internalPkgRepo.loadPackage(packageDirPath);
+            if (pkgSource != null && !pkgSource.getSourceFileStreamMap().isEmpty()) {
                 return pkgSource;
             }
         }
 
         // Replace system dependent file-separator with forward-slash
         this.packageDirPath = packageDirPath.toString().replace("\\", "/") + "/";
-
+        
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
 

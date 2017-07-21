@@ -30,11 +30,14 @@ public class FunctionInfo extends CallableUnitInfo {
 
     private AbstractNativeFunction nativeFunction;
 
-    public FunctionInfo(int pkgCPIndex, String pkgPath, int funcNameCPIndex, String funcName) {
-        this.pkgCPIndex = pkgCPIndex;
+    public FunctionInfo(String pkgPath, int pkgCPIndex, String funcName, int funcNameCPIndex) {
         this.pkgPath = pkgPath;
-        this.nameCPIndex = funcNameCPIndex;
+        this.pkgCPIndex = pkgCPIndex;
         this.name = funcName;
+        this.nameCPIndex = funcNameCPIndex;
+
+        codeAttributeInfo = new CodeAttributeInfo();
+        attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     public AbstractNativeFunction getNativeFunction() {

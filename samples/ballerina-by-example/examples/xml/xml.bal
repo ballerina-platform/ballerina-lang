@@ -40,13 +40,13 @@ function main (string[] args) {
     xml content = someText + bookName + bookComment + bookMeta;
     system:println(content);
 
-    // Check whether the XML value is empty
+    // Check whether an XML is exmpty
     system:println(xmls:isEmpty(content));
 
     // Check whether an XML sequence has only one element in it
     system:println(xmls:isSingleton(content));
 
-    // Get a subset of this XML sequence
+    // Get a subsequence of an XML sequence
     x = xmls:slice(content, 2, 4);
     system:println(x);
 

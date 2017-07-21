@@ -32,8 +32,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.nio.file.NoSuchFileException;
-
 /**
  * Test Cases for testing resource interceptors.
  */
@@ -188,19 +186,13 @@ public class ResourceInterceptorTest {
         BLangRuntimeRegistry.getInstance().initialize();
     }
 
-    @Test(priority = 41)
+    @Test(priority = 41, expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = ".*no such file or directory.*foo.bmz.*")
     public void testInvalidArchiveName() {
         BLangConfigurationManager.getInstance().clear();
         BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment7.yaml");
-        try {
-            BLangRuntimeRegistry.getInstance().initialize();
-        } catch (Exception e) {
-            Assert.assertTrue(e.getCause() instanceof NoSuchFileException);
-            Assert.assertEquals(e.getMessage(), "src/test/resources/ballerina/bre/interceptors/foo.balx");
-            return;
-        }
-        Assert.fail("Test should stop before this.");
+        BLangRuntimeRegistry.getInstance().initialize();
     }
 }

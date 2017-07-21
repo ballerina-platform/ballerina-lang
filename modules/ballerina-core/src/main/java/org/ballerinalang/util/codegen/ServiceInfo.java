@@ -20,8 +20,6 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.services.dispatchers.uri.URITemplate;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.parser.Literal;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,32 +32,33 @@ import java.util.Objects;
  */
 public class ServiceInfo extends StructureTypeInfo {
 
-    private int protocolPkgPathCPIndex;
+    private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+
+    protected Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
+
+    private String protocolPkgName;
     private String protocolPkgPath;
 
-    private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    private int intiFuncCPIndex;
 
     private FunctionInfo initFuncInfo;
     private URITemplate uriTemplate;
 
-    public ServiceInfo(int pkgPathCPIndex, String packageName,
-                       int nameCPIndex, String serviceName,
-                       int protocolPkgPathCPIndex, String protocolPkgPath) {
-
-        super(pkgPathCPIndex, packageName, nameCPIndex, serviceName);
-        this.protocolPkgPathCPIndex = protocolPkgPathCPIndex;
+    public ServiceInfo(int pkgPathCPIndex, int connectorNameCPIndex, String protocolPkgName, String protocolPkgPath) {
+        super(pkgPathCPIndex, connectorNameCPIndex);
+        this.protocolPkgName = protocolPkgName;
         this.protocolPkgPath = protocolPkgPath;
     }
 
-    public int getProtocolPkgPathCPIndex() {
-        return protocolPkgPathCPIndex;
+    public String getProtocolPkgName() {
+        return protocolPkgName;
     }
 
     public String getProtocolPkgPath() {
         return protocolPkgPath;
     }
 
-    public ResourceInfo[] getResourceInfoEntries() {
+    public ResourceInfo[] getResourceInfoList() {
         return resourceInfoMap.values().toArray(new ResourceInfo[0]);
     }
 
@@ -69,6 +68,14 @@ public class ServiceInfo extends StructureTypeInfo {
 
     public ResourceInfo getResourceInfo(String resourceName) {
         return resourceInfoMap.get(resourceName);
+    }
+
+    public AttributeInfo getAttributeInfo(String attributeName) {
+        return attributeInfoMap.get(attributeName);
+    }
+
+    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeName, attributeInfo);
     }
 
     public FunctionInfo getInitFunctionInfo() {
@@ -91,13 +98,13 @@ public class ServiceInfo extends StructureTypeInfo {
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
 
-    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
+    public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
+                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo == null || packageName == null || annotationName == null) {
             return null;
         }
-        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
+        for (AnnotationAttachmentInfo annotationInfo : attributeInfo.getAnnotationAttachmentInfo()) {
             if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
                 return annotationInfo;
             }
