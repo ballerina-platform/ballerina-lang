@@ -69,7 +69,9 @@ function testStructToJson() (json) {
                  info:{status:"single"},
                  marks:[87,94,72]
                };
-    json j = <json> p;
+
+    json j;
+    j, _ = <json> p;
     return j;
 }
 
@@ -280,10 +282,17 @@ struct Info {
 }
 
 function testStructWithMessageToJson() (json) {
+
     message m = {};
     Info info = {msg: m};
-    json j = <json> info;
-    return j; 
+    json j;
+    errors:TypeConversionError err;
+    j, err = <json> info;
+    if (err != null) {
+        throw err;
+    }
+    return j;
+
 }
 
 function testJsonIntToString() (string) {
@@ -461,7 +470,8 @@ function testNullMapToStruct() (Person) {
 
 function testNullStructToJson() (json) {
     Person p;
-    json j = <json> p;
+    json j;
+    j, _ = <json> p;
     return j;
 }
 

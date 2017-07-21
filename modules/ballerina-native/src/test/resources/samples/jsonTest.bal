@@ -113,3 +113,7 @@ function rename(json msg, string jsonPath, string oldKey, string newKey) (string
 function toString(json msg) (string){
     return jsons:toString(msg);
 }
+
+function testParse(string jsonStr) (json){
+    return jsons:parse(jsonStr);
+}

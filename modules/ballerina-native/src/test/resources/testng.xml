@@ -89,6 +89,7 @@ under the License.
             <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
             <class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>
             <class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>
+            <class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>
         </classes>
     </test>
 
@@ -133,6 +134,12 @@ under the License.
     <test name="ballerina-interceptor-test-suite">
         <classes>
             <class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-debugger-test-suite">
+        <classes>
+            <class name="org.ballerinalang.debug.VMDebuggerTryCatchTest"/>
         </classes>
     </test>
 </suite>

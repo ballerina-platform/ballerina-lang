@@ -60,6 +60,7 @@ public class Context {
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
+    private String threadId;
 
     @Deprecated
     public Context() {
@@ -75,8 +76,25 @@ public class Context {
         return debugInfoHolder;
     }
 
-    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
-        this.debugInfoHolder = debugInfoHolder;
+    public void setAndInitDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        if (this.debugInfoHolder != null) {
+            return;
+        }
+        synchronized (Context.class) {
+            if (this.debugInfoHolder != null) {
+                return;
+            }
+            this.debugInfoHolder = debugInfoHolder;
+            this.debugInfoHolder.init(programFile);
+        }
+    }
+
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
     }
 
     public boolean isDebugEnabled() {

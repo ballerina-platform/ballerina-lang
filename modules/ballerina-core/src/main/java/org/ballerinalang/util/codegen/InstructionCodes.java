@@ -18,7 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 /**
- * Bytecode instructions of a Ballerina compiled program.
+ * Bytecode instructions of a compiled Ballerina program.
  *
  * @since 0.87
  */
@@ -248,5 +248,12 @@ public interface InstructionCodes {
     int RRET = 236;
     int RET = 237;
 
-    int INSTRUCTION_CODE_COUNT = 238;
+    int XML2XMLATTRS = 238;
+    int XMLATTRS2MAP = 239;
+    int XMLATTRLOAD = 240;
+    int XMLATTRSTORE = 241;
+    int S2QNAME = 242;
+    int NEWQNAME = 243;
+
+    int INSTRUCTION_CODE_COUNT = 244;
 }

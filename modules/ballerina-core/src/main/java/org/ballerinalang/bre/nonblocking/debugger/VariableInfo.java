@@ -3,9 +3,10 @@
 */
 package org.ballerinalang.bre.nonblocking.debugger;
 
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
@@ -43,23 +44,18 @@ public class VariableInfo {
         String bValueString = "";
         if (bValue instanceof BValueType || bValue instanceof BXML || bValue instanceof BJSON) {
             bValueString = bValue.stringValue();
-        } else if (bValue instanceof BArray) {
-            BArray bArray = (BArray) bValue;
-            bValueString = "Array[" + bArray.size() + "] {";
-            for (int i = 0; i < bArray.size(); i++) {
-                bValueString = bValueString + bArray.get(i).stringValue();
-                if (i + 1 != bArray.size()) {
-                    bValueString = bValueString + ", ";
-                }
-            }
-            bValueString = bValueString + "} ";
+        } else if (bValue instanceof BNewArray) {
+            BNewArray bArray = (BNewArray) bValue;
+            bValueString = "Array[" + bArray.size() + "] ";
+            bValueString = bValueString + bArray.stringValue();
         } else if (bValue instanceof BMap) {
             BMap bmap = (BMap) bValue;
-            bValueString = "Map[" + ((BMap) bValue).size() + "] {\n\t";
-            for (Object key : bmap.keySet()) {
-                bValueString = bValueString + key + " : " + getStringValue(bmap.get(key)) + "\n";
-            }
-            bValueString = bValueString + "} ";
+            bValueString = "Map[" + bmap.size() + "] ";
+            bValueString = bValueString + bmap.stringValue();
+        } else if (bValue instanceof BStruct) {
+            BStruct bStruct = (BStruct) bValue;
+            bValueString = "struct " + bStruct.getType().getName() + " ";
+            bValueString = bValueString + bStruct.stringValue();
         } else {
             bValueString = "<Complex_Value>";
         }
