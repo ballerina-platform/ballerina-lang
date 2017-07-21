@@ -48,6 +48,8 @@ import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NamespaceDeclaration;
+import org.ballerinalang.model.NamespaceSymbolName;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -95,10 +97,12 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLQNameExpr;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
+import org.ballerinalang.model.expressions.variablerefs.XMLAttributesRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -109,6 +113,7 @@ import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -149,9 +154,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+
+import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program.
@@ -190,26 +198,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BLangProgram bLangProgram) {
-        BLangPackage mainPkg = bLangProgram.getMainPackage();
-
-        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
-            mainPkg.accept(this);
-
-        } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
-            BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-            for (BLangPackage servicePkg : servicePackages) {
-                servicePkg.accept(this);
-            }
+        BLangPackage entryPkg = bLangProgram.getEntryPackage();
+        if (entryPkg != null) {
+            entryPkg.accept(this);
         } else {
-            BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
-            for (BLangPackage libraryPkg : libraryPackages) {
-                libraryPkg.accept(this);
+            BLangPackage[] blangPackages = bLangProgram.getLibraryPackages();
+            for (BLangPackage bLangPackage : blangPackages) {
+                bLangPackage.accept(this);
             }
         }
-
-        int setSizeOfStaticMem = staticMemAddrOffset + 1;
-        bLangProgram.setSizeOfStaticMem(setSizeOfStaticMem);
-        staticMemAddrOffset = -1;
     }
 
     @Override
@@ -242,7 +239,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                 new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
         functionBuilder.setNodeLocation(pkgLocation);
-        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + ".<init>"));
+        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + INIT_FUNCTION_SUFFIX));
         functionBuilder.setPkgPath(bLangPackage.getPackagePath());
         pkgInitFuncStmtBuilder = new BlockStmt.BlockStmtBuilder(bLangPackage.getNodeLocation(),
                 bLangPackage);
@@ -482,6 +479,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                         setWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
                                         setEnclosingCallableUnitName(callableUnit.getName());
+                                callableUnit.addWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
                                 ((WorkerInvocationStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
@@ -537,6 +535,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                         setWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
                                         setEnclosingCallableUnitName(callableUnit.getName());
+                                callableUnit.addWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
                                 ((WorkerReplyStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
@@ -588,6 +587,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             WorkerDataChannel workerDataChannel = new WorkerDataChannel
                                     (sourceWorkerName, targetWorkerName);
                             ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
+                            currentCallableUnit.addWorkerDataChannel(workerDataChannel);
                         }
                     }
                 }
@@ -2233,6 +2233,57 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
+        VariableReferenceExpr varRefExpr = xmlAttributesRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+
+        if (varRefExpr.getType() != BTypes.typeXML) {
+            BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr, SemanticErrors.INCOMPATIBLE_TYPES,
+                    BTypes.typeXML, varRefExpr.getType());
+        }
+
+        Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
+        if (indexExpr == null) {
+            if (xmlAttributesRefExpr.isLHSExpr()) {
+                BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr,
+                        SemanticErrors.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
+            }
+            xmlAttributesRefExpr.setType(BTypes.typeXMLAttributes);
+            return;
+        }
+
+        xmlAttributesRefExpr.setType(BTypes.typeString);
+        indexExpr.accept(this);
+        if (indexExpr instanceof XMLQNameExpr) {
+            ((XMLQNameExpr) indexExpr).setUsedInXML(true);
+            return;
+        }
+
+        if (indexExpr.getType() != BTypes.typeString) {
+            BLangExceptionHelper.throwSemanticError(indexExpr, SemanticErrors.NON_STRING_MAP_INDEX,
+                    indexExpr.getType());
+        }
+        populateNamespaceMap(xmlAttributesRefExpr);
+    }
+
+    @Override
+    public void visit(XMLQNameExpr xmlQNameRefExpr) {
+        if (xmlQNameRefExpr.isLHSExpr()) {
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.XML_QNAME_UPDATE_NOT_ALLOWED);
+        }
+        NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(xmlQNameRefExpr.getPrefix());
+        BLangSymbol symbol = currentScope.resolve(nsSymbolName);
+
+        if (symbol == null) {
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.UNDEFINED_NAMESPACE,
+                    xmlQNameRefExpr.getPrefix());
+        }
+        String namepsaceUri = ((NamespaceDeclaration) symbol).getNamespaceUri();
+        xmlQNameRefExpr.setNamepsaceUri(namepsaceUri);
+        xmlQNameRefExpr.setType(BTypes.typeString);
+    }
+
+    @Override
     public void visit(TypeCastExpression typeCastExpr) {
         // Evaluate the expression and set the type
         boolean isMultiReturn = typeCastExpr.isMultiReturnExpr();
@@ -2369,6 +2420,24 @@ public class SemanticAnalyzer implements NodeVisitor {
         nullLiteral.setType(BTypes.typeNull);
     }
 
+    @Override
+    public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
+        namespaceDeclarationStmt.getNamespaceDclr().accept(this);
+    }
+
+    @Override
+    public void visit(NamespaceDeclaration namespaceDclr) {
+        // Check whether this namespace is already defined, if not define it.
+        NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(namespaceDclr.getPrefix());
+
+        BLangSymbol nsSymbol = currentScope.resolve(nsSymbolName);
+        if (nsSymbol != null && nsSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+            BLangExceptionHelper.throwSemanticError(namespaceDclr, SemanticErrors.REDECLARED_SYMBOL,
+                    namespaceDclr.getPrefix());
+        }
+
+        currentScope.define(nsSymbolName, namespaceDclr);
+    }
 
     // Private methods.
 
@@ -2787,13 +2856,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to match the callable unit with invocation (check whether parameters map, do cast if applicable).
      *
-     * @param callableIExpr     invocation expression
-     * @param symbolName        callable symbol name
-     * @param callableSymbol    matching symbol
-     * @return  callableSymbol  matching symbol
+     * @param callableIExpr  invocation expression
+     * @param symbolName     callable symbol name
+     * @param callableSymbol matching symbol
+     * @return callableSymbol  matching symbol
      */
     private BLangSymbol matchAndUpdateArguments(AbstractExpression callableIExpr,
-                                                      CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
+                                                CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
         if (callableSymbol == null) {
             return null;
         }
@@ -3636,6 +3705,38 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     /**
+     * Populate the namespace map of a {@link XMLAttributesRefExpr}.
+     * Namespaces are looked-up in the scopes visible to the provided expression.
+     *
+     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the namespaces
+     */
+    private void populateNamespaceMap(XMLAttributesRefExpr xmlAttributesRefExpr) {
+        Map<String, String> namespaces = new HashMap<String, String>();
+        SymbolScope scope = currentScope;
+        while (true) {
+            for (Entry<SymbolName, BLangSymbol> symbols : scope.getSymbolMap().entrySet()) {
+                SymbolName symbolName = symbols.getKey();
+                if (!(symbolName instanceof NamespaceSymbolName)) {
+                    continue;
+                }
+
+                NamespaceDeclaration namespaceDecl = (NamespaceDeclaration) symbols.getValue();
+                if (!namespaceDecl.isDefaultNamespace() && !namespaces.containsKey(namespaceDecl.getPrefix())
+                        && !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
+                    namespaces.put(namespaceDecl.getPrefix(), namespaceDecl.getNamespaceUri());
+                }
+            }
+
+            if (scope instanceof BLangPackage) {
+                break;
+            }
+            scope = scope.getEnclosingScope();
+        }
+
+        xmlAttributesRefExpr.setNamespaces(namespaces);
+    }
+
+    /**
      * This class holds the results of the type assignability check.
      *
      * @since 0.88
@@ -3644,5 +3745,4 @@ public class SemanticAnalyzer implements NodeVisitor {
         boolean assignable;
         Expression expression;
     }
-
 }
