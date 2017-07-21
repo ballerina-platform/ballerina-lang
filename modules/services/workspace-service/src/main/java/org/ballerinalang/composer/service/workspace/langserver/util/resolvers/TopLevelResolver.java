@@ -5,6 +5,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
@@ -43,6 +44,9 @@ public class TopLevelResolver extends AbstractItemResolver {
                     ItemResolverConstants.ANNOTATION_DEFINITION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.XMLNS,
                     ItemResolverConstants.NAMESPACE_DECLARATION_TEMPLATE);
+
+            completionItems.addAll(
+                    resolvers.get(GlobalScope.class).resolveItems(dataModel, symbols, resolvers));
         }
         if (errorContextResolver instanceof PackageNameContextResolver) {
             completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
