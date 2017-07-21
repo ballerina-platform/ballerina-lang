@@ -71,7 +71,7 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public String getProtocolPackage() {
-        return Constants.PROTOCOL_PACKAGE_WEBSOCKET;
+        return Constants.WEBSOCKET_PACKAGE_PATH;
     }
 
     @Override

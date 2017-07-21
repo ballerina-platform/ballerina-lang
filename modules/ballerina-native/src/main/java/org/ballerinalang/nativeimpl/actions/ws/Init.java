@@ -87,7 +87,7 @@ public class Init extends AbstractWebSocketAction {
 
         // Setting parent service to client service if parent service is a WS service.
         WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
-        if (parentService != null && parentService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
+        if (parentService != null && parentService.getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
             WebSocketServicesRegistry.getInstance().
                     setParentServiceToClientService(clientServiceName, parentService);
 

@@ -74,6 +74,7 @@ public class BLangProgramRunner {
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
             // Invoke service init function
+            bContext.setServiceInfo(serviceInfo);
             BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());

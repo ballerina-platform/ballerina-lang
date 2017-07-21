@@ -95,10 +95,11 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
 
     private ResourceInfo getResource(ServiceInfo service, String annotationName) {
         for (ResourceInfo resource : service.getResourceInfoEntries()) {
-            if (resource.getAnnotationAttachmentInfo(Constants.WS_PACKAGE_PATH, annotationName) != null) {
+            if (resource.getAnnotationAttachmentInfo(Constants.WEBSOCKET_PACKAGE_PATH, annotationName) != null) {
                 return resource;
             }
         }
-        return null;
+
+        throw new BallerinaException("Cannot find a resource for annotation: " + annotationName);
     }
 }

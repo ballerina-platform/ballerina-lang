@@ -19,8 +19,8 @@
 package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.ServerConnector;
@@ -54,7 +54,7 @@ public class WebSocketServicesRegistry {
      * @param service service to register.
      */
     public void registerServiceEndpoint(ServiceInfo service) {
-        if (!service.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
+        if (!service.getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
             return;
         }
         boolean isClientService = isWebSocketClientService(service);
@@ -97,7 +97,7 @@ public class WebSocketServicesRegistry {
      * @param clientService {@link ServiceInfo} of the client service.
      */
     public void registerClientService(ServiceInfo clientService) {
-        if (!clientService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
+        if (!clientService.getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
             return;
         }
 
@@ -138,7 +138,7 @@ public class WebSocketServicesRegistry {
      * @param service service to unregister.
      */
     public void unregisterService(ServiceInfo service) {
-        if (!service.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
+        if (!service.getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
             return;
         }
         String upgradePath = findFullWebSocketUpgradePath(service);
@@ -231,11 +231,11 @@ public class WebSocketServicesRegistry {
         // Find Base path for WebSocket
         String serviceName = service.getName();
         String basePath;
-        AnnotationAttachmentInfo configAnnotationInfo = service.getAnnotationAttachmentInfo(
+        AnnAttachmentInfo configAnnotationInfo = service.getAnnotationAttachmentInfo(
                 org.ballerinalang.services.dispatchers.http.Constants.HTTP_PACKAGE_PATH,
                 org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_NAME_CONFIG);
         if (configAnnotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeBasePathValue = configAnnotationInfo.getAnnotationAttributeValue
+            AnnAttributeValue annotationAttributeBasePathValue = configAnnotationInfo.getAttributeValue
                     (org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
                     !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
@@ -251,12 +251,12 @@ public class WebSocketServicesRegistry {
 
         // Find WebSocket Upgrade Path.
         String webSocketUpgradePath;
-        AnnotationAttachmentInfo webSocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
-                Constants.PROTOCOL_PACKAGE_WEBSOCKET, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
+        AnnAttachmentInfo webSocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
+                Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
         if (webSocketUpgradePathAnnotation != null &&
-                webSocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
+                webSocketUpgradePathAnnotation.getAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
             webSocketUpgradePath = webSocketUpgradePathAnnotation.
-                    getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue();
+                    getAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue();
         } else {
             webSocketUpgradePath = service.getName();
         }
@@ -267,8 +267,8 @@ public class WebSocketServicesRegistry {
     }
 
     private boolean isWebSocketClientService(ServiceInfo service) {
-        AnnotationAttachmentInfo annotation = service.getAnnotationAttachmentInfo(
-                Constants.PROTOCOL_PACKAGE_WEBSOCKET, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
+        AnnAttachmentInfo annotation = service.getAnnotationAttachmentInfo(
+                Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
         if (annotation == null) {
             return false;
         }
