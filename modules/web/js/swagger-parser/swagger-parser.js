@@ -121,7 +121,7 @@ class SwaggerParser {
      */
     createHttpConfigAnnotation(serviceDefinition) {
         const configAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
-            HTTP_PACKAGE, 'config');
+            HTTP_PACKAGE, 'configuration');
         if (!_.isNil(this._swaggerJson.basePath)) {
             const basePathBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.basePath });
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathBValue);

@@ -391,7 +391,7 @@ public class SwaggerServiceMapper {
      */
     private void parseConfigAnnotationAttachment(Service service, Swagger swagger) {
         Optional<AnnotationAttachment> httpConfigAnnotationAttachment = Arrays.stream(service.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "config".equals(a.getName()))
+                .filter(a -> this.checkIfHttpAnnotation(a) && "configuration".equals(a.getName()))
                 .findFirst();
         if (httpConfigAnnotationAttachment.isPresent()) {
             if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("basePath")) {
