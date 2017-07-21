@@ -146,7 +146,10 @@ class TransformExpanded extends React.Component {
         const assignmentStmtTarget = self.getParentAssignmentStmt(connection.targetReference);
 
         const assignmentStmtSource = connection.sourceReference;
-        assignmentStmtTarget.getRightExpression().addChild(assignmentStmtSource.getRightExpression());
+        let funcNode = assignmentStmtTarget.getRightExpression();
+        let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
+                                            (param) => { return param.name == connection.targetProperty[0]});
+        funcNode.children[index] = assignmentStmtSource.getRightExpression();
         //remove the source assignment statement since it is now included in the target assignment statement.
         const transformStmt = assignmentStmtSource.getParent();
         transformStmt.removeChild(assignmentStmtSource);
@@ -363,36 +366,35 @@ class TransformExpanded extends React.Component {
         }
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        } else {
-            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
-            _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(
-                        functionInvocationExpression, expression, func, i, statement);
-                } else {
-                    let target;
-                    let source;
-                    if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
-                    //if parameter is a key value expression, iterate each expression and draw connections
-                    _.forEach(expression.children, (propParam) => {
-                        source = this.getConnectionProperties('source', propParam.children[1]);
-                        target = this.getConnectionProperties('target', func.getParameters()[i]);
-                        _.merge(target, funcTarget); // merge parameter props with function props
-                        target.targetProperty.push(propParam.children[0].getVariableName());
-                        let typeDef = _.find(this.predefinedStructs, { typeName: func.getParameters()[i].type});
-                        let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
-                        target.targetType.push(propType.type);
-                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                    });
-                    } else {
-                       target = this.getConnectionProperties('target', func.getParameters()[i]);
-                       _.merge(target, funcTarget); // merge parameter props with function props
-                       source = this.getConnectionProperties('source', expression);
-                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                    }
-                }
-            });
         }
+        const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+        _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
+            if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                this.drawInnerFunctionInvocationExpression(
+                    functionInvocationExpression, expression, func, i, statement);
+            } else {
+                let target;
+                let source;
+                if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
+                //if parameter is a key value expression, iterate each expression and draw connections
+                _.forEach(expression.children, (propParam) => {
+                    source = this.getConnectionProperties('source', propParam.children[1]);
+                    target = this.getConnectionProperties('target', func.getParameters()[i]);
+                    _.merge(target, funcTarget); // merge parameter props with function props
+                    target.targetProperty.push(propParam.children[0].getVariableName());
+                    let typeDef = _.find(this.predefinedStructs, { typeName: func.getParameters()[i].type});
+                    let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
+                    target.targetType.push(propType.type);
+                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                });
+                } else {
+                   target = this.getConnectionProperties('target', func.getParameters()[i]);
+                   _.merge(target, funcTarget); // merge parameter props with function props
+                   source = this.getConnectionProperties('source', expression);
+                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                }
+            }
+        });
 
         if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
@@ -952,7 +954,7 @@ class TransformExpanded extends React.Component {
 
         return (
             <div id='transformOverlay' className='transformOverlay'>
-                <div id={'transformOverlay-content'} className='transformOverlay-content'
+                <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay-content'
                     ref={div => this.transformOverlayContentDiv=div }
                     onMouseOver={this.onTransformDropZoneActivate}
                     onMouseOut={this.onTransformDropZoneDeactivate}>

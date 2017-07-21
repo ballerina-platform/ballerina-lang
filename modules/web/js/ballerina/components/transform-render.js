@@ -34,7 +34,7 @@ class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback, container) {
         this.container = container;
         this.references = [];
-        this.viewId = 'transformer';
+        this.viewId = container.attr("id");
         this.contextMenu = 'transformContextMenu';
         this.jsTreePrefix = 'jstree-container';
         this.viewIdSeperator = '___';
@@ -408,8 +408,10 @@ class TransformRender {
 
         if (isSourceExists && isTargetExists) {
             for (var i = 0; i < connection.sourceProperty.length; i++) {
-                sourceId += this.idNameSeperator
-                + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+                if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
+                    sourceId += this.idNameSeperator
+                        + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+                }
             }
             if (connection.sourceStruct != connection.sourceProperty[0]) {
                 sourceId += anchorEnd;
