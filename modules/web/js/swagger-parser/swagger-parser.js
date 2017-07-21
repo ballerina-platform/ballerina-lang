@@ -127,11 +127,6 @@ class SwaggerParser {
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathBValue);
         }
 
-        if (!_.isNil(this._swaggerJson.info.title)) {
-            const titleBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.title });
-            SwaggerParser.setAnnotationAttribute(configAnnotation, 'title', titleBValue);
-        }
-
         if (!_.isNil(this._swaggerJson.info.version)) {
             const versionBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.version });
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'version', versionBValue);

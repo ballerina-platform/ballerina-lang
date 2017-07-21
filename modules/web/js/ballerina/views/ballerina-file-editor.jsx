@@ -120,6 +120,7 @@ class BallerinaFileEditor extends React.Component {
                 this.setState({
                     activeView: DESIGN_VIEW,
                 });
+                this.resetSwaggerView();
             }
         }, this);
         // Resize the canvas
