@@ -1,21 +1,6 @@
-//The datatable type is used to hold tabular data, such as those returned from
-//an SQL database query and provides cursor based access to the data.
-//Use the following sql scripts to create table and
-// sample data in a mysql database.
-//
-//create table employees (
-//    id int,
-//    name varchar(25),
-//    salary double,
-//    status boolean,
-//    birthdate date,
-//    birthtime time,
-//    updated times tamp
-//);
-//
-//insert into employees values(1, 'John', 1050.50, false,
-//'1990-12-31', '11:30:45', '2007-05-23 09:15:28');
-//
-//insert into employees values(2, 'Anne', 4060.50, true, '1999-12-31',
-//'13:40:24', '2017-05-23 09:15:28');
+//XML to JSON can be done using xmls:toJSON function. This function takes
+//the xml to be converted and struct of options as arguments. The options
+//struct has two fields, attributePrefix which is the prefix to add to the key,
+//to identify an xml attribute where default value is '@'. And preserveNamespaces
+//to indicate whether to preserve namespace prefixes when converting or not.
 
