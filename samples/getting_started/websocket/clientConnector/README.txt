@@ -1,1 +1,1 @@
-./ballerina run service ../samples/websocket/clientConnector/clientService.bal ../samples/websocket/clientConnector/serverConnector.bal
+./ballerina run ../samples/websocket/clientConnector/clientService.bal ../samples/websocket/clientConnector/serverConnector.bal

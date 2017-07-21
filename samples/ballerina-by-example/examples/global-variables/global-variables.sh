@@ -1,4 +1,4 @@
-$ ballerina run main global-variables.bal
+$ ballerina run global-variables.bal
 98
 This is a sample text
 

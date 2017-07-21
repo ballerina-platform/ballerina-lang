@@ -1,3 +1,3 @@
-$ ballerina run main transactions.bal
+$ ballerina run transactions.bal
 Inserted count:1
 Transaction committed

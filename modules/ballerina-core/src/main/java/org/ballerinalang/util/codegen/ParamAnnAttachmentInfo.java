@@ -35,6 +35,14 @@ public class ParamAnnAttachmentInfo {
         this.paramIdex = paramIdex;
     }
 
+    public int getParamIdex() {
+        return paramIdex;
+    }
+
+    public AnnAttachmentInfo[] getAnnAttachmentInfos() {
+        return attachmentList.toArray(new AnnAttachmentInfo[0]);
+    }
+
     public void addAnnotationAttachmentInfo(AnnAttachmentInfo attachmentInfo) {
         attachmentList.add(attachmentInfo);
     }
