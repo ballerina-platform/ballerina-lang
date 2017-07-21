@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
+import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 
 import java.util.Objects;
 /**
@@ -28,58 +27,53 @@ import java.util.Objects;
  */
 public class WorkerDataChannelRefCPEntry implements ConstantPoolEntry {
     // Index to a valid Package entry in the constant pool
-    private int packageCPIndex;
+    private int uniqueNameCPIndex;
+    private String uniqueName;
 
-    // Index to a valid name index in the constant pool
-    private int nameCPIndex;
+    private WorkerDataChannelInfo workerDataChannelInfo;
 
-    private BType[] types;
-
-    private WorkerDataChannel workerDataChannel;
-
-    public WorkerDataChannelRefCPEntry(int packageCPIndex, int nameCPIndex) {
-        this.packageCPIndex = packageCPIndex;
-        this.nameCPIndex = nameCPIndex;
+    public WorkerDataChannelRefCPEntry(int uniqueNameCPIndex, String uniqueName) {
+        this.uniqueNameCPIndex = uniqueNameCPIndex;
+        this.uniqueName = uniqueName;
     }
 
-    public int getPackageCPIndex() {
-        return packageCPIndex;
+    public int getUniqueNameCPIndex() {
+        return uniqueNameCPIndex;
     }
 
-    public int getNameCPIndex() {
-        return nameCPIndex;
+    public void setUniqueNameCPIndex(int uniqueNameCPIndex) {
+        this.uniqueNameCPIndex = uniqueNameCPIndex;
     }
 
-    public WorkerDataChannel getWorkerDataChannel() {
-        return workerDataChannel;
+    public String getUniqueName() {
+        return uniqueName;
     }
 
-    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-        this.workerDataChannel = workerDataChannel;
+    public void setUniqueName(String uniqueName) {
+        this.uniqueName = uniqueName;
+    }
+
+    public WorkerDataChannelInfo getWorkerDataChannelInfo() {
+        return workerDataChannelInfo;
+    }
+
+    public void setWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo) {
+        this.workerDataChannelInfo = workerDataChannelInfo;
     }
 
     public EntryType getEntryType() {
-        return EntryType.CP_ENTRY_FUNCTION_REF;
+        return EntryType.CP_ENTRY_WRKR_DATA_CHNL_REF;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(packageCPIndex, nameCPIndex);
+        return Objects.hash(uniqueNameCPIndex, uniqueName);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof WorkerDataChannelRefCPEntry && packageCPIndex ==
-                (((WorkerDataChannelRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((WorkerDataChannelRefCPEntry) obj).nameCPIndex;
-    }
-
-
-    public BType[] getTypes() {
-        return types;
-    }
-
-    public void setTypes(BType[] types) {
-        this.types = types;
+        return obj instanceof WorkerDataChannelRefCPEntry && uniqueNameCPIndex ==
+                (((WorkerDataChannelRefCPEntry) obj).uniqueNameCPIndex) &&
+                uniqueName == ((WorkerDataChannelRefCPEntry) obj).uniqueName;
     }
 }

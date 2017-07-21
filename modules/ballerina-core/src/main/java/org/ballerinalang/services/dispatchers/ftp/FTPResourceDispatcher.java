@@ -61,7 +61,7 @@ public class FTPResourceDispatcher implements ResourceDispatcher {
             log.debug("Starting to find resource in the file service " + service.getName() + " to "
                     + "deliver the message");
         }
-        ResourceInfo[] resourceInfoList = service.getResourceInfoList();
+        ResourceInfo[] resourceInfoList = service.getResourceInfoEntries();
         if (resourceInfoList.length != 1) {
             throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FTP +
                                          "' has to have only one resource associated to itself. " + "Found " +

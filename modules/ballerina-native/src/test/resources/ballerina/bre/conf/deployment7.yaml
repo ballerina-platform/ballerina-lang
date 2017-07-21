@@ -33,13 +33,13 @@ ballerina.config:
         serviceInterceptors:
           -
             packageName: foo.bar
-            archiveName: foo.bmz
+            archiveName: foo.balx
           -
-            packageName: ballerina.test.intercept.req1
-            archiveName: req1.bmz
+            packageName: bal.test.intercept.req1
+            archiveName: req1.balx
           -
-            packageName: ballerina.test.intercept.res1
-            archiveName: res1.bmz
+            packageName: bal.test.intercept.res1
+            archiveName: res1.balx
 
 
 wso2.securevault:
