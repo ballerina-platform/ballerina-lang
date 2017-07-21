@@ -15,23 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.codegen;
+package org.ballerinalang.util.codegen.attributes;
 
 /**
- * {@code ParamAnnotationAttributeInfo} contains metadata of Ballerina annotations attached to
- * function/resource/action/connector nodes.
+ * {@code AttributeInfoPool} represents a {@code AttributeInfo} entry holder.
  *
- * @since 0.87
+ * @since 0.90
  */
-public class ParamAnnotationAttributeInfo implements AttributeInfo {
+public interface AttributeInfoPool {
 
-    private ParamAnnotationAttachmentInfo[] attachmentInfoArray;
+    AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind);
 
-    public ParamAnnotationAttributeInfo(int paramCount) {
-        attachmentInfoArray = new ParamAnnotationAttachmentInfo[paramCount];
-    }
+    void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo);
 
-    public void addParamAnnotationAttachmentInfo(int paramIndex, ParamAnnotationAttachmentInfo attachmentInfo) {
-        attachmentInfoArray[paramIndex] = attachmentInfo;
-    }
+    AttributeInfo[] getAttributeInfoEntries();
 }

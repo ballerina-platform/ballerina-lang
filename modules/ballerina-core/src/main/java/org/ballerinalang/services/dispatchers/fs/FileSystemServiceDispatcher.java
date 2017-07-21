@@ -20,8 +20,8 @@ package org.ballerinalang.services.dispatchers.fs;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -69,14 +69,14 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        AnnotationAttachmentInfo configInfo =
+        AnnAttachmentInfo configInfo =
                 service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME, Constants.ANNOTATION_CONFIG);
-        AnnotationAttachmentInfo sortInfo =
+        AnnAttachmentInfo sortInfo =
                 service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME, Constants.ANNOTATION_SORT);
-        AnnotationAttachmentInfo postProcessInfo =
+        AnnAttachmentInfo postProcessInfo =
                 service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME,
                                                     Constants.ANNOTATION_POST_PROCESS);
-        AnnotationAttachmentInfo concurrencyInfo =
+        AnnAttachmentInfo concurrencyInfo =
                 service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME,
                                                     Constants.ANNOTATION_CONCURRENCY);
         if (configInfo != null) {
@@ -121,7 +121,7 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         }
     }
 
-    private Map<String, String> getServerConnectorParamMap(AnnotationAttachmentInfo info) {
+    private Map<String, String> getServerConnectorParamMap(AnnAttachmentInfo info) {
         Map<String, String> convertedMap = new HashMap<>();
         List<String> annotations = new ArrayList<>();
         annotations.add(Constants.ANNOTATION_DIR_URI);
@@ -132,7 +132,7 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         annotations.add(Constants.ANNOTATION_FILE_COUNT);
 
         for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
+            AnnAttributeValue value = info.getAttributeValue(data);
             if (value != null) {
                 convertedMap.put(data, value.getStringValue());
             }
@@ -140,20 +140,20 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         return convertedMap;
     }
 
-    private void addSortProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
+    private void addSortProperties(Map<String, String> elements, AnnAttachmentInfo info) {
         List<String> annotations = new ArrayList<>();
         annotations.add(Constants.ANNOTATION_SORT_ATTRIBUTE);
         annotations.add(Constants.ANNOTATION_SORT_ASCENDING);
 
         for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
+            AnnAttributeValue value = info.getAttributeValue(data);
             if (value != null) {
                 elements.put(data, value.getStringValue());
             }
         }
     }
 
-    private void addPostProcessProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
+    private void addPostProcessProperties(Map<String, String> elements, AnnAttachmentInfo info) {
         List<String> annotations = new ArrayList<>();
         annotations.add(Constants.ANNOTATION_ACTION_AFTER_PROCESS);
         annotations.add(Constants.ANNOTATION_ACTION_AFTER_FAILURE);
@@ -163,20 +163,20 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         annotations.add(Constants.ANNOTATION_CREATE_DIR);
 
         for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
+            AnnAttributeValue value = info.getAttributeValue(data);
             if (value != null) {
                 elements.put(data, value.getStringValue());
             }
         }
     }
 
-    private void addConcurrencyProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
+    private void addConcurrencyProperties(Map<String, String> elements, AnnAttachmentInfo info) {
         List<String> annotations = new ArrayList<>();
         annotations.add(Constants.ANNOTATION_PARALLEL);
         annotations.add(Constants.ANNOTATION_THREAD_POOL_SIZE);
 
         for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
+            AnnAttributeValue value = info.getAttributeValue(data);
             if (value != null) {
                 elements.put(data, value.getStringValue());
             }

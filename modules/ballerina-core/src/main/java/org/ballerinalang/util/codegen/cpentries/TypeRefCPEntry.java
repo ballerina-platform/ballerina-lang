@@ -26,22 +26,38 @@ import java.util.Objects;
  *
  * @since 0.88
  */
-public class TypeCPEntry implements ConstantPoolEntry {
+public class TypeRefCPEntry implements ConstantPoolEntry {
+
+    private int typeSigCPIndex;
+    private String typeSig;
 
     // Index to a valid name index in the constant pool
     private BType type;
 
-    public TypeCPEntry(BType type) {
-        this.type = type;
+    public TypeRefCPEntry(int typeSigCPIndex, String typeSig) {
+        this.typeSigCPIndex = typeSigCPIndex;
+        this.typeSig = typeSig;
+    }
+
+    public int getTypeSigCPIndex() {
+        return typeSigCPIndex;
+    }
+
+    public String getTypeSig() {
+        return typeSig;
     }
 
     public BType getType() {
         return type;
     }
 
+    public void setType(BType type) {
+        this.type = type;
+    }
+
     @Override
     public EntryType getEntryType() {
-        return EntryType.CP_ENTRY_TYPE;
+        return EntryType.CP_ENTRY_TYPE_REF;
     }
 
     @Override
@@ -51,6 +67,6 @@ public class TypeCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof TypeCPEntry && type.equals(((TypeCPEntry) obj).type);
+        return obj instanceof TypeRefCPEntry && typeSig.equals(((TypeRefCPEntry) obj).typeSig);
     }
 }

@@ -15,19 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.codegen;
+package org.ballerinalang.util.codegen.cpentries;
 
 /**
- * {@code AttributeInfo} contains metadata of a construct in Ballerina.
+ * {@code ConstantPool} represents a table of symbolic information about constants, functions, actions, connectors,
+ * structs etc.
  *
- * // TODO Improve this explanation
- *
- * @since 0.87
+ * @since 0.90
  */
-public interface AttributeInfo {
+public interface ConstantPool {
 
-    String CODE_ATTRIBUTE = "CodeAttribute";
-    String ANNOTATIONS_ATTRIBUTE = "AnnotationsAttribute";
-    String PARAMETER_ANNOTATIONS_ATTRIBUTE = "ParameterAnnotationsAttribute";
-    String LOCAL_VARIABLES_ATTRIBUTE = "LocalVariableAttribute";
+    int addCPEntry(ConstantPoolEntry cpEntry);
+
+    ConstantPoolEntry getCPEntry(int index);
+
+    int getCPEntryIndex(ConstantPoolEntry cpEntry);
+
+    ConstantPoolEntry[] getConstPoolEntries();
 }

@@ -38,8 +38,7 @@ public class CommentStmtTest {
     @Test(description = "Test the comment statement in the function body")
     public void testCommentInFunctionBody() { //todo
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
-        Statement[] statements = bLangProgram.getLibraryPackages()[0]
-                .getFunctions()[0].getCallableUnitBody().getStatements();
+        Statement[] statements = bLangProgram.getEntryPackage().getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.length, 5, "statement count mismatched");
         Assert.assertTrue(statements[0] instanceof CommentStmt, "1st statement is not a comment statement");

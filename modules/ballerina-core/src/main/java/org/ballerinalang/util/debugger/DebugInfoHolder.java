@@ -49,7 +49,7 @@ public class DebugInfoHolder {
     }
 
     public void init(ProgramFile programFile) {
-        Arrays.stream(programFile.getPackageInfoCollection()).forEach(p -> processPkgInfo(p));
+        Arrays.stream(programFile.getPackageInfoEntries()).forEach(p -> processPkgInfo(p));
     }
 
     /**

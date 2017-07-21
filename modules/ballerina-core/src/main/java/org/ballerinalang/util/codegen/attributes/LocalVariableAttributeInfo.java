@@ -15,7 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.codegen;
+package org.ballerinalang.util.codegen.attributes;
+
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +33,11 @@ public class LocalVariableAttributeInfo implements AttributeInfo {
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
 
+    protected List<LocalVariableInfo> localVariables = new ArrayList<>();
+
     public LocalVariableAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;
     }
-
-    protected List<LocalVariableInfo> localVariables = new ArrayList<>();
 
     public List<LocalVariableInfo> getLocalVariables() {
         return localVariables;
@@ -51,5 +53,15 @@ public class LocalVariableAttributeInfo implements AttributeInfo {
 
     public LocalVariableInfo getLocalVariableDetails(int index) {
         return this.localVariables.get(index);
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.LOCAL_VARIABLES_ATTRIBUTE;
+    }
+
+    @Override
+    public int getAttributeNameIndex() {
+        return attributeNameIndex;
     }
 }
