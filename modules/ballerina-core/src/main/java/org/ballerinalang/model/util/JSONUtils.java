@@ -54,7 +54,9 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -348,6 +350,28 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
+
+    /**
+     * Check whether provided JSON object is a JSON Array.
+     *
+     * @param json JSON to execute array condition.
+     * @return returns true if provided JSON is a JSON Array.
+     */
+    public static boolean isJSONArray(BJSON json) {
+        JsonNode jsonNode = json.value();
+        return jsonNode.isArray();
+    }
+
+    /**
+     * Returns the size of JSON Array.
+     *
+     * @param json JSON to calculate array size.
+     * @return returns integer that represents size of JSON Array.
+     */
+    public static int getJSONArrayLength(BJSON json) {
+        JsonNode jsonNode = json.value();
+        return jsonNode.size();
+    }
     
     /**
      * Get an element from a JSON array.
@@ -632,6 +656,31 @@ public class JSONUtils {
         }
 
         return bStruct;
+    }
+
+    /**
+     * Returns the keys of a JSON as a {@link BStringArray}.
+     * 
+     * @param json {@link BJSON} to get the keys
+     * @return Keys of the JSON as a {@link BStringArray}
+     */
+    public static BStringArray getKeys(BJSON json) {
+        if (json == null) {
+            return new BStringArray();
+        }
+
+        JsonNode node = json.value();
+
+        if (node.getNodeType() != JsonNodeType.OBJECT) {
+            return new BStringArray();
+        }
+
+        List<String> keys = new ArrayList<String>();
+        Iterator<String> keysItr = ((ObjectNode) node).fieldNames();
+        while (keysItr.hasNext()) {
+            keys.add(keysItr.next());
+        }
+        return new BStringArray(keys.toArray(new String[keys.size()]));
     }
 
     /**

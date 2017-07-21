@@ -52,7 +52,6 @@ public class VMDebugSession implements DebugSessionObserver {
     @Override
     public void addContext(Context bContext) {
         String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-//        String threadId = "main"; //TODO use above line
         bContext.setThreadId(threadId);
         //TODO check if that thread id already exist in the map
         this.contextMap.put(threadId, bContext);
@@ -107,6 +106,16 @@ public class VMDebugSession implements DebugSessionObserver {
      */
     public void startDebug() {
         this.contextMap.values().stream().forEach(c -> c.getDebugInfoHolder().resume());
+    }
+
+    /**
+     * Method to stop debugging process in all the threads.
+     */
+    public void stopDebug() {
+        this.contextMap.values().stream().forEach(c -> {
+            c.getDebugInfoHolder().clearDebugLocations();
+            c.getDebugInfoHolder().resume();
+        });
     }
 
     /**

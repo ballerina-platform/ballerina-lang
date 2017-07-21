@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.util.parser.BallerinaParser;
+import org.ballerinalang.util.parser.BallerinaParser.AttributeContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -846,7 +847,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START,
-                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.variableReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN,
@@ -857,12 +858,12 @@ public class WhiteSpaceUtil {
     }
 
     public static WhiteSpaceDescriptor getFunctionInvocationExprWS(CommonTokenStream tokenStream,
-                                                           BallerinaParser.FunctionInvocationExpressionContext ctx) {
+                                                      BallerinaParser.FunctionInvocationReferenceContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START,
-                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.variableReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN,
@@ -961,16 +962,6 @@ public class WhiteSpaceUtil {
 //                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
 //        return ws;
 //    }
-
-    public static WhiteSpaceDescriptor getBacktickStringWS(CommonTokenStream tokenStream,
-                                                           BallerinaParser.BacktickStringContext ctx) {
-        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BACK_TICK_LIT_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BACK_TICK_LIT_FOLLOWING_WHITESPACE,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
-        return ws;
-    }
 
     public static WhiteSpaceDescriptor getTypeCastingExpWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.TypeCastingExpressionContext ctx) {
@@ -1312,6 +1303,19 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.index().expression().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.index().stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getXMLAttributeWS(CommonTokenStream tokenStream, AttributeContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.XML_ATTRIBUTE_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.XML_ATTRIBUTE_KEY_EXP_TO_COLON,
+                getWhitespaceToRight(tokenStream, ctx.xmlQualifiedName().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.XML_ATTRIBUTE_EQUAL_OPERATOR_TO_VAL_EXP,
+                getWhitespaceToLeft(tokenStream, ctx.xmlQuotedString().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.XML_ATTRIBUTE_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 }

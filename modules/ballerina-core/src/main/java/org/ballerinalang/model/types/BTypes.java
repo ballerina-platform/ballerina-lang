@@ -49,6 +49,7 @@ public class BTypes {
     public static BType typeConnector;
     public static BType typeNull;
     public static BType typeXMLAttributes;
+    public static BType typeType;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -72,6 +73,7 @@ public class BTypes {
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
+        globalScope.define(typeType.getSymbolName(), typeType);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
@@ -88,6 +90,7 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
         builtInTypeNames.add(TypeConstants.ANY_TNAME);
         builtInTypeNames.add(TypeConstants.NULL_TNAME);
+        builtInTypeNames.add(TypeConstants.TYPE_TNAME);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -110,6 +113,7 @@ public class BTypes {
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
+        typeType = new BTypeType(TypeConstants.TYPE_TNAME, null, globalScope);
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
@@ -146,6 +150,32 @@ public class BTypes {
             }
         }
 
+        // If bType is null, check whether this is Function pointer type.
+        if (bType == null && typeName instanceof FunctionTypeName) {
+            FunctionTypeName functionTypeName = (FunctionTypeName) typeName;
+            BType[] paramTypes = new BType[0];
+            BType[] returnParamTypes = new BType[0];
+            if (functionTypeName.getParamTypes() != null) {
+                paramTypes = new BType[functionTypeName.getParamTypes().length];
+                int i = 0;
+                for (SimpleTypeName simpleTypeName : functionTypeName.getParamTypes()) {
+                    paramTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
+                }
+            }
+            if (functionTypeName.getReturnParamsTypes() != null) {
+                int i = 0;
+                returnParamTypes = new BType[functionTypeName.getReturnParamsTypes().length];
+                for (SimpleTypeName simpleTypeName : functionTypeName.getReturnParamsTypes()) {
+                    returnParamTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
+                }
+            }
+            BFunctionType functionType = new BFunctionType(symbolScope, paramTypes, returnParamTypes);
+            functionType.setParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnsParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnWordAvailable(functionTypeName.isReturnWordAvailable());
+            return functionType;
+        }
+
         // If bType is not null, then element type of this arrays type is available.
         // We should define the arrays type here.
         if (bType != null) {
@@ -169,7 +199,7 @@ public class BTypes {
                 return bArrayType;
             }
         }
-
+        
         throw new SemanticException(getNodeLocationStr(location) + "undefined type '" + typeName + "'");
     }
 
@@ -205,4 +235,5 @@ public class BTypes {
                 throw new IllegalStateException("Unknown type name");
         }
     }
+
 }

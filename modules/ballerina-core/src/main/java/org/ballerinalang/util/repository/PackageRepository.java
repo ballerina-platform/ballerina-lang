@@ -17,18 +17,21 @@
 */
 package org.ballerinalang.util.repository;
 
-import java.io.File;
+import org.ballerinalang.util.program.BLangPackages;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 
 /**
  * {@code PackageRepository} represents a repository of ballerina packages.
@@ -43,11 +46,6 @@ public abstract class PackageRepository {
     public abstract PackageSource loadPackage(Path packageDirPath);
 
     public abstract PackageSource loadFile(Path filePath);
-
-    //TODO implement proper fix to expose ballerina only native repo
-    public PackageRepository getSystemRepository() {
-        return systemRepo;
-    }
 
     public void setSystemRepository(PackageRepository systemRepository) {
         this.systemRepo = systemRepository;
@@ -66,15 +64,19 @@ public abstract class PackageRepository {
         Map<String, InputStream> fileStreamMap;
         try {
             fileStreamMap = Files.list(baseDirPath.resolve(packageDirPath))
-                    .filter(filePath -> filePath.toString().endsWith(".bal"))
+                    .filter(filePath -> filePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX))
                     .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(),
                             this::getInputStream));
         } catch (NoSuchFileException e) {
             throw new RuntimeException("cannot resolve package: " +
-                    packageDirPath.toString().replace(File.separator, "."), e);
+                    BLangPackages.convertToPackageName(packageDirPath).toString(), e);
+        } catch (NotDirectoryException e) {
+            throw new RuntimeException("error while resolving package: " +
+                    BLangPackages.convertToPackageName(packageDirPath).toString() +
+                    ": a file exists with the same name as the package name: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new RuntimeException("error while resolving package: " +
-                    packageDirPath.toString().replace(File.separator, "."), e);
+                    BLangPackages.convertToPackageName(packageDirPath).toString(), e);
         }
 
         return new PackageSource(packageDirPath, fileStreamMap, this);
