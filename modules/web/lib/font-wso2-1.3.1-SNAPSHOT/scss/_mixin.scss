@@ -789,6 +789,10 @@
             content:"\e655";
         }
   
+        @else if ($icon == "namespace") {
+            content:"\e740";
+        }
+  
         @else if ($icon == "nodejs") {
             content:"\e656";
         }
