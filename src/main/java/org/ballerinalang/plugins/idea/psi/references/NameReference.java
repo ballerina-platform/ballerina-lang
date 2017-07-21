@@ -85,12 +85,10 @@ public class NameReference extends BallerinaElementReference {
     @Nullable
     private PsiElement resolveInCurrentPackage() {
         IdentifierPSINode identifier = getElement();
-
         PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
         if (elementInScope != null) {
             return elementInScope;
         }
-
         PsiFile containingFile = identifier.getContainingFile();
         if (containingFile == null) {
             return null;
