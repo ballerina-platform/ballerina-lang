@@ -135,26 +135,26 @@ public class TestExecutionListener implements IExecutionListener {
      */
     private static String[] listSamples(String sampleDir) {
         String[] sampleFiles = {
-                sampleDir + File.separator + "echoService" + File.separator + "echoService.bal",
-                sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
-                sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bsz",
-                sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bsz",
-                sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bsz",
-                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bsz",
-                sampleDir + File.separator + "websocket" + File.separator + "echoServer" + File.separator + "server" +
-                        File.separator + "websocketEchoServer.bal",
-                sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
-                        "oddEvenHttpService.bal",
-                sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
-                        "oddEvenWebSocketService.bal",
-                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
-                                        "websocketEndpoint.bal",
-                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
-                                        "httpService.bal",
-                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-                        + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath(),
-                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-                        + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath()
+                sampleDir + File.separator + "echoService" + File.separator + "echoService.bal"
+//                sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
+//                sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bsz",
+//                sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bsz",
+//                sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bsz",
+//                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bsz",
+//                sampleDir + File.separator + "websocket" + File.separator + "echoServer" + File.separator + "server" +
+//                        File.separator + "websocketEchoServer.bal",
+//                sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
+//                        "oddEvenHttpService.bal",
+//                sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
+//                        "oddEvenWebSocketService.bal",
+//                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
+//                                        "websocketEndpoint.bal",
+//                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
+//                                        "httpService.bal",
+//                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
+//                        + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath(),
+//                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
+//                        + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath()
 
 
         };
