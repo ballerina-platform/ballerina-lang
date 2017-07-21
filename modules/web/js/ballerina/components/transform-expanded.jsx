@@ -791,8 +791,8 @@ class TransformExpanded extends React.Component {
             if (BallerinaASTFactory.isVariableDefinitionStatement(argument)) {
                 const arg = {
                     id: argument.getID(),
-                    type: argument.getLeftExpression().getVariableType(),
-                    name: argument.getLeftExpression().getVariableName(),
+                    type: argument.getVariableDef().getTypeName(),
+                    name: argument.getVariableDef().getName(),
                     pkgName: argument.getVariableDef().getPkgName(),
                     constraint: argument.getVariableDef().getTypeConstraint(),
                 };
@@ -830,6 +830,7 @@ class TransformExpanded extends React.Component {
             const structDef = this.getStructDefinition(arg.pkgName, arg.type);
 
             if (structDef !== undefined) {
+                arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
                 const struct = this.createType(arg.name, arg.type, structDef);
                 items.push({ name: struct.name, type: struct.typeName });
                 isStruct = true;
