@@ -1807,10 +1807,6 @@ public class BLangVM {
 
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
-                } else if (checkConstraintJSONCast(typeRefCPEntry.getType(), sf.refRegs[i])) {
-                    sf.refRegs[j] = sf.refRegs[i];
-                    sf.refRegs[k] = null;
-                    break;
                 } else if (checkCast(bRefType, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                     sf.refRegs[k] = null;
@@ -2968,10 +2964,8 @@ public class BLangVM {
     }
 
     private boolean checkConstraintJSONCast(BType targetType, BRefType value) {
-        if (targetType.getTag() == TypeTags.C_JSON_TAG &&
-                value.getType().getTag() == TypeTags.JSON_TAG &&
-                checkConstraintJSONEquivalency((BJSON) value,
-                        (BStructType) ((BJSONConstraintType) targetType).getConstraint())) {
+        if (checkConstraintJSONEquivalency((BJSON) value,
+                (BStructType) ((BJSONConstraintType) targetType).getConstraint())) {
             return true;
         }
         return false;
@@ -2991,6 +2985,11 @@ public class BLangVM {
 
         if (targetType.getTag() == TypeTags.ANY_TAG) {
             return true;
+        }
+
+        if (targetType.getTag() == TypeTags.C_JSON_TAG &&
+                sourceValue.getType().getTag() == TypeTags.JSON_TAG) {
+            return checkConstraintJSONCast(targetType, (BRefType) sourceValue);
         }
 
         // Check JSON casting
