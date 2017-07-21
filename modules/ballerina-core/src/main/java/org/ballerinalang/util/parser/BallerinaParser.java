@@ -114,7 +114,7 @@ public class BallerinaParser extends Parser {
 		"'function'", "'connector'", "'action'", "'struct'", "'annotation'", "'parameter'", 
 		"'const'", "'typemapper'", "'worker'", "'xmlns'", "'int'", "'float'", 
 		"'boolean'", "'string'", "'blob'", "'map'", "'json'", "'xml'", "'message'", 
-		"'datatable'", null, null, "'var'", "'create'", "'attach'", "'transform'", 
+		"'datatable'", "'any'", "'type'", "'var'", "'create'", "'attach'", "'transform'", 
 		"'if'", "'else'", "'iterate'", "'while'", "'continue'", "'break'", "'fork'", 
 		"'join'", "'some'", "'all'", "'timeout'", "'try'", "'catch'", "'finally'", 
 		"'throw'", "'return'", "'reply'", "'transaction'", "'abort'", "'aborted'", 
