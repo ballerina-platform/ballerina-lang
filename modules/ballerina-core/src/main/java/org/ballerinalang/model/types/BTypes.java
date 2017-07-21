@@ -150,6 +150,32 @@ public class BTypes {
             }
         }
 
+        // If bType is null, check whether this is Function pointer type.
+        if (bType == null && typeName instanceof FunctionTypeName) {
+            FunctionTypeName functionTypeName = (FunctionTypeName) typeName;
+            BType[] paramTypes = new BType[0];
+            BType[] returnParamTypes = new BType[0];
+            if (functionTypeName.getParamTypes() != null) {
+                paramTypes = new BType[functionTypeName.getParamTypes().length];
+                int i = 0;
+                for (SimpleTypeName simpleTypeName : functionTypeName.getParamTypes()) {
+                    paramTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
+                }
+            }
+            if (functionTypeName.getReturnParamsTypes() != null) {
+                int i = 0;
+                returnParamTypes = new BType[functionTypeName.getReturnParamsTypes().length];
+                for (SimpleTypeName simpleTypeName : functionTypeName.getReturnParamsTypes()) {
+                    returnParamTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
+                }
+            }
+            BFunctionType functionType = new BFunctionType(symbolScope, paramTypes, returnParamTypes);
+            functionType.setParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnsParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnWordAvailable(functionTypeName.isReturnWordAvailable());
+            return functionType;
+        }
+
         // If bType is not null, then element type of this arrays type is available.
         // We should define the arrays type here.
         if (bType != null) {
@@ -209,4 +235,5 @@ public class BTypes {
                 throw new IllegalStateException("Unknown type name");
         }
     }
+
 }

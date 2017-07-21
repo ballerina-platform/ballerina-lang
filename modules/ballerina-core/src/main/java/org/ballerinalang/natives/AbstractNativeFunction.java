@@ -19,6 +19,7 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.Identifier;
@@ -33,6 +34,7 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
@@ -75,6 +77,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private SimpleTypeName[] argTypeNames;
     private String[] argNames;
     private int tempStackFrameSize;
+    private BType bType;
 
     /**
      * Initialize a native function.
@@ -135,6 +138,34 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
             return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
+    }
+
+    @Override
+    public BType getType() {
+        if (bType == null) {
+            BFunctionType functionType = new BFunctionType(this.getSymbolScope().getEnclosingScope(), parameterTypes,
+                    returnParamTypes);
+            bType = functionType;
+        }
+        return bType;
+    }
+
+    @Override
+    public void setType(BType type) {
+    }
+
+    @Override
+    public MemoryLocation getMemoryLocation() {
+        return null;
+    }
+
+    @Override
+    public void setMemoryLocation(MemoryLocation memoryLocation) {
+    }
+
+    @Override
+    public SimpleTypeName getTypeName() {
+        return null;
     }
 
     /**

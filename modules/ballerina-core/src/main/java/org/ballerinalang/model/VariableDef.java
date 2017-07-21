@@ -27,126 +27,19 @@ import org.ballerinalang.model.types.SimpleTypeName;
  * {@code VariableDef} represent a Variable definition.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
- * a collection of built-in structured types and arrays and record type constructors.
+ * a collection of built-in structured types and arrays and record type constructors, and function pointers.
  *
  * @since 0.8.0
  */
-public class VariableDef implements BLangSymbol, Node {
-    protected NodeLocation location;
-    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
-    protected SimpleTypeName typeName;
-    protected BType type;
-    protected MemoryLocation memoryLocation;
+public interface VariableDef extends BLangSymbol, Node {
 
-    // BLangSymbol related attributes
-    protected Identifier identifier;
-    protected String pkgPath;
-    protected boolean isPublic = false;
-    protected boolean isNative = false;
-    protected SymbolName symbolName;
-    protected SymbolScope symbolScope;
+    BType getType();
 
-    public VariableDef(NodeLocation location,
-                       WhiteSpaceDescriptor whiteSpaceDescriptor,
-                       Identifier identifier,
-                       SimpleTypeName typeName,
-                       SymbolName symbolName,
-                       SymbolScope symbolScope) {
-        this.location = location;
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-        this.identifier = identifier;
-        this.symbolName = symbolName;
-        this.typeName = typeName;
-        this.symbolScope = symbolScope;
-    }
+    void setType(BType type);
 
-    public VariableDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BType type,
-                       SymbolName symbolName) {
-        this.location = location;
-        this.type = type;
-        this.symbolName = symbolName;
-    }
+    MemoryLocation getMemoryLocation();
 
-    public SimpleTypeName getTypeName() {
-        return typeName;
-    }
+    void setMemoryLocation(MemoryLocation memoryLocation);
 
-    public BType getType() {
-        return type;
-    }
-
-    public void setType(BType type) {
-        this.type = type;
-    }
-
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
-    }
-
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
-    }
-
-    // Methods in BLangSymbol interface
-
-    @Override
-    public String getName() {
-        //There are scenarios where identifier can be null
-        //in a variabledef (parameterDef in returns) hence the null check
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
-    }
-
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
-    }
-
-    @Override
-    public String getPackagePath() {
-        return pkgPath;
-    }
-
-    @Override
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    @Override
-    public boolean isNative() {
-        return isNative;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
-    }
-
-    // Methods in Node interface
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeLocation getNodeLocation() {
-        return location;
-    }
-
-    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-    }
-
-    @Override
-    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return whiteSpaceDescriptor;
-    }
+    SimpleTypeName getTypeName();
 }
