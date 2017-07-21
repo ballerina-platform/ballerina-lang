@@ -189,7 +189,7 @@ public class ConnectionManager {
                 }
             }
         } catch (Exception e) {
-            String msg = "Failed to send the request :" + e.getMessage();
+            String msg = "Failed to send the request : " + e.getMessage().toLowerCase();
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             carbonMessage.setMessagingException(messagingException);
