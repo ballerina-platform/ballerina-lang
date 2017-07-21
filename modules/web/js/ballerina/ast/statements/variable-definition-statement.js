@@ -99,12 +99,6 @@ class VariableDefinitionStatement extends Statement {
                 variableType += '[]';
             }
         }
-        if (this.getVariableDef().getTypeConstraint()) {
-            const constraint = this.getVariableDef().getTypeConstraint();
-            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
-                                  + constraint.type + '>');
-            variableType += constraintStr;
-        }
         return variableType;
     }
 
