@@ -74,38 +74,35 @@ public class ServerInstance implements Server {
      * Method to start Ballerina server given the port and bal file.
      *
      * @param port                  In which server starts.
-     * @param balFile               To be run.
      * @return ballerinaServer      Started server instance.
      * @throws BallerinaTestException
      */
-    public static ServerInstance startBallerinaServer(int port, String balFile) throws BallerinaTestException {
+    public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         ServerInstance ballerinaServer = new ServerInstance(serverZipPath, port);
 
-        String[] args = {balFile};
-        ballerinaServer.setArguments(args);
-
-        ballerinaServer.startServer();
         return ballerinaServer;
     }
 
     /**
      * Method to start Ballerina server given the bal file.
      *
-     * @param balFile               To be run.
      * @return ballerinaServer      Started server instance.
      * @throws BallerinaTestException
      */
-    public static ServerInstance startBallerinaServer(String balFile) throws BallerinaTestException {
+    public static ServerInstance initBallerinaServer() throws BallerinaTestException {
         int defaultPort = 9092;
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         ServerInstance ballerinaServer = new ServerInstance(serverZipPath, defaultPort);
 
-        String[] args = {balFile};
-        ballerinaServer.setArguments(args);
-
-        ballerinaServer.startServer();
         return ballerinaServer;
+    }
+
+    public void startBallerinaServer(String balFile) throws BallerinaTestException {
+        String[] args = {balFile};
+        setArguments(args);
+
+        startServer();
     }
 
     /**

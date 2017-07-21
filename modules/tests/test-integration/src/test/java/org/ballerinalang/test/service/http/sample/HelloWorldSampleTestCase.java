@@ -18,17 +18,12 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.Constant;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -50,15 +45,10 @@ public class HelloWorldSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test hello world sample test case invoking base path")
     public void testHelloWorldServiceByBasePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("hello"));
+        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello, World!", "Message content mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
     }
 }

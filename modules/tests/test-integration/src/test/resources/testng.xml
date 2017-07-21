@@ -30,6 +30,7 @@
         <!--</packages>-->
         <classes>
             <class name="org.ballerinalang.test.service.http.sample.HelloWorldSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
         </classes>
     </test>
 </suite>
