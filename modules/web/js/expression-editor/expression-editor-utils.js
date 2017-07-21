@@ -15,6 +15,7 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
+import log from 'log';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -144,15 +145,20 @@ class ExpressionEditor {
         });
 
         this._editor.on('blur', (event) => {
-            const text = this._editor.getSession().getValue();
-            props.setterMethod.call(props.model, text);
-            props.model.trigger('update-property-text', text, props.key);
-            props.model.trigger('focus-out');
-            if (!this.removed) {
-                this.distroy();
-            }
-            if (_.isFunction(callback)) {
-                callback(text);
+            try {
+                const text = this._editor.getSession().getValue();
+                props.setterMethod.call(props.model, text);
+                props.model.trigger('update-property-text', text, props.key);
+                if (_.isFunction(callback)) {
+                    callback(text);
+                }
+            } catch (e) {
+                log.error('Error while updating the model from the input.', e);
+            } finally {
+                props.model.trigger('focus-out');
+                if (!this.removed) {
+                    this.distroy();
+                }
             }
         });
 
