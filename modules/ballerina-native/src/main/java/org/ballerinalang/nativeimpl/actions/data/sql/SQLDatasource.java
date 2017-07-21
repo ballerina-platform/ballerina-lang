@@ -106,7 +106,7 @@ public class SQLDatasource implements BValue {
             String jdbcurl = options.getStringField(0);
             String dataSourceClassName = options.getStringField(1);
             if (!dataSourceClassName.isEmpty()) {
-                config.setDataSourceClassName(dataSourceClassName); //TODO:Check wheter we need to set jdbdurl
+                config.setDataSourceClassName(dataSourceClassName);
             } else {
                 if (jdbcurl.isEmpty()) {
                     jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, userName, password);
@@ -208,7 +208,7 @@ public class SQLDatasource implements BValue {
             String password) {
         StringBuilder jdbcUrl = new StringBuilder();
         dbType = dbType.toUpperCase(Locale.ENGLISH);
-        hostOrPath = hostOrPath.replaceAll("/$", "");  //TODO:Default port
+        hostOrPath = hostOrPath.replaceAll("/$", "");
         switch (dbType) {
         case Constants.DBTypes.MYSQL:
             if (port <= 0) {

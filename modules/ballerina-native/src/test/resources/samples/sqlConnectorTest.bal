@@ -188,7 +188,7 @@ function testConnectorWithDataSource () (string firstName) {
 }
 
 function testConnectionPoolProperties () (string firstName) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    sql:ConnectionProperties Properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                           driverClassName:"org.hsqldb.jdbcDriver", userName:"SA", password:"", maximumPoolSize:1,
                           idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
                           minimumIdle:1, poolName:"testHSQLPool", isolateInternalQueries:false,

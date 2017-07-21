@@ -11,7 +11,7 @@ struct Parameter {
 }
 
 @doc:Description { value: "DB Connection properties struct"}
-@doc:Field {value:"jdbcUrl: Platform independent DB access URL"}
+@doc:Field {value:"url: Platform independent DB access URL"}
 @doc:Field {value:"dataSourceClassName: Name of the DataSource class provided by the JDBC driver"}
 @doc:Field {value:"userName: Default authentication username used when obtaining Connections from the underlying driver"}
 @doc:Field {value:"password: Default authentication password used when obtaining Connections from the underlying driver"}
@@ -34,7 +34,7 @@ struct Parameter {
 @doc:Field {value:"leakDetectionThreshold: Amount of time that a connection can be out of the pool before a message is logged indicating a possible connection leak"}
 @doc:Field {value:"datasourceProperties: Data source specific properties which are used along with the dataSourceClassName"}
 struct ConnectionProperties {
-	string jdbcUrl;
+	string url;
 	string dataSourceClassName;
 	string userName;
 	string password;
