@@ -114,11 +114,12 @@ function testSubtractDuration () (string timeString) {
     return;
 }
 
-function testToTimezone () (string timeString) {
+function testToTimezone () (string timeStrBefore, string timeStrAfter) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1456876583555, zone:zoneValue};
+    timeStrBefore = time:toString(timeStruct);
     timeStruct = time:toTimezone(timeStruct, "Asia/Colombo");
-    timeString = time:format(timeStruct, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    timeStrAfter = time:toString(timeStruct);
     return;
 }
 

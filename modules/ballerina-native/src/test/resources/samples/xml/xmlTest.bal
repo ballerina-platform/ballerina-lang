@@ -298,3 +298,12 @@ function testSeqCopy()(xml, xml) {
     
     return original, copy;
 }
+
+function testSetChildrenToElemntInDefaultNameSpace() (xml) {
+    xml x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname></name>`;
+    xml x2 = xml `<newFname>supun-new</newFname>`;
+    
+    xmls:setChildren(x1, x2);
+    
+    return x1;
+}

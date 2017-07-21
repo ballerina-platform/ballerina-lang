@@ -24,6 +24,7 @@ import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -775,6 +776,10 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
+            case 'U':
+                // TODO : Fix this for type casting.
+                typeStack.push(new BFunctionType());
+                return index + 1;
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + chars[index]);
@@ -825,6 +830,9 @@ public class ProgramFileReader {
             case '[':
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
+            case 'U':
+                // TODO : Fix this for type casting.
+                return new BFunctionType();
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + ch);
@@ -1262,6 +1270,8 @@ public class ProgramFileReader {
                 case InstructionCodes.NCALL:
                 case InstructionCodes.ACALL:
                 case InstructionCodes.NACALL:
+                case InstructionCodes.FPCALL:
+                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:
@@ -1279,6 +1289,9 @@ public class ProgramFileReader {
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.XMLSTORE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.LENGTHOFJSON:
                 case InstructionCodes.TYPEOF:
@@ -1394,6 +1407,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
+                case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                     i = codeStream.readInt();
@@ -1408,6 +1422,7 @@ public class ProgramFileReader {
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

@@ -29,6 +29,7 @@ public class TypeSignature {
     public static final String SIG_REFTYPE = "R";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
+    public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
     public static final String SIG_TYPE = "Y";

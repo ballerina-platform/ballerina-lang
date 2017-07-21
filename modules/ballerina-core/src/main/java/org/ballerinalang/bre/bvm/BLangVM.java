@@ -41,6 +41,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -231,7 +232,7 @@ public class BLangVM {
         StructureType structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
-        BXML xmlVal;
+        BXML<?> xmlVal;
         BXMLAttributes xmlAttrs;
         BXMLQName xmlQName;
         
@@ -1315,6 +1316,28 @@ public class BLangVM {
                     // clear error.
                     context.setError(null);
                     break;
+                case InstructionCodes.FPCALL:
+                    i = operands[0];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[((BFunctionPointer) sf.refRegs[i]).value()];
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
+                    if (functionInfo.isNative()) {
+                        invokeNativeFunction(functionInfo, funcCallCPEntry);
+                    } else {
+                        invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    }
+                    break;
+                case InstructionCodes.FPLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BFunctionPointer(i);
+                    break;
 
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
@@ -1573,8 +1596,20 @@ public class BLangVM {
                     prefixIndex = operands[2];
                     i = operands[3];
 
-                    sf.refRegs[i] = new BXMLQName(sf.stringRegs[localNameIndex], sf.stringRegs[uriIndex],
-                            sf.stringRegs[prefixIndex]);
+                    String localname = sf.stringRegs[localNameIndex];
+                    localname = StringEscapeUtils.escapeXml11(localname);
+
+                    String prefix = sf.stringRegs[prefixIndex];
+                    prefix = StringEscapeUtils.escapeXml11(prefix);
+
+                    sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
+                    break;
+                case InstructionCodes.NEWXMLELEMENT:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.NEWXMLPI:
+                case InstructionCodes.XMLSTORE:
+                    execXMLCreationOpcodes(sf, opcode, operands);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -1961,6 +1996,75 @@ public class BLangVM {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private void execXMLCreationOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int l;
+        BXML<?> xmlVal;
+
+        switch (opcode) {
+            case InstructionCodes.NEWXMLELEMENT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                l = operands[3];
+
+                BXMLQName startTagName = (BXMLQName) sf.refRegs[j];
+                BXMLQName endTagName = (BXMLQName) sf.refRegs[k];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.NEWXMLCOMMENT:
+                i = operands[0];
+                j = operands[1];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLComment(sf.stringRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.NEWXMLTEXT:
+                i = operands[0];
+                j = operands[1];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLText(sf.stringRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.NEWXMLPI:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLProcessingInstruction(sf.stringRegs[j], sf.stringRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.XMLSTORE:
+                i = operands[0];
+                j = operands[1];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                BXML<?> child = (BXML<?>) sf.refRegs[j];
+                xmlVal.setChildren(child);
+                break;
         }
     }
 
