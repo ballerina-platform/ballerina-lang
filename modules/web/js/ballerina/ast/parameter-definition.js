@@ -77,7 +77,7 @@ class ParameterDefinition extends VariableDefinition {
                 argAsString += '} ';
             });
         argAsString += this.getTypeName();
-        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : '';
+        argAsString += !_.isNil(this.getName()) ? /* FIXME*/ (this.getWSRegion(1) || ' ') + this.getName() : '';
         argAsString += this.getWSRegion(2);
         return argAsString;
     }
