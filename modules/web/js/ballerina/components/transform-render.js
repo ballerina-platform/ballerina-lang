@@ -967,7 +967,7 @@ addComplexParameter(parentId, struct) {
         const xTargetPointer = 0;
         let yTargetPointer = 0;
         const functionGap = 30;
-        const svgLines = this.container.find('#' + self.placeHolderName + '> svg');
+        const svgLines = $('#' + self.placeHolderName + '> svg');
 
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
