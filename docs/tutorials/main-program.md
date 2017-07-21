@@ -127,15 +127,19 @@ while (BooleanExpression) {
 
 1. Add a variable and define an integer that gets the length
     ![alt text](../images/dataCount.png)
-    > Once again you use a **.length** JSON path here to access an inbuilt function of the JSON. In this case, length is an inbuilt function of JSON.
+    > You use a **.length** JSON path here to access an inbuilt function of the JSON. In this case, length is an inbuilt function of JSON.
     
 1. Add another variable called `int i = 0` by dragging a variable from the tool palette to the canvas.
 1. Drag and drop a `while` statement from the tool palette to the canvas.
     ![alt text](../images/WhileCondition.gif)
 1. Set the `while` condition to `i > dataCount`.
+
     ![alt text](../images/WhileCondition2.png)
 1. Add an assignment to the while loop by dragging it from the tool palette to the canvas.
     ![alt text](../images/AddAssignment.gif)
+1. Specify the assignment value as `i = i + 1`.
+    ![alt text](../images/AssignmentValue.png)
+
 
 ## Call the API
 
