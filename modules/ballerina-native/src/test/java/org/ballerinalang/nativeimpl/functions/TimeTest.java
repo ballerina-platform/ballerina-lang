@@ -147,7 +147,8 @@ public class TimeTest {
     @Test(description = "Test changing the timezone.")
     public void testToTimezone() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testToTimezone");
-        Assert.assertEquals((returns[0]).stringValue(), "2016-03-02T05:26:23.555+0530");
+        Assert.assertEquals((returns[0]).stringValue(), "2016-03-01T18:56:23.555-05:00");
+        Assert.assertEquals((returns[1]).stringValue(), "2016-03-02T05:26:23.555+05:30");
     }
 
     @Test(description = "Test changing the timezone with a time already having a timezone.")
