@@ -50,8 +50,12 @@ class ArrayInitExpression extends Expression {
      */
     getExpressionString() {
         let generatedExpression = '[';
-        _.each(this.getChildren(), (child) => {
-            generatedExpression += child.getExpressionString() + ',';
+        _.each(this.getChildren(), (child, index) => {
+            if (index !== 0) {
+                generatedExpression += ',';
+                generatedExpression += (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
+            }
+            generatedExpression += child.getExpressionString();
         });
         generatedExpression = generatedExpression.replace(/,\s*$/, '') + ']';
         return generatedExpression;

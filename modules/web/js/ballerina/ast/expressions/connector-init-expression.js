@@ -33,6 +33,10 @@ class ConnectorInitExpression extends Expression {
         super('ConnectorInitExpression');
         this._arguments = _.get(args, 'arguments', []);
         this._connectorName = _.get(args, 'connectorName');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+        };
     }
 
     /**
@@ -135,13 +139,14 @@ class ConnectorInitExpression extends Expression {
     getExpressionString() {
         let expr = 'create' + this.getWSRegion(1)
             + this.getConnectorName().toString()
-            + this.getWSRegion(2) + '(';
+            + (this.whiteSpace.useDefault ? ' ' : '')
+            + '(';
         this.getArgs().forEach((arg, index) => {
-            expr += (index !== 0 && arg.whiteSpace.useDefault) ? ' ' : '';
-            expr += arg.getExpressionString();
-            if (index < this.getArgs().length - 1) {
+            if (index !== 0) {
                 expr += ',';
+                expr += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
             }
+            expr += arg.getExpressionString();
         });
         return expr + ')';
     }
