@@ -368,7 +368,7 @@ class StructDefinition extends React.Component {
                         children.map((child, i) => {
                             if (ASTFactory.isVariableDefinitionStatement(child)) {
                                 const typePkgName = child.getBTypePkgName();
-                                let type = child.getBType();
+                                let type = child.getVariableType();
                                 if (typePkgName !== undefined) {
                                     type = typePkgName + ':' + type;
                                 }
