@@ -304,9 +304,11 @@ class ASTNode extends EventChannel {
         // Traverse through current scopes parents
         while (!_.isUndefined(scope.getParent())) {
             // Get children declared before the current scope with the index
-            children = children.concat(
-                            _.filter(scope.getChildren(),
-                                    (curNode) => { return curNode.getParent().getIndexOfChild(curNode) < scopeIndex; }));
+            // TODO : remove index scoping for now since param arguments get removed in transform
+            // children = children.concat(
+            //                 _.filter(scope.getChildren(),
+            //                         (curNode) => { return curNode.getParent().getIndexOfChild(curNode) < scopeIndex; }));
+            children = children.concat(scope.getChildren());
             scopeIndex = scope.getParent().getIndexOfChild(scope);
             scope = scope.getParent();
         }
