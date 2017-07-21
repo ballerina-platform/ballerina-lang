@@ -151,7 +151,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
             }
             if (!myConnector.isConnected()) {
                 getSession().getConsoleView().print("Connection to debug server at " +
-                                myConnector.getDebugServerAddress() + " could not be established.",
+                                myConnector.getDebugServerAddress() + " could not be established.\n",
                         ConsoleViewContentType.ERROR_OUTPUT);
                 getSession().stop();
             }
@@ -192,19 +192,34 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void stop() {
-        XSuspendContext suspendContext = getSession().getSuspendContext();
-        if (suspendContext != null) {
-            XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                String threadId = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
-                        .getThreadId();
-                if (threadId != null) {
-                    myConnector.sendCommand(Command.STOP, threadId);
+        // If we don't call this using the executeOnPooledThread(), the UI will hang until the debug server is stopped.
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            XDebugSession session = getSession();
+            if (!isRemoteDebugMode) {
+                XSuspendContext suspendContext = session.getSuspendContext();
+                if (suspendContext != null) {
+                    XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
+                    if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                        String threadId = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
+                                .getThreadId();
+                        if (threadId != null) {
+                            myConnector.sendCommand(Command.STOP, threadId);
+                        }
+                    }
+                } else {
+                    session.stop();
+                    return;
                 }
+            } else {
+                myConnector.sendCommand(Command.STOP);
+                session.stop();
+                getSession().getConsoleView().print("Disconnected from the debug server.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
             }
-        }
-        isDisconnected = true;
-        myConnector.close();
+
+            isDisconnected = true;
+            myConnector.close();
+        });
     }
 
     @Override
@@ -269,16 +284,22 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
             });
         } else if (Response.EXIT.name().equals(code) || Response.COMPLETE.name().equals(code)) {
-            // If we don't call invoke later here, session will not be stopped correctly since this is called from
-            // netty. It seems like this is a blocking action and netty throws an exception.
-            ApplicationManager.getApplication().invokeLater(() -> {
-                XDebugSession session = getSession();
-                if (session != null) {
-                    session.stop();
-                }
-                getSession().getConsoleView().print("Remote debugging finished.\n",
-                        ConsoleViewContentType.SYSTEM_OUTPUT);
-            });
+            if (isRemoteDebugMode) {
+                // If we don't call executeOnPooledThread() here, session will not be stopped correctly since this is
+                // called from netty. It seems like this is a blocking action and netty throws an exception.
+                ApplicationManager.getApplication().executeOnPooledThread(
+                        () -> {
+                            XDebugSession session = getSession();
+                            if (session != null) {
+                                session.sessionResumed();
+                                session.stop();
+                            }
+                            getSession().getConsoleView().print("Remote debugging finished.\n",
+                                    ConsoleViewContentType.SYSTEM_OUTPUT);
+
+                        }
+                );
+            }
         }
     }
 
