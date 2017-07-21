@@ -1,6 +1,6 @@
 # To run the program, put the code in `websocket-client-connector`
 # and use `ballerina run service websocket-client-connector` command.
-$ ballerina run service websocket-client-connector.bal
+$ ballerina run websocket-client-connector.bal
 
 # To check the sample, use Chrome or Firefox javascript console and run the below commands <br>
 # To check the broadcast run first 3 scripts in more than 2 consoles and check.
