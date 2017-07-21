@@ -398,6 +398,18 @@ public class SwaggerServiceMapper {
                 swagger.setBasePath(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("basePath")
                         .getLiteralValue().stringValue());
             }
+            if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("host") &&
+                null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("port")) {
+                swagger.setHost(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("host")
+                        .getLiteralValue().stringValue() + ":" +
+                                httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("port")
+                        .getLiteralValue().stringValue());
+            }
+            if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("version") &&
+                                                                                        null != swagger.getInfo()) {
+                swagger.getInfo().setVersion(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs()
+                        .get("version").getLiteralValue().stringValue());
+            }
         }
     
         Optional<AnnotationAttachment> consumesAnnotationAttachment = Arrays.stream(service.getAnnotations())
