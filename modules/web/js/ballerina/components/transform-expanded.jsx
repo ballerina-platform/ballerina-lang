@@ -896,20 +896,49 @@ class TransformExpanded extends React.Component {
     }
 
     removeAssignmentStatements(id, type) {
-        var index = 0;
-        if(type === "source") {
-            index = 1;
-        }
-        _.remove(this.props.model.getChildren(),(currentObject) => {
-            var condition = false;
-            if (currentObject.children[index].children[0].getFactory()
-                           .isFieldBasedVarRefExpression(currentObject.children[index].children[0])) {
-                condition = currentObject.children[index].children[0].children[0].getExpressionString() === id;
+        const statementsToRemove = [];
+
+        this.props.model.getChildren().forEach(currentObject => {
+            let nodeToRemove;
+
+            if(type === "source") {
+                nodeToRemove = currentObject.getRightExpression();
             } else {
-               condition = currentObject.children[index].children[0].getVariableName() === id;
+                nodeToRemove = currentObject.getLeftExpression();
             }
-            return condition;
+
+            if (nodeToRemove.getFactory().isFieldBasedVarRefExpression(nodeToRemove)) {
+                if(nodeToRemove.getExpressionString().startsWith(`${id}.`)){
+                    statementsToRemove.push(currentObject);
+                    return;
+                }
+            }
+
+            if ((nodeToRemove.getFactory().isVariableReferenceList(nodeToRemove))) {
+                nodeToRemove.getChildren().forEach(childVarRef => {
+                    if (nodeToRemove.getFactory().isFieldBasedVarRefExpression(childVarRef)) {
+                        if(childVarRef.getExpressionString().startsWith(`${id}.`)){
+                            statementsToRemove.push(currentObject);
+                            return;
+                        }
+                    }
+
+                    if(childVarRef.getVariableName() === id) {
+                        statementsToRemove.push(currentObject);
+                        return;
+                    }
+                });
+                return;
+            }
+
+            if(nodeToRemove.getVariableName() === id) {
+                statementsToRemove.push(currentObject);
+            }
         });
+
+        statementsToRemove.forEach(statement => {
+            this.props.model.removeChild(statement);
+        })
     }
 
     render() {
