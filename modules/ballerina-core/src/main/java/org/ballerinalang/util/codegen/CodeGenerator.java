@@ -1657,7 +1657,9 @@ public class CodeGenerator implements NodeVisitor {
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
 
         if (baseConnectorInfo == null) {
-            baseConnectorInfo = currentPkgInfo.getConnectorInfo(connectorDef.getName());
+            if (filterConnectorInitExpr != null) {
+                baseConnectorInfo = connectorInfo;
+            }
         }
 
         if (baseConnectorInfo != null) {

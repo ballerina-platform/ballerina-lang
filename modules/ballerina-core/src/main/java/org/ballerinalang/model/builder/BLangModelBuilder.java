@@ -1137,7 +1137,9 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         connector.setFilterConnector(isFilterConnector);
-        connector.setFilterSupportedType(filterSupportedType);
+        if (isFilterConnector) {
+            connector.setFilterSupportedType(connector.getParameterDefs()[0].getTypeName());
+        }
 
         bFileBuilder.addConnector(connector);
 

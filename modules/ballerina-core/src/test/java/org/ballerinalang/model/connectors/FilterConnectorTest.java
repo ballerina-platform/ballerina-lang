@@ -84,7 +84,7 @@ public class FilterConnectorTest {
     @Test(description = "Test filter connectors negative syntax when filter base type is not defined",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "filter-connector-negative-base-type-undefined.bal:1: " +
-                    "undefined connector 'TestConnector2'")
+                    "undefined type 'TestConnector2'")
     public void testFilterConnectorNegativeFilterBaseTypeNotDefined() {
         programFile = BTestUtils.getProgramFile("lang/connectors/filter-connector-negative-base-type-undefined.bal");
     }

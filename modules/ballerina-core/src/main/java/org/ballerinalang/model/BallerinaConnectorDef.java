@@ -22,6 +22,7 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
@@ -59,7 +60,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
     private boolean isFilterConnector;
-    private String filterSupportedType;
+    private SimpleTypeName filterSupportedType;
 
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
@@ -130,11 +131,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         isFilterConnector = filterConnector;
     }
 
-    public String getFilterSupportedType() {
+    public SimpleTypeName getFilterSupportedType() {
         return filterSupportedType;
     }
 
-    public void setFilterSupportedType(String filterSupportedType) {
+    public void setFilterSupportedType(SimpleTypeName filterSupportedType) {
         this.filterSupportedType = filterSupportedType;
     }
 

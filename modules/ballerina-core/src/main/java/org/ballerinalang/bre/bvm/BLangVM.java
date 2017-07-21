@@ -2152,43 +2152,21 @@ public class BLangVM {
         //BType connectorType = paramTypes[0];
         BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
         ActionInfo newActionInfo = null;
-
+        ConnectorInfo connectorInfoIncoming;
         if (connector != null && connector.getConnectorType() != null &&
                 !(callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            ConnectorInfo connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
+            connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
             ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
                     (BConnectorType) connector.getConnectorType());
             if (connectorInfoFilter != null) {
                 newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
             } else {
-                ConnectorInfo connectorInfo = callableUnitInfo.getConnectorInfo();
-                int[] inputTypes = connectorInfo.getType().getFieldTypeCount();
-                int[] matchingTypes = ((BConnectorType) connector.getConnectorType()).getFieldTypeCount();
-
-                for (int i = 0; i < inputTypes.length - 1; i++) {
-                    if (inputTypes[i] != matchingTypes[i]) {
-                        String errorMsg = BLangExceptionHelper.getErrorMessage(
-                                RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                                connectorInfo.getName(), connector.getConnectorType().getName());
-                        context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                        handleError();
-                        return;
-                    }
-                }
-
-                if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length - 1]) {
-                    if (!((connectorInfo.isFilterConnector() && !connector.isFilterConnector()) &&
-                            (inputTypes[inputTypes.length - 1] == matchingTypes[matchingTypes.length - 1]++) ||
-                            ((!connectorInfo.isFilterConnector() && connector.isFilterConnector()) &&
-                            (matchingTypes[inputTypes.length - 1] == inputTypes[matchingTypes.length - 1]++)))) {
-                        String errorMsg = BLangExceptionHelper.getErrorMessage(
-                                RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                                connectorInfo.getName(), connector.getConnectorType().getName());
-                        context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                        handleError();
-                        return;
-                    }
-                }
+                String errorMsg = BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
+                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                handleError();
+                return;
             }
         }
 
@@ -2614,46 +2592,80 @@ public class BLangVM {
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
 
-        // TODO : Remove once we handle this properly for return values
-        BType[] retTypes = actionInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
+        BConnector connector = (BConnector) callerSF.refRegs[funcCallCPEntry.getArgRegs()[0]];
+        ActionInfo newActionInfo = null;
+        ConnectorInfo connectorInfoIncoming;
+        if (connector != null && connector.getConnectorType() != null &&
+                !(actionInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
+            connectorInfoIncoming = actionInfo.getConnectorInfo();
+            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
+                    (BConnectorType) connector.getConnectorType());
+            if (connectorInfoFilter != null) {
+                newActionInfo = connectorInfoFilter.getActionInfo(actionInfo.getName());
+            } else {
+                String errorMsg = BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
+                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                handleError();
+                return;
+            }
+        }
 
-        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
-        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                actionInfo.getParamTypes());
-
-
-        controlStack.pushFrame(caleeSF);
+        WorkerInfo defaultWorkerInfo;
+        if (newActionInfo != null) {
+            actionInfo = newActionInfo;
+            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
+        } else {
+            defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
+        }
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-        try {
-            if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
-                // Enable non-blocking.
-                context.setStartIP(ip);
-                // TODO : Temporary solution to make non-blocking working.
-                if (caleeSF.packageInfo == null) {
-                    caleeSF.packageInfo = actionInfo.getPackageInfo();
-                }
-                context.programFile = programFile;
-                context.funcCallCPEntry = funcCallCPEntry;
-                context.actionInfo = actionInfo;
-                BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
-                connectorCallback.setNativeAction(nativeAction);
-                nativeAction.execute(context, connectorCallback);
-                ip = -1;
-                return;
-                // release thread.
-            } else {
-                nativeAction.execute(context);
-                // Copy return values to the callers stack
-                controlStack.popFrame();
-                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
 
+        if (nativeAction != null) {
+            // TODO : Remove once we handle this properly for return values
+            BType[] retTypes = actionInfo.getRetParamTypes();
+            BValue[] returnValues = new BValue[retTypes.length];
+
+            StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
+            copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                    actionInfo.getParamTypes());
+
+
+            controlStack.pushFrame(caleeSF);
+
+            try {
+                if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+                    // Enable non-blocking.
+                    context.setStartIP(ip);
+                    // TODO : Temporary solution to make non-blocking working.
+                    if (caleeSF.packageInfo == null) {
+                        caleeSF.packageInfo = actionInfo.getPackageInfo();
+                    }
+                    context.programFile = programFile;
+                    context.funcCallCPEntry = funcCallCPEntry;
+                    context.actionInfo = actionInfo;
+                    BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
+                    connectorCallback.setNativeAction(nativeAction);
+                    nativeAction.execute(context, connectorCallback);
+                    ip = -1;
+                    return;
+                    // release thread.
+                } else {
+                    nativeAction.execute(context);
+                    // Copy return values to the callers stack
+                    controlStack.popFrame();
+                    handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
+                }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            handleError();
-            return;
+        } else {
+            // Ballerina Action in case of ballerina based filter connector
+            invokeActionCallableUnit(actionInfo, funcCallCPEntry);
         }
     }
 

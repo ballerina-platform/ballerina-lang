@@ -353,11 +353,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(connectorDef);
 
         if (connectorDef.isFilterConnector()) {
-            BLangSymbol symbol = currentPackageScope.resolve(new SymbolName(connectorDef.getFilterSupportedType(),
-                    currentPkg));
-            if (symbol != null) {
-                if (symbol instanceof BallerinaConnectorDef) {
-                    BallerinaConnectorDef filterConnector = (BallerinaConnectorDef) symbol;
+            BType type = BTypes.resolveType(connectorDef.getFilterSupportedType(),
+                    currentScope, connectorDef.getNodeLocation());
+            if (type != null) {
+                if (type instanceof BallerinaConnectorDef) {
+                    BallerinaConnectorDef filterConnector = (BallerinaConnectorDef) type;
                     if (!filterConnector.equals(connectorDef)) {
                         BLangExceptionHelper.throwSemanticError(connectorDef,
                                 SemanticErrors.CONNECTOR_TYPES_NOT_EQUIVALENT,
@@ -366,7 +366,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 } else {
                     BLangExceptionHelper.throwSemanticError(connectorDef,
                             SemanticErrors.FILTER_CONNECTOR_MUST_BE_A_CONNECTOR,
-                            symbol.getName());
+                            type.getName());
                 }
             } else {
                 BLangExceptionHelper.throwSemanticError(connectorDef,
@@ -3428,10 +3428,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                         type = (BType) symbol;
                         filterConnectorInitExpr.setInheritedType(type);
 
-                        symbol = currentPackageScope.resolve(new SymbolName(((BallerinaConnectorDef) symbol).
-                                getFilterSupportedType(), currentPkg));
-                        if (symbol instanceof BallerinaConnectorDef) {
-                            type = (BType) symbol;
+                        type = BTypes.resolveType(((BallerinaConnectorDef) symbol).
+                                getFilterSupportedType(), currentScope, refTypeInitExpr.getNodeLocation());
+                        if (type != null) {
                             filterConnectorInitExpr.setFilterSupportedType(type);
                         }
                     }

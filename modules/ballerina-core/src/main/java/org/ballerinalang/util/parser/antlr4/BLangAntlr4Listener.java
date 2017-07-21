@@ -1015,7 +1015,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             nameReference = nameReferenceStack.pop();
             modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
             connectorTypeName = new SimpleTypeName(nameReference.getName(),
-                    nameReference.getPackageName(), null);
+                    nameReference.getPackageName(), nameReference.getPackagePath());
             connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         }
 
