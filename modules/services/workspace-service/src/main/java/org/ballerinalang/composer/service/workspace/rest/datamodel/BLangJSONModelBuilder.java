@@ -700,6 +700,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
         paramObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, typeName.getPackageName());
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, generateTypeSting(parameterDef.getTypeName()));
+        if (typeName instanceof FunctionTypeName) {
+            paramObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, false);
+            paramObj.addProperty(BLangJSONModelConstants.DIMENSIONS, 0);
+        } else {
+            paramObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, typeName.isArrayType());
+            paramObj.addProperty(BLangJSONModelConstants.DIMENSIONS, typeName.getDimensions());
+        }
         this.addPosition(paramObj, parameterDef.getNodeLocation());
         this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
