@@ -1,6 +1,6 @@
 import ballerina.lang.system;
 import ballerina.doc;
-@doc:Description {value: "global variable declaration."}
+@doc:Description {value:"global variable declaration."}
 int total = 98;
 
 string content = "";
