@@ -25,7 +25,7 @@
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
-            <!--&lt;!&ndash;TODO fix jms test cases&ndash;&gt;-->
+            <!--TODO fix jms test cases-->
             <!--<package name="org.ballerinalang.test.service.jms.sample" />-->
         </packages>
     </test>
