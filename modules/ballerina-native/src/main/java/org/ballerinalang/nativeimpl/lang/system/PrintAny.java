@@ -55,7 +55,7 @@ public class PrintAny extends AbstractNativeFunction {
             out.print(result.stringValue());
         } else {
 
-            out.println((Object) null);
+            out.print((Object) null);
         }
         return VOID_RETURN;
     }
