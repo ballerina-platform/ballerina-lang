@@ -78,7 +78,6 @@
     border-top: 1px;
     width: 100%;
     background-color: #dcdcdc;
-    height: 30px;
 }
 
 .variable {
@@ -88,7 +87,6 @@
     position: absolute;
     border-top: 1px;
     background-color: #dcdcdc;
-    height: 30px;
 }
 
 .variable-content:hover,
@@ -426,8 +424,6 @@ svg.plumbConnect path {
     margin-top: -2px;
 }
 
-#transformOverlay  .jstree-default > .jstree-container-ul > .jstree-node {
-    margin-left: 0;
-    margin-right: 0;
-    height: 30px;
+.tree-container{
+    background-color: #ffffff;
 }
