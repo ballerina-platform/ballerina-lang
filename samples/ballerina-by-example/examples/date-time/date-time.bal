@@ -11,12 +11,12 @@ function main (string[] args) {
     //Create a time with the required year, month ,date,
     //time and zone information.
     time:Time timeCreated = time:createTime
-         (2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+                            (2017, 3, 28, 23, 42, 45, 554, "America/Panama");
     system:println("Created Time:" + time:toString(timeCreated));
     //Returns the time for the given string representation
     //based on the given format string
     time:Time timeParsed = time:parse("2017-06-26T09:46:22.444-0500",
-                    "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                                      "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     system:println("Parsed Time:" + time:toString(timeParsed));
     //String representation of time can be retrieved via toString or format
     //functions.Get the ISO 8601 formatted string of a given time
@@ -52,11 +52,11 @@ function main (string[] args) {
     system:println("Weekday:" + weekday);
     //Get date components of time using a single function
     year, month, day = time:getDate(currentTime);
-    system:println("Date:" + year + ":" + month + ":"+ day);
+    system:println("Date:" + year + ":" + month + ":" + day);
     //Get time components using a single function
     hour, minute, second, milliSecond = time:getTime(currentTime);
     system:println("Time:" + hour + ":" + minute + ":" + second + ":"
-                                + milliSecond);
+                   + milliSecond);
     //Add a given duration to the time. Here we are adding
     //one year, one month and one second to the current time
     time:Time timeStructAdd = time:addDuration(currentTime, 1, 1, 0, 0, 0, 1, 0);
