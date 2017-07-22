@@ -19,10 +19,10 @@ atomikos-3.8.0.wso2v1.jar                                                       
 axiom-api-1.2.20.jar                                                            bundle         apache2   2111
 axiom-dom-1.2.20.jar                                                            bundle         apache2   2219
 axiom-impl-1.2.20.jar                                                           bundle         apache2   2110
-ballerina-core-0.90.jar                                                         jar            apache2   2235
-ballerina-launcher-0.90.jar                                                     jar            apache2   2234
-ballerina-logging-0.90.jar                                                      jar            apache2   2233
-ballerina-native-0.90.jar                                                       jar            apache2   2232
+ballerina-core-0.91.jar                                                         jar            apache2   2235
+ballerina-launcher-0.91.jar                                                     jar            apache2   2234
+ballerina-logging-0.91.jar                                                      jar            apache2   2233
+ballerina-native-0.91.jar                                                       jar            apache2   2232
 carbon-utils-1.2.1.jar                                                          bundle         apache2
 commons-lang3-3.5.jar                                                           bundle         apache2   2105
 commons-logging-1.2.jar                                                         bundle         apache2   1702
