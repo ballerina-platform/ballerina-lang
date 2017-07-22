@@ -65,12 +65,9 @@ class VariableDefinitionStatement extends Statement {
                                   + constraint.type + '>');
             variableDefinitionStatementString += constraintStr;
         }
-        variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
-        if (!_.isNil(this.getRightExpression())) {
-            variableDefinitionStatementString += this.getWSRegion(0)
+        variableDefinitionStatementString += this.getWSRegion(0)
                 + (isIdentifierLiteral ? '|' : '') + this.getIdentifier()
                 + (isIdentifierLiteral ? '|' : '');
-        }
         if (!_.isNil(this.getRightExpression())) {
             variableDefinitionStatementString +=
               this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.getRightExpression().getExpressionString();
