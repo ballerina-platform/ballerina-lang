@@ -5,13 +5,13 @@ import ballerina.lang.strings;
 
 function main (string[] args) {
     //Create 'File' struct and open for writing.
-    files:File target = {path:"/home/chanaka/tmp/result.txt"};
+    files:File target = {path:"/tmp/result.txt"};
     files:open(target, "w");
 
     //Here's how you can write a string into a file.
     blob content = strings:toBlob("Sample Content", "utf-8");
     files:write(content, target);
-    system:println("file written: /home/chanaka/tmp/result.txt");
+    system:println("file written: /tmp/result.txt");
 
     //Close the file once done
     files:close(target);
@@ -28,8 +28,8 @@ function main (string[] args) {
     files:close(target);
 
     //Here's how you can copy a file.
-    files:File source = {path:"/home/chanaka/tmp/result.txt"};
-    files:File destination = {path:"/home/chanaka/tmp/copy.txt"};
+    files:File source = {path:"/tmp/result.txt"};
+    files:File destination = {path:"/tmp/copy.txt"};
     files:copy(source, destination);
     system:println("file copied: /tmp/result.txt to /tmp/copy.txt");
 
@@ -38,7 +38,7 @@ function main (string[] args) {
     system:println("file deleted: /tmp/copy.txt");
 
     //Move source file to destination
-    destination = {path:"/home/chanaka/tmp/move.txt"};
+    destination = {path:"/tmp/move.txt"};
     files:move(source, destination);
     system:println("file moved: /tmp/result.txt to /tmp/move.txt");
 
