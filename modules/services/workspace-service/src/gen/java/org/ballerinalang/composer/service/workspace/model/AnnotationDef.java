@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.ballerinalang.model.AnnotationAttachmentPoint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

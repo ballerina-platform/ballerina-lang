@@ -19,7 +19,6 @@ package org.ballerinalang.composer.service.workspace.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.ballerinalang.model.AnnotationAttachmentPoint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
