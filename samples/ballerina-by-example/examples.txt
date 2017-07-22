@@ -50,4 +50,8 @@ HTTP Sessions
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
+Websocket Basic Endpoint
+Websocket Basic Functions
+Websocket Connection Groups
+Websocket Connection Store
 Log API
