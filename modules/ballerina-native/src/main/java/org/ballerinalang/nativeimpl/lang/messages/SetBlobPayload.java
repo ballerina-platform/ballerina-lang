@@ -10,7 +10,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.runtime.message.BinrayMessageDataSource;
+import org.ballerinalang.runtime.message.BinaryMessageDataSource;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
 
@@ -38,7 +38,7 @@ public class SetBlobPayload extends AbstractNativeFunction {
         BMessage msg = (BMessage) getRefArgument(ctx, 0);
         byte[] payload = getBlobArgument(ctx, 0);
         // Clone the message without content
-        BinrayMessageDataSource binaryCarbonMessage = new BinrayMessageDataSource(payload);
+        BinaryMessageDataSource binaryCarbonMessage = new BinaryMessageDataSource(payload);
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
         msg.setValue(cmsg);
         msg.setMessageDataSource(binaryCarbonMessage);

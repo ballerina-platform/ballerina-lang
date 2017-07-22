@@ -10,7 +10,7 @@ import java.io.OutputStream;
  *
  * @since 0.90
  */
-public class BinrayMessageDataSource extends BallerinaMessageDataSource {
+public class BinaryMessageDataSource extends BallerinaMessageDataSource {
     private byte[] value;
     private OutputStream outputStream;
 
@@ -19,7 +19,7 @@ public class BinrayMessageDataSource extends BallerinaMessageDataSource {
      *
      * @param value String value
      */
-    public BinrayMessageDataSource(byte[] value) {
+    public BinaryMessageDataSource(byte[] value) {
         this.value = value;
         this.outputStream = null;
     }
@@ -30,7 +30,7 @@ public class BinrayMessageDataSource extends BallerinaMessageDataSource {
      * @param value         String value
      * @param outputStream  Target outputstream
      */
-    public BinrayMessageDataSource(byte[] value, OutputStream outputStream) {
+    public BinaryMessageDataSource(byte[] value, OutputStream outputStream) {
         this.value = value;
         this.outputStream = outputStream;
     }
@@ -65,6 +65,6 @@ public class BinrayMessageDataSource extends BallerinaMessageDataSource {
     @Override
     public BallerinaMessageDataSource clone() {
         byte[] clonedContent = this.value;
-        return new BinrayMessageDataSource(clonedContent);
+        return new BinaryMessageDataSource(clonedContent);
     }
 }
