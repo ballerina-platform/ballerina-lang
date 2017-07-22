@@ -2,7 +2,6 @@ package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.Constants;
@@ -11,9 +10,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
-
-import java.nio.ByteBuffer;
+import org.ballerinalang.runtime.message.BinrayMessageDataSource;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.MessageUtil;
 
 /**
  * Set the payload of the Message as a binary (blob).
@@ -37,12 +36,12 @@ public class SetBlobPayload extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         // Accessing First Parameter Value.
         BMessage msg = (BMessage) getRefArgument(ctx, 0);
-        BBlob payload = (BBlob) getRefArgument(ctx, 1);
+        byte[] payload = getBlobArgument(ctx, 0);
         // Clone the message without content
-
-        BinaryCarbonMessage binaryCarbonMessage = new BinaryCarbonMessage(ByteBuffer.wrap(payload.blobValue()), true);
-        binaryCarbonMessage.setHeaders(msg.getHeaders());
-        msg.setValue(binaryCarbonMessage);
+        BinrayMessageDataSource binaryCarbonMessage = new BinrayMessageDataSource(payload);
+        CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
+        msg.setValue(cmsg);
+        msg.setMessageDataSource(binaryCarbonMessage);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.OCTET_STREAM);
         return VOID_RETURN;
     }
