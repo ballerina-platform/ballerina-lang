@@ -39,11 +39,38 @@ class ParameterDefinition extends VariableDefinition {
         // since there are ParameterDefinitions without names (return types) we set this to undefined
         this._name = _.get(args, 'name', undefined);
         this.type = 'ParameterDefinition';
+        this._isArray = _.get(args, 'isArray', false);
+        this._dimensions = _.get(args, 'dimensions', 0);
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
             2: '',
         };
+    }
+
+
+    /**
+     * Get the dimensions
+     * @return {number} - number of dimensions
+     */
+    getDimensions() {
+        return this._dimensions;
+    }
+
+    /**
+     * Set the dimensions
+     * @param {number} - number of dimensions
+     */
+    setDimensions(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    /**
+     * Get is array
+     * @return {boolean} - whether is array or not
+     */
+    isArray() {
+        return this._isArray;
     }
 
     /**
@@ -90,6 +117,11 @@ class ParameterDefinition extends VariableDefinition {
                                   + constraint.type + '>');
             argAsString += constraintStr;
         }
+        if (this.isArray()) {
+            for (let itr = 0; itr < this.getDimensions(); itr++) {
+                argAsString += '[]';
+            }
+        }
         argAsString += !_.isNil(this.getName()) ? /* FIXME*/ (this.getWSRegion(1) || ' ') + this.getName() : '';
         argAsString += this.getWSRegion(2);
         return argAsString;
@@ -128,7 +160,7 @@ class ParameterDefinition extends VariableDefinition {
             }
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
             nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
@@ -147,10 +179,20 @@ class ParameterDefinition extends VariableDefinition {
         }
     }
 
+    /**
+     * Set is array
+     * @param {boolean} - whether is array or not
+     */
+    setIsArray(isArray) {
+        this._isArray = isArray;
+    }
+
     initFromJson(jsonNode) {
         this.setTypeName(jsonNode.parameter_type, { doSilently: true });
         this.setName(jsonNode.parameter_name, { doSilently: true });
         this.setPkgName(jsonNode.package_name, { doSilently: true });
+        this.setIsArray(jsonNode.is_array_type, { doSilently: true });
+        this.setDimensions(jsonNode.dimensions, { doSilently: true });
 
         if (jsonNode.type_constraint) {
             const typeConstraint = {};
