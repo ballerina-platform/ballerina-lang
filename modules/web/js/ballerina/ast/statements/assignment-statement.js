@@ -20,6 +20,7 @@ import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
 
 /**
  * Class to represent an Assignment statement.
@@ -63,7 +64,8 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        if (this.viewState.source) {
+        //TODO : transform recovery
+        if (this.viewState.source && !BallerinaASTFactory.isTransformStatement(this.parent)) {
             return this.viewState.source.replace(/;\s*$/, '');
         }
         return ((this.getIsDeclaredWithVar() ? 'var' + this.getWSRegion(1) : '')
