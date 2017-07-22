@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import BallerinaASTFactory from './ballerina-ast-factory';
 import PackageDefinition from './package-definition';
+import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
 
 class BallerinaASTDeserializer {
     /**
@@ -37,6 +38,9 @@ class BallerinaASTDeserializer {
                 packageNodes[0].whiteSpace.useDefault = false;
             }
         }
+
+        const sourceGen = new SourceGenVisitor();
+        astRoot.accept(sourceGen);
         return astRoot;
     }
 }
