@@ -56,6 +56,11 @@ native function getHeaders (message m, string headerName) (string[]);
 @doc:Param { value:"payload: The JSON payload object" }
 native function setJsonPayload (message m, json payload);
 
+@doc:Description { value:"Sets the message payload using a BLOB object"}
+@doc:Param { value:"m: The current message object" }
+@doc:Param { value:"payload: The BLOB payload object" }
+native function setBlobPayload (message m, blob payload);
+
 @doc:Description { value:"Retrieve a message property"}
 @doc:Param { value:"msg: The current message object" }
 @doc:Param { value:"propertyName: The name of the property" }
