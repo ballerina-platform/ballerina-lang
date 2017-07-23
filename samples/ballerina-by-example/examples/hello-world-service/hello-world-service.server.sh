@@ -7,6 +7,6 @@ ballerina: started server connector http-9090
 # To build a compiled program file, we can use the
 # "ballerina build" command followed by
 # the service package.
-$ ballerina build service hello-world-service.bal
+$ ballerina build hello-world-service.bal
 $ ls
 hello-world-service.balx	hello-world-service.bal
