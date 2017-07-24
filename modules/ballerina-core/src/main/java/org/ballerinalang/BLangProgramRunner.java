@@ -126,41 +126,7 @@ public class BLangProgramRunner {
             throw new BLangRuntimeException("error: " + stackTraceStr);
         }
 
-        // Prepare main function arguments
-        BStringArray arrayArgs = new BStringArray();
-        for (int i = 0; i < args.length; i++) {
-            arrayArgs.add(i, args[i]);
-        }
-
-        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
-
-        // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = arrayArgs;
-        int[] argRegs = {0};
-        BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);
-
-        StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefLocalVars()[0] = arrayArgs;
-        ControlStackNew controlStackNew = bContext.getControlStackNew();
-        controlStackNew.pushFrame(stackFrame);
-
-        BLangVM bLangVM = new BLangVM(programFile);
-        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            // This will start the websocket server.
-            debugManager.mainInit(programFile, bContext);
-            debugManager.holdON();
-        } else {
-            bLangVM.run(bContext);
-        }
-
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
-        }
+        BLangVMWorkers.invoke(programFile, mainFuncInfo, args, bContext);
     }
 
     private static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
