@@ -179,9 +179,16 @@ class BallerinaASTRoot extends ASTNode {
      * Adds new import declaration.
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
-    addImport(importDeclaration, options) {
-        if (this.isExistingPackage(importDeclaration.getPackageName())) {
-            const errorString = 'Package "' + importDeclaration.getPackageName() + '" is already imported.';
+    addImport(jsonNode, options) {
+        const importNode = this.getFactory().createFromJson(jsonNode);
+        if (!this.getFactory().isImportDeclaration(importNode)) {
+            // only imports can added at global level
+            return;
+        }
+
+        importNode.initFromJson(jsonNode);
+        if (this.isExistingPackage(importNode.getPackageName())) {
+            const errorString = 'Package "' + importNode.getPackageName() + '" is already imported.';
             log.debug(errorString);
             return;
         }
@@ -196,22 +203,20 @@ class BallerinaASTRoot extends ASTNode {
         if (index === -1) {
             index = 0;
         }
-        this.getChildren().splice(index + 1, 0, importDeclaration);
+
+        this.addChild(importNode, index + 1);
 
         const modifiedEvent = {
             origin: this,
             type: 'child-added',
             title: 'add import',
             data: {
-                child: importDeclaration,
+                child: importNode,
                 index: index + 1,
             },
         };
 
-        /**
-         * @event ASTNode#tree-modified
-         */
-        this.trigger('import-new-package', importDeclaration.getPackageName());
+        this.trigger('import-new-package', importNode.getPackageName());
         if (options === undefined || !options.doSilently) {
             this.trigger('tree-modified', modifiedEvent);
         }
@@ -275,7 +280,7 @@ class BallerinaASTRoot extends ASTNode {
     addGlobal(jsonNode) {
         const globalNode = this.getFactory().createFromJson(jsonNode);
 
-        if(!this.getFactory().isConstantDefinition(globalNode) &&
+        if (!this.getFactory().isConstantDefinition(globalNode) &&
             !this.getFactory().isGlobalVariableDefinition(globalNode)) {
             // only constants and global variables can be added at global level
             return;
