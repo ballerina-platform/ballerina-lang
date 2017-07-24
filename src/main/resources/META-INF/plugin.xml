@@ -212,6 +212,10 @@
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedParameterInspection"/>
+
+        <localInspection language="Ballerina" displayName="Invalid strings" groupPath="Ballerina"
+                         groupName="General" enabledByDefault="true" level="ERROR"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.InvalidStringInspection"/>
    </extensions>
 
     <actions>
