@@ -2,7 +2,7 @@ import ballerina.net.http;
 import ballerina.doc;
 
 service<http> passthrough {
-    @doc:Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
+    @doc:Description {value:"Resource is invoked by any HTTP method as the method annotation is not declared."}
     @http:Path {value:"/"}
     resource passthrough (message m) {
         http:ClientConnector endPoint = create http:ClientConnector
