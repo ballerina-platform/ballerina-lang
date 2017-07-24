@@ -25,7 +25,7 @@ service<http> session {
     resource welcome (message m) {
         //getSession() returns an existing session for a valid session id. otherwise null.
         http:Session session = http:getSession(m);
-        string attributeValue;
+        string attributeValue = "Session is not returned";
 
         if (session != null) {
             //Returns an array of Strings containing the keys of all the objects.
@@ -35,7 +35,7 @@ service<http> session {
             //Gets the session last accessed time in milliseconds.
             int lastAccessedTime = http:getLastAccessedTime(session);
         }
-        messages:setStringPayload(m, "Hi " + attributeValue);
+        messages:setStringPayload(m, attributeValue);
         reply m;
     }
 
