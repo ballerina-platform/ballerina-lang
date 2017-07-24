@@ -1467,16 +1467,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorBodyAfterAnnotation() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
-        expectedLookups.add("C");
-        expectedLookups.add("action");
-        doTest("connector C(){ @test:test{} <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("connector C(){ @test:test{} <caret> }", "action", "C");
     }
 
     public void testConnectorBodyVariableDeclarationPackage() {

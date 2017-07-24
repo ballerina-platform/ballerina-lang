@@ -26,6 +26,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -107,7 +108,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     addCreateKeyword(result);
                 }
 
-                if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{}]")) {
+                if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{}]")
+                        && !(prevVisibleSibling.getParent() instanceof AnnotationAttachmentNode)) {
                     // Todo - change method
                     addOtherTypeAsLookup(result);
                     addXmlnsAsLookup(result);
@@ -119,7 +121,10 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                     result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
                 }
-                addValueKeywords(result);
+                if (prevVisibleSibling == null
+                        || !(prevVisibleSibling.getParent() instanceof AnnotationAttachmentNode)) {
+                    addValueKeywords(result);
+                }
             }
 
             ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
