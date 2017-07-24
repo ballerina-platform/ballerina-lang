@@ -40,7 +40,7 @@ public class TimeTest {
     }
 
     @Test(description = "Test current time representation.")
-    public void testCurffrentTime() {
+    public void testCurrentTime() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testCurrentTime");
         Assert.assertTrue(((BInteger) returns[0]).intValue() > 1498621376460L);
         //Assert.assertEquals((returns[1]).stringValue(), "Asia/Colombo");
@@ -209,8 +209,8 @@ public class TimeTest {
     }
 
     @Test(description = "Test parsing a given time string to time.")
-    public void testParseTimeWithoutZone() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testParseTimeWithoutZone");
+    public void testParseTimeWithDifferentFormats() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testParseTimeWithDifferentFormats");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 31);

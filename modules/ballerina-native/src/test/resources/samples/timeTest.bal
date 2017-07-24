@@ -188,7 +188,7 @@ function testFormatTimeInvalidPattern () (string timeString) {
     return;
 }
 
-function testParseTimeWithoutZone () (int year, int month, int day, int hour, int minute, int second, int milliSecond,
+function testParseTimeWithDifferentFormats () (int year, int month, int day, int hour, int minute, int second, int milliSecond,
                                       string dateStr, string dateZoneStr, string timeZoneStr, string datetimeStr) {
     time:Time timeStruct = time:parse("2017", "yyyy");
     year = time:year(timeStruct);
