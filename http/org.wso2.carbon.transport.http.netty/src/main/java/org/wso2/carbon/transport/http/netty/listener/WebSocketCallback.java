@@ -17,12 +17,26 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.util.client.websocket;
+package org.wso2.carbon.transport.http.netty.listener;
+
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
- * WebSocket constants for testing purposes.
+ * Callback for WebSocket handshake.
  */
-public class WebSocketTestConstants {
-    public static final String PAYLOAD_NEW_CLIENT_CONNECTED = "NEW_CLIENT_CONNECTED";
-    public static final String PAYLOAD_CLIENT_LEFT = "CLIENT_LEFT";
+public class WebSocketCallback implements CarbonCallback {
+
+    CountDownLatch countDownLatch;
+
+    public WebSocketCallback(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
+    }
+
+    @Override
+    public void done(CarbonMessage cMsg) {
+        countDownLatch.countDown();
+    }
 }

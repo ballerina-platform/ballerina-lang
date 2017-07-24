@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -104,8 +105,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtTargetResponseSending(cMsg);
                         }
-//                        targetChannel.getChannel().pipeline().remove("idleStateHandler");
-                        targetChannel.setRequestWritten(false);
+                        targetChannel.getChannel().pipeline().remove("idleStateHandler");
                         connectionManager.returnChannel(targetChannel);
                     } else {
                         HttpContent httpContent = (DefaultHttpContent) msg;
@@ -115,16 +115,16 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             }
         } else {
             if (msg instanceof HttpResponse) {
-                LOG.warn("Received a response for an obsolete request");
+                LOG.warn("Received a response for an obsolete request ");
             }
+            ReferenceCountUtil.release(msg);
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-//        targetChannel.getChannel().pipeline().remove("idleStateHandler");
-        targetChannel.setRequestWritten(false);
+        targetChannel.getChannel().pipeline().remove("idleStateHandler");
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
@@ -209,7 +209,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         response.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
-        MessagingException messagingException = new MessagingException("Read Timeout", 101504);
+        MessagingException messagingException = new MessagingException("read timeout", 101504);
         response.setMessagingException(messagingException);
         return response;
 
@@ -226,7 +226,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.READER_IDLE) {
+            if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
                 targetChannel.getChannel().pipeline().remove("idleStateHandler");
                 targetChannel.setRequestWritten(false);
                 sendBackTimeOutResponse();

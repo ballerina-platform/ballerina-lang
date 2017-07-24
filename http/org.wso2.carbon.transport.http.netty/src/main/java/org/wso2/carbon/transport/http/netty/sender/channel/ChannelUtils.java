@@ -28,8 +28,11 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.TextCarbonMessage;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -133,7 +136,8 @@ public class ChannelUtils {
      * @param carbonMessage Carbon Message
      * @return
      */
-    public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
+    public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage)
+                                                                                        throws Exception {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                     executeAtTargetRequestReceiving(carbonMessage);
@@ -161,18 +165,18 @@ public class ChannelUtils {
                 }
 
             }
-        } else if (carbonMessage instanceof DefaultCarbonMessage) {
-            DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) carbonMessage;
-            if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+        } else if (carbonMessage instanceof DefaultCarbonMessage || carbonMessage instanceof TextCarbonMessage
+                || carbonMessage instanceof BinaryCarbonMessage) {
+            if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
                 channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                 return true;
             }
             while (true) {
-                ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
+                ByteBuffer byteBuffer = carbonMessage.getMessageBody();
                 ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 channel.write(httpContent);
-                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+                if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         HTTPTransportContextHolder.getInstance().getHandlerExecutor().
@@ -181,6 +185,8 @@ public class ChannelUtils {
                     break;
                 }
             }
+        } else {
+            throw new ClientConnectorException("Unsupported message type");
         }
 
         return true;

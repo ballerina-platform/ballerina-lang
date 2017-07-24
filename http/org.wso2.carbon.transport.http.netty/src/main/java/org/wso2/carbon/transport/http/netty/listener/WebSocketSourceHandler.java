@@ -44,8 +44,10 @@ import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionI
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
+import javax.websocket.Session;
 
 /**
  * This class handles all kinds of WebSocketFrames
@@ -55,13 +57,15 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String uri;
-    private CarbonMessage cMsg;
     private final String channelId;
     private final boolean isSecured;
-    private final WebSocketSessionImpl session;
+    private final WebSocketSessionImpl serverSession;
+
+    private CarbonMessage cMsg;
+    private List<Session> clientSessions = new LinkedList<>();
 
     /**
-     * @param channelId This works as the session id of the WebSocket connection.
+     * @param channelId This works as the serverSession id of the WebSocket connection.
      * @param connectionManager connection manager for WebSocket connection.
      * @param listenerConfiguration Listener configuration for WebSocket connection.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
@@ -70,24 +74,46 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     public WebSocketSourceHandler(String channelId, ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration, HttpRequest httpRequest,
-                                  boolean isSecured, ChannelHandlerContext ctx) throws Exception {
+                                  boolean isSecured, ChannelHandlerContext ctx,
+                                  WebSocketSessionImpl serverSession) throws Exception {
         super(connectionManager, listenerConfiguration);
         this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.isSecured = isSecured;
-        this.session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
-        httpRequest.headers().entries().forEach(
-                header -> {
-                    session.addUserProperty(header.getKey(), header.getValue());
-                }
-        );
-        sendOnOpenMessage(ctx, isSecured, uri);
+        this.serverSession = serverSession;
+    }
+
+    /**
+     * Set the client session associated with the server session.
+     *
+     * @param clientSession {@link Session} of the client associated with this Server session.
+     */
+    public void addClientSession(Session clientSession) {
+        clientSessions.add(clientSession);
+    }
+
+    /**
+     * Retrieve client session associated with the this server session.
+     *
+     * @return the client session of the source handler.
+     */
+    public List<Session> getClientSessions() {
+        return clientSessions;
+    }
+
+    /**
+     * Retrieve server session of this source handler.
+     *
+     * @return the server session of this source handler.
+     */
+    public Session getServerSession() {
+        return  serverSession;
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (session.isOpen()) {
-            session.setIsOpen(false);
+        if (serverSession.isOpen()) {
+            serverSession.setIsOpen(false);
             int statusCode = 1001; // Client is going away.
             String reasonText = "Client is going away";
             cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
@@ -120,7 +146,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             String reasonText = closeWebSocketFrame.reasonText();
             int statusCode = closeWebSocketFrame.statusCode();
             ctx.channel().close();
-            session.setIsOpen(false);
+            serverSession.setIsOpen(false);
             cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
 
         } else if (msg instanceof PingWebSocketFrame) {
@@ -167,15 +193,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         }
     }
 
-
-    private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) throws URISyntaxException {
-        cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        setupCarbonMessage(ctx);
-        cMsg.setProperty(Constants.CONNECTION, Constants.UPGRADE);
-        cMsg.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
-        publishToMessageProcessor(cMsg);
-    }
-
     /*
      Extract all the necessary properties from ChannelHandlerContext
      Add them into a CarbonMessage
@@ -187,19 +204,17 @@ public class WebSocketSourceHandler extends SourceHandler {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
-        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.TO, this.uri);
+        cMsg.setProperty(Constants.SRC_HANDLER, this);
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                          ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecured);
         cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.CHANNEL_ID, channelId);
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
-        cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
+        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
+        cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, serverSession);
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, clientSessions);
     }
 }

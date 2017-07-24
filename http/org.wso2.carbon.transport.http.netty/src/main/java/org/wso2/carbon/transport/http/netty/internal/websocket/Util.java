@@ -17,12 +17,23 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.util.client.websocket;
+package org.wso2.carbon.transport.http.netty.internal.websocket;
+
+import io.netty.channel.ChannelHandlerContext;
+
+import java.net.URISyntaxException;
 
 /**
- * WebSocket constants for testing purposes.
+ * Utility class for WebSocket client connector.
  */
-public class WebSocketTestConstants {
-    public static final String PAYLOAD_NEW_CLIENT_CONNECTED = "NEW_CLIENT_CONNECTED";
-    public static final String PAYLOAD_CLIENT_LEFT = "CLIENT_LEFT";
+public class Util {
+
+    public static String getSessionID(ChannelHandlerContext ctx) {
+        return ctx.channel().id().asLongText();
+    }
+
+    public static WebSocketSessionImpl getSession(ChannelHandlerContext ctx,
+                                                  boolean isSecured, String uri) throws URISyntaxException {
+        return new WebSocketSessionImpl(ctx, isSecured, uri, getSessionID(ctx));
+    }
 }

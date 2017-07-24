@@ -20,6 +20,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,10 @@ import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -184,15 +187,14 @@ public class ConnectionManager {
                 targetHandler.setIncomingMsg(carbonMessage);
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
-                if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
-//                    int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-//                    targetChannel.getChannel().pipeline().addBefore("targetHandler", "idleStateHandler",
-//                            new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
-                    targetChannel.setRequestWritten(true); // If request written
-                }
+                int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
+                targetChannel.getChannel().pipeline().addBefore("targetHandler", "idleStateHandler",
+                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
+                targetChannel.setRequestWritten(true);
+                ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
             }
         } catch (Exception e) {
-            String msg = "Failed to send the request through the default pooling";
+            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             carbonMessage.setMessagingException(messagingException);
@@ -218,6 +220,7 @@ public class ConnectionManager {
 
     //Add connection to Pool back
     public void returnChannel(TargetChannel targetChannel) throws Exception {
+        targetChannel.setRequestWritten(false);
         Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
         releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
     }
@@ -233,6 +236,7 @@ public class ConnectionManager {
     }
 
     public void invalidateTargetChannel(TargetChannel targetChannel) throws Exception {
+        targetChannel.setRequestWritten(false);
         Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
         try {
             // Need a null check because SourceHandler side could timeout before TargetHandler side.
