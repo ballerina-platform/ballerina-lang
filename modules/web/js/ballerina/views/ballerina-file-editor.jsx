@@ -427,14 +427,13 @@ class BallerinaFileEditor extends React.Component {
                     }
                 </CSSTransitionGroup>
                 <DesignView model={this.state.model} show={showDesignView} />
-                <div style={{ display: showSourceView ? 'block' : 'none' }}>
-                    <SourceView
-                        displayErrorList={popupErrorListInSourceView}
-                        parseFailed={this.state.parseFailed}
-                        file={this.props.file}
-                        commandManager={this.props.commandManager}
-                    />
-                </div>
+                <SourceView
+                    displayErrorList={popupErrorListInSourceView}
+                    parseFailed={this.state.parseFailed}
+                    file={this.props.file}
+                    commandManager={this.props.commandManager}
+                    show={showSourceView}
+                />
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView
                         targetService={this.state.swaggerViewTargetService}

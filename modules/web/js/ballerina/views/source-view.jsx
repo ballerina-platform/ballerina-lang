@@ -140,68 +140,67 @@ class SourceView extends React.Component {
                         }
                     }
                 }
+                style={{ display: this.props.show ? 'block' : 'none'}}
             >
-                <div className="wrapperDiv">
-                    <div className="outerSourceDiv">
-                        <SourceEditor
-                            commandManager={this.props.commandManager}
-                            file={this.props.file}
-                            parseFailed={this.props.parseFailed}
-                            onLintErrors={this.onSourceEditorLintErrors}
-                        />
-                        <div
-                            className={classNames('bottom-right-controls-container',
-                                            { disabled: hasSyntaxErrors })}
+                <div className="outerSourceDiv">
+                    <SourceEditor
+                        commandManager={this.props.commandManager}
+                        file={this.props.file}
+                        parseFailed={this.props.parseFailed}
+                        onLintErrors={this.onSourceEditorLintErrors}
+                    />
+                    <div
+                        className={classNames('bottom-right-controls-container',
+                                        { disabled: hasSyntaxErrors })}
+                    >
+                        <div className={classNames('view-design-btn btn-icon',
+                                    { target: this.state.displayErrorList })}
                         >
-                            <div className={classNames('view-design-btn btn-icon',
-                                        { target: this.state.displayErrorList })}
-                            >
-                                <div className="bottom-label-icon-wrapper">
-                                    <i className="fw fw-design-view fw-inverse" />
-                                </div>
-                                <div
-                                    className="bottom-view-label"
-                                    ref={(ref) => {
-                                        this.errorListPopoverTarget = ref;
-                                    }}
-                                    onClick={
-                                    () => {
-                                        if (!hasSyntaxErrors) {
-                                            this.context.editor.setActiveView(DESIGN_VIEW);
-                                        } else {
-                                            this.toggleErrorListPopover();
-                                        }
+                            <div className="bottom-label-icon-wrapper">
+                                <i className="fw fw-design-view fw-inverse" />
+                            </div>
+                            <div
+                                className="bottom-view-label"
+                                ref={(ref) => {
+                                    this.errorListPopoverTarget = ref;
+                                }}
+                                onClick={
+                                () => {
+                                    if (!hasSyntaxErrors) {
+                                        this.context.editor.setActiveView(DESIGN_VIEW);
+                                    } else {
+                                        this.toggleErrorListPopover();
                                     }
                                 }
-                                >
-                                    Design View
-                                </div>
-                                {hasSyntaxErrors && this.context.isTabActive &&
-                                    <Overlay
-                                        show={this.state.displayErrorList}
-                                        container={this}
-                                        target={this.errorListPopoverTarget}
-                                        placement="top"
-                                    >
-                                        {errorListPopover}
-                                    </Overlay>
-                                }
+                            }
+                            >
+                                Design View
                             </div>
-                            {hasSyntaxErrors && !this.state.displayErrorList &&
-                                <CSSTransitionGroup
-                                    transitionName="error-count-badge"
-                                    transitionEnterTimeout={300}
-                                    transitionLeaveTimeout={300}
+                            {hasSyntaxErrors && this.context.isTabActive &&
+                                <Overlay
+                                    show={this.state.displayErrorList}
+                                    container={this}
+                                    target={this.errorListPopoverTarget}
+                                    placement="top"
                                 >
-                                    <div
-                                        className="syntax-errors-counter-container"
-                                        onClick={this.toggleErrorListPopover}
-                                    >
-                                        <span className="badge">{this.state.syntaxErrors.length}</span>
-                                    </div>
-                                </CSSTransitionGroup>
+                                    {errorListPopover}
+                                </Overlay>
                             }
                         </div>
+                        {hasSyntaxErrors && !this.state.displayErrorList &&
+                            <CSSTransitionGroup
+                                transitionName="error-count-badge"
+                                transitionEnterTimeout={300}
+                                transitionLeaveTimeout={300}
+                            >
+                                <div
+                                    className="syntax-errors-counter-container"
+                                    onClick={this.toggleErrorListPopover}
+                                >
+                                    <span className="badge">{this.state.syntaxErrors.length}</span>
+                                </div>
+                            </CSSTransitionGroup>
+                        }
                     </div>
                 </div>
             </div>
