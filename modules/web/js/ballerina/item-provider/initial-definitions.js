@@ -267,6 +267,7 @@ const createNamespaceDeclarationStatementTool = {
     cssClass: 'icon fw fw-namespace',
     title: 'Namespace',
     nodeFactoryMethod: DefaultBallerinaASTFactory.createNamespaceDeclarationStatement,
+    definition: 'Can be used for xml qualified names',
 };
 
 const createTransactionAbortedStatementTool = {
