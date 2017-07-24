@@ -5,7 +5,7 @@ Say hello to a new session
 # Now invoke welcome resource as follows.
 $ curl -v http://localhost:9090/session/doTask
         -H "Cookie: BSESSIONID=..(use above BSESSIONID).."
-Session example
+Session sample
 
 # Finally invoke sayBye using same BSESSIONID.
 $ curl -v http://localhost:9090/session/sayBye

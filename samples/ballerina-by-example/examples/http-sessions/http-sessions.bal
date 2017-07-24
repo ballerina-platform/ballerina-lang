@@ -3,7 +3,7 @@ import ballerina.lang.messages;
 
 service<http> session {
 
-    string KEY = "status";
+    string key = "status";
     @http:GET {}
     resource sayHello (message m) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
@@ -17,7 +17,7 @@ service<http> session {
             result = "Say hello to an existing session";
         }
         //Binds a string attribute to this session with a key(string).
-        http:setAttribute(session, KEY, "Session sample");
+        http:setAttribute(session, key, "Session sample");
         messages:setStringPayload(response, result);
         reply response;
     }
@@ -30,9 +30,9 @@ service<http> session {
         message response = {};
         if (session != null) {
             //Returns the object bound with the specified key.
-            attributeValue, _ = (string)http:getAttribute(session, KEY);
+            attributeValue, _ = (string)http:getAttribute(session, key);
         } else {
-            attributeValue = "Session is not available to process";
+            attributeValue = "Session unavailable";
         }
         messages:setStringPayload(response, attributeValue);
         reply response;
@@ -50,7 +50,7 @@ service<http> session {
             messages:setStringPayload(response
                             , "Session: " + id + " invalidated");
         } else {
-            messages:setStringPayload(response, "Session is not available");
+            messages:setStringPayload(response, "Session unavailable");
         }
         reply response;
     }
