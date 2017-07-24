@@ -1,1 +1,1 @@
-//The passthrough sample exhibits the process of HTTP client connector. Deploy echoService sample as a backend service before executing following sample.
+//The passthrough sample exhibits the process of HTTP client connector. Echo Service has used as a sample backend.
