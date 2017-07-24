@@ -59,7 +59,9 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
     },
 
     render() {
-        const view = React.createElement(WelcomeView, {}, null);
+        const view = React.createElement(WelcomeView, {
+            application: this._options.application,
+        }, null);
         ReactDOM.render(view, this._$parent_el[0]);
 
         const commandManager = this._options.application.commandManager;

@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * React component for welcome page.
@@ -25,6 +26,10 @@ import React from 'react';
  * @extends {React.Component}
  */
 class WelcomeView extends React.Component {
+    /**
+     * Creates an instance of WelcomeView.
+     * @memberof WelcomeView
+     */
     constructor() {
         super();
         this.state = {
@@ -32,7 +37,14 @@ class WelcomeView extends React.Component {
         };
     }
 
+    /**
+     * Renders view for welcome view.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof WelcomeView
+     */
     render() {
+        const userGuideURL = this.props.application.config.menu_bar.help_urls.user_guide_url;
         return (<div className="initial-background-container">
             <div className="container-fluid welcome-wrapper">
                 <div className="media media-welcome-container">
@@ -60,7 +72,7 @@ class WelcomeView extends React.Component {
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
                             <li >
-                                <a href="http://ballerinalang.org/docs/user-guide/0.8/" target="_blank" rel="noopener noreferrer">
+                                <a href={userGuideURL} target="_blank" rel="noopener noreferrer">
                                     <i className="fw fw-document" /> User Guide </a></li>
                         </ul>
                     </div>
@@ -81,5 +93,8 @@ class WelcomeView extends React.Component {
     }
 }
 
+WelcomeView.propTypes = {
+    application: PropTypes.instanceOf(Object).isRequired,
+};
 
 export default WelcomeView;
