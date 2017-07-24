@@ -39,6 +39,7 @@ SQL Connector
 Transactions
 Strings
 Blob Type
+Date Time
 File API
 Try/Catch/Finally
 Base Path and Path
