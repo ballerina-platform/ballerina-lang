@@ -12,7 +12,8 @@ function main (string[] args) {
 
 
     //Here you create json array with with several json elements.
-    json jsonArray = [{"dummy-field":"dummy-value"}, {"dummy-field":"dummy-value"}];
+    json jsonArray = [{"name":"John", "age":31},
+                      {"name":"Neal", "age":22}];
 
     //Print the created json array length calculated by 'lengthof' unary operator.
     arrayLength = (lengthof jsonArray);
