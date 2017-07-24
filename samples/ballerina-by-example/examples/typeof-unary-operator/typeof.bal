@@ -1,22 +1,24 @@
 import ballerina.lang.system;
 
 function main (string[] args) {
-    //Here you create integer array with with several integer elements.
-    int[] intArray = [1, 2, 3];
+    //Here you create any typed variable.
+    any variable;
+    //Assign an Integer variable to any typed variable.
+    variable = 5;
 
-    int arrayLength;
+    //Here you create integer typed variable.
+    int intVariable;
 
-    //Print the created integer array length calculated by 'lengthof' unary operator.
-    arrayLength = (lengthof intArray);
-    system:println("Integer array size : " + arrayLength);
+    //Use 'typeof' unary operator to return variable type.
+    type typeOfVariable = (typeof variable);
+    type typeOfIntVariable = (typeof intVariable);
 
+    //Check for runtime type equivalency of any typed variable.
+    if (typeOfVariable == typeOfIntVariable) {
+        system:println("This 'variable' is an integer typed variable.");
+    } else {
+        system:println("This 'variable' is 'NOT' an integer typed variable.");
+    }
 
-    //Here you create json array with with several json elements.
-    json jsonArray = [{"name":"John", "age":31},
-                      {"name":"Neal", "age":22}];
-
-    //Print the created json array length calculated by 'lengthof' unary operator.
-    arrayLength = (lengthof jsonArray);
-    system:println("Json array size : " + arrayLength);
 }
 
