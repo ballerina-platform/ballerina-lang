@@ -2,7 +2,7 @@ package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.websocket.WebSocketClient;
+import org.ballerinalang.test.util.websocket.client.WebSocketClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,9 +30,8 @@ public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
         String balFile = serviceSampleDir + File.separator + "websocket" + File.separator + "echoServer"
                 + File.separator + "server" + File.separator + "websocketEchoServer.bal";
         ballerinaServer.startBallerinaServer(balFile);
-    }
 
-    {
+        // Initializing WebSocket clients
         for (int i = 0; i < clientCount; i++) {
             wsClients[i] = (new WebSocketClient("ws://localhost:9090/echo-server/ws"));
         }

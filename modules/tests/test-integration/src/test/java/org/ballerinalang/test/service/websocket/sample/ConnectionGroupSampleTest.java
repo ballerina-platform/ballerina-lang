@@ -33,9 +33,8 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         String balFile = serviceSampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample"
                 + File.separator + "oddEvenWebSocketSample.balx";
         ballerinaServer.startBallerinaServer(balFile);
-    }
 
-    {
+        // Initializing WebSocket clients
         for (int i = 0; i < clientCount; i++) {
             clients[i] = new WebSocketClient("ws://localhost:9090/group/ws");
         }

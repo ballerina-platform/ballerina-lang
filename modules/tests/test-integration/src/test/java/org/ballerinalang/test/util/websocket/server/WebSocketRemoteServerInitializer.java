@@ -36,9 +36,7 @@ import java.util.List;
 public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final String WEBSOCKET_PATH = "/websocket";
-
     private final SslContext sslCtx;
-
     public static final List<WebSocketRemoteServerFrameHandler> FRAME_HANDLERS = new LinkedList<>();
 
     public WebSocketRemoteServerInitializer(SslContext sslCtx) {

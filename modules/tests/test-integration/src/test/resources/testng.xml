@@ -35,6 +35,7 @@
             <class name="org.ballerinalang.test.service.websocket.sample.EchoServerSampleTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.sample.ConnectionGroupSampleTest"/>
             <class name="org.ballerinalang.test.service.websocket.sample.ConnectionStoreSampleTest"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketClientTest"/>
         </classes>
     </test>
 </suite>

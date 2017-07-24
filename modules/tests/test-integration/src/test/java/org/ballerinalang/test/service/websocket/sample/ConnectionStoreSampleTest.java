@@ -32,9 +32,8 @@ public class ConnectionStoreSampleTest extends WebSocketIntegrationTest {
         String balFile = serviceSampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample"
                 + File.separator + "storeConnection.balx";
         ballerinaServer.startBallerinaServer(balFile);
-    }
 
-    {
+        // Initializing WebSocket clients
         for (int i = 0; i < 5; i++) {
             webSocketClients[i] = new WebSocketClient("ws://localhost:9090/store/ws");
         }

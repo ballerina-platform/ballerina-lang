@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
-
     private boolean isOpen = true;
 
     public boolean isOpen() {
