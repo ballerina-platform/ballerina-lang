@@ -49,7 +49,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool {
+public class UnresolvedReferenceInspection extends LocalInspectionTool {
 
     @Override
     @Nullable
