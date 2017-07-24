@@ -92,11 +92,6 @@ export default class GlobalDefinitionItem extends React.Component {
         if (this.state.highlighted) {
             className = 'global-definition-item-hightlighted';
         }
-
-       /* const globalItemValue = _.truncate(this.props.getValue(this.props.globalDec), {
-            length: 38,
-        });*/
-
         return (
 
 
