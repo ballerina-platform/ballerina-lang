@@ -11,10 +11,10 @@ function main (string[] args) {
     system:println("Integer array size : " + arrayLength);
 
 
-    // Here you create json array with with several json elements.
+    //Here you create json array with with several json elements.
     json jsonArray = [{"dummy-field":"dummy-value"}, {"dummy-field":"dummy-value"}];
 
-    // Print the created json array length calculated by 'lengthof' unary operator.
+    //Print the created json array length calculated by 'lengthof' unary operator.
     arrayLength = (lengthof jsonArray);
     system:println("Json array size : " + arrayLength);
 }
