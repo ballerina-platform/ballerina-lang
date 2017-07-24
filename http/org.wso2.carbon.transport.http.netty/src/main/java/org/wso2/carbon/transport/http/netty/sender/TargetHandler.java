@@ -115,7 +115,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             }
         } else {
             if (msg instanceof HttpResponse) {
-                LOG.warn("Received a response for an obsolete request ");
+                LOG.warn("Received a response for an obsolete request");
             }
             ReferenceCountUtil.release(msg);
         }
