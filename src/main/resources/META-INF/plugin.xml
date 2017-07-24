@@ -216,6 +216,10 @@
         <localInspection language="Ballerina" displayName="Invalid strings" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="ERROR"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnclosedStringLiteralInspection"/>
+
+        <localInspection language="Ballerina" displayName="Function invocation inspection" groupPath="Ballerina"
+                         groupName="General" enabledByDefault="true" level="WARNING"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.FunctionInvocationInspection"/>
    </extensions>
 
     <actions>
