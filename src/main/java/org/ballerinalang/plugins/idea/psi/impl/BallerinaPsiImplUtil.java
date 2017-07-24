@@ -1007,19 +1007,23 @@ public class BallerinaPsiImplUtil {
                 return false;
             }
         }
-        PsiElement firstChild = assignmentStatementNode.getFirstChild();
-        if (!(firstChild instanceof LeafPsiElement)) {
-            return false;
-        }
-        IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
-        if (elementType != BallerinaTypes.VAR) {
+        if (!isVarAssignmentStatement(assignmentStatementNode)) {
             return false;
         }
         return assignmentStatementNode.getTextRange().getEndOffset() < caretOffset;
     }
 
+    public static boolean isVarAssignmentStatement(@NotNull AssignmentStatementNode assignmentStatementNode) {
+        PsiElement firstChild = assignmentStatementNode.getFirstChild();
+        if (!(firstChild instanceof LeafPsiElement)) {
+            return false;
+        }
+        IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+        return elementType == BallerinaTypes.VAR;
+    }
+
     @NotNull
-    private static List<IdentifierPSINode> getVariablesFromVarAssignment(@NotNull AssignmentStatementNode
+    public static List<IdentifierPSINode> getVariablesFromVarAssignment(@NotNull AssignmentStatementNode
                                                                                  assignmentStatementNode) {
         List<IdentifierPSINode> results = new LinkedList<>();
         VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(assignmentStatementNode,
@@ -1483,7 +1487,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
-    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement definitionNode) {
+    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
+                                                                                             definitionNode) {
         TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
