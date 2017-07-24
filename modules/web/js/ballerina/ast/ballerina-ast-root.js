@@ -176,17 +176,26 @@ class BallerinaASTRoot extends ASTNode {
     }
 
     /**
+     * Adds an import from a json object
+     * @param {Object} jsonNode json object representing the import
+     * @returns {void}
+     */
+    addImportFromJson(jsonNode) {
+        const importNode = this.getFactory().createFromJson(jsonNode);
+        if (!this.getFactory().isImportDeclaration(importNode)) {
+        // only imports can added at global level
+            return;
+        }
+        importNode.initFromJson(jsonNode);
+        this.addImport(importNode);
+    }
+
+
+    /**
      * Adds new import declaration.
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
-    addImport(jsonNode, options) {
-        const importNode = this.getFactory().createFromJson(jsonNode);
-        if (!this.getFactory().isImportDeclaration(importNode)) {
-            // only imports can added at global level
-            return;
-        }
-
-        importNode.initFromJson(jsonNode);
+    addImport(importNode, options) {
         if (this.isExistingPackage(importNode.getPackageName())) {
             const errorString = 'Package "' + importNode.getPackageName() + '" is already imported.';
             log.debug(errorString);

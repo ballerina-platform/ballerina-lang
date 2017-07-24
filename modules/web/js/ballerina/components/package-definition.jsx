@@ -151,7 +151,7 @@ class PackageDefinition extends React.Component {
                 if (!jsonTree.root[1]) {
                     return;
                 }
-                this.props.model.parent.addImport(jsonTree.root[1]);
+                this.props.model.parent.addImportFromJson(jsonTree.root[1]);
             })
             .catch(log.error);
     }
