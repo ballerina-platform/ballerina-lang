@@ -1,3 +1,4 @@
 $ ballerina run filter-connector.bal
-I'm Mike
-Hello Bob
+300
+350
+999
