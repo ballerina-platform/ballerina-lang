@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class InvalidStringInspection extends LocalInspectionTool {
+public class UnclosedStringLiteralInspection extends LocalInspectionTool {
 
     @Override
     @Nullable

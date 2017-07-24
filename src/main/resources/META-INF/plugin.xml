@@ -215,7 +215,7 @@
 
         <localInspection language="Ballerina" displayName="Invalid strings" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="ERROR"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.InvalidStringInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnclosedStringLiteralInspection"/>
    </extensions>
 
     <actions>
