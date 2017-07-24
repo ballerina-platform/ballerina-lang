@@ -1,20 +1,18 @@
 import ballerina.net.http;
 import ballerina.doc;
 
-@doc:Description {value:"Since the basepath is not specified, it's value will be '/passthrough' which is the name of the service."}
 service<http> passthrough {
-
+    @doc:Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
     @http:Path {value:"/"}
     resource passthrough (message m) {
-        http:ClientConnector endPoint = create http:ClientConnector(
-                                        "http://samples.openweathermap.org");
+        http:ClientConnector endPoint = create http:ClientConnector
+                                            ("http://localhost:9092/echo");
+        //Extract request method from message.
         string method = http:getMethod(m);
         //Action execute() returns the response from backend service. It includes endPoint, HTTP method, resource path and message as parameters.
-        message response = http:ClientConnector.execute(endPoint, method
-				, "/data/2.5/weather?lat=35&lon=139&appid=b1b1", m);
+        message response = http:ClientConnector
+                            .execute(endPoint, method, "/", m);
         reply response;
-
     }
-
 }
 
