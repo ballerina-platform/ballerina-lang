@@ -1,3 +1,5 @@
+package clientConnector.sample;
+
 import ballerina.net.ws;
 import ballerina.lang.system;
 import ballerina.lang.messages;
