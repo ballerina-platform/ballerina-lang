@@ -443,6 +443,15 @@ public class XMLTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
     }
+
+    @Test
+    public void testIsSingletonWithMultipleChildren() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIsSingletonWithMultipleChildren");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+
+    }
     
     @Test
     public void testIsEmpty() {
@@ -451,16 +460,51 @@ public class XMLTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
     }
+
+    @Test
+    public void testIsEmptyWithNoElementTextValue() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIsEmptyWithNoElementTextValue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+    }
+
+    @Test
+    public void testIsEmptyWithMultipleChildren() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIsEmptyWithMultipleChildren");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+    }
     
     @Test
     public void testGetItemType() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetItemType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
         
         Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "");
+        Assert.assertEquals(returns[1].stringValue(), "element");
+
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertEquals(returns[2].stringValue(), "");
+    }
+
+    @Test
+    public void testGetItemTypeForElementWithPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetItemTypeForElementWithPrefix");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "element");
+    }
+
+    @Test
+    public void testGetItemTypeForElementWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetItemTypeForElementWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "element");
     }
     
     @Test
@@ -470,10 +514,34 @@ public class XMLTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
     }
+
+    @Test
+    public void testGetElementNameWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementNameForElementWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
+    }
+
+     @Test
+    public void testGetElementNameWithoutNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementNameForElementWithoutNamespace");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test/core}name");
+    }
     
     @Test
     public void testGetTextValue() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetTextValue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "supun");
+    }
+
+    @Test
+    public void testGetTextValueDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetTextValueDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "supun");
@@ -493,6 +561,21 @@ public class XMLTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
     }
+
+    @Test
+    public void testGetElementsFromSequence() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsFromSequence");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
     
     @Test
     public void testGetElementsByName() {
@@ -509,6 +592,119 @@ public class XMLTest {
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameByPrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithDifferentPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameByDifferentPrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+/*    @Test
+    public void testGetElementsByNameEmptyNamespace() {
+        //disabled due to:3062
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameEmptyNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }*/
+
+    @Test
+    public void testGetElementsByNameWithPrefixForDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNamePrefixForDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithDifferentNamespaces() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameDifferentNamespaces");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
+
+        // is element seq one is empty?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+
+        // is element seq one is singleton?
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+
+        // is element seq two is empty?
+        Assert.assertSame(returns[4].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+
+        // is element seq two is singleton?
+        Assert.assertSame(returns[5].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
     }
     
     @Test
