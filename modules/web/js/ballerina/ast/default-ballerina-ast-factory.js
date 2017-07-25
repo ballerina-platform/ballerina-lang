@@ -167,17 +167,23 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
     actionDefinition.getReturnParams().forEach((param, index) => {
         if (index === 0) {
             leftOperandExpression = param.type + ' ' + (param.identifier
-                    ? param.identifier : param.type.substr(0, 1));
+                ? param.identifier : param.type.substr(0, 1));
         }
     });
 
     const rightOperandExpression = ((args.actionPackageName === 'Current Package') ? '' : args.actionPackageName + ':') +
         args.actionConnectorName + '.' + args.action + '()';
 
-    const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
-    variableDefinitionStatement.setStatementFromString(leftOperandExpression + ' = ' + rightOperandExpression);
-    variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
-    return variableDefinitionStatement;
+    let statement;
+    if (leftOperandExpression !== '') {
+        statement = BallerinaASTFactory.createVariableDefinitionStatement();
+        statement.setStatementFromString(`${leftOperandExpression} = ${rightOperandExpression}`, null);
+    } else {
+        statement = BallerinaASTFactory.createActionInvocationStatement();
+        statement.setStatementFromString(rightOperandExpression);
+    }
+    statement.accept(new EnableDefaultWSVisitor());
+    return statement;
 };
 
 /**
