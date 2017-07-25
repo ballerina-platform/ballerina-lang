@@ -279,12 +279,11 @@ const createTransactionAbortedStatementTool = {
     definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
-const statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-    createVariableDefinitionStatementTool, createFunctionInvocationTool, createReturnStatementTool,
-    createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool,
-    createThrowStatementTool, createWorkerInvocationStatementTool, createWorkerReplyStatementTool,
-    createTransformStatementTool, createJoinStatementTool, createAbortStatementTool,
-    createTransactionAbortedStatementTool, createContinueStatementTool, createNamespaceDeclarationStatementTool];
+const statementToolDefArray = [createAbortStatementTool, createAssignmentExpressionTool, createBreakStatementTool,
+    createContinueStatementTool, createJoinStatementTool, createFunctionInvocationTool, createIfStatementTool,
+    createNamespaceDeclarationStatementTool, createWorkerReplyStatementTool, createReplyStatementTool,
+    createReturnStatementTool, createWorkerInvocationStatementTool, createThrowStatementTool, createTransactionAbortedStatementTool,
+    createTransformStatementTool, createTryCatchStatementTool, createVariableDefinitionStatementTool, createWhileStatementTool];
 
 const seperator = {
     id: 'constructs_seperator',
