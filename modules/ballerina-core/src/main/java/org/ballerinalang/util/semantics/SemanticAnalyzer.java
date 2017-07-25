@@ -777,10 +777,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // First parameter should be of type connector in which these actions are defined.
-        ParameterDef firstParamDef = action.getParameterDefs()[0];
-        if (firstParamDef.getType() != action.getConnectorDef()) {
-            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.INCOMPATIBLE_TYPES,
-                    action.getConnectorDef(), firstParamDef.getType());
+        if (action.getParameterDefs().length < 1 ||
+                action.getParameterDefs()[0].getType() != action.getConnectorDef()) {
+            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.INVALID_ACTION_FIRST_PARAMETER,
+                    action.getConnectorDef());
         }
 
         for (ParameterDef parameterDef : action.getReturnParameters()) {
