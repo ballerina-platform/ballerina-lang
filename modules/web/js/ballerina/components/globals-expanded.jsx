@@ -81,12 +81,13 @@ export default class GlobalExpanded extends React.Component {
     }
 
     render() {
-        const bBox = this.props.bBox;
+        const { bBox, globals } = this.props;
         const topBarHeight = variablesPaneDefaults.topBarHeight;
         const globalInputHeight = variablesPaneDefaults.inputHeight;
         const iconSize = variablesPaneDefaults.iconSize;
         const globalHeight = variablesPaneDefaults.globalItemHeight;
         const globalDeclarationWidth = variablesPaneDefaults.globalDeclarationWidth;
+        const globalDefDecorationWidth = variablesPaneDefaults.globalDefDecorationWidth;
         const leftPadding = 10;
         const globalElements = [];
         const editorOuterPadding = 10;
@@ -98,7 +99,7 @@ export default class GlobalExpanded extends React.Component {
 
         let lastGlobalElementY = topBarBbox.y + topBarHeight;
 
-        this.props.globals.forEach((globalDec) => {
+        globals.forEach((globalDec) => {
             const itemBBox = {
                 x: bBox.x,
                 y: lastGlobalElementY,
@@ -126,10 +127,11 @@ export default class GlobalExpanded extends React.Component {
             initialValue: '',
         };
 
+        const totalHeight = topBarHeight + (globals.length*globalHeight) + globalInputHeight;
+
         return (
             <g className="global-definitions-collection">
                 <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} width={globalDeclarationWidth} style={{ fill: '#ddd' }} />
-                <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} className="global-definition-decorator" />
                 <text x={topBarBbox.x + leftPadding} y={topBarBbox.y + topBarHeight / 2} className="global-definitions-topbar-label">
                     {this.props.title}</text>
                 <image
@@ -140,7 +142,6 @@ export default class GlobalExpanded extends React.Component {
                 {globalElements}
                 <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="add-global-button-background"
                       />
-                <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="global-definition-decorator" />
                 <g onClick={e => {this.openEditor(textBoxBBox)}}>
                     <rect
                         x={bBox.x + 7} y={lastGlobalElementY + 7} height={globalInputHeight - 14} width={globalDeclarationWidth - 14}
@@ -148,6 +149,7 @@ export default class GlobalExpanded extends React.Component {
                     />
                     <text x={bBox.x + 14} y={lastGlobalElementY + globalInputHeight / 2} className="add-global-button-text" >{this.props.addText}</text>
                 </g>
+                <rect x={topBarBbox.x} y={topBarBbox.y} height={totalHeight} width={globalDefDecorationWidth} className="global-definition-decorator" />
             </g>
         );
     }

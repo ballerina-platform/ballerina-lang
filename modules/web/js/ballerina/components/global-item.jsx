@@ -115,13 +115,6 @@ export default class GlobalDefinitionItem extends React.Component {
                     {util.getTextWidth(this.props.getValue(this.props.globalDec), 0, DesignerDefaults.globalDeclarationWidth).text}
                 </text>
                 <rect
-                    x={x}
-                    y={y}
-                    height={h}
-                    width={w}
-                    className="global-definition-decorator"
-                />
-                <rect
                     x={x + w - 30}
                     y={y}
                     height={h}

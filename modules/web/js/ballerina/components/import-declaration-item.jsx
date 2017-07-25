@@ -72,7 +72,6 @@ export default class importDeclarationItem extends React.Component {
 
                     {util.getTextWidth(importPkgName, 0, DesignerDefaults.globalDeclarationWidth).text}
                 </text>
-                <rect x={x} y={y} height={h} className="import-definition-decorator" />
                 <rect x={x + w - 30} y={y} height={h} width={30} className="delete-background" onClick={this.handleDeleteClick} />
                 <text x={x + w - 18} y={y + h / 2} style={deleteStyle} className="delete-x" onClick={this.handleDeleteClick}>x</text>
             </g>
