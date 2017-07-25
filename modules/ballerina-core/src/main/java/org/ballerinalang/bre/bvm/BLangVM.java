@@ -2367,19 +2367,28 @@ public class BLangVM {
         } else {
             defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
         }
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
 
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+        if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
+            //ControlStackNew controlStack = context.getControlStackNew();
+            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
+                    funcCallCPEntry.getRetRegs());
+            controlStack.pushFrame(workerCalleeSF);
+            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
 
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+            // Invoke other workers
+            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo);
+        } else {
 
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+            StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+            controlStack.pushFrame(calleeSF);
+
+            // Copy arg values from the current StackFrame to the new StackFrame
+            copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+            // TODO Improve following two lines
+            this.constPool = calleeSF.packageInfo.getConstPoolEntries();
+            this.code = calleeSF.packageInfo.getInstructions();
+            ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+        }
 
     }
 
@@ -2389,20 +2398,28 @@ public class BLangVM {
         StackFrame callerSF = controlStack.getCurrentFrame();
 
         WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
 
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+        if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
+            //ControlStackNew controlStack = context.getControlStackNew();
+            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
+                    funcCallCPEntry.getRetRegs());
+            controlStack.pushFrame(workerCalleeSF);
+            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
 
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+            // Invoke other workers
+            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo);
+        } else {
 
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+            StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+            controlStack.pushFrame(calleeSF);
 
+            // Copy arg values from the current StackFrame to the new StackFrame
+            copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+            // TODO Improve following two lines
+            this.constPool = calleeSF.packageInfo.getConstPoolEntries();
+            this.code = calleeSF.packageInfo.getInstructions();
+            ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+        }
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,

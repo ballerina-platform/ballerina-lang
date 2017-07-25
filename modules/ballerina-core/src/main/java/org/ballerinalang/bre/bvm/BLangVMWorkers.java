@@ -18,29 +18,34 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.*;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.debugger.VMDebugManager;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class contains helper functions to invoke workers.
@@ -50,52 +55,18 @@ import java.util.concurrent.*;
 public class BLangVMWorkers {
 
     public static List<WorkerResult> invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                              String[] args, Context bContext) {
+                                            StackFrame callerSF, int[] argRegs,
+                                            Context bContext, WorkerInfo defaultWorkerInfo) {
 
-//        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-//        if (ModeResolver.getInstance().isDebugEnabled()) {
-//            VMDebugManager debugManager = VMDebugManager.getInstance();
-//            // This will start the websocket server.
-//            debugManager.mainInit(programFile, bContext);
-//            debugManager.holdON();
-//        } else {
-//            bLangVM.run(bContext);
-//        }
-//
-//        if (bContext.getError() != null) {
-//            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-//            throw new BLangRuntimeException("error: " + stackTraceStr);
-//        }
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         List<WorkerExecutor> workerRunnerList = new ArrayList<>();
         List<WorkerResult> resultMsgs;
         long timeout = 180; // Default timeout value is 180 seconds
 
-        // Create the worker for main(default) thread
-        WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-
-        // Prepare main function arguments
-        BStringArray arrayArgs = new BStringArray();
-        for (int i = 0; i < args.length; i++) {
-            arrayArgs.add(i, args[i]);
-        }
-
-        StackFrame stackFrame = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefLocalVars()[0] = arrayArgs;
-        ControlStackNew controlStackNew = bContext.getControlStackNew();
-        controlStackNew.pushFrame(stackFrame);
-
         BLangVM bLangVM = new BLangVM(programFile);
         BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
                 bContext, defaultWorkerInfo);
         workerRunnerList.add(workerRunner);
-
-
-        // Execute workers
-        StackFrame callerSF = new StackFrame(programFile.getEntryPackage(), -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = arrayArgs;
-        int[] argRegs = {0};
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
             Context workerContext = new Context(programFile);
@@ -196,8 +167,8 @@ public class BLangVMWorkers {
                     }
                 }
             }
-
-            return new WorkerResult(workerInfo.getWorkerName(), bRefValueArray);
+            WorkerResult workerResult = new WorkerResult(workerInfo.getWorkerName(), bRefValueArray);
+            return workerResult;
         }
     }
 }

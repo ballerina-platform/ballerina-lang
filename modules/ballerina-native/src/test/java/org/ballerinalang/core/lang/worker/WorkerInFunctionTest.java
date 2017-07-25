@@ -58,6 +58,14 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test(description = "Test parallel workers in function")
+    public void testParallelWorkersInFunction() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testParallelWorkers", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMessage);
+    }
+
     @Test(description = "Test worker accessing parameters passed into function")
     public void testWorkerAccessingFunctionParameters() {
         bProgramFile = BTestUtils.getProgramFile("samples/worker-accessing-function-params.bal");

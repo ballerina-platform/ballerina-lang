@@ -224,16 +224,18 @@ public class BLangFunctions {
         calleeSF.setByteLocalVars(byteLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
-        // Execute workers
-        BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs);
+        if (functionInfo.getWorkerInfoEntries().length > 0) {
+            // Execute workers
+            BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs, context, defaultWorkerInfo);
+        } else {
+            BLangVM bLangVM = new BLangVM(bLangProgram);
+            context.setStartIP(codeAttribInfo.getCodeAddrs());
+            bLangVM.run(context);
 
-        BLangVM bLangVM = new BLangVM(bLangProgram);
-        context.setStartIP(codeAttribInfo.getCodeAddrs());
-        bLangVM.run(context);
-
-        if (context.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
+            if (context.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
         }
 
         longRegCount = 0;

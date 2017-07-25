@@ -100,17 +100,21 @@ public interface BLangVMInterceptors {
         calleeSF.setByteLocalVars(byteLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
-        // Execute workers
-        BLangVMWorkers.invoke(serviceInterceptor.getProgramFile(), functionInfo, calleeSF, retRegs);
-        // Execute Default worker.
-        BLangVM bLangVM = new BLangVM(serviceInterceptor.getProgramFile());
-        context.setStartIP(codeAttribInfo.getCodeAddrs());
-        bLangVM.run(context);
+        if (functionInfo.getWorkerInfoEntries().length > 0) {
+            // Execute workers
+            BLangVMWorkers.invoke(serviceInterceptor.getProgramFile(), functionInfo,
+                    calleeSF, retRegs, context, defaultWorkerInfo);
+        } else {
+            // Execute Default worker.
+            BLangVM bLangVM = new BLangVM(serviceInterceptor.getProgramFile());
+            context.setStartIP(codeAttribInfo.getCodeAddrs());
+            bLangVM.run(context);
 
-        if (context.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
-            LOGGER.error("error in service interception, " + stackTraceStr);
-            throw new BLangRuntimeException(BLangVMErrors.getErrorMessage(context.getError()));
+            if (context.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+                LOGGER.error("error in service interception, " + stackTraceStr);
+                throw new BLangRuntimeException(BLangVMErrors.getErrorMessage(context.getError()));
+            }
         }
 
         return new ServiceInterceptor.Result(callerSF.getIntRegs()[0] == 1, (BMessage) callerSF.getRefRegs()[0]);

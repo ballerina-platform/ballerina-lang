@@ -7,6 +7,23 @@ function testSimpleWorker(message msg)(message) {
     return q;
 }
 
+function testParallelWorkers (message msg) (message) {
+    //This statement will be executed by the default worker.
+    system:println("Hello, World! #m");
+
+    message m = {};
+    return m;
+    //Workers don’t need to be explicitly started. They start at the same time as the default worker.
+    worker w2 {
+        system:println("Hello, World! #n");
+    }
+
+    worker w3 {
+        system:println("Hello, World! #k");
+    }
+
+}
+
 function testSimpleWorkerVM(message msg)(message) {
     message result;
     //message msg = {};
