@@ -38,7 +38,7 @@ class ArrayInitExpression extends Expression {
         this.getChildren().length = 0;
         _.each(jsonNode.children, (childNode) => {
             const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }
