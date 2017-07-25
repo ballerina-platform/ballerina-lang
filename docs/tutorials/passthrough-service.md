@@ -17,4 +17,5 @@ When defining a Ballerina program as a service instead of an executable program,
 A service is a container of `resources`, each of which defines the logic for handling one type of request. Services are singletons, so all variables defined within a service scope are shared across all resource invocations. A service can have state for as long as it's active.
 
 1. To define a service in the Composer, drag the service from the tool palette to the canvas. You can then set the base path annotation using the Annotations button in the upper right corner of the service, and define any variables the service needs by clicking the Variables button in the upper left corner. A new resource is added automatically to the service, where you can start adding your integration logic. You can add more resources as needed.
+
     ![alt text](../images/AddService.gif)
