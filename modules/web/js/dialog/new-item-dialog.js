@@ -31,6 +31,10 @@ class NewItemDialog extends ModalDialog {
 
     onSubmit(data, itemName) {
         const app = this._options.application;
+
+        if (!itemName.includes('.bal')) {
+            itemName += '.bal';
+        }
         const path = data.path + app.getPathSeperator() + itemName;
         const existsResponse = this._serviceClient.exists(path);
         if (existsResponse.exists) {
