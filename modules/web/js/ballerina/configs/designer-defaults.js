@@ -295,4 +295,5 @@ export const variablesPane = {
     noOfGlobalsLeftPadding: 12,
     noOfGlobalsTextPadding: 10,
     globalDeclarationWidth: 310,
+    globalDefDecorationWidth: 3,
 };

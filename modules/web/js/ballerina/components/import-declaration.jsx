@@ -34,6 +34,7 @@ const ImportDeclaration = ({ bBox, viewState, noOfImports, onClick }) => {
         importLabelWidth = 48,
         noOfImportsTextWidth = 100,
         badgeWidth = 150,
+        importDecDecoratorWidth = 3,
     } = viewState;
 
     const labelBbox = {
@@ -62,7 +63,13 @@ const ImportDeclaration = ({ bBox, viewState, noOfImports, onClick }) => {
                 ry="0"
                 className="package-definition-header"
             />
-            <rect x={bBox.x} y={bBox.y} height={headerHeight} className="import-definition-decorator" />
+            <rect
+                x={bBox.x}
+                y={bBox.y}
+                height={headerHeight}
+                width={importDecDecoratorWidth}
+                className="import-definition-decorator"
+            />
             <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
                 Imports
             </text>

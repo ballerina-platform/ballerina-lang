@@ -118,13 +118,6 @@ export default class GlobalDefinitionItem extends React.Component {
                     {globalItemValue}
                 </text>
                 <rect
-                    x={x}
-                    y={y}
-                    height={h}
-                    width={w}
-                    className="global-definition-decorator"
-                />
-                <rect
                     x={x + w - 30}
                     y={y}
                     height={h}

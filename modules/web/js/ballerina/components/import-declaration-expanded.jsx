@@ -47,7 +47,7 @@ export default class importDeclarationExpanded extends React.Component {
     }
 
     render() {
-        const bBox = this.props.bBox;
+        const { bBox, imports } = this.props;
         const importDeclarationHeight = 30;
         const importInputHeight = 40;
         const importDeclarationWidth = 310;
@@ -56,6 +56,7 @@ export default class importDeclarationExpanded extends React.Component {
         const topBarHeight = 25;
         const iconSize = 20;
         const importElements = [];
+        const importDecDecoratorWidth = 3;
 
         const topBarBbox = {
             x: bBox.x,
@@ -64,7 +65,7 @@ export default class importDeclarationExpanded extends React.Component {
 
         let lastImportElementY = topBarBbox.y + topBarHeight;
 
-        this.props.imports.forEach((importDec, count) => {
+        imports.forEach((importDec, count) => {
             const itemBBox = {
                 x: bBox.x,
                 y: lastImportElementY,
@@ -94,10 +95,11 @@ export default class importDeclarationExpanded extends React.Component {
             initialValue: '',
         };
 
+        const totalHeight = topBarHeight + (imports.length*importDeclarationHeight) + importInputHeight
+
         return (
             <g className="import-declarations-collection">
                 <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} width={importDeclarationWidth} style={{ fill: '#ddd' }} />
-                <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} className="import-definition-decorator" />
                 <text x={topBarBbox.x + leftPadding} y={topBarBbox.y + topBarHeight / 2} className="import-declaration-topbar-label">Imports</text>
                 <image
                     width={iconSize}
@@ -120,7 +122,6 @@ export default class importDeclarationExpanded extends React.Component {
                     />
                     <text x={bBox.x + 14} y={lastImportElementY + importInputHeight / 2} className="add-import-button-text" >{'+ Add Import'}</text>
                 </g>
-                <rect x={bBox.x} y={lastImportElementY} height={importInputHeight} className="import-definition-decorator" />
                 <SuggestionsText
                     x={bBox.x + 5}
                     y={lastImportElementY + 5}
@@ -132,6 +133,7 @@ export default class importDeclarationExpanded extends React.Component {
                     onEnter={this.props.onAddImport}
                     onSuggestionSelected={this.onImportSelect}
                 />
+                <rect x={topBarBbox.x} y={topBarBbox.y} height={totalHeight} width={importDecDecoratorWidth} className="import-definition-decorator" />
             </g>
         );
     }
