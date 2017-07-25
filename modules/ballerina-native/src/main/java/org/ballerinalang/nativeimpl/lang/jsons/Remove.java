@@ -18,60 +18,42 @@
 
 package org.ballerinalang.nativeimpl.lang.jsons;
 
-import com.jayway.jsonpath.InvalidPathException;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.JsonPathException;
-import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.WriteContext;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Remove the element(s) that matches the given jsonpath.
+ * Remove the element(s) that matches the given key.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.jsons",
         functionName = "remove",
         args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING)},
+                @Argument(name = "key", type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Removes each element that matches the given JSONPath.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
-        value = "A JSON object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
-        value = "The path of the JSON element") })
-public class Remove extends AbstractJSONFunction {
+public class Remove extends AbstractNativeFunction {
 
     private static final String OPERATION = "remove element from json";
 
     @Override
     public BValue[] execute(Context ctx) {
-        String jsonPath = null;
+        String fieldName = null;
         try {
             // Accessing Parameters.
             BJSON json = (BJSON) getRefArgument(ctx, 0);
-            jsonPath = getStringArgument(ctx, 0);
+            fieldName = getStringArgument(ctx, 0);
 
             // Removing the element
-            WriteContext jsonCtx = JsonPath.parse(json.value());
-            jsonCtx.delete(jsonPath);
-        } catch (PathNotFoundException e) {
-            ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
-        } catch (InvalidPathException e) {
-            ErrorHandler.handleInvalidJsonPath(OPERATION, e);
-        } catch (JsonPathException e) {
-            ErrorHandler.handleJsonPathException(OPERATION, e);
+            JSONUtils.remove(json, fieldName);
         } catch (Throwable e) {
-            ErrorHandler.handleJsonPathException(OPERATION, e);
+            ErrorHandler.handleJsonException(OPERATION, e);
         }
 
         return VOID_RETURN;
