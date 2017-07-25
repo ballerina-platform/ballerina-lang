@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class ConnectionStoreSampleTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 500;
+    private final int threadSleepTime = 1000;
     private final int clientCount = 5;
     private final WebSocketClient[] webSocketClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;

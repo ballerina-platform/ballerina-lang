@@ -21,7 +21,7 @@ import javax.net.ssl.SSLException;
  */
 public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 100;
+    private final int threadSleepTime = 1000;
     private final int clientCount = 10;
     private final WebSocketClient[] clients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
