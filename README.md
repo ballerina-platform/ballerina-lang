@@ -34,6 +34,13 @@ The build process of the composer works on Maven and Node Package Manager(npm).
 *   `npm run test` - Executes tests. The tests requires the composer service to run.
 *   `npm run lint` - Run [eslint](http://eslint.org/) on the code to find potential problems in the code.
 
+## Browser Compatibility
+
+For now the Composer supports only following browsers.
+
+*   Google Chrome ( v49 and above )
+*   Mozilla Firefox ( v50 and above )
+
 ## Running the Composer
 
 The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
