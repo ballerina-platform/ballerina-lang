@@ -129,7 +129,8 @@ public enum SemanticErrors {
     INCORRECT_FUNCTION_ARGUMENTS("incorrect.function.arguments", "SEMANTIC_105"),
     CONNECTOR_TYPES_NOT_EQUIVALENT("connector.types.not.equivalent", "SEMANTIC_0106"),
     FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0107"),
-    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108")
+    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
+    INVALID_ACTION_FIRST_PARAMETER("invalid.action.first.parameter", "SEMANTIC_0109"),
     ;
 
     private String errorMsgKey;
