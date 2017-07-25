@@ -178,7 +178,6 @@ class BallerinaASTRoot extends ASTNode {
     /**
      * Adds an import from a json object
      * @param {Object} jsonNode json object representing the import
-     * @returns {void}
      */
     addImportFromJson(jsonNode) {
         const importNode = this.getFactory().createFromJson(jsonNode);
