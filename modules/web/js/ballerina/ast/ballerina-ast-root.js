@@ -180,13 +180,13 @@ class BallerinaASTRoot extends ASTNode {
      * @param {Object} jsonNode json object representing the import
      */
     addImportFromJson(jsonNode) {
-        const importNode = this.getFactory().createFromJson(jsonNode);
-        if (!this.getFactory().isImportDeclaration(importNode)) {
+        const importDeclaration = this.getFactory().createFromJson(jsonNode);
+        if (!this.getFactory().isImportDeclaration(importDeclaration)) {
         // only imports can added at global level
             return;
         }
-        importNode.initFromJson(jsonNode);
-        this.addImport(importNode);
+        importDeclaration.initFromJson(jsonNode);
+        this.addImport(importDeclaration);
     }
 
 
@@ -194,9 +194,9 @@ class BallerinaASTRoot extends ASTNode {
      * Adds new import declaration.
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
-    addImport(importNode, options) {
-        if (this.isExistingPackage(importNode.getPackageName())) {
-            const errorString = 'Package "' + importNode.getPackageName() + '" is already imported.';
+    addImport(importDeclaration, options) {
+        if (this.isExistingPackage(importDeclaration.getPackageName())) {
+            const errorString = 'Package "' + importDeclaration.getPackageName() + '" is already imported.';
             log.debug(errorString);
             return;
         }
@@ -212,19 +212,19 @@ class BallerinaASTRoot extends ASTNode {
             index = 0;
         }
 
-        this.addChild(importNode, index + 1);
+        this.addChild(importDeclaration, index + 1);
 
         const modifiedEvent = {
             origin: this,
             type: 'child-added',
             title: 'add import',
             data: {
-                child: importNode,
+                child: importDeclaration,
                 index: index + 1,
             },
         };
 
-        this.trigger('import-new-package', importNode.getPackageName());
+        this.trigger('import-new-package', importDeclaration.getPackageName());
         if (options === undefined || !options.doSilently) {
             this.trigger('tree-modified', modifiedEvent);
         }
