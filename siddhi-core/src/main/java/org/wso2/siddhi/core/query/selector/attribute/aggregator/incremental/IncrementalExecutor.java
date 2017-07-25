@@ -116,6 +116,21 @@ public class IncrementalExecutor implements Executor {
         this.scheduler = scheduler;
     }
 
+    public Object getInMemoryStore () {
+        return (baseIncrementalValueGroupByStoreList != null) ? baseIncrementalValueGroupByStoreList :
+                (baseIncrementalValueStoreMap != null) ? baseIncrementalValueStoreMap:
+                        (baseIncrementalValueStoreList != null) ? baseIncrementalValueStoreList:
+                                baseIncrementalValueStore;
+    }
+
+    public StreamEventPool getStreamEventPool () {
+        return streamEventPool;
+    }
+
+    public boolean isRoot() {
+        return isRoot;
+    }
+    
     @Override
     public void execute(ComplexEventChunk streamEventChunk) {
         streamEventChunk.reset();
@@ -294,7 +309,7 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-    private class BaseIncrementalValueStore {
+    public class BaseIncrementalValueStore {
         private long timestamp; // This is the starting timeStamp of aggregates
         private Object[] values;
         private List<ExpressionExecutor> expressionExecutors;
@@ -312,6 +327,14 @@ public class IncrementalExecutor implements Executor {
 
         public void setValue(Object value, int position) {
             values[position] = value;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public Object[] getValues() {
+            return values;
         }
 
         public BaseIncrementalValueStore cloneStore(String key, long timestamp) {

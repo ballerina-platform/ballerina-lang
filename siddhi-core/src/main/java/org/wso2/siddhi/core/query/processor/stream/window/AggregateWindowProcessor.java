@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is the {@link WindowProcessor} intence to be used with aggregate join queries.
+ * This is the {@link WindowProcessor} intended to be used with aggregate join queries.
  * This processor keeps a reference of the Aggregate and finds the items from that.
  * The process method just passes the events to the next
  * {@link org.wso2.siddhi.core.query.input.stream.join.JoinProcessor} inorder to handle
@@ -70,6 +70,7 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner) {
         // Pass the event  to the post JoinProcessor
+        nextProcessor.process(streamEventChunk); // TODO: 7/21/17 check
     }
 
     @Override

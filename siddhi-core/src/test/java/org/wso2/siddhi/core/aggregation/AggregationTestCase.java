@@ -40,7 +40,8 @@ public class AggregationTestCase {
     @Test
     public void incrementalStreamProcessorTest1() {
         LOG.info("Incremental Processing: incrementalStreamProcessorTest1");
-        // Test Aggregation parsing: Without group by, external time based, time range (all time durations from sec to min)
+        // Test Aggregation parsing: Without group by, external time based,
+        // time range (all time durations from sec to min)
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -59,7 +60,8 @@ public class AggregationTestCase {
     @Test
     public void incrementalStreamProcessorTest2() {
         LOG.info("Incremental Processing: incrementalStreamProcessorTest2");
-        // Test Aggregation parsing: Without group by, event time based, time range (all time durations from sec to min)
+        // Test Aggregation parsing: Without group by, event time based,
+        // time range (all time durations from sec to min)
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -78,7 +80,8 @@ public class AggregationTestCase {
     @Test
     public void incrementalStreamProcessorTest3() {
         LOG.info("Incremental Processing: incrementalStreamProcessorTest3");
-        // Test Aggregation parsing: With group by (one attribute), event time based, comma separated durations
+        // Test Aggregation parsing: With group by (one attribute),
+        // event time based, comma separated durations
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -423,7 +426,7 @@ public class AggregationTestCase {
                 "" +
                 "from barStream as b join cseEventAggregation as a " +
                 "on a.symbol == b.symbol " +
-                "within \"2014-02-15T00:00:00Z\", \"2014-03-16T00:00:00Z\" " +
+                "within \"2014-02-15 00:00:00\", \"2014-03-16 00:00:00\" " +
                 "per \"day\" " +
                 "select a.symbol, a.total, a.avgPrice " +
                 "insert into fooBar;";

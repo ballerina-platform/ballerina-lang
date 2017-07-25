@@ -187,6 +187,11 @@ public class AggregationParser {
         Map<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName, incrementalDurations,
                 processedMetaStreamEvent.getOutputStreamDefinition(), siddhiAppRuntimeBuilder,
                 aggregationDefinition.getAnnotations(), groupByVariableList);
+        //Create inMemory tables to hold running aggregate values.
+        HashMap<TimePeriod.Duration, Table> runningAggregationTablesForJoin = runningAggregateStoreForJoin
+                (aggregatorName, incrementalDurations,
+                processedMetaStreamEvent.getOutputStreamDefinition(), siddhiAppRuntimeBuilder,
+                aggregationDefinition.getAnnotations(), groupByVariableList);
 
         Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = buildIncrementalExecutors(
                 siddhiAppContext, aggregatorName, isProcessingOnExternalTime,
@@ -203,9 +208,10 @@ public class AggregationParser {
         streamRuntime.setCommonProcessor(new IncrementalAggregationProcessor(rootIncrementalExecutor,
                 incomingExpressionExecutors, processedMetaStreamEvent));
 
+        List<ExpressionExecutor> baseExecutors = cloneExpressionExecutors(processExpressionExecutors);
         AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                 aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor,incrementalDurations,
-                siddhiAppContext);
+                siddhiAppContext, runningAggregationTablesForJoin, baseExecutors);
 
         return aggregationRuntime;
     }
@@ -541,12 +547,12 @@ public class AggregationParser {
             List<Annotation> annotations, List<Variable> groupByVariableList) {
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
         // Create annotations for primary key
-        Annotation primaryKeyAnnotation = new Annotation("PrimaryKey");
+        /*Annotation primaryKeyAnnotation = new Annotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY);
         primaryKeyAnnotation.element(null, "_TIMESTAMP");
         for (Variable groupByVariable : groupByVariableList) {
             primaryKeyAnnotation.element(null, groupByVariable.getAttributeName());
         }
-        annotations.add(primaryKeyAnnotation);
+        annotations.add(primaryKeyAnnotation);*/
         for (TimePeriod.Duration duration : durations) {
             String tableId = aggregatorName + "_" + duration.toString();
             TableDefinition tableDefinition = TableDefinition.id(tableId);
@@ -560,5 +566,22 @@ public class AggregationParser {
             aggregationTableMap.put(duration, siddhiAppRuntimeBuilder.getTableMap().get(tableId));
         }
         return aggregationTableMap;
+    }
+
+    private static HashMap<TimePeriod.Duration, Table> runningAggregateStoreForJoin(
+            String aggregatorName, List<TimePeriod.Duration> durations,
+            StreamDefinition streamDefinition, SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
+            List<Annotation> annotations, List<Variable> groupByVariableList) {
+        HashMap<TimePeriod.Duration, Table> runningAggregationTableMap = new HashMap<>();
+        for (TimePeriod.Duration duration : durations) {
+            String tableId = "RunningAggregations" + aggregatorName + "_" + duration.toString();
+            TableDefinition tableDefinition = TableDefinition.id(tableId);
+            for (Attribute attribute : streamDefinition.getAttributeList()) {
+                tableDefinition.attribute(attribute.getName(), attribute.getType());
+            }
+            siddhiAppRuntimeBuilder.defineTable(tableDefinition);
+            runningAggregationTableMap.put(duration, siddhiAppRuntimeBuilder.getTableMap().get(tableId));
+        }
+        return runningAggregationTableMap;
     }
 }
