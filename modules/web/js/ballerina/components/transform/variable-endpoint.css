@@ -1,0 +1,23 @@
+.transform-endpoint-icon {
+    padding: 8px;
+}
+
+.transform-endpoint .btn {
+    float: right;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+}
+
+.transform-endpoint .source-connect-point {
+    float: right;
+}
+
+.transform-endpoint .target-connect-point {
+    float: left;
+}
+
+.transform-endpoint .variable {
+    position: relative;
+}

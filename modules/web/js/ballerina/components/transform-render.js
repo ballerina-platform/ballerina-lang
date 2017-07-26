@@ -165,9 +165,9 @@ class TransformRender {
  * @param targetId Id of the target element of the connection
  * @returns connectionObject
  */
-    getConnectionObject(id, sourceId, targetId) {
-        const sourceName = this.getStructId(sourceId).replace("func-input", "").replace("func-output", "");
-        const targetName = this.getStructId(targetId).replace("func-input", "").replace("func-output", "");
+    getConnectionObject(id, source, target) {
+        const sourceName = source.name;
+        const targetName = target.name;
 
         let sourceRefObj;
         let targetRefObj;
@@ -182,13 +182,13 @@ class TransformRender {
 
         return {
             id,
-            sourceStruct: this.getStructName(sourceName),
-            sourceProperty: this.getPropertyNameStack(sourceId),
-            sourceType: this.getPropertyType(sourceId),
+            sourceStruct: source.structName || sourceName,
+            sourceProperty: source.fieldName,
+            sourceType: source.type,
             sourceReference: sourceRefObj,
-            targetStruct: this.getStructName(targetName),
-            targetProperty: this.getPropertyNameStack(targetId),
-            targetType: this.getPropertyType(targetId),
+            targetStruct: target.structName || targetName,
+            targetProperty: target.fieldName,
+            targetType: target.type,
             targetReference: targetRefObj,
             isComplexMapping: false,
             complexMapperName: null,
@@ -751,14 +751,17 @@ addComplexParameter(parentId, struct) {
  * @param element
  * @param self
  */
-    addSource(element, self, maxConnections) {
+    addSource(element, self, maxConnections, input) {
         const connectionConfig = {
-            anchor: ['Right'],
+            anchor: ['Center'],
+            parameters: {
+                input
+            }
         };
         if (maxConnections) {
             connectionConfig.maxConnections = 1;
         }
-        self.jsPlumbInstance.makeSource(element, connectionConfig);
+        this.jsPlumbInstance.makeSource(element, connectionConfig);
     }
 
 /**
@@ -786,23 +789,22 @@ addComplexParameter(parentId, struct) {
  * @param element
  * @param self
  */
-    addTarget(element, self) {
-        self.jsPlumbInstance.makeTarget(element, {
+    addTarget(element, self, output) {
+        this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
-            anchor: ['Left'],
-            beforeDrop(params) {
+            anchor: ['Center'],
+            beforeDrop: params => {
                 // Checks property types are equal or type is any
-                const sourceType = self.getPropertyType(params.sourceId).toLowerCase();
-                const targetType = self.getPropertyType(params.targetId).toLowerCase();
-
-                // TODO do the valid type check by incorporating the type lattice
-                const isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
-                                        || sourceType === 'json' || targetType === 'json';
-                const connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
+                const input = params.connection.getParameters().input;
+                const sourceType = input.type;
+                const targetType = output.type;
+                const isValidTypes = sourceType === targetType || sourceType === "any" || targetType === "any"
+                    || sourceType === 'json' || targetType === 'json';
+                const connection = this.getConnectionObject(params.id, input, output);
                 if (isValidTypes) {
-                    self.midpoint += self.midpointVariance;
-                    self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
-                    connection.id = self.onConnection(connection);
+                    this.midpoint += this.midpointVariance;
+                    this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+                    connection.id = this.onConnection(connection);
                     params.connection.setParameter('id', connection.id);
                 }
                 return isValidTypes;

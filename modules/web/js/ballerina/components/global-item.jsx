@@ -80,6 +80,7 @@ export default class GlobalDefinitionItem extends React.Component {
     render() {
         const { x, y, w, h } = this.props.bBox;
         const leftPadding = variablesPaneDefaults.globalItemLeftPadding;
+        const decoratorWidth = variablesPaneDefaults.globalDefDecorationWidth;
 
         const deleteStyle = {};
 

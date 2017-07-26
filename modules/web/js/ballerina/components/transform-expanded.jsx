@@ -27,6 +27,7 @@ import SuggestionsDropdown from './transform-endpoints-dropdown';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import Tree from './transform/tree';
 
 class TransformExpanded extends React.Component {
     constructor(props, context){
@@ -38,6 +39,8 @@ class TransformExpanded extends React.Component {
             selectedTarget: '-1',
         }
         this.predefinedStructs = [];
+        this.sourceElements = {};
+        this.targetElements = {};
         this.getSourcesAndTargets();
 
         this.onSourceSelect = this.onSourceSelect.bind(this);
@@ -53,6 +56,8 @@ class TransformExpanded extends React.Component {
         this.onTargetInputEnter = this.onTargetInputEnter.bind(this);
         this.addSource = this.addSource.bind(this);
         this.addTarget = this.addTarget.bind(this);
+        this.recordSourceElement = this.recordSourceElement.bind(this);
+        this.recordTargetElement = this.recordTargetElement.bind(this);
     }
 
     getFunctionDefinition(functionInvocationExpression) {
@@ -220,6 +225,20 @@ class TransformExpanded extends React.Component {
         }
     };
 
+    recordSourceElement(element, id, input) {
+        if(!element || element.isSource){
+            return;
+        }
+        this.sourceElements[id] = {element, input};
+    }
+
+    recordTargetElement(element, id, output) {
+        if(!element || element.isTarget){
+            return;
+        }
+        this.targetElements[id] = {element, output};
+    }
+
     getStructAccessNode(name, property, isStruct) {
         if (!isStruct) {
             let simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
@@ -227,7 +246,7 @@ class TransformExpanded extends React.Component {
             return simpleVarRefExpression;
         } else {
             let fieldVarRefExpression = BallerinaASTFactory.createFieldBasedVarRefExpression();
-            fieldVarRefExpression.setExpressionFromString(`${name}.${_.join(property, '.')}`);
+            fieldVarRefExpression.setExpressionFromString(property);
             return fieldVarRefExpression;
         }
     }
@@ -570,14 +589,15 @@ class TransformExpanded extends React.Component {
         });
     }
 
-    createType(name, typeName, predefinedStruct, isInner) {
-        const struct = this.getStructType(name, typeName, predefinedStruct, isInner);
+    createType(name, typeName, predefinedStruct, isInner, fieldName) {
+        const struct = this.getStructType(name, typeName, predefinedStruct, isInner, fieldName);
         this.predefinedStructs.push(struct);
         return struct;
     }
 
-    getStructType(name, typeName, predefinedStruct, isInner) {
+    getStructType(name, typeName, predefinedStruct, isInner, fieldName) {
         const struct = {};
+
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
@@ -589,10 +609,12 @@ class TransformExpanded extends React.Component {
             property.name = field.getName();
             property.type = field.getType();
             property.packageName = field.getPackageName();
+            property.structName = name;
+            property.fieldName = (fieldName || name) + `.${property.name}`
 
             let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (!_.isUndefined(innerStruct) && typeName !== property.type) {
-                property.innerType = this.createType(property.name, property.type, innerStruct, true);
+                property.innerType = this.createType(property.name, property.type, innerStruct, true, property.fieldName);
             }
 
             struct.properties.push(property);
@@ -601,6 +623,19 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        const sourceKeys = Object.keys(this.sourceElements);
+        sourceKeys.forEach(key => {
+            const {element, input} = this.sourceElements[key];
+            this.mapper.addSource(element, null, null, input);
+        });
+
+        const targetKeys = Object.keys(this.targetElements);
+        targetKeys.forEach(key => {
+            const {element, output} = this.targetElements[key];
+            this.mapper.addTarget(element, null, output);
+        });
+        // make these jsPlumbSources
+
         if(this.props.model === prevProps.model) {
             return;
         }
@@ -613,16 +648,6 @@ class TransformExpanded extends React.Component {
 
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
-
-        _.forEach(nextProps.model.getInput(), (input) => {
-            //trim expression to remove any possible white spaces
-            this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
-        });
-
-        _.forEach(nextProps.model.getOutput(), (output) => {
-            //trim expression to remove any possible white spaces
-            this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
-        });
 
         _.forEach(nextProps.model.getChildren(), (statement) => {
             this.createConnection(statement);
@@ -646,16 +671,6 @@ class TransformExpanded extends React.Component {
     componentDidMount() {
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
-
-        _.forEach(this.props.model.getInput(), (input) => {
-            //trim expression to remove any possible white spaces
-            this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
-        });
-
-        _.forEach(this.props.model.getOutput(), (output) => {
-            //trim expression to remove any possible white spaces
-            this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
-        });
 
         _.forEach(this.props.model.getChildren(), (statement) => {
             this.createConnection(statement);
@@ -897,29 +912,28 @@ class TransformExpanded extends React.Component {
             return false;
         }
 
-        const removeFunc = id => {
-            this.mapper.removeType(id);
-            _.remove(this.props.model.getInput(),(currentObject) => {
-                return currentObject.getVariableName() === id;
-            });
-            this.removeAssignmentStatements(id, "source");
-            this.props.model.setInput(this.props.model.getInput());
-            var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
-            currentSelectionObj.added = false;
-        }
+        // const removeFunc = id => {
+        //     this.mapper.removeType(id);
+        //     _.remove(this.props.model.getInput(),(currentObject) => {
+        //         return currentObject.getVariableName() === id;
+        //     });
+        //     this.removeAssignmentStatements(id, "source");
+        //     this.props.model.setInput(this.props.model.getInput());
+        //     var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
+        //     currentSelectionObj.added = false;
+        // }
+        //
+        // if (!sourceSelection.added) {
+        //     if (sourceSelection.type === 'struct') {
+        //         this.mapper.addSourceType(sourceSelection, removeFunc);
+        //     } else if (sourceSelection.constraint !== undefined) {
+        //         this.mapper.addSourceType(sourceSelection.constraint, removeFunc);
+        //     } else {
+        //         this.mapper.addVariable(sourceSelection, 'source', removeFunc);
+        //     }
+        //     sourceSelection.added = true;
 
-        if (!sourceSelection.added) {
-            if (sourceSelection.type === 'struct') {
-                this.mapper.addSourceType(sourceSelection, removeFunc);
-            } else if (sourceSelection.constraint !== undefined) {
-                this.mapper.addSourceType(sourceSelection.constraint, removeFunc);
-            } else {
-                this.mapper.addVariable(sourceSelection, 'source', removeFunc);
-            }
-            sourceSelection.added = true;
-            return true;
-        }
-            return false;
+        return true;
 
     }
 
@@ -930,30 +944,32 @@ class TransformExpanded extends React.Component {
             return false;
         }
 
-        const removeFunc = id => {
-            this.mapper.removeType(id);
-            _.remove(this.props.model.getOutput(),(currentObject) => {
-                return currentObject.getVariableName() === id;
-            });
-            this.removeAssignmentStatements(id, "target");
-            this.props.model.setOutput(this.props.model.getOutput());
-            var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
-            currentSelectionObj.added = false;
-        }
+        // const removeFunc = id => {
+        //     this.mapper.removeType(id);
+        //     _.remove(this.props.model.getOutput(),(currentObject) => {
+        //         return currentObject.getVariableName() === id;
+        //     });
+        //     this.removeAssignmentStatements(id, "target");
+        //     this.props.model.setOutput(this.props.model.getOutput());
+        //     var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
+        //     currentSelectionObj.added = false;
+        // }
+        //
+        // if (!targetSelection.added) {
+        //     if (targetSelection.type === 'struct') {
+        //         this.mapper.addTargetType(targetSelection, removeFunc);
+        //     } else if (targetSelection.constraint !== undefined) {
+        //         this.mapper.addTargetType(targetSelection.constraint, removeFunc);
+        //     } else {
+        //         this.mapper.addVariable(targetSelection, 'target', removeFunc);
+        //     }
+        //     targetSelection.added = true;
+        //     return true;
+        // }
+        //
+        // return false;
 
-        if (!targetSelection.added) {
-            if (targetSelection.type === 'struct') {
-                this.mapper.addTargetType(targetSelection, removeFunc);
-            } else if (targetSelection.constraint !== undefined) {
-                this.mapper.addTargetType(targetSelection.constraint, removeFunc);
-            } else {
-                this.mapper.addVariable(targetSelection, 'target', removeFunc);
-            }
-            targetSelection.added = true;
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     removeAssignmentStatements(id, type) {
@@ -1006,6 +1022,31 @@ class TransformExpanded extends React.Component {
         const sourceId = 'sourceStructs' + this.props.model.id;
         const targetId = 'targetStructs' + this.props.model.id;
         const sourcesAndTargets = this.predefinedStructs.filter(endpoint => (!endpoint.isInner));
+        const inputNodes = this.props.model.getInput();
+        const outputNodes = this.props.model.getOutput();
+
+        const inputs = [];
+        inputNodes.forEach(inputNode => {
+            const name = inputNode.getVariableName();
+            const sourceSelection = _.find(this.predefinedStructs, { name });
+            if (_.isUndefined(sourceSelection)) {
+                alerts.error('Mapping source "' + name + '" cannot be found');
+                return;
+            }
+            inputs.push(sourceSelection);
+        });
+
+        const outputs = [];
+        outputNodes.forEach(outputNode => {
+            const name = outputNode.getVariableName();
+            const targetSelection = _.find(this.predefinedStructs, { name });
+            if (_.isUndefined(targetSelection)) {
+                alerts.error('Mapping target "' + name + '" cannot be found');
+                return;
+            }
+
+            outputs.push(targetSelection);
+        });
 
         return (
             <div id='transformOverlay' className='transformOverlay'>
@@ -1038,7 +1079,9 @@ class TransformExpanded extends React.Component {
                             <i className="fw fw-add fw-stack-1x"></i>
                         </span>
                     </div>
-                    <div className="leftType"></div>
+                    <div className="leftType">
+                        <Tree endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
+                    </div>
                     <div className="middle-content">
                         <span className="middle-content-title">Drag Function here</span>
                     </div>
@@ -1059,7 +1102,9 @@ class TransformExpanded extends React.Component {
                             <i className="fw fw-add fw-stack-1x"></i>
                         </span>
                     </div>
-                    <div className="rightType"></div>
+                    <div className="rightType">
+                        <Tree endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement}/>
+                    </div>
                     <div id ="transformContextMenu" className="transformContextMenu"></div>
                     <div id ="transformFooter" className="transform-footer"></div>
                 </div>
@@ -1079,3 +1124,12 @@ TransformExpanded.contextTypes = {
 };
 
 export default TransformExpanded;
+
+
+
+// WEBPACK FOOTER //
+// ./js/ballerina/components/transform-expanded.jsx
+
+
+// WEBPACK FOOTER //
+// ./js/ballerina/components/transform-expanded.jsx
