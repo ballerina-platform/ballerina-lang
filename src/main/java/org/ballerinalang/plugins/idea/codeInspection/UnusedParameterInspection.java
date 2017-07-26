@@ -71,6 +71,6 @@ public class UnusedParameterInspection extends LocalInspectionTool {
                                                    @NotNull List<LocalQuickFix> availableFixes) {
         LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
         return manager.createProblemDescriptor(identifier, "Unused parameter <code>#ref</code>" +
-                " #loc", isOnTheFly, fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
+                " #loc", isOnTheFly, fixes, ProblemHighlightType.LIKE_UNUSED_SYMBOL);
     }
 }

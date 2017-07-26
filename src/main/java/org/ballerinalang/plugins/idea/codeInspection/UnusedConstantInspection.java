@@ -71,6 +71,6 @@ public class UnusedConstantInspection extends LocalInspectionTool {
                                                    PsiElement identifier, List<LocalQuickFix> availableFixes) {
         LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
         return manager.createProblemDescriptor(identifier, "Unused constant <code>#ref</code>" +
-                " #loc", isOnTheFly, fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
+                " #loc", isOnTheFly, fixes, ProblemHighlightType.LIKE_UNUSED_SYMBOL);
     }
 }

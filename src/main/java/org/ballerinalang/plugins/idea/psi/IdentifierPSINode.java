@@ -116,6 +116,21 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
                 case RULE_nameReference:
+                    // If we are currently resolving a var variable, we don't need to resolve it since it is the
+                    // definition.
+                    PsiElement element = getPsi();
+                    if (element instanceof IdentifierPSINode) {
+                        AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(element,
+                                AssignmentStatementNode.class);
+                        if (assignmentStatementNode != null
+                                && BallerinaPsiImplUtil.isVarAssignmentStatement(assignmentStatementNode)) {
+                            IdentifierPSINode identifier = (IdentifierPSINode) element;
+                            if (BallerinaPsiImplUtil.isValidVarVariable(assignmentStatementNode, identifier)) {
+                                return null;
+                            }
+                        }
+                    }
+
                     if (xmlAttribNode != null) {
                         return new NameSpaceReference(this);
                     }

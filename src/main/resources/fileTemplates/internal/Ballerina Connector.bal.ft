@@ -1,0 +1,24 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
+package ${PACKAGE_NAME};
+#end
+
+import ballerina.net.http;
+import ballerina.lang.messages;
+import ballerina.lang.system;
+
+connector MyConnector (string url) {
+
+    http:ClientConnector myConnector = create http:ClientConnector(url);
+
+    action connect (MyConnector c, string path) (message) {
+        message request = {};
+        message response = http:ClientConnector.get(myConnector, path, request);
+        return response;
+    }
+}
+
+function main (string[] args) {
+    MyConnector myConnector = create MyConnector("http://example.com");
+    message response = MyConnector.connect(myConnector, "");
+    system:println(messages:getStringPayload(response));
+}

@@ -43,6 +43,8 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.METADATA);
     public static final TextAttributesKey CONSTANT = createTextAttributesKey("BALLERINA_CONSTANT",
             DefaultLanguageHighlighterColors.CONSTANT);
+    public static final TextAttributesKey GLOBAL_VARIABLE = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
+            DefaultLanguageHighlighterColors.INSTANCE_FIELD);
     public static final TextAttributesKey VALID_STRING_ESCAPE = createTextAttributesKey("BALLERINA_VALID_STRING_ESCAPE",
             DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
     public static final TextAttributesKey INVALID_STRING_ESCAPE = createTextAttributesKey(

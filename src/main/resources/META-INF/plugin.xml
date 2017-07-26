@@ -112,6 +112,7 @@
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
         <internalFileTemplate name="Ballerina Service"/>
+        <internalFileTemplate name="Ballerina Connector"/>
 
         <defaultTemplatePropertiesProvider
                 implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>
