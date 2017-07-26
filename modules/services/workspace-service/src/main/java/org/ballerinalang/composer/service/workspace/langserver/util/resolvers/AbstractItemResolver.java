@@ -371,4 +371,21 @@ public abstract class AbstractItemResolver {
             }
         });
     }
+
+    /**
+     * Populate a completion item with the given data and return it
+     * @param insertText insert text
+     * @param type type of the completion item
+     * @param priority completion item priority
+     * @param label completion item label
+     * @return {@link CompletionItem}
+     */
+    protected CompletionItem populateCompletionItem(String insertText, String type, int priority, String label) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setInsertText(insertText);
+        completionItem.setDetail(type);
+        completionItem.setSortText(priority);
+        completionItem.setLabel(label);
+        return completionItem;
+    }
 }

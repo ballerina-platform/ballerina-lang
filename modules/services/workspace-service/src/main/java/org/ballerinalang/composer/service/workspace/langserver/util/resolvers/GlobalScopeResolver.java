@@ -51,9 +51,8 @@ public class GlobalScopeResolver extends AbstractItemResolver {
                     .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
                     .collect(Collectors.toList());
             this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
-        } else if (parserRuleContext instanceof BallerinaParser.TypeNameContext) {
-            return resolvers.get(dataModel.getParserRuleContext().getClass())
-                    .resolveItems(dataModel, symbols, resolvers);
+        } else {
+            return resolvers.get(parserRuleContext.getClass()).resolveItems(dataModel, symbols, resolvers);
         }
 
         return completionItems;
