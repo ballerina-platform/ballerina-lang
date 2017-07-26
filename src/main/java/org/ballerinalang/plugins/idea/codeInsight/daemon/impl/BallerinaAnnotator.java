@@ -37,7 +37,6 @@ import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -240,12 +239,12 @@ public class BallerinaAnnotator implements Annotator {
             if (annotationAttachmentNode == null) {
                 continue;
             }
-            NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(annotationAttachmentNode,
-                    NameReferenceNode.class);
-            if (nameReferenceNode == null) {
+            AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.getChildOfType(annotationAttachmentNode,
+                    AnnotationReferenceNode.class);
+            if (annotationReferenceNode == null) {
                 continue;
             }
-            PsiElement paramType = nameReferenceNode.getNameIdentifier();
+            PsiElement paramType = annotationReferenceNode.getNameIdentifier();
             if (paramType == null) {
                 continue;
             }
