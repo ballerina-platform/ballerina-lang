@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for queryParser to help with QueryRuntime
@@ -161,22 +162,57 @@ public class DefinitionParserHelper {
             Table table;
             ConfigReader configReader = null;
             if (annotation != null) {
-                final String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                Extension extension = new Extension() {
-                    @Override
-                    public String getNamespace() {
-                        return SiddhiConstants.NAMESPACE_STORE;
-                    }
+                String tableRef = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_REF);
+                if (tableRef != null) {
+                    Map<String, String> storeConfigs = siddhiAppContext.getSiddhiContext().getConfigManager()
+                            .extractStoreConfigs(tableRef);
+                    final String tableTypeFromRef = storeConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
 
-                    @Override
-                    public String getName() {
-                        return tableType;
+                    List<Element> customStoreAnnotationElements = storeConfigs.entrySet().stream()
+                            .map((property) -> new Element(
+                                    property.getKey(),
+                                    property.getValue())).collect(Collectors.toList());
+
+                    Annotation customAnnotation = new Annotation(SiddhiConstants.ANNOTATION_STORE);
+                    customAnnotation.setElements(customStoreAnnotationElements);
+                    tableDefinition.replaceAnnotation(customAnnotation);
+                    if (tableTypeFromRef == null) {
+                      throw new SiddhiAppCreationException("Table type has to be defined in the ref");
+                    } else {
+                        Extension extension = new Extension() {
+                            @Override
+                            public String getNamespace() {
+                                return SiddhiConstants.NAMESPACE_STORE;
+                            }
+
+                            @Override
+                            public String getName() {
+                                return tableTypeFromRef;
+                            }
+                        };
+                        table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
+                                TableExtensionHolder.getInstance(siddhiAppContext));
+                        configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                                .generateConfigReader(extension.getNamespace(), extension.getName());
                     }
-                };
-                table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
-                        TableExtensionHolder.getInstance(siddhiAppContext));
-                configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
-                        .generateConfigReader(extension.getNamespace(), extension.getName());
+                } else {
+                    final String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                    Extension extension = new Extension() {
+                        @Override
+                        public String getNamespace() {
+                            return SiddhiConstants.NAMESPACE_STORE;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return tableType;
+                        }
+                    };
+                    table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
+                            TableExtensionHolder.getInstance(siddhiAppContext));
+                    configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                            .generateConfigReader(extension.getNamespace(), extension.getName());
+                }
             } else {
                 table = new InMemoryTable();
             }
@@ -739,7 +775,7 @@ public class DefinitionParserHelper {
     }
 
     /**
-     * Holder to collect attributes mapping
+     * Holder to collect attributes mapping.
      */
     static class AttributesHolder {
         List<AttributeMapping> transportMappings = new ArrayList<>();
