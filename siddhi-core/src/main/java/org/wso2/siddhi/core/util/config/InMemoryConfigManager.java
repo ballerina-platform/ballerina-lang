@@ -22,14 +22,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * In-memory Siddhi Configuration Manager
+ * In-memory Siddhi Configuration Manager.
  */
 public class InMemoryConfigManager implements ConfigManager {
-    private Map<String, String> masterConfigs = new HashMap<>();
+    private Map<String, String> extensionMasterConfigs = new HashMap<>();
+    private Map<String, Map<String, String>> storeConfigs = new HashMap<>();
 
-    public InMemoryConfigManager(Map<String, String> masterConfigs) {
-        if (masterConfigs != null) {
-            this.masterConfigs = masterConfigs;
+    public InMemoryConfigManager(Map<String, String> extensionMasterConfigs,
+                                 Map<String, Map<String, String>> storeConfigs) {
+        if (extensionMasterConfigs != null) {
+            this.extensionMasterConfigs = extensionMasterConfigs;
+        }
+        if (storeConfigs != null) {
+            this.storeConfigs = storeConfigs;
         }
     }
 
@@ -40,11 +45,22 @@ public class InMemoryConfigManager implements ConfigManager {
     public ConfigReader generateConfigReader(String namespace, String name) {
         String keyPrefix = namespace + "." + name;
         Map<String, String> configs = new HashMap<>();
-        for (Map.Entry<String, String> config : masterConfigs.entrySet()) {
+        for (Map.Entry<String, String> config : extensionMasterConfigs.entrySet()) {
             if (config.getKey().startsWith(keyPrefix)) {
                 configs.put(config.getKey(), config.getValue());
             }
         }
         return new InMemoryConfigReader(keyPrefix, configs);
     }
+
+    @Override
+    public Map<String, String> extractStoreConfigs(String name) {
+        for (Map.Entry<String, Map<String, String>> store : storeConfigs.entrySet()) {
+            if (store.getKey().equals(name)) {
+                return store.getValue();
+            }
+        }
+        return new HashMap<>();
+    }
 }
+
