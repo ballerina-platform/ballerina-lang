@@ -94,4 +94,31 @@ service<http> Ecommerce {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:POST{}
+    @http:Path {value:"/test"}
+    resource productsInfo7 (message m, @http:FormParam {value:"fname"} string firstName, string lname) {
+        message response = {};
+        json responseJson = {"FirstName":firstName, "LastName":lname};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:POST{}
+    @http:Path {value:"/test66/{abc}"}
+    resource productsInfo8 (message m, @http:PathParam {value:"abc"} string name, @http:FormParam {value:"team"} string myTeam, string area) {
+        message response = {};
+        json responseJson = {"path":name, "query":myTeam, "form":area};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"/test77"}
+    resource productsInfo9 (message m, @http:FormParam {value:"fname"} string firstName) {
+        message response = {};
+        json responseJson = {"FirstName":firstName};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }

@@ -39,6 +39,10 @@ annotation QueryParam attach parameter {
     string value;
 }
 
+annotation FormParam attach parameter {
+    string value;
+}
+
 annotation Consumes attach resource {
     string[] value;
 }

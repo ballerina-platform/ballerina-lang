@@ -21,6 +21,8 @@ package org.ballerinalang.services.dispatchers.http;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
@@ -49,6 +51,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
+        String contentType = cMsg.getHeader(Constants.CONTENT_TYPE_HEADER);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
         try {
@@ -58,6 +61,20 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     QueryParamProcessor.processQueryParams
                             ((String) cMsg.getProperty(Constants.QUERY_STR))
                             .forEach((resourceArgumentValues::put));
+                }
+                if (contentType != null && contentType.equals(Constants.APPLICATION_X_WWW_FORM_URLENCODED)) {
+                    String payload;
+                    if (cMsg.isAlreadyRead()) {
+                        payload = cMsg.getMessageDataSource().getMessageAsString();
+                    } else {
+                        payload = MessageUtils.getStringFromInputStream(cMsg.getInputStream());
+                        StringDataSource stringDataSource = new StringDataSource(payload);
+                        cMsg.setMessageDataSource(stringDataSource);
+                        cMsg.setAlreadyRead(true);
+                    }
+                    if (!payload.isEmpty()) {
+                        QueryParamProcessor.processQueryParams(payload).forEach((resourceArgumentValues::put));
+                    }
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;

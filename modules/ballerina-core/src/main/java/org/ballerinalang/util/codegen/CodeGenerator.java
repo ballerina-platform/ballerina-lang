@@ -2599,7 +2599,8 @@ public class CodeGenerator implements NodeVisitor {
             boolean isAnnotated = false;
             for (AnnotationAttachment annotationAttachment : attachments) {
                 if ("PathParam".equalsIgnoreCase(annotationAttachment.getName())
-                        || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())) {
+                        || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())
+                        || "FormParam".equalsIgnoreCase(annotationAttachment.getName())) {
                     paramNames[i] = annotationAttachment.getAttributeNameValuePairs()
                             .get("value").getLiteralValue().stringValue();
                     isAnnotated = true;

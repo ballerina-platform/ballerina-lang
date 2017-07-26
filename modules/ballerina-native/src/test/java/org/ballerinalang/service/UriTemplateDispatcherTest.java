@@ -215,6 +215,58 @@ public class UriTemplateDispatcherTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with URL. /ecommerceservice/test")
+    public void testUrlMultipleFormParamDispatching() {
+        String path = "/ecommerceservice/test";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&lname=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("FirstName").asText(), "WSO2"
+                , "ProductID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("LastName").asText(), "BalDance"
+                , "RegID variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with unallowed content types")
+    public void testFormParamDispatchingForNotAllowedContentType() {
+        String path = "/ecommerceservice/test";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&lname=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_OCTET_STREAM);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("FirstName").asText(), "");
+    }
+
+    @Test(description = "Test dispatching with GET request")
+    public void testFormParamDispatchingWithGET() {
+        String path = "/ecommerceservice/test77?fname=WSO2&lname=BalDance";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("FirstName").asText(), "WSO2"
+                , "ProductID variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with path, query and form param")
+    public void testMultipleParamDispatching() {
+        String path = "/ecommerceservice/test66/wso2?team=ballerina";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("path").asText(), "wso2"
+                , "ProductID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("query").asText(), "ballerina"
+                , "RegID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("form").asText(), "colombo"
+                , "RegID variable not set properly.");
+    }
+
     @AfterClass
     public void tearDown() {
 //        EnvironmentInitializer.cleanup(application);
