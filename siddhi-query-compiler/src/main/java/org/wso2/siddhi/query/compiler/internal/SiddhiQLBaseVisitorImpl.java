@@ -49,6 +49,7 @@ import org.wso2.siddhi.query.api.execution.query.input.state.State;
 import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
 import org.wso2.siddhi.query.api.execution.query.input.state.StreamStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
+import org.wso2.siddhi.query.api.execution.query.input.store.Store;
 import org.wso2.siddhi.query.api.execution.query.input.stream.AnonymousInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -2310,8 +2311,11 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     @Override
     public Object visitStore_query(SiddhiQLParser.Store_queryContext ctx) {
-        return StoreQuery.query().from((InputStore) visit(ctx.store_input())).
-                select((Selector) visit(ctx.query_section()));
+        StoreQuery storeQuery = StoreQuery.query().from((InputStore) visit(ctx.store_input()));
+        if (ctx.query_section() != null) {
+            storeQuery = storeQuery.select((Selector) visit(ctx.query_section()));
+        }
+        return storeQuery;
     }
 
     @Override
@@ -2321,11 +2325,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         if (ctx.alias() != null) {
             alias = (String) visit(ctx.source_id());
         }
+        Store store = InputStore.store(alias, sourceId);
+        Expression expression = null;
+        if (ctx.expression() != null) {
+            expression = (Expression) visit(ctx.expression());
+        }
         if (ctx.per() != null) {
-            return InputStore.store(alias, sourceId,
-                    (Within) visit(ctx.within_time_range()), (Expression) visit(ctx.per()));
+            return store.on(expression, (Within) visit(ctx.within_time_range()), (Expression) visit(ctx.per()));
+        } else if (expression != null) {
+            return store.on(expression);
         } else {
-            return InputStore.store(alias, sourceId);
+            return store;
         }
     }
 

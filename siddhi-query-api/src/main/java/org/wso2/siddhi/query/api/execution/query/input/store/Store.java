@@ -1,6 +1,8 @@
 package org.wso2.siddhi.query.api.execution.query.input.store;
 
+import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
  * Store
@@ -15,6 +17,18 @@ public class Store extends BasicSingleInputStream implements InputStore {
 
     protected Store(String storeReferenceId, String storeId) {
         super(storeReferenceId, storeId);
+    }
+
+    public InputStore on(Expression onCondition, Within within, Expression per) {
+        return new AggregationInputStore(this, onCondition, within, per);
+    }
+
+    public InputStore on(Expression onCondition) {
+        return new ConditionInputStore(this, onCondition);
+    }
+
+    public InputStore on(Within within, Expression per) {
+        return new AggregationInputStore(this, within, per);
     }
 
     @Override

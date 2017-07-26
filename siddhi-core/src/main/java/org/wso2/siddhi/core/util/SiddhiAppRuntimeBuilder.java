@@ -265,8 +265,8 @@ public class SiddhiAppRuntimeBuilder {
 
     public SiddhiAppRuntime build() {
         return new SiddhiAppRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
-                streamJunctionMap, tableMap, sourceMap, sinkMap, partitionMap, siddhiAppContext,
-                siddhiAppRuntimeMap);
+                streamJunctionMap, tableMap, windowMap, aggregationMap, sourceMap, sinkMap, partitionMap,
+                siddhiAppContext, siddhiAppRuntimeMap);
     }
 
 }

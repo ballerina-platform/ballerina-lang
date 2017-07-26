@@ -29,11 +29,54 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 public class StoreQueryTestCase {
 
     @Test
-    public void testCreatingJoinQuery() {
+    public void test1() {
         StoreQuery.query().
                 from(
-                        InputStore.store("cseEventTable", Within.within(Expression.value("")),
-                                Expression.value(""))).
+                        InputStore.store("cseEventTable")).
+                select(
+                        Selector.selector().
+                                select("symbol", Expression.variable("symbol")).
+                                select(Expression.variable("price")).
+                                groupBy(Expression.variable("symbol")).
+                                having(
+                                        Expression.compare(
+                                                Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price"))
+                                )
+                );
+    }
+
+    @Test
+    public void test2() {
+        StoreQuery.query().
+                from(
+                        InputStore.store("cseEventTable").
+                                on(Expression.compare(Expression.variable("price"),
+                                        Compare.Operator.GREATER_THAN, Expression.value(40)))).
+                select(
+                        Selector.selector().
+                                select("symbol", Expression.variable("symbol")).
+                                select(Expression.variable("price")).
+                                groupBy(Expression.variable("symbol")).
+                                having(
+                                        Expression.compare(
+                                                Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price"))
+                                )
+                );
+    }
+
+
+    @Test
+    public void test3() {
+        StoreQuery.query().
+                from(
+                        InputStore.store("cseEventTable").
+                                on(Expression.compare(Expression.variable("price"),
+                                        Compare.Operator.GREATER_THAN, Expression.value(40)),
+                                        Within.within(Expression.value("2017/01/*")), Expression.value("day"))).
                 select(
                         Selector.selector().
                                 select("symbol", Expression.variable("symbol")).
