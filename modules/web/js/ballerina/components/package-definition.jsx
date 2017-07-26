@@ -148,10 +148,9 @@ class PackageDefinition extends React.Component {
         value = 'import ' + value + ';\n';
         parseContent(value)
             .then((jsonTree) => {
-                if (!jsonTree.root[1]) {
-                    return;
+                if (jsonTree.root[1]) {
+                    this.props.model.parent.addImportFromJson(jsonTree.root[1]);
                 }
-                this.props.model.parent.addImportFromJson(jsonTree.root[1]);
             })
             .catch(log.error);
     }

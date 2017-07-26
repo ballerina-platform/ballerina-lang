@@ -282,8 +282,9 @@ const createTransactionAbortedStatementTool = {
 const statementToolDefArray = [createAbortStatementTool, createAssignmentExpressionTool, createBreakStatementTool,
     createContinueStatementTool, createJoinStatementTool, createFunctionInvocationTool, createIfStatementTool,
     createNamespaceDeclarationStatementTool, createWorkerReplyStatementTool, createReplyStatementTool,
-    createReturnStatementTool, createWorkerInvocationStatementTool, createThrowStatementTool, createTransactionAbortedStatementTool,
-    createTransformStatementTool, createTryCatchStatementTool, createVariableDefinitionStatementTool, createWhileStatementTool];
+    createReturnStatementTool, createWorkerInvocationStatementTool, createThrowStatementTool,
+    createTransactionAbortedStatementTool, createTransformStatementTool, createTryCatchStatementTool,
+    createVariableDefinitionStatementTool, createWhileStatementTool];
 
 const seperator = {
     id: 'constructs_seperator',
