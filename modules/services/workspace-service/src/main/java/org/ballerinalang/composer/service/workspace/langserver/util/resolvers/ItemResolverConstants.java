@@ -53,6 +53,7 @@ public class ItemResolverConstants {
     public static final String THROW = "throw";
     public static final String TRIGGER_WORKER = "->";
     public static final String WORKER_REPLY = "<-";
+    public static final String ATTACH = "attach";
     private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
             TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
             BREAK, THROW};
@@ -64,6 +65,7 @@ public class ItemResolverConstants {
     public static final String STRUCT = "struct";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
+    public static final String RESOURCE = "resource";
 
 
     public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n    ${3}\n}";
