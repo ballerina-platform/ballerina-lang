@@ -71,14 +71,15 @@ public class BallerinaAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        PsiElement parent = element.getParent();
         if (element instanceof AnnotationReferenceNode) {
             annotateNameReferenceNodes(element, holder);
         } else if (element instanceof LeafPsiElement) {
             annotateLeafPsiElementNodes(element, holder);
         } else if (element instanceof ConstantDefinitionNode) {
             annotateConstants(element, holder);
-        } else if (element.getParent() instanceof ConstantDefinitionNode) {
-            annotateConstants(element.getParent(), holder);
+        } else if (parent instanceof ConstantDefinitionNode) {
+            annotateConstants(parent, holder);
         } else if (element instanceof VariableReferenceNode) {
             annotateVariableReferenceNodes((VariableReferenceNode) element, holder);
         } else if (element instanceof AnnotationDefinitionNode) {
@@ -87,6 +88,10 @@ public class BallerinaAnnotator implements Annotator {
             annotateImportDeclarations(element, holder);
         } else if (element instanceof PackageNameNode) {
             annotatePackageNameNodes(element, holder);
+        } else if (element instanceof GlobalVariableDefinitionNode) {
+            annotateGlobalVariable(element, holder);
+        } else if (parent instanceof GlobalVariableDefinitionNode) {
+            annotateGlobalVariable(parent, holder);
         }
     }
 
@@ -210,9 +215,13 @@ public class BallerinaAnnotator implements Annotator {
             if (resolvedElement == null) {
                 return;
             }
-            if (resolvedElement.getParent() instanceof ConstantDefinitionNode) {
+            PsiElement parent = resolvedElement.getParent();
+            if (parent instanceof ConstantDefinitionNode) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+            } else if (parent instanceof GlobalVariableDefinitionNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
             }
         }
     }
@@ -306,6 +315,19 @@ public class BallerinaAnnotator implements Annotator {
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
     }
 
+    private void annotateGlobalVariable(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        ValueTypeNameNode valueTypeNameNode = PsiTreeUtil.findChildOfType(element, ValueTypeNameNode.class);
+        if (valueTypeNameNode == null || valueTypeNameNode.getText().isEmpty()) {
+            return;
+        }
+        PsiElement nameIdentifier = ((GlobalVariableDefinitionNode) element).getNameIdentifier();
+        if (nameIdentifier == null) {
+            return;
+        }
+        Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
+    }
+
     private void annotateVariableReferenceNodes(@NotNull VariableReferenceNode element,
                                                 @NotNull AnnotationHolder holder) {
         PsiElement nameIdentifier = element.getNameIdentifier();
@@ -313,16 +335,20 @@ public class BallerinaAnnotator implements Annotator {
             annotateArrayLengthField(element, holder);
             return;
         }
-
         PsiReference[] references = nameIdentifier.getReferences();
         for (PsiReference reference : references) {
             PsiElement resolvedElement = reference.resolve();
             if (resolvedElement == null) {
                 return;
             }
-            if (resolvedElement.getParent() instanceof ConstantDefinitionNode) {
+            PsiElement parent = resolvedElement.getParent();
+            if (parent instanceof ConstantDefinitionNode) {
                 Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+            }
+            if (parent instanceof GlobalVariableDefinitionNode) {
+                Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
             }
         }
     }
