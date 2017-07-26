@@ -23,6 +23,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
@@ -89,6 +90,10 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 parentNode = PsiTreeUtil.getParentOfType(element, ActionInvocationNode.class);
                 if (parentNode != null) {
                     return "Action";
+                }
+                parentNode = PsiTreeUtil.getParentOfType(element, AssignmentStatementNode.class);
+                if (parentNode != null) {
+                    return "Variable";
                 }
                 break;
             case RULE_globalVariableDefinition:

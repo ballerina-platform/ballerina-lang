@@ -28,7 +28,10 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Query;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +65,25 @@ public class UnusedVariableInspection extends LocalInspectionTool {
                 problemDescriptors.add(problemDescriptor);
             }
         }
-
+        Collection<AssignmentStatementNode> assignmentStatementNodes = PsiTreeUtil.findChildrenOfType(file,
+                AssignmentStatementNode.class);
+        for (AssignmentStatementNode assignmentStatementNode : assignmentStatementNodes) {
+            ProgressManager.checkCanceled();
+            boolean isVarAssignment = BallerinaPsiImplUtil.isVarAssignmentStatement(assignmentStatementNode);
+            if (isVarAssignment) {
+                List<IdentifierPSINode> identifiers =
+                        BallerinaPsiImplUtil.getVariablesFromVarAssignment(assignmentStatementNode);
+                for (IdentifierPSINode identifier : identifiers) {
+                    Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
+                    PsiReference firstReference = psiReferences.findFirst();
+                    if (firstReference == null) {
+                        ProblemDescriptor problemDescriptor = getProblemDescriptor(manager, isOnTheFly, identifier,
+                                availableFixes);
+                        problemDescriptors.add(problemDescriptor);
+                    }
+                }
+            }
+        }
         return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
     }
 
