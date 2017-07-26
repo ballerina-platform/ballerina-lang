@@ -1,3 +1,12 @@
 .tab-pane .ace_search {
   font: 11px system-ui;
 }
+
+@font-face {
+    font-family: 'Droid Sans Mono';
+     src: url('./../../../lib/google-fonts/DroidSansMono.ttf'); 
+}
+
+.text-editor.ace_editor {
+    font: 12px/normal 'Droid Sans Mono', monospace;
+}
