@@ -37,10 +37,11 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
     private boolean isLHSExpr;
     
     public XMLQNameExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String localname,
-            String namepsaceUri, String prefix) {
+            Expression namepsaceUri, String prefix) {
         super(location, whiteSpaceDescriptor);
         this.localname = localname;
         this.prefix = prefix == null ? "" : prefix;
+        this.namepsaceUri = namepsaceUri;
     }
 
     @Override

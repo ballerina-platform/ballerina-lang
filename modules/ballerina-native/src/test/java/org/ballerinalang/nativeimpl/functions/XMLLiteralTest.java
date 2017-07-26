@@ -348,6 +348,19 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), getComplexXMLContent());
     }
     
+    @Test
+    public void testElementWithEmptyUriQualifiedName() {
+        BValue[] args = {};
+        BValue[] returns =
+                BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testElementWithEmptyUriQualifiedName", args);
+        Assert.assertTrue(returns[0] instanceof BXMLItem);
+
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+        Assert.assertEquals(returns[1].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+        Assert.assertEquals(returns[2].stringValue(),
+                "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+    }
+    
     private String getComplexXMLContent() {
         InputStream is = ClassLoader.getSystemResourceAsStream("samples/xml/sampleXML.txt");
         InputStreamReader inputStreamREader = null;

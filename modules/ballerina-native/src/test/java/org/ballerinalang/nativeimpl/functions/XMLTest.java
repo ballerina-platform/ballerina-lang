@@ -747,8 +747,8 @@ public class XMLTest {
     public void testAddAttributeWithString() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
-                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" "
+                + "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
@@ -789,9 +789,8 @@ public class XMLTest {
     public void testUpdateAttributeWithString() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
-                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"newbar1\" ns0Kf5j:foo2=\"newbar2\" " +
-                "ns4:foo3=\"bar3\"/>");
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://sample.com/wso2/e\" "
+                + "foo1=\"newbar1\" ns0:foo2=\"newbar2\" foo3=\"newbar3\"/>");
     }
     
     @Test
@@ -1421,5 +1420,68 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromLiteral");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "5");
+    }
+
+    @Test
+    public void testSelectChildrenWithEmptyNs() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithEmptyNs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        Assert.assertEquals(returns[0].stringValue(), "<fname>supun</fname><fname>thilina</fname>");
+    }
+
+    @Test
+    public void testSelectElementsWithEmptyNs() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectElementsWithEmptyNs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        Assert.assertEquals(returns[0].stringValue(), "<fname>supun</fname><fname>thilina</fname>");
+    }
+
+    @Test
+    public void testSelectDescendants() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectDescendants");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        BXMLSequence seq = (BXMLSequence) returns[0];
+        Assert.assertEquals(seq.value().size(), 2);
+
+        Assert.assertEquals(seq.stringValue(), "<name xmlns=\"http://ballerinalang.org/\" "
+                + "xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name><lname>Setunga</lname></name>"
+                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
+    }
+
+    @Test
+    public void testSelectDescendantsWithEmptyNs() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectDescendantsWithEmptyNs");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        BXMLSequence seq = (BXMLSequence) returns[0];
+        Assert.assertEquals(seq.value().size(), 2);
+
+        Assert.assertEquals(seq.stringValue(), "<name xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name>"
+                + "<lname>Setunga</lname></name><name xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
+    }
+
+    @Test
+    public void testSelectDescendantsFromSeq() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectDescendantsFromSeq");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        BXMLSequence seq = (BXMLSequence) returns[0];
+        Assert.assertEquals(seq.value().size(), 3);
+
+        Assert.assertEquals(seq.stringValue(), "<name xmlns=\"http://ballerinalang.org/\" "
+                + "xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name><lname>Setunga</lname></name>"
+                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>"
+                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
+    }
+
+    @Test
+    public void testUpdateAttributeWithDifferentUri() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateAttributeWithDifferentUri");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
     }
 }

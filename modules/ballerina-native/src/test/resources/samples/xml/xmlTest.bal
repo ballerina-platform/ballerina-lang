@@ -440,3 +440,60 @@ function testToJSONWithSequenceWithDifferentComplexElements()(json) {
     xmls:Options options = {preserveNamespaces : false};
     return xmls:toJSON(x, options);
 }
+
+function testSelectChildrenWithEmptyNs() (xml, xml) {
+    xml x1 = xml `<name><fname>supun</fname><fname xmlns="">thilina</fname><lname>setunga</lname></name>`;
+              
+    xml x2 = xmls:selectChildren(x1, "fname");
+    xml x3 = xmls:selectChildren(x1, "{}fname");
+    
+    return x2, x3;
+}
+
+function testSelectElementsWithEmptyNs() (xml, xml) {
+    xml x1 = xml `<name><fname>supun</fname><fname xmlns="">thilina</fname><lname>setunga</lname></name>`;
+    xml x2 = xmls:children(x1);
+    
+    xml x3 = xmls:select(x2, "fname");
+    xml x4 = xmls:select(x2, "{}fname");
+    
+    return x3, x4;
+}
+
+function testSelectDescendants() (xml) {
+    xmlns "http://ballerinalang.org/";
+    xmlns "http://ballerinalang.org/aaa" as ns0;
+    
+    xml x1 = xml `<info><employee><name><name>Supun</name><lname>Setunga</lname></name><ns0:name>Jane</ns0:name></employee><name>John</name></info>`;
+    xml x2 = xmls:selectDescendants(x1, "{http://ballerinalang.org/}name");
+    return x2;
+}
+
+function testSelectDescendantsWithEmptyNs() (xml) {
+    xmlns "";
+    xmlns "http://ballerinalang.org/aaa" as ns0;
+    
+    xml x1 = xml `<info><employee><name><name>Supun</name><lname>Setunga</lname></name><ns0:name>Jane</ns0:name></employee><name>John</name></info>`;
+    xml x2 = xmls:selectDescendants(x1, "{}name");
+    return x2;
+}
+
+function testSelectDescendantsFromSeq() (xml) {
+    xmlns "http://ballerinalang.org/";
+    xmlns "http://ballerinalang.org/aaa" as ns0;
+    
+    xml x1 = xml `<info1><employee><name><name>Supun</name><lname>Setunga</lname></name><ns0:name>Jane</ns0:name></employee><name>John</name></info1>`;
+    xml x2 = xml `<info2><name>Doe</name></info2>`;
+    xml x3 = x1 + x2;
+    xml x4 = xmls:selectDescendants(x3, "{http://ballerinalang.org/}name");
+    return x4;
+}
+
+function testUpdateAttributeWithDifferentUri() (xml) {
+    xmlns "xxx" as a;
+
+    xml x1 = xml `<name xmlns:a="yyy" a:text="hello"></name>`;
+    x1@[a:text] = "hello world";
+    
+    return x1;
+}
