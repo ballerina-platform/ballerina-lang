@@ -76,6 +76,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     public void close(CloseReason closeReason) {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
                                                     closeReason.getReasonPhrase()));
+        ctx.channel().close();
     }
 
     @Override
