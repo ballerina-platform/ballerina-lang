@@ -154,7 +154,7 @@ function testGetChildren() (xml, boolean, boolean) {
 }
 
 function testGetChildrenFromComplexXml() (xml, boolean, boolean) {
-    xml x1 = xml `<name gender="male" xmlns="http://sample.com/test"><ns0:fname xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>supun</fname><lname>setunga</lname></name>`;
+    xml x1 = xml `<name gender="male" xmlns="http://sample.com/test"><ns0:fname ns0:preferred="true" xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>supun</fname><lname>setunga</lname></name>`;
     xml x2 = xmls:children(x1);
 
     boolean isEmpty = xmls:isEmpty(x2);
@@ -181,6 +181,66 @@ function testSelectChildren() (xml, boolean, boolean) {
     boolean isSingleton = xmls:isSingleton(x2);
     
     return x2, isEmpty, isSingleton;
+}
+
+function testSelectChildrenWithDefaultNamespace() (xml, boolean, boolean) {
+    xml x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
+
+    xml x2 = xmls:selectChildren(x1, "{http://sample.com/test}fname");
+    boolean isEmpty = xmls:isEmpty(x2);
+    boolean isSingleton = xmls:isSingleton(x2);
+
+    return x2, isEmpty, isSingleton;
+}
+
+function testSelectChildrenPrefixedDefaultNamespace() (xml, boolean, boolean) {
+    xmlns "http://sample.com/test" as pre;
+    xml x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
+
+    xml x2 = xmls:selectChildren(x1, pre:fname);
+    boolean isEmpty = xmls:isEmpty(x2);
+    boolean isSingleton = xmls:isSingleton(x2);
+
+    return x2, isEmpty, isSingleton;
+}
+
+function testSelectChildrenWithSamePrefix() (xml, boolean, boolean) {
+    xmlns "http://sample.com/test" as ns0;
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+
+    xml x2 = xmls:selectChildren(x1, ns0:fname);
+    boolean isEmpty = xmls:isEmpty(x2);
+    boolean isSingleton = xmls:isSingleton(x2);
+
+    return x2, isEmpty, isSingleton;
+}
+
+function testSelectChildrenWithDifferentPrefix() (xml, boolean, boolean) {
+    xmlns "http://sample.com/test" as pre;
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+
+    xml x2 = xmls:selectChildren(x1, pre:fname);
+    boolean isEmpty = xmls:isEmpty(x2);
+    boolean isSingleton = xmls:isSingleton(x2);
+
+    return x2, isEmpty, isSingleton;
+}
+
+function testSelectChildrenWithDifferentNamespaces() (xml, xml, boolean, boolean, boolean, boolean) {
+    xmlns "http://sample.com/test" as pre;
+    xmlns "http://sample.com/test/code" as cre;
+    xml x1 = xml `<name xmlns="http://sample.com/test"><ns0:fname xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>thilina</fname><lname>setunga</lname></name>`;
+
+    xml x2 = xmls:selectChildren(x1, pre:fname);
+    xml x3 = xmls:selectChildren(x1, cre:fname);
+
+    boolean isEmpty_1 = xmls:isEmpty(x2);
+    boolean isSingleton_1 = xmls:isSingleton(x2);
+
+    boolean isEmpty_2 = xmls:isEmpty(x3);
+    boolean isSingleton_2 = xmls:isSingleton(x3);
+
+    return x2, x3, isEmpty_1, isSingleton_1, isEmpty_2, isSingleton_2;
 }
 
 function testGetElements() (xml, boolean, boolean) {
@@ -254,8 +314,8 @@ function testGetElementsByNameByDifferentPrefix() (xml, boolean, boolean) {
 }
 
 function testGetElementsByNameEmptyNamespace() (xml, boolean, boolean) {
-    xmlns "http://sample.com/test";
-    xml x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
+    xmlns "";
+    xml x1 = xml `<name xmlns=""><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
     xml x2 = xmls:children(x1);
     xml x3 = xmls:select(x2, "{}fname");
 
@@ -318,6 +378,169 @@ function testSetChildren() (xml, boolean, boolean, xml) {
     boolean isSingleton = xmls:isSingleton(x1);
     
     return x1, isEmpty, isSingleton, xmls:children(x1);
+}
+
+function testSetChildrenDefaultNamespace() (xml, boolean, boolean, xml, string) {
+    xmlns "http://sample.com/test";
+
+    xml x1 = xmls:parse("<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>");
+    string elemantName = "residency";
+    string attributeName = "citizen";
+    string elementValue = "true";
+    string attributeValue = "true";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test}residency");
+
+    return x1, isEmpty, isSingleton, xmls:children(x1), x5@["citizen"];
+}
+
+function testSetChildrenWithDifferentNamespaceForAttribute() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test";
+
+    xml x1 = xmls:parse("<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>");
+    string elemantName = "residency";
+    string attributeName = "{http://sample.com/test/code}citizen";
+    string elementValue = "true";
+    string attributeValue = "true";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test}residency");
+
+    return x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"];
+}
+
+function testSetChildrenWithPrefixedAttribute() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test/code" as pre;
+    xmlns "http://sample.com/test";
+
+    xml x1 = xmls:parse("<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>");
+    string elemantName = "residency";
+    string attributeName = "{http://sample.com/test/code}citizen";
+    string elementValue = "true";
+    string attributeValue = "true";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test}residency");
+
+    return x1, isEmpty, isSingleton, x5@[pre:citizen];
+}
+
+function testSetChildrenWithSameNamespace() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test" as ns0;
+
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+    string elemantName = "{http://sample.com/test}residency";
+    string attributeName = "{http://sample.com/test}citizen";
+    string elementValue = "true";
+    string attributeValue = "yes";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test}residency");
+
+    return x1, isEmpty, isSingleton, x5@[ns0:citizen];
+}
+
+function testSetChildrenWithDifferentNamespace() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test/code" as ns0;
+
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+    string elemantName = "{http://sample.com/test/code}residency";
+    string attributeName = "{http://sample.com/test/code}citizen";
+    string elementValue = "true";
+    string attributeValue = "yes";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test/code}residency");
+
+    return x1, isEmpty, isSingleton, x5@[ns0:citizen];
+}
+
+function testSetChildrenWithDiffNamespaceWithoutPrefix() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test/code";
+
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+    string elemantName = "{http://sample.com/test/code}residency";
+    string attributeName = "{http://sample.com/test/code}citizen";
+    string elementValue = "true";
+    string attributeValue = "yes";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test/code}residency");
+
+    return x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"];
+}
+
+function testSetChildrenWithAttributeDiffNamespace() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test" as ns0;
+    xmlns "http://sample.com/test/code" as pre;
+
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+    string elemantName = "{http://sample.com/test}residency";
+    string attributeName = "{http://sample.com/test/code}citizen";
+    string elementValue = "true";
+    string attributeValue = "yes";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test}residency");
+
+    return x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"];
+}
+
+function testSetChildrenWithElementDiffNamespace() (xml, boolean, boolean, string) {
+    xmlns "http://sample.com/test" as ns0;
+    xmlns "http://sample.com/test/code" as pre;
+
+    xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+    string elemantName = "{http://sample.com/test/code}residency";
+    string attributeName = "{http://sample.com/test}citizen";
+    string elementValue = "true";
+    string attributeValue = "yes";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = xmls:children(x1);
+    xml x4 = x3 + x2;
+    xmls:setChildren(x1, x4);
+
+    boolean isEmpty = xmls:isEmpty(x1);
+    boolean isSingleton = xmls:isSingleton(x1);
+    xml x5 = xmls:selectChildren(x1, "{http://sample.com/test/code}residency");
+
+    return x1, isEmpty, isSingleton, x5@[ns0:citizen];
 }
 
 function testCopy() (xml, boolean, boolean, xml) {

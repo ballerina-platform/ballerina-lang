@@ -645,7 +645,7 @@ public class XMLTest {
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
     }
 
-/*    @Test
+  /*  @Test
     public void testGetElementsByNameEmptyNamespace() {
         //disabled due to:3062
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameEmptyNamespace");
@@ -721,6 +721,21 @@ public class XMLTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
     }
+
+    @Test
+    public void testGetChildrenFromComplexXml() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetChildrenFromComplexXml");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
     
     @Test
     public void testGetNonExistingChildren() {
@@ -751,6 +766,97 @@ public class XMLTest {
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenPrefixedDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenPrefixedDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWtihSamePrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithSamePrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWtihDifferentPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithDifferentPrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWtihDifferentNamespaces() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithDifferentNamespaces");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
+
+        // is children seq one is empty?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+
+        // is children seq one is singleton?
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+
+        // is children seq two is empty?
+        Assert.assertSame(returns[4].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+
+        // is children seq two is singleton?
+        Assert.assertSame(returns[5].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
     }
     
     @Test
@@ -798,7 +904,198 @@ public class XMLTest {
         Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
         Assert.assertEquals(children.get(2).stringValue(), "<newLname>setunga-new</newLname>");
     }
-    
+
+    @Test
+    public void testSetChildrenWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenDefaultNamespace");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
+                "<fname>supun</fname><lname>setunga</lname><residency citizen=\"true\">true</residency></name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check children
+        Assert.assertTrue(returns[3] instanceof BXML);
+        BRefValueArray children = ((BXMLSequence) returns[3]).value();
+        Assert.assertEquals(children.size(), 3);
+        Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
+        Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
+        Assert.assertEquals(children.get(2).stringValue(),
+                "<residency xmlns=\"http://sample.com/test\" citizen=\"true\">true</residency>");
+
+        // Check attribute value
+        Assert.assertSame(returns[4].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[4]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenWithDifferentNamespaceForAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDifferentNamespaceForAttribute");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenWithPrefixedAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithPrefixedAttribute");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
+                "<fname>supun</fname><lname>setunga</lname>" +
+                "<residency xmlns:pre=\"http://sample.com/test/code\" pre:citizen=\"true\">true</residency></name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenSameNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithSameNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<ns0:residency ns0:citizen=\"yes\">true</ns0:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+    @Test
+    public void testSetChildrenDifferentNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDifferentNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<ns0:residency xmlns:ns0=\"http://sample.com/test/code\" " +
+                "ns0:citizen=\"yes\">true</ns0:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+/*    @Test
+    public void testSetChildrenDiffNamespaceWithoutPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDiffNamespaceWithoutPrefix");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<nsncdom:residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
+                "nsncdom:citizen=\"yes\">true</nsncdom:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }*/
+
+    @Test
+    public void testSetChildrenDiffAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithAttributeDiffNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
+                "xmlns:pre=\"http://sample.com/test/code\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<ns0:residency pre:citizen=\"yes\">true</ns0:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+    @Test
+    public void testSetChildrenDiffElement() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithElementDiffNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
+                "xmlns:pre=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<pre:residency ns0:citizen=\"yes\">true</pre:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
     @Test
     public void testCopy() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testCopy");
