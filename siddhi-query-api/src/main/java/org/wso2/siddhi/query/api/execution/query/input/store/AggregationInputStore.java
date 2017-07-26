@@ -6,34 +6,21 @@ import org.wso2.siddhi.query.api.expression.Expression;
 /**
  * Aggregation Input Store
  */
-public class AggregationInputStore implements InputStore {
+public class AggregationInputStore extends ConditionInputStore {
 
-    private final String storeId;
     private final Within within;
     private final Expression per;
-    private String storeReferenceId = null;
 
-    public AggregationInputStore(String storeReferenceId, String storeId, Within within, Expression per) {
-
-        this.storeReferenceId = storeReferenceId;
-        this.storeId = storeId;
+    protected AggregationInputStore(Store store, Expression onCondition, Within within, Expression per) {
+        super(store, onCondition);
         this.within = within;
         this.per = per;
     }
 
-    public AggregationInputStore(String storeId, Within within, Expression per) {
-
-        this.storeId = storeId;
+    protected AggregationInputStore(Store store, Within within, Expression per) {
+        super(store, null);
         this.within = within;
         this.per = per;
-    }
-
-    public String getStoreReferenceId() {
-        return storeReferenceId;
-    }
-
-    public String getStoreId() {
-        return storeId;
     }
 
     public Within getWithin() {
@@ -42,16 +29,6 @@ public class AggregationInputStore implements InputStore {
 
     public Expression getPer() {
         return per;
-    }
-
-    @Override
-    public String toString() {
-        return "AggregationInputStore{" +
-                "storeId='" + storeId + '\'' +
-                ", within=" + within +
-                ", per=" + per +
-                ", storeReferenceId='" + storeReferenceId + '\'' +
-                '}';
     }
 
     @Override
@@ -65,25 +42,26 @@ public class AggregationInputStore implements InputStore {
 
         AggregationInputStore that = (AggregationInputStore) o;
 
-        if (storeId != null ? !storeId.equals(that.storeId) : that.storeId != null) {
-            return false;
-        }
         if (within != null ? !within.equals(that.within) : that.within != null) {
             return false;
         }
-        if (per != null ? !per.equals(that.per) : that.per != null) {
-            return false;
-        }
-        return storeReferenceId != null ? storeReferenceId.equals(that.storeReferenceId) :
-                that.storeReferenceId == null;
+        return per != null ? per.equals(that.per) : that.per == null;
     }
 
     @Override
     public int hashCode() {
-        int result = storeId != null ? storeId.hashCode() : 0;
-        result = 31 * result + (within != null ? within.hashCode() : 0);
+        int result = within != null ? within.hashCode() : 0;
         result = 31 * result + (per != null ? per.hashCode() : 0);
-        result = 31 * result + (storeReferenceId != null ? storeReferenceId.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "AggregationInputStore{" +
+                "store=" + store +
+                ", onCondition=" + onCondition +
+                ", within=" + within +
+                ", per=" + per +
+                '}';
     }
 }
