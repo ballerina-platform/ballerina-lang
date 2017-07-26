@@ -60,12 +60,17 @@ export default class importDeclarationItem extends React.Component {
             className = 'package-declaration-item-hightlighted';
         }
 
+        let importPkgName = this.props.importDec.getPackageName();
+        if (this.props.importDec.getAsName() !== undefined) {
+            importPkgName = importPkgName + ' as ' + this.props.importDec.getAsName();
+        }
         return (
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-                <title> {this.props.importDec.getPackageName()}</title>
+                <title> {importPkgName}</title>
                 <rect x={x} y={y} height={h} width={w} className="background" />
                 <text x={x + leftPadding} y={y + h / 2} rx="0" ry="0" className="import-definition-text">
-                    {util.getTextWidth(this.props.importDec.getPackageName(), 0, DesignerDefaults.globalDeclarationWidth).text}
+
+                    {util.getTextWidth(importPkgName, 0, DesignerDefaults.globalDeclarationWidth).text}
                 </text>
                 <rect x={x + w - 30} y={y} height={h} width={30} className="delete-background" onClick={this.handleDeleteClick} />
                 <text x={x + w - 18} y={y + h / 2} style={deleteStyle} className="delete-x" onClick={this.handleDeleteClick}>x</text>

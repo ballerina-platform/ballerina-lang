@@ -101,7 +101,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         this.setAttributeType(jsonNode.annotation_attribute_type, { doSilently: true });
         _.each(jsonNode.children, (childNode) => {
             const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
         if (this.getChildren().length > 0) {

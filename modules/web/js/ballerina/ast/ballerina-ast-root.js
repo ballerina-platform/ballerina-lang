@@ -176,6 +176,21 @@ class BallerinaASTRoot extends ASTNode {
     }
 
     /**
+     * Adds an import from a json object
+     * @param {Object} jsonNode json object representing the import
+     */
+    addImportFromJson(jsonNode) {
+        const importDeclaration = this.getFactory().createFromJson(jsonNode);
+        if (!this.getFactory().isImportDeclaration(importDeclaration)) {
+        // only imports can added at global level
+            return;
+        }
+        importDeclaration.initFromJson(jsonNode);
+        this.addImport(importDeclaration);
+    }
+
+
+    /**
      * Adds new import declaration.
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
@@ -196,7 +211,8 @@ class BallerinaASTRoot extends ASTNode {
         if (index === -1) {
             index = 0;
         }
-        this.getChildren().splice(index + 1, 0, importDeclaration);
+
+        this.addChild(importDeclaration, index + 1);
 
         const modifiedEvent = {
             origin: this,
@@ -208,9 +224,6 @@ class BallerinaASTRoot extends ASTNode {
             },
         };
 
-        /**
-         * @event ASTNode#tree-modified
-         */
         this.trigger('import-new-package', importDeclaration.getPackageName());
         if (options === undefined || !options.doSilently) {
             this.trigger('tree-modified', modifiedEvent);
@@ -275,7 +288,7 @@ class BallerinaASTRoot extends ASTNode {
     addGlobal(jsonNode) {
         const globalNode = this.getFactory().createFromJson(jsonNode);
 
-        if(!this.getFactory().isConstantDefinition(globalNode) &&
+        if (!this.getFactory().isConstantDefinition(globalNode) &&
             !this.getFactory().isGlobalVariableDefinition(globalNode)) {
             // only constants and global variables can be added at global level
             return;

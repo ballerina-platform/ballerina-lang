@@ -237,7 +237,7 @@ class ServiceDefinition extends ASTNode {
                 child = self.BallerinaASTFactory.createFromJson(childNode);
                 childNodeTemp = childNode;
             }
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNodeTemp);
         });
     }

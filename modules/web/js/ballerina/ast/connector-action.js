@@ -367,7 +367,7 @@ class ConnectorAction extends ASTNode {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNodeTemp);
         });
     }

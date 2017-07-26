@@ -117,6 +117,11 @@ class ImportDeclaration extends ASTNode {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
+        if (!_.isNil(jsonNode.whitespace_descriptor)) {
+            this.whiteSpace.currentDescriptor = jsonNode.whitespace_descriptor;
+            this.whiteSpace.useDefault = false;
+        }
+
         this.setPackageName(jsonNode.import_package_path, { doSilently: true });
         this.setIdentifier(jsonNode.import_package_name, { doSilently: true });
         this.setAsName(jsonNode.import_as_name, { doSilently: true });
