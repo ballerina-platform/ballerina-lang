@@ -26,6 +26,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
@@ -42,6 +43,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,6 +102,12 @@ public class UnresolvedReferenceInspection extends LocalInspectionTool {
             }
             PsiReference reference = nameIdentifier.getReference();
             if (reference == null || reference.resolve() == null) {
+                if (reference instanceof PackageNameReference) {
+                    ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
+                    if (resolveResults.length > 0) {
+                        continue;
+                    }
+                }
                 problemDescriptors.add(createProblemDescriptor(manager, packageNameNode, isOnTheFly, availableFixes));
             }
         }
