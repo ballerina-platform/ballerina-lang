@@ -28,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +48,8 @@ public class ConnectionStoreTest {
 
     private final String wsPath = "/chat-store/ws";
     private final String httpBasePath = "/data";
+    private final String httpPathForText = httpBasePath + "/text";
+    private final String httpPathForBinary = httpBasePath + "/binary";
 
     @BeforeClass
     public void  setup() {
@@ -68,11 +71,11 @@ public class ConnectionStoreTest {
     }
 
     @Test(priority = 0)
-    public void testStoringConnections() {
+    public void testStringReceivedToConnections() {
         String textSent;
         //Sending message to client 1 and check
         textSent = "Hi store 1";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", textSent));
+        Services.invoke(MessageUtils.generateHTTPMessage(httpPathForText + "/1", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), textSent);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), null);
@@ -80,7 +83,7 @@ public class ConnectionStoreTest {
 
         //Sending message to client 2 and check
         textSent = "Hi store 2";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/2", "POST", textSent));
+        Services.invoke(MessageUtils.generateHTTPMessage(httpPathForText + "/2", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), textSent);
         Assert.assertEquals(session3.getTextReceived(), null);
@@ -88,7 +91,7 @@ public class ConnectionStoreTest {
 
         //Sending message to client 3 and check
         textSent = "Hi store 3";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/3", "POST", textSent));
+        Services.invoke(MessageUtils.generateHTTPMessage(httpPathForText + "/3", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), textSent);
@@ -96,11 +99,22 @@ public class ConnectionStoreTest {
 
         //Sending message to client 4 and check
         textSent = "Hi store 4";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/4", "POST", textSent));
+        Services.invoke(MessageUtils.generateHTTPMessage(httpPathForText + "/4", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), null);
         Assert.assertEquals(session4.getTextReceived(), textSent);
+    }
+
+    @Test(priority = 0)
+    public void testBinaryReceivedForConnection() {
+        byte[] bytes = {1, 2, 3, 4, 5};
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        Services.invoke(MessageUtils.generateWebSocketBinaryMessage(buffer, session1, wsPath));
+        Assert.assertEquals(session1.getBufferReceived(), null);
+        Assert.assertEquals(session2.getBufferReceived(), null);
+        Assert.assertEquals(session3.getBufferReceived(), buffer);
+        Assert.assertEquals(session4.getBufferReceived(), null);
     }
 
     @Test(priority = 1)

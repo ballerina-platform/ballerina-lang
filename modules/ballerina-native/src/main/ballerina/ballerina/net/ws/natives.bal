@@ -30,6 +30,11 @@ native function removeStoredConnection (string connectionName);
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToConnection (string connectionName, string text);
 
+@doc:Description { value:"Push binary message to the connection chose by the user from the connection store."}
+@doc:Param { value:"connectionName: Name of the connection" }
+@doc:Param { value:"binary: Binary message which should be sent" }
+native function pushBinaryToConnection (string connectionName, blob binary);
+
 @doc:Description { value:"Close stored connection."}
 @doc:Param { value:"connectionName: Name of the connection" }
 native function closeStoredConnection (string connectionName);

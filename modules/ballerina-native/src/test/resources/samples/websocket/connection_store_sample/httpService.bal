@@ -6,9 +6,17 @@ import ballerina.net.ws;
 service<http> dataService {
 
     @http:POST {}
-    @http:Path {value:"/{id}"}
+    @http:Path {value:"text/{id}"}
     resource sendToConnection (message m, @http:PathParam {value:"id"} string id) {
         ws:pushTextToConnection(id, messages:getStringPayload(m));
+        message res = {};
+        reply res;
+    }
+
+    @http:POST {}
+    @http:Path {value:"binary/{id}"}
+    resource sendBinaryToConnection (message m, @http:PathParam {value:"id"} string id) {
+        ws:pushBinaryToConnection(id, messages:getBinaryPayload(m));
         message res = {};
         reply res;
     }

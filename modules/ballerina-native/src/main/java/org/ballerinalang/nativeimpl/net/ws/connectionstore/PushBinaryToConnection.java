@@ -30,43 +30,44 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import javax.websocket.Session;
 
 /**
- * Push text to the connection chose by the user from the connection store.
+ * Push binary message to the connection chose by the user from the connection store.
  */
+
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushTextToConnection",
+        functionName = "pushBinaryToConnection",
         args = {
                 @Argument(name = "connectionName", type = TypeEnum.STRING),
-                @Argument(name = "text", type = TypeEnum.STRING)
+                @Argument(name = "binary", type = TypeEnum.BLOB)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Push text to the connection chose by " +
-                             "the user from the connection store.") })
+                     attributes = { @Attribute(name = "value", value = "Push binary message to the connection " +
+                             "chose by the user from the connection store.") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "connectionName", value = "name of the stored connection") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushTextToConnection extends AbstractNativeFunction {
+public class PushBinaryToConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-
         if (context.getServiceInfo() == null) {
             throw new BallerinaException("This function is only working with services");
         }
 
         String connectionName = getStringArgument(context, 0);
-        String text = getStringArgument(context, 1);
+        byte[] bytes = getBlobArgument(context, 0);
         Session session = WebSocketConnectionManager.getInstance().getStoredConnection(connectionName);
         if (session == null) {
             throw new BallerinaException("Cannot find a connection for the connection name: " + connectionName);
         }
         try {
-            session.getBasicRemote().sendText(text);
+            session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
         } catch (IOException e) {
             throw new BallerinaException("IO exception occurred during pushing text to client", e, context);
         }

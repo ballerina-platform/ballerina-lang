@@ -13,6 +13,12 @@ service<ws> websocketEndpoint {
         ws:storeConnection(id);
     }
 
+    @ws:OnBinaryMessage {}
+    resource onBinaryMessage(message m) {
+        blob b = messages:getBinaryPayload(m);
+        ws:pushBinaryToConnection("3", b);
+    }
+
     @ws:OnClose {}
     resource onClose(message m) {
         system:println("client left the server.");
