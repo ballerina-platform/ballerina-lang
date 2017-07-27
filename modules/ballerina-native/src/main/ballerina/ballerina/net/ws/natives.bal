@@ -6,6 +6,10 @@ import ballerina.doc;
 @doc:Param { value:"text: Text which should be sent" }
 native function pushText (string text);
 
+@doc:Description { value:"This pushes binary data from server to the the same client who sent the message."}
+@doc:Param { value:"binary: Blob message which should be sent" }
+native function pushBinary (blob binary);
+
 @doc:Description { value:"This pushes text from server to all the connected clients of the service."}
 @doc:Param { value:"text: Text which should be sent" }
 native function broadcastText (string text);

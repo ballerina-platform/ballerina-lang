@@ -1,4 +1,5 @@
 import ballerina.lang.messages;
+import ballerina.lang.strings;
 import ballerina.net.http;
 import ballerina.net.ws;
 
@@ -16,6 +17,9 @@ service<ws> testEndpoint {
         string  text = messages:getStringPayload(m);
         if ("closeMe" == text) {
             ws:closeConnection();
+        } else if ("binary" == text) {
+            blob b = strings:toBlob(text, "UTF-8");
+            ws:pushBinary(b);
         }
         ws:pushText(messages:getStringPayload(m));
     }
