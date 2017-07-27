@@ -3,7 +3,7 @@ package passthroughservice.samples;
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:config {basePath:"/nyseStock"}
+@http:configuration {basePath:"/nyseStock"}
 service<http> nyseStockQuote {
 
     @http:GET{}

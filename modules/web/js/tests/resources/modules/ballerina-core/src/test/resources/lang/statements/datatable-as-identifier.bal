@@ -1,0 +1,3 @@
+function datatableTest() {
+    datatable datatable = {};
+}

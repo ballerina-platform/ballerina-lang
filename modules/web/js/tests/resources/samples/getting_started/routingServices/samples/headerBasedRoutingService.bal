@@ -3,7 +3,7 @@ package routingServices.samples;
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/hbr"}
+@http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
     
     @http:GET{}
