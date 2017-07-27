@@ -207,4 +207,20 @@ public class TimeTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testToTimezoneWithInvalidZone");
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-02T05:26:23.555+0530");
     }
+
+    @Test(description = "Test parsing a given time string to time.")
+    public void testParseTimeWithDifferentFormats() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testParseTimeWithDifferentFormats");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 31);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 16);
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 59);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 58);
+        Assert.assertEquals(((BInteger) returns[6]).intValue(), 999);
+        Assert.assertEquals(returns[7].stringValue(), "2017-09-23");
+        Assert.assertEquals(returns[8].stringValue(), "2015-02-15+0800");
+        Assert.assertEquals(returns[9].stringValue(), "08-23-59-544:+0700");
+        Assert.assertEquals(returns[10].stringValue(), "2014-05-29-23:44:59.544");
+    }
 }

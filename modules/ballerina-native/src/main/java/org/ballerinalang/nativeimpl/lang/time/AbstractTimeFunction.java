@@ -32,6 +32,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.time.zone.ZoneRulesException;
 import java.util.Date;
 import java.util.TimeZone;
@@ -68,20 +70,55 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
     }
 
     BStruct parseTime(Context context, String dateValue, String pattern) {
-        long milliSeconds;
-        BStruct timezone;
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-            ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateValue, formatter);
-            milliSeconds = zonedDateTime.toInstant().toEpochMilli();
-            ZoneId zoneId = zonedDateTime.getZone();
-            timezone = createTimeZone(context, zoneId);
+            TemporalAccessor temporalAccessor = formatter.parse(dateValue);
+            //Initialize with default values
+            int year = 0;
+            int month = 1;
+            int day = 1;
+            int hour = 0;
+            int minute = 0;
+            int second = 0;
+            int nanoSecond = 0;
+            if (temporalAccessor.isSupported(ChronoField.YEAR)) {
+                year = temporalAccessor.get(ChronoField.YEAR);
+            }
+            if (temporalAccessor.isSupported(ChronoField.MONTH_OF_YEAR)) {
+                month = temporalAccessor.get(ChronoField.MONTH_OF_YEAR);
+            }
+            if (temporalAccessor.isSupported(ChronoField.DAY_OF_MONTH)) {
+                day = temporalAccessor.get(ChronoField.DAY_OF_MONTH);
+            }
+            if (temporalAccessor.isSupported(ChronoField.HOUR_OF_DAY)) {
+                hour = temporalAccessor.get(ChronoField.HOUR_OF_DAY);
+            }
+            if (temporalAccessor.isSupported(ChronoField.MINUTE_OF_HOUR)) {
+                minute = temporalAccessor.get(ChronoField.MINUTE_OF_HOUR);
+            }
+            if (temporalAccessor.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+                second = temporalAccessor.get(ChronoField.SECOND_OF_MINUTE);
+            }
+            if (temporalAccessor.isSupported(ChronoField.NANO_OF_SECOND)) {
+                nanoSecond = temporalAccessor.get(ChronoField.NANO_OF_SECOND);
+            }
+            ZoneId zoneId = null;
+            if (temporalAccessor.isSupported(ChronoField.OFFSET_SECONDS)) {
+                zoneId = ZoneId.from(temporalAccessor);
+            }
+            if (zoneId == null) { //If timezone is not given, it will initialize to system default
+                zoneId = ZoneId.systemDefault();
+            }
+            ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
+            BStruct timezone = createTimeZone(context, zoneId);
+            long timeValue = zonedDateTime.toInstant().toEpochMilli();
+            return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue , timezone);
+
         } catch (DateTimeParseException e) {
             throw new BallerinaException("parse date " + dateValue + " for the format " + pattern  + " failed ");
         } catch (IllegalArgumentException e) {
             throw new BallerinaException("invalid pattern for parsing " + pattern);
         }
-        return BLangVMStructs.createBStruct(getTimeStructInfo(context), milliSeconds, timezone);
     }
 
     String getFormattedtString(BStruct timeStruct, String pattern) {
