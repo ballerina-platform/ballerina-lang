@@ -1487,8 +1487,7 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
-    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
-                                                                                             definitionNode) {
+    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement definitionNode) {
         TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
@@ -1513,5 +1512,13 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         return ((ConnectorDefinitionNode) resolvedDefElement.getParent());
+    }
+
+    public static boolean isFunctionInvocation(@NotNull VariableReferenceNode variableReferenceNode) {
+        PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(variableReferenceNode);
+        if (nextVisibleLeaf != null && "(".equals(nextVisibleLeaf.getText())) {
+            return true;
+        }
+        return false;
     }
 }
