@@ -52,7 +52,7 @@ import javax.websocket.Session;
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "connectionName", value = "name of the stored connection") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
+                     attributes = { @Attribute(name = "binary", value = "Binary message which should be sent") })
 public class PushBinaryToConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

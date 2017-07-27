@@ -28,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,6 +76,19 @@ public class ConnectionGroupTest {
         Assert.assertEquals(session2.getTextReceived(), textExpectedForEven);
         Assert.assertEquals(session3.getTextReceived(), textExpectedForOdd);
         Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
+    }
+
+    @Test(priority = 0)
+    public void testSendingBinaryMessageToGrouping() {
+        byte[] bytes = {5, 6, 7, 8, 9};
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+        Services.invoke(MessageUtils.generateWebSocketBinaryMessage(buffer, session1, wsEndpointPath));
+
+        Assert.assertEquals(session1.getBufferReceived(), null);
+        Assert.assertEquals(session2.getBufferReceived(), buffer);
+        Assert.assertEquals(session3.getBufferReceived(), null);
+        Assert.assertEquals(session4.getBufferReceived(), buffer);
     }
 
     @Test(priority = 1)

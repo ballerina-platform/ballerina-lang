@@ -56,6 +56,12 @@ native function removeConnectionGroup (string connectionGroupName);
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToGroup (string connectionGroupName, string text);
 
+@doc:Description { value:"Push binary message from server to all the connected clients of the service."}
+@doc:Param { value:"connectionGroupName: Name of the connection group" }
+@doc:Param { value:"binary: Binary message which should be sent" }
+native function pushBinaryToGroup (string connectionGroupName, blob binary);
+
+
 @doc:Description { value:"Close all the connections in connection group."}
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
 native function closeConnectionGroup(string connectionGroupName);
@@ -66,6 +72,11 @@ connector ClientConnector (string url, string callbackService) {
     @doc:Param { value:"c: WebSocket Client Connector"}
     @doc:Param { value:"text: text which should be sent"}
     native action pushText(ClientConnector c, string text);
+
+    @doc:Description { value:"Push binary message to the server"}
+    @doc:Param { value:"c: WebSocket Client Connector"}
+    @doc:Param { value:"binary: Binary message which should be sent"}
+    native action pushBinary(ClientConnector c, blob binary);
 
 }
 
