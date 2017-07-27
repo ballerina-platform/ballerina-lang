@@ -21,12 +21,14 @@ package org.ballerinalang.testutils;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -90,6 +92,11 @@ public class MessageUtils {
     public static CarbonMessage generateWebSocketTextMessage(String text, Session session, String path) {
         TextCarbonMessage textMessage = new TextCarbonMessage(text);
         return setWebSocketCommonProperties(textMessage, session, path);
+    }
+
+    public static CarbonMessage generateWebSocketBinaryMessage(ByteBuffer byteBuffer, Session session, String path) {
+        BinaryCarbonMessage binaryMessage = new BinaryCarbonMessage(byteBuffer, true);
+        return setWebSocketCommonProperties(binaryMessage, session, path);
     }
 
     public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path) {

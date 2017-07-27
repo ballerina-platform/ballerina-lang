@@ -13,5 +13,8 @@ annotation OnOpen attach resource {
 annotation OnTextMessage attach resource {
 }
 
+annotation OnBinaryMessage attach resource {
+}
+
 annotation OnClose attach resource {
 }

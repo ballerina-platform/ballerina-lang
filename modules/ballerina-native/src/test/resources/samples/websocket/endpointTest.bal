@@ -24,6 +24,12 @@ service<ws> testEndpoint {
         ws:pushText(messages:getStringPayload(m));
     }
 
+    @ws:OnBinaryMessage {}
+    resource onBinaryMessage(message m) {
+        blob b = messages:getBinaryPayload(m);
+        ws:pushBinary(b);
+    }
+
     @ws:OnClose {}
     resource onClose(message m) {
         ws:broadcastText("client left");
