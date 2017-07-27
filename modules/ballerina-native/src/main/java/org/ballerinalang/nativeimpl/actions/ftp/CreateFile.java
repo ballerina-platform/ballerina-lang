@@ -26,22 +26,22 @@ import java.util.Map;
         args = { @Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files"),
-                 @Argument(name = "fileType", type = TypeEnum.STRING)})
+                 @Argument(name = "isDir", type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Create a file or folder") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
         value = "ftp client connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "File struct containing path information") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "fileType",
-        value = "Specification whether file or folder") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "isDir",
+        value = "Specify whether it is a file or a folder") })
 public class CreateFile extends AbstractFtpAction {
     @Override
     public BValue execute(Context context) {
 
         // Extracting Argument values
         BStruct file = (BStruct) getRefArgument(context, 1);
-        String type = getStringArgument(context, 0);
+        boolean isDir = getBooleanArgument(context, 0);
         if (!validateProtocol(file.getStringField(0))) {
             throw new BallerinaException("Only FTP, SFTP and FTPS protocols are supported by this connector");
         }
@@ -50,9 +50,8 @@ public class CreateFile extends AbstractFtpAction {
         String pathString = file.getStringField(0);
         propertyMap.put(FileConstants.PROPERTY_URI, pathString);
         propertyMap.put(FileConstants.PROPERTY_ACTION, FileConstants.ACTION_CREATE);
-        if (type.equalsIgnoreCase(FileConstants.TYPE_FOLDER)) { //TODO: Refactor the file/dir type recognition
-            propertyMap.put(FileConstants.PROPERTY_FOLDER, Boolean.TRUE.toString());
-        }
+        propertyMap.put(FileConstants.PROPERTY_FOLDER, Boolean.toString(isDir));
+
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.FTP_CONNECTOR_NAME)

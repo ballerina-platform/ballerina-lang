@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,10 +31,8 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.util.HashMap;
@@ -63,25 +60,30 @@ public class Init extends AbstractFtpAction {
 
     @Override
     public BValue execute(Context context) {
-        if (BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.FTP_CONNECTOR_NAME) == null) {
+        ClientConnector ftpConnector = BallerinaConnectorManager.getInstance().getClientConnector(
+                FileConstants.FTP_CONNECTOR_NAME);
+
+        Map<String, Object> fsOpts = new HashMap<>();
+        fsOpts.put("PROTOCOL", "ftp");
+        fsOpts.put("FTP_PASSIVE_MODE", Boolean.TRUE); //TODO: Make this configurable from Ballerina?
+
+        if (ftpConnector == null) {
             CarbonMessageProcessor carbonMessageProcessor =
                     BallerinaConnectorManager.getInstance().getMessageProcessor();
             ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
 
-            Map<String, Object> fsOpts = new HashMap<>();
-            fsOpts.put("FTP_PASSIVE_MODE", Boolean.TRUE); //TODO: Make this configurable from Ballerina?
-
             clientConnectorLoader.forEach((clientConnector) -> {
-                if("ftp".equals(clientConnector.getProtocol())) {
-                    try {
-                        clientConnector.init(null, null, fsOpts);
-                    } catch (ClientConnectorException e) {
-                        log.error("Error in initializing the FTP Client Connector", e);
-                    }
-                    clientConnector.setMessageProcessor(carbonMessageProcessor);
-                    BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
-                }
+                clientConnector.setMessageProcessor(carbonMessageProcessor);
+                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
             });
+            // using "file" here due to the constraint caused by the common VFS connector
+            ftpConnector = BallerinaConnectorManager.getInstance().getClientConnector("file");
+        }
+
+        try {
+            ftpConnector.init(null, null, fsOpts);
+        } catch (ClientConnectorException e) {
+            log.error("Error in initializing the FTP Client Connector", e);
         }
         return null;
     }
