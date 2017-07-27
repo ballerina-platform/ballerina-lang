@@ -3,7 +3,7 @@ package routingServices.samples;
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:config {basePath:"/nyseStocks"}
+@http:configuration {basePath:"/nyseStocks"}
 service<http> nyseStockQuote {
     
     @http:POST{}
