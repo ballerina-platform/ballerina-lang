@@ -23,6 +23,7 @@ JSON
 JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
+Constrained JSON
 XML
 XML Namespaces
 XML Literal
