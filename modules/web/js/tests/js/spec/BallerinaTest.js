@@ -70,14 +70,12 @@ describe('Ballerina Composer Test Suite', () => {
     const testFiles = findBalFilesInDirSync(testResDir);
     testFiles.forEach((testFile) => {
         /* global it */
-        it(`${testFile.replace(testResDir, '')} file serialize/deserialize test`, (testCaseDone) => {
+        it(`${testFile.replace(testResDir, '')} file serialize/deserialize test`, () => {
             const expectedSource = readFile(testFile);
-            ballerinaASTDeserializer(expectedSource)
-                .then((generatedSource) => {
-                    expect(generatedSource).to.equal(expectedSource);
-                    testCaseDone();
-                })
-                .catch(testCaseDone);
+            return ballerinaASTDeserializer(expectedSource)
+                    .then((generatedSource) => {
+                        expect(generatedSource).to.equal(expectedSource);
+                    });
         });
     });
 });
