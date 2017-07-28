@@ -224,13 +224,13 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("FirstName").asText(), "WSO2"
-                , "ProductID variable not set properly.");
+                , "FirstName variable not set properly.");
         Assert.assertEquals(bJson.value().get("LastName").asText(), "BalDance"
-                , "RegID variable not set properly.");
+                , "LastName variable not set properly.");
     }
 
-    @Test(description = "Test dispatching with unallowed content types")
-    public void testFormParamDispatchingForNotAllowedContentType() {
+    @Test(description = "Test dispatching with unsupported content types")
+    public void testFormParamDispatchingForUnsupporteddContentType() {
         String path = "/ecommerceservice/test";
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&lname=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_OCTET_STREAM);
@@ -248,7 +248,75 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("FirstName").asText(), "WSO2"
-                , "ProductID variable not set properly.");
+                , "FirstName variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with form param without annotation")
+    public void testFormParamDispatchingWithoutAnnotation() {
+        String path = "/ecommerceservice/test777";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&lname=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("FirstName").asText(), "WSO2"
+                , "FirstName variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with form param with redeclared key")
+    public void testParamDispatchingWithRedeclaredKey() {
+        String path = "/ecommerceservice/test777?fname=ballerina";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&lname=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("FirstName").asText(), "WSO2"
+                , "FirstName variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with boolean form param")
+    public void testBooleanFormParamDispatching() {
+        String path = "/ecommerceservice/test";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&status=true");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Status").asText(), "true"
+                , "Status variable not set properly.");
+
+        path = "/ecommerceservice/test";
+        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&status=90");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String responseMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(responseMessage.contains("Could not parse input: 90 to a boolean"),
+                "Expected error not found.");
+    }
+
+    @Test(description = "Test dispatching with integer form param")
+    public void testIntegerFormParamDispatching() {
+        String path = "/ecommerceservice/test";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&id=90");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Id").asText(), "90"
+                , "Id variable not set properly.");
+
+        path = "/ecommerceservice/test";
+        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "fname=WSO2&id=hello");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String responseMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(responseMessage.contains("Could not parse input: hello to a number"),
+                "Expected error not found.");
     }
 
     @Test(description = "Test dispatching with path, query and form param")
@@ -260,11 +328,77 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("path").asText(), "wso2"
-                , "ProductID variable not set properly.");
+                , "path variable not set properly.");
         Assert.assertEquals(bJson.value().get("query").asText(), "ballerina"
-                , "RegID variable not set properly.");
+                , "query variable not set properly.");
         Assert.assertEquals(bJson.value().get("form").asText(), "colombo"
-                , "RegID variable not set properly.");
+                , "form variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with header param")
+    public void testHeaderParamDispatching() {
+        String path = "/ecommerceservice/test88";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        cMsg.setHeader("Range", "bytes=500-999");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("cType").asText(), Constants.APPLICATION_X_WWW_FORM_URLENCODED
+                , "cType variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Range").asText(), "bytes=500-999"
+                , "Range variable not set properly.");
+
+        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader("Range", null);
+        response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String responseMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(responseMessage.contains("Null header value for : Range"),
+                "Expected error not found.");
+    }
+
+    @Test(description = "Test dispatching with integer param")
+    public void testIntegerHeaderParamDispatching() {
+        String path = "/ecommerceservice/test99";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader("Range", "55");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Range").asText(), "55"
+                , "Range variable not set properly.");
+
+        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader("Range", "colombo");
+        response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String responseMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(responseMessage.contains("Could not parse input: colombo to a number"),
+                "Expected error not found.");
+    }
+
+    @Test(description = "Test dispatching with boolean param")
+    public void testBooleanHeaderParamDispatching() {
+        String path = "/ecommerceservice/test991";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader("Range", "true");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Range").asText(), "true"
+                , "Range variable not set properly.");
+
+        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
+        cMsg.setHeader("Range", "31");
+        response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String responseMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(responseMessage.contains("Could not parse input: 31 to a boolean"),
+                "Expected error not found.");
     }
 
     @AfterClass

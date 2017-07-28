@@ -43,6 +43,10 @@ annotation FormParam attach parameter {
     string value;
 }
 
+annotation HeaderParam attach parameter {
+    string value;
+}
+
 annotation Consumes attach resource {
     string[] value;
 }

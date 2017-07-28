@@ -21,7 +21,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
-import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
 
 import java.util.HashMap;
@@ -193,23 +192,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
             if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
                 return annotationInfo;
-            }
-        }
-        return null;
-    }
-
-    public AnnAttachmentInfo getParamAnnotationAttachmentInfo(String packageName, String annotationName) {
-        ParamAnnotationAttributeInfo attributeInfo = (ParamAnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.Kind.PARAMETER_ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo == null || packageName == null || annotationName == null) {
-            return null;
-        }
-        for (ParamAnnAttachmentInfo paramAnnAttachmentInfo : attributeInfo.getAttachmentInfoArray()) {
-            for (AnnAttachmentInfo annotationInfo : paramAnnAttachmentInfo.getAnnAttachmentInfos()) {
-                if (packageName.equals(annotationInfo.getPkgPath())
-                        && annotationName.equals(annotationInfo.getName())) {
-                    return annotationInfo;
-                }
             }
         }
         return null;
