@@ -697,7 +697,7 @@ StringTemplateText
 
 fragment
 StringTemplateStringChar
-    :    ~[`{}]
+    :    ~[`{}\\]
     |    '\\' [`]
     |    WS
     |    XMLEscapedSequence
