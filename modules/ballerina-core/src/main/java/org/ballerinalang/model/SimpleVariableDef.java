@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 
@@ -35,7 +34,8 @@ public class SimpleVariableDef implements VariableDef {
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected SimpleTypeName typeName;
     protected BType type;
-    protected MemoryLocation memoryLocation;
+    protected Kind kind;
+    protected int memOffset;
 
     // BLangSymbol related attributes
     protected Identifier identifier;
@@ -59,13 +59,6 @@ public class SimpleVariableDef implements VariableDef {
         this.symbolScope = symbolScope;
     }
 
-    public SimpleVariableDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BType type,
-                             SymbolName symbolName) {
-        this.location = location;
-        this.type = type;
-        this.symbolName = symbolName;
-    }
-
     public SimpleTypeName getTypeName() {
         return typeName;
     }
@@ -78,12 +71,24 @@ public class SimpleVariableDef implements VariableDef {
         this.type = type;
     }
 
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
+    @Override
+    public Kind getKind() {
+        return kind;
     }
 
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
+    @Override
+    public void setKind(Kind kind) {
+        this.kind = kind;
+    }
+
+    @Override
+    public int getVarIndex() {
+        return memOffset;
+    }
+
+    @Override
+    public void setVarIndex(int index) {
+        this.memOffset = index;
     }
 
     // Methods in BLangSymbol interface

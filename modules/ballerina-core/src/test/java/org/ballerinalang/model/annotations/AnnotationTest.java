@@ -225,14 +225,6 @@ public class AnnotationTest {
         BTestUtils.parseBalFile("lang/annotations/invalid-resource-annotation.bal");
     }
     
-    @Test(description = "Test an invalid typemapper annotation",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "invalid-typemapper-annotation.bal:3: incompatible types: expected " +
-                "'string', found 'int'")
-    public void testInvalidTypeMapperAnnotation() {
-        BTestUtils.parseBalFile("lang/annotations/invalid-typemapper-annotation.bal");
-    }
-    
     @Test(description = "Test an invalid connector annotation",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "invalid-connector-annotation.bal:3: incompatible types: expected " +
