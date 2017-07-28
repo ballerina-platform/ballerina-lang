@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/shan/Documents/WSO2/Sources/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.ballerinalang.util.parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1166,6 +1166,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code stringTemplateLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code stringTemplateLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code lambdaFunctionExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1553,4 +1565,14 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#stringTemplateLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#stringTemplateLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx);
 }
