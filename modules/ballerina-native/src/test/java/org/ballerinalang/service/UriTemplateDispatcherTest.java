@@ -349,14 +349,6 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(bJson.value().get("Range").asText(), "bytes=500-999"
                 , "Range variable not set properly.");
 
-        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "area=colombo");
-        cMsg.setHeader("Range", null);
-        response = Services.invoke(cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        String responseMessage = response.getMessageDataSource().getMessageAsString();
-        Assert.assertTrue(responseMessage.contains("Null header value for : Range"),
-                "Expected error not found.");
     }
 
     @Test(description = "Test dispatching with integer param")

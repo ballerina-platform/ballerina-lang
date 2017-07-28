@@ -52,13 +52,11 @@ public class ParamProcessor {
         Map<String, String> headerParams = new HashMap<>();
         for (Header header : headers) {
             String name = header.getName();
-            String value = null;
+            String value = "";
             try {
                 value = URLDecoder.decode(header.getValue(), ENCODING);
             } catch (UnsupportedEncodingException e) {
                 throw new BallerinaException("Unsupported encoding in value: " + value + "for " + name);
-            } catch (NullPointerException e) {
-                throw new BallerinaException("Null header value for : " + name);
             }
             headerParams.put(name, value);
         }
