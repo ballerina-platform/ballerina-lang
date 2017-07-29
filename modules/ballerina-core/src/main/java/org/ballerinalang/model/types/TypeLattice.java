@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -171,7 +169,7 @@ public class TypeLattice {
         TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
         TypeVertex xmlAttributesV = new TypeVertex(BTypes.typeXMLAttributes);
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
-        
+
         conversionLattice.addVertex(intV, false);
         conversionLattice.addVertex(floatV, false);
         conversionLattice.addVertex(booleanV, false);
@@ -202,7 +200,7 @@ public class TypeLattice {
         conversionLattice.addEdge(xmlV, jsonV, UNSAFE, InstructionCodes.XML2JSON);
         conversionLattice.addEdge(datatableV, xmlV, UNSAFE, InstructionCodes.DT2XML);
         conversionLattice.addEdge(datatableV, jsonV, UNSAFE, InstructionCodes.DT2JSON);
-        
+
         conversionLattice.addEdge(xmlAttributesV, mapV, SAFE, InstructionCodes.XMLATTRS2MAP);
     }
 
@@ -366,30 +364,28 @@ public class TypeLattice {
             return true;
         }
 
-        for (VariableDefStmt fieldDef : targetStructDef.getFieldDefStmts()) {
-            VariableDef targetFieldDef = fieldDef.getVariableDef();
-            BType targetFieldType = targetFieldDef.getType();
-            SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
-            VariableDef sourceFieldDef = (VariableDef) sourceStructDef
-                    .resolveMembers(new SymbolName(fieldSymbolName.getName(), sourceStructDef.getPackagePath()));
+        VariableDefStmt[] sourceFieldDefs = sourceStructDef.getFieldDefStmts();
+        VariableDefStmt[] targetFieldDefs = targetStructDef.getFieldDefStmts();
+        if (targetFieldDefs.length > sourceFieldDefs.length) {
+            return false;
+        }
 
-            // field has to exists
-            if (sourceFieldDef == null) {
-                return false;
-            }
+        for (int i = 0; i < targetFieldDefs.length; i++) {
+            BType sourceFieldType = sourceFieldDefs[i].getVariableDef().getType();
+            String sourceFieldName = sourceFieldDefs[i].getVariableDef().getName();
 
-            // struct memory index of both the fields has to be same. i.e: order of the fields
-            // must be same in the target and the source structs
-            if (((StructVarLocation) targetFieldDef.getMemoryLocation()).getStructMemAddrOffset() !=
-                    ((StructVarLocation) sourceFieldDef.getMemoryLocation()).getStructMemAddrOffset()) {
-                return false;
-            }
+            BType targetFieldType = targetFieldDefs[i].getVariableDef().getType();
+            String targetFieldName = targetFieldDefs[i].getVariableDef().getName();
 
-            BType sourceFieldType = sourceFieldDef.getType();
             if (!isCompatible(targetFieldType, sourceFieldType)) {
                 return false;
             }
+
+            if (!sourceFieldName.equals(targetFieldName)) {
+                return false;
+            }
         }
+
         return true;
     }
 

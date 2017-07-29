@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -33,13 +32,52 @@ import org.ballerinalang.model.types.SimpleTypeName;
  */
 public interface VariableDef extends BLangSymbol, Node {
 
+    /**
+     * Represents the variable kind.
+     */
+    enum Kind {
+        /**
+         * Local variable in a function/action/resource.
+         */
+        LOCAL_VAR,
+
+        /**
+         * Constant.
+         */
+        CONSTANT,
+
+        /**
+         * Global variable
+         */
+        GLOBAL_VAR,
+
+        /**
+         * Variable defined in the service level.
+         */
+        SERVICE_VAR,
+
+        /**
+         * Variable defined in the connector level.
+         */
+        CONNECTOR_VAR,
+
+        /**
+         * Struct field.
+         */
+        STRUCT_FIELD
+    }
+
     BType getType();
 
     void setType(BType type);
 
-    MemoryLocation getMemoryLocation();
+    Kind getKind();
 
-    void setMemoryLocation(MemoryLocation memoryLocation);
+    void setKind(Kind kind);
+
+    int getVarIndex();
+
+    void setVarIndex(int index);
 
     SimpleTypeName getTypeName();
 }
