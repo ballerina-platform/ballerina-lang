@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.8.0
  */
-public final class BInteger extends BValueType implements BRefType<Long> {
+public final class BInteger extends BValueTypeValue implements BRefTypeValue<Long> {
 
     private long value;
 

@@ -17,24 +17,32 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.symbols.TypeSymbolName;
 
 /**
  * {@code SimpleTypeName} represents a simple type name(int, boolean, json, Person..) in Ballerina.
  *
  * @since 0.8.0
  */
-public class SimpleTypeName {
+public class SimpleTypeName implements Node {
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected NodeLocation location;
+
     protected String name;
     protected String pkgName;
     protected String pkgPath;
-    protected SymbolName symbolName;
-    protected boolean isArrayType;
+    protected TypeSymbolName symbolName;
+
+    protected boolean arrayType;
     protected int dimensions = 1;
+
+    public SimpleTypeName() {
+
+    }
 
     public SimpleTypeName(String name, String pkgName, String pkgPath) {
         this.name = name;
@@ -42,19 +50,15 @@ public class SimpleTypeName {
         this.pkgPath = pkgPath;
     }
 
-    public SimpleTypeName(String name) {
+    public SimpleTypeName(String name, boolean arrayType, int dimensions) {
         this(name, null, null);
-    }
-    
-    public SimpleTypeName(String name, boolean isArrayType, int dimensions) {
-        this(name, null, null);
-        this.isArrayType = isArrayType;
+        this.arrayType = arrayType;
         this.dimensions = dimensions;
     }
-    
-    public SimpleTypeName(String name, String pkgPath, boolean isArrayType, int dimensions) {
+
+    public SimpleTypeName(String name, String pkgPath, boolean arrayType, int dimensions) {
         this(name, null, null);
-        this.isArrayType = isArrayType;
+        this.arrayType = arrayType;
         this.pkgPath = pkgPath;
         this.dimensions = dimensions;
     }
@@ -75,16 +79,16 @@ public class SimpleTypeName {
         this.pkgPath = pkgPath;
     }
 
-    public SymbolName getSymbolName() {
+    public TypeSymbolName getSymbolName() {
         if (symbolName == null) {
-            this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);
+            this.symbolName = new TypeSymbolName(getNameWithArray(name), pkgPath);
         }
 
         return symbolName;
     }
 
     public boolean isArrayType() {
-        return isArrayType;
+        return arrayType;
     }
 
     public String getNameWithPkg() {
@@ -92,7 +96,7 @@ public class SimpleTypeName {
     }
 
     protected String getNameWithArray(String name) {
-        if (isArrayType) {
+        if (arrayType) {
             String arrayName = name;
             for (int i = 0; i < getDimensions(); i++) {
                 arrayName = arrayName + TypeConstants.ARRAY_TNAME;
@@ -113,12 +117,17 @@ public class SimpleTypeName {
     }
 
     public void setArrayType(int dimensions) {
-        this.isArrayType = true;
-        this.dimensions =  dimensions;
+        this.arrayType = true;
+        this.dimensions = dimensions;
     }
 
     public void setNodeLocation(NodeLocation location) {
         this.location = location;
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+
     }
 
     public NodeLocation getNodeLocation() {
@@ -131,5 +140,9 @@ public class SimpleTypeName {
 
     public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    public BType resolveBType(TypeNameResolver typeNameResolver) {
+        return null;
     }
 }

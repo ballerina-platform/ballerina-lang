@@ -124,6 +124,17 @@ public class BTypes {
     }
 
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
+        TypeNameResolver typeNameResolver = new TypeNameResolver(symbolScope);
+        BType bType = typeName.resolveBType(typeNameResolver);
+        if (bType != null) {
+            return bType;
+        }
+
+        throw new SemanticException(getNodeLocationStr(location) +
+                "undefined type '" + typeName + "'");
+    }
+
+    public static BType resolveType1(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
         // First check for builtin types. They don't have a package path
         BLangSymbol symbol = symbolScope.resolve(new SymbolName(typeName.getSymbolName().getName()));
         if (symbol == null) {
@@ -134,15 +145,15 @@ public class BTypes {
         if (symbol instanceof BType) {
             bType = (BType) symbol;
             if ((bType instanceof BJSONType)) {
-                if (typeName instanceof ConstraintTypeName) {
-                    SimpleTypeName constraint = ((ConstraintTypeName) typeName).getConstraint();
+                if (typeName instanceof ConstrainedBuiltinTypeName) {
+                    SimpleTypeName constraint = ((ConstrainedBuiltinTypeName) typeName).getConstraint();
                     symbol = symbolScope.resolve(new SymbolName(constraint.getName(), constraint.getPackagePath()));
                     if (symbol == null) {
                         throw new SemanticException(getNodeLocationStr(location) + "undefined struct type '" +
-                                                    typeName + "' for constraining json");
+                                typeName + "' for constraining json");
                     }
-                    bType = new BJSONConstraintType(bType.getName(), bType.getPackagePath(), bType.getSymbolScope());
-                    ((BJSONConstraintType) bType).setConstraint((StructDef) symbol);
+                    bType = new BJSONConstrainedType(bType.getName(), bType.getPackagePath(), bType.getSymbolScope());
+                    ((BJSONConstrainedType) bType).setConstraint((StructDef) symbol);
                 }
             }
         }
@@ -212,7 +223,7 @@ public class BTypes {
                 return bArrayType;
             }
         }
-        
+
         throw new SemanticException(getNodeLocationStr(location) + "undefined type '" + typeName + "'");
     }
 

@@ -168,7 +168,7 @@ public class BMapValueTest   {
     
     @Test
     public void testBMapToString() {
-        BMap<String, BRefType> map = new BMap<>();
+        BMap<String, BRefTypeValue> map = new BMap<>();
         map.put(new String("key1"), new BInteger(1));
         map.put(new String("key2"), new BString("foo"));
         map.put(new String("key3"), new BXMLItem("<bar>hello</bar>"));

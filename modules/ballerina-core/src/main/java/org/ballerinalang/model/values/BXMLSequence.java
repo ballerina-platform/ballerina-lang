@@ -359,7 +359,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXMLSequence copy() {
-        BRefType[] copiedVals = new BRefType[(int) sequence.size()];
+        BRefTypeValue[] copiedVals = new BRefTypeValue[(int) sequence.size()];
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((BXML<?>) sequence.get(i)).copy();
         }

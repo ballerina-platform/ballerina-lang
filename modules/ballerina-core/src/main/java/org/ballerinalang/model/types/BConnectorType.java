@@ -21,6 +21,8 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Arrays;
+
 /**
  * {@code BConnectorType} represents a {@code Connector} in Ballerina.
  *
@@ -78,6 +80,26 @@ public class BConnectorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.CONNECTOR_TAG;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.hashCode(fieldTypeCount);
+        return result;
     }
 }
 

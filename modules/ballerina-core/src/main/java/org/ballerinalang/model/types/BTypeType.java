@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.90
  */
-public class BTypeType extends BType {
+public class BTypeType extends BValueType {
 
     public BTypeType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BValue.class);
@@ -50,6 +50,11 @@ public class BTypeType extends BType {
     @Override
     public int getTag() {
         return TypeTags.TYPE_TAG;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 }
 

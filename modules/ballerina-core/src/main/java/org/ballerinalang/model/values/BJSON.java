@@ -40,7 +40,7 @@ import java.io.OutputStream;
  *
  * @since 0.8.0
  */
-public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
+public final class BJSON extends BallerinaMessageDataSource implements BRefTypeValue<JsonNode> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private BType type = BTypes.typeJSON;

@@ -42,7 +42,7 @@ public interface StructureType {
 
     void setBlobField(int index, byte[] value);
 
-    BRefType getRefField(int index);
+    BRefTypeValue getRefField(int index);
 
-    void setRefField(int index, BRefType value);
+    void setRefField(int index, BRefTypeValue value);
 }

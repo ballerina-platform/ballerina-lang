@@ -27,7 +27,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.90
  */
-public class BTypeValue implements BRefType<BType> {
+public class BTypeValue implements BRefTypeValue<BType> {
 
     private BType typeValue;
 

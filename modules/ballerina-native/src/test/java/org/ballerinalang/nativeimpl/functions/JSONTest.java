@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BValueTypeValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -103,7 +103,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json1), new BString("$.age")};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getInt", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), 20);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).intValue(), 20);
     }
 
     @Test(description = "Get a json element in a valid jsonpath")
@@ -119,7 +119,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getFloat", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), 3.54);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), 3.54);
     }
 
     @Test(description = "Get a double in a valid jsonpath")
@@ -127,7 +127,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getFloat", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), 3.54);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), 3.54);
     }
 
     @Test(description = "Get a float in a valid jsonpath")
@@ -135,7 +135,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.available")};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getBoolean", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).booleanValue(), true);
     }
 
     @Test(description = "Get json arrays length")
@@ -144,7 +144,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getInt", args);
 
         final int expected = 2;
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), expected);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).intValue(), expected);
     }
 
     @Test(description = "Get json arrays min value")
@@ -153,7 +153,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getFloat", args);
 
         final double expected = 25;
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get json arrays max value")
@@ -162,7 +162,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getFloat", args);
 
         final double expected = 28;
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get json arrays average value")
@@ -171,7 +171,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getFloat", args);
 
         final double expected = 26.5;
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get json arrays standard deviation of population")
@@ -180,7 +180,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getFloat", args);
 
         final double expected = 1.5;
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get a value of incorrect type", expectedExceptions = {BLangRuntimeException.class})
@@ -223,7 +223,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json1), new BString("$.age"), new BInteger(val)};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "setInt", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), val);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).intValue(), val);
     }
 
     @Test(description = "Set a float to a valid jsonpath")
@@ -232,7 +232,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.price"), new BFloat(val)};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "setFloat", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), val);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).floatValue(), val);
     }
 
     @Test(description = "Set a boolean to a valid jsonpath")
@@ -241,7 +241,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.available"), new BBoolean(val)};
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "setBoolean", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).booleanValue(), val);
+        Assert.assertEquals(((BValueTypeValue) returns[0]).booleanValue(), val);
     }
 
     @Test(description = "Set a json element to a valid jsonpath")

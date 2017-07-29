@@ -18,12 +18,12 @@
 package org.ballerinalang.model.values;
 
 /**
- * The {@code BRefType} represents a reference type value in Ballerina.
+ * The {@code BRefTypeValue} represents a reference type value in Ballerina.
  *
  * @param <T> actual value of this reference type
  * @since 0.8.0
  */
-public interface BRefType<T> extends BValue {
+public interface BRefTypeValue<T> extends BValue {
 
     T value();
 }

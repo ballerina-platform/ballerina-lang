@@ -93,4 +93,8 @@ public class FunctionTypeName extends SimpleTypeName {
     public void setReturnParamFieldNames(String[] returnParamFieldNames) {
         this.returnParamFieldNames = returnParamFieldNames;
     }
+
+    public BType resolveBType(TypeNameResolver typeNameResolver) {
+        return typeNameResolver.resolve(this);
+    }
 }

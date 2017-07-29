@@ -49,7 +49,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -232,7 +232,7 @@ public class JSONUtils {
         BJSON bjson = new BJSON("[]");
         ArrayNode arrayNode = (ArrayNode) bjson.value();
         for (int i = 0; i < refValueArray.size(); i++) {
-            BRefType value = refValueArray.get(i);
+            BRefTypeValue value = refValueArray.get(i);
             if (value == null) {
                 arrayNode.add(new BJSON(NULL).value());
             } else if (value.getType() == BTypes.typeMap) {
@@ -894,7 +894,7 @@ public class JSONUtils {
                 refValueArray = new BRefValueArray(elementType);
                 for (int i = 0; i < arrayNode.size(); i++) {
                     JsonNode element = arrayNode.get(i);
-                    refValueArray.add(i, (BRefType) getBValue(element));
+                    refValueArray.add(i, (BRefTypeValue) getBValue(element));
                 }
                 return refValueArray;
             default:

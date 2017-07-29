@@ -8,7 +8,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BValueTypeValue;
 import org.ballerinalang.model.values.BXML;
 
 /**
@@ -42,7 +42,7 @@ public class VariableInfo {
 
     private String getStringValue(BValue bValue) {
         String bValueString = "";
-        if (bValue instanceof BValueType || bValue instanceof BXML || bValue instanceof BJSON) {
+        if (bValue instanceof BValueTypeValue || bValue instanceof BXML || bValue instanceof BJSON) {
             bValueString = bValue.stringValue();
         } else if (bValue instanceof BNewArray) {
             BNewArray bArray = (BNewArray) bValue;

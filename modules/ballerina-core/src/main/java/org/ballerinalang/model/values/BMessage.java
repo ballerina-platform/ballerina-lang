@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public final class BMessage implements BRefType<CarbonMessage> {
+public final class BMessage implements BRefTypeValue<CarbonMessage> {
     private CarbonMessage value;
     private Headers headers;
 

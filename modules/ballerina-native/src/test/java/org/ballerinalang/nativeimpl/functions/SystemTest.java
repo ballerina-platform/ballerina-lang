@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BValueTypeValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -71,7 +71,7 @@ public class SystemTest {
             final String s2 = "A Greeting from Ballerina...!!!";
             final String expected = s1 + "\n" + s2;
 
-            BValueType[] args = {new BString(s1), new BString(s2)};
+            BValueTypeValue[] args = {new BString(s1), new BString(s2)};
             BLangFunctions.invokeNew(bLangProgram, printFuncName + "String", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
@@ -89,7 +89,7 @@ public class SystemTest {
             final int v2 = 1;
             final String expected = v1 + "\n" + v2;
 
-            BValueType[] args = {new BInteger(v1), new BInteger(v2)};
+            BValueTypeValue[] args = {new BInteger(v1), new BInteger(v2)};
             BLangFunctions.invokeNew(bLangProgram, printFuncName + "Int", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
@@ -107,7 +107,7 @@ public class SystemTest {
             final float v2 = 1;
             final String expected = v1 + "\n" + v2;
 
-            BValueType[] args = {new BFloat(v1), new BFloat(v2)};
+            BValueTypeValue[] args = {new BFloat(v1), new BFloat(v2)};
             BLangFunctions.invokeNew(bLangProgram, printFuncName + "Float", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
@@ -125,7 +125,7 @@ public class SystemTest {
             final boolean v2 = true;
             final String expected = v1 + "\n" + v2;
 
-            BValueType[] args = {new BBoolean(v1), new BBoolean(v2)};
+            BValueTypeValue[] args = {new BBoolean(v1), new BBoolean(v2)};
             BLangFunctions.invokeNew(bLangProgram, printFuncName + "Boolean", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
@@ -200,7 +200,7 @@ public class SystemTest {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String pathValue = System.getenv("PATH");
-            BValueType[] args = {new BString("PATH")};
+            BValueTypeValue[] args = {new BString("PATH")};
             BLangFunctions.invokeNew(bLangProgram, "getEnvVar", args);
             Assert.assertEquals(outContent.toString(), pathValue);
         } finally {

@@ -56,4 +56,9 @@ public class BMessageType extends BType {
     public int getTag() {
         return TypeTags.MESSAGE_TAG;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
 }

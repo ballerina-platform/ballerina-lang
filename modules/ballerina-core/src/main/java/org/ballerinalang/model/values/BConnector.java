@@ -27,14 +27,14 @@ import java.util.Arrays;
  *
  * @since 0.8.0
  */
-public final class BConnector implements BRefType, StructureType {
+public final class BConnector implements BRefTypeValue, StructureType {
 
     private long[] longFields;
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
     private byte[][] byteFields;
-    private BRefType[] refFields;
+    private BRefTypeValue[] refFields;
 
     private BConnectorType connectorType;
     private boolean isFilterConnector;
@@ -50,7 +50,7 @@ public final class BConnector implements BRefType, StructureType {
         Arrays.fill(stringFields, "");
         intFields = new int[fieldIndexes[3]];
         byteFields = new byte[fieldIndexes[4]][];
-        refFields = new BRefType[fieldIndexes[5]];
+        refFields = new BRefTypeValue[fieldIndexes[5]];
     }
 
     public BType getConnectorType() {
@@ -132,12 +132,12 @@ public final class BConnector implements BRefType, StructureType {
     }
 
     @Override
-    public BRefType getRefField(int index) {
+    public BRefTypeValue getRefField(int index) {
         return refFields[index];
     }
 
     @Override
-    public void setRefField(int index, BRefType value) {
+    public void setRefField(int index, BRefTypeValue value) {
         refFields[index] = value;
     }
 

@@ -17,28 +17,33 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.NodeLocation;
+
 /**
- * {@code ConstraintTypeName} represents a constrained type which is a simple type name(int, boolean, json, Person..)
- * thet is constrained by a schema or a struct in Ballerina.
+ * {@code ConstrainedBuiltinTypeName} represents a constrained builtin type name.
+ * <p/>
+ * e.g. json<Person>, map<int>.
  *
- * @since 0.9.0
+ * @since 0.92
  */
-public class ConstraintTypeName extends SimpleTypeName {
+public class ConstrainedBuiltinTypeName extends BuiltinTypeName {
     protected SimpleTypeName constraint;
 
-    public ConstraintTypeName(String name) {
-        super(name, null, null);
+    public ConstrainedBuiltinTypeName(NodeLocation location, String name, SimpleTypeName constraint) {
+        super(location, name);
+        this.constraint = constraint;
     }
 
-    public String getName() {
-        return name;
+    public ConstrainedBuiltinTypeName(NodeLocation location, String name, int dimensions, SimpleTypeName constraint) {
+        super(location, name, dimensions);
+        this.constraint = constraint;
     }
 
     public SimpleTypeName getConstraint() {
         return constraint;
     }
 
-    public void setConstraint(SimpleTypeName constraint) {
-        this.constraint = constraint;
+    public BType resolveBType(TypeNameResolver typeNameResolver) {
+        return typeNameResolver.resolve(this);
     }
 }

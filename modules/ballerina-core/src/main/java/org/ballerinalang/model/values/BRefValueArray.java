@@ -29,28 +29,28 @@ public class BRefValueArray extends BNewArray {
 
     private BType arrayType;
 
-    private BRefType[] values;
+    private BRefTypeValue[] values;
 
-    public BRefValueArray(BRefType[] values) {
+    public BRefValueArray(BRefTypeValue[] values) {
         this.values = values;
         this.size = values.length;
     }
 
     public BRefValueArray(BType type) {
         this.arrayType = type;
-        values = (BRefType[]) newArrayInstance(BRefType.class);
+        values = (BRefTypeValue[]) newArrayInstance(BRefTypeValue.class);
     }
 
     public BRefValueArray() {
-        values = (BRefType[]) newArrayInstance(BRefType.class);
+        values = (BRefTypeValue[]) newArrayInstance(BRefTypeValue.class);
     }
 
-    public void add(long index, BRefType value) {
+    public void add(long index, BRefTypeValue value) {
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
 
-    public BRefType get(long index) {
+    public BRefTypeValue get(long index) {
         rangeCheckForGet(index, size);
         return values[(int) index];
     }

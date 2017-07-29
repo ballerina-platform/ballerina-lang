@@ -81,18 +81,29 @@ public class BArrayType extends BType implements BIndexedType {
     }
 
     @Override
-    public int hashCode() {
-        return super.toString().hashCode();
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BArrayType arrayType = (BArrayType) o;
+        if (dimensions != arrayType.dimensions) {
+            return false;
+        }
+
+        return elementType.equals(arrayType.elementType);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof BArrayType) {
-            BArrayType other = (BArrayType) obj;
-            return this.elementType.equals(other.elementType);
-        }
-
-        return false;
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (elementType != null ? elementType.hashCode() : 0);
+        result = 31 * result + dimensions;
+        return result;
     }
 
     @Override

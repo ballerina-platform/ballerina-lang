@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.8.0
  */
-class BIntegerType extends BType {
+class BIntegerType extends BValueType {
 
     /**
      * Create a {@code BIntegerType} which represents the boolean type.

@@ -17,26 +17,40 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.NodeLocation;
+
 /**
- * {@code SchemaIDTypeName} represents a type name with the schema ID (e.g: json&lt;Person&gt;) in Ballerina.
+ * {@code BuiltinTypeName} represents a builtin type name in Ballerina.
+ * <p/>
+ * e.g. int, boolean, json[], int[].
  *
- * @since 0.8.0
+ * @since 0.92
  */
-public class SchemaIDTypeName extends SimpleTypeName {
-    private String schemaID;
+public class BuiltinTypeName extends SimpleTypeName {
 
-    public SchemaIDTypeName(String name, String pkgName, String pkgPath, String schemaID) {
-        super(name, pkgName, pkgPath);
-        this.schemaID = schemaID;
+    public BuiltinTypeName(String name) {
+        this.name = name;
     }
 
-    public String getSchemaID() {
-        return schemaID;
+    public BuiltinTypeName(String name, int dimensions) {
+        this(name);
+        this.arrayType = true;
+        this.dimensions = dimensions;
     }
 
-    @Override
-    public String toString() {
-        return getNameWithArray(getNameWithPkg() + "<" + schemaID + ">");
+    public BuiltinTypeName(NodeLocation location, String name) {
+        this(name);
+        this.location = location;
+    }
+
+    public BuiltinTypeName(NodeLocation location, String name, int dimensions) {
+        this(name, dimensions);
+        this.location = location;
+    }
+
+    public void setArrayType(int dimensions) {
+        this.arrayType = true;
+        this.dimensions = dimensions;
     }
 
     public BType resolveBType(TypeNameResolver typeNameResolver) {

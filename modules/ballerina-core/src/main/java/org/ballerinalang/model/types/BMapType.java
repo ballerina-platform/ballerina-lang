@@ -69,4 +69,9 @@ public class BMapType extends BType implements BIndexedType {
     public int getTag() {
         return TypeTags.MAP_TAG;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
 }

@@ -21,30 +21,28 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.
+ * {@code BValueType} represents a value type in Ballerina.
  *
- * @since 0.89
+ * @since 0.8.0
  */
-public class BXMLAttributesType extends BType {
+public class BValueType extends BType {
 
-    /**
-     * Create a {@code BXMLAttributesType} represents the type an xml-attribute-map in ballerina.
-     *
-     * @param typeName    string name of the type
-     * @param pkgPath     package path
-     * @param symbolScope symbol scope of the type
-     */
-    BXMLAttributesType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, null);
+    public BValueType(SymbolScope symbolScope) {
+        super(symbolScope);
     }
 
+    public BValueType(String typeName, String pkgPath, SymbolScope symbolScope, Class<? extends BValue> valueClass) {
+        super(typeName, pkgPath, symbolScope, valueClass);
+    }
+
+    @Override
     public <V extends BValue> V getZeroValue() {
-        return (V) null;
+        return null;
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) null;
+        return null;
     }
 
     @Override
@@ -54,7 +52,7 @@ public class BXMLAttributesType extends BType {
 
     @Override
     public int getTag() {
-        return TypeTags.XML_ATTRIBUTES_TAG;
+        return 0;
     }
 
     @Override

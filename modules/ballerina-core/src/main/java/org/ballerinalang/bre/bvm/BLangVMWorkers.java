@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -122,7 +122,7 @@ public class BLangVMWorkers {
                             bRefValueArray.add(i, ((BBlob) results[i]));
                             break;
                         default:
-                            bRefValueArray.add(i, ((BRefType) results[i]));
+                            bRefValueArray.add(i, ((BRefTypeValue) results[i]));
                     }
                 }
             }

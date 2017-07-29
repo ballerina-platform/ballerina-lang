@@ -24,7 +24,7 @@ import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.runtime.model.ServiceInterceptor;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -70,7 +70,7 @@ public interface BLangVMInterceptors {
         callerSF.setDoubleRegs(new double[0]);
         callerSF.setStringRegs(new String[0]);
         callerSF.setIntRegs(new int[1]);
-        callerSF.setRefRegs(new BRefType[1]);
+        callerSF.setRefRegs(new BRefTypeValue[1]);
         callerSF.setByteRegs(new byte[0][]);
 
         // Now create callee's stackframe
@@ -89,7 +89,7 @@ public interface BLangVMInterceptors {
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        BRefTypeValue[] refLocalVars = new BRefTypeValue[codeAttribInfo.getMaxRefLocalVars()];
 
         refLocalVars[0] = bMessage;
 

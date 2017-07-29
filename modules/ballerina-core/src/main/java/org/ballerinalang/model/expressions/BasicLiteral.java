@@ -21,7 +21,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BValueTypeValue;
 
 /**
  * {@code BasicLiteral} represents a basic literal in Ballerina.
@@ -32,15 +32,19 @@ import org.ballerinalang.model.values.BValueType;
  */
 public class BasicLiteral extends AbstractExpression {
     private SimpleTypeName typeName;
-    private BValueType bValue;
+    private BValueTypeValue bValue;
 
-    public BasicLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BValueType bValueType) {
+    public BasicLiteral(NodeLocation location,
+                        WhiteSpaceDescriptor whiteSpaceDescriptor,
+                        BValueTypeValue bValueTypeValue) {
         super(location, whiteSpaceDescriptor);
-        this.bValue = bValueType;
+        this.bValue = bValueTypeValue;
     }
 
-    public BasicLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
-                        BValueType bValue) {
+    public BasicLiteral(NodeLocation location,
+                        WhiteSpaceDescriptor whiteSpaceDescriptor,
+                        SimpleTypeName typeName,
+                        BValueTypeValue bValue) {
         super(location, whiteSpaceDescriptor);
         this.bValue = bValue;
         this.typeName = typeName;
@@ -50,7 +54,7 @@ public class BasicLiteral extends AbstractExpression {
         return typeName;
     }
 
-    public BValueType getBValue() {
+    public BValueTypeValue getBValue() {
         return bValue;
     }
 

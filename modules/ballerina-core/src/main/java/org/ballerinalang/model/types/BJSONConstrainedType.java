@@ -25,11 +25,11 @@ import org.ballerinalang.model.SymbolScope;
  *
  * @since 0.9.0
  */
-public class BJSONConstraintType extends BJSONType {
+public class BJSONConstrainedType extends BJSONType {
 
     protected BType constraint;
 
-    public BJSONConstraintType(BType constraint) {
+    public BJSONConstrainedType(BType constraint) {
         super("c-".concat(BTypes.typeJSON.getName()),
                 BTypes.typeJSON.getPackagePath(),
                 BTypes.typeJSON.getSymbolScope());
@@ -41,7 +41,7 @@ public class BJSONConstraintType extends BJSONType {
      *
      * @param typeName string name of the type
      */
-    BJSONConstraintType(String typeName, String pkgPath, SymbolScope symbolScope) {
+    BJSONConstrainedType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope);
     }
 
@@ -69,12 +69,11 @@ public class BJSONConstraintType extends BJSONType {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof BJSONConstraintType) {
-            boolean constraintEqual = constraint.equals(((BJSONConstraintType) obj).getConstraint());
-            return super.equals(obj) && constraintEqual;
-        } else {
-            return super.equals(obj);
+        if (obj instanceof BJSONConstrainedType) {
+            return constraint.equals(((BJSONConstrainedType) obj).getConstraint());
         }
+
+        return false;
     }
 
 }

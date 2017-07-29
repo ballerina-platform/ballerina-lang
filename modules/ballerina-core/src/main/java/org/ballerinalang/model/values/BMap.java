@@ -36,7 +36,7 @@ import java.util.StringJoiner;
  * @param <V> Value
  * @since 0.8.0
  */
-public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
+public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefTypeValue {
 
     private int size;
     private static final int INITIAL_CAPACITY = 16;

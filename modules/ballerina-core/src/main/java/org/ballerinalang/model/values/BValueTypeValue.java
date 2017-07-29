@@ -18,11 +18,11 @@
 package org.ballerinalang.model.values;
 
 /**
- * The {@code BValueType} represents a value type value in Ballerina.
+ * The {@code BValueTypeValue} represents a value type value in Ballerina.
  *
  * @since 0.8.0
  */
-public abstract class BValueType implements BValue {
+public abstract class BValueTypeValue implements BValue {
 
     /**
      * Returns the value of the specified number as an {@code int},

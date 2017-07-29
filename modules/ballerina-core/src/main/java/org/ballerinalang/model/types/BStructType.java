@@ -20,6 +20,8 @@ package org.ballerinalang.model.types;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Arrays;
+
 /**
  * {@code BStructType} represents a user defined {@code StructDef} in Ballerina.
  *
@@ -34,7 +36,7 @@ public class BStructType extends BType {
      * Create a {@code BStructType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the struct
+     * @param pkgPath  package of the struct
      */
     public BStructType(String typeName, String pkgPath) {
         super(typeName, pkgPath, null, BStruct.class);
@@ -77,6 +79,26 @@ public class BStructType extends BType {
         return TypeTags.STRUCT_TAG;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.hashCode(structFields);
+        result = 31 * result + Arrays.hashCode(fieldTypeCount);
+        return result;
+    }
 
     /**
      * This class represents struct field.

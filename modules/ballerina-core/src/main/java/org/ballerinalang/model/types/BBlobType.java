@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.88
  */
-public class BBlobType extends BType {
+public class BBlobType extends BValueType {
     protected BBlobType(SymbolScope symbolScope) {
         super(symbolScope);
     }

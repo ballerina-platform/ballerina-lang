@@ -29,7 +29,7 @@ import java.lang.reflect.Array;
  * @since 0.87
  */
 // TODO Change this class name
-public abstract class BNewArray implements BRefType {
+public abstract class BNewArray implements BRefTypeValue {
 
     /**
      * The maximum size of arrays to allocate.
@@ -54,7 +54,7 @@ public abstract class BNewArray implements BRefType {
     }
 
     @Override
-    public BRefType value() {
+    public BRefTypeValue value() {
         return null;
     }
 

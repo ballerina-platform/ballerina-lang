@@ -119,7 +119,7 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONConstrainedType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -2139,7 +2139,7 @@ public class CodeGenerator implements NodeVisitor {
                 fieldBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
-        } else if (varRefType == BTypes.typeJSON || varRefType instanceof BJSONConstraintType) {
+        } else if (varRefType == BTypes.typeJSON || varRefType instanceof BJSONConstrainedType) {
             BasicLiteral indexLiteral = new BasicLiteral(fieldBasedVarRefExpr.getNodeLocation(), null,
                     new BString(fieldName));
             indexLiteral.setType(BTypes.typeString);
@@ -2676,7 +2676,7 @@ public class CodeGenerator implements NodeVisitor {
             case TypeSignature.SIG_CJSON:
                 packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
                 StructInfo structInf = packageInfo.getStructInfo(typeSig.getName());
-                return new BJSONConstraintType(structInf.getType());
+                return new BJSONConstrainedType(structInf.getType());
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
             case TypeSignature.SIG_TYPE:

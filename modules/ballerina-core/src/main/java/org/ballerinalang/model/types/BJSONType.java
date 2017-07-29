@@ -56,4 +56,9 @@ public class BJSONType extends BType {
     public int getTag() {
         return TypeTags.JSON_TAG;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
 }

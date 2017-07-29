@@ -208,12 +208,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof StructDef) {
-            StructDef other = (StructDef) obj;
-            return this.typeName.equals(other.typeName);
-        }
-
-        return false;
+        return this == obj;
     }
 
     /**

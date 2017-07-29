@@ -58,4 +58,9 @@ public class BDataTableType extends BType {
     public int getTag() {
         return TypeTags.DATATABLE_TAG;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
 }

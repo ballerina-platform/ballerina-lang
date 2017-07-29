@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BTypes;
  * 
  * @since 0.89
  */
-public final class BXMLQName implements BRefType {
+public final class BXMLQName implements BRefTypeValue {
 
     private String localName;
     private String uri;

@@ -24,7 +24,7 @@ import org.ballerinalang.model.types.BTypes;
  * The {@code BBlob} represents a byte array.
  * {@link BBlob} will be useful for storing byte values.
  */
-public class BBlob extends BValueType implements BRefType<byte[]> {
+public class BBlob extends BValueTypeValue implements BRefTypeValue<byte[]> {
 
     private byte[] value;
 

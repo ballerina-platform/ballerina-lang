@@ -21,7 +21,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -96,8 +96,8 @@ public class BLangVMStructs {
                 break;
             default:
                 ++refRegIndex;
-                if (values[i] != null && (values[i] instanceof BRefType)) {
-                    bStruct.setRefField(refRegIndex, (BRefType) values[i]);
+                if (values[i] != null && (values[i] instanceof BRefTypeValue)) {
+                    bStruct.setRefField(refRegIndex, (BRefTypeValue) values[i]);
                 }
             }
         }

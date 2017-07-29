@@ -26,7 +26,7 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.interceptors.BLangVMInterceptors;
 import org.ballerinalang.runtime.interceptors.ServiceInterceptorCallback;
@@ -165,7 +165,7 @@ public class ServerConnectorMessageHandler {
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        BRefTypeValue[] refLocalVars = new BRefTypeValue[codeAttribInfo.getMaxRefLocalVars()];
 
         int stringParamCount = 0;
         int intParamCount = 0;
@@ -222,7 +222,7 @@ public class ServerConnectorMessageHandler {
         // Pass the incoming message variable into the worker invocations
         // Fix #2623
         StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
+        callerSF.setRefRegs(new BRefTypeValue[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
         BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs);

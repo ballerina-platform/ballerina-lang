@@ -26,7 +26,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.89
  */
-public final class BXMLAttributes implements BRefType {
+public final class BXMLAttributes implements BRefTypeValue {
 
     private BXML value;
 

@@ -25,7 +25,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONConstrainedType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -789,7 +789,7 @@ public class ProgramFileReader {
                 if (typeChar == 'C') {
                     typeStack.push(packageInfoOfType.getConnectorInfo(name).getType());
                 } else if (typeChar == 'K') {
-                    typeStack.push(new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType()));
+                    typeStack.push(new BJSONConstrainedType(packageInfoOfType.getStructInfo(name).getType()));
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -845,7 +845,7 @@ public class ProgramFileReader {
                 if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
                 } else if (ch == 'K') {
-                    return new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType());
+                    return new BJSONConstrainedType(packageInfoOfType.getStructInfo(name).getType());
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }

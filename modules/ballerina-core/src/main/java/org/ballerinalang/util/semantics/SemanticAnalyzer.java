@@ -129,12 +129,14 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.symbols.TypeSymbolName;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONConstrainedType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BuiltinTypeName;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
@@ -969,7 +971,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             BLangSymbol typeSymbol;
             if (fieldType.isArrayType()) {
-                typeSymbol = currentScope.resolve(new SymbolName(fieldType.getName(), fieldType.getPackagePath()));
+                typeSymbol = currentScope.resolve(new TypeSymbolName(fieldType.getName(), fieldType.getPackagePath()));
             } else {
                 typeSymbol = currentScope.resolve(fieldType.getSymbolName());
             }
@@ -2142,8 +2144,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (varRefType == BTypes.typeJSON) {
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
-        } else if (varRefType instanceof BJSONConstraintType) {
-            StructDef structDefReference = (StructDef) ((BJSONConstraintType) varRefType).getConstraint();
+        } else if (varRefType instanceof BJSONConstrainedType) {
+            StructDef structDefReference = (StructDef) ((BJSONConstrainedType) varRefType).getConstraint();
             BLangSymbol fieldSymbol = structDefReference.resolveMembers(
                     new SymbolName(fieldName, structDefReference.getPackagePath()));
             if (fieldSymbol == null) {
@@ -2295,7 +2297,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         String namepsaceUri = ((NamespaceDeclaration) symbol).getNamespaceUri();
         BasicLiteral namespaceUriLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null,
-                new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(namepsaceUri));
+                new BuiltinTypeName(TypeConstants.STRING_TNAME), new BString(namepsaceUri));
         namespaceUriLiteral.accept(this);
         xmlQNameRefExpr.setNamepsaceUri(namespaceUriLiteral);
     }
@@ -2349,8 +2351,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
         } else if ((sourceType.getTag() == TypeTags.C_JSON_TAG && targetType.getTag() == TypeTags.C_JSON_TAG)
-                && TypeLattice.isAssignCompatible((StructDef) ((BJSONConstraintType) targetType).getConstraint(),
-                (StructDef) ((BJSONConstraintType) sourceType).getConstraint())) {
+                && TypeLattice.isAssignCompatible((StructDef) ((BJSONConstrainedType) targetType).getConstraint(),
+                (StructDef) ((BJSONConstrainedType) sourceType).getConstraint())) {
             typeCastExpr.setOpcode(InstructionCodes.NOP);
             if (!isMultiReturn) {
                 typeCastExpr.setTypes(new BType[]{targetType});
@@ -2533,7 +2535,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (xmlElementLiteral.getDefaultNamespaceUri() == null) {
             BasicLiteral defaultnsUriLiteral = new BasicLiteral(xmlElementLiteral.getNodeLocation(), null,
-                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.XMLNS_ATTRIBUTE_NS_URI));
+                    new BuiltinTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.XMLNS_ATTRIBUTE_NS_URI));
             defaultnsUriLiteral.setType(BTypes.typeString);
             defaultnsUriLiteral.accept(this);
             xmlElementLiteral.setDefaultNamespaceUri(defaultnsUriLiteral);
@@ -3272,7 +3274,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
-
             if (!function.isNative() && functionSymbol != null) {
                 BLangExceptionHelper.throwSemanticError(function,
                         SemanticErrors.REDECLARED_SYMBOL, function.getName());
@@ -3288,7 +3289,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     ((BallerinaFunction) function).setNativeFunction((NativeUnitProxy) functionSymbol);
                 }
             }
-
             currentScope.define(symbolName, function);
 
             // Resolve return parameters
@@ -3309,7 +3309,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String connectorName = connectorDef.getName();
 
             // Define ConnectorDef Symbol in the package scope..
-            SymbolName connectorSymbolName = new SymbolName(connectorName, connectorDef.getPackagePath());
+            TypeSymbolName connectorSymbolName = new TypeSymbolName(connectorName, connectorDef.getPackagePath());
             BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
             if (connectorSymbol != null) {
                 BLangExceptionHelper.throwSemanticError(connectorDef,
@@ -3451,7 +3451,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void defineStructs(StructDef[] structDefs) {
         for (StructDef structDef : structDefs) {
 
-            SymbolName symbolName = new SymbolName(structDef.getName(), structDef.getPackagePath());
+            TypeSymbolName symbolName = new TypeSymbolName(structDef.getName(), structDef.getPackagePath());
             // Check whether this constant is already defined.
             if (currentScope.resolve(symbolName) != null) {
                 BLangExceptionHelper.throwSemanticError(structDef,
@@ -3503,7 +3503,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void defineAnnotations(AnnotationDef[] annotationDefs) {
         for (AnnotationDef annotationDef : annotationDefs) {
-            SymbolName symbolName = new SymbolName(annotationDef.getName(), currentPkg);
+            TypeSymbolName symbolName = new TypeSymbolName(annotationDef.getName(), currentPkg);
 
             // Check whether this annotation is already defined.
             if (currentScope.resolve(symbolName) != null) {
@@ -3610,8 +3610,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) expr;
         if (refTypeInitExpr instanceof ArrayInitExpr) {
             if (fieldType == BTypes.typeAny || fieldType == BTypes.typeMap) {
-                fieldType = BTypes.resolveType(new SimpleTypeName(BTypes.typeAny.getName(),
-                        true, 1), currentScope, expr.getNodeLocation());
+                fieldType = BTypes.resolveType(new BuiltinTypeName(BTypes.typeAny.getName(), 1),
+                        currentScope, expr.getNodeLocation());
             } else if (getElementType(fieldType) == BTypes.typeJSON) {
                 refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
@@ -3624,7 +3624,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (fieldType == BTypes.typeMap) {
                 refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
-            } else if (fieldType == BTypes.typeJSON || fieldType instanceof BJSONConstraintType) {
+            } else if (fieldType == BTypes.typeJSON || fieldType instanceof BJSONConstrainedType) {
                 refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType instanceof StructDef) {
@@ -3686,16 +3686,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (keyExpr instanceof SimpleVarRefExpr) {
                 BString key = new BString(((SimpleVarRefExpr) keyExpr).getVarName());
                 keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), keyExpr.getWhiteSpaceDescriptor(),
-                        new SimpleTypeName(TypeConstants.STRING_TNAME),
-                        key);
+                        new BuiltinTypeName(TypeConstants.STRING_TNAME), key);
                 keyValueExpr.setKeyExpr(keyExpr);
             }
             visitSingleValueExpr(keyExpr);
 
             Expression valueExpr = keyValueExpr.getValueExpr();
-            if (inheritedType instanceof BJSONConstraintType) {
+            if (inheritedType instanceof BJSONConstrainedType) {
                 String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
-                StructDef constraintStructDef = (StructDef) ((BJSONConstraintType) inheritedType).getConstraint();
+                StructDef constraintStructDef = (StructDef) ((BJSONConstrainedType) inheritedType).getConstraint();
                 if (constraintStructDef != null) {
                     BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
                             new SymbolName(key, constraintStructDef.getPackagePath()));
@@ -3704,7 +3703,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
                     }
                     VariableDef varDef = (VariableDef) varDefSymbol;
-                    BType cJSONFieldType = new BJSONConstraintType(varDef.getType());
+                    BType cJSONFieldType = new BJSONConstrainedType(varDef.getType());
                     if (valueExpr instanceof RefTypeInitExpr) {
                         valueExpr = getNestedInitExpr(valueExpr, cJSONFieldType);
                         keyValueExpr.setValueExpr(valueExpr);
@@ -3854,26 +3853,19 @@ public class SemanticAnalyzer implements NodeVisitor {
     private AssignabilityResult performAssignabilityCheck(BType lhsType, Expression rhsExpr) {
         AssignabilityResult assignabilityResult = new AssignabilityResult();
         BType rhsType = rhsExpr.getType();
-        if (lhsType == rhsType) {
+        if (lhsType.equals(rhsType)) {
             assignabilityResult.assignable = true;
             return assignabilityResult;
         }
 
-        if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
+        if (rhsType.equals(BTypes.typeNull) && !BTypes.isValueType(lhsType)) {
             assignabilityResult.assignable = true;
             return assignabilityResult;
         }
 
-        if ((rhsType instanceof BJSONConstraintType) && (lhsType == BTypes.typeJSON)) {
+        if ((rhsType instanceof BJSONConstrainedType) && (lhsType.equals(BTypes.typeJSON))) {
             assignabilityResult.assignable = true;
             return assignabilityResult;
-        }
-
-        if ((rhsType instanceof BJSONConstraintType) && (lhsType instanceof BJSONConstraintType)) {
-            if (((BJSONConstraintType) lhsType).getConstraint() == ((BJSONConstraintType) rhsType).getConstraint()) {
-                assignabilityResult.assignable = true;
-                return assignabilityResult;
-            }
         }
 
         // Now check whether an implicit cast is available;
@@ -3885,7 +3877,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Now check whether left-hand side type is 'any', then an implicit cast is possible;
-        if (isImplicitiCastPossible(lhsType, rhsType)) {
+        if (isImplicitCastPossible(lhsType, rhsType)) {
             implicitCastExpr = new TypeCastExpression(rhsExpr.getNodeLocation(),
                     null, rhsExpr, lhsType);
             implicitCastExpr.setOpcode(InstructionCodes.NOP);
@@ -3895,9 +3887,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             return assignabilityResult;
         }
 
-        if (lhsType == BTypes.typeFloat && rhsType == BTypes.typeInt && rhsExpr instanceof BasicLiteral) {
+        if (lhsType.equals(BTypes.typeFloat) && rhsType.equals(BTypes.typeInt) && rhsExpr instanceof BasicLiteral) {
             BasicLiteral newExpr = new BasicLiteral(rhsExpr.getNodeLocation(), rhsExpr.getWhiteSpaceDescriptor(),
-                    new SimpleTypeName(TypeConstants.FLOAT_TNAME), new BFloat(((BasicLiteral) rhsExpr)
+                    new BuiltinTypeName(TypeConstants.FLOAT_TNAME), new BFloat(((BasicLiteral) rhsExpr)
                     .getBValue().intValue()));
             visitSingleValueExpr(newExpr);
             assignabilityResult.assignable = true;
@@ -3928,8 +3920,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         return assignabilityResult;
     }
 
-    private boolean isImplicitiCastPossible(BType lhsType, BType rhsType) {
-        if (lhsType == BTypes.typeAny) {
+    private boolean isImplicitCastPossible(BType lhsType, BType rhsType) {
+        if (lhsType.equals(BTypes.typeAny)) {
             return true;
         }
 
@@ -3951,7 +3943,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (rhsType.getTag() == TypeTags.ARRAY_TAG) {
             // Only the right-hand side is an array type
             // Then lhs type should 'any' type
-            return lhsType == BTypes.typeAny;
+            return lhsType.equals(BTypes.typeAny);
 
         } else if (lhsType.getTag() == TypeTags.ARRAY_TAG) {
             // Only the left-hand side is an array type
@@ -3959,7 +3951,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Now both types are not array types
-        if (lhsType == rhsType) {
+        if (lhsType.equals(rhsType)) {
             return true;
         }
 
@@ -4095,9 +4087,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (!namespaces.containsKey(namespaceDecl.getPrefix())
                         && !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
 
-                    BasicLiteral namespaceUriLiteral =
-                            new BasicLiteral(location, null, new SimpleTypeName(TypeConstants.STRING_TNAME),
-                                    new BString(namespaceDecl.getNamespaceUri()));
+                    BasicLiteral namespaceUriLiteral = new BasicLiteral(location, null,
+                            new BuiltinTypeName(TypeConstants.STRING_TNAME),
+                            new BString(namespaceDecl.getNamespaceUri()));
                     namespaceUriLiteral.accept(this);
                     namespaces.put(namespaceDecl.getPrefix(), namespaceUriLiteral);
                 }
@@ -4153,7 +4145,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (prefix.isEmpty()) {
             BasicLiteral emptyNsUriLiteral = new BasicLiteral(qname.getNodeLocation(), null,
-                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.NULL_NS_URI));
+                    new BuiltinTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.NULL_NS_URI));
             emptyNsUriLiteral.accept(this);
             qname.setNamepsaceUri(emptyNsUriLiteral);
             return;
@@ -4193,7 +4185,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 attrValueExpr = createImplicitStringConversionExpr(attrValueExpr, attrValueExpr.getType());
                 attribute.setValueExpr(attrValueExpr);
             }
-        }
+        }                                           
     }
 
     private void validateXMLLiteralEndTag(XMLElementLiteral xmlElementLiteral) {

@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.8.0
  */
-public final class BBoolean extends BValueType implements BRefType<Boolean> {
+public final class BBoolean extends BValueTypeValue implements BRefTypeValue<Boolean> {
 
     /**
      * The {@code BBoolean} object corresponding to the primitive.

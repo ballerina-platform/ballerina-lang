@@ -37,7 +37,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -159,7 +159,7 @@ public class BLangFunctions {
         callerSF.setDoubleRegs(new double[doubleRegCount]);
         callerSF.setStringRegs(new String[stringRegCount]);
         callerSF.setIntRegs(new int[intRegCount]);
-        callerSF.setRefRegs(new BRefType[refRegCount]);
+        callerSF.setRefRegs(new BRefTypeValue[refRegCount]);
         callerSF.setByteRegs(new byte[byteRegCount][]);
 
         // Now create callee's stackframe
@@ -185,7 +185,7 @@ public class BLangFunctions {
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        BRefTypeValue[] refLocalVars = new BRefTypeValue[codeAttribInfo.getMaxRefLocalVars()];
 
         for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
             BType argType = functionInfo.getParamTypes()[i];
@@ -211,7 +211,7 @@ public class BLangFunctions {
                     byteParamCount++;
                     break;
                 default:
-                    refLocalVars[refParamCount] = (BRefType) args[i];
+                    refLocalVars[refParamCount] = (BRefTypeValue) args[i];
                     refParamCount++;
                     break;
             }

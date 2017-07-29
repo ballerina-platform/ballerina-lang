@@ -32,7 +32,7 @@ import java.util.Arrays;
  * @param <V> Ballerina value stored in this arrays value
  * @since 0.8.0
  */
-public final class BArray<V extends BValue> implements BRefType {
+public final class BArray<V extends BValue> implements BRefTypeValue {
 
     /**
      * The maximum size of arrays to allocate.

@@ -27,7 +27,7 @@ import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -136,7 +136,7 @@ public class BLangProgramRunner {
 
         // Execute workers
         StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
+        callerSF.setRefRegs(new BRefTypeValue[1]);
         callerSF.getRefRegs()[0] = arrayArgs;
         int[] argRegs = {0};
         BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);

@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class BDataTable implements BRefType<Object> {
+public class BDataTable implements BRefTypeValue<Object> {
 
     private DataIterator iterator;
     private List<ColumnDefinition> columnDefs;

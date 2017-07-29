@@ -21,7 +21,7 @@ import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BValueTypeValue;
 
 import java.util.function.Function;
 
@@ -30,12 +30,12 @@ import java.util.function.Function;
  */
 public class NativeTypeMapperDef implements BLangSymbol {
 
-    private Function<BValueType, BValueType> typeMapper;
+    private Function<BValueTypeValue, BValueTypeValue> typeMapper;
     private SymbolScope symbolScope;
     private SymbolName symbolName;
     private Identifier identifier;
 
-    public NativeTypeMapperDef(Function<BValueType, BValueType> typeMapper, SymbolScope symbolScope,
+    public NativeTypeMapperDef(Function<BValueTypeValue, BValueTypeValue> typeMapper, SymbolScope symbolScope,
                                SymbolName symbolName) {
         this.typeMapper = typeMapper;
         this.symbolScope = symbolScope;

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefTypeValue;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -40,14 +40,14 @@ public class StackFrame {
     // These are used for array indexes and boolean values;
     int[] intLocalVars;
     byte[][] byteLocalVars;
-    BRefType[] refLocalVars;
+    BRefTypeValue[] refLocalVars;
 
     long[] longRegs;
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
     byte[][] byteRegs;
-    BRefType[] refRegs;
+    BRefTypeValue[] refRegs;
 
     // Return address of the caller
     int retAddrs;
@@ -90,14 +90,14 @@ public class StackFrame {
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         Arrays.fill(byteLocalVars, new byte[0]);
 
-        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        this.refLocalVars = new BRefTypeValue[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
+        this.refRegs = new BRefTypeValue[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
@@ -124,14 +124,14 @@ public class StackFrame {
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         Arrays.fill(byteLocalVars, new byte[0]);
-        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        this.refLocalVars = new BRefTypeValue[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
+        this.refRegs = new BRefTypeValue[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
@@ -158,7 +158,7 @@ public class StackFrame {
         return byteLocalVars;
     }
 
-    public BRefType[] getRefLocalVars() {
+    public BRefTypeValue[] getRefLocalVars() {
         return refLocalVars;
     }
 
@@ -182,7 +182,7 @@ public class StackFrame {
         return byteRegs;
     }
 
-    public BRefType[] getRefRegs() {
+    public BRefTypeValue[] getRefRegs() {
         return refRegs;
     }
 
@@ -206,7 +206,7 @@ public class StackFrame {
         this.byteLocalVars = byteLocalVars;
     }
 
-    public void setRefLocalVars(BRefType[] refLocalVars) {
+    public void setRefLocalVars(BRefTypeValue[] refLocalVars) {
         this.refLocalVars = refLocalVars;
     }
 
@@ -230,7 +230,7 @@ public class StackFrame {
         this.byteRegs = byteRegs;
     }
 
-    public void setRefRegs(BRefType[] refRegs) {
+    public void setRefRegs(BRefTypeValue[] refRegs) {
         this.refRegs = refRegs;
     }
 

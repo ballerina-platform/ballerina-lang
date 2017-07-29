@@ -26,7 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @since 0.8.0
  */
-public final class BString extends BValueType implements BRefType<String> {
+public final class BString extends BValueTypeValue implements BRefTypeValue<String> {
 
     private String value;
 

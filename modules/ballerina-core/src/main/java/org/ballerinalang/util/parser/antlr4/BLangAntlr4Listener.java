@@ -28,9 +28,11 @@ import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
-import org.ballerinalang.model.types.ConstraintTypeName;
+import org.ballerinalang.model.types.BuiltinTypeName;
+import org.ballerinalang.model.types.ConstrainedBuiltinTypeName;
 import org.ballerinalang.model.types.FunctionTypeName;
 import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.model.types.UserDefinedTypeName;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.BallerinaParser.ActionDefinitionContext;
 import org.ballerinalang.util.parser.BallerinaParser.AnnotationAttachmentContext;
@@ -841,9 +843,8 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        // This is 'any' type
-        SimpleTypeName typeName = new SimpleTypeName(ctx.getChild(0).getText());
-        typeName.setNodeLocation(getCurrentLocation(ctx));
+        // This is 'any' or 'type' type
+        BuiltinTypeName typeName = new BuiltinTypeName(getCurrentLocation(ctx), ctx.getChild(0).getText());
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getTypeNameWS(tokenStream, ctx);
             typeName.setWhiteSpaceDescriptor(ws);
@@ -862,21 +863,20 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        if (ctx.nameReference() != null) {
-            BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-            modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
-
-            SimpleTypeName typeName = new SimpleTypeName(nameReference.getName(),
-                    nameReference.getPackageName(), nameReference.getPackagePath());
-            typeName.setNodeLocation(getCurrentLocation(ctx));
-
-            if (isVerboseMode) {
-                WhiteSpaceDescriptor ws = WhiteSpaceUtil.getRefTypeNameWS(tokenStream, ctx);
-                typeName.setWhiteSpaceDescriptor(ws);
-            }
-
-            typeNameStack.push(typeName);
+        if (ctx.nameReference() == null) {
+            return;
         }
+
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
+        UserDefinedTypeName typeName = new UserDefinedTypeName(getCurrentLocation(ctx), nameReference.getName(),
+                nameReference.getPackageName(), nameReference.getPackagePath());
+
+        if (isVerboseMode) {
+            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getRefTypeNameWS(tokenStream, ctx);
+            typeName.setWhiteSpaceDescriptor(ws);
+        }
+        typeNameStack.push(typeName);
     }
 
     @Override
@@ -892,13 +892,12 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
         if (ctx.getChild(0) != null) {
             String valueTypeName = ctx.getChild(0).getText();
-            SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
-            simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
+            BuiltinTypeName builtinTypeName = new BuiltinTypeName(getCurrentLocation(ctx), valueTypeName);
             if (isVerboseMode) {
                 WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
-                simpleTypeName.setWhiteSpaceDescriptor(ws);
+                builtinTypeName.setWhiteSpaceDescriptor(ws);
             }
-            typeNameStack.push(simpleTypeName);
+            typeNameStack.push(builtinTypeName);
         }
     }
 
@@ -912,25 +911,24 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
+
         if (ctx.functionTypeName() != null) {
             return;
         }
 
+        SimpleTypeName simpleTypeName;
         String builtInRefTypeName = ctx.getChild(0).getText();
-        SimpleTypeName simpleTypeName = new SimpleTypeName(builtInRefTypeName);
+        NodeLocation currentLocation = getCurrentLocation(ctx);
         if (ctx.nameReference() != null) {
             BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-            modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
-            if (nameReference != null) {
-                SimpleTypeName constraint =
-                        new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
-                                nameReference.getPackagePath());
-                simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
-                ((ConstraintTypeName) simpleTypeName).setConstraint(constraint);
-            }
+            modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
+            UserDefinedTypeName constraint = new UserDefinedTypeName(currentLocation, nameReference.getName(),
+                    nameReference.getPackageName(), nameReference.getPackagePath());
+            simpleTypeName = new ConstrainedBuiltinTypeName(currentLocation, builtInRefTypeName, constraint);
+        } else {
+            simpleTypeName = new BuiltinTypeName(currentLocation, builtInRefTypeName);
         }
 
-        simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
             simpleTypeName.setWhiteSpaceDescriptor(ws);
@@ -1306,7 +1304,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (!nameReferenceStack.isEmpty()) {
             nameReference = nameReferenceStack.pop();
             modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
-            connectorTypeName = new SimpleTypeName(nameReference.getName(),
+            connectorTypeName = new UserDefinedTypeName(currentLocation, nameReference.getName(),
                     nameReference.getPackageName(), nameReference.getPackagePath());
             connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         }
@@ -1982,7 +1980,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
 
     }
-    
+
     @Override
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         if (ctx.exception == null) {

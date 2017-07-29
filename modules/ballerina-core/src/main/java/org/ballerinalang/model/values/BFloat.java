@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.8.0
  */
-public final class BFloat extends BValueType implements BRefType<Double> {
+public final class BFloat extends BValueTypeValue implements BRefTypeValue<Double> {
 
     private double value;
 

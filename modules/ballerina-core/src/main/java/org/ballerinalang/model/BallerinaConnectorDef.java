@@ -21,12 +21,14 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.symbols.TypeSymbolName;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -257,20 +259,35 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
-    public boolean equals(Object obj) {
-        if (obj instanceof BallerinaConnectorDef) {
-            BallerinaConnectorDef other = (BallerinaConnectorDef) obj;
-                if (this.actions.length == other.actions.length) {
-                    for (int i = 0; i < this.actions.length; i++) {
-                        if (!this.actions[i].equals(other.actions[i])) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
-        return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BallerinaConnectorDef that = (BallerinaConnectorDef) o;
+        if (this.actions.length != that.actions.length) {
+            return false;
+        }
+
+        for (int i = 0; i < this.actions.length; i++) {
+            if (!this.actions[i].equals(that.actions[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.hashCode(actions);
+        return result;
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {
@@ -296,7 +313,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
             this.connectorDef.identifier = this.identifier;
             this.connectorDef.typeName = this.identifier.getName();
             this.connectorDef.pkgPath = this.pkgPath;
-            this.connectorDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
+            this.connectorDef.symbolName = new TypeSymbolName(identifier.getName(), pkgPath);
 
             this.connectorDef.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);

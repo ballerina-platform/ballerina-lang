@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BType;
  *
  * @since 0.90
  */
-public class BFunctionPointer implements BRefType<Integer> {
+public class BFunctionPointer implements BRefTypeValue<Integer> {
 
     int funcRefCPEntryIndex;
 
