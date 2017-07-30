@@ -35,4 +35,16 @@ service<http> echo {
         messages:removeAllHeaders(m);
         reply m;
     }
+
+    @http:POST{}
+    resource getFormParams (message m) {
+        message response = {};
+        map params = {};
+        params = http:getFormParams(m);
+        var name,_ = (string)params.firstName;
+        var team,_ = (string)params.team;
+        json responseJson = {"Name":name , "Team":team};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }

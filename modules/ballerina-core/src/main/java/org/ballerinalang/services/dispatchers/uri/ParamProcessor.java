@@ -40,8 +40,8 @@ public class ParamProcessor {
         for (String entry : entries) {
             int index = entry.indexOf('=');
             if (index != -1) {
-                String name = entry.substring(0, index);
-                String value = URLDecoder.decode(entry.substring(index + 1), ENCODING);
+                String name = entry.substring(0, index).trim();
+                String value = URLDecoder.decode(entry.substring(index + 1).trim(), ENCODING);
                 queryParams.put(name, value);
             }
         }
@@ -51,10 +51,10 @@ public class ParamProcessor {
     public static Map<String, String> processHeaderParams(List<Header> headers) {
         Map<String, String> headerParams = new HashMap<>();
         for (Header header : headers) {
-            String name = header.getName();
+            String name = header.getName().trim();
             String value = "";
             try {
-                value = URLDecoder.decode(header.getValue(), ENCODING);
+                value = URLDecoder.decode(header.getValue().trim(), ENCODING);
             } catch (UnsupportedEncodingException e) {
                 throw new BallerinaException("Unsupported encoding in value: " + value + "for " + name);
             }

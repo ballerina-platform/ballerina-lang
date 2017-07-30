@@ -110,7 +110,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             throws UnsupportedEncodingException {
         if (resource.getParamNames().length > 1) {
             String contentType = cMsg.getHeader(Constants.CONTENT_TYPE_HEADER);
-            if (contentType != null && contentType.equals(Constants.APPLICATION_X_WWW_FORM_URLENCODED)) {
+            if (contentType != null && contentType.contains(Constants.APPLICATION_X_WWW_FORM_URLENCODED)) {
                 String payload;
                 if (cMsg.isAlreadyRead()) {
                     payload = cMsg.getMessageDataSource().getMessageAsString();

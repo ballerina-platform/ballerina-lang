@@ -41,6 +41,11 @@ native function setStatusCode (message m, int statusCode);
 @doc:Param { value:"reasonPhrase: Reason phrase value" }
 native function setReasonPhrase (message m, string reasonPhrase);
 
+@doc:Description { value:"Gets formParam map from HTTP message"}
+@doc:Param { value:"m: The message object" }
+@doc:Return { value:"map: The map of form params" }
+native function getFormParams (message m) (map);
+
 connector ClientConnector (string serviceUri) {
 
 	@doc:Description { value:"The POST action implementation of the HTTP Connector."}
