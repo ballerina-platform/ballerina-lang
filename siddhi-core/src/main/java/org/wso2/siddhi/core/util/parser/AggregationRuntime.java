@@ -42,7 +42,6 @@ public class AggregationRuntime {
     private SingleStreamRuntime singleStreamRuntime;
     private EntryValveExecutor entryValveExecutor;
     private ExpressionExecutor perExpressionExecutor;
-    private Map<TimePeriod.Duration, ComplexEventChunk<StreamEvent>> runningAggregationEventMap = new HashMap<>();
     private Map<TimePeriod.Duration, Object> inMemoryStoreMap = new HashMap<>();
     private List<ExpressionExecutor> baseExecutors;
 
@@ -50,8 +49,7 @@ public class AggregationRuntime {
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
             Map<TimePeriod.Duration, Table> aggregationTables, SingleStreamRuntime singleStreamRuntime,
             EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
-            SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
-            MetaStreamEvent metaStreamEvent) {
+            SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors, MetaStreamEvent metaStreamEvent) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
         this.aggregationTables = aggregationTables;
@@ -108,7 +106,7 @@ public class AggregationRuntime {
             MatchingMetaInfoHolder matchingMetaInfoHolder, List<VariableExpressionExecutor> variableExpressionExecutors,
             Map<String, Table> tableMap, String queryName, SiddhiAppContext siddhiAppContext) {
         Map<TimePeriod.Duration, CompiledCondition> tableCompiledConditions = new HashMap<>();
-        Map<TimePeriod.Duration, CompiledCondition> inMemoryStoreCompileConditions = new HashMap<>();
+        CompiledCondition inMemoryStoreCompileCondition;
         perExpressionExecutor = ExpressionParser.parseExpression(per, matchingMetaInfoHolder.getMetaStateEvent(),
                 matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext,
                 false, 0, queryName);
@@ -121,11 +119,12 @@ public class AggregationRuntime {
             Expression lessThanExpression = Expression.compare(Expression.variable("_TIMESTAMP"),
                     Compare.Operator.LESS_THAN, Expression.function("time", "timestampInMilliseconds",
                             within.getTimeRange().get(1), Expression.value("yyyy-MM-dd HH:mm:ss")));
-            /*Expression completeExpression = Expression.and(expression,
-                    Expression.and(greaterThanEqualExpression, lessThanExpression));*/
+            /*
+             * Expression completeExpression = Expression.and(expression,
+             * Expression.and(greaterThanEqualExpression, lessThanExpression));
+             */
             // TODO: 7/26/17 this doesnt work coz original exp is made for aggregation. not tables
             Expression completeExpression = Expression.and(greaterThanEqualExpression, lessThanExpression);
-            Integer i = 0;
             for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
                 CompiledCondition tableCompileCondition = entry.getValue().compileCondition(completeExpression,
                         newMatchingMetaInfoHolderForTables(matchingMetaInfoHolder,
@@ -133,19 +132,17 @@ public class AggregationRuntime {
                         siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
                 tableCompiledConditions.put(entry.getKey(), tableCompileCondition);
 
-                ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(true);
-                runningAggregationEventMap.put(entry.getKey(), complexEventChunk);
-                CompiledCondition inMemoryStoreCompileCondition = OperatorParser.constructOperator(complexEventChunk,
-                        completeExpression,
-                        newMatchingMetaInfoHolderForComplexEventChunk(matchingMetaInfoHolder,
-                                entry.getValue().getTableDefinition().getAttributeList(),
-                                "_".concat((++i).toString() + "_StreamDefinition"), variableExpressionExecutors),
-                        siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-                inMemoryStoreCompileConditions.put(entry.getKey(), inMemoryStoreCompileCondition);
                 inMemoryStoreMap.put(entry.getKey(), incrementalExecutorMap.get(entry.getKey()).getInMemoryStore());
             }
-            return new IncrementalAggregateCompileCondition(tableCompiledConditions, inMemoryStoreCompileConditions,
-                    baseExecutors, runningAggregationEventMap, aggregationTables, inMemoryStoreMap, metaStreamEvent);
+            inMemoryStoreCompileCondition = OperatorParser
+                    .constructOperator(new ComplexEventChunk<>(true), completeExpression,
+                            newMatchingMetaInfoHolderForComplexEventChunk(matchingMetaInfoHolder,
+                                    ((Table)aggregationTables.values().toArray()[0]).getTableDefinition()
+                                            .getAttributeList(),
+                                    variableExpressionExecutors),
+                            siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+            return new IncrementalAggregateCompileCondition(tableCompiledConditions, inMemoryStoreCompileCondition,
+                    baseExecutors, aggregationTables, inMemoryStoreMap, metaStreamEvent);
 
         } else { // TODO: 7/24/17 implement for one within value
             throw new SiddhiAppRuntimeException("Only one or two values allowed for within condition");
@@ -169,12 +166,12 @@ public class AggregationRuntime {
     }
 
     private MatchingMetaInfoHolder newMatchingMetaInfoHolderForComplexEventChunk(
-            MatchingMetaInfoHolder matchingMetaInfoHolder, List<Attribute> attributeList, String streamDefinitionID,
+            MatchingMetaInfoHolder matchingMetaInfoHolder, List<Attribute> attributeList,
             List<VariableExpressionExecutor> variableExpressionExecutors) {
         MetaStreamEvent rightMetaStreamEventForComplexEventChunk = new MetaStreamEvent();
         rightMetaStreamEventForComplexEventChunk.setEventType(MetaStreamEvent.EventType.WINDOW);
         // TODO: 7/26/17 is it ok to set type WINDOW? Otherwise, _TIMESTAMP variable not parsed
-        StreamDefinition streamDefinition = StreamDefinition.id(streamDefinitionID);
+        StreamDefinition streamDefinition = StreamDefinition.id("_StreamDefinitionForRetrieval");
         for (Attribute attribute : attributeList) {
             streamDefinition.attribute(attribute.getName(), attribute.getType());
         }
