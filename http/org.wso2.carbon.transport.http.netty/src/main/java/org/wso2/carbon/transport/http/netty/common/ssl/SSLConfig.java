@@ -114,7 +114,7 @@ public class SSLConfig {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using serverNames" + serverNames);
         }
-        this.serverNames = serverNames.split(separator);
+        this.serverNames = serverNames.replaceAll("\\s+", "").split(separator);
     }
 
     public boolean isWantClientAuth() {
@@ -158,7 +158,7 @@ public class SSLConfig {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Set enable protocols" + enableProtocols);
         }
-        this.enableProtocols = enableProtocols.split(separator);
+        this.enableProtocols = enableProtocols.replaceAll("\\s+", "").split(separator);
     }
 
     public String[] getCipherSuites() {
@@ -169,7 +169,7 @@ public class SSLConfig {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Set supported cipherSuites" + cipherSuites);
         }
-        this.cipherSuites = cipherSuites.split(separator);
+        this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(separator);
     }
 
     public boolean isClientMode() {

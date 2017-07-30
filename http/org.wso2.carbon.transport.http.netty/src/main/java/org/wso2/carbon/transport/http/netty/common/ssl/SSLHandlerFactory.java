@@ -25,7 +25,6 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
@@ -46,6 +45,8 @@ import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -116,7 +117,7 @@ public class SSLHandlerFactory {
     /**
      * @return instance of {@code SslHandler}
      */
-    public SslHandler create() {
+    public SSLEngine build() {
         SSLEngine engine = serverContext.createSSLEngine();
         engine.setNeedClientAuth(needClientAuth);
         engine.setUseClientMode(sslConfig.isClientMode());
@@ -124,22 +125,12 @@ public class SSLHandlerFactory {
             engine.setEnabledCipherSuites(sslConfig.getCipherSuites());
         }
         if (sslConfig.getEnableProtocols() != null && sslConfig.getEnableProtocols().length > 0) {
-            engine.setEnabledCipherSuites(sslConfig.getEnableProtocols());
-
+            engine.setEnabledProtocols(sslConfig.getEnableProtocols());
         }
         if (sslConfig.isEnableSessionCreation()) {
             engine.setEnableSessionCreation(true);
-
         }
-        if (sslConfig.getServerNames() != null && sslConfig.getServerNames().length > 0) {
-            SSLParameters sslParameters = engine.getSSLParameters();
-            sslParameters.setServerNames(new ArrayList(Arrays.asList(sslConfig.getServerNames())));
-        }
-        if (sslConfig.getSniMatchers() != null && sslConfig.getSniMatchers().length > 0) {
-            SSLParameters sslParameters = engine.getSSLParameters();
-            sslParameters.setServerNames(new ArrayList(Arrays.asList(sslConfig.getSniMatchers())));
-        }
-        return new SslHandler(engine);
+        return engine;
     }
 
     /**
@@ -178,5 +169,13 @@ public class SSLHandlerFactory {
 
     public TrustManagerFactory getTrustStoreFactory() {
         return tmf;
+    }
+
+    public void setSNIServerNames(SSLEngine sslEngine, String peerHost) {
+        SSLParameters sslParameters = new SSLParameters();
+        List<SNIServerName> serverNames = new ArrayList<>();
+        serverNames.add(new SNIHostName(peerHost));
+        sslParameters.setServerNames(serverNames);
+        sslEngine.setSSLParameters(sslParameters);
     }
 }

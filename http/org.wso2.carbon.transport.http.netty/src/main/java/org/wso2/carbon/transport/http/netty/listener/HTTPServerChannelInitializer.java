@@ -43,9 +43,10 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLEngine;
 
 /**
- * A class that responsible for create server side channels.
+ * A class that responsible for build server side channels.
  */
 public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChannel>
         implements CarbonTransportInitializer {
@@ -111,8 +112,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         } else {
             // Configure Pipeline to handle HTTP/1 requests if HTTP/2 not enabled.
             if (listenerConfiguration.getSslConfig() != null) {
-                SslHandler sslHandler = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).create();
-                ch.pipeline().addLast("ssl", sslHandler);
+                SSLEngine sslEngine = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).build();
+                ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
 
             }
             p.addLast("encoder", new HttpResponseEncoder());
