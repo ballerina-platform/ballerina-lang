@@ -32,14 +32,4 @@ public class NamespaceSymbolName extends SymbolName {
     public NamespaceSymbolName(String name) {
         super(name);
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof NamespaceSymbolName)) {
-            return false;
-        }
-
-        SymbolName other = (SymbolName) obj;
-        return isNameAndPackagePathEqual(other);
-    }
 }

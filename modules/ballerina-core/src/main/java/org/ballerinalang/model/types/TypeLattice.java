@@ -23,6 +23,7 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.symbols.TypeSymbolName;
 import org.ballerinalang.util.codegen.InstructionCodes;
 
 import java.util.HashMap;
@@ -59,13 +60,13 @@ public class TypeLattice {
 
     public static void loadImplicitCastLattice(SymbolScope scope) {
 
-        TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
-        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
-        TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
-        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex intV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.INT_TNAME)));
+        TypeVertex floatV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.FLOAT_TNAME)));
+        TypeVertex stringV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex blobV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex nullV = new TypeVertex(BTypes.typeNull);
 
         implicitCastLattice.addVertex(intV, false);
@@ -87,18 +88,18 @@ public class TypeLattice {
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
 
-        TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
-        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
-        TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
-        TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
-        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
-        TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
-        TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
-        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
+        TypeVertex intV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.INT_TNAME)));
+        TypeVertex floatV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.FLOAT_TNAME)));
+        TypeVertex stringV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex blobV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex xmlV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.XML_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex connectorV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex mapV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex messageV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.MESSAGE_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.DATATABLE_TNAME)));
 
 
         explicitCastLattice.addVertex(intV, false);
@@ -159,16 +160,16 @@ public class TypeLattice {
 
     public static void loadConversionLattice(SymbolScope scope) {
 
-        TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
-        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
-        TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
-        TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
-        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
+        TypeVertex intV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.INT_TNAME)));
+        TypeVertex floatV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.FLOAT_TNAME)));
+        TypeVertex stringV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex xmlV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.XML_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex connectorV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.DATATABLE_TNAME)));
         TypeVertex xmlAttributesV = new TypeVertex(BTypes.typeXMLAttributes);
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex mapV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.MAP_TNAME)));
 
         conversionLattice.addVertex(intV, false);
         conversionLattice.addVertex(floatV, false);
@@ -310,7 +311,7 @@ public class TypeLattice {
 
     private static void addExplicitCastingLatticeEdges(StructDef structDef, SymbolScope scope) {
         TypeVertex structV = new TypeVertex(structDef);
-        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.ANY_TNAME)));
 
         explicitCastLattice.addVertex(structV, false);
         explicitCastLattice.addEdge(anyV, structV, UNSAFE, InstructionCodes.ANY2T);
@@ -348,8 +349,8 @@ public class TypeLattice {
      */
     private static void addConversionLatticeEdges(StructDef structDef, SymbolScope scope) {
         TypeVertex structV = new TypeVertex(structDef);
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex mapV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.JSON_TNAME)));
 
         conversionLattice.addVertex(structV, false);
 

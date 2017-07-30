@@ -54,30 +54,31 @@ public class SymbolName {
         return pkgPath;
     }
 
-    protected boolean isNameAndPackagePathEqual(SymbolName other) {
-        boolean namesEqual = this.name.equals(other.getName());
-
-        // If both package paths are null or both package paths are not null,
-        //    then check their names. If not return false
-        return ((this.pkgPath == null && other.getPkgPath() == null && namesEqual) ||
-                (this.pkgPath != null && other.getPkgPath() != null
-                        && this.pkgPath.equals(other.getPkgPath()) && namesEqual));
-    }
-
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof SymbolName)) {
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        SymbolName other = (SymbolName) obj;
-        return isNameAndPackagePathEqual(other);
+        // Names cannot be null here.
+        SymbolName that = (SymbolName) o;
+        if (!name.equals(that.name)) {
+            return false;
+        }
+
+        // If both package paths are null then return true.
+        // If both package paths are not null, then they should be equal.
+        return pkgPath != null ? pkgPath.equals(that.pkgPath) : that.pkgPath == null;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (pkgPath != null ? pkgPath.hashCode() : 0);
         return result;
     }
 

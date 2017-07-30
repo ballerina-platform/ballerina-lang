@@ -564,9 +564,10 @@ public class BLangModelBuilder {
      */
     public void createArrayTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         SimpleTypeName valueType = new SimpleTypeName(null, true, 1);
-        AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
-                annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
-                valueType, location, whiteSpaceDescriptor);
+        AnnotationAttributeValue[] attributeValueArray =
+                annotationAttributeValues.toArray(new AnnotationAttributeValue[0]);
+        AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(attributeValueArray, valueType,
+                location, whiteSpaceDescriptor);
         arrayValue.setNodeLocation(location);
         annotationAttributeValues.clear();
         annotationAttributeValues.push(arrayValue);

@@ -87,8 +87,8 @@ public class ConstructProviderClassBuilder {
     
     private Map<String, PackageHolder> nativePackages;
     private String symbolNameStr = "new %s(\"%s\")";
-    private String functionSymbolNameStr = "new %s(\"%s\", %d)";
-    private String actionSymbolNameStr = "new %s(\"%s\", %d)";
+    private String functionSymbolNameStr = "new %s(\"%s\", \"%s\", %d)";
+    private String actionSymbolNameStr = "new %s(\"%s\", \"%s\", %d)";
     private final String importPkg = "import " + NativeScope.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnitProxy.class.getCanonicalName() + ";\n" + 
                                      "import " + SymbolName.class.getCanonicalName() + ";\n" + 
@@ -387,7 +387,7 @@ public class ConstructProviderClassBuilder {
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
             String enclosingScopePkg) {
         String createSymbolStr = String.format(actionSymbolNameStr, actionSymbolNameClass, constructQualifiedName,
-                arguments.length);
+                constructPkgName, arguments.length);
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
@@ -483,7 +483,7 @@ public class ConstructProviderClassBuilder {
                 String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
                 String enclosingScopePkg) {
         String createSymbolStr = String.format(functionSymbolNameStr, functionSymbolNameClass,
-                                               constructName, arguments.length);
+                                               constructName, constructPkgName, arguments.length);
         String returnTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);

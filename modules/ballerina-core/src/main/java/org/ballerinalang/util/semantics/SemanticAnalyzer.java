@@ -788,7 +788,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AnnotationAttachment annotation) {
         AnnotationAttachmentPoint attachedPoint = annotation.getAttachedPoint();
-        SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
+        SymbolName annotationSymName = new TypeSymbolName(annotation.getName(), annotation.getPkgPath());
         BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
 
         if (!(annotationSymbol instanceof AnnotationDef)) {
@@ -840,7 +840,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             SimpleTypeName attributeType = attributeDef.getTypeName();
             SimpleTypeName valueType = attributeValue.getType();
             BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
-            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(),
+            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new TypeSymbolName(attributeType.getName(),
                     attributeType.getPackagePath()));
 
             if (attributeType.isArrayType()) {
@@ -924,7 +924,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                     SimpleTypeName attributeType = attributeDef.getTypeName();
                     BLangSymbol attributeTypeSymbol = annotationDef.resolve(
-                            new SymbolName(attributeType.getName(), attributeType.getPackagePath()));
+                            new TypeSymbolName(attributeType.getName(), attributeType.getPackagePath()));
                     if (attributeTypeSymbol instanceof AnnotationDef) {
                         populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
                     }
@@ -1272,7 +1272,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         tryCatchStmt.getTryBlock().accept(this);
 
-        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_ERROR, ERRORS_PACKAGE));
+        BLangSymbol error = currentScope.resolve(new TypeSymbolName(BALLERINA_ERROR, ERRORS_PACKAGE));
         Set<BType> definedTypes = new HashSet<>();
         if (tryCatchStmt.getCatchBlocks().length != 0) {
             // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
@@ -1321,7 +1321,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         if (expressionType != null) {
-            BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_ERROR, ERRORS_PACKAGE));
+            BLangSymbol error = currentScope.resolve(new TypeSymbolName(BALLERINA_ERROR, ERRORS_PACKAGE));
             // TODO : Fix this.
             // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
             if (error == null) {
@@ -1695,6 +1695,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // First check action invocation happens on a variable def
         SymbolName symbolName = new SymbolName(name, pkgPath);
         BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
+        if (bLangSymbol == null) {
+            // If not check whether this is the old-style action invocation
+            symbolName = new TypeSymbolName(name, pkgPath);
+            bLangSymbol = currentScope.resolve(symbolName);
+        }
 
         if (bLangSymbol instanceof SimpleVariableDef) {
             if (((SimpleVariableDef) bLangSymbol).getType() instanceof StructDef) {
@@ -2379,7 +2384,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // If this is a multi-value return conversion expression, set the return types.
-        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
+        BLangSymbol error = currentScope.resolve(new TypeSymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeCastExpr,
                     SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
@@ -2440,7 +2445,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // If this is a multi-value return conversion expression, set the return types.
-        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
+        BLangSymbol error = currentScope.resolve(new TypeSymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                     SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
@@ -2972,22 +2977,23 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(funcIExpr.getName(),
+        FunctionSymbolName funcSymbolName = LangModelUtils.getFuncSymNameWithParams(funcIExpr.getName(),
                 pkgPath, paramTypes);
-        BLangSymbol functionSymbol = currentScope.resolve(symbolName);
 
+        // This for function pointers
+        SymbolName funcVarSymbolName = new SymbolName(funcIExpr.getName(), pkgPath);
+        BLangSymbol functionSymbol = currentScope.resolve(funcVarSymbolName);
         if (functionSymbol instanceof SimpleVariableDef
                 && ((SimpleVariableDef) functionSymbol).getType() instanceof BFunctionType) {
             SimpleVariableDef variableDef = (SimpleVariableDef) functionSymbol;
-            matchAndUpdateFunctionPointsArgs(funcIExpr, symbolName, (BFunctionType) (variableDef).getType());
+            matchAndUpdateFunctionPointsArgs(funcIExpr, funcSymbolName, (BFunctionType) (variableDef).getType());
             // Link at runtime.
             funcIExpr.setFunctionPointerInvocation(true);
             funcIExpr.setFunctionPointerVariableDef(variableDef);
             return;
         }
 
-        functionSymbol = matchAndUpdateArguments(funcIExpr, symbolName, functionSymbol);
-
+        functionSymbol = matchAndUpdateArguments(funcIExpr, funcSymbolName, currentScope.resolve(funcSymbolName));
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
                     funcIExpr.getName() : funcIExpr.getName();
@@ -3010,7 +3016,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (!(nativeUnit instanceof Function)) {
                 BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
-                        symbolName);
+                        funcSymbolName);
             }
             function = (Function) nativeUnit;
             function.setReturnParamTypes(returnTypes);
@@ -3018,7 +3024,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             if (!(functionSymbol instanceof Function)) {
                 BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
-                        symbolName);
+                        funcSymbolName);
                 return;
             }
             function = (Function) functionSymbol;
@@ -3033,7 +3039,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String connectorName = actionIExpr.getConnectorName();
 
         // First look for the connectors
-        SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
+        SymbolName connectorSymbolName = new TypeSymbolName(connectorName, pkgPath);
         BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
         if (connectorSymbol == null) {
             String connectorWithPkgName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() +
@@ -3267,20 +3273,28 @@ public class SemanticAnalyzer implements NodeVisitor {
                 paramDef.setType(bType);
                 paramTypes[i] = bType;
             }
-
             function.setParameterTypes(paramTypes);
-            FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
-                    function.getPackagePath(), paramTypes);
-            function.setSymbolName(symbolName);
 
-            BLangSymbol functionSymbol = currentScope.resolve(symbolName);
+            // Define function as a FunctionSymbolName
+            FunctionSymbolName funcSymbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
+                    function.getPackagePath(), paramTypes);
+            function.setSymbolName(funcSymbolName);
+            BLangSymbol functionSymbol = currentScope.resolve(funcSymbolName);
             if (!function.isNative() && functionSymbol != null) {
                 BLangExceptionHelper.throwSemanticError(function,
                         SemanticErrors.REDECLARED_SYMBOL, function.getName());
             }
 
+            // Define function as a SymbolName. TODO later VarSymbolName
+            // This is for function pointers.
+            SymbolName funcVarSymbolName = new SymbolName(function.getName(), function.getPackagePath());
+            if (!function.isNative() && currentScope.resolve(funcSymbolName) != null) {
+                BLangExceptionHelper.throwSemanticError(function,
+                        SemanticErrors.REDECLARED_SYMBOL, function.getName());
+            }
+            
             if (function.isNative() && functionSymbol == null) {
-                functionSymbol = nativeScope.resolve(symbolName);
+                functionSymbol = nativeScope.resolve(funcSymbolName);
                 if (functionSymbol == null) {
                     BLangExceptionHelper.throwSemanticError(function,
                             SemanticErrors.UNDEFINED_FUNCTION, function.getName());
@@ -3289,7 +3303,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     ((BallerinaFunction) function).setNativeFunction((NativeUnitProxy) functionSymbol);
                 }
             }
-            currentScope.define(symbolName, function);
+            currentScope.define(funcSymbolName, function);
+            currentScope.define(funcVarSymbolName, function);
 
             // Resolve return parameters
             ParameterDef[] returnParameters = function.getReturnParameters();
@@ -3318,8 +3333,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             currentScope.define(connectorSymbolName, connectorDef);
 
             BLangSymbol actionSymbol;
-            SymbolName name = new SymbolName("NativeAction." + connectorName
-                    + ".<init>", connectorDef.getPackagePath());
+            SymbolName name = new ActionSymbolName("NativeAction." + connectorName
+                    + ".<init>", connectorDef.getPackagePath(), 1);
             actionSymbol = nativeScope.resolve(name);
             if (actionSymbol != null) {
                 if (actionSymbol instanceof NativeUnitProxy) {
@@ -3637,7 +3652,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         getParentConnectorInitExpr();
                 BType type = null;
                 while (filterConnectorInitExpr != null) {
-                    BLangSymbol symbol = currentPackageScope.resolve(new SymbolName(filterConnectorInitExpr.
+                    BLangSymbol symbol = currentPackageScope.resolve(new TypeSymbolName(filterConnectorInitExpr.
                             getTypeName().getName(), currentPkg));
                     if (symbol instanceof BallerinaConnectorDef) {
                         type = (BType) symbol;
