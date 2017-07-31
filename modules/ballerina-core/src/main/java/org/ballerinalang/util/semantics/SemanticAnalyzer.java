@@ -1110,7 +1110,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                assignVariableRefTypes(lExprs, ((CallableUnitInvocationExpr) rExpr).getTypes());
+                SemanticAnalyzerUtils.assignVariableRefTypes(lExprs, ((CallableUnitInvocationExpr) rExpr).getTypes());
             }
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
@@ -1120,7 +1120,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                assignVariableRefTypes(lExprs, ((MultiReturnExpr) rExpr).getTypes());
+                SemanticAnalyzerUtils.assignVariableRefTypes(lExprs, ((MultiReturnExpr) rExpr).getTypes());
             }
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (MultiReturnExpr) rExpr);
             return;
@@ -3981,15 +3981,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = replyStmt;
             blockStmt.setStatements(statements);
-        }
-    }
-
-    private void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
-        for (int i = 0; i < expr.length; i++) {
-            if (expr[i] instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) expr[i]).getVarName().equals("_")) {
-                continue;
-            }
-            ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
         }
     }
 
