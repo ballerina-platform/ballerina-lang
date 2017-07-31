@@ -195,7 +195,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             pipeline.addLast("ws_handler", webSocketSourceHandler);
 
             // TODO: handle Idle state in WebSocket with configurations.
-            pipeline.remove("idleStateHandler");
+            pipeline.remove(Constants.IDLE_STATE_HANDLER);
             pipeline.remove(this);
 
         } catch (Exception e) {

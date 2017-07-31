@@ -105,7 +105,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtTargetResponseSending(cMsg);
                         }
-                        targetChannel.getChannel().pipeline().remove("idleStateHandler");
+                        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
                     } else {
                         HttpContent httpContent = (DefaultHttpContent) msg;
@@ -124,7 +124,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-        targetChannel.getChannel().pipeline().remove("idleStateHandler");
+        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
@@ -227,7 +227,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
-                targetChannel.getChannel().pipeline().remove("idleStateHandler");
+                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 targetChannel.setRequestWritten(false);
                 sendBackTimeOutResponse();
             }
