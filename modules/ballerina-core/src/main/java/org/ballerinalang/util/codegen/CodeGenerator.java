@@ -167,6 +167,7 @@ import java.util.Stack;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.types.TypeTags.CONNECTOR_TAG;
 import static org.ballerinalang.util.BLangConstants.BLOB_OFFSET;
 import static org.ballerinalang.util.BLangConstants.BOOL_OFFSET;
 import static org.ballerinalang.util.BLangConstants.FLOAT_OFFSET;
@@ -559,7 +560,14 @@ public class CodeGenerator implements NodeVisitor {
 
             ActionInfo actionInfo = new ActionInfo(currentPkgCPIndex, currentPkgPath,
                     actionNameCPIndex, action.getName(), connectorInfo);
-            actionInfo.setParamTypes(getParamTypes(action.getParameterDefs()));
+            BType[] updatedParams = new BType[action.getParameterDefs().length + 1];
+            //For actions the first arguement is the Connector
+            updatedParams[0] = connectorInfo.getType();
+            BType[] currentParams = getParamTypes(action.getParameterDefs());
+            for (int i = 0; i < currentParams.length; i++) {
+                updatedParams[i + 1] = currentParams[i];
+            }
+            actionInfo.setParamTypes(updatedParams);
             actionInfo.setRetParamTypes(getParamTypes(action.getReturnParameters()));
             actionInfo.setPackageInfo(currentPkgInfo);
             actionInfo.setNative(action.isNative());
@@ -3026,6 +3034,10 @@ public class CodeGenerator implements NodeVisitor {
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
                 paramAnnAttribNameIndex);
 
+        if (callableUnitInfo instanceof  ActionInfo) {
+            //First index is reserved for the connector
+            getNextIndex(CONNECTOR_TAG, lvIndexes);
+        }
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
             int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);

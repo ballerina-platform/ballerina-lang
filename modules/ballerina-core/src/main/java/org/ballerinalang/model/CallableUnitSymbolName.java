@@ -40,8 +40,12 @@ public abstract class CallableUnitSymbolName extends SymbolName {
         return noOfParameters;
     }
 
-    public boolean isNameAndParamCountMatch(CallableUnitSymbolName funcSymName) {
-        return this.name.equals(funcSymName.getName())
-                && (this.getNoOfParameters() == funcSymName.getNoOfParameters());
+    public boolean isNameAndParamCountMatch(CallableUnitSymbolName funcSymName, boolean isAction) {
+        int parameterCount = this.getNoOfParameters();
+        if (isAction) {
+            //For actions the first argument is the Connector
+            parameterCount = parameterCount + 1;
+        }
+        return this.name.equals(funcSymName.getName()) && (parameterCount == funcSymName.getNoOfParameters());
     }
 }

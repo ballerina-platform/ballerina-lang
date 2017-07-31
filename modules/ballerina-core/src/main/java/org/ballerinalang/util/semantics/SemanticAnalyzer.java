@@ -688,13 +688,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        // First parameter should be of type connector in which these actions are defined.
-        if (action.getParameterDefs().length < 1 ||
-                action.getParameterDefs()[0].getType() != action.getConnectorDef()) {
-            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.INVALID_ACTION_FIRST_PARAMETER,
-                    action.getConnectorDef());
-        }
-
         for (ParameterDef parameterDef : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -3120,8 +3113,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] argExprs = ((CallableUnitInvocationExpr) callableIExpr).getArgExprs();
         Expression[] updatedArgExprs = new Expression[argExprs.length];
 
+        boolean isAction = callableIExpr instanceof ActionInvocationExpr;
+
         CallableUnitSymbolName funcSymName = (CallableUnitSymbolName) callableSymbol.getSymbolName();
-        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
+        if (!funcSymName.isNameAndParamCountMatch(symbolName, isAction)) {
             return null;
         }
 
@@ -3146,9 +3141,18 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         } else {
             for (int i = 0; i < argExprs.length; i++) {
+                int paramIndex = i;
+                //For actions the first argument is the Connector
+                if (isAction) {
+                    paramIndex = i - 1;
+                    if (i == 0) {
+                        updatedArgExprs[i] = argExprs[i];
+                        continue;
+                    }
+                }
                 Expression argExpr = argExprs[i];
                 updatedArgExprs[i] = argExpr;
-                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[i].getType();
+                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[paramIndex].getType();
 
                 AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
                 if (result.expression != null) {
