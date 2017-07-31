@@ -239,6 +239,23 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <!--<execution>-->
+                        <!--<id>copy-resources-tests</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>-->
+                                <!--copy-resources-->
+                            <!--</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<outputDirectory>${basedir}/target/tests</outputDirectory>-->
+                            <!--<resources>-->
+                                <!--<resource>-->
+                                    <!--<directory>${basedir}/../../modules/web/js/tests</directory>-->
+                                <!--</resource>-->
+                            <!--</resources>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                 </executions>
             </plugin>
             <plugin>
@@ -361,8 +378,23 @@
                     <!--</configuration>-->
                     <!--</execution>-->
                     <!--Commenting as these are integration tests and should be moved to tools.-->
+                    <execution>
+                        <id>npm run test (test)</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>test</argument>
+                                <argument>skipTests=${maven.test.skip}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                     <!--<execution>-->
-                        <!--<id>npm run test (test)</id>-->
+                        <!--<id>npm run ui test (test)</id>-->
                         <!--<goals>-->
                             <!--<goal>exec</goal>-->
                         <!--</goals>-->
@@ -371,34 +403,34 @@
                             <!--<executable>npm</executable>-->
                             <!--<arguments>-->
                                 <!--<argument>run</argument>-->
-                                <!--<argument>test</argument>-->
-                                <!--<argument></argument>-->
-                                <!--<argument>skipTests=${maven.test.skip}</argument>-->
+                                <!--<argument>ui-test</argument>-->
+                                <!--<argument>&#45;&#45;</argument>-->
+                                <!--<argument>&#45;&#45;skipTests=${maven.test.skip}</argument>-->
                             <!--</arguments>-->
                         <!--</configuration>-->
                     <!--</execution>-->
-                    <execution>
-                        <id>npm run ui test (test)</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>ui-test</argument>
-                                <argument>--</argument>
-                                <argument>--skipTests=${maven.test.skip}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>npm run terminate</id>-->
+                        <!--<goals>-->
+                            <!--<goal>exec</goal>-->
+                        <!--</goals>-->
+                        <!--<phase>test</phase>-->
+                        <!--<configuration>-->
+                            <!--<executable>npm</executable>-->
+                            <!--<arguments>-->
+                                <!--<argument>run</argument>-->
+                                <!--<argument>terminate</argument>-->
+                                <!--<argument>&#45;&#45;</argument>-->
+                                <!--<argument>&#45;&#45;skipTests=${maven.test.skip}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                     <execution>
                         <id>npm run terminate</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>test</phase>
+                        <phase>post-integration-test</phase>
                         <configuration>
                             <executable>npm</executable>
                             <arguments>
