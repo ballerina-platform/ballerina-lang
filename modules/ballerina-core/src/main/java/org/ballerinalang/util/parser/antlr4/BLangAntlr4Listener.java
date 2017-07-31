@@ -2914,7 +2914,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (terminalNode != null) {
             String stringLiteral = terminalNode.getText();
             stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
-            stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
+            if (!isVerboseMode) {
+                stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
+            }
             modelBuilder.createStringLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, stringLiteral);
             return;
         }

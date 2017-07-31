@@ -619,7 +619,8 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, typeName.getWhiteSpaceDescriptor(),
+                    null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
