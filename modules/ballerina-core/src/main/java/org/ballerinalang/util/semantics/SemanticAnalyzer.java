@@ -1106,7 +1106,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                assignVariableRefTypes(lExprs, ((CallableUnitInvocationExpr) rExpr).getTypes());
+                SemanticAnalyzerUtils.assignVariableRefTypes(lExprs, ((CallableUnitInvocationExpr) rExpr).getTypes());
             }
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
@@ -1116,7 +1116,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                assignVariableRefTypes(lExprs, ((MultiReturnExpr) rExpr).getTypes());
+                SemanticAnalyzerUtils.assignVariableRefTypes(lExprs, ((MultiReturnExpr) rExpr).getTypes());
             }
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (MultiReturnExpr) rExpr);
             return;
@@ -2749,7 +2749,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        functionSymbol = matchAndUpdateArguments(funcIExpr, funcSymbolName, currentScope.resolve(funcSymbolName));
+        functionSymbol = SemanticAnalyzerUtils.matchAndUpdateArguments(funcIExpr,
+                funcSymbolName, currentScope.resolve(funcSymbolName), currentScope);
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
                     funcIExpr.getName() : funcIExpr.getName();
@@ -2825,7 +2826,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     connectorSymbolName);
         }
 
-        actionSymbol = matchAndUpdateArguments(actionIExpr, actionSymbolName, actionSymbol);
+        actionSymbol = SemanticAnalyzerUtils.matchAndUpdateArguments(actionIExpr, actionSymbolName,
+                actionSymbol, currentScope);
 
         if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
             actionSymbol = ((BallerinaAction) actionSymbol).getNativeAction();
@@ -2865,74 +2867,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Link the action with the action invocation expression
         actionIExpr.setCallableUnit(action);
-    }
-
-    /**
-     * Helper method to match the callable unit with invocation (check whether parameters map, do cast if applicable).
-     *
-     * @param callableIExpr  invocation expression
-     * @param symbolName     callable symbol name
-     * @param callableSymbol matching symbol
-     * @return callableSymbol  matching symbol
-     */
-    private BLangSymbol matchAndUpdateArguments(AbstractExpression callableIExpr,
-                                                CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
-        if (callableSymbol == null) {
-            return null;
-        }
-
-        Expression[] argExprs = ((CallableUnitInvocationExpr) callableIExpr).getArgExprs();
-        Expression[] updatedArgExprs = new Expression[argExprs.length];
-
-        CallableUnitSymbolName funcSymName = (CallableUnitSymbolName) callableSymbol.getSymbolName();
-        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
-            return null;
-        }
-
-        boolean implicitCastPossible = true;
-
-        if (callableSymbol instanceof NativeUnitProxy) {
-            NativeUnit nativeUnit = ((NativeUnitProxy) callableSymbol).load();
-            for (int i = 0; i < argExprs.length; i++) {
-                Expression argExpr = argExprs[i];
-                updatedArgExprs[i] = argExpr;
-                SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
-                BType lhsType = BTypes.resolveType(simpleTypeName, currentScope, callableIExpr.getNodeLocation());
-
-                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
-                if (result.expression != null) {
-                    updatedArgExprs[i] = result.expression;
-                } else if (!result.assignable) {
-                    // TODO do we need to throw an error here?
-                    implicitCastPossible = false;
-                    break;
-                }
-            }
-        } else {
-            for (int i = 0; i < argExprs.length; i++) {
-                Expression argExpr = argExprs[i];
-                updatedArgExprs[i] = argExpr;
-                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[i].getType();
-
-                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
-                if (result.expression != null) {
-                    updatedArgExprs[i] = result.expression;
-                } else if (!result.assignable) {
-                    // TODO do we need to throw an error here?
-                    implicitCastPossible = false;
-                    break;
-                }
-            }
-        }
-
-        if (!implicitCastPossible) {
-            return null;
-        }
-
-        for (int i = 0; i < updatedArgExprs.length; i++) {
-            ((CallableUnitInvocationExpr) callableIExpr).getArgExprs()[i] = updatedArgExprs[i];
-        }
-        return callableSymbol;
     }
 
     private void matchAndUpdateFunctionPointsArgs(FunctionInvocationExpr funcIExpr,
@@ -3807,15 +3741,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = replyStmt;
             blockStmt.setStatements(statements);
-        }
-    }
-
-    private void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
-        for (int i = 0; i < expr.length; i++) {
-            if (expr[i] instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) expr[i]).getVarName().equals("_")) {
-                continue;
-            }
-            ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
         }
     }
 

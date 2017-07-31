@@ -18,13 +18,18 @@
 package org.ballerinalang.util.semantics;
 
 import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.CallableUnit;
+import org.ballerinalang.model.CallableUnitSymbolName;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NamespaceSymbolName;
+import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.expressions.AbstractExpression;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
@@ -33,17 +38,21 @@ import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.XMLElementLiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
 import org.ballerinalang.model.expressions.XMLTextLiteral;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONConstrainedType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BuiltinTypeName;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -62,7 +71,7 @@ import javax.xml.XMLConstants;
  */
 public class SemanticAnalyzerUtils {
 
-    private AssignabilityResult performAssignabilityCheck(BType lhsType, Expression rhsExpr) {
+    public static AssignabilityResult performAssignabilityCheck(BType lhsType, Expression rhsExpr) {
         AssignabilityResult assignabilityResult = new AssignabilityResult();
         BType rhsType = rhsExpr.getType();
         if (lhsType.equals(rhsType)) {
@@ -99,14 +108,22 @@ public class SemanticAnalyzerUtils {
             return assignabilityResult;
         }
 
-        // SemanticAnalyzer 3902-3910
+        if (lhsType.equals(BTypes.typeFloat) && rhsType.equals(BTypes.typeInt) && rhsExpr instanceof BasicLiteral) {
+            BasicLiteral newExpr = new BasicLiteral(rhsExpr.getNodeLocation(), rhsExpr.getWhiteSpaceDescriptor(),
+                    new BuiltinTypeName(TypeConstants.FLOAT_TNAME), new BFloat(((BasicLiteral) rhsExpr)
+                    .getBValue().intValue()));
+//            visitSingleValueExpr(newExpr); //TODO uncomment once method is moved here
+            assignabilityResult.assignable = true;
+            assignabilityResult.expression = newExpr;
+            return assignabilityResult;
+        }
 
         // SemanticAnalyzer 3913-3931
 
         return assignabilityResult;
     }
 
-    private boolean isImplicitCastPossible(BType lhsType, BType rhsType) {
+    public static boolean isImplicitCastPossible(BType lhsType, BType rhsType) {
         if (lhsType.equals(BTypes.typeAny)) {
             return true;
         }
@@ -119,7 +136,7 @@ public class SemanticAnalyzerUtils {
         return false;
     }
 
-    private boolean isImplicitArrayCastPossible(BType lhsType, BType rhsType) {
+    public static boolean isImplicitArrayCastPossible(BType lhsType, BType rhsType) {
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsType.getTag() == TypeTags.ARRAY_TAG) {
             // Both types are array types
             BArrayType lhrArrayType = (BArrayType) lhsType;
@@ -367,5 +384,85 @@ public class SemanticAnalyzerUtils {
             BLangExceptionHelper.throwSemanticError(sExpr, SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeString, sType);
         }
         return conversionExpr;
+    }
+
+    /**
+     * Helper method to match the callable unit with invocation (check whether parameters map, do cast if applicable).
+     *
+     * @param callableIExpr  invocation expression
+     * @param symbolName     callable symbol name
+     * @param callableSymbol matching symbol
+     * @param currentScope   current symbol scope
+     * @return callableSymbol  matching symbol
+     */
+    public static BLangSymbol matchAndUpdateArguments(AbstractExpression callableIExpr,
+                                                      CallableUnitSymbolName symbolName,
+                                                      BLangSymbol callableSymbol,
+                                                      SymbolScope currentScope) {
+        if (callableSymbol == null) {
+            return null;
+        }
+
+        Expression[] argExprs = ((CallableUnitInvocationExpr) callableIExpr).getArgExprs();
+        Expression[] updatedArgExprs = new Expression[argExprs.length];
+
+        CallableUnitSymbolName funcSymName = (CallableUnitSymbolName) callableSymbol.getSymbolName();
+        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
+            return null;
+        }
+
+        boolean implicitCastPossible = true;
+
+        if (callableSymbol instanceof NativeUnitProxy) {
+            NativeUnit nativeUnit = ((NativeUnitProxy) callableSymbol).load();
+            for (int i = 0; i < argExprs.length; i++) {
+                Expression argExpr = argExprs[i];
+                updatedArgExprs[i] = argExpr;
+                SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                BType lhsType = BTypes.resolveType(simpleTypeName, currentScope, callableIExpr.getNodeLocation());
+
+                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
+                if (result.expression != null) {
+                    updatedArgExprs[i] = result.expression;
+                } else if (!result.assignable) {
+                    // TODO do we need to throw an error here?
+                    implicitCastPossible = false;
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < argExprs.length; i++) {
+                Expression argExpr = argExprs[i];
+                updatedArgExprs[i] = argExpr;
+                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[i].getType();
+
+                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
+                if (result.expression != null) {
+                    updatedArgExprs[i] = result.expression;
+                } else if (!result.assignable) {
+                    // TODO do we need to throw an error here?
+                    implicitCastPossible = false;
+                    break;
+                }
+            }
+        }
+
+        if (!implicitCastPossible) {
+            return null;
+        }
+
+        for (int i = 0; i < updatedArgExprs.length; i++) {
+            ((CallableUnitInvocationExpr) callableIExpr).getArgExprs()[i] = updatedArgExprs[i];
+        }
+        return callableSymbol;
+    }
+
+    public static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+        for (int i = 0; i < expr.length; i++) {
+            if (expr[i] instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) expr[i]).getVarName().equals("_")) {
+                continue;
+            }
+            ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
     }
 }
