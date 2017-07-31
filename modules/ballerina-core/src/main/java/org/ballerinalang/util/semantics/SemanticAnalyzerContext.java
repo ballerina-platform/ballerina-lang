@@ -15,33 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model;
+package org.ballerinalang.util.semantics;
 
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.SymbolScope;
 
 /**
- * {@code ExecutableMultiReturnExpr} interface makes an {@link org.ballerinalang.model.expressions.Expression}.
- * which returns multiple values executable.
- *
- * @since 0.8.0
+ * @since 0.92
  */
-public interface ExecutableMultiReturnExpr {
+public class SemanticAnalyzerContext {
 
-    /**
-     * Returns an arrays of argument types of this expression.
-     *
-     * @return an arrays of argument types
-     */
-    BType[] getTypes();
+    SymbolScope currentScope;
 
-    /**
-     * Sets an arrays of argument types.
-     *
-     * @param types arrays of argument types
-     */
-    void setTypes(BType[] types);
-
-    int[] getOffsets();
-
-    void setOffsets(int[] offsets);
+    //TODO Remove
+    SemanticAnalyzer semanticAnalyzer;
 }

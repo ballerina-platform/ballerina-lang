@@ -39,4 +39,9 @@ public class AndExpression extends BinaryLogicalExpression {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
 }

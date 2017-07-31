@@ -32,7 +32,7 @@ public enum SemanticErrors {
     INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED("incompatible.types.boolean.expected", "SEMANTIC_0007"),
     NO_STATEMENTS_WHILE_LOOP("no.statements.while.loop", "SEMANTIC_0008"),
     UNKNOWN_OPERATOR_IN_UNARY("unknown.operator.in.unary", "SEMANTIC_0009"),
-    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.init.not.allowed.here", "SEMANTIC_0010"),
+    REF_TYPE_INIT_NOT_ALLOWED_HERE("ref.type.init.not.allowed.here", "SEMANTIC_0010"),
     STRUCT_MAP_INIT_NOT_ALLOWED("struct.map.init.not.allowed", "SEMANTIC_0011"),
     CONNECTOR_INIT_NOT_ALLOWED("connector.init.not.allowed", "SEMANTIC_0012"),
     ARRAY_INIT_NOT_ALLOWED_HERE("array.init.not.allowed.here", "SEMANTIC_0013"),

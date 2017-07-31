@@ -22,6 +22,8 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.ExpressionVisitor;
 import org.ballerinalang.model.expressions.UnaryExpression;
 
 /**
@@ -90,11 +92,6 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
     @Override
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
-
-//         Set the property recursively
-//        if (fieldRefExpr != null) {
-//            fieldRefExpr.setLHSExpr(isLhsExpr);
-//        }
     }
 
     @Override
@@ -110,5 +107,10 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 }

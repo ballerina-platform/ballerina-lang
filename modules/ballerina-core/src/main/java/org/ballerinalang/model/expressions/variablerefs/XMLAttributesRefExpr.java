@@ -21,6 +21,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.ExpressionVisitor;
 
 import java.util.Map;
 
@@ -48,6 +49,11 @@ public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public void setIndexExpr(Expression indexExpr) {

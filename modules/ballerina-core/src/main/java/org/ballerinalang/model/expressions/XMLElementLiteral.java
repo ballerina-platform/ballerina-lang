@@ -118,4 +118,9 @@ public class XMLElementLiteral extends XMLLiteral {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
 }

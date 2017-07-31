@@ -69,6 +69,11 @@ public class BasicLiteral extends AbstractExpression {
     }
 
     @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }

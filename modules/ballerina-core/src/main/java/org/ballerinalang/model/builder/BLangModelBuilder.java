@@ -2062,7 +2062,7 @@ public class BLangModelBuilder {
 
         } else if (argExpr instanceof RefTypeInitExpr) {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
+                    SemanticErrors.REF_TYPE_INIT_NOT_ALLOWED_HERE);
         }
 
         if (errMsg != null) {

@@ -39,4 +39,9 @@ public class StructInitExpr extends RefTypeInitExpr {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
 }

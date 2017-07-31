@@ -31,11 +31,11 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
-import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.MultiReturnExpr;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -826,8 +826,8 @@ public class CodeGenerator implements NodeVisitor {
         rExpr.accept(this);
 
         int[] rhsExprRegIndexes;
-        if (assignStmt.getRExpr() instanceof ExecutableMultiReturnExpr) {
-            rhsExprRegIndexes = ((ExecutableMultiReturnExpr) assignStmt.getRExpr()).getOffsets();
+        if (assignStmt.getRExpr() instanceof MultiReturnExpr) {
+            rhsExprRegIndexes = ((MultiReturnExpr) assignStmt.getRExpr()).getOffsets();
         } else {
             rhsExprRegIndexes = new int[]{assignStmt.getRExpr().getTempOffset()};
         }

@@ -45,6 +45,11 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
     
     public String getLocalname() {
         return localname;

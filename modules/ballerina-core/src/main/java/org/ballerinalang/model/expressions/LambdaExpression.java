@@ -43,6 +43,11 @@ public class LambdaExpression extends AbstractExpression {
         visitor.visit(this);
     }
 
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
+
     public BallerinaFunction getFunction() {
         return function;
     }

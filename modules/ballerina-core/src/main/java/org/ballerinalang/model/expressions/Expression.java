@@ -33,7 +33,9 @@ public interface Expression extends Node {
 
     void setType(BType type);
 
-    void setOffset(int offset);
+    BType getInheritedType();
+
+    void setInheritedType(BType type);
 
     boolean isMultiReturnExpr();
 
@@ -51,5 +53,10 @@ public interface Expression extends Node {
      */
     void setTempOffset(int tempOffset);
 
-    boolean hasTemporaryValues();
+    /**
+     * Accept a {link ExpressionVisitor} and executes the visitor.
+     *
+     * @param visitor Expression visitor to traverse the expression
+     */
+    Expression accept(ExpressionVisitor visitor);
 }

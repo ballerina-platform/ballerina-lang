@@ -18,7 +18,7 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.CallableUnit;
-import org.ballerinalang.model.ExecutableMultiReturnExpr;
+import org.ballerinalang.model.MultiReturnExpr;
 import org.ballerinalang.model.types.BType;
 
 /**
@@ -29,7 +29,7 @@ import org.ballerinalang.model.types.BType;
  * @see ActionInvocationExpr
  * @since 0.8.0
  */
-public interface CallableUnitInvocationExpr<T extends CallableUnit> extends ExecutableMultiReturnExpr {
+public interface CallableUnitInvocationExpr<T extends CallableUnit> extends MultiReturnExpr {
 
     String getName();
 

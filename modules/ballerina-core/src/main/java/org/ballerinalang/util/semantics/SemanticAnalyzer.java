@@ -36,12 +36,12 @@ import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CallableUnitSymbolName;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
-import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.MultiReturnExpr;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NamespaceSymbolName;
 import org.ballerinalang.model.NativeUnit;
@@ -194,15 +194,20 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymbolScope currentPackageScope;
     private SymbolScope nativeScope;
 
+    private SemanticAnalyzerContext context = new SemanticAnalyzerContext();
+    private ExpressionSemanticsAnalyzer expressionAnalyzer = new ExpressionSemanticsAnalyzer(context);
+
     private BlockStmt.BlockStmtBuilder pkgInitFuncStmtBuilder;
 
     public SemanticAnalyzer(BLangProgram programScope) {
-        currentScope = programScope;
+        openScope(programScope);
         this.nativeScope = programScope.getNativeScope();
     }
 
     @Override
     public void visit(BLangProgram bLangProgram) {
+        // TODO Remove Temp approach
+        context.semanticAnalyzer = this;
         BLangPackage entryPkg = bLangProgram.getEntryPackage();
         if (entryPkg != null) {
             entryPkg.accept(this);
@@ -227,7 +232,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             initFunctionList.add(dependentPkg.getInitFunction());
         }
 
-        currentScope = bLangPackage;
+        openScope(bLangPackage);
         currentPackageScope = currentScope;
         currentPkg = bLangPackage.getPackagePath();
 
@@ -275,6 +280,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         bLangPackage.setInitFunction(initFunction);
 
         bLangPackage.setSymbolsDefined(true);
+        closeScope();
     }
 
     @Override
@@ -733,7 +739,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(Worker worker) {
         // Open a new symbol scope. This is done manually to avoid falling back to package scope
         parentScope.push(currentScope);
-        currentScope = worker;
+        context.currentScope = worker;
+        currentScope = context.currentScope;
         parentCallableUnit.push(currentCallableUnit);
         currentCallableUnit = worker;
 
@@ -764,7 +771,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Close the symbol scope
         currentCallableUnit = parentCallableUnit.pop();
         // Close symbol scope. This is done manually to avoid falling back to package scope
-        currentScope = parentScope.pop();
+        context.currentScope = parentScope.pop();
+        currentScope = context.currentScope;
     }
 
     private void addWorkerSymbol(Worker worker) {
@@ -779,10 +787,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(StructDef structDef) {
+        openScope(structDef);
         for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.STRUCT, null));
             annotationAttachment.accept(this);
         }
+        closeScope();
     }
 
     @Override
@@ -1047,22 +1057,27 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         currentScope.define(symbolName, varDef);
 
+        // Visit the rhs expression, if any.
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
             return;
         }
 
+//        // TODO Remove the following block...
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
             varDefStmt.setRExpr(refTypeInitExpr);
-            refTypeInitExpr.accept(this);
+            refTypeInitExpr.accept(expressionAnalyzer);
             return;
         }
 
         BType rhsType;
-        if (rExpr instanceof ExecutableMultiReturnExpr) {
-            rExpr.accept(this);
-            ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) rExpr;
+        // Set the type inherited from he left-hand side.
+        rExpr.setInheritedType(lhsType);
+        rExpr = rExpr.accept(expressionAnalyzer);
+        varDefStmt.setRExpr(rExpr);
+        if (rExpr instanceof MultiReturnExpr) {
+            MultiReturnExpr multiReturnExpr = (MultiReturnExpr) rExpr;
             BType[] returnTypes = multiReturnExpr.getTypes();
 
             if (returnTypes.length != 1) {
@@ -1072,7 +1087,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             rhsType = returnTypes[0];
         } else {
-            visitSingleValueExpr(rExpr);
             rhsType = rExpr.getType();
         }
 
@@ -1106,9 +1120,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                assignVariableRefTypes(lExprs, ((ExecutableMultiReturnExpr) rExpr).getTypes());
+                assignVariableRefTypes(lExprs, ((MultiReturnExpr) rExpr).getTypes());
             }
-            checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
+            checkForMultiValuedCastingErrors(assignStmt, lExprs, (MultiReturnExpr) rExpr);
             return;
         }
 
@@ -1777,8 +1791,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
-        BType bType = BTypes.resolveType(basicLiteral.getTypeName(), currentScope, basicLiteral.getNodeLocation());
-        basicLiteral.setType(bType);
+        basicLiteral.accept(expressionAnalyzer);
     }
 
     @Override
@@ -2000,8 +2013,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
+        // allowed types: any array type, any, json
         if (!(arrayInitExpr.getInheritedType() instanceof BArrayType)) {
-            BLangExceptionHelper.throwSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
+            throw BLangExceptionHelper.getSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
         }
 
         visitArrayInitExpr(arrayInitExpr);
@@ -2102,27 +2116,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(SimpleVarRefExpr simpleVarRefExpr) {
-        // Resolve package path from the give package name
-        if (simpleVarRefExpr.getPkgName() != null && simpleVarRefExpr.getPkgPath() == null) {
-            throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
-                    SemanticErrors.UNDEFINED_PACKAGE_NAME, simpleVarRefExpr.getPkgName(),
-                    simpleVarRefExpr.getPkgName() + ":" + simpleVarRefExpr.getVarName());
-        }
-
-        SymbolName symbolName = simpleVarRefExpr.getSymbolName();
-        // Check whether this symName is declared
-        BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
-        if (varDefSymbol == null) {
-            BLangExceptionHelper.throwSemanticError(simpleVarRefExpr, SemanticErrors.UNDEFINED_SYMBOL,
-                    symbolName);
-        }
-
-        if (!(varDefSymbol instanceof VariableDef)) {
-            throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
-                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
-        }
-
-        simpleVarRefExpr.setVariableDef((VariableDef) varDefSymbol);
+        simpleVarRefExpr.accept(expressionAnalyzer);
     }
 
     @Override
@@ -2455,7 +2449,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(NullLiteral nullLiteral) {
-        nullLiteral.setType(BTypes.typeNull);
+        nullLiteral.accept(expressionAnalyzer);
     }
 
     @Override
@@ -2678,11 +2672,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     // Private methods.
 
     private void openScope(SymbolScope symbolScope) {
-        currentScope = symbolScope;
+        context.currentScope = symbolScope;
+        currentScope = context.currentScope;
     }
 
     private void closeScope() {
-        currentScope = currentScope.getEnclosingScope();
+        context.currentScope =  context.currentScope.getEnclosingScope();
+        currentScope = context.currentScope;
     }
 
     private void visitBinaryExpr(BinaryExpression expr) {
@@ -2878,7 +2874,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void checkForMultiValuedCastingErrors(AssignStmt assignStmt, Expression[] lExprs,
-                                                  ExecutableMultiReturnExpr rExpr) {
+                                                  MultiReturnExpr rExpr) {
         BType[] returnTypes = rExpr.getTypes();
         if (lExprs.length != returnTypes.length) {
             BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH,
@@ -3495,13 +3491,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Define fields in each struct. This is done after defining all the structs,
         // since a field of a struct can be another struct.
         for (StructDef structDef : structDefs) {
-            SymbolScope tmpScope = currentScope;
-            currentScope = structDef;
+            openScope(structDef);
             for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
                 fieldDefStmt.getVariableDef().setKind(VariableDef.Kind.STRUCT_FIELD);
                 fieldDefStmt.accept(this);
             }
-            currentScope = tmpScope;
+            closeScope();
         }
 
         // Add type mappers for each struct. This is done after defining all the fields of all the structs,

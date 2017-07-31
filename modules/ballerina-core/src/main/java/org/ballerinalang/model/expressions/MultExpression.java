@@ -39,4 +39,9 @@ public class MultExpression extends BinaryArithmeticExpression {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
 }

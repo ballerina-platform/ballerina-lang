@@ -111,6 +111,11 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
         visitor.visit(this);
     }
 
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
+
     public boolean isFunctionPointerInvocation() {
         return functionPointerInvocation;
     }

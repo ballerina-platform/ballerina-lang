@@ -165,4 +165,8 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         visitor.visit(this);
     }
 
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
+    }
 }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.ExecutableMultiReturnExpr;
+import org.ballerinalang.model.MultiReturnExpr;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -29,7 +29,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
  *
  * @since 0.88
  */
-public class TypeConversionExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
+public class TypeConversionExpr extends AbstractExpression implements MultiReturnExpr {
 
     private SimpleTypeName typeName;
     private Expression rExpr;
@@ -71,6 +71,11 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 
     /**

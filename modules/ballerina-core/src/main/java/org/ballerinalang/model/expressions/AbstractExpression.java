@@ -33,11 +33,10 @@ public abstract class AbstractExpression implements Expression {
     protected NodeLocation location;
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected BType type;
+    protected BType inheritedType;
 
     protected boolean multipleReturnsAvailable;
-    protected int offset;
 
-    // Non-Blocking Implementation related fields.
     protected int tempOffset;
     private boolean isTempOffsetSet = false;
 
@@ -54,8 +53,12 @@ public abstract class AbstractExpression implements Expression {
         this.type = type;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
+    public BType getInheritedType() {
+        return inheritedType;
+    }
+
+    public void setInheritedType(BType type) {
+        this.inheritedType = type;
     }
 
     public boolean isMultiReturnExpr() {
@@ -93,10 +96,5 @@ public abstract class AbstractExpression implements Expression {
         }
         isTempOffsetSet = true;
         this.tempOffset = index;
-    }
-
-    @Override
-    public boolean hasTemporaryValues() {
-        return isTempOffsetSet;
     }
 }

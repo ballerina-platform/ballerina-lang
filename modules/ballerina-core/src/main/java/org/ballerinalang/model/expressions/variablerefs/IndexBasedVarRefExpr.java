@@ -22,6 +22,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.ExpressionVisitor;
 import org.ballerinalang.model.expressions.UnaryExpression;
 
 /**
@@ -92,5 +93,10 @@ public class IndexBasedVarRefExpr extends UnaryExpression implements VariableRef
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 }

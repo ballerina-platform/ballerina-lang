@@ -20,7 +20,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.types.BType;
 
 /**
  * {@code RefTypeInitExpr} represents a reference type initializer expression.
@@ -33,22 +32,18 @@ import org.ballerinalang.model.types.BType;
  * @since 0.8.0
  */
 public class RefTypeInitExpr extends NaryExpression {
-    protected BType inheritedType;
 
     public RefTypeInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
         super(location, whiteSpaceDescriptor, argExprs);
     }
 
-    public BType getInheritedType() {
-        return inheritedType;
-    }
-
-    public void setInheritedType(BType inheritedType) {
-        this.inheritedType = inheritedType;
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 }

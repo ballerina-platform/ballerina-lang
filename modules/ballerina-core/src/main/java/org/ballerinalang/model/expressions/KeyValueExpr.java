@@ -50,6 +50,11 @@ public class KeyValueExpr extends AbstractExpression {
         visitor.visit(this);
     }
 
+    @Override
+    public Expression accept(ExpressionVisitor visitor) {
+        return null;
+    }
+
     public String getKey() {
         return key;
     }
