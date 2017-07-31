@@ -4,14 +4,13 @@ import './tree.css'
 
 export default class Tree extends React.Component {
     renderStruct(endpoint, level) {
-        const { makeConnectPoint, viewId } = this.props;
-        const type = endpoint.typeName || endpoint.type;
+        const { makeConnectPoint, viewId, type } = this.props;
         const key = `${endpoint.fieldName || endpoint.name}:${viewId}`;
         return <div>
             <VariableEndpoint
                 key={key}
                 id={key}
-                type={endpoint.typeName || endpoint.type}
+                type={type}
                 variable={endpoint}
                 makeConnectPoint={makeConnectPoint}
                 level={level}
@@ -27,7 +26,7 @@ export default class Tree extends React.Component {
                     return <VariableEndpoint
                         key={key}
                         id={key}
-                        type={property.type}
+                        type={type}
                         variable={property}
                         makeConnectPoint={makeConnectPoint}
                         level={level+1}
