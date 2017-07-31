@@ -17,16 +17,43 @@
 */
 package org.ballerinalang.util.semantics;
 
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.NamespaceDeclaration;
+import org.ballerinalang.model.NamespaceSymbolName;
+import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.expressions.AddExpression;
+import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FunctionInvocationExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
+import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONConstrainedType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BuiltinTypeName;
+import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.codegen.InstructionCodes;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.SemanticErrors;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.XMLConstants;
 
 /**
  * This class contains a set of utility methods used by the semantic analyzer.
@@ -118,7 +145,7 @@ public class SemanticAnalyzerUtils {
         return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
-    private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
+    public static TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
         TypeCastExpression typeCastExpr = null;
         BType rhsType = rhsExpr.getType();
 
@@ -129,5 +156,216 @@ public class SemanticAnalyzerUtils {
             typeCastExpr.setOpcode(typeEdge.getOpcode());
         }
         return typeCastExpr;
+    }
+
+    public static boolean isAssignableTo(BType lhsType, BType rhsType) {
+        if (lhsType == BTypes.typeAny) {
+            return true;
+        }
+
+        if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
+            return true;
+        }
+
+        if (lhsType == BTypes.typeJSON && rhsType.getTag() == TypeTags.C_JSON_TAG) {
+            return true;
+        }
+
+        return lhsType == rhsType || lhsType.equals(rhsType);
+    }
+
+    public static void visitSingleValueExpr(Expression expr, ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        expr.accept(expressionAnalyzer);
+        if (expr.isMultiReturnExpr()) {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) expr;
+            String nameWithPkgName = (funcIExpr.getPackageName() != null)
+                    ? funcIExpr.getPackageName() + ":" + funcIExpr.getName() : funcIExpr.getName();
+            BLangExceptionHelper.throwSemanticError(expr, SemanticErrors.MULTIPLE_VALUE_IN_SINGLE_VALUE_CONTEXT,
+                    nameWithPkgName);
+        }
+    }
+
+
+    /**
+     * Get the XML namespaces that are visible to to the current scope.
+     *
+     * @param location Source location of the ballerina file
+     * @param expressionAnalyzer Semantic analyzer for expression visits
+     * @return XML namespaces that are visible to the current scope, as a map
+     */
+    public static Map<String, Expression> getNamespaceInScope(NodeLocation location, SymbolScope scope,
+            ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        Map<String, Expression> namespaces = new HashMap<String, Expression>();
+        while (true) {
+            for (Entry<SymbolName, BLangSymbol> symbols : scope.getSymbolMap().entrySet()) {
+                SymbolName symbolName = symbols.getKey();
+                if (!(symbolName instanceof NamespaceSymbolName)) {
+                    continue;
+                }
+
+                NamespaceDeclaration namespaceDecl = (NamespaceDeclaration) symbols.getValue();
+                if (!namespaces.containsKey(namespaceDecl.getPrefix())
+                        && !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
+
+                    BasicLiteral namespaceUriLiteral = new BasicLiteral(location, null,
+                            new BuiltinTypeName(TypeConstants.STRING_TNAME),
+                            new BString(namespaceDecl.getNamespaceUri()));
+                    namespaceUriLiteral.accept(expressionAnalyzer);
+                    namespaces.put(namespaceDecl.getPrefix(), namespaceUriLiteral);
+                }
+            }
+
+            if (scope instanceof BLangPackage) {
+                break;
+            }
+            scope = scope.getEnclosingScope();
+        }
+
+        return namespaces;
+    }
+
+    /**
+     * Create and return an XML concatenation expression using using the provided expressions.
+     * Expressions can only be either XML type or string type. All the string type expressions
+     * will be converted to XML text literals ({@link XMLTextLiteral}).
+     *
+     * @param items Expressions to create concatenating expression.
+     * @return XML concatenating expression
+     */
+    public static Expression getXMLConcatExpression(Expression[] items) {
+        if (items.length == 0) {
+            return null;
+        }
+
+        Expression concatExpr = null;
+        for (int i = 0; i < items.length; i++) {
+            Expression currentItem = items[i];
+            if (currentItem.getType() == BTypes.typeString) {
+                currentItem = new XMLTextLiteral(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                        currentItem);
+                items[0] = currentItem;
+            }
+
+            if (concatExpr == null) {
+                concatExpr = currentItem;
+                continue;
+            }
+
+            concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                    concatExpr, currentItem);
+            concatExpr.setType(BTypes.typeXML);
+        }
+
+        return concatExpr;
+    }
+
+    public static void validateXMLQname(XMLQNameExpr qname, Map<String, Expression> namespaces,
+            ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        qname.setType(BTypes.typeString);
+        String prefix = qname.getPrefix();
+
+        if (prefix.isEmpty()) {
+            BasicLiteral emptyNsUriLiteral = new BasicLiteral(qname.getNodeLocation(), null,
+                    new BuiltinTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.NULL_NS_URI));
+            emptyNsUriLiteral.accept(expressionAnalyzer);
+            qname.setNamepsaceUri(emptyNsUriLiteral);
+            return;
+        }
+
+        if (namespaces.containsKey(qname.getPrefix())) {
+            Expression namespaceUri = namespaces.get(qname.getPrefix());
+            qname.setNamepsaceUri(namespaceUri);
+        } else if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.INVALID_NAMESPACE_PREFIX, prefix);
+        } else {
+            BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.UNDEFINED_NAMESPACE, qname.getPrefix());
+        }
+    }
+
+    public static void validateXMLLiteralAttributes(List<KeyValueExpr> attributes, Map<String, Expression> namespaces,
+            ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        // Validate attributes
+        for (KeyValueExpr attribute : attributes) {
+            Expression attrNameExpr = attribute.getKeyExpr();
+
+            if (attrNameExpr instanceof XMLQNameExpr) {
+                XMLQNameExpr attrQNameRefExpr = (XMLQNameExpr) attrNameExpr;
+                attrQNameRefExpr.isUsedInXML();
+                validateXMLQname(attrQNameRefExpr, namespaces, expressionAnalyzer);
+            } else {
+                attrNameExpr.accept(expressionAnalyzer);
+                if (attrNameExpr.getType() != BTypes.typeString) {
+                    attrNameExpr = createImplicitStringConversionExpr(attrNameExpr, attrNameExpr.getType(),
+                            expressionAnalyzer);
+                    attribute.setKeyExpr(attrNameExpr);
+                }
+            }
+
+            Expression attrValueExpr = attribute.getValueExpr();
+            attrValueExpr.accept(expressionAnalyzer);
+            if (attrValueExpr.getType() != BTypes.typeString) {
+                attrValueExpr =
+                        createImplicitStringConversionExpr(attrValueExpr, attrValueExpr.getType(), expressionAnalyzer);
+                attribute.setValueExpr(attrValueExpr);
+            }
+        }                                           
+    }
+
+    public static void validateXMLLiteralEndTag(XMLElementLiteral xmlElementLiteral,
+            ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        Expression startTagName = xmlElementLiteral.getStartTagName();
+        Expression endTagName = xmlElementLiteral.getEndTagName();
+
+        // Compare start and end tags
+        if (endTagName != null) {
+            if (startTagName instanceof XMLQNameExpr && endTagName instanceof XMLQNameExpr) {
+                XMLQNameExpr startName = (XMLQNameExpr) startTagName;
+                XMLQNameExpr endName = (XMLQNameExpr) endTagName;
+                if (!startName.getPrefix().equals(endName.getPrefix())
+                        || !startName.getLocalname().equals(endName.getLocalname())) {
+                    BLangExceptionHelper.throwSemanticError(endTagName, SemanticErrors.XML_TAGS_MISMATCH);
+                }
+            }
+
+            if (((startTagName instanceof XMLQNameExpr) && !(endTagName instanceof XMLQNameExpr))
+                    || (!(startTagName instanceof XMLQNameExpr) && (endTagName instanceof XMLQNameExpr))) {
+                BLangExceptionHelper.throwSemanticError(endTagName, SemanticErrors.XML_TAGS_MISMATCH);
+            }
+
+            if (endTagName instanceof XMLQNameExpr) {
+                validateXMLQname((XMLQNameExpr) endTagName, xmlElementLiteral.getNamespaces(), expressionAnalyzer);
+            } else {
+                endTagName.accept(expressionAnalyzer);
+            }
+
+            if (endTagName.getType() != BTypes.typeString) {
+                endTagName = createImplicitStringConversionExpr(endTagName, endTagName.getType(), expressionAnalyzer);
+                xmlElementLiteral.setEndTagName(endTagName);
+            }
+        }
+    }
+
+    public static Expression getImplicitConversionExpr(Expression sExpr, BType sType, BType tType,
+            ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        TypeEdge newEdge;
+        newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sType, tType, null);
+        if (newEdge != null) {
+            TypeConversionExpr newExpr =
+                    new TypeConversionExpr(sExpr.getNodeLocation(), sExpr.getWhiteSpaceDescriptor(), sExpr, tType);
+            newExpr.setOpcode(newEdge.getOpcode());
+            newExpr.accept(expressionAnalyzer);
+            return newExpr;
+        }
+
+        return null;
+    }
+
+    public static Expression createImplicitStringConversionExpr(Expression sExpr, BType sType,
+            ExpressionSemanticsAnalyzer expressionAnalyzer) {
+        Expression conversionExpr = getImplicitConversionExpr(sExpr, sType, BTypes.typeString, expressionAnalyzer);
+        if (conversionExpr == null) {
+            BLangExceptionHelper.throwSemanticError(sExpr, SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeString, sType);
+        }
+        return conversionExpr;
     }
 }

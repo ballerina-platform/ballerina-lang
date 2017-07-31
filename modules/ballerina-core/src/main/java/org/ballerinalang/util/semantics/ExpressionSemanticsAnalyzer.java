@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.util.semantics;
 
+import org.ballerinalang.model.NamespaceDeclaration;
+import org.ballerinalang.model.NamespaceSymbolName;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -34,6 +37,7 @@ import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
@@ -59,12 +63,24 @@ import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
 import org.ballerinalang.model.expressions.variablerefs.XMLAttributesRefExpr;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BJSONConstrainedType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BuiltinTypeName;
+import org.ballerinalang.model.types.TypeConstants;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.XMLConstants;
 
 /**
  * @since 0.92
@@ -355,13 +371,145 @@ public class ExpressionSemanticsAnalyzer implements ExpressionVisitor {
 
     @Override
     public Expression visit(MapInitExpr mapInitExpr) {
-        mapInitExpr.accept(ctx.semanticAnalyzer);
+        BType inheritedType = mapInitExpr.getInheritedType();
+        mapInitExpr.setType(inheritedType);
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+
+            // In maps and json, key is always a string literal.
+            if (keyExpr instanceof SimpleVarRefExpr) {
+                BString key = new BString(((SimpleVarRefExpr) keyExpr).getVarName());
+                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), keyExpr.getWhiteSpaceDescriptor(),
+                        new BuiltinTypeName(TypeConstants.STRING_TNAME), key);
+                keyValueExpr.setKeyExpr(keyExpr);
+            }
+            SemanticAnalyzerUtils.visitSingleValueExpr(keyExpr, this);
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            if (inheritedType instanceof BJSONConstrainedType) {
+                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
+                StructDef constraintStructDef = (StructDef) ((BJSONConstrainedType) inheritedType).getConstraint();
+                if (constraintStructDef != null) {
+                    BLangSymbol varDefSymbol = constraintStructDef
+                            .resolveMembers(new SymbolName(key, constraintStructDef.getPackagePath()));
+                    if (varDefSymbol == null) {
+                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                                SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
+                    }
+                    VariableDef varDef = (VariableDef) varDefSymbol;
+                    BType cJSONFieldType = new BJSONConstrainedType(varDef.getType());
+                    if (valueExpr instanceof RefTypeInitExpr) {
+                        valueExpr.setInheritedType(cJSONFieldType);
+                        valueExpr = valueExpr.accept(this);
+                        keyValueExpr.setValueExpr(valueExpr);
+                    }
+                }
+            } else if (valueExpr instanceof RefTypeInitExpr) {
+                valueExpr.setInheritedType(inheritedType);
+                valueExpr = valueExpr.accept(this);
+                keyValueExpr.setValueExpr(valueExpr);
+            } else {
+                valueExpr.accept(this);
+            }
+
+            BType valueExprType = valueExpr.getType();
+
+            // Generate type cast expression if the rhs type is a value type
+            if (BTypes.isValueType(valueExprType)) {
+                TypeCastExpression newExpr = SemanticAnalyzerUtils.checkWideningPossible(BTypes.typeAny, valueExpr);
+                if (newExpr != null) {
+                    keyValueExpr.setValueExpr(newExpr);
+                } else {
+                    BLangExceptionHelper.throwSemanticError(keyValueExpr,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, valueExprType.getSymbolName(),
+                            inheritedType);
+                }
+            }
+        }
+
         return mapInitExpr;
     }
 
     @Override
     public Expression visit(JSONInitExpr jsonInitExpr) {
-        jsonInitExpr.accept(ctx.semanticAnalyzer);
+        BType inheritedType = jsonInitExpr.getInheritedType();
+        jsonInitExpr.setType(inheritedType);
+        Expression[] argExprs = jsonInitExpr.getArgExprs();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+
+            // In maps and json, key is always a string literal.
+            if (keyExpr instanceof SimpleVarRefExpr) {
+                BString key = new BString(((SimpleVarRefExpr) keyExpr).getVarName());
+                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), keyExpr.getWhiteSpaceDescriptor(),
+                        new BuiltinTypeName(TypeConstants.STRING_TNAME), key);
+                keyValueExpr.setKeyExpr(keyExpr);
+            }
+            SemanticAnalyzerUtils.visitSingleValueExpr(keyExpr, this);
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            if (inheritedType instanceof BJSONConstrainedType) {
+                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
+                StructDef constraintStructDef = (StructDef) ((BJSONConstrainedType) inheritedType).getConstraint();
+                if (constraintStructDef != null) {
+                    BLangSymbol varDefSymbol = constraintStructDef
+                            .resolveMembers(new SymbolName(key, constraintStructDef.getPackagePath()));
+                    if (varDefSymbol == null) {
+                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                                SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
+                    }
+                    VariableDef varDef = (VariableDef) varDefSymbol;
+                    BType cJSONFieldType = new BJSONConstrainedType(varDef.getType());
+                    if (valueExpr instanceof RefTypeInitExpr) {
+                        valueExpr.setInheritedType(cJSONFieldType);
+                        valueExpr = valueExpr.accept(this);
+                        keyValueExpr.setValueExpr(valueExpr);
+                    }
+                }
+            } else if (valueExpr instanceof RefTypeInitExpr) {
+                valueExpr.setInheritedType(inheritedType);
+                valueExpr = valueExpr.accept(this);
+                keyValueExpr.setValueExpr(valueExpr);
+            } else {
+                valueExpr.accept(this);
+            }
+
+            BType valueExprType = valueExpr.getType();
+
+            // Check the type compatibility of the value.
+            if (BTypes.isValueType(valueExprType)) {
+                TypeCastExpression typeCastExpr =
+                        SemanticAnalyzerUtils.checkWideningPossible(BTypes.typeJSON, valueExpr);
+                if (typeCastExpr != null) {
+                    keyValueExpr.setValueExpr(typeCastExpr);
+                } else {
+                    BLangExceptionHelper.throwSemanticError(keyValueExpr,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, valueExprType.getSymbolName(),
+                            inheritedType.getSymbolName());
+                }
+                continue;
+            }
+
+            if (valueExprType != BTypes.typeNull
+                    && SemanticAnalyzerUtils.isAssignableTo(BTypes.typeJSON, valueExprType)) {
+                continue;
+            }
+
+            TypeCastExpression typeCastExpr = SemanticAnalyzerUtils.checkWideningPossible(BTypes.typeJSON, valueExpr);
+            if (typeCastExpr == null) {
+                BLangExceptionHelper.throwSemanticError(jsonInitExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                        valueExpr.getType(), BTypes.typeJSON);
+            }
+            keyValueExpr.setValueExpr(typeCastExpr);
+        }
+
         return jsonInitExpr;
     }
 
@@ -379,43 +527,264 @@ public class ExpressionSemanticsAnalyzer implements ExpressionVisitor {
 
     @Override
     public Expression visit(XMLElementLiteral xmlElement) {
-        xmlElement.accept(ctx.semanticAnalyzer);
+        Expression startTagName = xmlElement.getStartTagName();
+        Map<String, Expression> namespaces;
+        XMLElementLiteral parent = xmlElement.getParent();
+        if (parent == null) {
+            namespaces =
+                    SemanticAnalyzerUtils.getNamespaceInScope(xmlElement.getNodeLocation(), ctx.currentScope, this);
+        } else {
+            namespaces = parent.getNamespaces();
+            xmlElement.setDefaultNamespaceUri(parent.getDefaultNamespaceUri());
+        }
+        xmlElement.setNamespaces(namespaces);
+
+        // add the inline declared namespaces to the namespace map
+        List<KeyValueExpr> attributes = xmlElement.getAttributes();
+        Iterator<KeyValueExpr> attrItr = attributes.iterator();
+        while (attrItr.hasNext()) {
+            KeyValueExpr attribute = attrItr.next();
+            Expression attrNameExpr = attribute.getKeyExpr();
+            if (!(attrNameExpr instanceof XMLQNameExpr)) {
+                continue;
+            }
+
+            Expression attrValueExpr = attribute.getValueExpr();
+            XMLQNameExpr xmlQNameRefExpr = (XMLQNameExpr) attrNameExpr;
+            if (xmlQNameRefExpr.getPrefix().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                attrValueExpr.accept(this);
+
+                if (attrValueExpr instanceof BasicLiteral
+                        && ((BasicLiteral) attrValueExpr).getBValue().stringValue().isEmpty()) {
+                    BLangExceptionHelper.throwSemanticError(attribute, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
+                            xmlQNameRefExpr.getLocalname());
+                }
+
+                namespaces.put(xmlQNameRefExpr.getLocalname(), attrValueExpr);
+                attrItr.remove();
+                continue;
+            }
+
+            // if the default namesapce is declared inline, then override default namepsace defined at the
+            // parent scope level
+            if (xmlQNameRefExpr.getLocalname().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                attrValueExpr.accept(this);
+                xmlElement.setDefaultNamespaceUri(attrValueExpr);
+                attrItr.remove();
+            }
+        }
+
+        if (xmlElement.getDefaultNamespaceUri() == null) {
+            BasicLiteral defaultnsUriLiteral = new BasicLiteral(xmlElement.getNodeLocation(), null,
+                    new BuiltinTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.XMLNS_ATTRIBUTE_NS_URI));
+            defaultnsUriLiteral.setType(BTypes.typeString);
+            defaultnsUriLiteral.accept(this);
+            xmlElement.setDefaultNamespaceUri(defaultnsUriLiteral);
+        }
+
+        SemanticAnalyzerUtils.validateXMLLiteralAttributes(attributes, namespaces, this);
+
+        // Validate start tag
+        if (startTagName instanceof XMLQNameExpr) {
+            SemanticAnalyzerUtils.validateXMLQname((XMLQNameExpr) startTagName, namespaces, this);
+        } else {
+            startTagName.accept(this);
+        }
+
+        if (startTagName.getType() != BTypes.typeString) {
+            // Implicit cast from right to left
+            startTagName = SemanticAnalyzerUtils.createImplicitStringConversionExpr(startTagName,
+                    startTagName.getType(), this);
+            xmlElement.setStartTagName(startTagName);
+        }
+
+        // Validate the ending tag of the XML element
+        SemanticAnalyzerUtils.validateXMLLiteralEndTag(xmlElement, this);
+
+        // Visit children
+        XMLSequenceLiteral children = xmlElement.getContent();
+        if (children != null) {
+            children.accept(this);
+        }
         return xmlElement;
     }
 
     @Override
     public Expression visit(XMLCommentLiteral xmlComment) {
-        xmlComment.accept(ctx.semanticAnalyzer);
+        Expression contentExpr = xmlComment.getContent();
+        if (contentExpr != null) {
+            contentExpr.accept(this);
+        }
+
+        if (contentExpr.getType() != BTypes.typeString) {
+            contentExpr =
+                    SemanticAnalyzerUtils.createImplicitStringConversionExpr(contentExpr, contentExpr.getType(), this);
+            xmlComment.setContent(contentExpr);
+        }
         return xmlComment;
     }
 
     @Override
     public Expression visit(XMLTextLiteral xmlText) {
-        xmlText.accept(ctx.semanticAnalyzer);
+        Expression contentExpr = xmlText.getContent();
+        if (contentExpr != null) {
+            contentExpr.accept(this);
+        }
         return xmlText;
     }
 
     @Override
     public Expression visit(XMLPILiteral xmlPI) {
-        xmlPI.accept(ctx.semanticAnalyzer);
+        Expression target = xmlPI.getTarget();
+        target.accept(this);
+
+        if (target.getType() != BTypes.typeString) {
+            target = SemanticAnalyzerUtils.createImplicitStringConversionExpr(target, target.getType(), this);
+            xmlPI.setTarget(target);
+        }
+
+        Expression data = xmlPI.getData();
+        if (data != null) {
+            data.accept(this);
+        }
+
+        if (data.getType() != BTypes.typeString) {
+            data = SemanticAnalyzerUtils.createImplicitStringConversionExpr(data, data.getType(), this);
+            xmlPI.setData(data);
+        }
         return xmlPI;
     }
 
     @Override
     public Expression visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
-        xmlAttributesRefExpr.accept(ctx.semanticAnalyzer);
+        VariableReferenceExpr varRefExpr = xmlAttributesRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+
+        if (varRefExpr.getType() != BTypes.typeXML) {
+            BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr, SemanticErrors.INCOMPATIBLE_TYPES,
+                    BTypes.typeXML, varRefExpr.getType());
+        }
+
+        Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
+        if (indexExpr == null) {
+            if (xmlAttributesRefExpr.isLHSExpr()) {
+                BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr,
+                        SemanticErrors.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
+            }
+            xmlAttributesRefExpr.setType(BTypes.typeXMLAttributes);
+            return xmlAttributesRefExpr;
+        }
+
+        xmlAttributesRefExpr.setType(BTypes.typeString);
+        indexExpr.accept(this);
+        if (indexExpr instanceof XMLQNameExpr) {
+            ((XMLQNameExpr) indexExpr).setUsedInXML(true);
+            return xmlAttributesRefExpr;
+        }
+
+        if (indexExpr.getType() != BTypes.typeString) {
+            BLangExceptionHelper.throwSemanticError(indexExpr, SemanticErrors.NON_STRING_MAP_INDEX,
+                    indexExpr.getType());
+        }
+
+        Map<String, Expression> namespaces = SemanticAnalyzerUtils
+                .getNamespaceInScope(xmlAttributesRefExpr.getNodeLocation(), ctx.currentScope, this);
+        xmlAttributesRefExpr.setNamespaces(namespaces);
         return xmlAttributesRefExpr;
     }
 
     @Override
     public Expression visit(XMLQNameExpr xmlQNameRefExpr) {
-        xmlQNameRefExpr.accept(ctx.semanticAnalyzer);
+        if (xmlQNameRefExpr.isLHSExpr()) {
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.XML_QNAME_UPDATE_NOT_ALLOWED);
+        }
+
+        xmlQNameRefExpr.setType(BTypes.typeString);
+        String prefix = xmlQNameRefExpr.getPrefix();
+        if (prefix.isEmpty()) {
+            return xmlQNameRefExpr;
+        }
+
+        if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.INVALID_NAMESPACE_PREFIX, prefix);
+        }
+
+        NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(prefix);
+        BLangSymbol symbol = ctx.currentScope.resolve(nsSymbolName);
+
+        if (symbol == null) {
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.UNDEFINED_NAMESPACE, prefix);
+        }
+
+        String namepsaceUri = ((NamespaceDeclaration) symbol).getNamespaceUri();
+        BasicLiteral namespaceUriLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null,
+                new BuiltinTypeName(TypeConstants.STRING_TNAME), new BString(namepsaceUri));
+        namespaceUriLiteral.accept(this);
+        xmlQNameRefExpr.setNamepsaceUri(namespaceUriLiteral);
         return xmlQNameRefExpr;
     }
 
     @Override
     public Expression visit(XMLSequenceLiteral xmlSequence) {
-        xmlSequence.accept(ctx.semanticAnalyzer);
+        Expression[] items = xmlSequence.getItems();
+        List<Expression> newItems = new ArrayList<Expression>();
+
+        // Consecutive non-xml type items are converted to string, and combined together using binary add expressions.
+        Expression addExpr = null;
+        for (int i = 0; i < items.length; i++) {
+            Expression currentItem = items[i];
+            currentItem.accept(this);
+
+            if (xmlSequence.hasParent() && currentItem.getType() == BTypes.typeXML) {
+                if (addExpr != null) {
+                    newItems.add(addExpr);
+                    addExpr = null;
+                }
+                newItems.add(currentItem);
+                continue;
+            }
+
+            if (currentItem.getType() != BTypes.typeString) {
+                Expression castExpr = SemanticAnalyzerUtils.getImplicitConversionExpr(currentItem,
+                        currentItem.getType(), BTypes.typeString, this);
+
+                if (castExpr == null) {
+                    if (xmlSequence.hasParent()) {
+                        BLangExceptionHelper.throwSemanticError(currentItem,
+                                SemanticErrors.INCOMPATIBLE_TYPES_IN_XML_TEMPLATE, currentItem.getType());
+                    }
+                    BLangExceptionHelper.throwSemanticError(currentItem, SemanticErrors.INCOMPATIBLE_TYPES,
+                            BTypes.typeString, currentItem.getType());
+                }
+
+                currentItem = castExpr;
+            }
+
+            if (addExpr == null) {
+                addExpr = currentItem;
+                continue;
+            }
+
+            if (addExpr.getType() == BTypes.typeString) {
+                addExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                        addExpr, currentItem);
+            } else {
+                newItems.add(addExpr);
+                addExpr = currentItem;
+            }
+            addExpr.setType(BTypes.typeString);
+        }
+
+        if (addExpr != null) {
+            newItems.add(addExpr);
+        }
+
+        // Replace the existing items with the new reduced items
+        items = newItems.toArray(new Expression[newItems.size()]);
+        xmlSequence.setItems(items);
+
+        // Create and set XML concatenation expression using all the items in the sequence
+        xmlSequence.setConcatExpr(SemanticAnalyzerUtils.getXMLConcatExpression(items));
         return xmlSequence;
     }
 
