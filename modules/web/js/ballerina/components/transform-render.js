@@ -34,14 +34,14 @@ class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback, container) {
         this.container = container;
         this.references = [];
-        this.viewId = container.attr("id");
+        this.placeHolderName = 'transformOverlay-content';
+        this.viewId = container.attr("id").replace(this.placeHolderName+"-","");
         this.contextMenu = 'transformContextMenu';
         this.jsTreePrefix = 'jstree-container';
-        this.viewIdSeperator = '___';
+        this.viewIdSeperator = ':';
         this.sourceTargetSeperator = '_--_';
-        this.idNameSeperator = '_-_-_-';
-        this.nameTypeSeperator = '---';
-        this.placeHolderName = 'transformOverlay-content';
+        this.idNameSeperator = '.';
+        this.nameTypeSeperator = ':';
         this.onConnection = onConnectionCallback;
         this.midpoint = 0.1;
         this.midpointVariance = 0.01;
@@ -360,11 +360,10 @@ class TransformRender {
  * @param {object} connection connection object which specified source and target
  */
     addConnection(connection) {
-        const anchorEnd = '_anchor';
         let isSourceExists;
         let isTargetExists;
-        let sourcePrefix = this.jsTreePrefix + this.viewIdSeperator;
-        let targetPrefix = this.jsTreePrefix + this.viewIdSeperator;
+        let sourcePrefix = "";
+        let targetPrefix = "";
         let targetUUID = "";
         let sourceUUID = "";
         let targetTail = "";
@@ -383,9 +382,9 @@ class TransformRender {
         }
 
         let sourceId = sourcePrefix  + connection.sourceStruct + sourceUUID
-            + this.viewIdSeperator + this.viewId + sourceTail;
+             + sourceTail;
         let targetId = targetPrefix + connection.targetStruct + targetUUID
-            + this.viewIdSeperator + this.viewId + targetTail;
+             + targetTail;
 
         if (connection.sourceStruct == connection.sourceProperty[0]) {
             // Construct Variable property id
@@ -403,41 +402,28 @@ class TransformRender {
             isTargetExists = _.includes(this.existingJsTrees,
                 connection.targetStruct + targetUUID + this.viewIdSeperator + this.viewId + targetTail);
         }
-
-        if (isSourceExists && isTargetExists) {
-            for (var i = 0; i < connection.sourceProperty.length; i++) {
-                if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
-                    sourceId += this.idNameSeperator
-                        + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
-                }
+        for (var i = 0; i < connection.sourceProperty.length; i++) {
+            if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
+                sourceId += this.idNameSeperator
+                    + connection.sourceProperty[i];
             }
-            if (connection.sourceStruct != connection.sourceProperty[0]) {
-                sourceId += anchorEnd;
-            }
-
-            for (var i = 0; i < connection.targetProperty.length; i++) {
-                targetId += this.idNameSeperator
-                + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
-            }
-
-            if (connection.targetStruct != connection.targetProperty[0]) {
-                targetId += anchorEnd;
-            }
-
-            this.jsPlumbInstance.connect({
-                source: sourceId,
-                target: targetId,
-                parameters: { id: connection.id },
-            });
-            this.reposition(this);
-        } else {
-            this.connectionPool.push({
-                connection,
-                isSourceExists,
-                isTargetExists,
-                connected: false,
-            });
         }
+
+        for (var i = 0; i < connection.targetProperty.length; i++) {
+            targetId += this.idNameSeperator
+            + connection.targetProperty[i];
+        }
+
+        sourceId = sourceId + this.viewIdSeperator + this.viewId;
+        targetId = targetId + this.viewIdSeperator + this.viewId;
+
+        this.jsPlumbInstance.connect({
+            source: sourceId,
+            target: targetId,
+            parameters: { id: connection.id },
+        });
+        this.reposition(this);
+
     }
 
 
