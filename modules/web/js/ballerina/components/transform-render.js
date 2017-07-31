@@ -737,7 +737,7 @@ addComplexParameter(parentId, struct) {
  */
     addSource(element, self, maxConnections, input) {
         const connectionConfig = {
-            anchor: ['Center'],
+            anchor: ['Right'],
             parameters: {
                 input
             }
@@ -776,7 +776,7 @@ addComplexParameter(parentId, struct) {
     addTarget(element, self, output) {
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
-            anchor: ['Center'],
+            anchor: ['Left'],
             beforeDrop: params => {
                 // Checks property types are equal or type is any
                 const input = params.connection.getParameters().input;
