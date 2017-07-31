@@ -240,6 +240,9 @@ public final class Constants {
     public static final String HTTP2_AUTHORITY = ":authority";
     public static final String HTTP2_SCHEME = ":scheme";
 
+    public static final String TARGET_HANDLER = "targetHandler";
+    public static final String IDLE_STATE_HANDLER = "idleStateHandler";
+
     private Constants() {
     }
 }

@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.4.23-SNAPSHOT</version>
+    <version>4.4.24-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -322,7 +322,7 @@
         <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
         <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
         <org.apache.commons.pool2.version>2.4.2</org.apache.commons.pool2.version>
-        <quartz.version>2.3.0.wso2v1</quartz.version>
+        <quartz.version>2.3.0.wso2v2</quartz.version>
         <quartz.version.range>[2.3.0, 3.0.0)</quartz.version.range>
         <commons-net.version>3.6</commons-net.version>
 

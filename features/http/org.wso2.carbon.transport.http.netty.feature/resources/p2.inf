@@ -1,3 +1,0 @@
-instructions.configure = \
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.transport.http.netty_${feature.version}/conf/,target:${installFolder}/../../../conf/transports/,overwrite:false);\
-org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../conf/transports/,targetFile:netty-transports.yml,permissions:644);
