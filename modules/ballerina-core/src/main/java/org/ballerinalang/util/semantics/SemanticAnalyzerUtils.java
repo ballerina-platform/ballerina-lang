@@ -26,6 +26,7 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONConstrainedType;
@@ -221,5 +222,14 @@ public class SemanticAnalyzerUtils {
             ((CallableUnitInvocationExpr) callableIExpr).getArgExprs()[i] = updatedArgExprs[i];
         }
         return callableSymbol;
+    }
+
+    public static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+        for (int i = 0; i < expr.length; i++) {
+            if (expr[i] instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) expr[i]).getVarName().equals("_")) {
+                continue;
+            }
+            ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
     }
 }
