@@ -10,7 +10,7 @@ service<http> passthrough {
                                         "http://samples.openweathermap.org");
 
         //Action get() returns the response from backend service. It includes endPoint, resource path and message as parameters.
-        message response = http:ClientConnector.get(endPoint, "/data/2.5/weather?lat=35&lon=139&appid=b1b1", m);
+        message response = endPoint.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", m);
         reply response;
 
     }

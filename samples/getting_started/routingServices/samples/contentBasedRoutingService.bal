@@ -17,12 +17,10 @@ service<http> contentBasedRouting {
         string nameString = jsons:getString(jsonMsg, "$.name");
         message response = {};
         if (nameString == nyseString) {
-            response = http:ClientConnector.post(nyseEP, "/stocks", m);
-            
+            response = nyseEP.post("/stocks", m);
         }
         else {
-            response = http:ClientConnector.post(nasdaqEP, "/stocks", m);
-        
+            response = nasdaqEP.post("/stocks", m);
         }
         reply response;
         
