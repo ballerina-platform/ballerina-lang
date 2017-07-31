@@ -17,13 +17,6 @@
 */
 package org.ballerinalang.composer.service.workspace.langserver;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
@@ -157,12 +150,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     private static final String BALLERINA_CAST_ERROR = "TypeCastError";
     private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
-
-    private int stackFrameOffset = -1;
-    private int staticMemAddrOffset = -1;
-    private int connectorMemAddrOffset = -1;
-    private int structMemAddrOffset = -1;
-    private int workerMemAddrOffset = -1;
+    
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
     private Stack<CallableUnit> parentCallableUnit = new Stack<>();
@@ -304,9 +292,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             annotationAttachment.accept(this);
         }
 
-        // Set memory location
-        ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
-        constDef.setMemoryLocation(memLocation);
+        constDef.getVariableDefStmt().getVariableDef().setKind(VariableDef.Kind.CONSTANT);
 
         // Insert constant initialization stmt to the package init function
         SimpleVarRefExpr varRefExpr = new SimpleVarRefExpr(constDef.getNodeLocation(),
@@ -388,7 +374,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : connectorDef.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+            parameterDef.setKind(VariableDef.Kind.CONNECTOR_VAR);
             parameterDef.accept(this);
         }
 
@@ -402,11 +388,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             action.accept(this);
         }
 
-        int sizeOfConnectorMem = connectorMemAddrOffset + 1;
-        connectorDef.setSizeOfConnectorMem(sizeOfConnectorMem);
-
         // Close the symbol scope
-        connectorMemAddrOffset = -1;
         addToCompletionItems(connectorDef);
         closeScope();
     }
@@ -429,7 +411,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -441,12 +423,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
 
-
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        resource.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
@@ -477,11 +454,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         currentCallableUnit = function;
 
         checkAndSetClosestScope(function);
-        //resolveWorkerInteractions(function.gerWorkerInteractions());
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
             annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
@@ -489,7 +461,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -497,7 +469,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+                parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             }
 
             parameterDef.accept(this);
@@ -516,19 +488,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             //checkAndAddReturnStmt(function.getReturnParamTypes().length, blockStmt);
         }
 
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        function.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
 
         addToCompletionItems(function);
@@ -537,64 +497,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(BTypeMapper typeMapper) {
-        // Open a new symbol scope
-        openScope(typeMapper);
-        currentCallableUnit = typeMapper;
-
-        checkAndSetClosestScope(typeMapper);
-
-        for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.TYPEMAPPER, null));
-            annotationAttachment.accept(this);
-        }
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
-        for (ParameterDef parameterDef : typeMapper.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            parameterDef.accept(this);
-        }
-
-//        for (VariableDef variableDef : typeMapper.getVariableDefs()) {
-//            stackFrameOffset++;
-//            visit(variableDef);
-//        }
-
-        for (ParameterDef parameterDef : typeMapper.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            }
-
-            parameterDef.accept(this);
-        }
-
-        if (!typeMapper.isNative()) {
-            BlockStmt blockStmt = typeMapper.getCallableUnitBody();
-            currentScope = blockStmt;
-            blockStmt.accept(this);
-            currentScope = blockStmt.getEnclosingScope();
-        }
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        typeMapper.setStackFrameSize(sizeOfStackFrame);
-
-        // Close the symbol scope
-        stackFrameOffset = -1;
-        currentCallableUnit = null;
-
-        addToCompletionItems(typeMapper);
-        closeScope();
     }
 
     @Override
@@ -611,7 +513,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -620,7 +522,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+                parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             }
 
             parameterDef.accept(this);
@@ -639,18 +541,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             checkAndAddReturnStmt(action.getReturnParameters().length, blockStmt);
         }
 
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        action.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
@@ -664,24 +555,13 @@ public class CompletionItemAccumulator implements NodeVisitor {
         currentCallableUnit = worker;
         checkAndSetClosestScope(worker);
 
-        //resolveWorkerInteractions(worker.gerWorkerInteractions());
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
         for (ParameterDef parameterDef : worker.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
         for (ParameterDef parameterDef : worker.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
-            }
-
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -697,20 +577,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BlockStmt blockStmt = worker.getCallableUnitBody();
         blockStmt.accept(this);
 
-        //resolveWorkerInteractions(worker);
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = workerMemAddrOffset + 1;
-        worker.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        workerMemAddrOffset = -1;
         currentCallableUnit = parentCallableUnit.pop();
         // Close symbol scope. This is done manually to avoid falling back to package scope
         currentScope = parentScope.pop();
@@ -810,6 +677,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Resolves the type of the variable
         VariableDef varDef = varDefStmt.getVariableDef();
 
+        // Set the Variable kind if it is not set.
+        if (varDef.getKind() == null) {
+            // Here we assume that this is a local variable
+            varDef.setKind(VariableDef.Kind.LOCAL_VAR);
+        }
 
         // Mark the this variable references as LHS expressions
         ((VariableReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
@@ -818,9 +690,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         SymbolName symbolName = new SymbolName(varDef.getName(), currentPkg);
 
         currentScope.define(symbolName, varDef);
-
-        // Set memory location
-        setMemoryLocation(varDef);
 
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
@@ -995,7 +864,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         tryCatchStmt.getTryBlock().accept(this);
 
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
-            catchBlock.getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            catchBlock.getParameterDef().setKind(VariableDef.Kind.LOCAL_VAR);
             catchBlock.getParameterDef().accept(this);
             catchBlock.getCatchBlockStmt().accept(this);
         }
@@ -1044,14 +913,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         // Visit workers
         for (Worker worker : forkJoinStmt.getWorkers()) {
-            /* Here we are setting the current stack frame size of the parent component (function, resource, action)
-            as the accessible stack frame size for fork-join internal workers. */
-            worker.setAccessibleStackFrameSize(stackFrameOffset + 1);
-
-            /* Actual worker memory segment starts after the current in-scope variables within the control stack.
-            Hence, we are adding the stackFrameOffset + 1 to begin with */
-            workerMemAddrOffset += stackFrameOffset + 1;
-
             worker.accept(this);
         }
 
@@ -1060,7 +921,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         openScope(join);
         ParameterDef parameter = join.getJoinResult();
         if (parameter != null) {
-            parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameter.setKind(VariableDef.Kind.LOCAL_VAR);
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
         }
@@ -1083,7 +944,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         ParameterDef timeoutParam = timeout.getTimeoutResult();
         if (timeoutParam != null) {
-            timeoutParam.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             timeoutParam.accept(this);
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
@@ -1569,12 +1429,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
                 SimpleVariableDef variableDef = new SimpleVariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         null, symbolName, currentScope);
+                variableDef.setKind(VariableDef.Kind.LOCAL_VAR);
 
                 // Check whether this variable is already defined, if not define it.
                 SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
                 currentScope.define(varDefSymName, variableDef);
-                // Set memory location
-                setMemoryLocation(variableDef);
             }
         }
 
@@ -1606,24 +1465,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             typeCastExpr.setOpcode(typeEdge.getOpcode());
         }
         return typeCastExpr;
-    }
-
-    private void setMemoryLocation(VariableDef variableDef) {
-        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            if (currentScope.getEnclosingScope().getScopeName() == SymbolScope.ScopeName.WORKER) {
-                variableDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
-            } else {
-                variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            }
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
-            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
-            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
-            variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.PACKAGE) {
-            variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
-        }
     }
 
     private void defineFunctions(Function[] functions) {
@@ -1770,11 +1611,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
             SymbolScope tmpScope = currentScope;
             currentScope = structDef;
             for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+                fieldDefStmt.getVariableDef().setKind(VariableDef.Kind.STRUCT_FIELD);
                 fieldDefStmt.accept(this);
             }
-            structDef.setStructMemorySize(structMemAddrOffset + 1);
-
-            structMemAddrOffset = -1;
             currentScope = tmpScope;
         }
 
