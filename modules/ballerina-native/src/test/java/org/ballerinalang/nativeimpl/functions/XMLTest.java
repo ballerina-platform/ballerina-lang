@@ -645,23 +645,23 @@ public class XMLTest {
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
     }
 
-  /*  @Test
+    @Test
     public void testGetElementsByNameEmptyNamespace() {
-        //disabled due to:3062
+        //related issue 3062
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameEmptyNamespace");
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 0);
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
-    }*/
+    }
 
     @Test
     public void testGetElementsByNameWithPrefixForDefaultNamespace() {
@@ -1025,16 +1025,17 @@ public class XMLTest {
         Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
     }
 
-/*    @Test
+    @Test
     public void testSetChildrenDiffNamespaceWithoutPrefix() {
+        //related issue 3074
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDiffNamespaceWithoutPrefix");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
-                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
+                "xmlns=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
                 "<nsncdom:residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
-                "nsncdom:citizen=\"yes\">true</nsncdom:residency></ns0:name>");
+                "xmlns:citizen=\"yes\">true</nsncdom:residency></ns0:name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -1047,7 +1048,7 @@ public class XMLTest {
         // Check attribute value
         Assert.assertSame(returns[3].getClass(), BString.class);
         Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
-    }*/
+    }
 
     @Test
     public void testSetChildrenDiffAttribute() {
@@ -1277,6 +1278,60 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\"/>");
     }
+
+    @Test
+    public void testAddAttributeWithQName_1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_1");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:pre=\"http://sample.com/wso2/f\" " +
+                "ns4:diff=\"yes\" pre:foo1=\"bar1\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_2() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_2");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns5:foo1=\"bar1\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_3() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_3");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns4:foo1=\"bar1\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_4() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_5() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:foo1=\"bar1\" " +
+                "ns4:diff=\"yes\" foo2=\"bar2\" foo3=\"bar3\"/>");
+    }
+
+
     
     @Test
     public void testUpdateAttributeWithString() {
@@ -1285,6 +1340,15 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"newbar1\" ns0Kf5j:foo2=\"newbar2\" " +
                 "ns4:foo3=\"bar3\"/>");
+    }
+
+    @Test
+    public void testUpdateAttributeWithString_1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithString_1");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" xmlns:nsbrlwf=\"http://sample.com/wso2/f/t\" " +
+                "foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\" nsbrlwf:foo3=\"newbar3\"/>");
     }
     
     @Test
@@ -1304,6 +1368,15 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"newbar1\" ns3:foo2=\"newbar2\"/>");
+    }
+
+    @Test
+    public void testUpdateAttributeWithQName_1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithQName_1");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns5=\"http://sample.com/wso2/a1\" " +
+                "ns0:foo1=\"newaddedbar1\" ns3:foo2=\"bar2\"/>");
     }
     
     @Test
