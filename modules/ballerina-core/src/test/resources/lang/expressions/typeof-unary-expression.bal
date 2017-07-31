@@ -309,7 +309,7 @@ function typeToAnyExplicitCast() (any, type, any) {
     return (any)t, t, t;
 }
 
-function anyToTypeExplicitCast() (type,any) {
+function anyToTypeExplicitCast() (type, any) {
     int i = 5;
     any typeOfInt = (typeof i);
     var t, _ = (type)typeOfInt;
