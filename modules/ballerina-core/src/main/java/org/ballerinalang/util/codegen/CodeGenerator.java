@@ -1003,7 +1003,6 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
-        resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
@@ -2470,6 +2469,7 @@ public class CodeGenerator implements NodeVisitor {
 
         resetIndexes(lvIndexes);
         resetIndexes(regIndexes);
+        resetIndexes(maxRegIndexes);
     }
 
     private void resetIndexes(int[] indexes) {
@@ -2835,6 +2835,7 @@ public class CodeGenerator implements NodeVisitor {
         int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         int[] lvIndexesCopy = lvIndexes.clone();
         int[] regIndexesCopy = regIndexes.clone();
+        int[] maxRegIndexesCopy = maxRegIndexes.clone();
         for (Worker worker : forkJoinStmt.getWorkers()) {
             WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.getName());
             workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
@@ -2849,6 +2850,7 @@ public class CodeGenerator implements NodeVisitor {
 
         lvIndexes = lvIndexesCopy;
         regIndexes = regIndexesCopy;
+        maxRegIndexes = maxRegIndexesCopy;
 
         int i = 0;
         int[] joinWrkrNameCPIndexes = new int[forkJoinStmt.getJoin().getJoinWorkers().length];
@@ -3108,7 +3110,6 @@ public class CodeGenerator implements NodeVisitor {
 
             // Set local variables and reg indexes and reset instance variables to defaults
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
-            resetIndexes(maxRegIndexes);
 
             // Now visit each Worker
             for (Worker worker : workers) {
@@ -3126,7 +3127,6 @@ public class CodeGenerator implements NodeVisitor {
 
                 //workerInfo.setWorkerEndIP(nextIP());
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
-                resetIndexes(maxRegIndexes);
 
                 // emit HALT instruction to finish the worker activity
                 emit(InstructionCodes.HALT);
@@ -3138,7 +3138,6 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
-            resetIndexes(maxRegIndexes);
         }
 
         currentlLocalVarAttribInfo = null;
