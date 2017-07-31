@@ -22,6 +22,9 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -43,7 +46,6 @@ import java.util.Map;
 /**
  * A class responsible for handling responses coming from BE.
  *
- * TODO: Need to redesign this. This has an incorrect usage of ReadTimeoutHandler.
  * Timer tasks in IdleStateHandler (parent of ReadTimeoutHandler) is not working properly with overridden methods which
  * causes timeout issues when TargetHandler is re-used from the ConnectionManager.
  *
@@ -73,49 +75,56 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpResponse) {
-
-            cMsg = setUpCarbonMessage(ctx, msg);
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                        executeAtTargetResponseReceiving(cMsg);
-            }
-            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                    .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-            if (carbonMessageProcessor != null) {
-                try {
-                    HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
-                            .getProperty(Constants.MESSAGE_PROCESSOR_ID)).receive(cMsg, callback);
-                } catch (Exception e) {
-                    LOG.error("Error while handover response to MessageProcessor ", e);
+        if (targetChannel.isRequestWritten()) {
+            if (msg instanceof HttpResponse) {
+                cMsg = setUpCarbonMessage(ctx, msg);
+                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                            executeAtTargetResponseReceiving(cMsg);
+                }
+                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                        .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
+                if (carbonMessageProcessor != null) {
+                    try {
+                        HTTPTransportContextHolder.getInstance()
+                                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID))
+                                .receive(cMsg, callback);
+                    } catch (Exception e) {
+                        LOG.error("Error while handover response to MessageProcessor ", e);
+                    }
+                } else {
+                    LOG.error("Cannot correlate callback with request callback is null ");
                 }
             } else {
-                LOG.error("Cannot correlate callback with request callback is null ");
-            }
-
-        } else {
-            if (cMsg != null) {
-                if (msg instanceof LastHttpContent) {
-                    HttpContent httpContent = (LastHttpContent) msg;
-                    ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
-                    cMsg.setEndOfMsgAdded(true);
-                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetResponseSending(cMsg);
+                if (cMsg != null) {
+                    if (msg instanceof LastHttpContent) {
+                        HttpContent httpContent = (LastHttpContent) msg;
+                        ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
+                        cMsg.setEndOfMsgAdded(true);
+                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtTargetResponseSending(cMsg);
+                        }
+                        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                        connectionManager.returnChannel(targetChannel);
+                    } else {
+                        HttpContent httpContent = (DefaultHttpContent) msg;
+                        ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
                     }
-                    targetChannel.setRequestWritten(false);
-                    connectionManager.returnChannel(targetChannel);
-                } else {
-                    HttpContent httpContent = (DefaultHttpContent) msg;
-                    ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
                 }
             }
+        } else {
+            if (msg instanceof HttpResponse) {
+                LOG.warn("Received a response for an obsolete request");
+            }
+            ReferenceCountUtil.release(msg);
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
+        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
@@ -141,31 +150,24 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.targetChannel = targetChannel;
     }
 
-    // TODO: This cannot be done as long as we use apache pooling.
-    protected void readTimedOut(ChannelHandlerContext ctx) {
+    protected void sendBackTimeOutResponse() {
+        String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
+                getHttpRoute().toString() + "</errorMessage>";
 
-        ctx.channel().close();
+        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
 
-        if (targetChannel.isRequestWritten()) {
-            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                    getHttpRoute().toString() + "</errorMessage>";
-
-            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                    .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-
-            if (carbonMessageProcessor != null) {
-                try {
-                    HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
-                            .getProperty(Constants.MESSAGE_PROCESSOR_ID))
-                            .receive(createErrorMessage(payload), callback);
-                } catch (Exception e) {
-                    LOG.error("Error while handover response to MessageProcessor ", e);
-                }
-            } else {
-                LOG.error("Cannot correlate callback with request callback is null ");
+        if (carbonMessageProcessor != null) {
+            try {
+                HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
+                        .getProperty(Constants.MESSAGE_PROCESSOR_ID))
+                        .receive(createErrorMessage(payload), callback);
+            } catch (Exception e) {
+                LOG.error("Error while handover response to MessageProcessor ", e);
             }
+        } else {
+            LOG.error("Cannot correlate callback with request callback is null ");
         }
-
     }
 
     protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
@@ -207,7 +209,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         response.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
-        MessagingException messagingException = new MessagingException("Read Timeout", 101504);
+        MessagingException messagingException = new MessagingException("read timeout", 101504);
         response.setMessagingException(messagingException);
         return response;
 
@@ -217,6 +219,18 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent) evt;
+            if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
+                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                targetChannel.setRequestWritten(false);
+                sendBackTimeOutResponse();
+            }
         }
     }
 }

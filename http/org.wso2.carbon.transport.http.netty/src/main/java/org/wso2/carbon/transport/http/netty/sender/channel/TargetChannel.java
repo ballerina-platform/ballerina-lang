@@ -27,22 +27,12 @@ import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
  */
 public class TargetChannel {
 
-
     private Channel channel;
-
     private TargetHandler targetHandler;
-
     private HTTPClientInitializer httpClientInitializer;
-
     private HttpRoute httpRoute;
-
     private SourceHandler correlatedSource;
-
-    private boolean isRequestWritten;
-
-    public boolean isRequestWritten() {
-        return isRequestWritten;
-    }
+    private boolean isRequestWritten = false;
 
     public Channel getChannel() {
         return channel;
@@ -83,6 +73,10 @@ public class TargetChannel {
 
     public void setCorrelatedSource(SourceHandler correlatedSource) {
         this.correlatedSource = correlatedSource;
+    }
+
+    public boolean isRequestWritten() {
+        return isRequestWritten;
     }
 
     public void setRequestWritten(boolean isRequestWritten) {
