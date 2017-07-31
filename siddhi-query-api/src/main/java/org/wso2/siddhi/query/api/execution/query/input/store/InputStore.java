@@ -16,25 +16,23 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
-
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.Expression;
+package org.wso2.siddhi.query.api.execution.query.input.store;
 
 /**
- * Abstract class for incremental aggregators
+ * Input Store
  */
-public abstract class IncrementalAttributeAggregator {
+public interface InputStore {
 
-    public abstract void init(String attributeName, Attribute.Type attributeType);
+    static Store store(String storeId) {
+        return new Store(storeId);
+    }
 
-    public abstract Object aggregate(Object... results);
+    static Store store(String storeReferenceId, String storeId) {
+        return new Store(storeReferenceId, storeId);
+    }
 
-    public abstract Attribute[] getBaseAttributes();
+    String getStoreReferenceId();
 
-    public abstract Expression[] getBaseAttributeInitialValues();
+    String getStoreId();
 
-    public abstract Expression[] getBaseAggregators();
-
-    public abstract Attribute.Type getReturnType();
 }

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.util.parser;
 
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
