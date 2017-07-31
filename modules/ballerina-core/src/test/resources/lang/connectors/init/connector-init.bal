@@ -26,7 +26,7 @@ function testConnectorInit (string name, int age) (int, string){
 function invokeConnector (Foo myFoo, string name) (int, string) {
     int i;
     string str;
-    str, i = Foo.getName (myFoo, name);
+    str, i = myFoo.getName (name);
     return i, str;
 }
 

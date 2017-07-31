@@ -60,7 +60,7 @@ function testAction1() (message) {
     message value;
 
     request = {};
-    value = TestConnector.action1(testConnector, request);
+    value = testConnector.action1(request);
     return value;
 }
 
@@ -70,6 +70,6 @@ function testAction2() (message) {
     message value;
 
     request = {};
-    value = TestConnector.action2(testConnector, request);
+    value = testConnector.action2(request);
     return value;
 }

@@ -34,20 +34,20 @@ function testAction1() (boolean) {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
     boolean value;
 
-    value = TestConnector.action1(testConnector);
+    value = testConnector.action1();
     return value;
 }
 
 function testAction2() {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
-    TestConnector.action2(testConnector);
+    testConnector.action2();
 }
 
 function testAction3() (boolean) {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
     boolean value;
 
-    value = TestConnector.action3(testConnector);
+    value = testConnector.action3();
     return value;
 }
 
@@ -55,9 +55,9 @@ function testAction2andAction3() (boolean) {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
     boolean value;
 
-    TestConnector.action2(testConnector);
+    testConnector.action2();
 
-    value = TestConnector.action3(testConnector);
+    value = testConnector.action3();
     return value;
 }
 
@@ -65,20 +65,20 @@ function testAction4(string inputParam) (string) {
     TestConnector testConnector = create TestConnector(inputParam, "MyParam2", 5);
     string value;
 
-    value = TestConnector.action4(testConnector);
+    value = testConnector.action4();
     return value;
 }
 
 function testAction5(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string s1, string s2, int i) {
     TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
 
-    s1, s2, i = TestConnector.action5(testConnector, functionArg4);
+    s1, s2, i = testConnector.action5(functionArg4);
     return;
 }
 
 function testEmptyParamAction(string inputParam) (string) {
     EmptyParamConnector emptyParamConector = create EmptyParamConnector();
-    string s = EmptyParamConnector.emptyParamConnAction(emptyParamConector, inputParam);
+    string s = emptyParamConector.emptyParamConnAction(inputParam);
     return s;
 }
 

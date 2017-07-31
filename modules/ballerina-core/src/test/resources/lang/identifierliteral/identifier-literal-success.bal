@@ -91,7 +91,7 @@ function testConnectorNameWithIL() (string) {
     |Test Connector| testConnector = create |Test Connector|("MyParam1", "MyParam2", 5);
     string value;
 
-    value = |Test Connector|.action1(testConnector);
+    value = testConnector.action1();
     return value;
 }
 
@@ -99,7 +99,7 @@ function testConnectorActionWithIL() (string) {
     |Test Connector| |test Connector| = create |Test Connector|("MyParam1", "MyParam2", 5);
     string value;
 
-    value = |Test Connector|.|second action|(|test Connector|);
+    value = |test Connector|.|second action|();
     return value;
 }
 

@@ -99,7 +99,7 @@ function foo(xml x) (xml) {
 
 function testActionInNullConenctor() {
     TestConnector testConnector;
-    string result = TestConnector.testAction(testConnector);
+    string result = testConnector.testAction();
 }
 
 function testNullLiteralComparison() (boolean) {
