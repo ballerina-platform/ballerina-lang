@@ -66,6 +66,9 @@ import org.ballerinalang.util.parser.BallerinaParser.ReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.StartTagContext;
+import org.ballerinalang.util.parser.BallerinaParser.StringTemplateContentContext;
+import org.ballerinalang.util.parser.BallerinaParser.StringTemplateLiteralContext;
+import org.ballerinalang.util.parser.BallerinaParser.StringTemplateTextContext;
 import org.ballerinalang.util.parser.BallerinaParser.StructBodyContext;
 import org.ballerinalang.util.parser.BallerinaParser.TextContext;
 import org.ballerinalang.util.parser.BallerinaParser.TypeConversionExpressionContext;
@@ -2210,6 +2213,16 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
     public void enterLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) {
     }
 
@@ -2675,6 +2688,58 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
 
         modelBuilder.createXMLQName(getCurrentLocation(ctx), null, localname, prefix);
+    }
+
+    @Override
+    public void enterStringTemplateLiteral(StringTemplateLiteralContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateLiteral(StringTemplateLiteralContext ctx) {
+
+    }
+
+    @Override
+    public void enterStringTemplateContent(StringTemplateContentContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateContent(StringTemplateContentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        List<TerminalNode> nodes = ctx.StringTemplateExpressionStart();
+        StringTemplateTextContext endTextNode = ctx.stringTemplateText();
+        String endingText = endTextNode == null ? null : StringEscapeUtils.unescapeJava(endTextNode.getText());
+
+        if (nodes.size() == 0) {
+            modelBuilder.createStringTemplateLiteral(getCurrentLocation(ctx), null, endingText);
+            return;
+        }
+
+        String[] templateStrLiterals = new String[nodes.size()];
+        int i = 0;
+        for (TerminalNode node : nodes) {
+            if (node == null) {
+                templateStrLiterals[i++] = null;
+                continue;
+            }
+            String str = node.getText();
+            templateStrLiterals[i++] = StringEscapeUtils.unescapeJava(str.substring(0, str.length() - 2));
+        }
+        modelBuilder.createStringTemplateLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
+    }
+
+    @Override
+    public void enterStringTemplateText(StringTemplateTextContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateText(StringTemplateTextContext ctx) {
+
     }
 
     @Override

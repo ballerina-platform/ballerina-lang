@@ -579,5 +579,14 @@ xmlQualifiedName
     ;
 
 stringTemplateLiteral
-    :   StringTemplateLiteralStart ((StringTemplateText | (StringBacktickTemplateText expression ExpressionEnd))+ StringTemplateText?)? StringTemplateLiteralEnd
+    :   StringTemplateLiteralStart stringTemplateContent? StringTemplateLiteralEnd
+    ;
+
+stringTemplateContent
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
+    |   stringTemplateText
+    ;
+
+stringTemplateText
+    :   StringTemplateText
     ;

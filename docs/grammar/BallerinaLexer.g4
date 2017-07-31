@@ -686,13 +686,13 @@ StringTemplateLiteralEnd
     :   '`' { inTemplate = false; }          -> popMode
     ;
 
-StringBacktickTemplateText
+StringTemplateExpressionStart
     :   StringTemplateText? ExpressionStart            -> pushMode(DEFAULT_MODE)
     ;
 
 StringTemplateText
-    :   XMLBracesSequence? (StringTemplateStringChar XMLBracesSequence?)+
-    |   XMLBracesSequence (StringTemplateStringChar XMLBracesSequence?)*
+    :   StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)+
+    |   StringTemplateBracesSequence (StringTemplateStringChar StringTemplateBracesSequence?)*
     ;
 
 fragment
@@ -700,5 +700,20 @@ StringTemplateStringChar
     :    ~[`{}\\]
     |    '\\' [`]
     |    WS
-    |    XMLEscapedSequence
+    |    StringLiteralEscapedSequence
+    ;
+
+fragment
+StringLiteralEscapedSequence
+    :   '\\\\'
+    |   '\\{{'
+    ;
+
+fragment
+StringTemplateBracesSequence
+    :   '{}'+
+    |   '}{'
+    |   ('{}')* '{'
+    |   '}' ('{}')*
+    |   '}}'
     ;

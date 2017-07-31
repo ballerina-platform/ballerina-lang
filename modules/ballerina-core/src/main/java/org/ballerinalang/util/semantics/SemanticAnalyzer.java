@@ -95,6 +95,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -2585,6 +2586,48 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression[] items = stringTemplateLiteral.getItems();
+        List<Expression> newItems = new ArrayList<>();
+        // Consecutive non-string type items are converted to string, and combined together using binary add
+        // expressions.
+        Expression addExpr = null;
+        for (int i = 0; i < items.length; i++) {
+            Expression currentItem = items[i];
+            currentItem.accept(this);
+            if (currentItem.getType() != BTypes.typeString) {
+                Expression castExpr = getImplicitConversionExpr(currentItem, currentItem.getType(), BTypes.typeString);
+                if (castExpr == null) {
+                    BLangExceptionHelper.throwSemanticError(currentItem, SemanticErrors.INCOMPATIBLE_TYPES,
+                                                            BTypes.typeString, currentItem.getType());
+                }
+                currentItem = castExpr;
+            }
+            if (addExpr == null) {
+                addExpr = currentItem;
+                continue;
+            }
+            if (addExpr.getType() == BTypes.typeString) {
+                addExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                                            addExpr, currentItem);
+            } else {
+                newItems.add(addExpr);
+                addExpr = currentItem;
+            }
+            addExpr.setType(BTypes.typeString);
+        }
+        if (addExpr != null) {
+            newItems.add(addExpr);
+        }
+        // Replace the existing items with the new reduced items
+        items = newItems.toArray(new Expression[newItems.size()]);
+        stringTemplateLiteral.setItems(items);
+
+        // Create and set XML concatenation expression using all the items in the sequence
+        stringTemplateLiteral.setConcatExpr(getStringConcatExpression(items));
+    }
+
+    @Override
     public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
         namespaceDeclarationStmt.getNamespaceDclr().accept(this);
     }
@@ -2624,7 +2667,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             xmlElementLiteral.setDefaultNamespaceUri(parent.getDefaultNamespaceUri());
         }
         xmlElementLiteral.setNamespaces(namespaces);
-        
+
         // add the inline declared namespaces to the namespace map
         List<KeyValueExpr> attributes = xmlElementLiteral.getAttributes();
         Iterator<KeyValueExpr> attrItr = attributes.iterator();
@@ -2639,13 +2682,13 @@ public class SemanticAnalyzer implements NodeVisitor {
             XMLQNameExpr xmlQNameRefExpr = (XMLQNameExpr) attrNameExpr;
             if (xmlQNameRefExpr.getPrefix().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
                 attrValueExpr.accept(this);
-                
+
                 if (attrValueExpr instanceof BasicLiteral
                         && ((BasicLiteral) attrValueExpr).getBValue().stringValue().isEmpty()) {
                     BLangExceptionHelper.throwSemanticError(attribute, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
                             xmlQNameRefExpr.getLocalname());
                 }
-                
+
                 namespaces.put(xmlQNameRefExpr.getLocalname(), attrValueExpr);
                 attrItr.remove();
                 continue;
@@ -2667,7 +2710,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             defaultnsUriLiteral.accept(this);
             xmlElementLiteral.setDefaultNamespaceUri(defaultnsUriLiteral);
         }
-        
+
         validateXMLLiteralAttributes(attributes, namespaces);
 
         // Validate start tag
@@ -2685,7 +2728,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Validate the ending tag of the XML element
         validateXMLLiteralEndTag(xmlElementLiteral);
-        
+
         // Visit children
         XMLSequenceLiteral children = xmlElementLiteral.getContent();
         if (children != null) {
@@ -3817,10 +3860,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (type.getTag() != TypeTags.ARRAY_TAG) {
             return type;
         }
-        
+
         return getElementType(((BArrayType) type).getElementType());
     }
-    
+
     /**
      * Visit and validate map/json initialize expression.
      *
@@ -3974,20 +4017,20 @@ public class SemanticAnalyzer implements NodeVisitor {
             return isUnsafeArrayCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
 
         } else if (targetType.getTag() == TypeTags.ARRAY_TAG) {
-            
+
             if (sourceType == BTypes.typeJSON) {
                 return isUnsafeArrayCastPossible(BTypes.typeJSON, ((BArrayType) targetType).getElementType());
             }
-            
+
             // If only the target type is an array type, then the source type must be of type 'any'
             return sourceType == BTypes.typeAny;
 
         } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            
+
             if (targetType == BTypes.typeJSON) {
                 return isUnsafeArrayCastPossible(((BArrayType) sourceType).getElementType(), BTypes.typeJSON);
             }
-            
+
             // If only the source type is an array type, then the target type must be of type 'any'
             return targetType == BTypes.typeAny;
         }
@@ -4231,7 +4274,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     /**
      * Get the XML namespaces that are visible to to the current scope.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @return XML namespaces that are visible to the current scope, as a map
      */
@@ -4270,7 +4313,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Create and return an XML concatenation expression using using the provided expressions.
      * Expressions can only be either XML type or string type. All the string type expressions
      * will be converted to XML text literals ({@link XMLTextLiteral}).
-     * 
+     *
      * @param items Expressions to create concatenating expression.
      * @return XML concatenating expression
      */
@@ -4298,6 +4341,29 @@ public class SemanticAnalyzer implements NodeVisitor {
             concatExpr.setType(BTypes.typeXML);
         }
 
+        return concatExpr;
+    }
+
+    private Expression getStringConcatExpression(Expression[] items) {
+        if (items.length == 0) {
+            return null;
+        }
+        Expression concatExpr = null;
+        for (int i = 0; i < items.length; i++) {
+            Expression currentItem = items[i];
+            if (currentItem.getType() == BTypes.typeString) {
+                currentItem = new StringTemplateLiteral(currentItem.getNodeLocation(),
+                                                        currentItem.getWhiteSpaceDescriptor(), currentItem);
+                items[0] = currentItem;
+            }
+            if (concatExpr == null) {
+                concatExpr = currentItem;
+                continue;
+            }
+            concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                                           concatExpr, currentItem);
+            concatExpr.setType(BTypes.typeString);
+        }
         return concatExpr;
     }
 

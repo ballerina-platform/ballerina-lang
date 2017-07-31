@@ -70,6 +70,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
@@ -285,7 +286,7 @@ public class BLangModelBuilder {
                     .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
             errorMsgs.add(errMsg);
         }
-        
+
         // Check whether there is a namespace declaration with the same name
         if (namespaces.contains(importPkg.getName())) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1971,7 +1972,7 @@ public class BLangModelBuilder {
 
     /**
      * Create a namespace declaration statement.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @param wsDescriptor Holds whitespace region data
      * @param namespaceUri Namespace URI of the namespace declaration
@@ -2006,7 +2007,7 @@ public class BLangModelBuilder {
 
     /**
      * Create an XML attributes map reference expression.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param singleAttribute Flag indicating whether this is a single attribute reference
@@ -2302,7 +2303,7 @@ public class BLangModelBuilder {
                 contentExprs.add(items[j]);
             }
         }
-        
+
         Collections.reverse(contentExprs);
         XMLSequenceLiteral xmlSequenceExpr = new XMLSequenceLiteral(location, whiteSpaceDescriptor,
                 contentExprs.toArray(new Expression[0]));
@@ -2319,7 +2320,7 @@ public class BLangModelBuilder {
             createStringLiteral(location, whiteSpaceDescriptor, endingText);
             items.add(exprStack.pop());
         }
-        
+
         for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
             items.add(exprStack.pop());
 
@@ -2338,10 +2339,35 @@ public class BLangModelBuilder {
         exprStack.push(xmlSeqLiteral);
     }
 
+    public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                            String[] exprPrecedingTextFragments, String endingText) {
+        List<Expression> items = new ArrayList<>();
+
+        if (endingText != null && !endingText.isEmpty()) {
+            createStringLiteral(location, whiteSpaceDescriptor, endingText);
+            items.add(exprStack.pop());
+        }
+
+        for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
+            items.add(exprStack.pop());
+
+            String textFragment = exprPrecedingTextFragments[i];
+            if (textFragment != null && !textFragment.isEmpty()) {
+                createStringLiteral(location, whiteSpaceDescriptor, textFragment);
+                items.add(exprStack.pop());
+            }
+        }
+
+        Collections.reverse(items);
+        StringTemplateLiteral xmlSeqLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                        items.toArray(new Expression[items.size()]));
+        exprStack.push(xmlSeqLiteral);
+    }
+
     /**
      * Create a quoted literal in XML. If the literal is interpolated,
      * this will create a add expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param exprPrecedingStringFragments Array of string fragments that precede the expressions
@@ -2378,6 +2404,15 @@ public class BLangModelBuilder {
         Expression textLiteral = exprStack.pop();
         XMLTextLiteral xmlTextLiteral = new XMLTextLiteral(location, whiteSpaceDescriptor, textLiteral);
         exprStack.push(xmlTextLiteral);
+    }
+
+    public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                            String text) {
+        createStringLiteral(location, whiteSpaceDescriptor, text);
+        Expression textLiteral = exprStack.pop();
+        StringTemplateLiteral stringTemplateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                                new Expression[]{textLiteral});
+        exprStack.push(stringTemplateLiteral);
     }
 
     /**
