@@ -34,6 +34,8 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -42,6 +44,7 @@ import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import javax.net.ssl.SSLEngine;
 
 /**
  * Utility class for Channel handling.
@@ -73,7 +76,16 @@ public class ChannelUtils {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
 
         // set the pipeline factory, which creates the pipeline for each newly created channels
-        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(senderConfiguration);
+        SSLEngine sslEngine = null;
+        SSLConfig sslConfig = senderConfiguration.getSslConfig();
+        if (sslConfig != null) {
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            sslEngine = sslHandlerFactory.build();
+            sslEngine.setUseClientMode(true);
+            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
+        }
+
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine);
         targetChannel.setHTTPClientInitializer(httpClientInitializer);
         clientBootstrap.handler(httpClientInitializer);
         if (log.isDebugEnabled()) {

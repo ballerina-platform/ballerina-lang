@@ -33,9 +33,10 @@ import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfigur
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
+import javax.net.ssl.SSLEngine;
 
 /**
- * A class that responsible for create server side channels.
+ * A class that responsible for build server side channels.
  */
 @Deprecated
 public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChannel>
@@ -76,11 +77,11 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         String id = String.valueOf(port);
         ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(id);
         if (sslConfigMap.get(id) != null) {
-            SslHandler sslHandler = new SSLHandlerFactory(sslConfigMap.get(id)).create();
-            ch.pipeline().addLast("ssl", sslHandler);
+            SSLEngine sslEngine = new SSLHandlerFactory(sslConfigMap.get(id)).build();
+            ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
         } else if (sslConfig != null) {
-            SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
-            ch.pipeline().addLast("ssl", sslHandler);
+            SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).build();
+            ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
         }
         ChannelPipeline p = ch.pipeline();
         p.addLast("encoder", new HttpResponseEncoder());

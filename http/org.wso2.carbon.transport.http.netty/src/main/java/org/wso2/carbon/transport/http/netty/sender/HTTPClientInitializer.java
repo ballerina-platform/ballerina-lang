@@ -25,8 +25,8 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+
+import javax.net.ssl.SSLEngine;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -35,22 +35,20 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
 
-    private SenderConfiguration senderConfiguration;
+    private SSLEngine sslEngine;
     private TargetHandler handler;
 
-    public HTTPClientInitializer(SenderConfiguration senderConfiguration) {
-        this.senderConfiguration = senderConfiguration;
+    public HTTPClientInitializer(SSLEngine sslEngine) {
+        this.sslEngine = sslEngine;
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
-        if (senderConfiguration.getSslConfig() != null) {
+        if (sslEngine != null) {
             log.debug("adding ssl handler");
-            SslHandler sslHandler = new SSLHandlerFactory(senderConfiguration.getSslConfig()).create();
-            sslHandler.engine().setUseClientMode(true);
-            ch.pipeline().addLast("ssl", sslHandler);
+            ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
         ch.pipeline().addLast("compressor", new HttpContentCompressor());
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
