@@ -8,11 +8,11 @@ connector Foo (string name, int age) {
     int x = y + 20 + gg[0];
     string myName = name + "sameera";
 
-    action getName (Foo f, string name) (string, int) {
+    action getName (string name) (string, int) {
         return x + 90 + ":" + myName, x + 90;
     }
 
-    action getName1 (Foo f, string name, int age) (int) {
+    action getName1 (string name, int age) (int) {
         return x + 80;
     }
 }

@@ -9,11 +9,11 @@ function testArgumentPassing (string var1) (int) {
 
 connector TestConnector (string param1) {
 
-    action action1 (TestConnector testConnector, message msg) (int) {
+    action action1 (message msg) (int) {
         return 500;
     }
 
-    action action2 (TestConnector testConnector, message msg) (string) {
+    action action2 (message msg) (string) {
         return "test connector";
     }
 
@@ -22,7 +22,7 @@ connector TestConnector (string param1) {
 
 connector FilterConnector1 <TestConnector t>(int param1) {
 
-    action action1(FilterConnector1 testConnector, message msg) (int){
+    action action1(message msg) (int){
         int x;
         x = TestConnector.action1(t, msg);
         string y;
@@ -30,13 +30,13 @@ connector FilterConnector1 <TestConnector t>(int param1) {
         return 500;
     }
 
-    action action2(FilterConnector1 testConnector, message msg) (string) {
+    action action2(message msg) (string) {
         return "filter connector1";
     }
 }
 
 connector FilterConnector2 <TestConnector t>(float param1) {
-    action action1(FilterConnector2 testConnector, message msg) (int){
+    action action1(message msg) (int){
         int x;
         x = TestConnector.action1( t, msg);
         string y;
@@ -44,7 +44,7 @@ connector FilterConnector2 <TestConnector t>(float param1) {
         return 500;
     }
 
-    action action2(FilterConnector2 testConnector, message msg) (string) {
+    action action2(message msg) (string) {
         return "filter connector2";
     }
 }

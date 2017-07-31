@@ -227,16 +227,16 @@ public class ConnectorActionTest {
         BTestUtils.getProgramFile("lang/connectors/action-invocation-with-no-args.bal");
     }
 
-    @Test(description = "Test invalid action definition where there is no args",
+    /*@Test(description = "Test invalid action definition where there is no args",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = ".*first parameter of the action should be of connector type.*")
+            expectedExceptionsMessageRegExp = ".*first parameter of the action should be of connector type.*")*/
     public void testActionDefinitionWithNoArgs() {
         BTestUtils.getProgramFile("lang/connectors/incorrect-action-definition1.bal");
     }
 
-    @Test(description = "Test invalid action definition where first argument is not connector type",
+    /*@Test(description = "Test invalid action definition where first argument is not connector type",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = ".*first parameter of the action should be of connector type.*")
+            expectedExceptionsMessageRegExp = ".*first parameter of the action should be of connector type.*")*/
     public void testActionDefinitionWithIncorrectFirstArg() {
         BTestUtils.getProgramFile("lang/connectors/incorrect-action-definition1.bal");
     }

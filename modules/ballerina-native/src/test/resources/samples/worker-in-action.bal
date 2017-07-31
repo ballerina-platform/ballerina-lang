@@ -5,7 +5,7 @@ connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
 
-    action action1(TestConnector testConnector, message msg) (message){
+    action action1(message msg) (message){
           float aa;
           message result;
           aa = 13;
@@ -37,7 +37,7 @@ connector TestConnector(string param1, string param2, int param3) {
     }
     }
 
-    action action2(TestConnector testConnector, message msg) (message){
+    action action2(message msg) (message){
     message result;
     system:println("Starting action 2");
     result <- sampleWorker;

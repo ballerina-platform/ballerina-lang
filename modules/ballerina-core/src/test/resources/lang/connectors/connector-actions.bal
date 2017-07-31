@@ -2,29 +2,29 @@ connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
 
-    action action1(TestConnector testConnector) (boolean){
+    action action1() (boolean){
         return action2Invoked;
     }
 
-    action action2(TestConnector testConnector) {
+    action action2() {
         action2Invoked = true;
     }
     
-    action action3(TestConnector testConnector) (boolean) {
+    action action3() (boolean) {
         return action2Invoked;
     }
 
-    action action4(TestConnector testConnector) (string) {
+    action action4() (string) {
         return param1;
     }
 
-    action action5(TestConnector testConnector, string actionParam) (string, string, int) {
+    action action5(string actionParam) (string, string, int) {
         return actionParam, param2, param3;
     }
 }
 
 connector EmptyParamConnector() {
-    action emptyParamConnAction (EmptyParamConnector emptyParamConnector, string s) (string) {
+    action emptyParamConnAction (string s) (string) {
         return s;
     }
 }

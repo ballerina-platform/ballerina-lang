@@ -14,11 +14,11 @@ function testCompositeConnector()(string, string) {
 
 connector TestConnector(string param1) {
 
-    action action1(TestConnector testConnector, message msg) (string){
+    action action1(message msg) (string){
         return param1;
     }
 
-    action action2(TestConnector testConnector, message msg) (string) {
+    action action2(message msg) (string) {
         return "value from action2";
     }
 
@@ -28,7 +28,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
 
     int count = 0;
 
-    action action1(TestLBConnector testConnector, message msg) (string){
+    action action1(message msg) (string){
         int index = count % testConnectorArray.length;
         TestConnector t1 = testConnectorArray[index];
         count = count + 1;
@@ -36,7 +36,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
         return retValue;
     }
 
-    action action2(TestLBConnector testConnector, message msg) (string) {
+    action action2(message msg) (string) {
         return "value from action2";
     }
 }

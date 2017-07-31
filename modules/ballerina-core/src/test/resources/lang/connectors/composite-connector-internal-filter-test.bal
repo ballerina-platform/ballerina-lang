@@ -14,11 +14,11 @@ function testCompositeConnector()(string, string) {
 
 connector TestConnector(string param1) {
 
-    action action1(TestConnector testConnector, message msg) (string){
+    action action1(message msg) (string){
         return param1;
     }
 
-    action action2(TestConnector testConnector, message msg) (string) {
+    action action2(message msg) (string) {
         return "value from action2";
     }
 
@@ -26,7 +26,7 @@ connector TestConnector(string param1) {
 
 connector FilterConnector<TestConnector t>(string param1) {
 
-    action action1(FilterConnector testConnector, message msg) (string){
+    action action1(message msg) (string){
           string x;
           x = TestConnector.action1(t, msg);
           string y;
@@ -34,7 +34,7 @@ connector FilterConnector<TestConnector t>(string param1) {
           return param1;
     }
 
-    action action2(FilterConnector testConnector, message msg) (string) {
+    action action2(message msg) (string) {
           return "value within filter";
     }
 
@@ -42,7 +42,7 @@ connector FilterConnector<TestConnector t>(string param1) {
 
 connector FilterConnector2<TestConnector t>(string param1) {
 
-    action action1(FilterConnector2 testConnector, message msg) (string){
+    action action1(message msg) (string){
           string x;
           x = TestConnector.action1(t, msg);
           string y;
@@ -50,7 +50,7 @@ connector FilterConnector2<TestConnector t>(string param1) {
           return "2222222";
     }
 
-    action action2(FilterConnector2 testConnector, message msg) (string) {
+    action action2(message msg) (string) {
           return "value within filter";
     }
 
@@ -60,7 +60,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
 
     int count = 0;
 
-    action action1(TestLBConnector testConnector, message msg) (string){
+    action action1(message msg) (string){
         int index = count % testConnectorArray.length;
         TestConnector t1 = testConnectorArray[index];
         count = count + 1;
@@ -68,7 +68,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
         return retValue;
     }
 
-    action action2(TestLBConnector testConnector, message msg) (string) {
+    action action2(message msg) (string) {
         return "value from action2";
     }
 }

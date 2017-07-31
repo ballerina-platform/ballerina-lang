@@ -76,12 +76,12 @@ function |test function for identifier|(string val) (string) {
 connector |Test Connector|(string param1, string param2, int param3) {
     boolean action2Invoked;
 
-    action action1(|Test Connector| testConnector) (string) {
+    action action1() (string) {
         string |sample string| = "this is a sample";
         return |sample string|;
     }
 
-    action |second action|(|Test Connector| testConnector) (string){
+    action |second action|() (string){
         string |string \| value| = "sample string";
         return |string \| value|;
     }

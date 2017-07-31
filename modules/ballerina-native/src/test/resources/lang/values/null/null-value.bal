@@ -45,7 +45,7 @@ function testConnectorNull() (TestConnector, TestConnector, int) {
 connector TestConnector() {
     string name;
 
-    action testAction(TestConnector testConnector) (string) {
+    action testAction() (string) {
         return name;
     }
 }
