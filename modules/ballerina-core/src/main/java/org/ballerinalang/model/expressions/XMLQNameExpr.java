@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -33,7 +32,6 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
     private Expression namepsaceUri;
     private String prefix;
     private boolean usedInXML = false;
-    private MemoryLocation memoryLocation;
     private boolean isLHSExpr;
     
     public XMLQNameExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String localname,
@@ -70,14 +68,6 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
-    }
-
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
     }
 
     public boolean isUsedInXML() {
