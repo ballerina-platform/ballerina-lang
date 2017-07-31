@@ -3,13 +3,14 @@ import VariableEndpoint from './variable-endpoint.jsx';
 import './tree.css'
 
 export default class Tree extends React.Component {
-    renderStruct(endpoint, structId, level) {
-        const { makeConnectPoint } = this.props;
+    renderStruct(endpoint, level) {
+        const { makeConnectPoint, viewId } = this.props;
         const type = endpoint.typeName || endpoint.type;
+        const key = `${endpoint.fieldName || endpoint.name}:${viewId}`;
         return <div>
             <VariableEndpoint
-                key={structId}
-                id={structId}
+                key={key}
+                id={key}
                 type={endpoint.typeName || endpoint.type}
                 variable={endpoint}
                 makeConnectPoint={makeConnectPoint}
@@ -17,10 +18,10 @@ export default class Tree extends React.Component {
             />
             {
                 endpoint.properties.map(property => {
-                    const key =`${structId}.${property.name}:${property.typeName || property.type}`
+                    const key = `${property.fieldName}:${viewId}`;
 
                     if(property.innerType) {
-                        return this.renderStruct(property.innerType, key, level+1);
+                        return this.renderStruct(property.innerType, level+1);
                     }
 
                     return <VariableEndpoint
@@ -37,12 +38,13 @@ export default class Tree extends React.Component {
     }
 
     render() {
-        const { endpoints, type, makeConnectPoint } = this.props;
+        const { endpoints, type, makeConnectPoint, viewId } = this.props;
         return (
             <div className='transform-endpoint-tree'>
                 { endpoints.map(endpoint => {
                     if (endpoint.type != 'struct') {
-                        const key = `${endpoint.name}:${endpoint.type}`
+                        const key = `${endpoint.fieldName || endpoint.name}:${viewId}`;
+
                         return (
                             <div className='transform-endpoint-container'>
                                 <VariableEndpoint
@@ -59,7 +61,7 @@ export default class Tree extends React.Component {
 
                     return (
                         <div className='transform-endpoint-container'>
-                            { this.renderStruct(endpoint, `${endpoint.name}:${endpoint.typeName}`, 0) }
+                            { this.renderStruct(endpoint, 0) }
                         </div>
                     );
                     }

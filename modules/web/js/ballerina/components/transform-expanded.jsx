@@ -623,6 +623,9 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        this.predefinedStructs = [];
+        this.getSourcesAndTargets();
+
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach(key => {
             const {element, input} = this.sourceElements[key];
@@ -634,7 +637,6 @@ class TransformExpanded extends React.Component {
             const {element, output} = this.targetElements[key];
             this.mapper.addTarget(element, null, output);
         });
-        // make these jsPlumbSources
 
         if(this.props.model === prevProps.model) {
             return;
@@ -669,6 +671,7 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidMount() {
+        console.log('mounted');
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
 
@@ -1080,7 +1083,7 @@ class TransformExpanded extends React.Component {
                         </span>
                     </div>
                     <div className="leftType">
-                        <Tree endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
+                        <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
                     </div>
                     <div className="middle-content">
                         <span className="middle-content-title">Drag Function here</span>
@@ -1103,7 +1106,7 @@ class TransformExpanded extends React.Component {
                         </span>
                     </div>
                     <div className="rightType">
-                        <Tree endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement}/>
+                        <Tree viewId={this.props.model.getID()} endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement}/>
                     </div>
                     <div id ="transformContextMenu" className="transformContextMenu"></div>
                     <div id ="transformFooter" className="transform-footer"></div>
