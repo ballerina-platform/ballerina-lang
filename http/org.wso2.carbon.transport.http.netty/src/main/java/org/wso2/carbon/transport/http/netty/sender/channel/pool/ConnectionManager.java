@@ -188,7 +188,7 @@ public class ConnectionManager {
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
                 int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-                targetChannel.getChannel().pipeline().addBefore("targetHandler", "idleStateHandler",
+                targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, "idleStateHandler",
                         new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
                 targetChannel.setRequestWritten(true);
                 ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
