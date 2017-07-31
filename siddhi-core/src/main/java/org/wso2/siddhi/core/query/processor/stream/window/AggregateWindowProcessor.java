@@ -16,6 +16,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -29,7 +30,6 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.parser.AggregationRuntime;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -44,9 +44,9 @@ import java.util.Map;
  * the events there.
  */
 public class AggregateWindowProcessor extends WindowProcessor implements FindableProcessor {
-    private AggregationRuntime aggregationRuntime;
     private final Within within;
     private final Expression per;
+    private AggregationRuntime aggregationRuntime;
     private ConfigReader configReader;
     private boolean outputExpectsExpiredEvents;
     private SiddhiAppContext siddhiAppContext;

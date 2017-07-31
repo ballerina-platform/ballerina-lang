@@ -82,19 +82,20 @@ public class MatcherParser {
             }
         }
         return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex,
-                                          metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
-                                          candsidateDefinition, currentState);
+                metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
+                candsidateDefinition, currentState);
     }
 
-    public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition,
-                                                                         List<Attribute> updatingStreamDefinition,
-                                                                         int matchingStreamEventPosition) {
-        UpdateAttributeMapper[] updateAttributeMappers = new UpdateAttributeMapper[updatingStreamDefinition.size()];
-        for (int i = 0; i < updatingStreamDefinition.size(); i++) {
-            Attribute streamAttribute = updatingStreamDefinition.get(i);
+    public static UpdateAttributeMapper[] constructUpdateAttributeMapper(
+            AbstractDefinition tableDefinition, List<Attribute> updatingStreamDefinitionAttributes,
+            int matchingStreamEventPosition) {
+        UpdateAttributeMapper[] updateAttributeMappers =
+                new UpdateAttributeMapper[updatingStreamDefinitionAttributes.size()];
+        for (int i = 0; i < updatingStreamDefinitionAttributes.size(); i++) {
+            Attribute streamAttribute = updatingStreamDefinitionAttributes.get(i);
             updateAttributeMappers[i] = new UpdateAttributeMapper(i,
-                                                                  tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
-                                                                  matchingStreamEventPosition);
+                    tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
+                    matchingStreamEventPosition);
         }
         return updateAttributeMappers;
     }

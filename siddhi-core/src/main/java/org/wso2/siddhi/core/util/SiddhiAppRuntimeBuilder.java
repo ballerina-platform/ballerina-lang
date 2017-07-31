@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.wso2.siddhi.core.SiddhiAppRuntime;
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -36,7 +37,6 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.AggregationParser;
-import org.wso2.siddhi.core.util.parser.AggregationRuntime;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -265,8 +265,8 @@ public class SiddhiAppRuntimeBuilder {
 
     public SiddhiAppRuntime build() {
         return new SiddhiAppRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
-                streamJunctionMap, tableMap, sourceMap, sinkMap, partitionMap, siddhiAppContext,
-                siddhiAppRuntimeMap);
+                streamJunctionMap, tableMap, windowMap, aggregationMap, sourceMap, sinkMap, partitionMap,
+                siddhiAppContext, siddhiAppRuntimeMap);
     }
 
 }

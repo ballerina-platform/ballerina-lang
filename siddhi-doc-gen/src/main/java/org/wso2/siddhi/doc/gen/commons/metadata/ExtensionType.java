@@ -30,7 +30,8 @@ public enum ExtensionType {
     SINK("Sink"),
     SOURCE_MAPPER("Source Mapper"),
     SINK_MAPPER("Sink Mapper"),
-    STORE("Store");
+    STORE("Store"),
+    SCRIPT("Script");
 
     /**
      * The name to be displayed as the extension type
