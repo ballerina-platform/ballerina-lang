@@ -70,23 +70,9 @@ public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggre
     }
 
     @Override
-    public Object aggregate(Object... results) {
-        if (results == null) {
-            throw new ArithmeticException("Cannot calculate average since sum and count expected "
-                    + "for calculation. Expected 2 base values sum and count. However, received no base values");
-        }
-        if (results.length != 2) {
-            throw new ArithmeticException("Cannot calculate average since sum and count expected "
-                    + "for calculation. Expected 2 base values sum and count. However, received " + results.length
-                    + " values");
-        }
-        Double sum = (Double) results[0];
-        Double count = (Double) results[1];
-        if (count != 0) {
-            return sum / count;
-        } else {
-            throw new ArithmeticException("Cannot calculate average since event count is 0");
-        }
+    public Expression aggregate() {
+        return Expression.divide(Expression.variable(baseAttributes[0].getName()),
+                Expression.variable(baseAttributes[1].getName()));
     }
 
     @Override

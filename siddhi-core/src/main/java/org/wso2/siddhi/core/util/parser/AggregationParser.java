@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /*
  * This is the parer class of incremental aggregation definition.
@@ -151,6 +152,11 @@ public class AggregationParser {
                 finalBaseAggregators, incomingOutputStreamDefinition, processedMetaStreamEvent,
                 processVariableExpressionExecutors, groupBy);
 
+        List<ExpressionExecutor> outputExpressionExecutors = aggregationDefinition.getOutputAttributeExpressions().
+                stream().map(expression -> ExpressionParser.parseExpression(expression,
+                processedMetaStreamEvent, 0, tableMap, processVariableExpressionExecutors,
+                siddhiAppContext, groupBy, 0, aggregatorName)).collect(Collectors.toList());
+
         // Create group by key generator
         GroupByKeyGenerator groupByKeyGenerator = null;
         if (groupBy) {
@@ -206,8 +212,8 @@ public class AggregationParser {
 
         List<ExpressionExecutor> baseExecutors = cloneExpressionExecutors(processExpressionExecutors);
         AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
-                aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor,incrementalDurations,
-                siddhiAppContext, baseExecutors, processedMetaStreamEvent);
+                aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
+                siddhiAppContext, baseExecutors, processedMetaStreamEvent, outputExpressionExecutors);
 
         return aggregationRuntime;
     }
@@ -333,6 +339,7 @@ public class AggregationParser {
                     incrementalAttributeAggregators.add(incrementalAggregator);
                     aggregationDefinition.getAttributeList().add(
                             new Attribute(outputAttribute.getRename(), incrementalAggregator.getReturnType()));
+                    aggregationDefinition.setOutputAttributeExpressions(incrementalAggregator.aggregate());
                 } catch (SiddhiAppCreationException ex) {
                     try {
                         SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
@@ -345,6 +352,8 @@ public class AggregationParser {
                                 new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
                         aggregationDefinition.getAttributeList().add(
                                 new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
+                        aggregationDefinition.setOutputAttributeExpressions(Expression.variable(
+                                outputAttribute.getRename()));
                     } catch (SiddhiAppCreationException e) {
                         throw new SiddhiAppCreationException("'" + ((AttributeFunction) expression).getName() +
                                 "' is neither a incremental attribute aggregator extension or a function" +
@@ -366,7 +375,9 @@ public class AggregationParser {
                                 aggregatorName + "' processing.");
                     }
                     aggregationDefinition.getAttributeList().add(
-                            new Attribute(groupByAttribute.getName(), groupByAttribute.getType()));
+                            new Attribute(outputAttribute.getRename(), groupByAttribute.getType()));
+                    aggregationDefinition.setOutputAttributeExpressions(Expression.variable(groupByAttribute.getName()));
+
                 } else {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                             incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
@@ -376,6 +387,7 @@ public class AggregationParser {
                             new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
                     aggregationDefinition.getAttributeList().add(
                             new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
+                    aggregationDefinition.setOutputAttributeExpressions(Expression.variable(outputAttribute.getRename()));
                 }
             }
         }

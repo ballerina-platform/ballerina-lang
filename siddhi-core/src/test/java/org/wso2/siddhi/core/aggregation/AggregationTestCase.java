@@ -19,21 +19,29 @@
 package org.wso2.siddhi.core.aggregation;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AggregationTestCase {
 
     static final Logger LOG = Logger.getLogger(AggregationTestCase.class);
-    private volatile int count;
-    private volatile boolean eventArrived;
-
+    private AtomicInteger inEventCount;
+    private AtomicInteger removeEventCount;
+    private boolean eventArrived;
     @Before
     public void init() {
-        count = 0;
+        inEventCount = new AtomicInteger(0);
+        removeEventCount = new AtomicInteger(0);
         eventArrived = false;
     }
 
@@ -419,52 +427,71 @@ public class AggregationTestCase {
                 " " +
                 " define aggregation cseEventAggregation " +
                 " from cseEventStream " +
-                " select symbol, sum(price) as total, avg(price) as avgPrice " +
+                " select symbol as s, sum(price) as total, avg(price) as avgPrice " +
                 " group by symbol " +
                 " aggregate by arrival every sec ... min; " +
                 "" +
                 "define stream barStream (symbol string, value int); " +
                 "" +
+                "@info(name = 'query1') " +
                 "from barStream as b join cseEventAggregation as a " +
-                "on a.symbol == b.symbol " +
+                "on a.s == b.symbol " +
                 "within \"2017-06-01 00:00:00\", \"2017-06-02 00:00:00\" " +
-                "per \"minutes\" " + // TODO: 7/26/17 the per must match TimePeriod.Duration values
-                "select a.symbol, a.total, a.avgPrice " +
-                "insert into fooBar;";
+                "per \"minutes\" " +
+                "select a.s, a.avgPrice, a.total as sumPrice, b.value " +
+                "insert all events into fooBar;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(app);
+        try {
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        inEventCount.addAndGet(inEvents.length);
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount.addAndGet(removeEvents.length);
+                    }
+                    eventArrived = true;
+                }
+            });
 
-        InputHandler cseEventStreamInputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
-        InputHandler barStreamInputHandler = siddhiAppRuntime.getInputHandler("barStream");
-        siddhiAppRuntime.start();
+            InputHandler cseEventStreamInputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+            InputHandler barStreamInputHandler = siddhiAppRuntime.getInputHandler("barStream");
+            siddhiAppRuntime.start();
 
-        // Thursday, June 1, 2017 4:05:50 AM
-        cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 50f, 6});
-        cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 70f, 10});
+            // Thursday, June 1, 2017 4:05:50 AM
+            cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 50f, 6});
+            cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 70f, 10});
 
-        // Thursday, June 1, 2017 4:05:51 AM
-        cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 26});
-        cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 96});
+            // Thursday, June 1, 2017 4:05:51 AM
+            cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 26});
+            cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 96});
 
-        // Thursday, June 1, 2017 4:05:52 AM
-        cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 900f, 60});
-        cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 500f, 7});
+            // Thursday, June 1, 2017 4:05:52 AM
+            cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 900f, 60});
+            cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 500f, 7});
 
-        // Thursday, June 1, 2017 4:05:53 AM
-        cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 60f, 56});
-        cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 100f, 16});
-        cseEventStreamInputHandler.send(new Object[]{1496289953000L, "IBM", 400f, 9});
+            // Thursday, June 1, 2017 4:05:53 AM
+            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 60f, 56});
+            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 100f, 16});
+            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "IBM", 400f, 9});
 
-        // Thursday, June 1, 2017 4:05:54 AM
-        cseEventStreamInputHandler.send(new Object[]{1496289954000L, "IBM", 600f, 6});
+            // Thursday, June 1, 2017 4:05:54 AM
+            cseEventStreamInputHandler.send(new Object[]{1496289954000L, "IBM", 600f, 6});
 
-        // Thursday, June 1, 2017 4:06:56 AM
-//        cseEventStreamInputHandler.send(new Object[]{1496290016000L, "IBM", 1000f, 9});
+            Thread.sleep(500);
 
-        Thread.sleep(4000);
-
-        barStreamInputHandler.send(new Object[]{"WSO2", 1});
-        siddhiAppRuntime.shutdown();
+            barStreamInputHandler.send(new Object[]{"IBM", 1});
+            SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 6000);
+            SiddhiTestHelper.waitForEvents(100, 1, removeEventCount, 6000);
+            Assert.assertEquals(1, inEventCount.get());
+            Assert.assertEquals(1, removeEventCount.get());
+            Assert.assertTrue(eventArrived);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
     }
 
     /*@Test

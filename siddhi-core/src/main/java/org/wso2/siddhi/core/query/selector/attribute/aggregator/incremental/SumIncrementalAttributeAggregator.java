@@ -69,17 +69,8 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
     }
 
     @Override
-    public Object aggregate(Object... results) {
-        if (results == null) {
-            throw new ArithmeticException("Cannot calculate sum since sum base aggregate expected "
-                    + "for calculation. Expected 1 base value (sum). However, received no base values");
-        }
-        if (results.length != 2) {
-            throw new ArithmeticException("Cannot calculate sum since sum base aggregate expected "
-                    + "for calculation. Expected 1 base value (sum). However, received " + results.length
-                    + " values");
-        }
-        return results[0];
+    public Expression aggregate() {
+        return Expression.variable(baseAttributes[0].getName());
     }
 
     @Override

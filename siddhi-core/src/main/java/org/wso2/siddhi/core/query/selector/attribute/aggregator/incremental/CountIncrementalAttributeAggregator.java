@@ -58,17 +58,8 @@ public class CountIncrementalAttributeAggregator extends IncrementalAttributeAgg
     }
 
     @Override
-    public Object aggregate(Object... results) {
-        if (results == null) {
-            throw new ArithmeticException("Cannot calculate count since count base aggregate expected "
-                    + "for calculation. Expected 1 base value (count). However, received no base values");
-        }
-        if (results.length != 2) {
-            throw new ArithmeticException("Cannot calculate count since count base aggregate expected "
-                    + "for calculation. Expected 1 base value (count). However, received " + results.length
-                    + " values");
-        }
-        return results[0];
+    public Expression aggregate() {
+        return Expression.variable(baseAttributes[0].getName());
     }
 
     @Override

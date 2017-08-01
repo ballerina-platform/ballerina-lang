@@ -22,6 +22,7 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class AggregationDefinition extends AbstractDefinition {
     private Variable aggregateAttribute = null;
     private TimePeriod timePeriod = null;
     private List<Annotation> annotations = new ArrayList<>();
+    private List<Expression> outputAttributeExpressions = new ArrayList<>();
 
     protected AggregationDefinition(String id) {
         super(id);
@@ -86,6 +88,14 @@ public class AggregationDefinition extends AbstractDefinition {
     public AggregationDefinition annotation(Annotation annotation) {
         annotations.add(annotation);
         return this;
+    }
+
+    public void setOutputAttributeExpressions(Expression expressions) {
+        outputAttributeExpressions.add(expressions);
+    }
+
+    public List<Expression> getOutputAttributeExpressions() {
+        return this.outputAttributeExpressions;
     }
 
     public List<Annotation> getAnnotations() {

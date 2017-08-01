@@ -28,7 +28,7 @@ public abstract class IncrementalAttributeAggregator {
 
     public abstract void init(String attributeName, Attribute.Type attributeType);
 
-    public abstract Object aggregate(Object... results);
+    public abstract Expression aggregate();
 
     public abstract Attribute[] getBaseAttributes();
 
