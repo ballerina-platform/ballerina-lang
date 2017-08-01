@@ -1,7 +1,7 @@
 lexer grammar BallerinaLexer;
 
 @members {
-    boolean inXMLMode = false;
+    boolean inTemplate = false;
 }
 
 // Reserved words
@@ -395,8 +395,12 @@ LetterOrDigit
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
 
+StringTemplateLiteralStart
+    :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
+    ;
+
 ExpressionEnd
-    :   {inXMLMode}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
     ;
 
 // Whitespace and comments
@@ -428,3 +432,47 @@ IdentifierLiteralEscapeSequence
 ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
+
+
+fragment
+ExpressionStart
+    :   '{{'
+    ;
+
+mode STRING_TEMPLATE;
+
+StringTemplateLiteralEnd
+    :   '`' { inTemplate = false; }          -> popMode
+    ;
+
+StringTemplateExpressionStart
+    :   StringTemplateText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    ;
+
+StringTemplateText
+    :   StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)+
+    |   StringTemplateBracesSequence (StringTemplateStringChar StringTemplateBracesSequence?)*
+    ;
+
+fragment
+StringTemplateStringChar
+    :    ~[`{}\\]
+    |    '\\' [`]
+    |    WS
+    |    StringLiteralEscapedSequence
+    ;
+
+fragment
+StringLiteralEscapedSequence
+    :   '\\\\'
+    |   '\\{{'
+    ;
+
+fragment
+StringTemplateBracesSequence
+    :   '{}'+
+    |   '}{'
+    |   ('{}')* '{'
+    |   '}' ('{}')*
+    |   '}}'
+    ;
