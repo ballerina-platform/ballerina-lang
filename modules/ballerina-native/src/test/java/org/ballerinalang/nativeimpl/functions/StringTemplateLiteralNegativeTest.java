@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.annotations.Test;
 
@@ -37,5 +38,11 @@ public class StringTemplateLiteralNegativeTest {
                   "'string', found 'json'")
     public void testStringTemplate2() {
         BTestUtils.getProgramFile("samples/stringTemplate/stringTemplateNegativeTest2.bal");
+    }
+
+    @Test(expectedExceptions = {ParserException.class},
+          expectedExceptionsMessageRegExp = "stringTemplateNegativeTest3.bal:4:70: mismatched input '}'. Expecting .*")
+    public void testStringTemplate3() {
+        BTestUtils.getProgramFile("samples/stringTemplate/stringTemplateNegativeTest3.bal");
     }
 }
