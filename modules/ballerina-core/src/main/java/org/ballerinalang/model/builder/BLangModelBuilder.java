@@ -2360,9 +2360,9 @@ public class BLangModelBuilder {
         }
 
         Collections.reverse(items);
-        StringTemplateLiteral xmlSeqLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
-                                                                        items.toArray(new Expression[items.size()]));
-        exprStack.push(xmlSeqLiteral);
+        StringTemplateLiteral templateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                          items.toArray(new Expression[items.size()]));
+        exprStack.push(templateLiteral);
     }
 
     /**

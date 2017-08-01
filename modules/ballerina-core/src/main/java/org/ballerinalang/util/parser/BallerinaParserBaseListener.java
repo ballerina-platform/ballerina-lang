@@ -1,4 +1,4 @@
-// Generated from /home/shan/Documents/WSO2/Sources/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.ballerinalang.util.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
