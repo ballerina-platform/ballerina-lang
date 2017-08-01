@@ -393,6 +393,12 @@ class TransformRender {
         } else {
             isSourceExists = _.includes(this.existingJsTrees,
                 connection.sourceStruct + sourceUUID + this.viewIdSeperator + this.viewId + sourceTail);
+            for (var i = 0; i < connection.sourceProperty.length; i++) {
+                if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
+                    sourceId += this.idNameSeperator
+                        + connection.sourceProperty[i];
+                }
+            }
         }
         if (connection.targetStruct == connection.targetProperty[0]) {
             // Construct Variable property id
@@ -401,19 +407,11 @@ class TransformRender {
         } else {
             isTargetExists = _.includes(this.existingJsTrees,
                 connection.targetStruct + targetUUID + this.viewIdSeperator + this.viewId + targetTail);
-        }
-        for (var i = 0; i < connection.sourceProperty.length; i++) {
-            if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
-                sourceId += this.idNameSeperator
-                    + connection.sourceProperty[i];
+            for (var i = 0; i < connection.targetProperty.length; i++) {
+                targetId += this.idNameSeperator
+                + connection.targetProperty[i];
             }
         }
-
-        for (var i = 0; i < connection.targetProperty.length; i++) {
-            targetId += this.idNameSeperator
-            + connection.targetProperty[i];
-        }
-
         sourceId = sourceId + this.viewIdSeperator + this.viewId;
         targetId = targetId + this.viewIdSeperator + this.viewId;
 
@@ -422,6 +420,8 @@ class TransformRender {
             target: targetId,
             parameters: { id: connection.id },
         });
+        this.container.find(document.getElementById(sourceId)).removeClass("fw-circle-outline").addClass("fw-circle");
+        this.container.find(document.getElementById(targetId)).removeClass("fw-circle-outline").addClass("fw-circle");
         this.reposition(this);
 
     }
@@ -737,7 +737,7 @@ addComplexParameter(parentId, struct) {
  */
     addSource(element, self, maxConnections, input) {
         const connectionConfig = {
-            anchor: ['Center'],
+            anchor: ['Right'],
             parameters: {
                 input
             }
@@ -776,14 +776,21 @@ addComplexParameter(parentId, struct) {
     addTarget(element, self, output) {
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
-            anchor: ['Center'],
+            anchor: ['Left'],
             beforeDrop: params => {
                 // Checks property types are equal or type is any
                 const input = params.connection.getParameters().input;
                 const sourceType = input.type;
-                const targetType = output.type;
-                const isValidTypes = sourceType === targetType || sourceType === "any" || targetType === "any"
-                    || sourceType === 'json' || targetType === 'json';
+                const targetType = output. type;
+                let isValidTypes;
+
+                if (sourceType === 'struct' || targetType === 'struct') {
+                  isValidTypes = input.typeName == output.typeName;
+                } else {
+                  isValidTypes = sourceType === targetType || sourceType === "any" || targetType === "any"
+                      || sourceType === 'json' || targetType === 'json';
+                }
+
                 const connection = this.getConnectionObject(params.id, input, output);
                 if (isValidTypes) {
                     this.midpoint += this.midpointVariance;
