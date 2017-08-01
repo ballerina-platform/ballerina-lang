@@ -64,7 +64,7 @@ class BasicLiteralExpression extends Expression {
     getExpressionString() {
         if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
-            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"' + this.getWSRegion(1);
+            return '"' + this._basicLiteralValue + '"' + this.getWSRegion(1);
         }
         return this._basicLiteralValue + this.getWSRegion(1);
     }
@@ -75,13 +75,6 @@ class BasicLiteralExpression extends Expression {
 
     getBasicLiteralType() {
         return this._basicLiteralType;
-    }
-
-    escapeEscapeChars(stringVal) {
-        return stringVal.replace(/"/g, '\\"')
-                        .replace(/\n/g, '\\n')
-                        .replace(/\r/g, '\\r')
-                        .replace(/\t/g, '\\t');
     }
 }
 

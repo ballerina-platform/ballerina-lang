@@ -148,7 +148,7 @@ class Tools extends EventChannel {
         this.waiting = false;
         this.reConnecting = true;
         this.render();
-        this.container.on('click', '#reconnect-debugger', (event) => {
+        this.container.on('click', '#reconnect-debugger', () => {
             this.waiting = true;
             this.reConnecting = false;
             DebugManager.connect(endpoint);
@@ -358,6 +358,7 @@ class Tools extends EventChannel {
     debugApplication() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
+            this.showWaiting();
             const file = activeTab.getFile();
             this.launchManager.debugApplication(file);
         } else {
@@ -372,6 +373,7 @@ class Tools extends EventChannel {
     debugService() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
+            this.showWaiting();
             const file = activeTab.getFile();
             this.launchManager.debugService(file);
         } else {
