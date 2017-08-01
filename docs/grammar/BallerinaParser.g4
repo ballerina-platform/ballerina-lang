@@ -425,8 +425,12 @@ transactionStatement
     ;
 
 transactionHandlers
-    : abortedClause? committedClause?
-    | committedClause? abortedClause?
+    : failedClause? abortedClause? committedClause?
+    | failedClause? committedClause? abortedClause?
+    ;
+
+failedClause
+    :   FAILED LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortedClause
     :   ABORTED LEFT_BRACE statement* RIGHT_BRACE

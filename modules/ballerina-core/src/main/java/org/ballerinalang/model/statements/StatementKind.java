@@ -60,6 +60,7 @@ public enum StatementKind {
     JOIN_BLOCK(41),
     TIMEOUT_BLOCK(42),
     TRANSFORM_BLOCK(43),
+    FAILED_BLOCK(44),
 
     ;
     private final int key;

@@ -2066,6 +2066,20 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startFailedClause();
+        }
+    }
+
+    @Override
+    public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addFailedClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
     public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startAbortedClause();

@@ -1856,6 +1856,27 @@ public class BLangModelBuilder {
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
+    public void startFailedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing failed clause.
+        TransactionStmt.FailedBlock failedBlock = new TransactionStmt.FailedBlock(currentScope);
+        transactionStmtBuilder.setFailedBlock(failedBlock);
+        currentScope = failedBlock;
+        BlockStmt.BlockStmtBuilder failedBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
+        blockStmtBuilderStack.push(failedBlockBuilder);
+        currentScope = failedBlockBuilder.getCurrentScope();
+    }
+
+    public void addFailedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder failedBlockBuilder = blockStmtBuilderStack.pop();
+        failedBlockBuilder.setLocation(location);
+        failedBlockBuilder.setBlockKind(StatementKind.FAILED_BLOCK);
+        BlockStmt failedBlock = failedBlockBuilder.build();
+        currentScope = failedBlock.getEnclosingScope();
+        transactionStmtBuilder.setFailedBlockStmt(failedBlock);
+    }
+
     public void addTransactionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
         transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);

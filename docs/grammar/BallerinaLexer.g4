@@ -62,6 +62,7 @@ TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
 ABORTED     : 'aborted' ;
 COMMITTED   : 'committed' ;
+FAILED      : 'failed' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;

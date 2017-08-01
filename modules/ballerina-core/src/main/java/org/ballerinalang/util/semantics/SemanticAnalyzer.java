@@ -1480,6 +1480,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
         transactionStmtCount--;
+        TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
+        if (failedBlock != null) {
+            failedBlock.getFailedBlockStmt().accept(this);
+        }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {
             abortedBlock.getAbortedBlockStmt().accept(this);

@@ -1046,6 +1046,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterFailedClause(BallerinaParser.FailedClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitFailedClause(BallerinaParser.FailedClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortedClause}.
 	 * @param ctx the parse tree
 	 */
