@@ -168,6 +168,9 @@ public class AggregationRuntime {
             for (MetaStreamEvent metaStreamEvent : matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()) {
                 if(metaStreamEvent.getLastInputDefinition().getId().
                         equals(matchingMetaInfoHolder.getStoreDefinition().getId())) {
+                    if (metaStreamEvent.getOutputData() == null || metaStreamEvent.getOutputData().isEmpty()) {
+                        metaStreamEvent.getLastInputDefinition().getAttributeList().forEach(metaStreamEvent::addOutputData);
+                    }
                     finalOutputMeta = metaStreamEvent;
                 }
             }
