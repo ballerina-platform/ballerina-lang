@@ -44,6 +44,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
+import org.ballerinalang.plugins.idea.psi.StringTemplateLiteralNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -92,6 +93,8 @@ public class BallerinaAnnotator implements Annotator {
             annotateGlobalVariable(element, holder);
         } else if (parent instanceof GlobalVariableDefinitionNode) {
             annotateGlobalVariable(parent, holder);
+        } else if (parent instanceof StringTemplateLiteralNode) {
+            annotateStringLiteral(parent, holder);
         }
     }
 
@@ -442,5 +445,13 @@ public class BallerinaAnnotator implements Annotator {
         // Create the annotation.
         Annotation annotation = holder.createInfoAnnotation(element.getTextRange(), null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
+    }
+
+    private void annotateStringLiteral(@NotNull PsiElement parent, @NotNull AnnotationHolder holder) {
+        PsiElement firstChild = parent.getFirstChild();
+        TextRange textRange = firstChild.getTextRange();
+        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
+        Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
     }
 }
