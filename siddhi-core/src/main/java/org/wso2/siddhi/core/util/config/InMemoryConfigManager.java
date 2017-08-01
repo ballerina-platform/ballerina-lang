@@ -57,7 +57,7 @@ public class InMemoryConfigManager implements ConfigManager {
         Map<String, String> configs = new HashMap<>();
         for (Map.Entry<String, String> store : storeConfigs.entrySet()) {
             if (store.getKey().startsWith(name)) {
-                configs.put(store.getKey().replace(name + ".", ""), store.getValue());
+                configs.put(store.getKey().replaceFirst(name + ".", ""), store.getValue());
             }
         }
         return configs;
