@@ -67,3 +67,32 @@ function stringTemplateWithText11() (string) {
     string s = string `Path = \\`;
     return s;
 }
+
+function stringTemplateWithText12() (string) {
+    string firstName = "John";
+    string lastName = "Smith";
+    string s = string `Hello {{firstName + " " + lastName}} !!!`;
+    return s;
+}
+
+function stringTemplateWithText13() (string) {
+    string s = string `Hello {{getName()}} !!!`;
+    return s;
+}
+
+function stringTemplateWithText14() (string) {
+    string s = string `Hello {{getFirstName() + " " + getLastName()}} !!!`;
+    return s;
+}
+
+function getName () (string ) {
+    return "John Smith";
+}
+
+function getFirstName () (string ) {
+    return "John";
+}
+
+function getLastName () (string ) {
+    return "Smith";
+}

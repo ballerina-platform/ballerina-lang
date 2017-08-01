@@ -132,4 +132,28 @@ public class StringTemplateLiteralTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Path = \\");
     }
+
+    @Test
+    public void testStringTemplateWithText12() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText12", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+    }
+
+    @Test
+    public void testStringTemplateWithText13() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText13", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+    }
+
+    @Test
+    public void testStringTemplateWithText14() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText14", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+    }
 }
