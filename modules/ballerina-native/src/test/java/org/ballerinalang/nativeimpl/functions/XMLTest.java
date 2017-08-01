@@ -1569,7 +1569,7 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testSetAttributes");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:nsRJUck=\"http://wso2.com\" xmlns:nsn7xDi="
-                + "\"http://sample.com/wso2/a1\" nsRJUck:foo2=\"bar2\" nsn7xDi:foo3=\"bar3\" foo1=\"bar1\"/>");
+                + "\"http://sample.com/wso2/a1\" foo1=\"bar1\" nsRJUck:foo2=\"bar2\" nsn7xDi:foo3=\"bar3\"/>");
     }
 
     @Test

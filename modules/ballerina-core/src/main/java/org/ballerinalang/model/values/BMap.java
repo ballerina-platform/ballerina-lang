@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -126,7 +126,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the set of keys
      */
     public Set<K> keySet() {
-        Set<K> set = new HashSet<>();
+        Set<K> set = new LinkedHashSet<>();
         for (int i = 0; i < size; i++) {
             set.add(values[i].getKey());
         }
