@@ -168,17 +168,20 @@ public class DefinitionParserHelper {
                             .extractStoreConfigs(tableRef);
                     final String tableTypeFromRef = storeConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
 
-                    List<Element> customStoreAnnotationElements = storeConfigs.entrySet().stream()
-                            .map((property) -> new Element(
-                                    property.getKey(),
-                                    property.getValue())).collect(Collectors.toList());
-
-                    Annotation customAnnotation = new Annotation(SiddhiConstants.ANNOTATION_STORE);
-                    customAnnotation.setElements(customStoreAnnotationElements);
-                    tableDefinition.replaceAnnotation(customAnnotation);
                     if (tableTypeFromRef == null) {
-                      throw new SiddhiAppCreationException("Table type has to be defined in the ref");
+                        throw new SiddhiAppCreationException("Table type must be defined in the store element of " +
+                                "name '" + tableRef + "' in the deployment.yaml file.");
                     } else {
+                        List<Element> storeAnnotationElements = storeConfigs.entrySet().stream()
+                                .map((property) -> new Element(
+                                        property.getKey(),
+                                        property.getValue())).collect(Collectors.toList());
+
+                        Annotation newStoreAnnotation = new Annotation(SiddhiConstants.ANNOTATION_STORE);
+                        newStoreAnnotation.setElements(storeAnnotationElements);
+                        tableDefinition.removeAnnotation(annotation);
+                        tableDefinition.annotation(newStoreAnnotation);
+
                         Extension extension = new Extension() {
                             @Override
                             public String getNamespace() {
