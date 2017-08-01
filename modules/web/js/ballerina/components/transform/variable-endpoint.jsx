@@ -28,13 +28,16 @@ export default class VariableEndpoint extends React.Component {
                             {variable.typeName || variable.type}
                         </span>
                     </span>
-                    <span id={variable.id + '-button'} className='fw-stack fw-lg btn btn-remove'>
-                        <i className='fw fw-delete fw-stack-1x'/>
-                    </span>
                 </span>
                 <span id={variable.id + '-button'} className={`fw-stack fw-lg btn ${connectPointClass}`}>
                     <i id={id} ref={icon => makeConnectPoint(icon, id, variable)} className='fw fw-circle-outline fw-stack-1x'/>
                 </span>
+                {
+                    endpointKind !== 'property' &&
+                    <span id={variable.id + '-button'} className='fw-stack fw-lg btn btn-remove'>
+                        <i className='fw fw-delete fw-stack-1x'/>
+                    </span>
+                }
             </div>
         );
     }

@@ -12,6 +12,7 @@ export default class Tree extends React.Component {
                 id={key}
                 type={type}
                 variable={endpoint}
+                endpointKind={endpoint.isInner ? 'property' : 'struct-head'}
                 makeConnectPoint={makeConnectPoint}
                 level={level}
             />
@@ -28,6 +29,7 @@ export default class Tree extends React.Component {
                         id={key}
                         type={type}
                         variable={property}
+                        endpointKind='property'
                         makeConnectPoint={makeConnectPoint}
                         level={level+1}
                     />
@@ -51,6 +53,7 @@ export default class Tree extends React.Component {
                                     id={key}
                                     type={type}
                                     variable={endpoint}
+                                    endpointKind='variable'
                                     makeConnectPoint={makeConnectPoint}
                                     level={0}
                                 />

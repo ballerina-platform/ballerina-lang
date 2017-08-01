@@ -671,9 +671,20 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidMount() {
-        console.log('mounted');
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
+
+        const sourceKeys = Object.keys(this.sourceElements);
+        sourceKeys.forEach(key => {
+            const {element, input} = this.sourceElements[key];
+            this.mapper.addSource(element, null, null, input);
+        });
+
+        const targetKeys = Object.keys(this.targetElements);
+        targetKeys.forEach(key => {
+            const {element, output} = this.targetElements[key];
+            this.mapper.addTarget(element, null, output);
+        });
 
         _.forEach(this.props.model.getChildren(), (statement) => {
             this.createConnection(statement);
