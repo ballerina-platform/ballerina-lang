@@ -219,7 +219,7 @@ public class ConnectorActionTest {
         BTestUtils.getProgramFile("lang/connectors/invalid-action-invocation.bal");
     }
 
-    @Test(description = "Test invalid action invocation")
+    @Test(description = "Test action invocation with no arg")
     public void testActionInvocationWithNoArgs() {
         BTestUtils.getProgramFile("lang/connectors/action-invocation-with-no-args.bal");
     }
