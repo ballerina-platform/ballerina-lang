@@ -44,6 +44,7 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
+import org.ballerinalang.model.expressions.TypeAccessExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -254,5 +255,7 @@ public interface NodeVisitor {
     void visit(XMLSequenceLiteral xmlSequence);
 
     void visit(LambdaExpression lambdaExpr);
+
+    void visit(TypeAccessExpression typeAccessExpression);
 
 }

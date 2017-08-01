@@ -78,6 +78,7 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
+import org.ballerinalang.model.expressions.TypeAccessExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -1371,6 +1372,19 @@ public class CodeGenerator implements NodeVisitor {
         unaryExpr.setTempOffset(exprIndex);
     }
 
+    @Override
+    public void visit(TypeAccessExpression typeAccessExpression) {
+        int exprIndex;
+        TypeSignature typeSig = typeAccessExpression.getResolvedType().getSig();
+        UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
+        int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
+        typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
+        int typeCPindex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+        exprIndex = ++regIndexes[REF_OFFSET];
+        emit(InstructionCodes.TYPELOAD, typeCPindex, exprIndex);
+        typeAccessExpression.setTempOffset(exprIndex);
+    }
 
     // Binary arithmetic expressions
 

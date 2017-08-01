@@ -71,6 +71,7 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
+import org.ballerinalang.model.expressions.TypeAccessExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -793,6 +794,12 @@ public class BLangModelBuilder {
                 expr = new UnaryExpression(location, whiteSpaceDescriptor, null, rExpr);
         }
 
+        exprStack.push(expr);
+    }
+
+    public void createTypeAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                     SimpleTypeName typeName) {
+        TypeAccessExpression expr = new TypeAccessExpression(location, whiteSpaceDescriptor, typeName);
         exprStack.push(expr);
     }
 

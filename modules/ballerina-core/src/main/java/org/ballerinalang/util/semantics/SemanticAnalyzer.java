@@ -90,6 +90,7 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
+import org.ballerinalang.model.expressions.TypeAccessExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -1813,6 +1814,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(unaryExpr, SemanticErrors.UNKNOWN_OPERATOR_IN_UNARY,
                     unaryExpr.getOperator());
         }
+    }
+
+    @Override
+    public void visit(TypeAccessExpression typeAccessExpression) {
+        BType builtInType = BTypes.resolveType(typeAccessExpression.getTypeName(), currentScope,
+                typeAccessExpression.getNodeLocation());
+        typeAccessExpression.setResolvedType(builtInType);
+        typeAccessExpression.setType(BTypes.typeType);
     }
 
     @Override

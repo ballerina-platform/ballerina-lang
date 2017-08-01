@@ -376,6 +376,62 @@ public class TypeOfUnaryExpressionTest {
         int expected = 1;
         Assert.assertEquals(actual, expected);
     }
+
+    @Test(description = "Test TypeAccessExpr with ValueType.")
+    public void testTypeAccessExprValueType() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "testTypeAccessExprValueType", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with ValueType negative.")
+    public void testTypeAccessExprValueTypeNegative() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "testTypeAccessExprValueTypeNegative", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with ValueType array.")
+    public void testTypeAccessExprValueTypeArray() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "testTypeAccessExprValueTypeArray", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with ValueType array negative.")
+    public void testTypeAccessExprValueTypeArrayNegative() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "testTypeAccessExprValueTypeArrayNegative", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
 }
 
 
