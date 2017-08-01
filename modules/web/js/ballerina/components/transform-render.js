@@ -360,6 +360,7 @@ class TransformRender {
  * @param {object} connection connection object which specified source and target
  */
     addConnection(connection) {
+        debugger;
         let isSourceExists;
         let isTargetExists;
         let sourcePrefix = "";
@@ -954,52 +955,52 @@ addComplexParameter(parentId, struct) {
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
     reposition(self) {
-        const funcs = this.container.find('.middle-content  > .func');
-        const sourceStructs = this.container.find('.leftType > .struct, .leftType > .variable');
-        const targetStructs = this.container.find('.rightType > .struct, .rightType > .variable');
-        const xFunctionPointer = (this.container.find('.middle-content').width() - 300) / 2;
-        let yFunctionPointer = 120;
-        const xSourcePointer = 0;
-        let ySourcePointer = 0;
-        const xTargetPointer = 0;
-        let yTargetPointer = 0;
-        const functionGap = 30;
-        const svgLines = $('#' + self.viewId + '> svg');
-
-        // Traverse through all the connection svg lines
-        _.forEach(svgLines, (svgLine) => {
-            // Get bottom and right values relative to the type mapper parent div
-            const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom -
-                this.container.find('.middle-content').position().top;
-            const right = svgLine.getBoundingClientRect().right;
-
-            // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
-            if (arrowBotton > yFunctionPointer && svgLine.getBoundingClientRect().width > 600) {
-                yFunctionPointer = arrowBotton;
-            }
-        });
-
-        // Traverse through all the function divs
-        _.forEach(funcs, (func) => {
-            // Position functions and increase yFunctionPointer with gaps
-            this.container.find('#' + func.id).css('left', xFunctionPointer + 'px');
-            this.container.find('#' + func.id).css('top', yFunctionPointer + 'px');
-            yFunctionPointer += this.container.find('#' + func.id).height() + functionGap;
-        });
-
-        _.forEach(sourceStructs, (structType) => {
-            // Position functions and increase yFunctionPointer with gaps
-            this.container.find('#' + structType.id).css('left', xSourcePointer + 'px');
-            this.container.find('#' + structType.id).css('top', ySourcePointer + 'px');
-            ySourcePointer += this.container.find('#' + structType.id).height() + functionGap;
-        });
-
-        _.forEach(targetStructs, (structType) => {
-            // Position functions and increase yFunctionPointer with gaps
-            this.container.find('#' + structType.id).css('left', xTargetPointer + 'px');
-            this.container.find('#' + structType.id).css('top', yTargetPointer + 'px');
-            yTargetPointer += this.container.find('#' + structType.id).height() + functionGap;
-        });
+        // const funcs = this.container.find('.middle-content  > .func');
+        // const sourceStructs = this.container.find('.leftType > .struct, .leftType > .variable');
+        // const targetStructs = this.container.find('.rightType > .struct, .rightType > .variable');
+        // const xFunctionPointer = (this.container.find('.middle-content').width() - 300) / 2;
+        // let yFunctionPointer = 120;
+        // const xSourcePointer = 0;
+        // let ySourcePointer = 0;
+        // const xTargetPointer = 0;
+        // let yTargetPointer = 0;
+        // const functionGap = 30;
+        // const svgLines = $('#' + self.viewId + '> svg');
+        //
+        // // Traverse through all the connection svg lines
+        // _.forEach(svgLines, (svgLine) => {
+        //     // Get bottom and right values relative to the type mapper parent div
+        //     const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom -
+        //         this.container.find('.middle-content').position().top;
+        //     const right = svgLine.getBoundingClientRect().right;
+        //
+        //     // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
+        //     if (arrowBotton > yFunctionPointer && svgLine.getBoundingClientRect().width > 600) {
+        //         yFunctionPointer = arrowBotton;
+        //     }
+        // });
+        //
+        // // Traverse through all the function divs
+        // _.forEach(funcs, (func) => {
+        //     // Position functions and increase yFunctionPointer with gaps
+        //     this.container.find('#' + func.id).css('left', xFunctionPointer + 'px');
+        //     this.container.find('#' + func.id).css('top', yFunctionPointer + 'px');
+        //     yFunctionPointer += this.container.find('#' + func.id).height() + functionGap;
+        // });
+        //
+        // _.forEach(sourceStructs, (structType) => {
+        //     // Position functions and increase yFunctionPointer with gaps
+        //     this.container.find('#' + structType.id).css('left', xSourcePointer + 'px');
+        //     this.container.find('#' + structType.id).css('top', ySourcePointer + 'px');
+        //     ySourcePointer += this.container.find('#' + structType.id).height() + functionGap;
+        // });
+        //
+        // _.forEach(targetStructs, (structType) => {
+        //     // Position functions and increase yFunctionPointer with gaps
+        //     this.container.find('#' + structType.id).css('left', xTargetPointer + 'px');
+        //     this.container.find('#' + structType.id).css('top', yTargetPointer + 'px');
+        //     yTargetPointer += this.container.find('#' + structType.id).height() + functionGap;
+        // });
         self.jsPlumbInstance.repaintEverything();
     }
 

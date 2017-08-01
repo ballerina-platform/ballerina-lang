@@ -28,6 +28,7 @@ import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tree from './transform/tree';
+import FunctionInv from './transform/function';
 
 class TransformExpanded extends React.Component {
     constructor(props, context){
@@ -253,6 +254,7 @@ class TransformExpanded extends React.Component {
 
 
     createConnection(statement) {
+        debugger;
         if (BallerinaASTFactory.isAssignmentStatement(statement)) {
             // There can be multiple left expressions.
             // E.g. : e.name, e.username = p.first_name;
@@ -435,6 +437,7 @@ class TransformExpanded extends React.Component {
     }
 
     getConnectionProperties(type, expression) {
+        debugger;
         const con = {};
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             const structVarRef = expression.getStructVariableReference();
@@ -623,6 +626,7 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        console.log('updated');
         this.predefinedStructs = [];
         this.getSourcesAndTargets();
 
@@ -655,19 +659,19 @@ class TransformExpanded extends React.Component {
             this.createConnection(statement);
         });
 
-        this.props.model.on('child-added', (node) => {
-            if (BallerinaASTFactory.isAssignmentStatement(node) &&
-                    BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
-                const functionInvocationExpression = node.getRightExpression();
-                const func = this.getFunctionDefinition(functionInvocationExpression);
-                if (_.isUndefined(func)) {
-                    alerts.error('Function definition for "' +
-                        functionInvocationExpression.getFunctionName() + '" cannot be found');
-                    return;
-                }
-                this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
-            }
-        });
+        // this.props.model.on('child-added', (node) => {
+        //     if (BallerinaASTFactory.isAssignmentStatement(node) &&
+        //             BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
+        //         const functionInvocationExpression = node.getRightExpression();
+        //         const func = this.getFunctionDefinition(functionInvocationExpression);
+        //         if (_.isUndefined(func)) {
+        //             alerts.error('Function definition for "' +
+        //                 functionInvocationExpression.getFunctionName() + '" cannot be found');
+        //             return;
+        //         }
+        //         this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
+        //     }
+        // });
     }
 
     componentDidMount() {
@@ -698,19 +702,19 @@ class TransformExpanded extends React.Component {
             this.mapper.reposition(this.mapper);
         });
 
-        this.props.model.on('child-added', (node) => {
-            if (BallerinaASTFactory.isAssignmentStatement(node) &&
-                    BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
-                const functionInvocationExpression = node.getRightExpression();
-                const func = this.getFunctionDefinition(functionInvocationExpression);
-                if (_.isUndefined(func)) {
-                    alerts.error('Function definition for "' +
-                        functionInvocationExpression.getFunctionName() + '" cannot be found');
-                    return;
-                }
-                this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
-            }
-        });
+        // this.props.model.on('child-added', (node) => {
+        //     if (BallerinaASTFactory.isAssignmentStatement(node) &&
+        //             BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
+        //         const functionInvocationExpression = node.getRightExpression();
+        //         const func = this.getFunctionDefinition(functionInvocationExpression);
+        //         if (_.isUndefined(func)) {
+        //             alerts.error('Function definition for "' +
+        //                 functionInvocationExpression.getFunctionName() + '" cannot be found');
+        //             return;
+        //         }
+        //         this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
+        //     }
+        // });
     }
 
     onTransformDropZoneActivate(e) {
@@ -1038,6 +1042,7 @@ class TransformExpanded extends React.Component {
         const sourcesAndTargets = this.predefinedStructs.filter(endpoint => (!endpoint.isInner));
         const inputNodes = this.props.model.getInput();
         const outputNodes = this.props.model.getOutput();
+        const children = this.props.model.getChildren();
 
         const inputs = [];
         inputNodes.forEach(inputNode => {
@@ -1062,6 +1067,22 @@ class TransformExpanded extends React.Component {
             outputs.push(targetSelection);
         });
 
+        const functions = [];
+        children.forEach(child => {
+            if (BallerinaASTFactory.isAssignmentStatement(child) &&
+                    BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+                const functionInvocationExpression = child.getRightExpression();
+                const func = this.getFunctionDefinition(functionInvocationExpression);
+                if (_.isUndefined(func)) {
+                    alerts.error('Function definition for "' +
+                        functionInvocationExpression.getFunctionName() + '" cannot be found');
+                    return;
+                }
+                functions.push(func);
+            }
+        });
+
+            console.log(functions, '<----')
         return (
             <div id='transformOverlay' className='transformOverlay'>
                 <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay-content'
@@ -1097,7 +1118,9 @@ class TransformExpanded extends React.Component {
                         <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
                     </div>
                     <div className="middle-content">
-                        <span className="middle-content-title">Drag Function here</span>
+                        {
+                            functions.map(func => <FunctionInv key={func.getId()} func={func} />)
+                        }
                     </div>
                     <div className="target-view">
                         <SuggestionsDropdown
