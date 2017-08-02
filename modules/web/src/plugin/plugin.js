@@ -32,7 +32,7 @@ class Plugin {
      * initializing all the plugins.
      *
      * @param {Object} appContext Application Context
-     * @param {EventChannel} appContext.commandChannel Command channel instance
+     * @param {CommandManager} appContext.commandManager Command Manager instance
      */
     activate(appContext) {
         this.appContext = appContext;
@@ -42,11 +42,22 @@ class Plugin {
      * Returns the list of command definitions
      * that this particular plugin is contributing.
      *
-     * @return {[Object]} Command definitions
+     * @return {Object[]} Command definitions
      */
-    getCommands() {
+    getCommandDefinitions() {
         return [];
     }
+
+    /**
+     * Returns the list of command handlers
+     * that this particular plugin is contributing.
+     *
+     * @return {Object[]} Command Handler Definitionns
+     */
+    getCommandHandlerDefinitions() {
+        return [];
+    }
+
 }
 
 export default Plugin;

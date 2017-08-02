@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import GoldenLayout from 'golden-layout';
 import Plugin from 'plugin/plugin';
 import 'golden-layout/src/css/goldenlayout-base.css';
