@@ -1470,12 +1470,13 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addTryCatchBlockStmt() {
+    public void addTryCatchBlockStmt(NodeLocation location) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setBlockKind(StatementKind.TRY_BLOCK);
+        blockStmtBuilder.setLocation(location);
         BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
@@ -1804,11 +1805,12 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addTransactionBlockStmt() {
+    public void addTransactionBlockStmt(NodeLocation location) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setBlockKind(StatementKind.TRANSACTION_BLOCK);
+        blockStmtBuilder.setLocation(location);
         BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();

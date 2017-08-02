@@ -1664,7 +1664,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTryCatchBlockStmt();
+        modelBuilder.addTryCatchBlockStmt(getCurrentLocation(ctx));
     }
 
     @Override
@@ -2057,7 +2057,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTransactionBlockStmt();
+        modelBuilder.addTransactionBlockStmt(getCurrentLocation(ctx));
     }
 
     @Override
