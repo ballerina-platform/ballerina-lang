@@ -181,6 +181,7 @@
     <modules>
         <module>modules/services/workspace-service</module>
         <module>modules/web</module>
+        <module>integration-tests</module>
     </modules>
 
 </project>

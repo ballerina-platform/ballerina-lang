@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var argv = require('yargs').argv;
-var util = require('./../utils/child-process-manager.js');
 var shell = require('shelljs');
-if (argv.skipTests === "true") {
-    console.log('Skipping Tests');
-    return;
-} else {
-    console.log('Running Integration Tests');
-    shell.exec("NODE_ENV=test env DIRECTORY=target mocha-webpack --require target/js/tests/js/spec/setup.js --webpack-config webpack.config.js target/js/tests/js/spec/BallerinaTest.js", function (code) {
-        console.log('Stop Composer Process.');
-        util.killChildProcess();
-        shell.exit(code);
-    });
-}
+
+var platform = process.platform;
+shell.exec("ps xu | grep \".*composer.*selenium.*\" | grep -v grep | awk '{ print $2 }' | xargs kill -9", function (code) {
+    shell.exit(code);
+});
