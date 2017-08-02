@@ -79,7 +79,15 @@ public class StatementTemplateFilter implements SymbolFilter {
         tryCatchItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItems.add(tryCatchItem);
 
-        // Populate Try Catch Statement template
+        // Populate Transaction Statement template
+        CompletionItem transactionItem = new CompletionItem();
+        transactionItem.setLabel(ItemResolverConstants.TRANSACTION);
+        transactionItem.setInsertText(ItemResolverConstants.TRANSACTION_TEMPLATE);
+        transactionItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        transactionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItems.add(transactionItem);
+
+        // Populate Transform Statement template
         CompletionItem transformItem = new CompletionItem();
         transformItem.setLabel(ItemResolverConstants.TRANSFORM);
         transformItem.setInsertText(ItemResolverConstants.TRANSFORM_TEMPLATE);
