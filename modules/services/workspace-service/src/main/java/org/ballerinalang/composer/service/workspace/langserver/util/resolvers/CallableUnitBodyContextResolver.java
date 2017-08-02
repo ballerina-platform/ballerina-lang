@@ -21,6 +21,9 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.StatementKind;
+import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +41,11 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
         if (dataModel.getParserRuleContext() != null) {
             completionItems.addAll(resolvers
                     .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
+        } else if (dataModel.getClosestScope() instanceof BlockStmt &&
+                ((BlockStmt) dataModel.getClosestScope()).getKind().equals(StatementKind.TRANSFORM_BLOCK)) {
+            return resolvers
+                    .get(BallerinaParser.TransformStatementBodyContext.class)
+                    .resolveItems(dataModel, symbols, resolvers);
         } else {
             CompletionItem workerItem = new CompletionItem();
             workerItem.setLabel(ItemResolverConstants.WORKER);

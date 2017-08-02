@@ -725,8 +725,14 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     private void checkAndSetClosestScope(Node node) {
-        int startLineNumber = node.getNodeLocation().startLineNumber;
-        int startColumn = node.getNodeLocation().startColumn;
+        int startLineNumber, startColumn;
+        if (node instanceof BlockStmt && node.getNodeLocation() == null) {
+            startLineNumber = ((BlockStmt) node).getParent().getNodeLocation().startLineNumber;
+            startColumn = ((BlockStmt) node).getParent().getNodeLocation().startColumn;
+        } else {
+            startLineNumber = node.getNodeLocation().startLineNumber;
+            startColumn = node.getNodeLocation().startColumn;
+        }
 
         Position stop = new Position();
         getStopPosition(node, stop);
