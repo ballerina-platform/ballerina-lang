@@ -20,8 +20,9 @@ import _ from 'lodash';
 import 'css/preloader.css';
 import Plugin from 'plugin/plugin';
 
-import commandManager from './command/manager';
-import LayoutManager from './plugins/layout/layout-manager';
+import commandManager from './commands/manager';
+import LayoutManagerPlugin from './plugins/layout-manager/plugin';
+import ApplicationMenuPlugin from './plugins/application-menu/plugin';
 
 /**
  * Composer Application
@@ -53,7 +54,7 @@ class Application {
         // Hence we create and push it first so
         // that it will always be the firt plugin
         // to init/activate etc.
-        this.plugins.push(new LayoutManager());
+        this.plugins.push(new LayoutManagerPlugin());
 
         // load other plugins
         this.loadPlugins(_.get(config, 'app.plugins', []));
@@ -93,6 +94,7 @@ class Application {
                 }
             });
         }
+        this.plugins.push(new ApplicationMenuPlugin());
     }
 
     /**

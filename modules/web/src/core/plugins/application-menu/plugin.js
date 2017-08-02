@@ -17,16 +17,20 @@
  */
 import Plugin from 'plugin/plugin';
 
-// contains all the menu items of the app
-const menus = [];
+import { getCommandDefinitions } from './commands';
+import { getHandlerDefinitions } from './handlers';
 
 /**
- * Menu Controller is responsible for rendering menu items.
+ * ApplicationMenuPlugin is responsible for rendering menu items.
  *
- * @class MenuManager
+ * @class ApplicationMenuPlugin
  */
-class MenuManager extends Plugin {
+class ApplicationMenuPlugin extends Plugin {
 
+    constructor() {
+        super();
+        this.menuItems = [];
+    }
     /**
      * @inheritdoc
      */
@@ -34,6 +38,20 @@ class MenuManager extends Plugin {
         return 'composer.plugin.menu.manager';
     }
 
+    /**
+     * @inheritdoc
+     */
+    getCommandDefinitions() {
+        return getCommandDefinitions();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    getCommandHandlerDefinitions() {
+        return getHandlerDefinitions(this);
+    }
+
 }
 
-export default MenuManager;
+export default ApplicationMenuPlugin;

@@ -45,11 +45,11 @@ const defaultLayout = {
 };
 
 /**
- * LayoutManager is responsible for loading view components in to the layout.
+ * LayoutManagerPlugin is responsible for loading view components in to the layout.
  *
- * @class LayoutManager
+ * @class LayoutManagerPlugin
  */
-class LayoutManager extends Plugin {
+class LayoutManagerPlugin extends Plugin {
 
     constructor() {
         super();
@@ -86,14 +86,21 @@ class LayoutManager extends Plugin {
     /**
      * @inheritdoc
      */
-    getCommands() {
+    getCommandDefinitions() {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    getCommandHandlerDefinitions() {
         return [];
     }
 
     /**
      * Render layout.
      *
-     * @memberof LayoutManager
+     * @memberof LayoutManagerPlugin
      */
     render() {
         this.composerLayout.registerComponent('testComponent', (container, componentState) => {
@@ -103,4 +110,4 @@ class LayoutManager extends Plugin {
     }
 }
 
-export default LayoutManager;
+export default LayoutManagerPlugin;
