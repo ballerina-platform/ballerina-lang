@@ -31,6 +31,11 @@ public class ResourceInfo extends CallableUnitInfo {
 
     private ServiceInfo serviceInfo;
 
+    // below are cache values.
+    private String[] httpMethods;
+    private String[] consumesList;
+    private String[] producesList;
+
     public ResourceInfo(int pkgCPIndex, String pkgPath, int resNameCPIndex, String actionName) {
         this.pkgPath = pkgPath;
         this.pkgCPIndex = pkgCPIndex;
@@ -72,5 +77,41 @@ public class ResourceInfo extends CallableUnitInfo {
 
     public void setParamNames(String[] paramNames) {
         this.paramNames = paramNames;
+    }
+
+    public boolean isMatchingMethodExist(String method) {
+        if (httpMethods == null) {
+            return false;
+        }
+        for (String value : httpMethods) {
+            if (value.equals(method)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String[] getHttpMethods() {
+        return httpMethods;
+    }
+
+    public void setHttpMethods(String[] httpMethods) {
+        this.httpMethods = httpMethods;
+    }
+
+    public String[] getConsumesList() {
+        return consumesList;
+    }
+
+    public void setConsumesList(String[] consumesList) {
+        this.consumesList = consumesList;
+    }
+
+    public String[] getProducesList() {
+        return producesList;
+    }
+
+    public void setProducesList(String[] producesList) {
+        this.producesList = producesList;
     }
 }

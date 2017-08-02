@@ -6,22 +6,28 @@ service<http> echo {
 
     string serviceLevelStr;
 
-    @http:GET {}
-    @http:Path {value : "/message"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/message"
+    }
     resource echo (message m) {
         reply m;
     }
 
-    @http:POST {}
-    @http:Path {value:"/setString"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/setString"
+    }
     resource setString (message m) {
         serviceLevelStr = messages:getStringPayload(m);
         http:convertToResponse(m);
         reply m;
     }
 
-    @http:GET {}
-    @http:Path {value:"/getString"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/getString"
+    }
     resource getString (message m) {
         message response = {};
         // TODO : Fix bellow line
@@ -30,7 +36,9 @@ service<http> echo {
         reply response;
     }
 
-    @http:GET {}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource removeHeaders (message m) {
         messages:removeAllHeaders(m);
         reply m;

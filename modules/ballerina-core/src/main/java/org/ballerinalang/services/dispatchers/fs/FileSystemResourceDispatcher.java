@@ -18,9 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.fs;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -35,12 +32,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class FileSystemResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(FileSystemResourceDispatcher.class);
-
-    @Override
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
-        return null;
-    }
 
     @Override
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback)

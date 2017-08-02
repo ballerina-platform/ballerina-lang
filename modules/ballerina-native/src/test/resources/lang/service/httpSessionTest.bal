@@ -9,8 +9,10 @@ struct Data {
 
 @http:configuration{basePath:"/sample"}
 service<http> sample {
-    @http:GET{}
-    @http:Path{value:"/test1"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test1"
+    }
     resource echo (message m) {
 
         string result = "";
@@ -22,8 +24,10 @@ service<http> sample {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/test2"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test2"
+    }
     resource echo2 (message m) {
 
         string result = "";
@@ -37,8 +41,10 @@ service<http> sample {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/test3"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test3"
+    }
     resource echo3 (message m) {
 
         string result = "";
@@ -52,8 +58,10 @@ service<http> sample {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/test4"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test4"
+    }
     resource testGetAt (message m) {
 
         string result = "";
@@ -68,8 +76,10 @@ service<http> sample {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/test5"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test5"
+    }
     resource echo5 (message m) {
 
         string result = "chamil";
@@ -79,25 +89,29 @@ service<http> sample {
         reply m;
     }
 
-    @http:GET{}
-        @http:Path{value:"/test6"}
-        resource echo6 (message m) {
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test6"
+    }
+    resource echo6 (message m) {
 
-            string myName = "chamil";
-            errors:TypeCastError err;
-            http:Session session1 = http:createSessionIfAbsent(m);
-            http:Session session2 = http:createSessionIfAbsent(m);
-            http:setAttribute(session1,"name","wso2");
-            any attribute = http:getAttribute(session2,"name");
-            if(attribute != null) {
-                myName, err = (string) attribute;
-            }
-            messages:setStringPayload(m, myName);
-            reply m;
+        string myName = "chamil";
+        errors:TypeCastError err;
+        http:Session session1 = http:createSessionIfAbsent(m);
+        http:Session session2 = http:createSessionIfAbsent(m);
+        http:setAttribute(session1, "name", "wso2");
+        any attribute = http:getAttribute(session2, "name");
+        if (attribute != null) {
+            myName, err = (string)attribute;
         }
+        messages:setStringPayload(m, myName);
+        reply m;
+    }
 
-    @http:POST{}
-    @http:Path{value:"/hello"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/hello"
+    }
     resource hello (message m) {
 
         errors:TypeCastError err;
@@ -117,8 +131,10 @@ service<http> sample {
 
 @http:configuration{basePath:"/counter"}
 service<http> counter {
-    @http:GET{}
-    @http:Path{value:"/echo"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/echo"
+    }
     resource echoCount (message m) {
 
         int sessionCounter;
@@ -135,8 +151,10 @@ service<http> counter {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/echo2"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/echo2"
+    }
     resource echoCount2 (message m) {
 
         int sessionCounter;
@@ -156,7 +174,9 @@ service<http> counter {
 
 @http:configuration{basePath:"/sample2"}
 service<http> sample2 {
-    @http:GET{}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource echoName (message m) {
         string myName = "wso2";
         errors:TypeCastError err;
@@ -170,7 +190,9 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:POST{}
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource myStruct (message m) {
 
         string result = messages:getStringPayload (m);
@@ -187,8 +209,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/names"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/names"
+    }
     resource keyNames (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -200,8 +224,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/names2"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/names2"
+    }
     resource keyNames2 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -212,8 +238,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/names3"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/names3"
+    }
     resource keyNames3 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -228,8 +256,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/names4"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/names4"
+    }
     resource keyNames4 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -243,8 +273,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/names5"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/names5"
+    }
     resource keyNames5 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -254,8 +286,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/names6"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/names6"
+    }
     resource keyNames6 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -267,8 +301,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/id1"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/id1"
+    }
     resource id1 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -277,8 +313,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/id2"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/id2"
+    }
     resource id2 (message m) {
 
         http:Session ses = http:getSession(m);
@@ -287,8 +325,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new1"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new1"
+    }
     resource new1 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -297,8 +337,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new2"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new2"
+    }
     resource new2 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -307,8 +349,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new3"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new3"
+    }
     resource new3 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -318,8 +362,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new4"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new4"
+    }
     resource new4 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -328,8 +374,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new5"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new5"
+    }
     resource new5 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -339,8 +387,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new6"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new6"
+    }
     resource new6 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -350,8 +400,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new7"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new7"
+    }
     resource new7 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);
@@ -361,8 +413,10 @@ service<http> sample2 {
         reply m;
     }
 
-    @http:GET{}
-    @http:Path{value:"/new8"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/new8"
+    }
     resource new8 (message m) {
 
         http:Session ses = http:createSessionIfAbsent(m);

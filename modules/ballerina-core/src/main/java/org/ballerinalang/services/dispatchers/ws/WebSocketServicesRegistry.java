@@ -224,10 +224,10 @@ public class WebSocketServicesRegistry {
         String basePath;
         AnnAttachmentInfo configAnnotationInfo = service.getAnnotationAttachmentInfo(
                 org.ballerinalang.services.dispatchers.http.Constants.HTTP_PACKAGE_PATH,
-                org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_NAME_CONFIGURATION);
+                org.ballerinalang.services.dispatchers.http.Constants.ANN_NAME_CONFIG);
         if (configAnnotationInfo != null) {
             AnnAttributeValue annotationAttributeBasePathValue = configAnnotationInfo.getAttributeValue
-                    (org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
+                    (org.ballerinalang.services.dispatchers.http.Constants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
                     !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
                 basePath = annotationAttributeBasePathValue.getStringValue();

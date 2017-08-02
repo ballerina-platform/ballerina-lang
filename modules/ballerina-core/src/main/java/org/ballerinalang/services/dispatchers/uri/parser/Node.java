@@ -19,8 +19,6 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -124,8 +122,9 @@ public abstract class Node {
         ResourceInfo resource = null;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : resources) {
-            if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
-                resource =  resourceInfo;
+            if (resourceInfo.isMatchingMethodExist(httpMethod)) {
+                resource = resourceInfo;
+                break;
             }
         }
         if (resource == null) {
@@ -143,41 +142,29 @@ public abstract class Node {
             this.resource = new ArrayList<>();
             this.resource.add(newResource);
             isFirstTraverse = false;
-        } else {
-            for (ResourceInfo previousResource: this.resource) {
-                boolean prevResourceHasMethod = validateMethodsOfSameURIResources(previousResource, newResource);
-                if (!prevResourceHasMethod) {
-                    validateMethodOfNewResource(newResource);
+            return;
+        }
+        String[] newMethods = newResource.getHttpMethods();
+        if (newMethods == null) {
+            for (ResourceInfo previousResource : this.resource) {
+                if (previousResource.getHttpMethods() == null) {
+                    //if both resources do not have methods but same URI, then throw following error.
+                    throw new BallerinaException("Seems two resources have the same addressable URI, "
+                            + previousResource.getName() + " and " + newResource.getName());
                 }
             }
             this.resource.add(newResource);
+            return;
         }
-    }
-
-    private boolean validateMethodsOfSameURIResources(ResourceInfo previousResource, ResourceInfo newResource) {
-        boolean prevResourceHasMethod = false;
-        for (String method : this.httpMethods) {
-            if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
-                prevResourceHasMethod = true;
-                if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
-                    throw new BallerinaException("Seems two resources have the same addressable URI");
+        this.resource.forEach(r -> {
+            for (String newMethod : newMethods) {
+                if (r.isMatchingMethodExist(newMethod)) {
+                    throw new BallerinaException("Seems two resources have the same addressable URI, "
+                            + r.getName() + " and " + newResource.getName());
                 }
             }
-        }
-        return prevResourceHasMethod;
-    }
-
-    private void validateMethodOfNewResource(ResourceInfo newResource) {
-        boolean newResourceHasMethod = false;
-        for (String method : this.httpMethods) {
-            if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
-                newResourceHasMethod = true;
-            }
-        }
-        if (!newResourceHasMethod) {
-            //if both resources do not have methods but same URI, then throw following error.
-            throw new BallerinaException("Seems two resources have the same addressable URI");
-        }
+        });
+        this.resource.add(newResource);
     }
 
     abstract String expand(Map<String, String> variables);
@@ -243,14 +230,7 @@ public abstract class Node {
 
     private ResourceInfo tryMatchingToDefaultVerb(String method) {
         for (ResourceInfo resourceInfo : this.resource) {
-            boolean isMethodAnnotationFound = false;
-            for (String httpMethod : this.httpMethods) {
-                if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
-                    isMethodAnnotationFound = true;
-                    break;
-                }
-            }
-            if (!isMethodAnnotationFound) {
+            if (resourceInfo.getHttpMethods() == null) {
                 return resourceInfo;
             }
         }
@@ -260,15 +240,13 @@ public abstract class Node {
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
-        AnnAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANNOTATION_NAME_CONSUMES);
+        String[] consumesList  = resource.getConsumesList();
 
-        if (consumeInfo != null) {
+        if (consumesList != null) {
             //when Content-Type header is not set, treat it as "application/octet-stream"
             contentMediaType = (contentMediaType != null ? contentMediaType : Constants.VALUE_ATTRIBUTE);
-            for (AnnAttributeValue attributeValue : consumeInfo.getAttributeValue(
-                    Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
-                if (contentMediaType.equals(attributeValue.getStringValue().trim())) {
+            for (String consumeType : consumesList) {
+                if (contentMediaType.equals(consumeType.trim())) {
                     isConsumeMatched = true;
                     break;
                 }
@@ -295,11 +273,10 @@ public abstract class Node {
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
-        AnnAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANNOTATION_NAME_PRODUCES);
+        String[] producesList = resource.getProducesList();
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
-        if (produceInfo != null && acceptMediaTypes != null) {
+        if (producesList != null && acceptMediaTypes != null) {
             if (acceptMediaTypes.contains("*/*")) {
                 isProduceMatched = true;
             } else {
@@ -308,10 +285,9 @@ public abstract class Node {
                             .filter(mediaType -> mediaType.contains("/*"))
                             .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
                             .collect(Collectors.toList());
-                    List<String> subAttributeValues = Arrays.stream(produceInfo
-                            .getAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
-                            .map(mediaType -> mediaType.getStringValue().trim()
-                                    .substring(0, mediaType.getStringValue().indexOf("/")))
+                    List<String> subAttributeValues = Arrays.stream(producesList)
+                            .map(mediaType -> mediaType.trim()
+                                    .substring(0, mediaType.indexOf("/")))
                             .distinct().collect(Collectors.toList());
                     for (String token : subAttributeValues) {
                         for (String mediaType : subTypeWildCardMediaTypes) {
@@ -325,10 +301,9 @@ public abstract class Node {
                 if (!isProduceMatched) {
                     List<String> noWildCardMediaTypes = acceptMediaTypes.stream()
                             .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
-                    for (AnnAttributeValue attributeValue : produceInfo.getAttributeValue(
-                            Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+                    for (String produceType : producesList) {
                         for (String mediaType : noWildCardMediaTypes) {
-                            if (mediaType.equals(attributeValue.getStringValue())) {
+                            if (mediaType.equals(produceType)) {
                                 isProduceMatched = true;
                                 break;
                             }
