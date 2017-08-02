@@ -16,12 +16,16 @@
  * under the License.
  */
 import $ from 'jquery';
+import _ from 'lodash';
 import 'css/preloader.css';
 import CommandManager from 'command/command';
+import Plugin from 'plugin/plugin';
 
 import LayoutManager from './plugins/layout/layout-manager';
 
-
+/**
+ * Composer Application
+ */
 class Application {
 
     /**
@@ -30,15 +34,51 @@ class Application {
      * @param {Object} config configuration options for the application
      */
     constructor(config) {
-        // layout manager will be a special plugin.
-        this.layoutManager = new LayoutManager();
-        this.plugins = [
-            this.layoutManager,
-        ];
-        // initialise the plugins
-        this.layoutManager.init();
+        // !!! IMPORTANT !!!
+        // Make config object read only.
+        // This is to prevent any subsequent changes
+        // to config object from plugins, etc.
+        Object.freeze(config);
+        Object.preventExtensions(config);
 
-        // activate plugins
+        // init plugins collection
+        this.plugins = [];
+        // init the application context
+        this.appContext = {
+            CommandManager: new CommandManager(),
+        };
+
+        // layout manager will be a special plugin.
+        // Hence we create and push it first so
+        // that it will always be the firt plugin
+        // to init/activate etc.
+        this.plugins.push(new LayoutManager());
+
+        // load other plugins
+        this.loadPlugins(_.get(config, 'app.plugins', []));
+
+        // if any plugin specific configs are found
+        // provide them to the plugin.
+        const { pluginConfigs } = config;
+        this.plugins.forEach((plugin) => {
+            plugin.init(_.get(pluginConfigs, plugin.getID(), {}));
+        });
+    }
+
+    /**
+     * Load other configured plugins.
+     *
+     * @param {[Plugin]} pluginsFromConfig Pre configured plugins from config.
+     *                                     (Similar to webpack.config)
+     */
+    loadPlugins(pluginsFromConfig) {
+        if (_.isArray(pluginsFromConfig)) {
+            pluginsFromConfig.forEach((plugin) => {
+                if (plugin instanceof Plugin) {
+                    this.plugins.push(plugin);
+                }
+            });
+        }
     }
 
     /**
@@ -47,7 +87,13 @@ class Application {
      * @memberof Application
      */
     render() {
-        this.layoutManager.activate();
+        // activate each plugin while providing
+        // the application context
+        this.plugins.forEach((plugin) => {
+            plugin.activate(this.appContext);
+        });
+        // Finished Activating all the plugins.
+        // Now it's time to hide pre-loader.
         this.hidePreLoader();
     }
 

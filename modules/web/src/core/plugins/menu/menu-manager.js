@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import Plugin from 'plugins/plugin';
+import Plugin from 'plugin/plugin';
 
 // contains all the menu items of the app
 const menus = [];
@@ -26,6 +26,13 @@ const menus = [];
  * @class MenuManager
  */
 class MenuManager extends Plugin {
+
+    /**
+     * @inheritdoc
+     */
+    getID() {
+        return 'composer.plugin.menu.manager';
+    }
 
 }
 

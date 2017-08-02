@@ -17,7 +17,7 @@
  */
 
 import GoldenLayout from 'golden-layout';
-import Plugin from 'plugins/plugin';
+import Plugin from 'plugin/plugin';
 import 'golden-layout/src/css/goldenlayout-base.css';
 import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 
@@ -52,28 +52,40 @@ const defaultLayout = {
  */
 class LayoutManager extends Plugin {
 
+    constructor() {
+        super();
+        // this.onDisplayView = this.onDisplayView.bind(this);
+    }
+
     /**
-     * Init the plugin
-     * @param {Object} config
+     * @inheritdoc
+     */
+    getID() {
+        return 'composer.plugin.layout.manager';
+    }
+
+    /**
+     * @inheritdoc
      */
     init(config) {
+        super.init(config);
         // overide default config from passed in layout.
-        const glConfig = (config && config.layout) ? config.layout : defaultLayout;
-
+        const glConfig = (this.config && this.config.layout)
+                                ? this.config.layout : defaultLayout;
         // create the layout
         this.composerLayout = new GoldenLayout(glConfig);
     }
 
     /**
-     * activate the plugin
+     * @inheritdoc
      */
-    activate() {
+    activate(appContext) {
+        super.activate(appContext);
         this.render();
     }
 
     /**
-     * Returns the list of command definitions
-     * @return {[Object]}
+     * @inheritdoc
      */
     getCommands() {
         return [];
