@@ -16,11 +16,10 @@
  * under the License.
  */
 import $ from 'jquery';
-import log from 'log';
-import _ from 'lodash';
 import 'css/preloader.css';
 import CommandManager from 'command/command';
-import LayoutManager from './layout-manager';
+
+import LayoutManager from './plugins/layout/layout-manager';
 
 
 class Application {
@@ -32,11 +31,12 @@ class Application {
      */
     constructor(config) {
         // layout manager will be a special plugin.
-        this.layoutManager = new LayoutManager(config);
+        this.layoutManager = new LayoutManager();
         this.plugins = [
             this.layoutManager,
         ];
         // initialise the plugins
+        this.layoutManager.init();
 
         // activate plugins
     }
@@ -47,8 +47,7 @@ class Application {
      * @memberof Application
      */
     render() {
-        alert('App Rendered');
-        this.layoutManager.render();
+        this.layoutManager.activate();
         this.hidePreLoader();
     }
 

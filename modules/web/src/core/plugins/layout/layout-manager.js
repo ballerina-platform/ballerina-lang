@@ -26,23 +26,23 @@ import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 const defaultLayout = {
     content: [{
         type: 'row',
-        content:[{
+        content: [{
             type: 'component',
             componentName: 'testComponent',
             componentState: { label: 'A' },
-        },{
+        }, {
             type: 'column',
-            content:[{
+            content: [{
                 type: 'component',
                 componentName: 'testComponent',
                 componentState: { label: 'B' },
-            },{
+            }, {
                 type: 'component',
                 componentName: 'testComponent',
                 componentState: { label: 'C' },
-            }]
-        }]
-    }]
+            }],
+        }],
+    }],
 };
 
 /**
@@ -53,18 +53,30 @@ const defaultLayout = {
 class LayoutManager extends Plugin {
 
     /**
-     * Creates an instance of LayoutManager.
-     * @param {Object} args layout arguments
-     * @param {Object} args.layout layout arguments
-     * @memberof LayoutManager
+     * Init the plugin
+     * @param {Object} config
      */
-    constructor(args) {
-        super();
+    init(config) {
         // overide default config from passed in layout.
-        const config = (args.layout !== undefined) ? args.layout : defaultLayout;
+        const glConfig = (config && config.layout) ? config.layout : defaultLayout;
 
         // create the layout
-        this.composerLayout = new GoldenLayout(config);
+        this.composerLayout = new GoldenLayout(glConfig);
+    }
+
+    /**
+     * activate the plugin
+     */
+    activate() {
+        this.render();
+    }
+
+    /**
+     * Returns the list of command definitions
+     * @return {[Object]}
+     */
+    getCommands() {
+        return [];
     }
 
     /**
@@ -73,10 +85,9 @@ class LayoutManager extends Plugin {
      * @memberof LayoutManager
      */
     render() {
-        this.composerLayout.registerComponent( 'testComponent', function( container, componentState ){
-            container.getElement().html( '<h2>' + componentState.label + '</h2>' );
+        this.composerLayout.registerComponent('testComponent', (container, componentState) => {
+            container.getElement().html('<h2>' + componentState.label + '</h2>');
         });
-
         this.composerLayout.init();
     }
 }
