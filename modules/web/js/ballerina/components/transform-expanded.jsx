@@ -473,7 +473,35 @@ class TransformExpanded extends React.Component {
     }
 
     drawConnection(id, source, target) {
-        const con = { id: id };
+        let sourceProp;
+        let targetProp;
+        let sourceParent = source.sourceStruct;
+        let targetParent =target.targetStruct;
+
+        if(source.sourceProperty.length > 1) {
+          sourceParent = source.sourceProperty[source.sourceProperty.length  - 2];
+        }
+        if(target.targetProperty.length > 1) {
+          targetParent = target.targetProperty[target.targetProperty.length - 2]
+        }
+        _.forEach(this.predefinedStructs, (struct) => {
+            if (struct.name === sourceParent) {
+              sourceProp = _.find(struct.properties, (field) => {
+                  return field.name === source.sourceProperty[source.sourceProperty.length - 1];
+              });
+              if(_.isUndefined(sourceProp)) {
+                sourceProp = struct;
+              }
+            } else if (struct.name === targetParent){
+               targetProp = _.find(struct.properties, (field) => {
+                  return field.name === target.targetProperty[target.targetProperty.length - 1];
+              });
+              if(_.isUndefined(targetProp)) {
+                targetProp = struct;
+              }
+            }
+        });
+        const con = { id: id, input:sourceProp, output:targetProp};
         _.merge(con, source, target);
         this.mapper.addConnection(con);
     }
