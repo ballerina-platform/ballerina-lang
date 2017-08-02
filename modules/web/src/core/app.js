@@ -19,8 +19,8 @@ import $ from 'jquery';
 import _ from 'lodash';
 import 'css/preloader.css';
 import Plugin from 'plugin/plugin';
-import CommandManager from './command/manager';
 
+import commandManager from './command/manager';
 import LayoutManager from './plugins/layout/layout-manager';
 
 /**
@@ -43,9 +43,10 @@ class Application {
 
         // init plugins collection
         this.plugins = [];
+
         // init the application context
         this.appContext = {
-            commandManager: new CommandManager(),
+            commandChannel: commandManager.commandChannelProxy,
         };
 
         // layout manager will be a special plugin.
@@ -66,15 +67,14 @@ class Application {
             // Register command definitions
             const commandDefs = plugin.getCommandDefinitions();
             commandDefs.forEach((command) => {
-                this.appContext.commandManager.registerCommand(command);
+                commandManager.registerCommand(command);
             });
 
             // Register command handlers
             const commandHandlerDefs = plugin.getCommandHandlerDefinitions();
             commandHandlerDefs.forEach((commandHandlerDef) => {
                 const { cmdID, handler, context } = commandHandlerDef;
-                this.appContext.commandManager
-                        .registerHandler(cmdID, handler, context);
+                commandManager.registerHandler(cmdID, handler, context);
             });
         });
     }

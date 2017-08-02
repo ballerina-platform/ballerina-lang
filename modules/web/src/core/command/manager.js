@@ -19,7 +19,10 @@ import _ from 'lodash';
 import log from 'log';
 import Mousetrap from 'mousetrap';
 import CommandChannel from './channel';
+import CommandChannelProxy from './channel-proxy';
 import { isClientOnMacOS } from './../utils/client-info';
+
+let commandChannel;
 
 /**
  * Command Manager
@@ -30,7 +33,8 @@ class CommandManager {
      * Constructs the command manager
      */
     constructor() {
-        this.commandChannel = new CommandChannel();
+        commandChannel = new CommandChannel();
+        this.commandChannelProxy = new CommandChannelProxy(commandChannel);
         this.commands = [];
     }
 
@@ -56,7 +60,7 @@ class CommandManager {
                 const { shortcuts } = cmd;
                 const key = isClientOnMacOS() ? shortcuts.mac.key : shortcuts.other.key;
                 Mousetrap.bind(key, (e) => {
-                    this.commandChannel.trigger(cmd);
+                    commandChannel.trigger(cmd);
                     e.preventDefault();
                     e.stopPropagation();
                 });
@@ -76,7 +80,7 @@ class CommandManager {
         if (!_.isEqual(_.findIndex(this.commands, ['id', cmdID]), -1)) {
             _.remove(this.commands, ['id', cmdID]);
             // remove all handlers for the command
-            this.commandChannel.off(cmdID, null);
+            commandChannel.off(cmdID, null);
             log.debug(`Command: ${cmdID} is unregistered.`);
         } else {
             log.warn(`Command: ${cmdID} cannot be found in registered commands.`);
@@ -94,7 +98,7 @@ class CommandManager {
         if (_.isEqual(_.findIndex(this.commands, ['id', cmdID]), -1)) {
             log.warn(`No such registered command found. Command: ${cmdID}`);
         }
-        this.commandChannel.on(cmdID, handler, context);
+        commandChannel.on(cmdID, handler, context);
     }
 
     /**
@@ -104,7 +108,7 @@ class CommandManager {
      * @param {Function} handler handler function
      */
     unRegisterHandler(cmd, handler) {
-        this.commandChannel.off(cmd, handler);
+        commandChannel.off(cmd, handler);
     }
 
     /**
@@ -116,7 +120,7 @@ class CommandManager {
      */
     dispatch(cmdID, ...args) {
         if (!_.isUndefined(cmdID)) {
-            this.commandChannel.trigger(cmdID, args);
+            commandChannel.trigger(cmdID, args);
         }
     }
 
@@ -130,4 +134,4 @@ class CommandManager {
     }
 }
 
-export default CommandManager;
+export default new CommandManager();

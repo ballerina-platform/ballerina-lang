@@ -32,7 +32,7 @@ class Plugin {
      * initializing all the plugins.
      *
      * @param {Object} appContext Application Context
-     * @param {CommandManager} appContext.commandManager Command Manager instance
+     * @param {CommandChannel} appContext.commandChannel Command Channel
      */
     activate(appContext) {
         this.appContext = appContext;
