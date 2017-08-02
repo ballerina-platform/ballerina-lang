@@ -36,7 +36,8 @@ public interface Operator extends CompiledExpression {
 
     void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents);
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                InMemoryCompiledUpdateSet compiledUpdateSet);
 
     ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                              Object storeEvents,

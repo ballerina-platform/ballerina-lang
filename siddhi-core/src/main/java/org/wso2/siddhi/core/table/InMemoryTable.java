@@ -105,7 +105,8 @@ public class InMemoryTable implements Table, Snapshotable {
                        CompiledUpdateSet compiledUpdateSet) {
         try {
             readWriteLock.writeLock().lock();
-            ((Operator) compiledExpression).update(updatingEventChunk, eventHolder, (InMemoryCompiledUpdateSet) compiledUpdateSet);
+            ((Operator) compiledExpression).update(updatingEventChunk, eventHolder,
+                    (InMemoryCompiledUpdateSet) compiledUpdateSet);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -113,7 +114,8 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledExpression compiledExpression,
+    public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
+                            CompiledExpression compiledExpression,
                             CompiledUpdateSet compiledUpdateSet,
                             AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
@@ -178,7 +180,8 @@ public class InMemoryTable implements Table, Snapshotable {
                     setAttribute.getAssignmentExpression(),
                     matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
                     tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
-            int attributePosition = tableDefinition.getAttributePosition(setAttribute.getTableVariable().getAttributeName());
+            int attributePosition = tableDefinition.
+                    getAttributePosition(setAttribute.getTableVariable().getAttributeName());
             expressionExecutorMap.put(attributePosition, expressionExecutor);
         }
         return new InMemoryCompiledUpdateSet(expressionExecutorMap);

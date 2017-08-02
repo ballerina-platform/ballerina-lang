@@ -58,7 +58,8 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
         super.update(updatingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(), compiledUpdateSet);
     }
 

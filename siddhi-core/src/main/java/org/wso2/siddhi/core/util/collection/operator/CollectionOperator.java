@@ -101,7 +101,8 @@ public class CollectionOperator implements Operator {
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
         if (((Collection<StreamEvent>) storeEvents).size() > 0) {
             updatingEventChunk.reset();
             while (updatingEventChunk.hasNext()) {
@@ -110,7 +111,8 @@ public class CollectionOperator implements Operator {
                     for (StreamEvent storeEvent : ((Collection<StreamEvent>) storeEvents)) {
                         updatingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(updatingEvent)) {
-                            for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                            for (Map.Entry<Integer, ExpressionExecutor> entry :
+                                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
                                 storeEvent.setOutputData(entry.getValue().execute(updatingEvent), entry.getKey());
                             }
                         }
@@ -138,7 +140,8 @@ public class CollectionOperator implements Operator {
                     for (StreamEvent storeEvent : ((Collection<StreamEvent>) storeEvents)) {
                         updateOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(updateOrAddingEvent)) {
-                            for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                            for (Map.Entry<Integer, ExpressionExecutor> entry :
+                                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
                                 storeEvent.setOutputData(entry.getValue().execute(updateOrAddingEvent), entry.getKey());
                             }
                             updated = true;

@@ -104,7 +104,8 @@ public class EventChunkOperator implements Operator {
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
         ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
@@ -115,7 +116,8 @@ public class EventChunkOperator implements Operator {
                     StreamEvent storeEvent = storeEventChunk.next();
                     updatingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
-                        for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                        for (Map.Entry<Integer, ExpressionExecutor> entry :
+                                compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
                             storeEvent.setOutputData(entry.getValue().execute(updatingEvent), entry.getKey());
                         }
                     }
@@ -144,8 +146,10 @@ public class EventChunkOperator implements Operator {
                     StreamEvent storeEvent = storeEventChunk.next();
                     overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
-                        for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
-                            storeEvent.setOutputData(entry.getValue().execute(overwritingOrAddingEvent), entry.getKey());
+                        for (Map.Entry<Integer, ExpressionExecutor> entry :
+                                compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                            storeEvent.setOutputData(entry.getValue().
+                                    execute(overwritingOrAddingEvent), entry.getKey());
                         }
                         updated = true;
                     }

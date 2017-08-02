@@ -97,7 +97,8 @@ public abstract class AbstractRecordTable implements Table {
 
     @Override
     public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        RecordStoreCompiledExpression recordStoreCompiledExpression = ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledExpression recordStoreCompiledExpression =
+                ((RecordStoreCompiledExpression) compiledExpression);
 
         Map<String, Object> findConditionParameterMap = new HashMap<>();
         for (Map.Entry<String, ExpressionExecutor> entry : recordStoreCompiledExpression.variableExpressionExecutorMap
@@ -131,7 +132,8 @@ public abstract class AbstractRecordTable implements Table {
 
     @Override
     public boolean contains(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        RecordStoreCompiledExpression recordStoreCompiledExpression = ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledExpression recordStoreCompiledExpression =
+                ((RecordStoreCompiledExpression) compiledExpression);
 
         Map<String, Object> containsConditionParameterMap = new HashMap<>();
         for (Map.Entry<String, ExpressionExecutor> entry :
@@ -154,7 +156,8 @@ public abstract class AbstractRecordTable implements Table {
 
     @Override
     public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression) {
-        RecordStoreCompiledExpression recordStoreCompiledExpression = ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledExpression recordStoreCompiledExpression =
+                ((RecordStoreCompiledExpression) compiledExpression);
         List<Map<String, Object>> deleteConditionParameterMaps = new ArrayList<>();
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
@@ -184,7 +187,8 @@ public abstract class AbstractRecordTable implements Table {
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledExpression compiledExpression,
                        CompiledUpdateSet compiledUpdateSet) {
-        RecordStoreCompiledExpression recordStoreCompiledExpression = ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledExpression recordStoreCompiledExpression =
+                ((RecordStoreCompiledExpression) compiledExpression);
         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet = (RecordTableCompiledUpdateSet) compiledUpdateSet;
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
@@ -220,13 +224,15 @@ public abstract class AbstractRecordTable implements Table {
      */
     protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps,
                                    CompiledExpression compiledExpression,
-                                   RecordTableCompiledUpdateSet recordTableCompiledUpdateSet, List<Map<String, Object>> updateValues);
+                                   RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+                                   List<Map<String, Object>> updateValues);
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
                             CompiledExpression compiledExpression, CompiledUpdateSet compiledUpdateSet,
                             AddingStreamEventExtractor addingStreamEventExtractor) {
-        RecordStoreCompiledExpression recordStoreCompiledExpression = ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledExpression recordStoreCompiledExpression =
+                ((RecordStoreCompiledExpression) compiledExpression);
         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet = (RecordTableCompiledUpdateSet) compiledUpdateSet;
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
@@ -302,7 +308,8 @@ public abstract class AbstractRecordTable implements Table {
                     matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
             CompiledExpression compiledExpression = compileSetAttribute(expressionBuilder);
             recordTableCompiledUpdateSet.put(setAttribute.getTableVariable().getAttributeName(), compiledExpression);
-            Map<String, ExpressionExecutor> expressionExecutorMap = expressionBuilder.getVariableExpressionExecutorMap();
+            Map<String, ExpressionExecutor> expressionExecutorMap =
+                    expressionBuilder.getVariableExpressionExecutorMap();
             parentExecutorMap.putAll(expressionExecutorMap);
         }
         recordTableCompiledUpdateSet.setExpressionExecutorMap(parentExecutorMap);

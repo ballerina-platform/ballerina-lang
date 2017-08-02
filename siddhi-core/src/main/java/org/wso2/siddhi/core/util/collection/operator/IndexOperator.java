@@ -73,7 +73,8 @@ public class IndexOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
 
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
@@ -120,7 +121,8 @@ public class IndexOperator implements Operator {
         //to reduce number of passes needed to update the events
         boolean doDeleteUpdate = false;
         boolean fail = false;
-            for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+            for (Map.Entry<Integer, ExpressionExecutor> entry :
+                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
             if (doDeleteUpdate || fail) {
                 break;
             }
@@ -165,7 +167,8 @@ public class IndexOperator implements Operator {
                     StreamEvent streamEvent = foundEventChunk.next();
                     foundEventChunk.remove();
                     streamEvent.setNext(null); // to make the chained state back to normal
-                    for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                    for (Map.Entry<Integer, ExpressionExecutor> entry :
+                            compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
                         streamEvent.setOutputData(entry.getValue().execute(overwritingOrAddingEvent), entry.getKey());
                     }
                     toUpdateEventChunk.add(streamEvent);
@@ -175,7 +178,8 @@ public class IndexOperator implements Operator {
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
                     streamEvent.setNext(null); // to make the chained state back to normal
-                    for (Map.Entry<Integer, ExpressionExecutor> entry : compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                    for (Map.Entry<Integer, ExpressionExecutor> entry :
+                            compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
                         streamEvent.setOutputData(entry.getValue().execute(overwritingOrAddingEvent), entry.getKey());
                     }
                 }
