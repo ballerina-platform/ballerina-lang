@@ -29,7 +29,7 @@
     <artifactId>swagger-ballerina</artifactId>
     <packaging>pom</packaging>
     <version>0.91.1-SNAPSHOT</version>
-    <name>WSO2 Swagger Ballerina Tooling - Parent</name>
+    <name>Ballerina Swagger Tooling - Parent</name>
     <url>http://wso2.org</url>
 
     <scm>
@@ -66,6 +66,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-native</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
@@ -146,10 +156,12 @@
     <properties>
         <ballerina.version>${project.version}</ballerina.version>
         <project.scm.id>my-scm-server</project.scm.id>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
         <module>modules/swagger-ballerina-generator</module>
+        <module>modules/ballerina-to-swagger-generator</module>
     </modules>
 
 </project>
