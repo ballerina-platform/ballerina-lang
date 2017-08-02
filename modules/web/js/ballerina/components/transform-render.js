@@ -137,7 +137,7 @@ class TransformRender {
     disconnect(connection) {
         const self = this;
         const propertyConnection = this.getConnectionObject(connection.getParameter('id'),
-        connection.sourceId, connection.targetId);
+        connection.getParameter("input"), connection.getParameter("output"));
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
@@ -419,7 +419,7 @@ class TransformRender {
         this.jsPlumbInstance.connect({
             source: sourceId,
             target: targetId,
-            parameters: { id: connection.id },
+            parameters: { id: connection.id, input:connection.input, output: connection.output}
         });
         this.container.find(document.getElementById(sourceId)).removeClass("fw-circle-outline").addClass("fw-circle");
         this.container.find(document.getElementById(targetId)).removeClass("fw-circle-outline").addClass("fw-circle");
@@ -798,6 +798,7 @@ addComplexParameter(parentId, struct) {
                     this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
                     connection.id = this.onConnection(connection);
                     params.connection.setParameter('id', connection.id);
+                    params.connection.setParameter('output', output);
                 }
                 return isValidTypes;
             },
