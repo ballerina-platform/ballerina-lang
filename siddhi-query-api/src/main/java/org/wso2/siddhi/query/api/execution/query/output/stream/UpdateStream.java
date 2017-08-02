@@ -41,6 +41,18 @@ public class UpdateStream extends OutputStream {
         this.onUpdateExpression = onUpdateExpression;
     }
 
+    public UpdateStream(String tableId, OutputEventType outputEventType,  Expression onUpdateExpression) {
+        this.id = tableId;
+        this.outputEventType = outputEventType;
+        this.onUpdateExpression = onUpdateExpression;
+    }
+
+    public UpdateStream(String tableId, Expression onUpdateExpression) {
+        this.id = tableId;
+        this.outputEventType = OutputEventType.CURRENT_EVENTS;
+        this.onUpdateExpression = onUpdateExpression;
+    }
+
     public static UpdateSet updateSet() {
         return new UpdateSet();
     }

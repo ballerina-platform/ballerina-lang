@@ -19,7 +19,7 @@ package org.wso2.siddhi.extension.table.rdbms.util;
 
 import com.google.common.collect.Maps;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.extension.table.rdbms.RDBMSCompiledCondition;
+import org.wso2.siddhi.extension.table.rdbms.RDBMSCompiledExpression;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
@@ -121,26 +121,25 @@ public class RDBMSTableUtils {
      * @param compiledCondition     the compiled condition which was built during compile time and now is being provided
      *                              by the Siddhi runtime.
      * @param conditionParameterMap the map which contains the runtime value(s) for the condition.
-     * @param ordinal                  the integer factor by which the ordinal count will be incremented when populating
+     * @param seed                  the integer factor by which the seed count will be incremented when populating
      *                              the {@link PreparedStatement}.
      * @throws SQLException in the unlikely case where there are errors when setting values to the statement
      *                      (e.g. type mismatches)
      */
-    public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
-                                        Map<String, Object> conditionParameterMap, int ordinal) throws SQLException {
+    public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledExpression compiledCondition,
+                                        Map<String, Object> conditionParameterMap, int seed) throws SQLException {
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
         for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
             Object parameter = entry.getValue();
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
-                populateStatementWithSingleElement(stmt, ordinal, constant.getType(),
+                populateStatementWithSingleElement(stmt, entry.getKey() + seed, constant.getType(),
                         constant.getValue());
             } else {
                 Attribute variable = (Attribute) parameter;
-                populateStatementWithSingleElement(stmt, ordinal, variable.getType(),
+                populateStatementWithSingleElement(stmt, entry.getKey() + seed, variable.getType(),
                         conditionParameterMap.get(variable.getName()));
             }
-            ordinal++;
         }
     }
 

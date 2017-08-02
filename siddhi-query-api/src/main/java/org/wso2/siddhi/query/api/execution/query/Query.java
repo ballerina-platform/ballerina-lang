@@ -112,7 +112,7 @@ public class Query implements ExecutionElement {
     }
 
     public void updateBy(String outputTableId, Expression onUpdateExpression) {
-        this.outputStream = new UpdateStream(outputTableId, null, onUpdateExpression);
+        this.outputStream = new UpdateStream(outputTableId, onUpdateExpression);
     }
 
     public void updateBy(String outputTableId, UpdateSet updateSetAttributes, Expression onUpdateExpression) {

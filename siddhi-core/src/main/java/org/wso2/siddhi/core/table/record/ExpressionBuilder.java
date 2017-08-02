@@ -63,7 +63,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 /**
  * Parse and build Siddhi Condition objects from @{link {@link Expression}s.
  */
-public class ConditionBuilder {
+public class ExpressionBuilder {
     private final Map<String, ExpressionExecutor> variableExpressionExecutorMap;
     private final MatchingMetaInfoHolder matchingMetaInfoHolder;
     private final SiddhiAppContext siddhiAppContext;
@@ -72,10 +72,10 @@ public class ConditionBuilder {
     private final String queryName;
     private Expression expression;
 
-    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                     SiddhiAppContext siddhiAppContext,
-                     List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
-                     String queryName) {
+    ExpressionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                      SiddhiAppContext siddhiAppContext,
+                      List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
+                      String queryName) {
         this.expression = expression;
         this.matchingMetaInfoHolder = matchingMetaInfoHolder;
         this.siddhiAppContext = siddhiAppContext;

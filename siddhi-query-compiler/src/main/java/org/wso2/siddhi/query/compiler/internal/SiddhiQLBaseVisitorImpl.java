@@ -1219,13 +1219,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                     throw newSiddhiParserException(ctx, "UPDATE OR INTO INSERT be only used with Tables!");
                 }
                 if (ctx.output_event_type() != null) {
-                    return new UpdateOrInsertStream(source.streamId,
-                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                            (UpdateSet) visit(ctx.set_clause()),
-                            (Expression) visit(ctx.expression()));
+                    if (ctx.set_clause() != null) {
+                        return new UpdateOrInsertStream(source.streamId,
+                                (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                (UpdateSet) visit(ctx.set_clause()),
+                                (Expression) visit(ctx.expression()));
+                    } else {
+                        return new UpdateOrInsertStream(source.streamId,
+                                (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                (Expression) visit(ctx.expression()));
+                    }
                 } else {
-                    return new UpdateOrInsertStream(source.streamId,
-                            (UpdateSet) visit(ctx.set_clause()), (Expression) visit(ctx.expression()));
+                    if (ctx.set_clause() != null) {
+                        return new UpdateOrInsertStream(source.streamId,
+                                (UpdateSet) visit(ctx.set_clause()), (Expression) visit(ctx.expression()));
+                    } else {
+                        return new UpdateOrInsertStream(source.streamId, (Expression) visit(ctx.expression()));
+                    }
                 }
             } else {
                 if (ctx.output_event_type() != null) {
@@ -1253,13 +1263,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 throw newSiddhiParserException(ctx, "DELETE can be only used with Tables!");
             }
             if (ctx.output_event_type() != null) {
-                return new UpdateStream(source.streamId,
-                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                        (UpdateSet) visit(ctx.set_clause()),
-                        (Expression) visit(ctx.expression()));
+                if (ctx.set_clause() != null) {
+                    return new UpdateStream(source.streamId,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                            (UpdateSet) visit(ctx.set_clause()),
+                            (Expression) visit(ctx.expression()));
+                } else {
+                    return new UpdateStream(source.streamId,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                            (Expression) visit(ctx.expression()));
+                }
             } else {
-                return new UpdateStream(source.streamId, (UpdateSet) visit(ctx.set_clause()),
-                        (Expression) visit(ctx.expression()));
+                if (ctx.set_clause() != null) {
+                    return new UpdateStream(source.streamId, (UpdateSet) visit(ctx.set_clause()),
+                            (Expression) visit(ctx.expression()));
+                } else {
+                    return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
+                }
             }
         } else if (ctx.RETURN() != null) {
             if (ctx.output_event_type() != null) {

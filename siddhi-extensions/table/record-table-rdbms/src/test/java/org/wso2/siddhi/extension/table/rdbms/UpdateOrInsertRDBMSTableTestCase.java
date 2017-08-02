@@ -82,10 +82,8 @@ public class UpdateOrInsertRDBMSTableTestCase {
                     "" +
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
-                    "select symbol as symbol " +
                     "update or insert into StockTable " +
-                    "set price = StockTable.price + 10, StockTable.price = price  " +
-                    "   on StockTable.symbol == foo;";
+                    "   on StockTable.symbol=='IBM' ;";
 
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
             InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
@@ -95,7 +93,7 @@ public class UpdateOrInsertRDBMSTableTestCase {
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
             stockStream.send(new Object[]{"WSO2", 57.6F, 100L});
-            updateStockStream.send(new Object[]{"WSO2", 10.6F, 100L});
+            updateStockStream.send(new Object[]{"GOOG", 10.6F, 100L});
             Thread.sleep(500);
 
             siddhiAppRuntime.shutdown();

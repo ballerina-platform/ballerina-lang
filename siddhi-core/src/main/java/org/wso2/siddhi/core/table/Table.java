@@ -26,10 +26,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
-import org.wso2.siddhi.core.table.record.CompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -51,17 +49,17 @@ public interface Table extends FindableProcessor {
 
     void add(ComplexEventChunk<StreamEvent> addingEventChunk);
 
-    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition);
+    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression);
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledExpression compiledExpression,
+                CompiledUpdateSet compiledUpdateSet);
 
     void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                     CompiledCondition compiledCondition,
-                     CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers,
+                     CompiledExpression compiledExpression,
+                     CompiledUpdateSet compiledUpdateSet,
                      AddingStreamEventExtractor addingStreamEventExtractor);
 
-    boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
+    boolean contains(StateEvent matchingEvent, CompiledExpression compiledExpression);
 
     /**
      * Builds the "compiled" set clause of an update query.

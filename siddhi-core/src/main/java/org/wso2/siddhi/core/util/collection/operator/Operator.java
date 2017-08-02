@@ -22,13 +22,13 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 /**
  * Interface for Operators related to collection of events. These will be used by in-memory table implementation.
  */
-public interface Operator extends CompiledCondition {
+public interface Operator extends CompiledExpression {
 
     StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner);
 
@@ -36,11 +36,10 @@ public interface Operator extends CompiledCondition {
 
     void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents);
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
-                UpdateAttributeMapper[] updateAttributeMappers);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet);
 
     ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                              Object storeEvents,
-                                             UpdateAttributeMapper[] updateAttributeMappers,
+                                            InMemoryCompiledUpdateSet compiledUpdateSet,
                                              AddingStreamEventExtractor addingStreamEventExtractor);
 }

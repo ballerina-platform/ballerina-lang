@@ -24,21 +24,23 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
-import org.wso2.siddhi.core.table.record.CompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.EventHolderPasser;
+import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +58,6 @@ public class InMemoryTable implements Table, Snapshotable {
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private EventHolder eventHolder;
     private String elementId;
-
 
     @Override
     public void init(TableDefinition tableDefinition,
@@ -90,21 +91,21 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression) {
         try {
             readWriteLock.writeLock().lock();
-            ((Operator) compiledCondition).delete(deletingEventChunk, eventHolder);
+            ((Operator) compiledExpression).delete(deletingEventChunk, eventHolder);
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                       CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledExpression compiledExpression,
+                       CompiledUpdateSet compiledUpdateSet) {
         try {
             readWriteLock.writeLock().lock();
-            ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
+            ((Operator) compiledExpression).update(updatingEventChunk, eventHolder, (InMemoryCompiledUpdateSet) compiledUpdateSet);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -112,15 +113,14 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
-                            CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers,
+    public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledExpression compiledExpression,
+                            CompiledUpdateSet compiledUpdateSet,
                             AddingStreamEventExtractor addingStreamEventExtractor) {
-        // TODO: 6/30/17 Use compiledUpdateSet
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledExpression).tryUpdate
                     (updateOrAddingEventChunk,
-                    eventHolder, updateAttributeMappers, addingStreamEventExtractor);
+                    eventHolder, (InMemoryCompiledUpdateSet) compiledUpdateSet, addingStreamEventExtractor);
             if (failedEvents != null) {
                 eventHolder.add(failedEvents);
             }
@@ -131,10 +131,10 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public boolean contains(StateEvent matchingEvent, CompiledExpression compiledExpression) {
         try {
             readWriteLock.readLock().lock();
-            return ((Operator) compiledCondition).contains(matchingEvent, eventHolder);
+            return ((Operator) compiledExpression).contains(matchingEvent, eventHolder);
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -142,10 +142,10 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
         try {
             readWriteLock.readLock().lock();
-            return ((Operator) compiledCondition).find(matchingEvent, eventHolder, tableStreamEventCloner);
+            return ((Operator) compiledExpression).find(matchingEvent, eventHolder, tableStreamEventCloner);
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -153,21 +153,35 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              SiddhiAppContext siddhiAppContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName) {
+    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                                SiddhiAppContext siddhiAppContext,
+                                                List<VariableExpressionExecutor> variableExpressionExecutors,
+                                                Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
 
-    // TODO: 7/3/17 implement
     @Override
     public CompiledUpdateSet compileUpdateSet(UpdateSet updateSet, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
-        return null;
+        Map<Integer, ExpressionExecutor> expressionExecutorMap = new HashMap<>();
+        if (updateSet == null) {
+            updateSet = new UpdateSet();
+            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
+                updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
+            }
+        }
+        for (UpdateSet.SetAttribute setAttribute : updateSet.getSetAttributeList()) {
+            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(
+                    setAttribute.getAssignmentExpression(),
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
+                    tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
+            int attributePosition = tableDefinition.getAttributePosition(setAttribute.getTableVariable().getAttributeName());
+            expressionExecutorMap.put(attributePosition, expressionExecutor);
+        }
+        return new InMemoryCompiledUpdateSet(expressionExecutorMap);
     }
 
 
