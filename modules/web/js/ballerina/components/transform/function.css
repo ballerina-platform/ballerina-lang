@@ -1,0 +1,22 @@
+.transform-expanded-func {
+    width: 400px;
+    position: relative;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.transform-expanded-func .func-input {
+    width: 50%;
+    float: left;
+    padding-right: 3px;
+}
+
+.transform-expanded-func .func-output {
+    width: 50%;
+    float: right;
+    padding-left: 3px;
+}
+
+.transform-expanded-func .function-param-body {
+    overflow: auto;
+}

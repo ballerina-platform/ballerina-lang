@@ -12,6 +12,8 @@ export default class VariableEndpoint extends React.Component {
             iconType = 'fw-struct'
         }
 
+        variable.endpointKind = endpointKind;
+
         return (
             <div className='transform-endpoint variable'>
                 <span style={{paddingLeft: level>0 ? ((level-1)*20) : 0}}>
@@ -33,7 +35,7 @@ export default class VariableEndpoint extends React.Component {
                     <i id={id} ref={icon => makeConnectPoint(icon, id, variable)} className='fw fw-circle-outline fw-stack-1x'/>
                 </span>
                 {
-                    endpointKind !== 'property' &&
+                    (endpointKind === 'variable' || endpointKind === 'struct-head') &&
                     <span id={variable.id + '-button'} className='fw-stack fw-lg btn btn-remove'>
                         <i className='fw fw-delete fw-stack-1x'/>
                     </span>

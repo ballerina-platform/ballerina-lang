@@ -4,70 +4,61 @@ import './tree.css'
 
 export default class Tree extends React.Component {
     renderStruct(endpoint, level) {
-        const { makeConnectPoint, viewId, type } = this.props;
-        const key = `${endpoint.fieldName || endpoint.name}:${viewId}`;
         return <div>
-            <VariableEndpoint
-                key={key}
-                id={key}
-                type={type}
-                variable={endpoint}
-                endpointKind={endpoint.isInner ? 'property' : 'struct-head'}
-                makeConnectPoint={makeConnectPoint}
-                level={level}
-            />
+            {
+                this.renderEndpoint(endpoint, (endpoint.isInner ? 'property' : 'struct-head'), level)
+            }
             {
                 endpoint.properties.map(property => {
-                    const key = `${property.fieldName}:${viewId}`;
-
                     if(property.innerType) {
+                        property.innerType.root = endpoint.root || endpoint;
                         return this.renderStruct(property.innerType, level+1);
                     }
-
-                    return <VariableEndpoint
-                        key={key}
-                        id={key}
-                        type={type}
-                        variable={property}
-                        endpointKind='property'
-                        makeConnectPoint={makeConnectPoint}
-                        level={level+1}
-                    />
+                    property.root = endpoint.root || endpoint;
+                    return this.renderEndpoint(property, 'property', level+1);
                 })
             }
         </div>
     }
 
-    render() {
+    renderEndpoint(endpoint, kind, level) {
         const { endpoints, type, makeConnectPoint, viewId } = this.props;
+        const key = `${endpoint.paramName || ''}:${endpoint.fieldName || endpoint.name}:${viewId}`;
+
+        let endpointKind = kind;
+        if(type === 'param' || type === 'return') {
+            endpointKind = `function-${kind}`;
+        }
+
+        return (
+            <VariableEndpoint
+                key={key}
+                id={key}
+                type={type}
+                variable={endpoint}
+                endpointKind={endpointKind}
+                makeConnectPoint={makeConnectPoint}
+                level={level}
+            />
+        );
+    }
+
+    render() {
+        const { endpoints } = this.props;
         return (
             <div className='transform-endpoint-tree'>
-                { endpoints.map(endpoint => {
-                    if (endpoint.type != 'struct') {
-                        const key = `${endpoint.fieldName || endpoint.name}:${viewId}`;
-
-                        return (
-                            <div className='transform-endpoint-container'>
-                                <VariableEndpoint
-                                    key={key}
-                                    id={key}
-                                    type={type}
-                                    variable={endpoint}
-                                    endpointKind='variable'
-                                    makeConnectPoint={makeConnectPoint}
-                                    level={0}
-                                />
-                            </div>
-                        );
-                    }
-
+            {
+                endpoints.map(endpoint => {
                     return (
                         <div className='transform-endpoint-container'>
-                            { this.renderStruct(endpoint, 0) }
+                            {
+                                endpoint.type === 'struct' ?
+                                this.renderStruct(endpoint, 0) : this.renderEndpoint(endpoint, 'variable', 0)
+                            }
                         </div>
                     );
-                    }
-                )}
+                })
+            }
             </div>
         );
     }

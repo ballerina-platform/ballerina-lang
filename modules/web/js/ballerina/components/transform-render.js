@@ -154,7 +154,6 @@ class TransformRender {
  */
     disconnectAll(connection) {
         this.jsPlumbInstance.detachEveryConnection();
-        this.container.find('.middle-content').empty(); // remove function views
     }
 
 /**
@@ -166,28 +165,40 @@ class TransformRender {
     getConnectionObject(id, source, target) {
         const sourceName = source.name;
         const targetName = target.name;
+        debugger;
 
-        let sourceRefObj;
-        let targetRefObj;
+        let sourceReference;
+        let rootSourceStructName;
+        if(source.enclosingAssignmentStatement) {
+            sourceReference = source.enclosingAssignmentStatement;
+        }
+        if(source.root) {
+            sourceReference = source.root.enclosingAssignmentStatement;
+            rootSourceStructName = source.root.name;
+        }
 
-        for (let i = 0; i < this.references.length; i++) {
-            if (this.references[i].name == sourceName) {
-                sourceRefObj = this.references[i].refObj;
-            } else if (this.references[i].name == targetName) {
-                targetRefObj = this.references[i].refObj;
-            }
+        let targetReference;
+        let rootTargetStructName;
+        if(target.enclosingAssignmentStatement) {
+            targetReference = target.enclosingAssignmentStatement;
+        }
+        if(target.root) {
+            targetReference = target.root.enclosingAssignmentStatement;
+            rootTargetStructName = target.root.name;
         }
 
         return {
             id,
-            sourceStruct: source.structName || sourceName,
+            sourceStruct: rootSourceStructName || source.structName || sourceName,
             sourceProperty: source.fieldName,
             sourceType: source.type,
-            sourceReference: sourceRefObj,
-            targetStruct: target.structName || targetName,
+            sourceReference,
+            isSourceFunction: source.endpointKind.startsWith('function-'),
+            targetStruct: rootTargetStructName || target.structName || targetName,
             targetProperty: target.fieldName,
             targetType: target.type,
-            targetReference: targetRefObj,
+            targetReference,
+            isTargetFunction: target.endpointKind.startsWith('function-'),
             isComplexMapping: false,
             complexMapperName: null,
         };
@@ -360,7 +371,6 @@ class TransformRender {
  * @param {object} connection connection object which specified source and target
  */
     addConnection(connection) {
-        debugger;
         let isSourceExists;
         let isTargetExists;
         let sourcePrefix = "";
@@ -779,10 +789,11 @@ addComplexParameter(parentId, struct) {
             maxConnections: 1,
             anchor: ['Left'],
             beforeDrop: params => {
+                debugger;
                 // Checks property types are equal or type is any
                 const input = params.connection.getParameters().input;
                 const sourceType = input.type;
-                const targetType = output. type;
+                const targetType = output.type;
                 let isValidTypes;
 
                 if (sourceType === 'struct' || targetType === 'struct') {

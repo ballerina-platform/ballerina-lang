@@ -88,7 +88,8 @@ class TransformExpanded extends React.Component {
                       ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
         }
 
-        if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+        if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
+            !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
             // Connection is from source struct to target struct.
             const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
             const varRefList = BallerinaASTFactory.createVariableReferenceList();
@@ -99,10 +100,10 @@ class TransformExpanded extends React.Component {
             return assignmentStmt.id;
         }
 
-        if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
-            // Connection source is not a struct and target is a struct.
-            // Source could be a function node.
-            const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
+        if (!_.isUndefined(sourceStruct) && connection.isTargetFunction) {
+            // Connection source is a struct and target is not a struct.
+            // Target could be a function node.
+            const assignmentStmtSource = connection.targetReference;
             let funcNode;
             if (BallerinaASTFactory.isFunctionInvocationExpression(connection.targetReference)) {
                 funcNode = connection.targetReference;
@@ -110,18 +111,22 @@ class TransformExpanded extends React.Component {
                 funcNode = connection.targetReference.getRightExpression();
             }
             let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
-                                                (param) => { return param.name == connection.targetProperty[0]});
+                                    (param) => { return param.name == connection.targetStruct });
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
-            if (connection.targetProperty.length > 1 && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
+            if (connection.targetProperty && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
             }
             funcNode.removeChild(funcNode.children[index], true);
             //check function parameter is a struct and mapping is a complex mapping
-            if (connection.targetProperty.length > 1 && _.find(self.predefinedStructs, (struct) =>
+            debugger;
+            if (connection.targetProperty && _.find(self.predefinedStructs, (struct) =>
                         {return struct.typeName == self.getFunctionDefinition(funcNode).getParameters()[index].type})) {
                 let keyValEx = BallerinaASTFactory.createKeyValueExpression();
                 let nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-                nameVarRefExpression.setExpressionFromString(connection.targetProperty[1]);
+
+                const propChain = connection.targetProperty.split('.').splice(1);
+
+                nameVarRefExpression.setExpressionFromString(propChain[0]);
             	keyValEx.addChild(nameVarRefExpression);
             	keyValEx.addChild(sourceExpression);
                 refType.addChild(keyValEx);
@@ -132,14 +137,15 @@ class TransformExpanded extends React.Component {
             return assignmentStmtSource.id;
         }
 
-        if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
-            // Connection target is not a struct and source is a struct.
-            // Target is a function node.
+        if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
+            // Connection source is not a struct and target is a struct.
+            // Source is a function node.
+            debugger;
             const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
             let index = _.findIndex(self.getFunctionDefinition(
                                                     connection.sourceReference.getRightExpression()).getReturnParams(),
                                                             (param) => {
-                                                                return param.name == connection.sourceProperty[0]});
+                                                                return param.name == connection.sourceStruct});
             assignmentStmtTarget.getLeftExpression().addChild(targetExpression, index);
             return assignmentStmtTarget.id;
         }
@@ -254,7 +260,6 @@ class TransformExpanded extends React.Component {
 
 
     createConnection(statement) {
-        debugger;
         if (BallerinaASTFactory.isAssignmentStatement(statement)) {
             // There can be multiple left expressions.
             // E.g. : e.name, e.username = p.first_name;
@@ -309,8 +314,8 @@ class TransformExpanded extends React.Component {
         // Removing this node means removing the assignment statement from the transform statement,
         // since this is the top most invocation.
         // Hence passing the assignment statement as remove reference.
-        this.mapper.addFunction(func, functionInvocationExpression,
-            statement.getParent().removeChild.bind(statement.getParent()), statement);
+        // this.mapper.addFunction(func, functionInvocationExpression,
+        //     statement.getParent().removeChild.bind(statement.getParent()), statement);
     }
 
     drawInnerFunctionDefinitionNodes(parentFunctionInvocationExpression, functionInvocationExpression, statement) {
@@ -437,7 +442,6 @@ class TransformExpanded extends React.Component {
     }
 
     getConnectionProperties(type, expression) {
-        debugger;
         const con = {};
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             const structVarRef = expression.getStructVariableReference();
@@ -654,19 +658,20 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log('updated');
         this.predefinedStructs = [];
         this.getSourcesAndTargets();
 
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach(key => {
             const {element, input} = this.sourceElements[key];
+            input.id = key;
             this.mapper.addSource(element, null, null, input);
         });
 
         const targetKeys = Object.keys(this.targetElements);
         targetKeys.forEach(key => {
             const {element, output} = this.targetElements[key];
+            output.id = key;
             this.mapper.addTarget(element, null, output);
         });
 
@@ -1106,11 +1111,10 @@ class TransformExpanded extends React.Component {
                         functionInvocationExpression.getFunctionName() + '" cannot be found');
                     return;
                 }
-                functions.push(func);
+                functions.push({func, assignmentStmt: child});
             }
         });
 
-            console.log(functions, '<----')
         return (
             <div id='transformOverlay' className='transformOverlay'>
                 <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay-content'
@@ -1147,7 +1151,15 @@ class TransformExpanded extends React.Component {
                     </div>
                     <div className="middle-content">
                         {
-                            functions.map(func => <FunctionInv key={func.getId()} func={func} />)
+                            functions.map(({func, assignmentStmt}) => (
+                                <FunctionInv
+                                    key={func.getId()}
+                                    func={func}
+                                    enclosingAssignmentStatement={assignmentStmt}
+                                    recordSourceElement={this.recordSourceElement}
+                                    recordTargetElement={this.recordTargetElement}
+                                />
+                            ))
                         }
                     </div>
                     <div className="target-view">

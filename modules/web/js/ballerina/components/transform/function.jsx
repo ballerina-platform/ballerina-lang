@@ -4,10 +4,32 @@ import './function.css';
 
 export default class FunctionInv extends React.Component {
     render() {
-        const {func} = this.props;
+        const {func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement} = this.props;
+        const params = func.getParameters().map(paramObj => {
+            const param = paramObj.innerType || paramObj;
+            const paramDetails = {
+                name: paramObj.name,
+                type: param.type,
+                typeName: param.typeName,
+                properties: param.properties,
+                endpointKind: 'param',
+                paramName: `${func.getFullPackageName()}:${func.getName()}:${param.name}`,
+                enclosingAssignmentStatement,
+            };
+
+            return paramDetails;
+        });
+
+        const returns = func.getReturnParams().map(returnsObj => {
+            return {
+                name: returnsObj.name,
+                type: returnsObj.typeName || returnsObj.type,
+                enclosingAssignmentStatement,
+            }
+        });
 
         return (
-            <div className='func'>
+            <div className='transform-expanded-func func'>
                 <div className='function-header'>
                     <i className='fw fw-function fw-inverse'/>
                     <span>{func.getName()}</span>
@@ -15,9 +37,23 @@ export default class FunctionInv extends React.Component {
                         <i className='fw-delete fw-stack-1x fw-inverse'/>
                     </span>
                 </div>
-                <div className='func-output'>
-                </div>
-                <div className='func-input'>
+                <div className='function-param-body'>
+                    <div className='func-input'>
+                        <Tree
+                            type='param'
+                            makeConnectPoint={recordTargetElement}
+                            endpoints={params}
+                            viewId=''
+                        />
+                    </div>
+                    <div className='func-output'>
+                        <Tree
+                            type='return'
+                            makeConnectPoint={recordSourceElement}
+                            endpoints={returns}
+                            viewId=''
+                        />
+                    </div>
                 </div>
             </div>
         );

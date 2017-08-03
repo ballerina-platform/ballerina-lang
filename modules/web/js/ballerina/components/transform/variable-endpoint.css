@@ -25,6 +25,14 @@
     float: left;
 }
 
+.transform-endpoint .return-connect-point {
+    float: right;
+}
+
+.transform-endpoint .param-connect-point {
+    float: left;
+}
+
 .transform-endpoint {
     position: relative;
     height: 30px;
