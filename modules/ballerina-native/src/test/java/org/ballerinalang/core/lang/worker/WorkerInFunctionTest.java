@@ -68,4 +68,26 @@ public class WorkerInFunctionTest {
         final String expected = "1100";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
+
+    @Test(description = "Test worker interactions with each other")
+    public void testWorkerMultipleInteractions() {
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-multiple-interactions.bal");
+        BValue[] args = {new BInteger(100)};
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testMultiInteractions", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        final String expected = "3";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    //@Test(description = "Test worker interactions inside if else")
+    public void testWorkerInteractionInCondition() {
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-if-else.bal");
+        BValue[] args = {new BInteger(100)};
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInteractionInCondition", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        final String expected = "3";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
 }

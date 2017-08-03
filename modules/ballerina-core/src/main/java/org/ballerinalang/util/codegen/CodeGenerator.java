@@ -634,6 +634,8 @@ public class CodeGenerator implements NodeVisitor {
             workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName());
             callableUnitInfo.addWorkerInfo(worker.getName(), workerInfo);
+
+            generateCallableUnitInfoDataChannelMap(worker, callableUnitInfo);
         }
     }
 
