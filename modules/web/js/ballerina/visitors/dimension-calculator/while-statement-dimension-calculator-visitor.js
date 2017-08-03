@@ -81,9 +81,9 @@ class WhileStatementDimensionCalculatorVisitor {
             if (child.viewState.bBox.w > statementContainerWidth) {
                 statementContainerWidth = child.viewState.bBox.w;
             }
-            if (child.viewState.widthExpansion > statementContainerWidthExpansion) {
-                statementContainerWidthExpansion = child.viewState.widthExpansion;
-                widthExpansion = child.viewState.widthExpansion;
+            if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
+                statementContainerWidthExpansion = child.viewState.bBox.expansionW;
+                widthExpansion = child.viewState.bBox.expansionW;
             }
         });
         // Iterate over connector declaration children
@@ -94,7 +94,7 @@ class WhileStatementDimensionCalculatorVisitor {
                 statementContainerWidth = child.viewState.components.statementViewState.bBox.w;
             }
         });
-        viewState.heightExpansion = statementContainerHeight;
+        viewState.bBox.expansionH = statementContainerHeight;
         // Iterating to set the height of the connector
         if (connectorDeclarationChildren.length > 0) {
             if (statementContainerHeight > (DesignerDefaults.statementContainer.height)) {
@@ -127,8 +127,8 @@ class WhileStatementDimensionCalculatorVisitor {
 
         components.statementContainer.h = statementContainerHeight;
         components.statementContainer.w = statementContainerWidth;
-        viewState.widthExpansion = widthExpansion;
-        components.statementContainerWidthExpansion = statementContainerWidthExpansion;
+        viewState.bBox.expansionW = widthExpansion;
+        components.statementContainer.expansionW = statementContainerWidthExpansion;
 
         // for compound statement like while we need to render condition expression
         // we will calculate the width of the expression and adjest the block statement

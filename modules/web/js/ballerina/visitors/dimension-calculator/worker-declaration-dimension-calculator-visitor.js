@@ -79,9 +79,9 @@ class WorkerDeclarationDimensionCalculatorVisitor {
             if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
-            if (child.viewState.widthExpansion > statementContainerWidthExpansion) {
-                statementContainerWidthExpansion = child.viewState.widthExpansion;
-                widthExpansion = child.viewState.widthExpansion;
+            if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
+                statementContainerWidthExpansion = child.viewState.bBox.expansionW;
+                widthExpansion = child.viewState.bBox.expansionW;
             }
         });
         // Iterate over connector declaration children
@@ -92,7 +92,7 @@ class WorkerDeclarationDimensionCalculatorVisitor {
                 statementWidth = child.viewState.components.statementViewState.bBox.w;
             }
         });
-        viewState.heightExpansion = statementHeight;
+        viewState.bBox.expansionH = statementHeight;
         // Iterating to set the height of the connector
         if (connectorDeclarationChildren.length > 0) {
             if (statementHeight > (DesignerDefaults.statementContainer.height)) {
@@ -120,8 +120,8 @@ class WorkerDeclarationDimensionCalculatorVisitor {
 
         components.statementContainer.h = statementHeight;
         components.statementContainer.w = statementWidth;
-        viewState.widthExpansion = widthExpansion;
-        components.statementContainerWidthExpansion = statementContainerWidthExpansion;
+        viewState.bBox.expansionW = widthExpansion;
+        components.statementContainer.expansionW = statementContainerWidthExpansion;
     }
 }
 

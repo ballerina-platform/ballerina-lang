@@ -63,8 +63,6 @@ class CatchStatement extends React.Component {
             title={'Catch'}
             expression={expression}
             editorOptions={this.editorOptions}
-            widthExpansion={model.viewState.widthExpansion}
-            heightExpansion={model.viewState.heightExpansion}
         >
             {children}
         </BlockStatementDecorator>);

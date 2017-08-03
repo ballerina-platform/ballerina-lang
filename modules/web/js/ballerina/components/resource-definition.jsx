@@ -41,6 +41,9 @@ class ResourceDefinition extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getResourceName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
+        const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
+        const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
+        statementContainerBBoxClone.w += connectorOffset;
 
         // lets calculate function worker lifeline bounding box.
         const resource_worker_bBox = {};
@@ -90,7 +93,7 @@ class ResourceDefinition extends React.Component {
                             icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                             iconColor='#025482'
                         />
-                        <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
+                        <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBoxClone}>
                             {children}
                         </StatementContainer>
                     </g>

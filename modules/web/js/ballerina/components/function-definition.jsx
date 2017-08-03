@@ -46,9 +46,9 @@ class FunctionDefinition extends React.Component {
         const name = this.props.model.getFunctionName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
         const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
-        const connectorOffset = this.props.model.getViewState().components.statementContainerWidthExpansion;
-
+        const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
         statementContainerBBoxClone.w += connectorOffset;
+
         // lets calculate function worker lifeline bounding box.
         const function_worker_bBox = {};
         function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;

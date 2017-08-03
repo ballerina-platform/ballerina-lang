@@ -71,7 +71,7 @@ class ElseIfStatement extends React.Component {
         const addElseIfBtn = (
             <g onClick={this.onAddElseIfClick}>
                 <rect
-                    x={bBox.x + bBox.w + model.viewState.widthExpansion - 10}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
                     y={bBox.y + bBox.h - 25}
                     width={20}
                     height={20}
@@ -80,7 +80,7 @@ class ElseIfStatement extends React.Component {
                     className="add-else-if-button"
                 />
                 <text
-                    x={bBox.x + bBox.w + model.viewState.widthExpansion - 4}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
                     y={bBox.y + bBox.h - 15}
                     width={20}
                     height={20}
@@ -98,8 +98,6 @@ class ElseIfStatement extends React.Component {
                 expression={expression}
                 utilities={addElseIfBtn}
                 editorOptions={editorOptions}
-                widthExpansion={model.viewState.widthExpansion}
-                heightExpansion={model.viewState.heightExpansion}
             >
                 {children}
             </BlockStatementDecorator>

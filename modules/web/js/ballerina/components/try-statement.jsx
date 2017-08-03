@@ -35,8 +35,6 @@ class TryStatement extends React.Component {
             bBox={bBox}
             title={'Try'}
             model={model.parent}
-            widthExpansion={model.viewState.widthExpansion}
-            heightExpansion={model.viewState.heightExpansion}
         >
             {children}
         </BlockStatementDecorator>);

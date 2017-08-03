@@ -194,8 +194,7 @@ class BlockStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit, widthExpansion = 0,
-            heightExpansion = 0 } = this.props;
+        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit} = this.props;
         const model = this.props.model;
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
@@ -240,7 +239,7 @@ class BlockStatementDecorator extends React.Component {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         const separatorGapV = titleH / 3;
-        const maxWidth = bBox.w + widthExpansion;
+        const maxWidth = bBox.w + bBox.expansionW;
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}

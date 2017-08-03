@@ -322,7 +322,7 @@ StatementDecorator.propTypes = {
     viewState: PropTypes.shape({
         bBox: PropTypes.instanceOf(SimpleBBox),
         fullExpression: PropTypes.string,
-        components: PropTypes.instanceOf(Object),
+        components: PropTypes.objectOf(PropTypes.instanceOf(SimpleBBox)),
     }).isRequired,
     children: PropTypes.node,
     model: PropTypes.instanceOf(ASTNode).isRequired,

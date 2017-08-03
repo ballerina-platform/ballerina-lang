@@ -65,7 +65,7 @@ class IfElseStatementDimensionCalculatorVisitor {
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
-        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(), child => child.getViewState().widthExpansion);
+        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(), child => child.getViewState().bBox.expansionW);
         if (sortedChildren.length <= 0) {
             const exception = {
                 message: 'Invalid number of children for if-else statement',
@@ -75,7 +75,7 @@ class IfElseStatementDimensionCalculatorVisitor {
         const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;
         const childWithMaxConnectorWidth = sortedChildrenfromConnectors[sortedChildrenfromConnectors.length - 1];
-        const maxConnectorWidth = childWithMaxConnectorWidth.getViewState().widthExpansion;
+        const maxConnectorWidth = childWithMaxConnectorWidth.getViewState().bBox.expansionW;
 
         _.forEach(node.getChildren(), (child) => {
             /**
@@ -87,8 +87,8 @@ class IfElseStatementDimensionCalculatorVisitor {
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
             }
 
-            if (child.getViewState().widthExpansion < maxConnectorWidth) {
-                child.getViewState().widthExpansion = maxConnectorWidth;
+            if (child.getViewState().bBox.expansionW < maxConnectorWidth) {
+                child.getViewState().bBox.expansionW = maxConnectorWidth;
             }
             statementHeight += child.getViewState().bBox.h;
         });
@@ -99,7 +99,7 @@ class IfElseStatementDimensionCalculatorVisitor {
 
         viewState.bBox.h = statementHeight + dropZoneHeight;
         viewState.bBox.w = statementWidth;
-        viewState.widthExpansion = maxConnectorWidth;
+        viewState.bBox.expansionW = maxConnectorWidth;
     }
 }
 

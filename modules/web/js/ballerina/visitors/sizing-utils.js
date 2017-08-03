@@ -127,9 +127,9 @@ class SizingUtil {
             if (child.viewState.bBox.w > statementContainerWidth) {
                 statementContainerWidth = child.viewState.bBox.w;
             }
-            if (child.viewState.widthExpansion > statementContainerWidthExpansion) {
-                statementContainerWidthExpansion = child.viewState.widthExpansion;
-                widthExpansion = child.viewState.widthExpansion;
+            if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
+                statementContainerWidthExpansion = child.viewState.bBox.expansionW;
+                widthExpansion = child.viewState.bBox.expansionW;
             }
         });
         // Iterate over connector declaration children
@@ -178,10 +178,10 @@ class SizingUtil {
         components.statementContainer.h = statementContainerHeight + DesignerDefaults.statement.height;
         components.statementContainer.w = statementContainerWidth;
         viewState.bBox.h = statementContainerHeight + blockStatement.heading.height + DesignerDefaults.statement.height;
-        viewState.widthExpansion = widthExpansion;
-        viewState.heightExpansion = statementContainerHeight + DesignerDefaults.statement.height;
+        viewState.bBox.expansionW = widthExpansion;
+        viewState.bBox.expansionH = statementContainerHeight + DesignerDefaults.statement.height;
         viewState.bBox.w = statementContainerWidth;
-        components.statementContainerWidthExpansion = statementContainerWidthExpansion;
+        components.statementContainer.expansionW = statementContainerWidthExpansion;
     }
 
     addParamDimenstion(viewState, expression, param, offset) {
@@ -242,12 +242,12 @@ class SizingUtil {
             statementHeight += childH;
             if ((childW + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = childW + statementContainerWidthPadding;
-                if (child.viewState.widthExpansion > connectorOffset) {
-                    connectorOffset = child.viewState.widthExpansion;
+                if (child.viewState.bBox.expansionW > connectorOffset) {
+                    connectorOffset = child.viewState.bBox.expansionW;
                 }
             }
         });
-        components.statementContainerWidthExpansion = connectorOffset;
+        components.statementContainer.expansionW = connectorOffset;
         /**
          * We add an extra gap to the statement container height, in order to maintain the gap between the
          * last statement's bottom margin and the default worker bottom rect's top margin
@@ -290,7 +290,7 @@ class SizingUtil {
             } else {
                 childViewState = child.getViewState();
             }
-            lifeLineWidth += childViewState.bBox.w + childViewState.widthExpansion + DesignerDefaults.lifeLine.gutter.h;
+            lifeLineWidth += childViewState.bBox.w + childViewState.bBox.expansionW + DesignerDefaults.lifeLine.gutter.h;
             childViewState.bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
                 (DesignerDefaults.lifeLine.head.height * 2);
             childViewState.components.statementContainer.h = _.max([components.statementContainer.h,
@@ -305,7 +305,7 @@ class SizingUtil {
         }
 
         components.body.w = components.statementContainer.w + DesignerDefaults.panel.body.padding.right +
-            DesignerDefaults.panel.body.padding.left + lifeLineWidth + components.statementContainerWidthExpansion;
+            DesignerDefaults.panel.body.padding.left + lifeLineWidth + components.statementContainer.expansionW;
         components.annotation.w = components.body.w;
 
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;

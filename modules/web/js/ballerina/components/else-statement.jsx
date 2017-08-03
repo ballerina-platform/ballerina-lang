@@ -32,8 +32,6 @@ class ElseStatement extends React.Component {
                 model={model}
                 bBox={bBox}
                 title={'Else'}
-                widthExpansion={model.viewState.widthExpansion}
-                heightExpansion={model.viewState.heightExpansion}
             >
                 {children}
             </BlockStatementDecorator>

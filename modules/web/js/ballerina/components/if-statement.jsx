@@ -63,7 +63,7 @@ class IfStatement extends React.Component {
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>
                 <rect
-                    x={bBox.x + bBox.w + model.viewState.widthExpansion - 10}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
                     y={bBox.y + bBox.h - 25}
                     width={20}
                     height={20}
@@ -72,7 +72,7 @@ class IfStatement extends React.Component {
                     className="add-else-button"
                 />
                 <text
-                    x={bBox.x + bBox.w + model.viewState.widthExpansion - 4}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
                     y={bBox.y + bBox.h - 15}
                     width={20}
                     height={20}
@@ -90,8 +90,6 @@ class IfStatement extends React.Component {
                 editorOptions={this.editorOptions}
                 model={model.parent}
                 utilities={addElseBtn}
-                widthExpansion={model.viewState.widthExpansion}
-                heightExpansion={model.viewState.heightExpansion}
             >
                 {children}
             </BlockStatementDecorator>

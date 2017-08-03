@@ -192,15 +192,15 @@ class ConnectorDeclarationPositionCalcVisitor {
                 let totalWorkerStmtContainerWidth = 0;
                 _.forEach(workers, (worker) => {
                     totalWorkerStmtContainerWidth += (worker.getViewState().components.statementContainer.w +
-                    worker.getViewState().components.statementContainerWidthExpansion);
+                    worker.getViewState().components.statementContainer.expansionW);
                 });
                 xPosition = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
                     parentViewState.components.statementContainer.w + totalWorkerStmtContainerWidth +
-                    parentViewState.components.statementContainerWidthExpansion +
+                    parentViewState.components.statementContainer.expansionW +
                     (DesignerDefaults.lifeLine.gutter.h * (workers.length + 1));
             } else {
                 xPosition = parentViewState.components.statementContainer.getRight() +
-                    DesignerDefaults.lifeLine.gutter.h + parentViewState.components.statementContainerWidthExpansion;
+                    DesignerDefaults.lifeLine.gutter.h + parentViewState.components.statementContainer.expansionW;
             }
         } else if (connectorIndex > 0) {
             const previousConnector = connectors[connectorIndex - 1];

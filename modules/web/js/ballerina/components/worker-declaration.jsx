@@ -45,7 +45,7 @@ class WorkerDeclaration extends React.Component {
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
         const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
-        const connectorOffset = this.props.model.getViewState().components.statementContainerWidthExpansion;
+        const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
 
         statementContainerBBoxClone.w += connectorOffset;
         const workerBBox = {};
