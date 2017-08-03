@@ -101,7 +101,7 @@ public class StoreQueryParser {
             initMetaStreamEvent(metaStreamEvent, table.getTableDefinition());
             MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                     table.getTableDefinition());
-            CompiledExpression compiledExpression = table.compileExpression(onCondition, metaStreamInfoHolder,
+            CompiledExpression compiledExpression = table.compileCondition(onCondition, metaStreamInfoHolder,
                     siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
             StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(table, compiledExpression, queryName,
                     metaStreamEvent.getEventType());
@@ -130,7 +130,7 @@ public class StoreQueryParser {
                     initMetaStreamEvent(metaStreamEvent, window.getWindowDefinition());
                     MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                             window.getWindowDefinition());
-                    CompiledExpression compiledExpression = window.compileExpression(onCondition,
+                    CompiledExpression compiledExpression = window.compileCondition(onCondition,
                             generateMatchingMetaInfoHolder(metaStreamEvent, window.getWindowDefinition()),
                             siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
                     StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(window, compiledExpression, queryName,
