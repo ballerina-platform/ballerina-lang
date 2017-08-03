@@ -21,15 +21,17 @@ package org.wso2.siddhi.query.api.execution.query.output.stream;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Updating UpdateSet Attribute for UpdateStream
  */
-public class UpdateSet {
+public class UpdateSet implements Serializable {
 
-  private List<SetAttribute> setAttributeList = new ArrayList<>();
+    private static final long serialVersionUID = 1L;
+    private List<SetAttribute> setAttributeList = new ArrayList<>();
 
     public UpdateSet set(Variable tableVariable, Expression assignmentExpression) {
         setAttributeList.add(new SetAttribute(tableVariable, assignmentExpression));
@@ -40,10 +42,38 @@ public class UpdateSet {
         return setAttributeList;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        UpdateSet updateSet = (UpdateSet) o;
+
+        return setAttributeList != null ? setAttributeList.equals(updateSet.setAttributeList) : updateSet.setAttributeList == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return setAttributeList != null ? setAttributeList.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateSet{" +
+                "setAttributeList=" + setAttributeList +
+                '}';
+    }
+
     /**
      * Attribute assignment for updates
      */
-    public static class SetAttribute {
+    public static class SetAttribute implements Serializable {
+
+        private static final long serialVersionUID = 1L;
         private Variable tableVariable;
         private Expression assignmentExpression;
 
@@ -58,6 +88,38 @@ public class UpdateSet {
 
         public Expression getAssignmentExpression() {
             return assignmentExpression;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            SetAttribute that = (SetAttribute) o;
+
+            if (tableVariable != null ? !tableVariable.equals(that.tableVariable) : that.tableVariable != null) {
+                return false;
+            }
+            return assignmentExpression != null ? assignmentExpression.equals(that.assignmentExpression) : that.assignmentExpression == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = tableVariable != null ? tableVariable.hashCode() : 0;
+            result = 31 * result + (assignmentExpression != null ? assignmentExpression.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "SetAttribute{" +
+                    "tableVariable=" + tableVariable +
+                    ", assignmentExpression=" + assignmentExpression +
+                    '}';
         }
     }
 }

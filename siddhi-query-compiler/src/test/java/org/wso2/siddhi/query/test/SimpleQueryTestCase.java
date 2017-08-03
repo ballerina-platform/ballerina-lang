@@ -24,6 +24,7 @@ import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -481,6 +482,56 @@ public class SimpleQueryTestCase {
                         select("symbol", Expression.variable("symbol")).
                         select("avgPrice", Expression.function("ext", "avg", Expression.variable("symbol")))
         );
+
+    }
+
+    @Test
+    public void test10() {
+        Query queryString = SiddhiCompiler.parseQuery("" +
+                "from  StockStream[7+9.5 > price and 100 >= volume]#window.length(50) " +
+                " " +
+                "select symbol as symbol, price as price, volume as volume  " +
+                "update StockQuote \n " +
+                "   set StockQuote.price = price, \n " +
+                "    StockQuote.volume = volume " +
+                " on symbol==StockQuote.symbol ;"
+        );
+        Assert.assertNotNull(queryString);
+
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("StockStream").
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
+                                )
+                        ).window("length", Expression.value(50))
+        );
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        select("price", Expression.variable("price")).
+                        select("volume", Expression.variable("volume"))
+        );
+        query.updateBy("StockQuote", OutputStream.OutputEventType.CURRENT_EVENTS,
+                UpdateStream.updateSet().
+                        set(
+                                Expression.variable("price").ofStream("StockQuote"),
+                                Expression.variable("price")).
+                        set(
+                                Expression.variable("volume").ofStream("StockQuote"),
+                                Expression.variable("volume")),
+                Expression.compare(
+                        Expression.variable("symbol"),
+                        Compare.Operator.EQUAL,
+                        Expression.variable("symbol").ofStream("StockQuote")));
+
+        Assert.assertEquals(query, queryString);
 
     }
 
