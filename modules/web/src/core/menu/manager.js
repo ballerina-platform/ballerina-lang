@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import Plugin from 'plugin/plugin';
+import Plugin from './../plugin/plugin';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';

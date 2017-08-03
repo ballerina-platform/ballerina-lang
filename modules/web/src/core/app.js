@@ -18,12 +18,12 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import 'css/preloader.css';
-import Plugin from 'plugin/plugin';
-import { ACTIVATION_POLICIES } from './../plugin/constants';
+import Plugin from './plugin/plugin';
+import { ACTIVATION_POLICIES } from './plugin/constants';
 
-import commandManager from './commands/manager';
-import LayoutManagerPlugin from './plugins/layout-manager/plugin';
-import ApplicationMenuPlugin from './plugins/application-menu/plugin';
+import commandManager from './command/manager';
+import LayoutManager from './layout/manager';
+import MenuManager from './menu/manager';
 
 /**
  * Composer Application
@@ -51,9 +51,9 @@ class Application {
             commandChannel: commandManager.commandChannelProxy,
         };
 
-        // Initialize special core plugins
-        this.plugins.push(new LayoutManagerPlugin());
-        this.plugins.push(new ApplicationMenuPlugin());
+        // Initialize core plugins
+        this.plugins.push(new LayoutManager());
+        this.plugins.push(new MenuManager());
 
         // load other plugins
         this.loadPlugins(_.get(config, 'app.plugins', []));

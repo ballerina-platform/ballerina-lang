@@ -10,7 +10,9 @@ export function getHandlerDefinitions(layoutManager) {
     return [
         {
             cmdID: COMMANDS.ADD_VIEW_TO_LAYOUT,
-            handler: (view) => {
+            handler: (view, options) => {
+                const { region } = options;
+                layoutManager.addViewToLayout(view, region);
             },
         },
         {

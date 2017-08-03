@@ -16,12 +16,14 @@
  * under the License.
  */
 import GoldenLayout from 'golden-layout';
-import Plugin from 'plugin/plugin';
+import Plugin from './../plugin/plugin';
+
 import 'golden-layout/src/css/goldenlayout-base.css';
 import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
+import { REGIONS } from './constants';
 
 /* This is the default layout of the composer third party apps can
  overise this by passing in a special config. */
@@ -38,7 +40,7 @@ const defaultLayout = {
         showCloseIcon: false,
     },
     dimensions: {
-        borderWidth: 5,
+        borderWidth: 2,
         minItemHeight: 10,
         minItemWidth: 10,
         headerHeight: 20,
@@ -61,6 +63,7 @@ const defaultLayout = {
             content: [{
                 header: {
                     show: false,
+                    frozen: true,
                 },
                 splitters: false,
                 type: 'component',
@@ -153,6 +156,19 @@ class LayoutManagerPlugin extends Plugin {
                                 ? this.config.layout : defaultLayout;
         // create the layout
         this.composerLayout = new GoldenLayout(glConfig);
+    }
+
+    /**
+     * Adds given view to the specified region.
+     *
+     * @param {Object} view 
+     * @param {String} region 
+     */
+    addViewToLayout(view, region) {
+        // Seperately handle view meant for static regions
+        if (region === REGIONS.ACTIVITY_BAR || region === REGIONS.HEADER) {
+
+        }
     }
 
     /**
