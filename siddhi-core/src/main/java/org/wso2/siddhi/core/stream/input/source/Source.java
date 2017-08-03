@@ -135,6 +135,7 @@ public abstract class Source implements Snapshotable {
             } catch (RuntimeException e) {
                 LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
                         "', " + e.getMessage() + ".", e);
+                throw e;
             }
         }
     }
