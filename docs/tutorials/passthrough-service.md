@@ -16,6 +16,21 @@ When defining a Ballerina program as a service instead of an executable program,
 
 A service is a container of `resources`, each of which defines the logic for handling one type of request. Services are singletons, so all variables defined within a service scope are shared across all resource invocations. A service can have state for as long as it's active.
 
+In this tutorial, the service and the resource are also represented by the URL that you are calling. For example, the following is the URL for a service:
+
+> http://localhost:9090/books
+
+If you are accessing a different service, like magazines for example, you can have magazines instead of books in the above URL.
+
+If you are accessing a resource within this service, like book titles for example, the URL is as follows:
+
+> http://localhost:9090/books/title
+
+This is how resources and services can equate to the URL that you are calling.
+
 1. To define a service in the Composer, drag the service from the tool palette to the canvas. You can then set the base path annotation using the Annotations button in the upper right corner of the service, and define any variables the service needs by clicking the Variables button in the upper left corner. A new resource is added automatically to the service, where you can start adding your integration logic. You can add more resources as needed.
 
     ![alt text](../images/AddService.gif)
+1. Select an HTTP identifier from the dropdown available. In this case, you can use GET since you are aiming to get the information using a URL. If you use both a GET and a POST, you need to add a new resource.
+    ![alt text](../images/IdentifierHTTP.png)
+
