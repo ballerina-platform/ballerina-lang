@@ -58,7 +58,7 @@ public class GroupByKeyGenerator {
      * @param event complexEvent
      * @return GroupByKey
      */
-    protected String constructEventKey(ComplexEvent event) {
+    public String constructEventKey(ComplexEvent event) {
         if (groupByExecutors != null) {
             StringBuilder sb = new StringBuilder();
             for (ExpressionExecutor executor : groupByExecutors) {

@@ -67,6 +67,11 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
                 break;
             case OR:
                 super.process(stateEvent, complexEventChunk);
+                if (partnerPostStateProcessor.nextProcessor != null && thisStatePreProcessor.thisLastProcessor ==
+                        partnerPostStateProcessor) {
+                    // 'from A or B select' scenario require this
+                    partnerPostStateProcessor.isEventReturned = true;
+                }
                 break;
             case NOT:
                 break;

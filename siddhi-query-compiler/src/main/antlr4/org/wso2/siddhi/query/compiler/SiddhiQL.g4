@@ -33,9 +33,9 @@ error
 
 siddhi_app
     : (app_annotation|error)*
-      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
-      | (execution_element|error) (';' (execution_element|error))* ';'?
-      | (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
+      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error))* ';'?
+      || (execution_element|error) (';' (execution_element|error))* ';'?
+      || (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error))* (';' (execution_element|error))* ';'? )
     ;
 
 execution_element
@@ -64,6 +64,18 @@ definition_window_final
 
 definition_window
     : annotation* DEFINE WINDOW source '(' attribute_name attribute_type (',' attribute_name attribute_type )* ')' function_operation ( OUTPUT output_event_type )?
+    ;
+
+store_query_final
+    : store_query ';'? EOF
+    ;
+
+store_query
+    : FROM store_input query_section?
+    ;
+
+store_input
+    : source_id (AS alias)? (ON expression)? (within_time_range per)?
     ;
 
 definition_function_final
@@ -96,6 +108,35 @@ definition_trigger
 
 trigger_name
     : id
+    ;
+
+definition_aggregation_final
+    : definition_aggregation ';'? EOF
+    ;
+
+definition_aggregation
+    : annotation* DEFINE AGGREGATION aggregation_name FROM standard_stream group_by_query_selection AGGREGATE (BY attribute_reference)? EVERY aggregation_time
+    ;
+
+aggregation_name
+    : id
+    ;
+
+aggregation_time
+    : aggregation_time_range
+    | aggregation_time_interval
+    ;
+
+aggregation_time_duration
+    : (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)
+    ;
+
+aggregation_time_range
+    : aggregation_time_duration TRIPLE_DOT aggregation_time_duration
+    ;
+
+aggregation_time_interval
+    :  aggregation_time_duration (COMMA aggregation_time_duration)*
     ;
 
 annotation
@@ -148,13 +189,13 @@ standard_stream
     ;
 
 join_stream
-    :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)? within_time?
-    |left_source=join_source join right_source=join_source (ON expression)? within_time?
-    |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)? within_time?
+    :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)? (within_time_range per)?
+    |left_source=join_source join right_source=join_source (ON expression)? (within_time_range per)?
+    |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)? (within_time_range per)?
     ;
 
 join_source
-    :source basic_source_stream_handlers? window? (AS stream_alias)?
+    :source basic_source_stream_handlers? window? (AS alias)?
     ;
 
 pattern_stream
@@ -240,8 +281,12 @@ window
     :'#' WINDOW '.' function_operation
     ;
 
+group_by_query_selection
+    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by?
+    ;
+
 query_section
-    :(SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
+    : group_by_query_selection having?
     ;
 
 group_by
@@ -285,6 +330,13 @@ output_rate_type
 
 within_time
     :WITHIN time_value
+    ;
+
+within_time_range
+    :WITHIN start_pattern=expression (',' end_pattern=expression)?
+    ;
+
+per :PER expression
     ;
 
 output_attribute
@@ -354,7 +406,11 @@ stream_id
     :name
     ;
 
-stream_alias
+source_id
+    :name
+    ;
+
+alias
     :name
     ;
 
@@ -582,6 +638,7 @@ STRING_VAL
 COL : ':';
 SCOL : ';';
 DOT : '.';
+TRIPLE_DOT : '...';
 OPEN_PAR : '(';
 CLOSE_PAR : ')';
 OPEN_SQARE_BRACKETS : '[';
@@ -672,6 +729,9 @@ FLOAT:    F L O A T;
 DOUBLE:   D O U B L E;
 BOOL:     B O O L;
 OBJECT:   O B J E C T;
+AGGREGATION: A G G R E G A T I O N;
+AGGREGATE: A G G R E G A T E;
+PER:      P E R;
 
 ID_QUOTES : '`'[a-zA-Z_] [a-zA-Z_0-9]*'`' {setText(getText().substring(1, getText().length()-1));};
 

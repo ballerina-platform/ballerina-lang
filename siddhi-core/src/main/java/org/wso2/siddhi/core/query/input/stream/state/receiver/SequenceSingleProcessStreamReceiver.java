@@ -71,7 +71,7 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
     }
 
     @Override
-    public void receive(long timeStamp, Object[] data) {
-        super.receive(timeStamp, data);
+    public void receive(long timestamp, Object[] data) {
+        super.receive(timestamp, data);
     }
 }

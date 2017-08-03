@@ -55,15 +55,14 @@ public class SelectorParser {
      *
      * @param selector                    selector to be parsed
      * @param outputStream                output stream
-     * @param siddhiAppContext        query to be parsed
+     * @param siddhiAppContext            query to be parsed
      * @param metaComplexEvent            Meta event used to collect execution info of stream associated with query
      * @param tableMap                    Table Map
      * @param variableExpressionExecutors variable expression executors
      * @param queryName                   query name of selector belongs to.
      * @return QuerySelector
      */
-    public static QuerySelector parse(Selector selector, OutputStream outputStream, SiddhiAppContext
-            siddhiAppContext,
+    public static QuerySelector parse(Selector selector, OutputStream outputStream, SiddhiAppContext siddhiAppContext,
                                       MetaComplexEvent metaComplexEvent, Map<String, Table> tableMap,
                                       List<VariableExpressionExecutor> variableExpressionExecutors, String queryName) {
         boolean currentOn = false;
@@ -105,9 +104,9 @@ public class SelectorParser {
      *
      * @param selector                    Selector
      * @param id                          stream id
-     * @param siddhiAppContext        siddhi app context
+     * @param siddhiAppContext            siddhi app context
      * @param metaComplexEvent            meta ComplexEvent
-     * @param tableMap               Table Map
+     * @param tableMap                    Table Map
      * @param variableExpressionExecutors list of VariableExpressionExecutors
      * @return list of AttributeProcessors
      */

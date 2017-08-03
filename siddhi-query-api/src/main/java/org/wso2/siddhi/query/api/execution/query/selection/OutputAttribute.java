@@ -20,11 +20,14 @@ package org.wso2.siddhi.query.api.execution.query.selection;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.io.Serializable;
+
 /**
  * Query output stream attributes
  */
-public class OutputAttribute {
+public class OutputAttribute implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private String rename;
     private Expression expression;
 

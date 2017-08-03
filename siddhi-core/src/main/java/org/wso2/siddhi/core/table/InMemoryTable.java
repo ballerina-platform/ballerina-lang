@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
@@ -49,7 +50,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * In-memory event table implementation of SiddhiQL.
  */
-public class InMemoryTable implements Table, Snapshotable {
+public class InMemoryTable extends Table implements Snapshotable {
 
     private TableDefinition tableDefinition;
     private StreamEventCloner tableStreamEventCloner;
@@ -57,10 +58,10 @@ public class InMemoryTable implements Table, Snapshotable {
     private EventHolder eventHolder;
     private String elementId;
 
+
     @Override
-    public void init(TableDefinition tableDefinition,
-                     StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+            StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 
@@ -142,7 +143,22 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
+    protected void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    protected void disconnect() {
+
+    }
+
+    @Override
+    protected void destroy() {
+
+    }
+
+    @Override
+    public StreamEvent find(CompiledExpression compiledExpression, StateEvent matchingEvent) {
         try {
             readWriteLock.readLock().lock();
             return ((Operator) compiledExpression).find(matchingEvent, eventHolder, tableStreamEventCloner);

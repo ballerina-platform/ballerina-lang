@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
+import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ public class QuerySelector implements Processor {
 
 
     private static final Logger log = Logger.getLogger(QuerySelector.class);
-    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
     private SiddhiAppContext siddhiAppContext;
     private boolean currentOn = false;
@@ -67,33 +67,53 @@ public class QuerySelector implements Processor {
         this.siddhiAppContext = siddhiAppContext;
     }
 
-    public static String getThreadLocalGroupByKey() {
-        return keyThreadLocal.get();
-    }
-
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
 
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
+        ComplexEventChunk outputComplexEventChunk = null;
         if (containsAggregator && complexEventChunk.isBatch() && batchingEnabled) {
             if (isGroupBy) {
-                processInBatchGroupBy(complexEventChunk);
+                outputComplexEventChunk = processInBatchGroupBy(complexEventChunk);
             } else {
-                processInBatchNoGroupBy(complexEventChunk);
+                outputComplexEventChunk = processInBatchNoGroupBy(complexEventChunk);
             }
         } else {
             if (isGroupBy) {
-                processGroupBy(complexEventChunk);
+                outputComplexEventChunk = processGroupBy(complexEventChunk);
             } else {
-                processNoGroupBy(complexEventChunk);
+                outputComplexEventChunk = processNoGroupBy(complexEventChunk);
             }
+        }
+        if (outputComplexEventChunk != null) {
+            outputRateLimiter.process(outputComplexEventChunk);
         }
 
     }
 
-    private void processNoGroupBy(ComplexEventChunk complexEventChunk) {
+    public ComplexEventChunk execute(ComplexEventChunk complexEventChunk) {
+
+        if (log.isTraceEnabled()) {
+            log.trace("event is executed by selector " + id + this);
+        }
+        if (containsAggregator && complexEventChunk.isBatch() && batchingEnabled) {
+            if (isGroupBy) {
+                return processInBatchGroupBy(complexEventChunk);
+            } else {
+                return processInBatchNoGroupBy(complexEventChunk);
+            }
+        } else {
+            if (isGroupBy) {
+                return processGroupBy(complexEventChunk);
+            } else {
+                return processNoGroupBy(complexEventChunk);
+            }
+        }
+    }
+
+    private ComplexEventChunk processNoGroupBy(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         synchronized (this) {
             while (complexEventChunk.hasNext()) {
@@ -125,11 +145,12 @@ public class QuerySelector implements Processor {
         }
         complexEventChunk.reset();
         if (complexEventChunk.hasNext()) {
-            outputRateLimiter.process(complexEventChunk);
+            return complexEventChunk;
         }
+        return null;
     }
 
-    private void processGroupBy(ComplexEventChunk complexEventChunk) {
+    private ComplexEventChunk<ComplexEvent> processGroupBy(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
 
         ComplexEventChunk<ComplexEvent> currentComplexEventChunk = new ComplexEventChunk<ComplexEvent>
@@ -144,7 +165,7 @@ public class QuerySelector implements Processor {
                     case EXPIRED:
                         eventPopulator.populateStateEvent(event);
                         String groupedByKey = groupByKeyGenerator.constructEventKey(event);
-                        keyThreadLocal.set(groupedByKey);
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().set(groupedByKey);
 
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
@@ -156,7 +177,7 @@ public class QuerySelector implements Processor {
                                 currentComplexEventChunk.add(new GroupedComplexEvent(groupedByKey, event));
                             }
                         }
-                        keyThreadLocal.remove();
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().remove();
                         break;
                     case TIMER:
                         break;
@@ -170,11 +191,12 @@ public class QuerySelector implements Processor {
         }
         currentComplexEventChunk.reset();
         if (currentComplexEventChunk.hasNext()) {
-            outputRateLimiter.process(currentComplexEventChunk);
+            return currentComplexEventChunk;
         }
+        return null;
     }
 
-    private void processInBatchNoGroupBy(ComplexEventChunk complexEventChunk) {
+    private ComplexEventChunk processInBatchNoGroupBy(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         ComplexEvent lastEvent = null;
 
@@ -210,11 +232,12 @@ public class QuerySelector implements Processor {
         if (lastEvent != null) {
             complexEventChunk.clear();
             complexEventChunk.add(lastEvent);
-            outputRateLimiter.process(complexEventChunk);
+            return complexEventChunk;
         }
+        return null;
     }
 
-    private void processInBatchGroupBy(ComplexEventChunk complexEventChunk) {
+    private ComplexEventChunk processInBatchGroupBy(ComplexEventChunk complexEventChunk) {
         Map<String, ComplexEvent> groupedEvents = new LinkedHashMap<String, ComplexEvent>();
         complexEventChunk.reset();
 
@@ -227,7 +250,7 @@ public class QuerySelector implements Processor {
                     case EXPIRED:
                         eventPopulator.populateStateEvent(event);
                         String groupByKey = groupByKeyGenerator.constructEventKey(event);
-                        keyThreadLocal.set(groupByKey);
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().set(groupByKey);
 
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
@@ -240,7 +263,7 @@ public class QuerySelector implements Processor {
                                 groupedEvents.put(groupByKey, event);
                             }
                         }
-                        keyThreadLocal.remove();
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().remove();
                         break;
                     case TIMER:
                         break;
@@ -256,22 +279,18 @@ public class QuerySelector implements Processor {
         if (groupedEvents.size() != 0) {
             complexEventChunk.clear();
             for (Map.Entry<String, ComplexEvent> groupedEventEntry : groupedEvents.entrySet()) {
-                complexEventChunk.add(new GroupedComplexEvent(groupedEventEntry.getKey(), groupedEventEntry.getValue
-                        ()));
+                complexEventChunk.add(new GroupedComplexEvent(groupedEventEntry.getKey(),
+                        groupedEventEntry.getValue()));
             }
             complexEventChunk.reset();
-            outputRateLimiter.process(complexEventChunk);
+            return complexEventChunk;
         }
+        return null;
     }
 
     @Override
     public Processor getNextProcessor() {
         return null;    //since there is no processors after a query selector
-    }
-
-    @Override
-    public void setNextProcessor(Processor processor) {
-        //this method will not be used as there is no processors after a query selector
     }
 
     public void setNextProcessor(OutputRateLimiter outputRateLimiter) {
@@ -280,6 +299,11 @@ public class QuerySelector implements Processor {
         } else {
             throw new SiddhiAppCreationException("outputRateLimiter is already assigned");
         }
+    }
+
+    @Override
+    public void setNextProcessor(Processor processor) {
+        //this method will not be used as there is no processors after a query selector
     }
 
     @Override
@@ -318,7 +342,7 @@ public class QuerySelector implements Processor {
 
     public QuerySelector clone(String key) {
         QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn,
-                                                              siddhiAppContext);
+                siddhiAppContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor(key));

@@ -49,21 +49,21 @@ import java.util.Map;
         )
 )
 public class InMemorySource extends Source {
-    private static final Logger log = Logger.getLogger(InMemorySource.class);
+    private static final Logger LOG = Logger.getLogger(InMemorySource.class);
     private static final String TOPIC_KEY = "topic";
     private SourceEventListener sourceEventListener;
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader,
-                     SiddhiAppContext
-            siddhiAppContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                     String[] requestedTransportPropertyNames, ConfigReader configReader,
+                     SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory source");
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
-                sourceEventListener.onEvent(event);
+                sourceEventListener.onEvent(event, null);
             }
 
             @Override
@@ -74,7 +74,12 @@ public class InMemorySource extends Source {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public Class[] getOutputEventClasses() {
+        return new Class[]{};
+    }
+
+    @Override
+    public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         InMemoryBroker.subscribe(subscriber);
     }
 

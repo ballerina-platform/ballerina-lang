@@ -20,7 +20,7 @@ package org.wso2.siddhi.query.api.expression.math;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
- * Subtract {@link Expression}
+ * subtract {@link Expression}
  */
 public class Subtract extends Expression {
 

@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.util.persistence;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
-import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 
 /**
@@ -33,13 +32,11 @@ public class PersistenceService {
     private String siddhiAppName;
     private PersistenceStore persistenceStore;
     private SnapshotService snapshotService;
-    private ThreadBarrier threadBarrier;
 
     public PersistenceService(SiddhiAppContext siddhiAppContext) {
         this.snapshotService = siddhiAppContext.getSnapshotService();
         this.persistenceStore = siddhiAppContext.getSiddhiContext().getPersistenceStore();
         this.siddhiAppName = siddhiAppContext.getName();
-        this.threadBarrier = siddhiAppContext.getThreadBarrier();
     }
 
 
@@ -58,13 +55,12 @@ public class PersistenceService {
             return revision;
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
-                                                          siddhiAppName);
+                    siddhiAppName);
         }
 
     }
 
     public void restoreRevision(String revision) {
-
         if (persistenceStore != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Restoring revision: " + revision + " ...");
@@ -76,25 +72,23 @@ public class PersistenceService {
             }
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
-                                                          siddhiAppName);
+                    siddhiAppName);
         }
-
     }
 
     public void restoreLastRevision() {
-        try {
-            this.threadBarrier.lock();
-            if (persistenceStore != null) {
-                String revision = persistenceStore.getLastRevision(siddhiAppName);
-                if (revision != null) {
-                    restoreRevision(revision);
-                }
-            } else {
-                throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
-                                                              siddhiAppName);
+        if (persistenceStore != null) {
+            String revision = persistenceStore.getLastRevision(siddhiAppName);
+            if (revision != null) {
+                restoreRevision(revision);
             }
-        } finally {
-            threadBarrier.unlock();
+        } else {
+            throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
+                    siddhiAppName);
         }
+    }
+
+    public void restore(byte[] snapshot) {
+        snapshotService.restore(snapshot);
     }
 }

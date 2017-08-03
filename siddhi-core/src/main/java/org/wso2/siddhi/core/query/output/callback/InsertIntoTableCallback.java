@@ -64,7 +64,7 @@ public class InsertIntoTableCallback extends OutputCallback {
                         borrowEvent);
                 streamEventChunk.add(borrowEvent);
             }
-            table.add(streamEventChunk);
+            table.addEvents(streamEventChunk);
         } else {
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
@@ -73,7 +73,7 @@ public class InsertIntoTableCallback extends OutputCallback {
                     complexEvent.setType(ComplexEvent.Type.CURRENT);
                 }
             }
-            table.add((ComplexEventChunk<StreamEvent>) complexEventChunk);
+            table.addEvents((ComplexEventChunk<StreamEvent>) complexEventChunk);
         }
     }
 

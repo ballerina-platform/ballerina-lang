@@ -27,7 +27,6 @@ import java.util.Arrays;
 public class Event {
 
     protected long timestamp = -1;
-    protected long id = -1;
     protected Object[] data;
     protected boolean isExpired = false;
 
@@ -42,14 +41,6 @@ public class Event {
 
     public Event(int dataSize) {
         this.data = new Object[dataSize];
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public long getTimestamp() {
@@ -80,7 +71,6 @@ public class Event {
     public String toString() {
         return "Event{" +
                 "timestamp=" + timestamp +
-                ", id=" + id +
                 ", data=" + Arrays.toString(data) +
                 ", isExpired=" + isExpired +
                 '}';

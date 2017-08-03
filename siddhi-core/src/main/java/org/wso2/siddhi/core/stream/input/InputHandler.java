@@ -50,9 +50,9 @@ public class InputHandler {
         }
     }
 
-    public void send(long timeStamp, Object[] data) throws InterruptedException {
+    public void send(long timestamp, Object[] data) throws InterruptedException {
         if (inputProcessor != null) {
-            inputProcessor.send(timeStamp, data, streamIndex);
+            inputProcessor.send(timestamp, data, streamIndex);
         }
     }
 

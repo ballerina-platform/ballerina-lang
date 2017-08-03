@@ -26,6 +26,7 @@ public final class SiddhiConstants {
     public static final String NAMESPACE_STORE = "store";
     public static final String NAMESPACE_SOURCE = "source";
     public static final String NAMESPACE_SOURCE_MAPPER = "sourceMapper";
+    public static final String NAMESPACE_SCRIPT = "script";
 
     public static final String NAMESPACE_SINK = "sink";
     public static final String NAMESPACE_SINK_MAPPER = "sinkMapper";
@@ -55,6 +56,7 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_SOURCE = "Source";
     public static final String ANNOTATION_SINK = "Sink";
     public static final String ANNOTATION_MAP = "Map";
+    public static final String ANNOTATION_SCRIPT = "Script";
     public static final String ANNOTATION_DISTRIBUTION = "Distribution";
     public static final String ANNOTATION_DESTINATION = "Destination";
     public static final String ANNOTATION_ATTRIBUTES = "Attributes";
@@ -63,6 +65,8 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_ELEMENT_IDLE_TIME = "idle.time";
     public static final String ANNOTATION_ELEMENT_INCREMENT = "increment";
     public static final String ANNOTATION_ELEMENT_TYPE = "type";
+    public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
+    public static final String ANNOTATION_ELEMENT_REF = "ref";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";
@@ -80,6 +84,7 @@ public final class SiddhiConstants {
     public static final String METRIC_INFIX_STREAMS = "Streams";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
     public static final String METRIC_INFIX_QUERIES = "Queries";
+    public static final String METRIC_INFIX_AGGRIGATIONS = "Aggregations";
     public static final String METRIC_INFIX_WINDOWS = "Windows";
     public static final String METRIC_DELIMITER = ".";
     public static final String METRIC_AGGREGATE_ANNOTATION = "[+]";

@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 
@@ -32,6 +31,7 @@ import java.util.Map;
  */
 public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
+    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private final ConfigReader configReader;
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
@@ -52,7 +52,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
             }
             return aOutput;
         }
-        String key = QuerySelector.getThreadLocalGroupByKey();
+        String key = keyThreadLocal.get();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
@@ -65,6 +65,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
+
                                                        attributeExpressionExecutors, configReader, siddhiAppContext,
                                                        queryName);
     }
@@ -92,5 +93,9 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
             aAttributeAggregator.restoreState(entry.getValue());
             aggregatorMap.put(key, aAttributeAggregator);
         }
+    }
+
+    public static ThreadLocal<String> getKeyThreadLocal() {
+        return keyThreadLocal;
     }
 }

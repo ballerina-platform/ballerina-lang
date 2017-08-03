@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.query.api.annotation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +25,12 @@ import java.util.stream.Collectors;
 /**
  * Annotation for siddhi functions and extensions
  */
-public class Annotation {
+public class Annotation implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private String name;
-    private List<Element> elements = new ArrayList<Element>();
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private ArrayList<Element> elements = new ArrayList<Element>();
+    private ArrayList<Annotation> annotations = new ArrayList<Annotation>();
 
     public Annotation(String name) {
         this.name = name;
@@ -50,7 +53,8 @@ public class Annotation {
     }
 
     public void setElements(List<Element> elements) {
-        this.elements = elements;
+        this.elements.clear();
+        this.elements.addAll(elements);
     }
 
     public String getElement(String key) {
@@ -82,7 +86,8 @@ public class Annotation {
     }
 
     public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotations.clear();
+        this.annotations.addAll(annotations);
     }
 
     public List<Annotation> getAnnotations(String name) {

@@ -174,9 +174,9 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(long timeStamp, Object[] data) {
+    public void receive(long timestamp, Object[] data) {
         StreamEvent borrowedEvent = eventPool.borrowEvent();
-        streamEventConverter.convertData(timeStamp, data, borrowedEvent);
+        streamEventConverter.convertData(timestamp, data, borrowedEvent);
         if (partitionExecutors.size() == 0) {
             send(borrowedEvent);
         } else {

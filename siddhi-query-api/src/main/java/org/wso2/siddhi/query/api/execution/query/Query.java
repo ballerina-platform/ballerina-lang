@@ -31,14 +31,16 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Siddhi Query
  */
-public class Query implements ExecutionElement {
+public class Query implements ExecutionElement, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private InputStream inputStream;
     private Selector selector = new Selector();
     private OutputStream outputStream = new ReturnStream();

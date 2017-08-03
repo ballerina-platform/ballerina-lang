@@ -87,8 +87,8 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                         AnnotationConstants.SOURCE_SUPER_CLASS,
                         AnnotationConstants.SOURCE_MAPPER_SUPER_CLASS,
                         AnnotationConstants.WINDOW_PROCESSOR_CLASS,
-                        AnnotationConstants.SCRIPT_SUPER_CLASS
-                });
+                        AnnotationConstants.SCRIPT_SUPER_CLASS,
+                        AnnotationConstants.INCREMENTAL_ATTRIBUTE_AGGREGATOR_SUPER_CLASS});
                 AbstractAnnotationProcessor abstractAnnotationProcessor = null;
                 Extension annotation = element.getAnnotation(Extension.class);
                 String name = annotation.name();
@@ -149,6 +149,11 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                             abstractAnnotationProcessor =
                                     new ScriptValidationAnnotationProcessor(extensionClassFullName);
                             break;
+                        case AnnotationConstants.INCREMENTAL_ATTRIBUTE_AGGREGATOR_SUPER_CLASS:
+                            abstractAnnotationProcessor =
+                                    new IncrementalAggregationAttributeValidationAnnotationProcessor(
+                                            extensionClassFullName);
+                            break;
                         default:
                             //Throw error if no matching super class.
                             showBuildError(MessageFormat.format("Default switch case executed as there is no " +
@@ -172,8 +177,7 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                     }
                 } else {
                     //Throw error if no matching super class.
-                    showBuildError(MessageFormat.format("No matching super class for @{0}.",
-                            Extension.class.getCanonicalName()), element);
+                    showBuildError("Class does not have a matching Siddhi Extension super class.", element);
                 }
             } else {
                 //Throw error if the element returned is method or package.

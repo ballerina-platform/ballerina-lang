@@ -23,9 +23,13 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract class to represent Event Sources. Events Sources are the object entry point to Siddhi from external
@@ -33,53 +37,145 @@ import java.util.concurrent.ExecutorService;
  * source should be implemented.
  */
 public abstract class Source implements Snapshotable {
-    private static final Logger log = Logger.getLogger(Source.class);
+    private static final Logger LOG = Logger.getLogger(Source.class);
+    private String type;
     private SourceMapper mapper;
+    private StreamDefinition streamDefinition;
     private String elementId;
-    private boolean tryConnect = false;
 
-    public void init(OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
+    private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
+    private AtomicBoolean isConnected = new AtomicBoolean(false);
+    private ScheduledExecutorService scheduledExecutorService;
+    private ConnectionCallback connectionCallback = new ConnectionCallback();
+
+    public final void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
+                           String[] transportPropertyNames, ConfigReader configReader,
+                           StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
+        this.type = sourceType;
         this.mapper = sourceMapper;
+        this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
-        init(sourceMapper, transportOptionHolder, configReader, siddhiAppContext);
+        init(sourceMapper, transportOptionHolder, transportPropertyNames, configReader, siddhiAppContext);
+        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }
 
-    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader
-            configReader, SiddhiAppContext siddhiAppContext);
+    /**
+     * To initialize the source. (This will be called only once, no connection to external systems should be made at
+     * this point).
+     *
+     * @param sourceEventListener             The listener to pass the events for processing which are consumed
+     *                                        by the source
+     * @param optionHolder                    Contains static options of the source
+     * @param requestedTransportPropertyNames Requested transport properties that should be passed to
+     *                                        SourceEventListener
+     * @param configReader                    System configuration reader for source
+     * @param siddhiAppContext                Siddhi application context
+     */
+    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                              String[] requestedTransportPropertyNames, ConfigReader configReader,
+                              SiddhiAppContext siddhiAppContext);
 
-    public abstract void connect() throws ConnectionUnavailableException;
+    /**
+     * Get produced event class types
+     *
+     * @return Array of classes that will be produced by the source,
+     * null or empty array if it can produce any type of class.
+     */
+    public abstract Class[] getOutputEventClasses();
 
+    /**
+     * Called to connect to the source backend for receiving events
+     *
+     * @param connectionCallback Callback to pass the ConnectionUnavailableException for connection failure after
+     *                           initial successful connection
+     * @throws ConnectionUnavailableException if it cannot connect to the source backend
+     */
+    public abstract void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException;
+
+    /**
+     * Called to disconnect from the source backend, or when ConnectionUnavailableException is thrown
+     */
     public abstract void disconnect();
 
+    /**
+     * Called at the end to clean all the resources consumed
+     */
     public abstract void destroy();
 
+    /**
+     * Called to pause event consumption
+     */
     public abstract void pause();
 
+    /**
+     * Called to resume event consumption
+     */
     public abstract void resume();
 
-    public void connectWithRetry(ExecutorService executorService) {
-        tryConnect = true;
-        try {
-            connect();
-        } catch (ConnectionUnavailableException | RuntimeException e) {
-            log.error(e.getMessage(), e);
+    public void connectWithRetry() {
+        if (!isConnected.get()) {
+            isTryingToConnect.set(true);
+            try {
+                connect(connectionCallback);
+                isConnected.set(true);
+                isTryingToConnect.set(false);
+                backoffRetryCounter.reset();
+            } catch (ConnectionUnavailableException e) {
+                LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry in '" +
+                        backoffRetryCounter.getTimeInterval() + "'.", e);
+                scheduledExecutorService.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectWithRetry();
+                    }
+                }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
+                backoffRetryCounter.increment();
+            } catch (RuntimeException e) {
+                LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ".", e);
+            }
         }
-        // TODO: 2/9/17 Implement exponential retry
     }
 
-    public SourceMapper getMapper() {
+    public final SourceMapper getMapper() {
         return mapper;
     }
 
     public void shutdown() {
-        tryConnect = false;
-        disconnect();
-        destroy();
+        try {
+            disconnect();
+            destroy();
+        } finally {
+            isConnected.set(false);
+            isTryingToConnect.set(false);
+        }
     }
 
     @Override
-    public String getElementId() {
+    public final String getElementId() {
         return elementId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamDefinition;
+    }
+
+    /**
+     * Callback class used to pass connection exception during message retrieval
+     */
+    public class ConnectionCallback {
+        public void onError(ConnectionUnavailableException e) {
+            disconnect();
+            isConnected.set(false);
+            LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+                    "', " + e.getMessage() + ", will retry connection immediately.", e);
+            connectWithRetry();
+        }
     }
 }

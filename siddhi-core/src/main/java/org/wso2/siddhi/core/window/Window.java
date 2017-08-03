@@ -130,7 +130,7 @@ public class Window implements FindableProcessor, Snapshotable {
         // Create and initialize MetaStreamEvent
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addInputDefinition(windowDefinition);
-        metaStreamEvent.setWindowEvent(true);
+        metaStreamEvent.setEventType(MetaStreamEvent.EventType.WINDOW);
         metaStreamEvent.initializeAfterWindowData();
         for (Attribute attribute : windowDefinition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);

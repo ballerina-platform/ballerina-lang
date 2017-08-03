@@ -20,7 +20,7 @@ package org.wso2.siddhi.query.api.definition;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 
 /**
- * Siddhi Table Definition
+ * Siddhi Table Definition.
  */
 public class TableDefinition extends AbstractDefinition {
     private static final long serialVersionUID = 1L;
@@ -42,6 +42,16 @@ public class TableDefinition extends AbstractDefinition {
     public TableDefinition annotation(Annotation annotation) {
         annotations.add(annotation);
         return this;
+    }
+
+    public void removeAnnotation(Annotation annotation) {
+        for (int i = 0; i < annotations.size(); i++) {
+            Annotation annotation1 = annotations.get(i);
+            if (annotation1.getName().equalsIgnoreCase(annotation.getName())) {
+                annotations.remove(annotation1);
+                break;
+            }
+        }
     }
 
     @Override

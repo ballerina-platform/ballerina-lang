@@ -21,8 +21,8 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -63,30 +63,31 @@ public class SingleInputStreamParser {
      * Parse single InputStream and return SingleStreamRuntime
      *
      * @param inputStream                 single input stream to be parsed
-     * @param siddhiAppContext        query to be parsed
+     * @param siddhiAppContext            query to be parsed
      * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
      * @param streamDefinitionMap         Stream Definition Map
      * @param tableDefinitionMap          Table Definition Map
      * @param windowDefinitionMap         window definition map
+     * @param aggregationDefinitionMap    aggregation definition map
      * @param tableMap                    Table Map
      * @param metaComplexEvent            MetaComplexEvent
      * @param processStreamReceiver       ProcessStreamReceiver
      * @param supportsBatchProcessing     supports batch processing
      * @param outputExpectsExpiredEvents  is output expects ExpiredEvents
-     * @param queryName                   query name of single input stream belongs to.
-     * @return SingleStreamRuntime
+     * @param queryName                   query name of single input stream belongs to.       @return SingleStreamRuntime
      */
-    public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiAppContext
-            siddhiAppContext,
+    public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream,
+                                                       SiddhiAppContext siddhiAppContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors,
                                                        Map<String, AbstractDefinition> streamDefinitionMap,
                                                        Map<String, AbstractDefinition> tableDefinitionMap,
                                                        Map<String, AbstractDefinition> windowDefinitionMap,
-                                                       Map<String, Table> tableMap, MetaComplexEvent
-                                                               metaComplexEvent,
-                                                       ProcessStreamReceiver processStreamReceiver, boolean
-                                                               supportsBatchProcessing, boolean
-                                                               outputExpectsExpiredEvents, String queryName) {
+                                                       Map<String, AbstractDefinition> aggregationDefinitionMap,
+                                                       Map<String, Table> tableMap,
+                                                       MetaComplexEvent metaComplexEvent,
+                                                       ProcessStreamReceiver processStreamReceiver,
+                                                       boolean supportsBatchProcessing,
+                                                       boolean outputExpectsExpiredEvents, String queryName) {
         Processor processor = null;
         EntryValveProcessor entryValveProcessor = null;
         boolean first = true;
@@ -95,11 +96,11 @@ public class SingleInputStreamParser {
             metaStreamEvent = new MetaStreamEvent();
             ((MetaStateEvent) metaComplexEvent).addEvent(metaStreamEvent);
             initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
-                    metaStreamEvent);
+                    aggregationDefinitionMap, metaStreamEvent);
         } else {
             metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
             initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
-                    metaStreamEvent);
+                    aggregationDefinitionMap, metaStreamEvent);
         }
 
         // A window cannot be defined for a window stream
@@ -239,15 +240,18 @@ public class SingleInputStreamParser {
      * Method to generate MetaStreamEvent reagent to the given input stream. Empty definition will be created and
      * definition and reference is will be set accordingly in this method.
      *
-     * @param inputStream         InputStream
-     * @param streamDefinitionMap StreamDefinition Map
-     * @param tableDefinitionMap  TableDefinition Map
-     * @param metaStreamEvent     MetaStreamEvent
+     * @param inputStream              InputStream
+     * @param streamDefinitionMap      StreamDefinition Map
+     * @param tableDefinitionMap       TableDefinition Map
+     * @param aggregationDefinitionMap AggregationDefinition Map
+     * @param metaStreamEvent          MetaStreamEvent
      */
-    private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
-            AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, Map<String,
-            AbstractDefinition> windowDefinitionMap, MetaStreamEvent metaStreamEvent) {
-
+    private static void initMetaStreamEvent(SingleInputStream inputStream,
+                                            Map<String, AbstractDefinition> streamDefinitionMap,
+                                            Map<String, AbstractDefinition> tableDefinitionMap,
+                                            Map<String, AbstractDefinition> windowDefinitionMap,
+                                            Map<String, AbstractDefinition> aggregationDefinitionMap,
+                                            MetaStreamEvent metaStreamEvent) {
         String streamId = inputStream.getStreamId();
 
         if (!inputStream.isInnerStream() && windowDefinitionMap != null && windowDefinitionMap.containsKey(streamId)) {
@@ -258,13 +262,17 @@ public class SingleInputStreamParser {
         } else if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);
             metaStreamEvent.addInputDefinition(inputDefinition);
-        } else if (!inputStream.isInnerStream() && tableDefinitionMap != null && tableDefinitionMap.containsKey
-                (streamId)) {
+        } else if (!inputStream.isInnerStream() && tableDefinitionMap != null &&
+                tableDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = tableDefinitionMap.get(streamId);
             metaStreamEvent.addInputDefinition(inputDefinition);
+        } else if (!inputStream.isInnerStream() && aggregationDefinitionMap != null &&
+                aggregationDefinitionMap.containsKey(streamId)) {
+            AbstractDefinition inputDefinition = aggregationDefinitionMap.get(streamId);
+            metaStreamEvent.addInputDefinition(inputDefinition);
         } else {
-            throw new SiddhiAppCreationException("Stream/table definition with ID '" + inputStream.getStreamId()
-                    + "' has not been defined");
+            throw new SiddhiAppCreationException("Stream/table/window/aggregation definition with ID '" +
+                    inputStream.getStreamId() + "' has not been defined");
         }
 
         if ((inputStream.getStreamReferenceId() != null) &&
