@@ -73,16 +73,16 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return aggregationRuntime.find(matchingEvent, compiledExpression);
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return aggregationRuntime.find(matchingEvent, compiledCondition);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
-        return aggregationRuntime.compileExpression(expression, within, per, matchingMetaInfoHolder,
+        return aggregationRuntime.compileExpression(condition, within, per, matchingMetaInfoHolder,
                 variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
     }
 

@@ -74,16 +74,16 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
 
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return window.find(matchingEvent, compiledExpression);
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return window.find(matchingEvent, compiledCondition);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
-        return window.compileCondition(expression, matchingMetaInfoHolder, siddhiAppContext,
+        return window.compileCondition(condition, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, queryName);
     }
 

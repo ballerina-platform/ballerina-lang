@@ -198,16 +198,16 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return ((Operator) compiledExpression).find(matchingEvent, sortedWindow, streamEventCloner);
+    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return ((Operator) compiledCondition).find(matchingEvent, sortedWindow, streamEventCloner);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder,
+        return OperatorParser.constructOperator(sortedWindow, condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 

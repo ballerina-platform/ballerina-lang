@@ -196,19 +196,19 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     }
 
     @Override
-    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return ((Operator) compiledExpression).find(matchingEvent, expiredEventChunk, streamEventCloner);
+    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return ((Operator) compiledCondition).find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
+        return OperatorParser.constructOperator(expiredEventChunk, condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 }

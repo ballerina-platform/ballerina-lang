@@ -95,16 +95,16 @@ public abstract class Table implements FindableProcessor {
 
     protected abstract void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException;
 
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
         if (isConnected.get()) {
             try {
-                return find(compiledExpression, matchingEvent);
+                return find(compiledCondition, matchingEvent);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                return find(matchingEvent, compiledExpression);
+                return find(matchingEvent, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" +
@@ -112,7 +112,7 @@ public abstract class Table implements FindableProcessor {
             return null;
         } else {
             connectWithRetry();
-            return find(matchingEvent, compiledExpression);
+            return find(matchingEvent, compiledCondition);
         }
     }
 

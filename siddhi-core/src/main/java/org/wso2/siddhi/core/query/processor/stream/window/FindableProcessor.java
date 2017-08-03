@@ -40,25 +40,25 @@ public interface FindableProcessor {
      * To find events from the processor event pool, that the matches the matchingEvent based on finder logic.
      *
      * @param matchingEvent     the event to be matched with the events at the processor
-     * @param compiledExpression the execution element responsible for matching the corresponding events that matches
+     * @param compiledCondition the execution element responsible for matching the corresponding events that matches
      *                          the matchingEvent based on pool of events at Processor
      * @return the matched events
      */
-    StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression);
+    StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition);
 
     /**
      * To construct a finder having the capability of finding events at the processor that corresponds to the incoming
      * matchingEvent and the given matching expression logic.
      *
-     * @param expression                  the matching expression
+     * @param condition                   the matching condition
      * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
-     * @param siddhiAppContext        current siddhi app context
+     * @param siddhiAppContext            current siddhi app context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
-     * @param tableMap               map of event tables
+     * @param tableMap                    map of event tables
      * @param queryName                   query name of findable processor belongs to.
      * @return compiled Condition having the capability of matching events against the incoming matchingEvent
      */
-    CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                         SiddhiAppContext siddhiAppContext,
                                         List<VariableExpressionExecutor> variableExpressionExecutors,
                                         Map<String, Table> tableMap, String queryName);

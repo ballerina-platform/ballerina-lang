@@ -199,16 +199,16 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return ((Operator) compiledExpression).find(matchingEvent, map.values(), streamEventCloner);
+    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return ((Operator) compiledCondition).find(matchingEvent, map.values(), streamEventCloner);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, siddhiAppContext,
+        return OperatorParser.constructOperator(map.values(), condition, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, this.queryName);
     }
 }

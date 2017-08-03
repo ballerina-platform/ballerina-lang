@@ -63,16 +63,16 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return table.find(matchingEvent, compiledExpression);
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return table.find(matchingEvent, compiledCondition);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
-        return table.compileCondition(expression, matchingMetaInfoHolder, siddhiAppContext,
+        return table.compileCondition(condition, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, queryName);
     }
 

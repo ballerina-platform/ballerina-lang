@@ -223,20 +223,20 @@ public class Window implements FindableProcessor, Snapshotable {
      * {@inheritDoc}
      */
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
-        return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, compiledExpression);
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+        return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, compiledCondition);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
-            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression,
+            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(condition,
                     matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap,
                     queryName);
         } else {

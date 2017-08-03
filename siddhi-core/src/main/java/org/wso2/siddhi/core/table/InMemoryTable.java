@@ -169,11 +169,11 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
+        return OperatorParser.constructOperator(eventHolder, condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
 

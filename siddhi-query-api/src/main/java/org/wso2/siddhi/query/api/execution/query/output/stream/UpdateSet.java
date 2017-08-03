@@ -53,7 +53,8 @@ public class UpdateSet implements Serializable {
 
         UpdateSet updateSet = (UpdateSet) o;
 
-        return setAttributeList != null ? setAttributeList.equals(updateSet.setAttributeList) : updateSet.setAttributeList == null;
+        return setAttributeList != null ? setAttributeList.equals(updateSet.setAttributeList) :
+                updateSet.setAttributeList == null;
     }
 
     @Override
@@ -104,7 +105,8 @@ public class UpdateSet implements Serializable {
             if (tableVariable != null ? !tableVariable.equals(that.tableVariable) : that.tableVariable != null) {
                 return false;
             }
-            return assignmentExpression != null ? assignmentExpression.equals(that.assignmentExpression) : that.assignmentExpression == null;
+            return assignmentExpression != null ? assignmentExpression.equals(that.assignmentExpression) :
+                    that.assignmentExpression == null;
         }
 
         @Override
