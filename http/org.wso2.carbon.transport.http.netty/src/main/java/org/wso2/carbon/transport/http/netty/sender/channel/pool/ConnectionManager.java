@@ -16,16 +16,13 @@
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.internal.logging.InternalLogLevel;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,16 +191,25 @@ public class ConnectionManager {
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
                 int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-                targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
-                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
-                targetChannel.getChannel()
-                                .pipeline()
-                                .addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
-                                               new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
-                                                                                sourceHandler
-                                                                                            .getInboundChannelContext()
-                                                                                            .channel().id()
-                                                                                            .asShortText()));
+                ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
+
+                /* Need to check if the handler already exists in the pipeline because there cannot be duplicate
+                   handlers in a pipeline of a particular channel. */
+                //TODO: Check the possibility of moving these 2 to the HTTPClientInitializer to address the above issue
+                if (pipeline.get(Constants.IDLE_STATE_HANDLER) == null) {
+                    pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
+                                       new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
+                                                            TimeUnit.MILLISECONDS));
+                }
+
+                if (pipeline.get(Constants.LOGGING_HANDLER) == null) {
+                    pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
+                                       new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
+                                                                sourceHandler.getInboundChannelContext()
+                                                                        .channel().id()
+                                                                        .asShortText()));
+                }
+
                 targetChannel.setRequestWritten(true);
                 ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
             }
