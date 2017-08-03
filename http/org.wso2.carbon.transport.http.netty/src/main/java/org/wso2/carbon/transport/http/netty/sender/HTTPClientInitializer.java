@@ -20,7 +20,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
-import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
@@ -28,8 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import javax.net.ssl.SSLEngine;
-
-import org.wso2.carbon.transport.http.netty.listener.CarbonLoggingHandler;
 
 /**
  * A class that responsible for initialize target server pipeline.

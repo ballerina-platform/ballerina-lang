@@ -58,7 +58,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected ConnectionManager connectionManager;
     protected TargetChannel targetChannel;
     protected CarbonMessage incomingMsg;
-    protected ChannelHandlerContext ctx;
 
     public TargetHandler() {
     }
@@ -233,15 +232,5 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 sendBackTimeOutResponse();
             }
         }
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        super.handlerAdded(ctx);
-        this.ctx = ctx;
-    }
-
-    public ChannelHandlerContext getChannelHandlerContext() {
-        return ctx;
     }
 }
