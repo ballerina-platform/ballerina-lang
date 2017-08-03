@@ -141,6 +141,16 @@ class TransformRender {
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
+        let isSourceOnlyConnection = true;
+        _.forEach(this.jsPlumbInstance.getConnections(), (currentConnection) => {
+          if(_.isEqual(currentConnection.sourceId, connection.sourceId)) {
+            isSourceOnlyConnection = false;
+          }
+        })
+        if(isSourceOnlyConnection) {
+          this.unmarkConnected(connection.sourceId);
+        }
+        this.unmarkConnected(connection.targetId);
         this.reposition(this);
         this.disconnectCallback(propertyConnection);
     // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
@@ -420,8 +430,8 @@ class TransformRender {
             target: targetId,
             parameters: { id: connection.id, input:connection.input, output: connection.output}
         });
-        this.container.find(document.getElementById(sourceId)).removeClass("fw-circle-outline").addClass("fw-circle");
-        this.container.find(document.getElementById(targetId)).removeClass("fw-circle-outline").addClass("fw-circle");
+        this.markConnected(sourceId);
+        this.markConnected(targetId);
         this.reposition(this);
 
     }
@@ -798,6 +808,8 @@ addComplexParameter(parentId, struct) {
                     connection.id = this.onConnection(connection);
                     params.connection.setParameter('id', connection.id);
                     params.connection.setParameter('output', output);
+                    this.markConnected(params.connection.sourceId);
+                    this.markConnected(params.connection.targetId);
                 }
                 return isValidTypes;
             },
@@ -1050,6 +1062,22 @@ addComplexParameter(parentId, struct) {
             this.removeType(container.name);
             removeFunction(reference);
         });
+    }
+
+    /**
+     * mark specified endpoint in the UI
+     * @param  {string} endpointId endpoint identifier to be marked
+     */
+    markConnected(endpointId){
+      this.container.find(document.getElementById(endpointId)).removeClass("fw-circle-outline").addClass("fw-circle");
+    }
+
+    /**
+     * unmark specified endpoint in the UI
+     * @param  {string} endpointId endpoint identifier to be unmarked
+     */
+    unmarkConnected(endpointId){
+      this.container.find(document.getElementById(endpointId)).removeClass("fw-circle").addClass("fw-circle-outline");
     }
 
 }
