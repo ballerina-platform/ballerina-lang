@@ -93,10 +93,9 @@ public class TestStore extends AbstractRecordTable {
 
 
     @Override
-    protected void update(List<Map<String, Object>> updateConditionParameterMaps,
-                          CompiledCondition compiledCondition,
-                          RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
-                          List<Map<String, Object>> updateValues) throws ConnectionUnavailableException {
+    protected void update(CompiledCondition updateCondition, List<Map<String, Object>> updateConditionParameterMaps,
+                          RecordTableCompiledUpdateSet updateSet,
+                          List<Map<String, Object>> updateSetParameterMaps) throws ConnectionUnavailableException {
         //Not Applicable
     }
 
@@ -105,15 +104,14 @@ public class TestStore extends AbstractRecordTable {
      *
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param compiledCondition            the compiledCondition against which records should be matched for update
-     * @param recordTableCompiledUpdateSet
+     * @param updateSet
      * @param updateValues                 the attributes and values that should be updated if the condition matches
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
     @Override
-    protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                               CompiledCondition compiledCondition,
-                               RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+    protected void updateOrAdd(CompiledCondition updateCondition,
+                               List<Map<String, Object>> updateConditionParameterMaps,
+                               RecordTableCompiledUpdateSet updateSet,
                                List<Map<String, Object>> updateValues, List<Object[]> addingRecords)
             throws ConnectionUnavailableException {
         //Not Applicable

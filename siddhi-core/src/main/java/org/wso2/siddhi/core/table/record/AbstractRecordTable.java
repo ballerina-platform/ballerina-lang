@@ -218,23 +218,26 @@ public abstract class AbstractRecordTable extends Table {
             }
             updateSetParameterMaps.add(variableMapForUpdateSet);
         }
-        update(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition,
+        update(recordStoreCompiledCondition.compiledCondition, updateConditionParameterMaps,
                 recordTableCompiledUpdateSet, updateSetParameterMaps);
     }
+
 
     /**
      * Update all matching records
      *
+     * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param compiledCondition            the compiledCondition against which records should be matched for update
-     * @param recordTableCompiledUpdateSet
-     * @param updateValues                 the attributes and values that should be updated for the matching records
+     * @param updateSet                    the set of updates mappings and related complied expressions
+     * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
+     *                                     update set
      */
-    protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps,
-                                   CompiledCondition compiledCondition,
-                                   RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
-                                   List<Map<String, Object>> updateValues) throws ConnectionUnavailableException;
+    protected abstract void update(CompiledCondition updateCondition,
+                                   List<Map<String, Object>> updateConditionParameterMaps,
+                                   RecordTableCompiledUpdateSet updateSet,
+                                   List<Map<String, Object>> updateSetParameterMaps)
+            throws ConnectionUnavailableException;
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
@@ -266,7 +269,7 @@ public abstract class AbstractRecordTable extends Table {
             updateSetParameterMaps.add(variableMapForUpdateSet);
             addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
-        updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition,
+        updateOrAdd(recordStoreCompiledCondition.compiledCondition, updateConditionParameterMaps,
                 recordTableCompiledUpdateSet, updateSetParameterMaps, addingRecords);
 
     }
@@ -274,17 +277,18 @@ public abstract class AbstractRecordTable extends Table {
     /**
      * Try updating the records if they exist else add the records
      *
+     * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param compiledCondition            the compiledCondition against which records should be matched for update
-     * @param recordTableCompiledUpdateSet
-     * @param updateValues                 the attributes and values that should be updated if the condition matches
+     * @param updateSet                    the set of updates mappings and related complied expressions
+     * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
+     *                                     update set
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
-    protected abstract void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                                        CompiledCondition compiledCondition,
-                                        RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
-                                        List<Map<String, Object>> updateValues,
+    protected abstract void updateOrAdd(CompiledCondition updateCondition,
+                                        List<Map<String, Object>> updateConditionParameterMaps,
+                                        RecordTableCompiledUpdateSet updateSet,
+                                        List<Map<String, Object>> updateSetParameterMaps,
                                         List<Object[]> addingRecords)
             throws ConnectionUnavailableException;
 
