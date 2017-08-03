@@ -17,13 +17,6 @@
 */
 package org.ballerinalang.util.semantics;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -186,11 +179,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
 
-    private int stackFrameOffset = -1;
-    private int staticMemAddrOffset = -1;
-    private int connectorMemAddrOffset = -1;
-    private int structMemAddrOffset = -1;
-    private int workerMemAddrOffset = -1;
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
     private Stack<CallableUnit> parentCallableUnit = new Stack<>();
@@ -275,7 +263,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             compilationUnit.accept(this);
         }
 
-        //resolveWorkerInteractions(bLangPackage.getWorkerInteractionDataHolders());
         // Complete the package init function
         ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
@@ -299,6 +286,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConstDef constDef) {
         VariableDefStmt variableDefStmt = constDef.getVariableDefStmt();
+        variableDefStmt.getVariableDef().setKind(VariableDef.Kind.CONSTANT);
         variableDefStmt.accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
@@ -318,6 +306,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(GlobalVariableDef globalVarDef) {
         VariableDefStmt variableDefStmt = globalVarDef.getVariableDefStmt();
+        variableDefStmt.getVariableDef().setKind(VariableDef.Kind.GLOBAL_VAR);
         variableDefStmt.accept(this);
 
         if (variableDefStmt.getRExpr() != null) {
@@ -348,6 +337,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //        }
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
+            variableDefStmt.getVariableDef().setKind(VariableDef.Kind.SERVICE_VAR);
             variableDefStmt.accept(this);
         }
 
@@ -397,11 +387,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : connectorDef.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+            parameterDef.setKind(VariableDef.Kind.CONNECTOR_VAR);
             parameterDef.accept(this);
         }
 
         for (VariableDefStmt variableDefStmt : connectorDef.getVariableDefStmts()) {
+            variableDefStmt.getVariableDef().setKind(VariableDef.Kind.CONNECTOR_VAR);
             variableDefStmt.accept(this);
         }
 
@@ -411,11 +402,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             action.accept(this);
         }
 
-        int sizeOfConnectorMem = connectorMemAddrOffset + 1;
-        connectorDef.setSizeOfConnectorMem(sizeOfConnectorMem);
-
         // Close the symbol scope
-        connectorMemAddrOffset = -1;
         closeScope();
     }
 
@@ -435,7 +422,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -450,11 +437,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         resolveWorkerInteractions(resource);
 
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        resource.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
@@ -642,19 +625,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(function);
         currentCallableUnit = function;
 
-        //resolveWorkerInteractions(function.gerWorkerInteractions());
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
             annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
             annotationAttachment.accept(this);
         }
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -662,7 +639,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+                parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             }
 
             parameterDef.accept(this);
@@ -686,78 +663,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         resolveWorkerInteractions(function);
 
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        function.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
 
     @Override
     public void visit(BTypeMapper typeMapper) {
-        // Open a new symbol scope
-        openScope(typeMapper);
-        currentCallableUnit = typeMapper;
-
-        for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.TYPEMAPPER, null));
-            annotationAttachment.accept(this);
-        }
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
-        for (ParameterDef parameterDef : typeMapper.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            parameterDef.accept(this);
-        }
-
-//        for (VariableDef variableDef : typeMapper.getVariableDefs()) {
-//            stackFrameOffset++;
-//            visit(variableDef);
-//        }
-
-        for (ParameterDef parameterDef : typeMapper.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            }
-
-            parameterDef.accept(this);
-        }
-
-        if (!typeMapper.isNative()) {
-            BlockStmt blockStmt = typeMapper.getCallableUnitBody();
-            currentScope = blockStmt;
-            blockStmt.accept(this);
-            currentScope = blockStmt.getEnclosingScope();
-        }
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        typeMapper.setStackFrameSize(sizeOfStackFrame);
-
-        // Close the symbol scope
-        stackFrameOffset = -1;
-        currentCallableUnit = null;
-        closeScope();
     }
 
     @Override
@@ -772,7 +684,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -787,7 +699,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+                parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             }
 
             parameterDef.accept(this);
@@ -810,18 +722,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         resolveWorkerInteractions(action);
 
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        action.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
@@ -834,24 +735,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         parentCallableUnit.push(currentCallableUnit);
         currentCallableUnit = worker;
 
-        //resolveWorkerInteractions(worker.gerWorkerInteractions());
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
         for (ParameterDef parameterDef : worker.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
         for (ParameterDef parameterDef : worker.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
-            }
-
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -869,20 +759,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         blockStmt.accept(this);
         isWithinWorker = false;
 
-        //resolveWorkerInteractions(worker);
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = workerMemAddrOffset + 1;
-        worker.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        workerMemAddrOffset = -1;
         currentCallableUnit = parentCallableUnit.pop();
         // Close symbol scope. This is done manually to avoid falling back to package scope
         currentScope = parentScope.pop();
@@ -1151,6 +1028,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
         varDef.setType(lhsType);
 
+        // Set the Variable kind if it is not set.
+        if (varDef.getKind() == null) {
+            // Here we assume that this is a local variable
+            varDef.setKind(VariableDef.Kind.LOCAL_VAR);
+        }
+
         // Mark the this variable references as LHS expressions
         ((VariableReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
 
@@ -1161,9 +1044,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
         }
         currentScope.define(symbolName, varDef);
-
-        // Set memory location
-        setMemoryLocation(varDef);
 
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
@@ -1400,7 +1280,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
-            catchBlock.getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            catchBlock.getParameterDef().setKind(VariableDef.Kind.LOCAL_VAR);
             catchBlock.getParameterDef().accept(this);
             // Validation for error type.
             if (!error.equals(catchBlock.getParameterDef().getType()) &&
@@ -1530,14 +1410,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Visit workers
         for (Worker worker : forkJoinStmt.getWorkers()) {
-            /* Here we are setting the current stack frame size of the parent component (function, resource, action)
-            as the accessible stack frame size for fork-join internal workers. */
-            worker.setAccessibleStackFrameSize(stackFrameOffset + 1);
-
-            /* Actual worker memory segment starts after the current in-scope variables within the control stack.
-            Hence, we are adding the stackFrameOffset + 1 to begin with */
-            workerMemAddrOffset += stackFrameOffset + 1;
-
             worker.accept(this);
         }
 
@@ -1546,7 +1418,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(join);
         ParameterDef parameter = join.getJoinResult();
         if (parameter != null) {
-            parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameter.setKind(VariableDef.Kind.LOCAL_VAR);
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
 
@@ -1576,7 +1448,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         ParameterDef timeoutParam = timeout.getTimeoutResult();
         if (timeoutParam != null) {
-            timeoutParam.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             timeoutParam.accept(this);
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
@@ -2624,7 +2495,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             xmlElementLiteral.setDefaultNamespaceUri(parent.getDefaultNamespaceUri());
         }
         xmlElementLiteral.setNamespaces(namespaces);
-        
+
         // add the inline declared namespaces to the namespace map
         List<KeyValueExpr> attributes = xmlElementLiteral.getAttributes();
         Iterator<KeyValueExpr> attrItr = attributes.iterator();
@@ -2639,13 +2510,13 @@ public class SemanticAnalyzer implements NodeVisitor {
             XMLQNameExpr xmlQNameRefExpr = (XMLQNameExpr) attrNameExpr;
             if (xmlQNameRefExpr.getPrefix().equals(XMLConstants.XMLNS_ATTRIBUTE)) {
                 attrValueExpr.accept(this);
-                
+
                 if (attrValueExpr instanceof BasicLiteral
                         && ((BasicLiteral) attrValueExpr).getBValue().stringValue().isEmpty()) {
                     BLangExceptionHelper.throwSemanticError(attribute, SemanticErrors.INVALID_NAMESPACE_DECLARATION,
                             xmlQNameRefExpr.getLocalname());
                 }
-                
+
                 namespaces.put(xmlQNameRefExpr.getLocalname(), attrValueExpr);
                 attrItr.remove();
                 continue;
@@ -2667,7 +2538,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             defaultnsUriLiteral.accept(this);
             xmlElementLiteral.setDefaultNamespaceUri(defaultnsUriLiteral);
         }
-        
+
         validateXMLLiteralAttributes(attributes, namespaces);
 
         // Validate start tag
@@ -2685,7 +2556,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Validate the ending tag of the XML element
         validateXMLLiteralEndTag(xmlElementLiteral, xmlElementLiteral.getDefaultNamespaceUri());
-        
+
         // Visit children
         XMLSequenceLiteral children = xmlElementLiteral.getContent();
         if (children != null) {
@@ -2956,7 +2827,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void checkForConstAssignment(AssignStmt assignStmt, Expression lExpr) {
         if (lExpr instanceof SimpleVarRefExpr &&
-                ((SimpleVarRefExpr) lExpr).getMemoryLocation() instanceof ConstantLocation) {
+                ((SimpleVarRefExpr) lExpr).getVariableDef().getKind() == VariableDef.Kind.CONSTANT) {
             BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.CANNOT_ASSIGN_VALUE_CONSTANT,
                     ((SimpleVarRefExpr) lExpr).getSymbolName());
         }
@@ -3051,6 +2922,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 SimpleVariableDef variableDef = new SimpleVariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         null, symbolName, currentScope);
+                variableDef.setKind(VariableDef.Kind.LOCAL_VAR);
 
                 // Check whether this variable is already defined, if not define it.
                 SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
@@ -3060,9 +2932,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     continue;
                 }
                 currentScope.define(varDefSymName, variableDef);
-                // Set memory location
-                setMemoryLocation(variableDef);
             }
+
             if (declaredVarCount == lExprs.length) {
                 throw new SemanticException(BLangExceptionHelper.constructSemanticError(
                         assignStmt.getNodeLocation(), SemanticErrors.NO_NEW_VARIABLES_VAR_ASSIGNMENT));
@@ -3383,28 +3254,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         return typeCastExpr;
     }
 
-    private void setMemoryLocation(VariableDef variableDef) {
-        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            if (currentScope.getEnclosingScope().getScopeName() == SymbolScope.ScopeName.WORKER) {
-                variableDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
-            } else {
-                variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            }
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
-            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
-            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
-            variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.PACKAGE) {
-            if (variableDef instanceof GlobalVariableDef) {
-                variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
-            } else if (variableDef instanceof ConstDef) {
-                variableDef.setMemoryLocation(new ConstantLocation(++staticMemAddrOffset));
-            }
-        }
-    }
-
     private void defineFunctions(Function[] functions) {
         for (Function function : functions) {
             // Resolve input parameters
@@ -3634,11 +3483,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             SymbolScope tmpScope = currentScope;
             currentScope = structDef;
             for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+                fieldDefStmt.getVariableDef().setKind(VariableDef.Kind.STRUCT_FIELD);
                 fieldDefStmt.accept(this);
             }
-            structDef.setStructMemorySize(structMemAddrOffset + 1);
-
-            structMemAddrOffset = -1;
             currentScope = tmpScope;
         }
 
@@ -3802,7 +3649,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                             filterConnectorInitExpr.setFilterSupportedType(type);
                         }
                     }
-                    //filterConnectorInitExpr.setFilterSupportedType(fieldType);
                     filterConnectorInitExpr = (filterConnectorInitExpr).
                             getParentConnectorInitExpr();
                 }
@@ -3817,10 +3663,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (type.getTag() != TypeTags.ARRAY_TAG) {
             return type;
         }
-        
+
         return getElementType(((BArrayType) type).getElementType());
     }
-    
+
     /**
      * Visit and validate map/json initialize expression.
      *
@@ -3974,20 +3820,20 @@ public class SemanticAnalyzer implements NodeVisitor {
             return isUnsafeArrayCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
 
         } else if (targetType.getTag() == TypeTags.ARRAY_TAG) {
-            
+
             if (sourceType == BTypes.typeJSON) {
                 return isUnsafeArrayCastPossible(BTypes.typeJSON, ((BArrayType) targetType).getElementType());
             }
-            
+
             // If only the target type is an array type, then the source type must be of type 'any'
             return sourceType == BTypes.typeAny;
 
         } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            
+
             if (targetType == BTypes.typeJSON) {
                 return isUnsafeArrayCastPossible(((BArrayType) sourceType).getElementType(), BTypes.typeJSON);
             }
-            
+
             // If only the source type is an array type, then the target type must be of type 'any'
             return targetType == BTypes.typeAny;
         }
@@ -4124,8 +3970,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to add return statement if required.
      *
-     * @param returnParamCount  No of return parameters.
-     * @param blockStmt         Block statement to which to add the return statement.
+     * @param returnParamCount No of return parameters.
+     * @param blockStmt        Block statement to which to add the return statement.
      */
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
         ReturnStmt returnStmt = buildReturnStatement(returnParamCount, blockStmt);
@@ -4141,9 +3987,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to build the correct return statement.
      *
-     * @param returnParamCount  No of return parameters.
-     * @param blockStmt         Block statement to help generate return.
-     * @return                  Generated returnStmt.
+     * @param returnParamCount No of return parameters.
+     * @param blockStmt        Block statement to help generate return.
+     * @return Generated returnStmt.
      */
     private ReturnStmt buildReturnStatement(int returnParamCount, BlockStmt blockStmt) {
         if (returnParamCount != 0) {
@@ -4231,7 +4077,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     /**
      * Get the XML namespaces that are visible to to the current scope.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @return XML namespaces that are visible to the current scope, as a map
      */
@@ -4270,7 +4116,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Create and return an XML concatenation expression using using the provided expressions.
      * Expressions can only be either XML type or string type. All the string type expressions
      * will be converted to XML text literals ({@link XMLTextLiteral}).
-     * 
+     *
      * @param items Expressions to create concatenating expression.
      * @return XML concatenating expression
      */
