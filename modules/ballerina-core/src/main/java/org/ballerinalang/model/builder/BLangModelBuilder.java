@@ -97,6 +97,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -1889,6 +1890,13 @@ public class BLangModelBuilder {
         addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
     }
 
+    public void createRetryStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        Expression countExpression = exprStack.pop();
+        checkTRetryCountExprValidity(location, countExpression);
+        RetryStmt retryStmt = new RetryStmt(location, whiteSpaceDescriptor, countExpression);
+        addToBlockStmt(retryStmt);
+    }
+
     // Literal Values
 
     public void createIntegerLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
@@ -2080,6 +2088,21 @@ public class BLangModelBuilder {
         }
 
         if (errMsg != null) {
+            errorMsgs.add(errMsg);
+        }
+    }
+
+    private void checkTRetryCountExprValidity(NodeLocation location, Expression retryCountExpr) {
+        boolean error = true;
+        if (retryCountExpr instanceof BasicLiteral) {
+            if (TypeConstants.INT_TNAME.equals(((BasicLiteral) retryCountExpr).getTypeName().getName())) {
+                error = false;
+            }
+        } else if (retryCountExpr instanceof VariableReferenceExpr) {
+            error = false;
+        }
+        if (error) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.INVALID_RETRY_COUNT);
             errorMsgs.add(errMsg);
         }
     }

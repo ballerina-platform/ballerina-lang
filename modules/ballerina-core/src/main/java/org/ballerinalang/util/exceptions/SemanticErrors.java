@@ -131,6 +131,8 @@ public enum SemanticErrors {
     FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0107"),
     UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
     INVALID_ACTION_FIRST_PARAMETER("invalid.action.first.parameter", "SEMANTIC_0109"),
+    RETRY_STMT_NOT_ALLOWED_HERE("retry.stmt.not.allowed.here", "SEMANTIC_0110"),
+    INVALID_RETRY_COUNT("invalid.retry.count", "SEMANTIC_0111"),
     ;
 
     private String errorMsgKey;

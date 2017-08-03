@@ -117,6 +117,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -187,6 +188,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
+    private int failedBlockCount = 0;
     private boolean isWithinWorker = false;
     private SymbolScope currentScope;
     private SymbolScope currentPackageScope;
@@ -1161,6 +1163,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
             }
 
+            if (stmt instanceof RetryStmt && failedBlockCount < 1) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.RETRY_STMT_NOT_ALLOWED_HERE);
+            }
+
+
             if (isWithinWorker) {
                 if (stmt instanceof ReplyStmt) {
                     BLangExceptionHelper.throwSemanticError(stmt,
@@ -1173,7 +1181,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (stmt instanceof BreakStmt || stmt instanceof ContinueStmt || stmt instanceof ReplyStmt ||
-                    stmt instanceof AbortStmt) {
+                    stmt instanceof AbortStmt || stmt instanceof RetryStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
 
@@ -1482,7 +1490,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         transactionStmtCount--;
         TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
         if (failedBlock != null) {
+            failedBlockCount++;
             failedBlock.getFailedBlockStmt().accept(this);
+            failedBlockCount--;
         }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {
@@ -1496,6 +1506,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AbortStmt abortStmt) {
+
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
 
     }
 

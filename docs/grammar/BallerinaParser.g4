@@ -226,6 +226,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -442,6 +443,10 @@ committedClause
 
 abortStatement
     :   ABORT SEMICOLON
+    ;
+
+retryStatement
+    :   RETRY expression SEMICOLON
     ;
 
 actionInvocation

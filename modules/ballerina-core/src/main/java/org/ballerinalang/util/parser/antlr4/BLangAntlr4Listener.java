@@ -2125,6 +2125,24 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getRetryStmtWS(tokenStream, ctx);
+        }
+
+        modelBuilder.createRetryStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
     public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
     }
 

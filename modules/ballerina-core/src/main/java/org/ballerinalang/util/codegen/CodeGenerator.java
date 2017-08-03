@@ -105,6 +105,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -1215,6 +1216,11 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(AbortStmt abortStmt) {
         generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+
     }
 
     @Override
