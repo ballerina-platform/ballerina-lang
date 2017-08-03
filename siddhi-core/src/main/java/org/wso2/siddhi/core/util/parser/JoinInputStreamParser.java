@@ -41,7 +41,7 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowWindowProcessor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
@@ -215,20 +215,20 @@ public class JoinInputStreamParser {
 
         MatchingMetaInfoHolder rightMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder
                 (metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
-        CompiledCondition leftCompiledCondition = rightFindableProcessor.compileCondition(compareCondition,
+        CompiledExpression leftCompiledExpression = rightFindableProcessor.compileExpression(compareCondition,
                 rightMatchingMetaInfoHolder, siddhiAppContext, executors, tableMap, queryName);
         MatchingMetaInfoHolder leftMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder
                 (metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
-        CompiledCondition rightCompiledCondition = leftFindableProcessor.compileCondition(compareCondition,
+        CompiledExpression rightCompiledExpression = leftFindableProcessor.compileExpression(compareCondition,
                 leftMatchingMetaInfoHolder, siddhiAppContext, executors, tableMap, queryName);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             populateJoinProcessors(rightMetaStreamEvent, rightInputStreamId, rightPreJoinProcessor,
-                    rightPostJoinProcessor, rightCompiledCondition);
+                    rightPostJoinProcessor, rightCompiledExpression);
         }
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.RIGHT) {
             populateJoinProcessors(leftMetaStreamEvent, leftInputStreamId, leftPreJoinProcessor,
-                    leftPostJoinProcessor, leftCompiledCondition);
+                    leftPostJoinProcessor, leftCompiledExpression);
         }
         JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(siddhiAppContext, metaStateEvent);
         joinStreamRuntime.addRuntime(leftStreamRuntime);
@@ -254,16 +254,16 @@ public class JoinInputStreamParser {
 
     private static void populateJoinProcessors(MetaStreamEvent metaStreamEvent, String inputStreamId,
                                                JoinProcessor preJoinProcessor, JoinProcessor postJoinProcessor,
-                                               CompiledCondition compiledCondition) {
+                                               CompiledExpression compiledExpression) {
         if (metaStreamEvent.getEventType() == TABLE && metaStreamEvent.getEventType() == AGGREGATE) {
             throw new SiddhiAppCreationException(inputStreamId + " of join query cannot trigger join " +
                     "because its a " + metaStreamEvent.getEventType() + ", only WINDOW and STEAM can " +
                     "trigger join");
         }
         preJoinProcessor.setTrigger(false);    // Pre JoinProcessor does not process the events
-        preJoinProcessor.setCompiledCondition(compiledCondition);
+        preJoinProcessor.setCompiledExpression(compiledExpression);
         postJoinProcessor.setTrigger(true);
-        postJoinProcessor.setCompiledCondition(compiledCondition);
+        postJoinProcessor.setCompiledExpression(compiledExpression);
     }
 
     private static void setStreamRuntimeProcessorChain(

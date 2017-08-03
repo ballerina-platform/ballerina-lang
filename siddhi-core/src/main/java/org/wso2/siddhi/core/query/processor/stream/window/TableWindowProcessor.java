@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -63,16 +63,16 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
-        return table.find(matchingEvent, compiledCondition);
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
+        return table.find(matchingEvent, compiledExpression);
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              SiddhiAppContext siddhiAppContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName) {
-        return table.compileCondition(expression, matchingMetaInfoHolder, siddhiAppContext,
+    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                                SiddhiAppContext siddhiAppContext,
+                                                List<VariableExpressionExecutor> variableExpressionExecutors,
+                                                Map<String, Table> tableMap, String queryName) {
+        return table.compileExpression(expression, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, queryName);
     }
 

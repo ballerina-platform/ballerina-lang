@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 
 /**
@@ -40,7 +40,7 @@ public class JoinProcessor implements Processor {
     private LockWrapper joinLockWrapper;
     private boolean preJoinProcessor;
     private StateEventPool stateEventPool;
-    private CompiledCondition compiledCondition;
+    private CompiledExpression compiledExpression;
     private FindableProcessor findableProcessor;
     private Processor nextProcessor;
     private QuerySelector selector;
@@ -83,7 +83,7 @@ public class JoinProcessor implements Processor {
                         }
                     } else {
                         joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
-                        StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, compiledCondition);
+                        StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, compiledExpression);
                         joinStateEvent.setEvent(matchingStreamIndex, null);
                         if (foundStreamEvent == null) {
                             if (outerJoinProcessor && !leftJoinProcessor) {
@@ -177,7 +177,7 @@ public class JoinProcessor implements Processor {
                 matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
-            joinProcessor.setCompiledCondition(compiledCondition.cloneCompiledCondition(key));
+            joinProcessor.setCompiledExpression(compiledExpression.cloneCompiledExpression(key));
         }
         return joinProcessor;
     }
@@ -186,8 +186,8 @@ public class JoinProcessor implements Processor {
         this.findableProcessor = findableProcessor;
     }
 
-    public void setCompiledCondition(CompiledCondition compiledCondition) {
-        this.compiledCondition = compiledCondition;
+    public void setCompiledExpression(CompiledExpression compiledExpression) {
+        this.compiledExpression = compiledExpression;
     }
 
     public void setTrigger(boolean trigger) {

@@ -59,7 +59,7 @@ public class WindowDefinition extends StreamDefinition {
     }
 
     /**
-     * Set the internal window to the WindowDefinition.
+     * UpdateSet the internal window to the WindowDefinition.
      *
      * @param window the internal window
      * @return the WindowDefinition object for chained method call
@@ -79,7 +79,7 @@ public class WindowDefinition extends StreamDefinition {
     }
 
     /**
-     * Set output event type of the window. If not explicitly assigned, OutputEventType.ALL_EVENTS
+     * UpdateSet output event type of the window. If not explicitly assigned, OutputEventType.ALL_EVENTS
      * will be used by default.
      *
      * @param outputEventType the output event type

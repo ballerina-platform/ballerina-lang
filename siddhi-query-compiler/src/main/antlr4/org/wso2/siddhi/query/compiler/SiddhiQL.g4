@@ -300,9 +300,17 @@ having
 query_output
     :INSERT output_event_type? INTO target
     |DELETE target (FOR output_event_type)? ON expression
-    |UPDATE OR INSERT INTO target (FOR output_event_type)? ON expression
-    |UPDATE target (FOR output_event_type)? ON expression
+    |UPDATE OR INSERT INTO target (FOR output_event_type)? set_clause? ON expression
+    |UPDATE target (FOR output_event_type)? set_clause? ON expression
     |RETURN output_event_type?
+    ;
+
+set_clause
+    : SET set_assignment (',' set_assignment)*
+    ;
+
+set_assignment
+    : attribute_reference '=' expression
     ;
 
 output_event_type
@@ -669,6 +677,7 @@ HAVING:   H A V I N G;
 INSERT:   I N S E R T;
 DELETE:   D E L E T E;
 UPDATE:   U P D A T E;
+SET:      S E T;
 RETURN:   R E T U R N;
 EVENTS:   E V E N T S;
 INTO:     I N T O;

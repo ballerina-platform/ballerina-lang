@@ -163,7 +163,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.Aggregat
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.AttributeAggregatorExtensionHolder;
@@ -454,9 +454,9 @@ public class ExpressionParser {
             Table table = tableMap.get(((In) expression).getSourceId());
             MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent,
                     defaultStreamEventIndex, table.getTableDefinition(), defaultStreamEventIndex);
-            CompiledCondition compiledCondition = table.compileCondition(((In) expression).getExpression(),
+            CompiledExpression compiledExpression = table.compileExpression(((In) expression).getExpression(),
                     matchingMetaInfoHolder, siddhiAppContext, executorList, tableMap, queryName);
-            return new InConditionExpressionExecutor(table, compiledCondition, matchingMetaInfoHolder
+            return new InConditionExpressionExecutor(table, compiledExpression, matchingMetaInfoHolder
                     .getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, 0);
 
         } else if (expression instanceof IsNull) {
