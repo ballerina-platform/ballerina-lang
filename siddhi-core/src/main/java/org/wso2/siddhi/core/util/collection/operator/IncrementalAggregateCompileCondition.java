@@ -47,17 +47,21 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private Map<TimePeriod.Duration, Table> aggregationTables;
     private Map<TimePeriod.Duration, Object> inMemoryStoreMap;
     private List<TimePeriod.Duration> incrementalDurations;
+    private Long startTime;
+    private Long endTime;
+    private List<List<ExpressionExecutor>> executorListForSingleWithin;
     private final StreamEvent resetEvent;
     private final StreamEventCloner storeEventCloner;
     private final StreamEventCloner outputEventCloner;
     private final Map<Long, Map<String, Object[]>> inMemoryAggregateMap = new HashMap<>();
 
     public IncrementalAggregateCompileCondition(Map<TimePeriod.Duration, CompiledCondition> tableCompiledConditions,
-            CompiledCondition inMemoryStoreCompileCondition, CompiledCondition finalCompiledCondition,
-            List<ExpressionExecutor> baseExecutors, Map<TimePeriod.Duration, Table> aggregationTables,
-            Map<TimePeriod.Duration, Object> inMemoryStoreMap, MetaStreamEvent metaStreamEvent,
-            List<TimePeriod.Duration> incrementalDurations, List<ExpressionExecutor> outputExpressionExecutors,
-            MetaStreamEvent finalOutputMeta) {
+                                                CompiledCondition inMemoryStoreCompileCondition, CompiledCondition finalCompiledCondition,
+                                                List<ExpressionExecutor> baseExecutors, Map<TimePeriod.Duration, Table> aggregationTables,
+                                                Map<TimePeriod.Duration, Object> inMemoryStoreMap, MetaStreamEvent metaStreamEvent,
+                                                List<TimePeriod.Duration> incrementalDurations, List<ExpressionExecutor> outputExpressionExecutors,
+                                                MetaStreamEvent finalOutputMeta, Long startTime, Long endTime,
+                                                List<List<ExpressionExecutor>> executorListForSingleWithin) {
         this.tableCompiledConditions = tableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.finalCompiledCondition = finalCompiledCondition;
@@ -72,6 +76,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.resetEvent.setType(ComplexEvent.Type.RESET);
         this.storeEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPoolForInternalMeta);
         this.outputEventCloner = new StreamEventCloner(finalOutputMeta, streamEventPoolForFinalMeta);
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.executorListForSingleWithin = executorListForSingleWithin;
     }
 
     @Override
@@ -82,6 +89,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
             boolean perEqualsRootExecutorDuration) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(true);
+        if (!executorListForSingleWithin.isEmpty()) {
+            deriveStartTimeEndTime(matchingEvent);
+        }
         StreamEvent matchFromPersistedEvents = aggregationTables.get(perValue).find(matchingEvent,
                 tableCompiledConditions.get(perValue));
         complexEventChunk.add(matchFromPersistedEvents);
@@ -240,6 +250,18 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         for (ExpressionExecutor expressionExecutor : outputExpressionExecutors) {
             expressionExecutor.execute(resetEvent);
         }
-        return ((Operator)finalCompiledCondition).find(matchingEvent, finalComplexEventChunk, outputEventCloner);
+        return ((Operator) finalCompiledCondition).find(matchingEvent, finalComplexEventChunk, outputEventCloner);
+    }
+
+    private void deriveStartTimeEndTime(StateEvent matchingEvent) {
+        int i = 0;
+        for (List<ExpressionExecutor> regexMatchAndTimeDeriver : executorListForSingleWithin) {
+            if ((Boolean) regexMatchAndTimeDeriver.get(0).execute(matchingEvent)){
+                startTime = (Long) regexMatchAndTimeDeriver.get(1).execute(matchingEvent);
+                endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.values()[i]);
+                break;
+            }
+            i++;
+        }
     }
 }

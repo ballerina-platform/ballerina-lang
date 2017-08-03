@@ -93,6 +93,10 @@
             <artifactId>siddhi-execution-time</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.extension.siddhi.execution.string</groupId>
+            <artifactId>siddhi-execution-string</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
             <artifactId>siddhi-store-rdbms</artifactId>
             <scope>test</scope>
