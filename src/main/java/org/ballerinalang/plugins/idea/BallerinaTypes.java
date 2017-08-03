@@ -41,6 +41,8 @@ public class BallerinaTypes {
     public static final TokenIElementType IDENTIFIER = tokenIElementTypes.get(BallerinaLexer.Identifier);
     public static final TokenIElementType COMMENT_STATEMENT = tokenIElementTypes.get(BallerinaLexer.LINE_COMMENT);
     public static final TokenIElementType QUOTED_STRING = tokenIElementTypes.get(BallerinaLexer.QuotedStringLiteral);
+    public static final TokenIElementType BACKTICKED_STRING =
+            tokenIElementTypes.get(BallerinaLexer.BacktickStringLiteral);
     public static final TokenIElementType FLOATING_POINT = tokenIElementTypes.get(BallerinaLexer.FloatingPointLiteral);
     public static final TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
     public static final TokenIElementType ERRCHAR = tokenIElementTypes.get(BallerinaLexer.ERRCHAR);
