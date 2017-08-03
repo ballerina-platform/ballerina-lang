@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
@@ -95,7 +95,7 @@ public abstract class Table implements FindableProcessor {
 
     protected abstract void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException;
 
-    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         if (isConnected.get()) {
             try {
                 return find(compiledCondition, matchingEvent);
@@ -116,74 +116,74 @@ public abstract class Table implements FindableProcessor {
         }
     }
 
-    protected abstract StreamEvent find(CompiledExpression compiledExpression, StateEvent matchingEvent)
+    protected abstract StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
             throws ConnectionUnavailableException;
 
-    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression) {
+    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
         if (isConnected.get()) {
             try {
-                delete(deletingEventChunk, compiledExpression);
+                delete(deletingEventChunk, compiledCondition);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                deleteEvents(deletingEventChunk, compiledExpression);
+                deleteEvents(deletingEventChunk, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Table '" + tableDefinition.getId() +
                     "' as its still trying to reconnect!, events dropped '" + deletingEventChunk + "'");
         } else {
             connectWithRetry();
-            deleteEvents(deletingEventChunk, compiledExpression);
+            deleteEvents(deletingEventChunk, compiledCondition);
         }
     }
 
     protected abstract void delete(ComplexEventChunk<StateEvent> deletingEventChunk,
-                                   CompiledExpression compiledExpression) throws ConnectionUnavailableException;
+                                   CompiledCondition compiledCondition) throws ConnectionUnavailableException;
 
 
     public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk,
-                             CompiledExpression compiledExpression,
+                             CompiledCondition compiledCondition,
                              CompiledUpdateSet compiledUpdateSet) {
         if (isConnected.get()) {
             try {
-                update(updatingEventChunk, compiledExpression, compiledUpdateSet);
+                update(updatingEventChunk, compiledCondition, compiledUpdateSet);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                updateEvents(updatingEventChunk, compiledExpression, compiledUpdateSet);
+                updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Table '" + tableDefinition.getId() +
                     "' as its still trying to reconnect!, events dropped '" + updatingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateEvents(updatingEventChunk, compiledExpression, compiledUpdateSet);
+            updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
         }
     }
 
     protected abstract void update(ComplexEventChunk<StateEvent> updatingEventChunk,
-                                   CompiledExpression compiledExpression,
+                                   CompiledCondition compiledCondition,
                                    CompiledUpdateSet compiledUpdateSet)
             throws ConnectionUnavailableException;
 
     public void updateOrAddEvents(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                                  CompiledExpression compiledExpression,
+                                  CompiledCondition compiledCondition,
                                   CompiledUpdateSet compiledUpdateSet,
                                   AddingStreamEventExtractor addingStreamEventExtractor) {
         if (isConnected.get()) {
             try {
-                updateOrAdd(updateOrAddingEventChunk, compiledExpression, compiledUpdateSet,
+                updateOrAdd(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                         addingStreamEventExtractor);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                updateOrAddEvents(updateOrAddingEventChunk, compiledExpression, compiledUpdateSet,
+                updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                         addingStreamEventExtractor);
             }
         } else if (isTryingToConnect.get()) {
@@ -191,27 +191,27 @@ public abstract class Table implements FindableProcessor {
                     "' as its still trying to reconnect!, events dropped '" + updateOrAddingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateOrAddEvents(updateOrAddingEventChunk, compiledExpression, compiledUpdateSet,
+            updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                     addingStreamEventExtractor);
         }
     }
 
     protected abstract void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                                        CompiledExpression compiledExpression,
+                                        CompiledCondition compiledCondition,
                                         CompiledUpdateSet compiledUpdateSet,
                                         AddingStreamEventExtractor addingStreamEventExtractor)
             throws ConnectionUnavailableException;
 
-    public boolean containsEvent(StateEvent matchingEvent, CompiledExpression compiledExpression) {
+    public boolean containsEvent(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         if (isConnected.get()) {
             try {
-                return contains(matchingEvent, compiledExpression);
+                return contains(matchingEvent, compiledCondition);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                return containsEvent(matchingEvent, compiledExpression);
+                return containsEvent(matchingEvent, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Table '" + tableDefinition.getId() +
@@ -219,11 +219,11 @@ public abstract class Table implements FindableProcessor {
             return false;
         } else {
             connectWithRetry();
-            return containsEvent(matchingEvent, compiledExpression);
+            return containsEvent(matchingEvent, compiledCondition);
         }
     }
 
-    protected abstract boolean contains(StateEvent matchingEvent, CompiledExpression compiledExpression)
+    protected abstract boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition)
             throws ConnectionUnavailableException;
 
     public void connectWithRetry() {

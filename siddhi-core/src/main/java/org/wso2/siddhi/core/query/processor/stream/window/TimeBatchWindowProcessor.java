@@ -34,7 +34,7 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -292,12 +292,12 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition) {
+    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         return ((Operator) compiledCondition).find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {

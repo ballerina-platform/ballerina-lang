@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.StoreQueryRuntime;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.window.Window;
@@ -101,9 +101,9 @@ public class StoreQueryParser {
             initMetaStreamEvent(metaStreamEvent, table.getTableDefinition());
             MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                     table.getTableDefinition());
-            CompiledExpression compiledExpression = table.compileCondition(onCondition, metaStreamInfoHolder,
+            CompiledCondition compiledCondition = table.compileCondition(onCondition, metaStreamInfoHolder,
                     siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-            StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(table, compiledExpression, queryName,
+            StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(table, compiledCondition, queryName,
                     metaStreamEvent.getEventType());
             pupulateStoreQueryRuntime(storeQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
                     variableExpressionExecutors, siddhiAppContext, tableMap, queryName);
@@ -115,10 +115,10 @@ public class StoreQueryParser {
                 initMetaStreamEvent(metaStreamEvent, aggregation.getAggregationDefinition());
                 MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                         aggregation.getAggregationDefinition());
-                CompiledExpression compiledExpression = aggregation.compileExpression(onCondition, within, per,
+                CompiledCondition compiledCondition = aggregation.compileExpression(onCondition, within, per,
                         generateMatchingMetaInfoHolder(metaStreamEvent, aggregation.getAggregationDefinition()),
                         variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
-                StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(aggregation, compiledExpression, queryName,
+                StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(aggregation, compiledCondition, queryName,
                         metaStreamEvent.getEventType());
                 pupulateStoreQueryRuntime(storeQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
                         variableExpressionExecutors, siddhiAppContext, tableMap, queryName);
@@ -130,10 +130,10 @@ public class StoreQueryParser {
                     initMetaStreamEvent(metaStreamEvent, window.getWindowDefinition());
                     MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                             window.getWindowDefinition());
-                    CompiledExpression compiledExpression = window.compileCondition(onCondition,
+                    CompiledCondition compiledCondition = window.compileCondition(onCondition,
                             generateMatchingMetaInfoHolder(metaStreamEvent, window.getWindowDefinition()),
                             siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-                    StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(window, compiledExpression, queryName,
+                    StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(window, compiledCondition, queryName,
                             metaStreamEvent.getEventType());
                     pupulateStoreQueryRuntime(storeQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
                             variableExpressionExecutors, siddhiAppContext, tableMap, queryName);

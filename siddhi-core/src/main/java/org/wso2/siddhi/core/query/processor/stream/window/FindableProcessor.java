@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -44,7 +44,7 @@ public interface FindableProcessor {
      *                          the matchingEvent based on pool of events at Processor
      * @return the matched events
      */
-    StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledCondition);
+    StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition);
 
     /**
      * To construct a finder having the capability of finding events at the processor that corresponds to the incoming
@@ -58,7 +58,7 @@ public interface FindableProcessor {
      * @param queryName                   query name of findable processor belongs to.
      * @return compiled Condition having the capability of matching events against the incoming matchingEvent
      */
-    CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                         SiddhiAppContext siddhiAppContext,
                                         List<VariableExpressionExecutor> variableExpressionExecutors,
                                         Map<String, Table> tableMap, String queryName);

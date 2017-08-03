@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
 /**
  * Implementation of {@link OutputCallback} to receive processed Siddhi events from
@@ -34,18 +34,18 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 public class DeleteTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private Table table;
-    private CompiledExpression compiledExpression;
+    private CompiledCondition compiledCondition;
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public DeleteTableCallback(Table table, CompiledExpression compiledExpression, int matchingStreamIndex,
+    public DeleteTableCallback(Table table, CompiledCondition compiledCondition, int matchingStreamIndex,
                                boolean convertToStreamEvent, StateEventPool stateEventPool,
                                StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.table = table;
-        this.compiledExpression = compiledExpression;
+        this.compiledCondition = compiledCondition;
         this.convertToStreamEvent = convertToStreamEvent;
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
@@ -60,7 +60,7 @@ public class DeleteTableCallback extends OutputCallback {
                     deletingEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool,
                     streamEventConvertor);
 
-            table.deleteEvents(deletingStateEventChunk, compiledExpression);
+            table.deleteEvents(deletingStateEventChunk, compiledCondition);
         }
     }
 

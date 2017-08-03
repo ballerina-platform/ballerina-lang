@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.CompiledUpdateSet;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
 /**
  * Implementation of {@link OutputCallback} to receive processed Siddhi events from
@@ -35,18 +35,18 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 public class UpdateTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private Table table;
-    private CompiledExpression compiledExpression;
+    private CompiledCondition compiledCondition;
     private CompiledUpdateSet compiledUpdateSet;
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public UpdateTableCallback(Table table, CompiledExpression compiledExpression, CompiledUpdateSet compiledUpdateSet,
+    public UpdateTableCallback(Table table, CompiledCondition compiledCondition, CompiledUpdateSet compiledUpdateSet,
                                int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
                                StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.table = table;
-        this.compiledExpression = compiledExpression;
+        this.compiledCondition = compiledCondition;
         this.compiledUpdateSet = compiledUpdateSet;
         this.matchingStreamIndex = matchingStreamIndex;
         this.convertToStreamEvent = convertToStreamEvent;
@@ -61,7 +61,7 @@ public class UpdateTableCallback extends OutputCallback {
         if (updatingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> updatingStateEventChunk = constructMatchingStateEventChunk(updatingEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            table.updateEvents(updatingStateEventChunk, compiledExpression, compiledUpdateSet);
+            table.updateEvents(updatingStateEventChunk, compiledCondition, compiledUpdateSet);
         }
     }
 

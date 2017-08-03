@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ExpressionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
 import org.wso2.siddhi.core.table.record.RecordTableCompiledUpdateSet;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -71,7 +72,7 @@ public class TestStore extends AbstractRecordTable {
 
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                            CompiledExpression compiledExpression)
+                                            CompiledCondition compiledCondition)
             throws ConnectionUnavailableException {
         //Not Applicable
         return null;
@@ -79,21 +80,21 @@ public class TestStore extends AbstractRecordTable {
 
     @Override
     protected boolean contains(Map<String, Object> containsConditionParameterMap,
-                               CompiledExpression compiledExpression) throws ConnectionUnavailableException {
+                               CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         //Not Applicable
         return false;
     }
 
     @Override
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps,
-                          CompiledExpression compiledExpression) throws ConnectionUnavailableException {
+                          CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         //Not Applicable
     }
 
 
     @Override
     protected void update(List<Map<String, Object>> updateConditionParameterMaps,
-                          CompiledExpression compiledExpression,
+                          CompiledCondition compiledCondition,
                           RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
                           List<Map<String, Object>> updateValues) throws ConnectionUnavailableException {
         //Not Applicable
@@ -104,14 +105,14 @@ public class TestStore extends AbstractRecordTable {
      *
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param compiledExpression           the compiledExpression against which records should be matched for update
+     * @param compiledCondition            the compiledCondition against which records should be matched for update
      * @param recordTableCompiledUpdateSet
      * @param updateValues                 the attributes and values that should be updated if the condition matches
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
     @Override
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                               CompiledExpression compiledExpression,
+                               CompiledCondition compiledCondition,
                                RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
                                List<Map<String, Object>> updateValues, List<Object[]> addingRecords)
             throws ConnectionUnavailableException {
@@ -119,7 +120,7 @@ public class TestStore extends AbstractRecordTable {
     }
 
     @Override
-    protected CompiledExpression compileExpression(ExpressionBuilder expressionBuilder) {
+    protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
         return null;    //not implemented
     }
 

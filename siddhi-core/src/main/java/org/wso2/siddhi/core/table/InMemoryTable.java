@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -90,21 +90,21 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
         try {
             readWriteLock.writeLock().lock();
-            ((Operator) compiledExpression).delete(deletingEventChunk, eventHolder);
+            ((Operator) compiledCondition).delete(deletingEventChunk, eventHolder);
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledExpression compiledExpression,
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
                        CompiledUpdateSet compiledUpdateSet) {
         try {
             readWriteLock.writeLock().lock();
-            ((Operator) compiledExpression).update(updatingEventChunk, eventHolder,
+            ((Operator) compiledCondition).update(updatingEventChunk, eventHolder,
                     (InMemoryCompiledUpdateSet) compiledUpdateSet);
         } finally {
             readWriteLock.writeLock().unlock();
@@ -114,12 +114,12 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                            CompiledExpression compiledExpression,
+                            CompiledCondition compiledCondition,
                             CompiledUpdateSet compiledUpdateSet,
                             AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledExpression).tryUpdate
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
                     (updateOrAddingEventChunk,
                     eventHolder, (InMemoryCompiledUpdateSet) compiledUpdateSet, addingStreamEventExtractor);
             if (failedEvents != null) {
@@ -132,10 +132,10 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, CompiledExpression compiledExpression) {
+    public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         try {
             readWriteLock.readLock().lock();
-            return ((Operator) compiledExpression).contains(matchingEvent, eventHolder);
+            return ((Operator) compiledCondition).contains(matchingEvent, eventHolder);
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -158,10 +158,10 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
     }
 
     @Override
-    public StreamEvent find(CompiledExpression compiledExpression, StateEvent matchingEvent) {
+    public StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent) {
         try {
             readWriteLock.readLock().lock();
-            return ((Operator) compiledExpression).find(matchingEvent, eventHolder, tableStreamEventCloner);
+            return ((Operator) compiledCondition).find(matchingEvent, eventHolder, tableStreamEventCloner);
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -169,7 +169,7 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
     }
 
     @Override
-    public CompiledExpression compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                SiddhiAppContext siddhiAppContext,
                                                List<VariableExpressionExecutor> variableExpressionExecutors,
                                                Map<String, Table> tableMap, String queryName) {

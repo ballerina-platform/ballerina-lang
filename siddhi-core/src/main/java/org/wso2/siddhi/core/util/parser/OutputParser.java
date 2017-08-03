@@ -49,7 +49,7 @@ import org.wso2.siddhi.core.query.output.ratelimit.time.LastPerTimeOutputRateLim
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.CompiledUpdateSet;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.Window;
@@ -152,10 +152,10 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledExpression compiledExpression = table.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
+                        CompiledCondition compiledCondition = table.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
-                        return new DeleteTableCallback(table, compiledExpression, matchingMetaInfoHolder.getMatchingStreamEventIndex(),
+                        return new DeleteTableCallback(table, compiledCondition, matchingMetaInfoHolder.getMatchingStreamEventIndex(),
                                 convertToStreamEvent, stateEventPool, streamEventPool, streamEventConverter);
                     } catch (SiddhiAppValidationException e) {
                         throw new SiddhiAppCreationException("Cannot create delete for table '" + outStream.getId
@@ -165,7 +165,7 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledExpression compiledExpression = table.compileCondition((((UpdateStream) outStream).getOnUpdateExpression()),
+                        CompiledCondition compiledCondition = table.compileCondition((((UpdateStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
                         UpdateSet updateSet = ((UpdateStream) outStream).getUpdateSet();
                         if (updateSet == null) {
@@ -177,7 +177,7 @@ public class OutputParser {
                         CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
                                 siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
-                        return new UpdateTableCallback(table, compiledExpression, compiledUpdateSet,
+                        return new UpdateTableCallback(table, compiledCondition, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
                     } catch (SiddhiAppValidationException e) {
@@ -190,7 +190,7 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledExpression compiledExpression = table.compileCondition((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
+                        CompiledCondition compiledCondition = table.compileCondition((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
                         UpdateSet updateSet = ((UpdateOrInsertStream) outStream).getUpdateSet();
                         if (updateSet == null) {
@@ -202,7 +202,7 @@ public class OutputParser {
                         CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
                                 siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
-                        return new UpdateOrInsertTableCallback(table, compiledExpression, compiledUpdateSet,
+                        return new UpdateOrInsertTableCallback(table, compiledCondition, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
 

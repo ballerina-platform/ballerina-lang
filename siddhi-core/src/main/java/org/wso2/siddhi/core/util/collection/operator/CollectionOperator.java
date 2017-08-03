@@ -43,7 +43,7 @@ public class CollectionOperator implements Operator {
     }
 
     @Override
-    public CompiledExpression cloneCompiledExpression(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         return new CollectionOperator(expressionExecutor.cloneExecutor(key), storeEventPosition);
     }
 

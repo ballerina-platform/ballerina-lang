@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.CompiledUpdateSet;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -68,7 +69,7 @@ public abstract class AbstractRecordTable extends Table {
      * Initializing the Record Table
      *
      * @param tableDefinition definintion of the table with annotations if any
-     * @param configReader this hold the {@link AbstractRecordTable} configuration reader.
+     * @param configReader    this hold the {@link AbstractRecordTable} configuration reader.
      */
     protected abstract void init(TableDefinition tableDefinition, ConfigReader configReader);
 
@@ -98,18 +99,18 @@ public abstract class AbstractRecordTable extends Table {
     protected abstract void add(List<Object[]> records) throws ConnectionUnavailableException;
 
     @Override
-    public StreamEvent find(CompiledExpression compiledExpression, StateEvent matchingEvent)
+    public StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
             throws ConnectionUnavailableException {
-        RecordStoreCompiledExpression recordStoreCompiledExpression =
-                ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledCondition recordStoreCompiledCondition =
+                ((RecordStoreCompiledCondition) compiledCondition);
 
         Map<String, Object> findConditionParameterMap = new HashMap<>();
-        for (Map.Entry<String, ExpressionExecutor> entry : recordStoreCompiledExpression.variableExpressionExecutorMap
+        for (Map.Entry<String, ExpressionExecutor> entry : recordStoreCompiledCondition.variableExpressionExecutorMap
                 .entrySet()) {
             findConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
 
-        Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledExpression.compiledExpression);
+        Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
         ComplexEventChunk<StreamEvent> streamEventComplexEventChunk = new ComplexEventChunk<>(true);
         if (records != null) {
             while (records.hasNext()) {
@@ -127,24 +128,24 @@ public abstract class AbstractRecordTable extends Table {
      *
      * @param findConditionParameterMap map of matching StreamVariable Ids and their values
      *                                  corresponding to the compiled condition
-     * @param compiledExpression        the compiledExpression against which records should be matched
+     * @param compiledCondition         the compiledCondition against which records should be matched
      * @return RecordIterator of matching records
      */
     protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                                     CompiledExpression compiledExpression)
-                                                                throws ConnectionUnavailableException;
+                                                     CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException;
 
     @Override
-    public boolean contains(StateEvent matchingEvent, CompiledExpression compiledExpression)
+    public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition)
             throws ConnectionUnavailableException {
-        RecordStoreCompiledExpression recordStoreCompiledExpression =
-                ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledCondition recordStoreCompiledCondition =
+                ((RecordStoreCompiledCondition) compiledCondition);
         Map<String, Object> containsConditionParameterMap = new HashMap<>();
         for (Map.Entry<String, ExpressionExecutor> entry :
-                recordStoreCompiledExpression.variableExpressionExecutorMap.entrySet()) {
+                recordStoreCompiledCondition.variableExpressionExecutorMap.entrySet()) {
             containsConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
-        return contains(containsConditionParameterMap, recordStoreCompiledExpression.compiledExpression);
+        return contains(containsConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
     }
 
     /**
@@ -152,18 +153,18 @@ public abstract class AbstractRecordTable extends Table {
      *
      * @param containsConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the
      *                                      compiled condition
-     * @param compiledExpression             the compiledExpression against which records should be matched
+     * @param compiledCondition             the compiledCondition against which records should be matched
      * @return if matching record found or not
      */
     protected abstract boolean contains(Map<String, Object> containsConditionParameterMap,
-                                        CompiledExpression compiledExpression)
-                                        throws ConnectionUnavailableException;
+                                        CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException;
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression)
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition)
             throws ConnectionUnavailableException {
-        RecordStoreCompiledExpression recordStoreCompiledExpression =
-                ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledCondition recordStoreCompiledCondition =
+                ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> deleteConditionParameterMaps = new ArrayList<>();
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
@@ -171,13 +172,13 @@ public abstract class AbstractRecordTable extends Table {
 
             Map<String, Object> variableMap = new HashMap<>();
             for (Map.Entry<String, ExpressionExecutor> entry :
-                    recordStoreCompiledExpression.variableExpressionExecutorMap.entrySet()) {
+                    recordStoreCompiledCondition.variableExpressionExecutorMap.entrySet()) {
                 variableMap.put(entry.getKey(), entry.getValue().execute(stateEvent));
             }
 
             deleteConditionParameterMaps.add(variableMap);
         }
-        delete(deleteConditionParameterMaps, recordStoreCompiledExpression.compiledExpression);
+        delete(deleteConditionParameterMaps, recordStoreCompiledCondition.compiledCondition);
     }
 
     /**
@@ -185,17 +186,17 @@ public abstract class AbstractRecordTable extends Table {
      *
      * @param deleteConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition
-     * @param compiledExpression            the compiledExpression against which records should be matched for deletion
+     * @param compiledCondition            the compiledCondition against which records should be matched for deletion
      */
     protected abstract void delete(List<Map<String, Object>> deleteConditionParameterMaps,
-                                   CompiledExpression compiledExpression)
-    throws ConnectionUnavailableException;
+                                   CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException;
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledExpression compiledExpression,
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
                        CompiledUpdateSet compiledUpdateSet) throws ConnectionUnavailableException {
-        RecordStoreCompiledExpression recordStoreCompiledExpression =
-                ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledCondition recordStoreCompiledCondition =
+                ((RecordStoreCompiledCondition) compiledCondition);
         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet = (RecordTableCompiledUpdateSet) compiledUpdateSet;
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
@@ -205,7 +206,7 @@ public abstract class AbstractRecordTable extends Table {
 
             Map<String, Object> variableMap = new HashMap<>();
             for (Map.Entry<String, ExpressionExecutor> entry :
-                    recordStoreCompiledExpression.variableExpressionExecutorMap.entrySet()) {
+                    recordStoreCompiledCondition.variableExpressionExecutorMap.entrySet()) {
                 variableMap.put(entry.getKey(), entry.getValue().execute(stateEvent));
             }
             updateConditionParameterMaps.add(variableMap);
@@ -217,30 +218,31 @@ public abstract class AbstractRecordTable extends Table {
             }
             updateSetParameterMaps.add(variableMapForUpdateSet);
         }
-        update(updateConditionParameterMaps, recordStoreCompiledExpression.compiledExpression,
+        update(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition,
                 recordTableCompiledUpdateSet, updateSetParameterMaps);
     }
 
     /**
      * Update all matching records
-     *  @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
+     *
+     * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param compiledExpression            the compiledExpression against which records should be matched for update
+     * @param compiledCondition            the compiledCondition against which records should be matched for update
      * @param recordTableCompiledUpdateSet
      * @param updateValues                 the attributes and values that should be updated for the matching records
      */
     protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps,
-                                   CompiledExpression compiledExpression,
+                                   CompiledCondition compiledCondition,
                                    RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
                                    List<Map<String, Object>> updateValues) throws ConnectionUnavailableException;
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                            CompiledExpression compiledExpression, CompiledUpdateSet compiledUpdateSet,
+                            CompiledCondition compiledCondition, CompiledUpdateSet compiledUpdateSet,
                             AddingStreamEventExtractor addingStreamEventExtractor)
             throws ConnectionUnavailableException {
-        RecordStoreCompiledExpression recordStoreCompiledExpression =
-                ((RecordStoreCompiledExpression) compiledExpression);
+        RecordStoreCompiledCondition recordStoreCompiledCondition =
+                ((RecordStoreCompiledCondition) compiledCondition);
         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet = (RecordTableCompiledUpdateSet) compiledUpdateSet;
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
@@ -251,7 +253,7 @@ public abstract class AbstractRecordTable extends Table {
 
             Map<String, Object> variableMap = new HashMap<>();
             for (Map.Entry<String, ExpressionExecutor> entry :
-                    recordStoreCompiledExpression.variableExpressionExecutorMap.entrySet()) {
+                    recordStoreCompiledCondition.variableExpressionExecutorMap.entrySet()) {
                 variableMap.put(entry.getKey(), entry.getValue().execute(stateEvent));
             }
             updateConditionParameterMaps.add(variableMap);
@@ -264,39 +266,40 @@ public abstract class AbstractRecordTable extends Table {
             updateSetParameterMaps.add(variableMapForUpdateSet);
             addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
-        updateOrAdd(updateConditionParameterMaps, recordStoreCompiledExpression.compiledExpression,
+        updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition,
                 recordTableCompiledUpdateSet, updateSetParameterMaps, addingRecords);
 
     }
 
     /**
      * Try updating the records if they exist else add the records
-     *  @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
+     *
+     * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param compiledExpression            the compiledExpression against which records should be matched for update
+     * @param compiledCondition            the compiledCondition against which records should be matched for update
      * @param recordTableCompiledUpdateSet
      * @param updateValues                 the attributes and values that should be updated if the condition matches
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
     protected abstract void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                                        CompiledExpression compiledExpression,
+                                        CompiledCondition compiledCondition,
                                         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
                                         List<Map<String, Object>> updateValues,
                                         List<Object[]> addingRecords)
-    throws ConnectionUnavailableException;
+            throws ConnectionUnavailableException;
 
     @Override
-    public CompiledExpression compileCondition(Expression condition,
-                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               SiddhiAppContext siddhiAppContext,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName) {
+    public CompiledCondition compileCondition(Expression condition,
+                                              MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         ExpressionBuilder expressionBuilder = new ExpressionBuilder(condition, matchingMetaInfoHolder,
-                                                                 siddhiAppContext, variableExpressionExecutors,
-                                                                 tableMap, queryName);
-        CompiledExpression compiledExpression = compileExpression(expressionBuilder);
+                siddhiAppContext, variableExpressionExecutors,
+                tableMap, queryName);
+        CompiledCondition compileCondition = compileCondition(expressionBuilder);
         Map<String, ExpressionExecutor> expressionExecutorMap = expressionBuilder.getVariableExpressionExecutorMap();
-        return new RecordStoreCompiledExpression(expressionExecutorMap, compiledExpression);
+        return new RecordStoreCompiledCondition(expressionExecutorMap, compileCondition);
     }
 
     public CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
@@ -306,7 +309,7 @@ public abstract class AbstractRecordTable extends Table {
                                               Map<String, Table> tableMap, String queryName) {
         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet = new RecordTableCompiledUpdateSet();
         Map<String, ExpressionExecutor> parentExecutorMap = new HashMap<>();
-        for (UpdateSet.SetAttribute setAttribute: updateSet.getSetAttributeList()) {
+        for (UpdateSet.SetAttribute setAttribute : updateSet.getSetAttributeList()) {
             ExpressionBuilder expressionBuilder = new ExpressionBuilder(setAttribute.getAssignmentExpression(),
                     matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
             CompiledExpression compiledExpression = compileSetAttribute(expressionBuilder);
@@ -326,33 +329,34 @@ public abstract class AbstractRecordTable extends Table {
      * @return compiled expression that can be used for matching events in find, contains, delete, update and
      * updateOrAdd
      */
-    protected abstract CompiledExpression compileExpression(ExpressionBuilder expressionBuilder);
+    protected abstract CompiledCondition compileCondition(ExpressionBuilder expressionBuilder);
 
     /**
      * Compiles the expression in a set clause
+     *
      * @param expressionBuilder helps visiting the conditions in order to compile the condition
      * @return compiled expression that can be used for matching events in find, contains, delete, update and
      * updateOrAdd
      */
     protected abstract CompiledExpression compileSetAttribute(ExpressionBuilder expressionBuilder);
 
-    private class RecordStoreCompiledExpression implements CompiledExpression {
+    private class RecordStoreCompiledCondition implements CompiledCondition {
         private Map<String, ExpressionExecutor> variableExpressionExecutorMap;
-        private CompiledExpression compiledExpression;
+        private CompiledCondition compiledCondition;
 
-        RecordStoreCompiledExpression(Map<String, ExpressionExecutor> variableExpressionExecutorMap,
-                                      CompiledExpression compiledExpression) {
+        RecordStoreCompiledCondition(Map<String, ExpressionExecutor> variableExpressionExecutorMap,
+                                     CompiledCondition compiledCondition) {
             this.variableExpressionExecutorMap = variableExpressionExecutorMap;
-            this.compiledExpression = compiledExpression;
+            this.compiledCondition = compiledCondition;
         }
 
         @Override
-        public CompiledExpression cloneCompiledExpression(String key) {
+        public CompiledCondition cloneCompiledCondition(String key) {
             Map<String, ExpressionExecutor> newVariableExpressionExecutorMap = new HashMap<>();
             for (Map.Entry<String, ExpressionExecutor> entry : variableExpressionExecutorMap.entrySet()) {
                 newVariableExpressionExecutorMap.put(entry.getKey(), entry.getValue().cloneExecutor(key));
             }
-            return new RecordStoreCompiledExpression(newVariableExpressionExecutorMap, compiledExpression);
+            return new RecordStoreCompiledCondition(newVariableExpressionExecutorMap, compiledCondition);
         }
     }
 }
