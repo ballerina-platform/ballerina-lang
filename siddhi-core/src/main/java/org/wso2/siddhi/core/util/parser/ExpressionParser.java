@@ -454,7 +454,7 @@ public class ExpressionParser {
             Table table = tableMap.get(((In) expression).getSourceId());
             MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent,
                     defaultStreamEventIndex, table.getTableDefinition(), defaultStreamEventIndex);
-            CompiledExpression compiledExpression = table.compileExpression(((In) expression).getExpression(),
+            CompiledExpression compiledExpression = table.compileCondition(((In) expression).getExpression(),
                     matchingMetaInfoHolder, siddhiAppContext, executorList, tableMap, queryName);
             return new InConditionExpressionExecutor(table, compiledExpression, matchingMetaInfoHolder
                     .getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, 0);

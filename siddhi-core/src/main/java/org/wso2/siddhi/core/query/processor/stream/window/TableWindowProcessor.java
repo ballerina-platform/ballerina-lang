@@ -68,11 +68,11 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                SiddhiAppContext siddhiAppContext,
-                                                List<VariableExpressionExecutor> variableExpressionExecutors,
-                                                Map<String, Table> tableMap, String queryName) {
-        return table.compileExpression(expression, matchingMetaInfoHolder, siddhiAppContext,
+    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
+        return table.compileCondition(expression, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, queryName);
     }
 

@@ -152,7 +152,7 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledExpression compiledExpression = table.compileExpression((((DeleteStream) outStream).getOnDeleteExpression()),
+                        CompiledExpression compiledExpression = table.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new DeleteTableCallback(table, compiledExpression, matchingMetaInfoHolder.getMatchingStreamEventIndex(),
@@ -165,7 +165,7 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledExpression compiledExpression = table.compileExpression((((UpdateStream) outStream).getOnUpdateExpression()),
+                        CompiledExpression compiledExpression = table.compileCondition((((UpdateStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
                         UpdateSet updateSet = ((UpdateStream) outStream).getUpdateSet();
                         if (updateSet == null) {
@@ -190,7 +190,7 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledExpression compiledExpression = table.compileExpression((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
+                        CompiledExpression compiledExpression = table.compileCondition((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
                         UpdateSet updateSet = ((UpdateOrInsertStream) outStream).getUpdateSet();
                         if (updateSet == null) {

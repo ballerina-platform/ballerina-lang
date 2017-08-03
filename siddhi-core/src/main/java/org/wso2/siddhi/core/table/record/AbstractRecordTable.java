@@ -286,11 +286,11 @@ public abstract class AbstractRecordTable extends Table {
     throws ConnectionUnavailableException;
 
     @Override
-    public CompiledExpression compileExpression(Expression expression,
-                                                MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                SiddhiAppContext siddhiAppContext,
-                                                List<VariableExpressionExecutor> variableExpressionExecutors,
-                                                Map<String, Table> tableMap, String queryName) {
+    public CompiledExpression compileCondition(Expression expression,
+                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
         ExpressionBuilder expressionBuilder = new ExpressionBuilder(expression, matchingMetaInfoHolder,
                                                                  siddhiAppContext, variableExpressionExecutors,
                                                                  tableMap, queryName);

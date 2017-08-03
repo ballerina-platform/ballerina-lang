@@ -204,10 +204,10 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                SiddhiAppContext siddhiAppContext,
-                                                List<VariableExpressionExecutor> variableExpressionExecutors,
-                                                Map<String, Table> tableMap, String queryName) {
+    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, this.queryName);
     }

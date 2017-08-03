@@ -215,11 +215,11 @@ public class JoinInputStreamParser {
 
         MatchingMetaInfoHolder rightMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder
                 (metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
-        CompiledExpression leftCompiledExpression = rightFindableProcessor.compileExpression(compareCondition,
+        CompiledExpression leftCompiledExpression = rightFindableProcessor.compileCondition(compareCondition,
                 rightMatchingMetaInfoHolder, siddhiAppContext, executors, tableMap, queryName);
         MatchingMetaInfoHolder leftMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder
                 (metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
-        CompiledExpression rightCompiledExpression = leftFindableProcessor.compileExpression(compareCondition,
+        CompiledExpression rightCompiledExpression = leftFindableProcessor.compileCondition(compareCondition,
                 leftMatchingMetaInfoHolder, siddhiAppContext, executors, tableMap, queryName);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {

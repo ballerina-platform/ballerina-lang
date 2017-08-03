@@ -203,10 +203,10 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                SiddhiAppContext siddhiAppContext,
-                                                List<VariableExpressionExecutor> variableExpressionExecutors,
-                                                Map<String, Table> tableMap, String queryName) {
+    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }

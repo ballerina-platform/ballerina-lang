@@ -175,10 +175,10 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
     }
 
     @Override
-    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                SiddhiAppContext siddhiAppContext,
-                                                List<VariableExpressionExecutor> variableExpressionExecutors,
-                                                Map<String, Table> tableMap, String queryName) {
+    public CompiledExpression compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
