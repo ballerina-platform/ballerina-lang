@@ -65,7 +65,9 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -165,8 +167,15 @@ public class OutputParser {
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
                         CompiledExpression compiledExpression = table.compileExpression((((UpdateStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
-                        CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet((((UpdateStream) outStream).getUpdateSet()),
-                                matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
+                        UpdateSet updateSet = ((UpdateStream) outStream).getUpdateSet();
+                        if (updateSet == null) {
+                            updateSet = new UpdateSet();
+                            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
+                                updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
+                            }
+                        }
+                        CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
+                                siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateTableCallback(table, compiledExpression, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
@@ -183,8 +192,15 @@ public class OutputParser {
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
                         CompiledExpression compiledExpression = table.compileExpression((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
-                        CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet((((UpdateOrInsertStream) outStream).getUpdateSet()),
-                                matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
+                        UpdateSet updateSet = ((UpdateOrInsertStream) outStream).getUpdateSet();
+                        if (updateSet == null) {
+                            updateSet = new UpdateSet();
+                            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
+                                updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
+                            }
+                        }
+                        CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
+                                siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateOrInsertTableCallback(table, compiledExpression, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,

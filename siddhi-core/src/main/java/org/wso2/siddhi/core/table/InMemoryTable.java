@@ -36,11 +36,9 @@ import org.wso2.siddhi.core.util.parser.EventHolderPasser;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -169,12 +167,6 @@ public class InMemoryTable implements Table, Snapshotable {
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         Map<Integer, ExpressionExecutor> expressionExecutorMap = new HashMap<>();
-        if (updateSet == null) {
-            updateSet = new UpdateSet();
-            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
-                updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
-            }
-        }
         for (UpdateSet.SetAttribute setAttribute : updateSet.getSetAttributeList()) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(
                     setAttribute.getAssignmentExpression(),

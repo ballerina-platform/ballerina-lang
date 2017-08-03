@@ -32,11 +32,9 @@ import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -297,12 +295,6 @@ public abstract class AbstractRecordTable implements Table {
                                               Map<String, Table> tableMap, String queryName) {
         RecordTableCompiledUpdateSet recordTableCompiledUpdateSet = new RecordTableCompiledUpdateSet();
         Map<String, ExpressionExecutor> parentExecutorMap = new HashMap<>();
-        if (updateSet == null) {
-            updateSet = new UpdateSet();
-            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
-                updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
-            }
-        }
         for (UpdateSet.SetAttribute setAttribute: updateSet.getSetAttributeList()) {
             ExpressionBuilder expressionBuilder = new ExpressionBuilder(setAttribute.getAssignmentExpression(),
                     matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
