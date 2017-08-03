@@ -166,37 +166,47 @@ public class DefinitionParserHelper {
                 if (tableRef != null) {
                     Map<String, String> storeConfigs = siddhiAppContext.getSiddhiContext().getConfigManager()
                             .extractStoreConfigs(tableRef);
-                    final String tableTypeFromRef = storeConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-
-                    if (tableTypeFromRef == null) {
-                        throw new SiddhiAppCreationException("Table type must be defined in the store element of " +
-                                "name '" + tableRef + "' in the deployment.yaml file.");
+                    if (storeConfigs.size() == 0) {
+                        throw new SiddhiAppCreationException("The store element of the name '" + tableRef + "' is " +
+                                "not defined in the configurations file.");
                     } else {
-                        List<Element> storeAnnotationElements = storeConfigs.entrySet().stream()
-                                .map((property) -> new Element(
-                                        property.getKey(),
-                                        property.getValue())).collect(Collectors.toList());
+                        final String tableTypeFromRef = storeConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                        if (tableTypeFromRef == null || tableTypeFromRef.equals("")) {
+                            throw new SiddhiAppCreationException("Table type must be defined in the store element of " +
+                                    "name '" + tableRef + "' in the configurations file.");
+                        } else {
+                            Map<String, String> collect = annotation.getElements().stream()
+                                    .collect(Collectors.toMap(Element::getKey, Element::getValue));
+                            collect.remove(SiddhiConstants.ANNOTATION_ELEMENT_REF);
+                            storeConfigs.putAll(collect);
 
-                        Annotation newStoreAnnotation = new Annotation(SiddhiConstants.ANNOTATION_STORE);
-                        newStoreAnnotation.setElements(storeAnnotationElements);
-                        tableDefinition.removeAnnotation(annotation);
-                        tableDefinition.annotation(newStoreAnnotation);
+                            List<Element> storeAnnotationElements = storeConfigs.entrySet().stream()
+                                    .map((property) -> new Element(
+                                            property.getKey(),
+                                            property.getValue()))
+                                    .collect(Collectors.toList());
 
-                        Extension extension = new Extension() {
-                            @Override
-                            public String getNamespace() {
-                                return SiddhiConstants.NAMESPACE_STORE;
-                            }
+                            Annotation newStoreAnnotation = new Annotation(SiddhiConstants.ANNOTATION_STORE);
+                            newStoreAnnotation.setElements(storeAnnotationElements);
+                            tableDefinition.removeAnnotation(annotation);
+                            tableDefinition.annotation(newStoreAnnotation);
 
-                            @Override
-                            public String getName() {
-                                return tableTypeFromRef;
-                            }
-                        };
-                        table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
-                                TableExtensionHolder.getInstance(siddhiAppContext));
-                        configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
-                                .generateConfigReader(extension.getNamespace(), extension.getName());
+                            Extension extension = new Extension() {
+                                @Override
+                                public String getNamespace() {
+                                    return SiddhiConstants.NAMESPACE_STORE;
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return tableTypeFromRef;
+                                }
+                            };
+                            table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
+                                    TableExtensionHolder.getInstance(siddhiAppContext));
+                            configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                                    .generateConfigReader(extension.getNamespace(), extension.getName());
+                        }
                     }
                 } else {
                     final String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
