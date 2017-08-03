@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
+import org.wso2.siddhi.core.exception.StoreQueryCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.StoreQueryRuntime;
@@ -228,6 +229,8 @@ public class SiddhiAppRuntime {
             }
 
             return storeQueryRuntime.execute();
+        } catch (RuntimeException e) {
+            throw new StoreQueryCreationException(e.getMessage(), e);
         } finally {
             if (storeQueryLatencyTracker != null) {
                 storeQueryLatencyTracker.markOut();

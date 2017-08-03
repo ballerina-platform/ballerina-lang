@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ExpressionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
-import org.wso2.siddhi.core.table.record.RecordTableCompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -93,8 +92,9 @@ public class TestStore extends AbstractRecordTable {
 
 
     @Override
-    protected void update(CompiledCondition updateCondition, List<Map<String, Object>> updateConditionParameterMaps,
-                          RecordTableCompiledUpdateSet updateSet,
+    protected void update(CompiledCondition updateCondition,
+                          List<Map<String, Object>> updateConditionParameterMaps,
+                          Map<String, CompiledExpression> updateSetExpressions,
                           List<Map<String, Object>> updateSetParameterMaps) throws ConnectionUnavailableException {
         //Not Applicable
     }
@@ -102,17 +102,20 @@ public class TestStore extends AbstractRecordTable {
     /**
      * Try updating the records if they exist else add the records
      *
+     * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
-     * @param updateSet
-     * @param updateValues                 the attributes and values that should be updated if the condition matches
+     * @param updateSetExpressions         the set of updates mappings and related complied expressions
+     * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
+     *                                     update set
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
     @Override
     protected void updateOrAdd(CompiledCondition updateCondition,
                                List<Map<String, Object>> updateConditionParameterMaps,
-                               RecordTableCompiledUpdateSet updateSet,
-                               List<Map<String, Object>> updateValues, List<Object[]> addingRecords)
+                               Map<String, CompiledExpression> updateSetExpressions,
+                               List<Map<String, Object>> updateSetParameterMaps,
+                               List<Object[]> addingRecords)
             throws ConnectionUnavailableException {
         //Not Applicable
     }

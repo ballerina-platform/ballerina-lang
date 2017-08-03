@@ -25,7 +25,7 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 /**
  * Implementation of Antlr Visitor implementation for conditions.
  */
-public class BaseConditionVisitor implements ConditionVisitor {
+public class BaseExpressionVisitor implements ExpressionVisitor {
 
 
     @Override
