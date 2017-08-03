@@ -7,12 +7,6 @@ function remove() (json){
     return j;
 }
 
-function rename() (json){
-    json j = {"name":{"fname":"Jack","lname":"Taylor"}, "state":"CA", "age":20};
-    jsons:rename(j.name, "fname", "firstName");
-    return j.name;
-}
-
 function toString(json msg) (string){
     return jsons:toString(msg);
 }

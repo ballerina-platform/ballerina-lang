@@ -84,16 +84,6 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-
-    // Test Rename-Function.
-    @Test(description = "Rename an element in a valid jsonpath")
-    public void testRename() {
-        BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "rename", args);
-
-        Assert.assertEquals(returns[0].stringValue(), "{\"lname\":\"Taylor\",\"firstName\":\"Jack\"}");
-    }
-
     // Test toString-Function.
     @Test(description = "Get string representation of json")
     public void testToString() {

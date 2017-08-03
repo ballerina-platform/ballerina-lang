@@ -18,12 +18,6 @@ native function remove (json j, string key);
 @doc:Return { value:"string: String value of the converted JSON" }
 native function toString (json j) (string);
 
-@doc:Description { value:"Renames the key of the given element that is under the given JSONPath."}
-@doc:Param { value:"j: A JSON object" }
-@doc:Param { value:"oldKey: The old key of the field to remove" }
-@doc:Param { value:"newKey: The new key to use" }
-native function rename (json j, string oldKey, string newKey);
-
 @doc:Description { value:"Parses the string argument as a JSON value."}
 @doc:Param { value:"jsonStr: String representation of JSON" }
 @doc:Return { value:"json: Parsed JSON value" }
@@ -38,4 +32,3 @@ native function getKeys(json j) (string[]);
 @doc:Param { value:"j: A JSON object" }
 @doc:Return { value:"xml: XML value of the converted JSON" }
 native function toXML (json j, Options options) (xml);
-

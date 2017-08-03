@@ -880,25 +880,6 @@ public class JSONUtils {
     }
 
     /**
-     * Remove a field from JSON. Has no effect if the JSON if not object types or if the given field doesn't exists.
-     * 
-     * @param json JSON object
-     * @param oldName Old name of the field
-     * @param newName New name of the field
-     */
-    public static void rename(BJSON json, String oldName, String newName) {
-        JsonNode node = json.value();
-
-        if (!node.has(oldName)) {
-            return;
-        }
-
-        JsonNode value = node.get(oldName);
-        ((ObjectNode) node).remove(oldName);
-        ((ObjectNode) node).set(newName, value);
-    }
-
-    /**
      * Convert a JSON node to an array.
      *
      * @param jsonNode JSON to convert
