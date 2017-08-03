@@ -234,7 +234,7 @@ public abstract class Table implements FindableProcessor {
                 isConnected.set(true);
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
-            } catch (ConnectionUnavailableException | RuntimeException e) {
+            } catch (ConnectionUnavailableException e) {
                 LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
@@ -244,6 +244,10 @@ public abstract class Table implements FindableProcessor {
                     }
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
+            } catch (RuntimeException e) {
+                LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ".", e);
+                throw e;
             }
         }
     }
