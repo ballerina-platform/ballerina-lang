@@ -96,6 +96,8 @@ class AbortedStatement extends React.Component {
                 titleWidth={titleWidth}
                 title={'Aborted'}
                 utilities={utilities}
+                widthExpansion={model.viewState.widthExpansion}
+                heightExpansion={model.viewState.heightExpansion}
             >
                 {children}
             </BlockStatementDecorator>);
@@ -106,6 +108,8 @@ class AbortedStatement extends React.Component {
             bBox={bBox}
             titleWidth={titleWidth}
             title={'Aborted'}
+            widthExpansion={model.viewState.widthExpansion}
+            heightExpansion={model.viewState.heightExpansion}
         >
             {children}
         </BlockStatementDecorator>);

@@ -44,6 +44,10 @@ class WorkerDeclaration extends React.Component {
 
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
+        const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
+        const connectorOffset = this.props.model.getViewState().components.statementContainerWidthExpansion;
+
+        statementContainerBBoxClone.w += connectorOffset;
         const workerBBox = {};
         const children = getComponentForNodeArray(this.props.model.getChildren());
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
@@ -57,7 +61,7 @@ class WorkerDeclaration extends React.Component {
         };
 
         return (<g>
-            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
+            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBoxClone} />
             <LifeLine
                 title={util.getTextWidth(this.props.model.getWorkerName(), 0,
                     DesignerDefaults.lifeLine.width - 30).text}

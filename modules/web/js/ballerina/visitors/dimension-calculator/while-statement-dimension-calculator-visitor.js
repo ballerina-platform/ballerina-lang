@@ -19,6 +19,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import { util } from './../sizing-utils';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Dimension visitor class for While Statement.
@@ -63,21 +64,51 @@ class WhileStatementDimensionCalculatorVisitor {
      * */
     endVisit(node) {
         const viewState = node.getViewState();
+        const components = viewState.components;
         const expression = node.getConditionString();
         const bBox = viewState.bBox;
-        const components = {};
         let statementContainerWidth = 0;
         let statementContainerHeight = 0;
         const children = node.getChildren();
         components.statementContainer = new SimpleBBox();
-
-        _.forEach(children, (child) => {
-            statementContainerHeight += child.getViewState().bBox.h;
-            if (child.getViewState().bBox.w > statementContainerWidth) {
-                statementContainerWidth = child.getViewState().bBox.w;
+        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        const connectorDeclarationChildren = node.filterChildren(BallerinaASTFactory.isConnectorDeclaration);
+        let widthExpansion = 0;
+        let statementContainerWidthExpansion = 0;
+        // Iterate over statement children
+        _.forEach(statementChildren, (child) => {
+            statementContainerHeight += child.viewState.bBox.h;
+            if (child.viewState.bBox.w > statementContainerWidth) {
+                statementContainerWidth = child.viewState.bBox.w;
+            }
+            if (child.viewState.widthExpansion > statementContainerWidthExpansion) {
+                statementContainerWidthExpansion = child.viewState.widthExpansion;
+                widthExpansion = child.viewState.widthExpansion;
             }
         });
-
+        // Iterate over connector declaration children
+        _.forEach(connectorDeclarationChildren, (child) => {
+            statementContainerHeight += DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
+            widthExpansion += (child.viewState.bBox.w + DesignerDefaults.blockStatement.heading.width);
+            if (child.viewState.components.statementViewState.bBox.w > statementContainerWidth) {
+                statementContainerWidth = child.viewState.components.statementViewState.bBox.w;
+            }
+        });
+        viewState.heightExpansion = statementContainerHeight;
+        // Iterating to set the height of the connector
+        if (connectorDeclarationChildren.length > 0) {
+            if (statementContainerHeight > (DesignerDefaults.statementContainer.height)) {
+                _.forEach(connectorDeclarationChildren, (child) => {
+                    child.viewState.components.statementContainer.h = statementContainerHeight - (
+                        DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+                        (DesignerDefaults.variablesPane.leftRightPadding * 2)) - DesignerDefaults.statement.padding.bottom;
+                });
+            } else {
+                statementContainerHeight = DesignerDefaults.statementContainer.height + (
+                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+                    (DesignerDefaults.variablesPane.leftRightPadding * 2)) + DesignerDefaults.statement.padding.bottom;
+            }
+        }
         /**
          * We add an extra padding to the statement container height to keep the space bet ween the statement's
          * bottom margin and the last child statement
@@ -96,6 +127,8 @@ class WhileStatementDimensionCalculatorVisitor {
 
         components.statementContainer.h = statementContainerHeight;
         components.statementContainer.w = statementContainerWidth;
+        viewState.widthExpansion = widthExpansion;
+        components.statementContainerWidthExpansion = statementContainerWidthExpansion;
 
         // for compound statement like while we need to render condition expression
         // we will calculate the width of the expression and adjest the block statement
@@ -104,8 +137,6 @@ class WhileStatementDimensionCalculatorVisitor {
             const available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
             components.expression = util.getTextWidth(expression, 0, available);
         }
-
-        viewState.components = components;
     }
 
     /**

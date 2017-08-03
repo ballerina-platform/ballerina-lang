@@ -64,7 +64,12 @@ class ConnectorDeclarationPositionCalcVisitor {
         } else {
             x = this.positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, parent);
         }
-        let y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+        let y;
+        if (ASTFactory.isStatement(parent) || ASTFactory.isWorkerDeclaration(parent)) {
+            y = parentViewState.components.statementContainer.y + DesignerDefaults.variablesPane.topBarHeight;
+        } else {
+            y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+        }
 
         if (parentViewState.components.variablesPane) {
             y += (parentViewState.components.variablesPane.h + DesignerDefaults.panel.body.padding.top);
@@ -186,14 +191,16 @@ class ConnectorDeclarationPositionCalcVisitor {
                  */
                 let totalWorkerStmtContainerWidth = 0;
                 _.forEach(workers, (worker) => {
-                    totalWorkerStmtContainerWidth += worker.getViewState().components.statementContainer.w;
+                    totalWorkerStmtContainerWidth += (worker.getViewState().components.statementContainer.w +
+                    worker.getViewState().components.statementContainerWidthExpansion);
                 });
                 xPosition = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
                     parentViewState.components.statementContainer.w + totalWorkerStmtContainerWidth +
+                    parentViewState.components.statementContainerWidthExpansion +
                     (DesignerDefaults.lifeLine.gutter.h * (workers.length + 1));
             } else {
                 xPosition = parentViewState.components.statementContainer.getRight() +
-                    DesignerDefaults.lifeLine.gutter.h;
+                    DesignerDefaults.lifeLine.gutter.h + parentViewState.components.statementContainerWidthExpansion;
             }
         } else if (connectorIndex > 0) {
             const previousConnector = connectors[connectorIndex - 1];

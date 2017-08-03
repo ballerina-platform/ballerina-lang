@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 
 /**
  * Source Gen visitor for the While statement
@@ -97,6 +98,15 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
 
         this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
+    }
+
+    /**
+     * Visit connector declarations
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration AST node
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 }
 

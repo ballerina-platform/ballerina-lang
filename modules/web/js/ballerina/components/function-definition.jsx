@@ -45,7 +45,10 @@ class FunctionDefinition extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
+        const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
+        const connectorOffset = this.props.model.getViewState().components.statementContainerWidthExpansion;
 
+        statementContainerBBoxClone.w += connectorOffset;
         // lets calculate function worker lifeline bounding box.
         const function_worker_bBox = {};
         function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
@@ -95,7 +98,7 @@ class FunctionDefinition extends React.Component {
             <StatementContainer
                 dropTarget={this.props.model}
                 title="StatementContainer"
-                bBox={statementContainerBBox}
+                bBox={statementContainerBBoxClone}
             >
                 {children}
             </StatementContainer>

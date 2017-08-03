@@ -45,6 +45,8 @@ class CommittedStatement extends React.Component {
             bBox={bBox}
             titleWidth={titleWidth}
             title={'Committed'}
+            widthExpansion={model.viewState.widthExpansion}
+            heightExpansion={model.viewState.heightExpansion}
         >
             {children}
         </BlockStatementDecorator>);

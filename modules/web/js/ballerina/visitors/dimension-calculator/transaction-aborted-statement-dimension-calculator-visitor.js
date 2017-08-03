@@ -65,7 +65,7 @@ class TransactionAbortedStatementDimensionCalculatorVisitor {
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
-
+        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(), child => child.getViewState().widthExpansion);
         if (sortedChildren.length <= 0) {
             const exception = {
                 message: 'Invalid number of children for Transaction-Aborted statement',
@@ -76,11 +76,17 @@ class TransactionAbortedStatementDimensionCalculatorVisitor {
         const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;
 
+        const childWithMaxConnectorWidth = sortedChildrenfromConnectors[sortedChildrenfromConnectors.length - 1];
+        const maxConnectorWidth = childWithMaxConnectorWidth.getViewState().widthExpansion;
+
         _.forEach(node.getChildren(), (child) => {
             if (child.id !== childWithMaxWidth.id) {
                 child.getViewState().components.statementContainer.w =
                     childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
+            }
+            if (child.getViewState().widthExpansion < maxConnectorWidth) {
+                child.getViewState().widthExpansion = maxConnectorWidth;
             }
             statementHeight += child.getViewState().bBox.h;
         });
@@ -91,6 +97,7 @@ class TransactionAbortedStatementDimensionCalculatorVisitor {
 
         viewState.bBox.h = statementHeight + dropZoneHeight;
         viewState.bBox.w = statementWidth;
+        viewState.widthExpansion = maxConnectorWidth;
     }
 }
 

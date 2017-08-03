@@ -61,6 +61,8 @@ class WhileStatement extends React.Component {
                 dropTarget={model} bBox={blockStatementBBox} title={'While'}
                 model={model}
                 expression={expression} editorOptions={this.editorOptions}
+                widthExpansion={model.viewState.widthExpansion}
+                heightExpansion={model.viewState.heightExpansion}
             >
                 {children}
             </BlockStatementDecorator>

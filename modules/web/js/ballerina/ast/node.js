@@ -67,8 +67,9 @@ class ASTNode extends EventChannel {
          */
         this.viewState = {
             bBox: new SimpleBBox(),
-            components: {},
+            components: {statementContainerWidthExpansion: 0 },
             dimensionsSynced: false,
+            widthExpansion: 0,
         };
     }
 

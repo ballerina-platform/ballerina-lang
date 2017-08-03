@@ -77,6 +77,8 @@ class TransactionStatement extends React.Component {
                 title={'Transaction'}
                 model={model.parent}
                 utilities={utilities}
+                widthExpansion={model.viewState.widthExpansion}
+                heightExpansion={model.viewState.heightExpansion}
             >
                 {children}
             </BlockStatementDecorator>);
@@ -87,6 +89,8 @@ class TransactionStatement extends React.Component {
             titleWidth={titleWidth}
             title={'Transaction'}
             model={model.parent}
+            widthExpansion={model.viewState.widthExpansion}
+            heightExpansion={model.viewState.heightExpansion}
         >
             {children}
         </BlockStatementDecorator>);
