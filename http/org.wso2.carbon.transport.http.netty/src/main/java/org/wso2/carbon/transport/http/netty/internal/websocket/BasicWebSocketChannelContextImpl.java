@@ -35,20 +35,18 @@ public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext
     protected final String subProtocol;
     protected final String target;
     protected final String listenerPort;
-    protected final String protocolVersion;
     protected final boolean isConnectionSecured;
     protected final boolean isServerMessage;
     protected final ConnectionManager connectionManager;
     protected final ListenerConfiguration listenerConfiguration;
 
     public BasicWebSocketChannelContextImpl(String subProtocol, String target, String listenerPort,
-                                            String protocolVersion, boolean isConnectionSecured,
-                                            boolean isServerMessage, ConnectionManager connectionManager,
+                                            boolean isConnectionSecured, boolean isServerMessage,
+                                            ConnectionManager connectionManager,
                                             ListenerConfiguration listenerConfiguration) {
         this.subProtocol = subProtocol;
         this.target = target;
         this.listenerPort = listenerPort;
-        this.protocolVersion = protocolVersion;
         this.isConnectionSecured = isConnectionSecured;
         this.isServerMessage = isServerMessage;
         this.connectionManager = connectionManager;
@@ -94,11 +92,6 @@ public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext
     @Override
     public String getListenerPort() {
         return listenerPort;
-    }
-
-    @Override
-    public String getWebSocketProtocolVersion() {
-        return protocolVersion;
     }
 
     @Override

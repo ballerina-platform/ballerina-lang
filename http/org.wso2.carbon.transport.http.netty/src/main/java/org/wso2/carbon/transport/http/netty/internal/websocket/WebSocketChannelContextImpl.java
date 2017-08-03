@@ -37,8 +37,8 @@ public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImp
 
     public WebSocketChannelContextImpl(Session serverSession, BasicWebSocketChannelContextImpl channelContext) {
         super(channelContext.subProtocol, channelContext.target, channelContext.listenerPort,
-              channelContext.protocolVersion, channelContext.isConnectionSecured, channelContext.isServerMessage,
-              channelContext.connectionManager, channelContext.listenerConfiguration);
+              channelContext.isConnectionSecured, channelContext.isServerMessage, channelContext.connectionManager,
+              channelContext.listenerConfiguration);
         this.serverSession = serverSession;
         this.channelContext = channelContext;
     }

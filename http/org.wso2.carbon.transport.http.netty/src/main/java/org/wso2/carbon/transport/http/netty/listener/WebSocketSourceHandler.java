@@ -30,22 +30,24 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
+import org.wso2.carbon.connector.framework.websocket.WebSocketControlSignal;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
-import org.wso2.carbon.messaging.StatusCarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.websocket.BasicWebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketBinaryMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketCloseMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketControlMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketTextMessageImpl;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
 import java.util.List;
 import javax.websocket.Session;
 
@@ -58,11 +60,10 @@ public class WebSocketSourceHandler extends SourceHandler {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String uri;
     private final String channelId;
+    private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final WebSocketSessionImpl serverSession;
-
-    private CarbonMessage cMsg;
-    private List<Session> clientSessions = new LinkedList<>();
+    private final WebSocketChannelContextImpl webSocketChannelContext;
 
     /**
      * @param channelId This works as the serverSession id of the WebSocket connection.
@@ -75,12 +76,16 @@ public class WebSocketSourceHandler extends SourceHandler {
     public WebSocketSourceHandler(String channelId, ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration, HttpRequest httpRequest,
                                   boolean isSecured, ChannelHandlerContext ctx,
+                                  BasicWebSocketChannelContextImpl basicWebSocketChannelContext,
                                   WebSocketSessionImpl serverSession) throws Exception {
         super(connectionManager, listenerConfiguration);
         this.uri = httpRequest.uri();
         this.channelId = channelId;
+        this.ctx = ctx;
         this.isSecured = isSecured;
         this.serverSession = serverSession;
+        this.webSocketChannelContext =
+                setupCommonProperties(new WebSocketChannelContextImpl(serverSession, basicWebSocketChannelContext));
     }
 
     /**
@@ -89,7 +94,7 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param clientSession {@link Session} of the client associated with this Server session.
      */
     public void addClientSession(Session clientSession) {
-        clientSessions.add(clientSession);
+        webSocketChannelContext.addClientSession(clientSession);
     }
 
     /**
@@ -98,7 +103,7 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @return the client session of the source handler.
      */
     public List<Session> getClientSessions() {
-        return clientSessions;
+        return webSocketChannelContext.getClientSessions();
     }
 
     /**
@@ -116,15 +121,14 @@ public class WebSocketSourceHandler extends SourceHandler {
             serverSession.setIsOpen(false);
             int statusCode = 1001; // Client is going away.
             String reasonText = "Client is going away";
-            cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
-            setupCarbonMessage(ctx);
-            publishToMessageProcessor(cMsg);
+            WebSocketCloseMessageImpl webSocketCloseMessage =
+                    new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
+            // TODO: Notify the observer.
         }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
-        cMsg = null;
         if (!(msg instanceof WebSocketFrame)) {
             logger.error("Expecting WebSocketFrame. Unknown type.");
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
@@ -132,14 +136,19 @@ public class WebSocketSourceHandler extends SourceHandler {
         if (msg instanceof TextWebSocketFrame) {
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
             String text = textWebSocketFrame.text();
-            cMsg = new TextCarbonMessage(text);
+            boolean isFinalFragment = textWebSocketFrame.isFinalFragment();
+            WebSocketTextMessageImpl webSocketTextMessage =
+                    new WebSocketTextMessageImpl(text, isFinalFragment, webSocketChannelContext);
+            // TODO: Notify the observer.
 
         } else if (msg instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
-            boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
             ByteBuf byteBuf = binaryWebSocketFrame.content();
+            boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            cMsg = new BinaryCarbonMessage(byteBuffer, finalFragment);
+            WebSocketBinaryMessageImpl webSocketBinaryMessage =
+                    new WebSocketBinaryMessageImpl(byteBuffer, finalFragment, webSocketChannelContext);
+            // TODO: Notify the observer.
 
         } else if (msg instanceof CloseWebSocketFrame) {
             CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
@@ -147,7 +156,9 @@ public class WebSocketSourceHandler extends SourceHandler {
             int statusCode = closeWebSocketFrame.statusCode();
             ctx.channel().close();
             serverSession.setIsOpen(false);
-            cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
+            WebSocketCloseMessageImpl webSocketCloseMessage =
+                    new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
+            // TODO: Notify the observer.
 
         } else if (msg instanceof PingWebSocketFrame) {
             PingWebSocketFrame pingWebSocketFrame = (PingWebSocketFrame) msg;
@@ -156,15 +167,11 @@ public class WebSocketSourceHandler extends SourceHandler {
         } else if (msg instanceof PongWebSocketFrame) {
             //Control message for WebSocket is Pong Message
             PongWebSocketFrame pongWebSocketFrame = (PongWebSocketFrame) msg;
-            boolean finalFragment = pongWebSocketFrame.isFinalFragment();
             ByteBuf byteBuf = pongWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            cMsg = new ControlCarbonMessage(org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_HEARTBEAT,
-                                            byteBuffer, finalFragment);
-            setupCarbonMessage(ctx);
+            WebSocketControlMessageImpl webSocketControlMessage =
+                    new WebSocketControlMessageImpl(WebSocketControlSignal.PONG, byteBuffer, webSocketChannelContext);
         }
-        setupCarbonMessage(ctx);
-        publishToMessageProcessor(cMsg);
     }
 
 
@@ -193,28 +200,14 @@ public class WebSocketSourceHandler extends SourceHandler {
         }
     }
 
-    /*
-     Extract all the necessary properties from ChannelHandlerContext
-     Add them into a CarbonMessage
-     Note : This method only add details of ChannelHandlerContext to the CarbonMessage
-     Adding other custom details should be done separately
-     @return basic CarbonMessage with necessary details
-     */
-    private void setupCarbonMessage(ChannelHandlerContext ctx) {
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
-        }
-        cMsg.setProperty(Constants.TO, this.uri);
-        cMsg.setProperty(Constants.SRC_HANDLER, this);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
+    private WebSocketChannelContextImpl setupCommonProperties(WebSocketChannelContextImpl webSocketChannelContext) {
+        webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);
+        webSocketChannelContext.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                          ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-        cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecured);
-        cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-        cMsg.setProperty(Constants.CHANNEL_ID, channelId);
-        cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
-        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
-        cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, serverSession);
-        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, clientSessions);
+        webSocketChannelContext.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        webSocketChannelContext.setProperty(
+                Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
+        webSocketChannelContext.setProperty(Constants.CHANNEL_ID, channelId);
+        return webSocketChannelContext;
     }
 }
