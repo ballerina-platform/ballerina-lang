@@ -89,108 +89,108 @@ public class ExpressionBuilder {
         return variableExpressionExecutorMap;
     }
 
-    public void build(ConditionVisitor conditionVisitor) {
-        buildVariableExecutors(expression, conditionVisitor);
+    public void build(ExpressionVisitor expressionVisitor) {
+        buildVariableExecutors(expression, expressionVisitor);
     }
 
-    private void buildVariableExecutors(Expression expression, ConditionVisitor conditionVisitor) {
+    private void buildVariableExecutors(Expression expression, ExpressionVisitor expressionVisitor) {
         if (expression instanceof And) {
-            conditionVisitor.beginVisitAnd();
-            conditionVisitor.beginVisitAndLeftOperand();
-            buildVariableExecutors(((And) expression).getLeftExpression(), conditionVisitor);
-            conditionVisitor.endVisitAndLeftOperand();
+            expressionVisitor.beginVisitAnd();
+            expressionVisitor.beginVisitAndLeftOperand();
+            buildVariableExecutors(((And) expression).getLeftExpression(), expressionVisitor);
+            expressionVisitor.endVisitAndLeftOperand();
 
-            conditionVisitor.beginVisitAndRightOperand();
-            buildVariableExecutors(((And) expression).getRightExpression(), conditionVisitor);
-            conditionVisitor.endVisitAndRightOperand();
-            conditionVisitor.endVisitAnd();
+            expressionVisitor.beginVisitAndRightOperand();
+            buildVariableExecutors(((And) expression).getRightExpression(), expressionVisitor);
+            expressionVisitor.endVisitAndRightOperand();
+            expressionVisitor.endVisitAnd();
 
         } else if (expression instanceof Or) {
-            conditionVisitor.beginVisitOr();
-            conditionVisitor.beginVisitOrLeftOperand();
-            buildVariableExecutors(((Or) expression).getLeftExpression(), conditionVisitor);
-            conditionVisitor.endVisitOrLeftOperand();
+            expressionVisitor.beginVisitOr();
+            expressionVisitor.beginVisitOrLeftOperand();
+            buildVariableExecutors(((Or) expression).getLeftExpression(), expressionVisitor);
+            expressionVisitor.endVisitOrLeftOperand();
 
-            conditionVisitor.beginVisitOrRightOperand();
-            buildVariableExecutors(((Or) expression).getRightExpression(), conditionVisitor);
-            conditionVisitor.endVisitOrRightOperand();
-            conditionVisitor.endVisitOr();
+            expressionVisitor.beginVisitOrRightOperand();
+            buildVariableExecutors(((Or) expression).getRightExpression(), expressionVisitor);
+            expressionVisitor.endVisitOrRightOperand();
+            expressionVisitor.endVisitOr();
 
         } else if (expression instanceof Not) {
-            conditionVisitor.beginVisitNot();
-            buildVariableExecutors(((Not) expression).getExpression(), conditionVisitor);
-            conditionVisitor.endVisitNot();
+            expressionVisitor.beginVisitNot();
+            buildVariableExecutors(((Not) expression).getExpression(), expressionVisitor);
+            expressionVisitor.endVisitNot();
 
         } else if (expression instanceof Compare) {
-            conditionVisitor.beginVisitCompare(((Compare) expression).getOperator());
-            conditionVisitor.beginVisitCompareLeftOperand(((Compare) expression).getOperator());
-            buildVariableExecutors(((Compare) expression).getLeftExpression(), conditionVisitor);
-            conditionVisitor.endVisitCompareLeftOperand(((Compare) expression).getOperator());
+            expressionVisitor.beginVisitCompare(((Compare) expression).getOperator());
+            expressionVisitor.beginVisitCompareLeftOperand(((Compare) expression).getOperator());
+            buildVariableExecutors(((Compare) expression).getLeftExpression(), expressionVisitor);
+            expressionVisitor.endVisitCompareLeftOperand(((Compare) expression).getOperator());
 
-            conditionVisitor.beginVisitCompareRightOperand(((Compare) expression).getOperator());
-            buildVariableExecutors(((Compare) expression).getRightExpression(), conditionVisitor);
-            conditionVisitor.endVisitCompareRightOperand(((Compare) expression).getOperator());
-            conditionVisitor.endVisitCompare(((Compare) expression).getOperator());
+            expressionVisitor.beginVisitCompareRightOperand(((Compare) expression).getOperator());
+            buildVariableExecutors(((Compare) expression).getRightExpression(), expressionVisitor);
+            expressionVisitor.endVisitCompareRightOperand(((Compare) expression).getOperator());
+            expressionVisitor.endVisitCompare(((Compare) expression).getOperator());
 
         } else if (expression instanceof Add) {
-            conditionVisitor.beginVisitMath(ConditionVisitor.MathOperator.ADD);
-            conditionVisitor.beginVisitMathLeftOperand(ConditionVisitor.MathOperator.ADD);
-            buildVariableExecutors(((Add) expression).getLeftValue(), conditionVisitor);
-            conditionVisitor.endVisitMathLeftOperand(ConditionVisitor.MathOperator.ADD);
+            expressionVisitor.beginVisitMath(ExpressionVisitor.MathOperator.ADD);
+            expressionVisitor.beginVisitMathLeftOperand(ExpressionVisitor.MathOperator.ADD);
+            buildVariableExecutors(((Add) expression).getLeftValue(), expressionVisitor);
+            expressionVisitor.endVisitMathLeftOperand(ExpressionVisitor.MathOperator.ADD);
 
-            conditionVisitor.beginVisitMathRightOperand(ConditionVisitor.MathOperator.ADD);
-            buildVariableExecutors(((Add) expression).getRightValue(), conditionVisitor);
-            conditionVisitor.endVisitMathRightOperand(ConditionVisitor.MathOperator.ADD);
-            conditionVisitor.endVisitMath(ConditionVisitor.MathOperator.ADD);
+            expressionVisitor.beginVisitMathRightOperand(ExpressionVisitor.MathOperator.ADD);
+            buildVariableExecutors(((Add) expression).getRightValue(), expressionVisitor);
+            expressionVisitor.endVisitMathRightOperand(ExpressionVisitor.MathOperator.ADD);
+            expressionVisitor.endVisitMath(ExpressionVisitor.MathOperator.ADD);
         } else if (expression instanceof Subtract) {
-            conditionVisitor.beginVisitMath(ConditionVisitor.MathOperator.SUBTRACT);
-            conditionVisitor.beginVisitMathLeftOperand(ConditionVisitor.MathOperator.SUBTRACT);
-            buildVariableExecutors(((Subtract) expression).getLeftValue(), conditionVisitor);
-            conditionVisitor.endVisitMathLeftOperand(ConditionVisitor.MathOperator.SUBTRACT);
+            expressionVisitor.beginVisitMath(ExpressionVisitor.MathOperator.SUBTRACT);
+            expressionVisitor.beginVisitMathLeftOperand(ExpressionVisitor.MathOperator.SUBTRACT);
+            buildVariableExecutors(((Subtract) expression).getLeftValue(), expressionVisitor);
+            expressionVisitor.endVisitMathLeftOperand(ExpressionVisitor.MathOperator.SUBTRACT);
 
-            conditionVisitor.beginVisitMathRightOperand(ConditionVisitor.MathOperator.SUBTRACT);
-            buildVariableExecutors(((Subtract) expression).getRightValue(), conditionVisitor);
-            conditionVisitor.endVisitMathRightOperand(ConditionVisitor.MathOperator.SUBTRACT);
-            conditionVisitor.endVisitMath(ConditionVisitor.MathOperator.SUBTRACT);
+            expressionVisitor.beginVisitMathRightOperand(ExpressionVisitor.MathOperator.SUBTRACT);
+            buildVariableExecutors(((Subtract) expression).getRightValue(), expressionVisitor);
+            expressionVisitor.endVisitMathRightOperand(ExpressionVisitor.MathOperator.SUBTRACT);
+            expressionVisitor.endVisitMath(ExpressionVisitor.MathOperator.SUBTRACT);
 
         } else if (expression instanceof Divide) {
-            conditionVisitor.beginVisitMath(ConditionVisitor.MathOperator.DIVIDE);
-            conditionVisitor.beginVisitMathLeftOperand(ConditionVisitor.MathOperator.DIVIDE);
-            buildVariableExecutors(((Divide) expression).getLeftValue(), conditionVisitor);
-            conditionVisitor.endVisitMathLeftOperand(ConditionVisitor.MathOperator.DIVIDE);
+            expressionVisitor.beginVisitMath(ExpressionVisitor.MathOperator.DIVIDE);
+            expressionVisitor.beginVisitMathLeftOperand(ExpressionVisitor.MathOperator.DIVIDE);
+            buildVariableExecutors(((Divide) expression).getLeftValue(), expressionVisitor);
+            expressionVisitor.endVisitMathLeftOperand(ExpressionVisitor.MathOperator.DIVIDE);
 
-            conditionVisitor.beginVisitMathRightOperand(ConditionVisitor.MathOperator.DIVIDE);
-            buildVariableExecutors(((Divide) expression).getRightValue(), conditionVisitor);
-            conditionVisitor.endVisitMathRightOperand(ConditionVisitor.MathOperator.DIVIDE);
-            conditionVisitor.endVisitMath(ConditionVisitor.MathOperator.DIVIDE);
+            expressionVisitor.beginVisitMathRightOperand(ExpressionVisitor.MathOperator.DIVIDE);
+            buildVariableExecutors(((Divide) expression).getRightValue(), expressionVisitor);
+            expressionVisitor.endVisitMathRightOperand(ExpressionVisitor.MathOperator.DIVIDE);
+            expressionVisitor.endVisitMath(ExpressionVisitor.MathOperator.DIVIDE);
         } else if (expression instanceof Multiply) {
-            conditionVisitor.beginVisitMath(ConditionVisitor.MathOperator.MULTIPLY);
-            conditionVisitor.beginVisitMathLeftOperand(ConditionVisitor.MathOperator.MULTIPLY);
-            buildVariableExecutors(((Multiply) expression).getLeftValue(), conditionVisitor);
-            conditionVisitor.endVisitMathLeftOperand(ConditionVisitor.MathOperator.MULTIPLY);
+            expressionVisitor.beginVisitMath(ExpressionVisitor.MathOperator.MULTIPLY);
+            expressionVisitor.beginVisitMathLeftOperand(ExpressionVisitor.MathOperator.MULTIPLY);
+            buildVariableExecutors(((Multiply) expression).getLeftValue(), expressionVisitor);
+            expressionVisitor.endVisitMathLeftOperand(ExpressionVisitor.MathOperator.MULTIPLY);
 
-            conditionVisitor.beginVisitMathRightOperand(ConditionVisitor.MathOperator.MULTIPLY);
-            buildVariableExecutors(((Multiply) expression).getRightValue(), conditionVisitor);
-            conditionVisitor.endVisitMathRightOperand(ConditionVisitor.MathOperator.MULTIPLY);
-            conditionVisitor.endVisitMath(ConditionVisitor.MathOperator.MULTIPLY);
+            expressionVisitor.beginVisitMathRightOperand(ExpressionVisitor.MathOperator.MULTIPLY);
+            buildVariableExecutors(((Multiply) expression).getRightValue(), expressionVisitor);
+            expressionVisitor.endVisitMathRightOperand(ExpressionVisitor.MathOperator.MULTIPLY);
+            expressionVisitor.endVisitMath(ExpressionVisitor.MathOperator.MULTIPLY);
 
         } else if (expression instanceof Mod) {
-            conditionVisitor.beginVisitMath(ConditionVisitor.MathOperator.MOD);
-            conditionVisitor.beginVisitMathLeftOperand(ConditionVisitor.MathOperator.MOD);
-            buildVariableExecutors(((Mod) expression).getLeftValue(), conditionVisitor);
-            conditionVisitor.endVisitMathLeftOperand(ConditionVisitor.MathOperator.MOD);
+            expressionVisitor.beginVisitMath(ExpressionVisitor.MathOperator.MOD);
+            expressionVisitor.beginVisitMathLeftOperand(ExpressionVisitor.MathOperator.MOD);
+            buildVariableExecutors(((Mod) expression).getLeftValue(), expressionVisitor);
+            expressionVisitor.endVisitMathLeftOperand(ExpressionVisitor.MathOperator.MOD);
 
-            conditionVisitor.beginVisitMathRightOperand(ConditionVisitor.MathOperator.MOD);
-            buildVariableExecutors(((Mod) expression).getRightValue(), conditionVisitor);
-            conditionVisitor.endVisitMathRightOperand(ConditionVisitor.MathOperator.MOD);
-            conditionVisitor.endVisitMath(ConditionVisitor.MathOperator.MOD);
+            expressionVisitor.beginVisitMathRightOperand(ExpressionVisitor.MathOperator.MOD);
+            buildVariableExecutors(((Mod) expression).getRightValue(), expressionVisitor);
+            expressionVisitor.endVisitMathRightOperand(ExpressionVisitor.MathOperator.MOD);
+            expressionVisitor.endVisitMath(ExpressionVisitor.MathOperator.MOD);
 
         } else if (expression instanceof IsNull) {
             IsNull isNull = (IsNull) expression;
             if (isNull.getExpression() != null) {
-                conditionVisitor.beginVisitIsNull(null);
-                buildVariableExecutors(((IsNull) expression).getExpression(), conditionVisitor);
-                conditionVisitor.endVisitIsNull(null);
+                expressionVisitor.beginVisitIsNull(null);
+                buildVariableExecutors(((IsNull) expression).getExpression(), expressionVisitor);
+                expressionVisitor.endVisitIsNull(null);
             } else {
                 String streamId = isNull.getStreamId();
                 MetaStateEvent metaStateEvent = matchingMetaInfoHolder.getMetaStateEvent();
@@ -215,53 +215,53 @@ public class ExpressionBuilder {
                         }
                     }
                     if (definitionOutput != null) {
-                        conditionVisitor.beginVisitIsNull(definitionOutput.getId());
-                        conditionVisitor.endVisitIsNull(definitionOutput.getId());
+                        expressionVisitor.beginVisitIsNull(definitionOutput.getId());
+                        expressionVisitor.endVisitIsNull(definitionOutput.getId());
                     } else {
-                        conditionVisitor.beginVisitIsNull(null);
-                        conditionVisitor.endVisitIsNull(null);
+                        expressionVisitor.beginVisitIsNull(null);
+                        expressionVisitor.endVisitIsNull(null);
                     }
                 }
             }
         } else if (expression instanceof In) {
-            conditionVisitor.beginVisitIn(((In) expression).getSourceId());
-            buildVariableExecutors(((In) expression).getExpression(), conditionVisitor);
-            conditionVisitor.endVisitIn(((In) expression).getSourceId());
+            expressionVisitor.beginVisitIn(((In) expression).getSourceId());
+            buildVariableExecutors(((In) expression).getExpression(), expressionVisitor);
+            expressionVisitor.endVisitIn(((In) expression).getSourceId());
 
         } else if (expression instanceof Constant) {
             if (expression instanceof DoubleConstant) {
-                conditionVisitor.beginVisitConstant(((DoubleConstant) expression).getValue(), Attribute.Type.BOOL);
-                conditionVisitor.endVisitConstant(((DoubleConstant) expression).getValue(), Attribute.Type.BOOL);
+                expressionVisitor.beginVisitConstant(((DoubleConstant) expression).getValue(), Attribute.Type.BOOL);
+                expressionVisitor.endVisitConstant(((DoubleConstant) expression).getValue(), Attribute.Type.BOOL);
             } else if (expression instanceof StringConstant) {
-                conditionVisitor.beginVisitConstant(((StringConstant) expression).getValue(), Attribute.Type.STRING);
-                conditionVisitor.endVisitConstant(((StringConstant) expression).getValue(), Attribute.Type.STRING);
+                expressionVisitor.beginVisitConstant(((StringConstant) expression).getValue(), Attribute.Type.STRING);
+                expressionVisitor.endVisitConstant(((StringConstant) expression).getValue(), Attribute.Type.STRING);
             } else if (expression instanceof IntConstant) {
-                conditionVisitor.beginVisitConstant(((IntConstant) expression).getValue(), Attribute.Type.INT);
-                conditionVisitor.endVisitConstant(((IntConstant) expression).getValue(), Attribute.Type.INT);
+                expressionVisitor.beginVisitConstant(((IntConstant) expression).getValue(), Attribute.Type.INT);
+                expressionVisitor.endVisitConstant(((IntConstant) expression).getValue(), Attribute.Type.INT);
             } else if (expression instanceof BoolConstant) {
-                conditionVisitor.beginVisitConstant(((BoolConstant) expression).getValue(), Attribute.Type.BOOL);
-                conditionVisitor.endVisitConstant(((BoolConstant) expression).getValue(), Attribute.Type.BOOL);
+                expressionVisitor.beginVisitConstant(((BoolConstant) expression).getValue(), Attribute.Type.BOOL);
+                expressionVisitor.endVisitConstant(((BoolConstant) expression).getValue(), Attribute.Type.BOOL);
             } else if (expression instanceof FloatConstant) {
-                conditionVisitor.beginVisitConstant(((FloatConstant) expression).getValue(), Attribute.Type.FLOAT);
-                conditionVisitor.endVisitConstant(((FloatConstant) expression).getValue(), Attribute.Type.FLOAT);
+                expressionVisitor.beginVisitConstant(((FloatConstant) expression).getValue(), Attribute.Type.FLOAT);
+                expressionVisitor.endVisitConstant(((FloatConstant) expression).getValue(), Attribute.Type.FLOAT);
             } else if (expression instanceof LongConstant) {
-                conditionVisitor.beginVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
-                conditionVisitor.endVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
+                expressionVisitor.beginVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
+                expressionVisitor.endVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
             } else {
                 throw new OperationNotSupportedException("No constant exist with type " +
                         expression.getClass().getName());
             }
         } else if (expression instanceof AttributeFunction) {
-            conditionVisitor.beginVisitAttributeFunction(
+            expressionVisitor.beginVisitAttributeFunction(
                     ((AttributeFunction) expression).getNamespace(),
                     ((AttributeFunction) expression).getName());
             Expression[] expressions = ((AttributeFunction) expression).getParameters();
             for (int i = 0; i < expressions.length; i++) {
-                conditionVisitor.beginVisitParameterAttributeFunction(i);
-                buildVariableExecutors(expressions[i], conditionVisitor);
-                conditionVisitor.endVisitParameterAttributeFunction(i);
+                expressionVisitor.beginVisitParameterAttributeFunction(i);
+                buildVariableExecutors(expressions[i], expressionVisitor);
+                expressionVisitor.endVisitParameterAttributeFunction(i);
             }
-            conditionVisitor.endVisitAttributeFunction(
+            expressionVisitor.endVisitAttributeFunction(
                     ((AttributeFunction) expression).getNamespace(),
                     ((AttributeFunction) expression).getName());
 
@@ -305,9 +305,9 @@ public class ExpressionBuilder {
                     }
                     if (streamEventChainIndex != UNKNOWN_STATE) {
                         if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
-                            buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
+                            buildStreamVariableExecutor(variable, streamEventChainIndex, expressionVisitor, type);
                         } else {
-                            buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                            buildStoreVariableExecutor(variable, expressionVisitor, type, matchingMetaInfoHolder
                                     .getStoreDefinition());
                         }
                     }
@@ -326,9 +326,9 @@ public class ExpressionBuilder {
 
                     if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder
                             .getMatchingStreamEventIndex()) {
-                        buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
+                        buildStreamVariableExecutor(variable, streamEventChainIndex, expressionVisitor, type);
                     } else {
-                        buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                        buildStoreVariableExecutor(variable, expressionVisitor, type, matchingMetaInfoHolder
                                 .getStoreDefinition());
                     }
                 }
@@ -354,36 +354,36 @@ public class ExpressionBuilder {
                     }
                 }
                 if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
-                    buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
+                    buildStreamVariableExecutor(variable, streamEventChainIndex, expressionVisitor, type);
                 } else {
-                    buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                    buildStoreVariableExecutor(variable, expressionVisitor, type, matchingMetaInfoHolder
                             .getStoreDefinition());
                 }
             }
         }
     }
 
-    private void buildStoreVariableExecutor(Variable variable, ConditionVisitor conditionVisitor, Attribute.Type type,
+    private void buildStoreVariableExecutor(Variable variable, ExpressionVisitor expressionVisitor, Attribute.Type type,
                                             AbstractDefinition storeDefinition) {
-        conditionVisitor.beginVisitStoreVariable(storeDefinition.getId(), variable.getAttributeName(), type);
-        conditionVisitor.endVisitStoreVariable(storeDefinition.getId(), variable.getAttributeName(), type);
+        expressionVisitor.beginVisitStoreVariable(storeDefinition.getId(), variable.getAttributeName(), type);
+        expressionVisitor.endVisitStoreVariable(storeDefinition.getId(), variable.getAttributeName(), type);
 
     }
 
     private void buildStreamVariableExecutor(Variable variable, int streamEventChainIndex,
-                                             ConditionVisitor conditionVisitor, Attribute.Type type) {
+                                             ExpressionVisitor expressionVisitor, Attribute.Type type) {
         String id = variable.getAttributeName();
         if (variable.getStreamId() != null) {
             id = variable.getStreamId() + "." + id;
         }
-        conditionVisitor.beginVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
+        expressionVisitor.beginVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
         if (!variableExpressionExecutorMap.containsKey(id)) {
             ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(
                     variable, matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
                     variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
         }
-        conditionVisitor.endVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
+        expressionVisitor.endVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
 
     }
 }
