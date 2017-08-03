@@ -20,6 +20,8 @@
 package org.wso2.carbon.transport.http.netty.internal.websocket;
 
 import org.wso2.carbon.connector.framework.websocket.WebSocketChannelContext;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,22 +32,27 @@ import java.util.Map;
 public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext {
 
     private final Map<String, Object> properties = new HashMap<>();
-    private final String subProtocol;
-    private final String target;
-    private final String listenerPort;
-    private final String protocolVersion;
-    private final boolean isConnectionSecured;
-    private final boolean isServerMessage;
+    protected final String subProtocol;
+    protected final String target;
+    protected final String listenerPort;
+    protected final String protocolVersion;
+    protected final boolean isConnectionSecured;
+    protected final boolean isServerMessage;
+    protected final ConnectionManager connectionManager;
+    protected final ListenerConfiguration listenerConfiguration;
 
     public BasicWebSocketChannelContextImpl(String subProtocol, String target, String listenerPort,
                                             String protocolVersion, boolean isConnectionSecured,
-                                            boolean isServerMessage) {
+                                            boolean isServerMessage, ConnectionManager connectionManager,
+                                            ListenerConfiguration listenerConfiguration) {
         this.subProtocol = subProtocol;
         this.target = target;
         this.listenerPort = listenerPort;
         this.protocolVersion = protocolVersion;
         this.isConnectionSecured = isConnectionSecured;
         this.isServerMessage = isServerMessage;
+        this.connectionManager = connectionManager;
+        this.listenerConfiguration = listenerConfiguration;
     }
 
     public void setProperty(String key, Object value) {
@@ -66,6 +73,13 @@ public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext
         return properties;
     }
 
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
+    }
+
+    public ListenerConfiguration getListenerConfiguration() {
+        return listenerConfiguration;
+    }
 
     @Override
     public String getSubProtocol() {

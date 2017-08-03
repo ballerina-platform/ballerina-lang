@@ -29,17 +29,16 @@ import javax.websocket.Session;
 /**
  * WebSocket channel handler context with Session context.
  */
-public class webSocketChannelContextImpl extends BasicWebSocketChannelContextImpl
-        implements WebSocketSessionContext {
+public class webSocketChannelContextImpl extends BasicWebSocketChannelContextImpl implements WebSocketSessionContext {
 
-    private final Session serverSession;
-    private final List<Session> clientSessions = new LinkedList<>();
-    private final WebSocketChannelContext channelContext;
+    protected final Session serverSession;
+    protected final List<Session> clientSessions = new LinkedList<>();
+    protected final WebSocketChannelContext channelContext;
 
-    public webSocketChannelContextImpl(Session serverSession, WebSocketChannelContext channelContext) {
-        super(channelContext.getSubProtocol(), channelContext.getTarget(), channelContext.getListenerPort(),
-              channelContext.getWebSocketProtocolVersion(), channelContext.isConnectionSecured(),
-              channelContext.isServerMessage());
+    public webSocketChannelContextImpl(Session serverSession, BasicWebSocketChannelContextImpl channelContext) {
+        super(channelContext.subProtocol, channelContext.target, channelContext.listenerPort,
+              channelContext.protocolVersion, channelContext.isConnectionSecured, channelContext.isServerMessage,
+              channelContext.connectionManager, channelContext.listenerConfiguration);
         this.serverSession = serverSession;
         this.channelContext = channelContext;
     }
