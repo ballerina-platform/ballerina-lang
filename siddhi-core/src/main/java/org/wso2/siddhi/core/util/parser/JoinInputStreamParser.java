@@ -254,16 +254,16 @@ public class JoinInputStreamParser {
 
     private static void populateJoinProcessors(MetaStreamEvent metaStreamEvent, String inputStreamId,
                                                JoinProcessor preJoinProcessor, JoinProcessor postJoinProcessor,
-                                               CompiledCondition compiledCondition) {
+                                               CompiledExpression compiledExpression) {
         if (metaStreamEvent.getEventType() == TABLE && metaStreamEvent.getEventType() == AGGREGATE) {
             throw new SiddhiAppCreationException(inputStreamId + " of join query cannot trigger join " +
                     "because its a " + metaStreamEvent.getEventType() + ", only WINDOW and STEAM can " +
                     "trigger join");
         }
         preJoinProcessor.setTrigger(false);    // Pre JoinProcessor does not process the events
-        preJoinProcessor.setCompiledCondition(compiledCondition);
+        preJoinProcessor.setCompiledExpression(compiledExpression);
         postJoinProcessor.setTrigger(true);
-        postJoinProcessor.setCompiledCondition(compiledCondition);
+        postJoinProcessor.setCompiledExpression(compiledExpression);
     }
 
     private static void setStreamRuntimeProcessorChain(

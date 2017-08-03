@@ -32,7 +32,6 @@ import org.wso2.siddhi.core.table.CompiledUpdateSet;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -101,7 +100,8 @@ public abstract class AbstractRecordTable extends Table {
     @Override
     public StreamEvent find(CompiledExpression compiledExpression, StateEvent matchingEvent)
             throws ConnectionUnavailableException {
-        RecordStoreCompiledCondition recordStoreCompiledExpression = ((RecordStoreCompiledCondition) compiledExpression);
+        RecordStoreCompiledExpression recordStoreCompiledExpression =
+                ((RecordStoreCompiledExpression) compiledExpression);
 
         Map<String, Object> findConditionParameterMap = new HashMap<>();
         for (Map.Entry<String, ExpressionExecutor> entry : recordStoreCompiledExpression.variableExpressionExecutorMap

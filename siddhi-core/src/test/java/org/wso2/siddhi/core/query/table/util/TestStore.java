@@ -21,9 +21,10 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
-import org.wso2.siddhi.core.table.record.ConditionBuilder;
+import org.wso2.siddhi.core.table.record.ExpressionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.table.record.RecordTableCompiledUpdateSet;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -70,40 +71,67 @@ public class TestStore extends AbstractRecordTable {
 
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                            CompiledCondition compiledCondition) throws ConnectionUnavailableException {
+                                            CompiledExpression compiledExpression)
+            throws ConnectionUnavailableException {
         //Not Applicable
         return null;
     }
 
     @Override
     protected boolean contains(Map<String, Object> containsConditionParameterMap,
-                               CompiledCondition compiledCondition) throws ConnectionUnavailableException {
+                               CompiledExpression compiledExpression) throws ConnectionUnavailableException {
         //Not Applicable
         return false;
     }
 
     @Override
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps,
-                          CompiledCondition compiledCondition) throws ConnectionUnavailableException {
+                          CompiledExpression compiledExpression) throws ConnectionUnavailableException {
         //Not Applicable
     }
 
+
     @Override
-    protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
+    protected void update(List<Map<String, Object>> updateConditionParameterMaps,
+                          CompiledExpression compiledExpression,
+                          RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
                           List<Map<String, Object>> updateValues) throws ConnectionUnavailableException {
         //Not Applicable
     }
 
+    /**
+     * Try updating the records if they exist else add the records
+     *
+     * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
+     *                                     compiled condition based on which the records will be updated
+     * @param compiledExpression           the compiledExpression against which records should be matched for update
+     * @param recordTableCompiledUpdateSet
+     * @param updateValues                 the attributes and values that should be updated if the condition matches
+     * @param addingRecords                the values for adding new records if the update condition did not match
+     */
     @Override
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                               CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
-                               List<Object[]> addingRecords) throws ConnectionUnavailableException {
+                               CompiledExpression compiledExpression,
+                               RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+                               List<Map<String, Object>> updateValues, List<Object[]> addingRecords)
+            throws ConnectionUnavailableException {
         //Not Applicable
     }
 
     @Override
-    protected CompiledCondition compileCondition(ConditionBuilder conditionBuilder) {
-        //Not Applicable
+    protected CompiledExpression compileExpression(ExpressionBuilder expressionBuilder) {
+        return null;    //not implemented
+    }
+
+    /**
+     * Compiles the expression in a set clause
+     *
+     * @param expressionBuilder helps visiting the conditions in order to compile the condition
+     * @return compiled expression that can be used for matching events in find, contains, delete, update and
+     * updateOrAdd
+     */
+    @Override
+    protected CompiledExpression compileSetAttribute(ExpressionBuilder expressionBuilder) {
         return null;
     }
 

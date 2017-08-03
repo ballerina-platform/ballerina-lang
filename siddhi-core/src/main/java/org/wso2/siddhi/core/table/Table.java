@@ -30,16 +30,11 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
-
-import java.util.List;
-import java.util.Map;
 
 import java.util.List;
 import java.util.Map;
@@ -100,16 +95,16 @@ public abstract class Table implements FindableProcessor {
 
     protected abstract void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException;
 
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
         if (isConnected.get()) {
             try {
-                return find(compiledCondition, matchingEvent);
+                return find(compiledExpression, matchingEvent);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                return find(matchingEvent, compiledCondition);
+                return find(matchingEvent, compiledExpression);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" +
@@ -117,30 +112,30 @@ public abstract class Table implements FindableProcessor {
             return null;
         } else {
             connectWithRetry();
-            return find(matchingEvent, compiledCondition);
+            return find(matchingEvent, compiledExpression);
         }
     }
 
-    protected abstract StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
+    protected abstract StreamEvent find(CompiledExpression compiledExpression, StateEvent matchingEvent)
             throws ConnectionUnavailableException;
 
-    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledExpression compiledExpression) {
         if (isConnected.get()) {
             try {
-                delete(deletingEventChunk, compiledCondition);
+                delete(deletingEventChunk, compiledExpression);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                deleteEvents(deletingEventChunk, compiledCondition);
+                deleteEvents(deletingEventChunk, compiledExpression);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Table '" + tableDefinition.getId() +
                     "' as its still trying to reconnect!, events dropped '" + deletingEventChunk + "'");
         } else {
             connectWithRetry();
-            deleteEvents(deletingEventChunk, compiledCondition);
+            deleteEvents(deletingEventChunk, compiledExpression);
         }
     }
 
@@ -148,24 +143,25 @@ public abstract class Table implements FindableProcessor {
                                    CompiledExpression compiledExpression) throws ConnectionUnavailableException;
 
 
-    public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                             UpdateAttributeMapper[] updateAttributeMappers) {
+    public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk,
+                             CompiledExpression compiledExpression,
+                             CompiledUpdateSet compiledUpdateSet) {
         if (isConnected.get()) {
             try {
-                update(updatingEventChunk, compiledCondition, updateAttributeMappers);
+                update(updatingEventChunk, compiledExpression, compiledUpdateSet);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                updateEvents(updatingEventChunk, compiledCondition, updateAttributeMappers);
+                updateEvents(updatingEventChunk, compiledExpression, compiledUpdateSet);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Table '" + tableDefinition.getId() +
                     "' as its still trying to reconnect!, events dropped '" + updatingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateEvents(updatingEventChunk, compiledCondition, updateAttributeMappers);
+            updateEvents(updatingEventChunk, compiledExpression, compiledUpdateSet);
         }
     }
 
@@ -175,19 +171,19 @@ public abstract class Table implements FindableProcessor {
             throws ConnectionUnavailableException;
 
     public void updateOrAddEvents(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                                  CompiledCondition compiledCondition,
-                                  UpdateAttributeMapper[] updateAttributeMappers,
+                                  CompiledExpression compiledExpression,
+                                  CompiledUpdateSet compiledUpdateSet,
                                   AddingStreamEventExtractor addingStreamEventExtractor) {
         if (isConnected.get()) {
             try {
-                updateOrAdd(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                updateOrAdd(updateOrAddingEventChunk, compiledExpression, compiledUpdateSet,
                         addingStreamEventExtractor);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                updateOrAddEvents(updateOrAddingEventChunk, compiledExpression, compiledUpdateSet,
                         addingStreamEventExtractor);
             }
         } else if (isTryingToConnect.get()) {
@@ -195,7 +191,7 @@ public abstract class Table implements FindableProcessor {
                     "' as its still trying to reconnect!, events dropped '" + updateOrAddingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+            updateOrAddEvents(updateOrAddingEventChunk, compiledExpression, compiledUpdateSet,
                     addingStreamEventExtractor);
         }
     }
@@ -266,7 +262,7 @@ public abstract class Table implements FindableProcessor {
      * @param queryName                   query name to which the update statement belongs.
      * @return
      */
-    CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
+    public abstract CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
                                        MatchingMetaInfoHolder matchingMetaInfoHolder,
                                        SiddhiAppContext siddhiAppContext,
                                        List<VariableExpressionExecutor> variableExpressionExecutors,

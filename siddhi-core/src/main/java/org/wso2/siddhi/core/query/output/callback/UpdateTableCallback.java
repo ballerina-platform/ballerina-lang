@@ -61,7 +61,7 @@ public class UpdateTableCallback extends OutputCallback {
         if (updatingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> updatingStateEventChunk = constructMatchingStateEventChunk(updatingEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            table.update(updatingStateEventChunk, compiledExpression, compiledUpdateSet);
+            table.updateEvents(updatingStateEventChunk, compiledExpression, compiledUpdateSet);
         }
     }
 

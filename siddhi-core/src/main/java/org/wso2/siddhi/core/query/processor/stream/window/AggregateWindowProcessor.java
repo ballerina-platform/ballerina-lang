@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.aggregation.Within;
@@ -73,16 +73,16 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
-        return aggregationRuntime.find(matchingEvent, compiledCondition);
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
+        return aggregationRuntime.find(matchingEvent, compiledExpression);
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+    public CompiledExpression compileExpression(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
-        return aggregationRuntime.compileCondition(expression, within, per, matchingMetaInfoHolder,
+        return aggregationRuntime.compileExpression(expression, within, per, matchingMetaInfoHolder,
                 variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
     }
 

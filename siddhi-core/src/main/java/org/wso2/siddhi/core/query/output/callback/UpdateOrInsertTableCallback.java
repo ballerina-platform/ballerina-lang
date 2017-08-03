@@ -69,7 +69,7 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
             constructMatchingStateEventChunk(updateOrAddEventChunk, convertToStreamEvent, stateEventPool,
                     matchingStreamIndex, streamEventPool, streamEventConvertor);
-            table.updateOrAdd(updateOrAddStateEventChunk, compiledExpression, compiledUpdateSet,
+            table.updateOrAddEvents(updateOrAddStateEventChunk, compiledExpression, compiledUpdateSet,
                     addingStreamEventExtractor);
         }
     }
