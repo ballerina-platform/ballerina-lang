@@ -20,6 +20,9 @@ import Plugin from 'plugin/plugin';
 import 'golden-layout/src/css/goldenlayout-base.css';
 import 'golden-layout/src/css/goldenlayout-dark-theme.css';
 
+import { getCommandDefinitions } from './commands';
+import { getHandlerDefinitions } from './handlers';
+
 /* This is the default layout of the composer third party apps can
  overise this by passing in a special config. */
 const defaultLayout = {
@@ -87,14 +90,14 @@ class LayoutManagerPlugin extends Plugin {
      * @inheritdoc
      */
     getCommandDefinitions() {
-        return [];
+        return getCommandDefinitions();
     }
 
     /**
      * @inheritdoc
      */
     getCommandHandlerDefinitions() {
-        return [];
+        return getHandlerDefinitions(this);
     }
 
     /**

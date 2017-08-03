@@ -1,4 +1,4 @@
-import { commands } from './constants';
+import { COMMANDS } from './constants';
 
 /**
  * Provides command handler definitions of menu plugin.
@@ -9,19 +9,19 @@ import { commands } from './constants';
 export function getHandlerDefinitions(menuManager) {
     return [
         {
-            cmdID: commands.ADD_MENU_ITEM,
+            cmdID: COMMANDS.ADD_MENU_ITEM,
             handler: (menuItem) => {
                 menuManager.menuItems.push(menuItem);
             },
         },
         {
-            cmdID: commands.REMOVE_MENU_ITEM,
+            cmdID: COMMANDS.REMOVE_MENU_ITEM,
             handler: (menuItem) => {
                 // TODO
             },
         },
         {
-            cmdID: commands.UPDATE_MENU_ITEM,
+            cmdID: COMMANDS.UPDATE_MENU_ITEM,
             handler: (menuItem) => {
                 // TODO
             },

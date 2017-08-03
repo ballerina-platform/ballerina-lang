@@ -1,3 +1,4 @@
+import { ACTIVATION_POLICIES } from './constants';
 /**
  * Base class for the plugins
  */
@@ -13,6 +14,20 @@ class Plugin {
      */
     getID() {
         return 'composer.plugins.generic';
+    }
+
+    /**
+     * Method to get the activation policy of the plugin.
+     * By default the plugin will be activated during app startup.
+     *
+     * @returns {Object} Activation Policy
+     */
+    getActivationPolicy() {
+        return {
+            type: ACTIVATION_POLICIES.APP_STARTUP,
+            args: {
+            },
+        };
     }
 
     /**
@@ -58,6 +73,25 @@ class Plugin {
         return [];
     }
 
+    /**
+     * Returns the list of menu definitions
+     * that this particular plugin is contributing.
+     *
+     * @return {Object[]} Menu definitions
+     */
+    getMenuDefinitions() {
+        return [];
+    }
+
+    /**
+     * Returns the list of view definitions
+     * that this particular plugin is contributing.
+     *
+     * @return {Object[]} View definitions
+     */
+    getViews() {
+        return [];
+    }
 }
 
 export default Plugin;

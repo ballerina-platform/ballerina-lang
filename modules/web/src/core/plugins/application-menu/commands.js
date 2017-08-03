@@ -1,4 +1,4 @@
-import { commands } from './constants';
+import { COMMANDS } from './constants';
 
 /**
  * Provides command definitions of menu plugin.
@@ -10,13 +10,13 @@ import { commands } from './constants';
 export function getCommandDefinitions() {
     return [
         {
-            id: commands.ADD_MENU_ITEM,
+            id: COMMANDS.ADD_MENU_ITEM,
         },
         {
-            id: commands.REMOVE_MENU_ITEM,
+            id: COMMANDS.REMOVE_MENU_ITEM,
         },
         {
-            id: commands.UPDATE_MENU_ITEM,
+            id: COMMANDS.UPDATE_MENU_ITEM,
         },
     ];
 }

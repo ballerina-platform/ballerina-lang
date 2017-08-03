@@ -19,6 +19,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import 'css/preloader.css';
 import Plugin from 'plugin/plugin';
+import { ACTIVATION_POLICIES } from './../plugin/constants';
 
 import commandManager from './commands/manager';
 import LayoutManagerPlugin from './plugins/layout-manager/plugin';
@@ -50,11 +51,9 @@ class Application {
             commandChannel: commandManager.commandChannelProxy,
         };
 
-        // layout manager will be a special plugin.
-        // Hence we create and push it first so
-        // that it will always be the firt plugin
-        // to init/activate etc.
+        // Initialize special core plugins
         this.plugins.push(new LayoutManagerPlugin());
+        this.plugins.push(new ApplicationMenuPlugin());
 
         // load other plugins
         this.loadPlugins(_.get(config, 'app.plugins', []));
@@ -94,7 +93,6 @@ class Application {
                 }
             });
         }
-        this.plugins.push(new ApplicationMenuPlugin());
     }
 
     /**
@@ -103,10 +101,13 @@ class Application {
      * @memberof Application
      */
     render() {
-        // activate each plugin while providing
-        // the application context
+        // activate plugins which needs to be activated during startup
+        // while providing the application context
         this.plugins.forEach((plugin) => {
-            plugin.activate(this.appContext);
+            if (plugin.getActivationPolicy().type ===
+                     ACTIVATION_POLICIES.APP_STARTUP) {
+                plugin.activate(this.appContext);
+            }
         });
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.

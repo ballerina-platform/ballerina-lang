@@ -31,6 +31,7 @@ class ApplicationMenuPlugin extends Plugin {
         super();
         this.menuItems = [];
     }
+
     /**
      * @inheritdoc
      */
@@ -51,7 +52,6 @@ class ApplicationMenuPlugin extends Plugin {
     getCommandHandlerDefinitions() {
         return getHandlerDefinitions(this);
     }
-
 }
 
 export default ApplicationMenuPlugin;
