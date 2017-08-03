@@ -44,7 +44,6 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
-import org.ballerinalang.plugins.idea.psi.StringTemplateLiteralNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -93,8 +92,6 @@ public class BallerinaAnnotator implements Annotator {
             annotateGlobalVariable(element, holder);
         } else if (parent instanceof GlobalVariableDefinitionNode) {
             annotateGlobalVariable(parent, holder);
-        } else if (parent instanceof StringTemplateLiteralNode) {
-            annotateStringLiteral(parent, holder);
         }
     }
 
@@ -226,6 +223,8 @@ public class BallerinaAnnotator implements Annotator {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
             }
+        } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_START) {
+            annotateStringLiteral(element, holder);
         }
     }
 
@@ -447,9 +446,8 @@ public class BallerinaAnnotator implements Annotator {
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
     }
 
-    private void annotateStringLiteral(@NotNull PsiElement parent, @NotNull AnnotationHolder holder) {
-        PsiElement firstChild = parent.getFirstChild();
-        TextRange textRange = firstChild.getTextRange();
+    private void annotateStringLiteral(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        TextRange textRange = element.getTextRange();
         TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
         Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
