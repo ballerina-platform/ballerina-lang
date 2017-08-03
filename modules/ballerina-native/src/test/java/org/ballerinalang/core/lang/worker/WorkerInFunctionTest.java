@@ -76,7 +76,7 @@ public class WorkerInFunctionTest {
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testMultiInteractions", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
-        final String expected = "3";
+        final String expected = "1103";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
