@@ -21,6 +21,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.internal.logging.InternalLogLevel;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +36,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.listener.CarbonLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -190,6 +196,14 @@ public class ConnectionManager {
                 int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
                 targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
                         new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
+                targetChannel.getChannel()
+                                .pipeline()
+                                .addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
+                                               new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
+                                                                                sourceHandler
+                                                                                            .getInboundChannelContext()
+                                                                                            .channel().id()
+                                                                                            .asShortText()));
                 targetChannel.setRequestWritten(true);
                 ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
             }

@@ -1,0 +1,118 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.carbon.transport.http.netty.listener;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+
+/**
+ * A custom LoggingHandler for the HTTP wire logs
+ */
+public class CarbonLoggingHandler extends LoggingHandler {
+
+    private String correlatedSourceId;
+
+    public CarbonLoggingHandler(LogLevel level) {
+        super(level);
+        correlatedSourceId = "n/a";
+    }
+
+    public CarbonLoggingHandler(Class<?> clazz) {
+        super(clazz);
+        correlatedSourceId = "n/a";
+    }
+
+    public CarbonLoggingHandler(Class<?> clazz, LogLevel level) {
+        super(clazz, level);
+        correlatedSourceId = "n/a";
+    }
+
+    public CarbonLoggingHandler(String name) {
+        super(name);
+        correlatedSourceId = "n/a";
+    }
+
+    public CarbonLoggingHandler(String name, LogLevel level, String correlatedSourceId) {
+        super(name, level);
+        this.correlatedSourceId = "0x" + correlatedSourceId;
+    }
+
+    public CarbonLoggingHandler(String name, LogLevel level) {
+        super(name, level);
+        correlatedSourceId = "n/a";
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (logger.isEnabled(internalLevel)) {
+            logger.log(internalLevel, format(ctx, "INBOUND", msg));
+        }
+        ctx.fireChannelRead(msg);
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (logger.isEnabled(internalLevel)) {
+            logger.log(internalLevel, format(ctx, "OUTBOUND", msg));
+        }
+        ctx.write(msg);
+    }
+
+    @Override
+    protected String format(ChannelHandlerContext ctx, String eventName, Object arg1, Object arg2) {
+        String arg1Str = String.valueOf(arg1);
+        String arg2Str = String.valueOf(arg2);
+        StringBuilder stringBuilder = new StringBuilder(arg1Str.length() + 2 + arg2Str.length());
+
+        return format(ctx, eventName, stringBuilder.append(arg1Str).append(", ").append(arg2Str));
+    }
+
+    @Override
+    protected String format(ChannelHandlerContext ctx, String eventName) {
+        String channelId = ctx.channel().id().asShortText();
+        String local = ctx.channel().localAddress().toString();
+        String remote = ctx.channel().remoteAddress().toString();
+
+        StringBuilder buf = new StringBuilder(
+                7 + channelId.length() + 14 + correlatedSourceId.length() + 7 + local.length() + 10 + remote.length() +
+                        2 + eventName.length());
+
+        return buf.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
+                .append(", host:").append(local).append(" - remote:").append(remote).append("] ")
+                .append(eventName).toString();
+    }
+
+    @Override
+    protected String format(ChannelHandlerContext ctx, String eventName, Object msg) {
+        String channelId = ctx.channel().id().asShortText();
+        String local = ctx.channel().localAddress().toString();
+        String remote = ctx.channel().remoteAddress().toString();
+        String msgStr = String.valueOf(msg);
+
+        StringBuilder buf = new StringBuilder(
+                7 + channelId.length() + 14 + correlatedSourceId.length() + 7 + local.length() + 10 + remote.length() +
+                        2 + eventName.length() + 2 + msgStr.length());
+
+        return buf.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
+                .append(", host:").append(local).append(" - remote:").append(remote).append("] ")
+                .append(eventName).append(": ").append(msgStr).toString();
+    }
+}
