@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.StoreQueryRuntimeException;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.window.Window;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class StoreQueryRuntime {
 
-    private final CompiledCondition compiledCondition;
+    private final CompiledExpression compiledExpression;
     private AggregationRuntime aggregation;
     private Table table;
     private Window window;
@@ -49,26 +49,26 @@ public class StoreQueryRuntime {
     private StateEventPool stateEventPool;
 
     public StoreQueryRuntime(Table table,
-                             CompiledCondition compiledCondition, String queryName,
+                             CompiledExpression compiledExpression, String queryName,
                              MetaStreamEvent.EventType eventType) {
         this.table = table;
-        this.compiledCondition = compiledCondition;
+        this.compiledExpression = compiledExpression;
         this.queryName = queryName;
         this.eventType = eventType;
     }
 
-    public StoreQueryRuntime(Window window, CompiledCondition compiledCondition, String queryName,
+    public StoreQueryRuntime(Window window, CompiledExpression compiledExpression, String queryName,
                              MetaStreamEvent.EventType eventType) {
         this.window = window;
-        this.compiledCondition = compiledCondition;
+        this.compiledExpression = compiledExpression;
         this.queryName = queryName;
         this.eventType = eventType;
     }
 
-    public StoreQueryRuntime(AggregationRuntime aggregation, CompiledCondition compiledCondition, String queryName,
+    public StoreQueryRuntime(AggregationRuntime aggregation, CompiledExpression compiledExpression, String queryName,
                              MetaStreamEvent.EventType eventType) {
         this.aggregation = aggregation;
-        this.compiledCondition = compiledCondition;
+        this.compiledExpression = compiledExpression;
         this.queryName = queryName;
         this.eventType = eventType;
     }
@@ -79,13 +79,13 @@ public class StoreQueryRuntime {
             StreamEvent streamEvents = null;
             switch (eventType) {
                 case TABLE:
-                    streamEvents = table.find(stateEvent, compiledCondition);
+                    streamEvents = table.find(stateEvent, compiledExpression);
                     break;
                 case WINDOW:
-                    streamEvents = window.find(stateEvent, compiledCondition);
+                    streamEvents = window.find(stateEvent, compiledExpression);
                     break;
                 case AGGREGATE:
-                    streamEvents = aggregation.find(stateEvent, compiledCondition);
+                    streamEvents = aggregation.find(stateEvent, compiledExpression);
                     break;
                 case DEFAULT:
                     break;

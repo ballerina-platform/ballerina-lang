@@ -66,7 +66,7 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_ELEMENT_INCREMENT = "increment";
     public static final String ANNOTATION_ELEMENT_TYPE = "type";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
-
+    public static final String ANNOTATION_ELEMENT_REF = "ref";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";

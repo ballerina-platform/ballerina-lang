@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.Within;
@@ -92,17 +92,17 @@ public class AggregationRuntime {
         return incrementalDurations;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public StreamEvent find(StateEvent matchingEvent, CompiledExpression compiledExpression) {
         return null;
         //todo implement
     }
 
 
-    public CompiledCondition compileCondition(Expression expression, Within within, Expression per,
-                                              MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName,
-                                              SiddhiAppContext siddhiAppContext) {
+    public CompiledExpression compileExpression(Expression expression, Within within, Expression per,
+                                                MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                                List<VariableExpressionExecutor> variableExpressionExecutors,
+                                                Map<String, Table> tableMap, String queryName,
+                                                SiddhiAppContext siddhiAppContext) {
 
         //todo implement
         return null;
