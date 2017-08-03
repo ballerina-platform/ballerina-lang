@@ -19,8 +19,13 @@
 
 package org.wso2.carbon.transport.http.netty.internal.websocket;
 
+import org.wso2.carbon.connector.framework.websocket.WebSocketBinaryMessage;
+import org.wso2.carbon.connector.framework.websocket.WebSocketCloseMessage;
+import org.wso2.carbon.connector.framework.websocket.WebSocketControlMessage;
+import org.wso2.carbon.connector.framework.websocket.WebSocketInitMessage;
 import org.wso2.carbon.connector.framework.websocket.WebSocketObservable;
 import org.wso2.carbon.connector.framework.websocket.WebSocketObserver;
+import org.wso2.carbon.connector.framework.websocket.WebSocketTextMessage;
 
 /**
  * Implementation for {@link WebSocketObservable}.
@@ -35,17 +40,50 @@ public class WebSocketObservableImpl implements WebSocketObservable {
     }
 
     @Override
-    public WebSocketObserver getObserver() {
-        return observer;
-    }
-
-    @Override
-    public boolean hasObserver() {
-        return observer != null;
-    }
-
-    @Override
     public void removeObserver(WebSocketObserver observer) {
-        observer = null;
+        this.observer = null;
+    }
+
+    @Override
+    public void notify(WebSocketInitMessage initMessage) {
+        existsWebSocketObserver();
+        observer.update(initMessage);
+    }
+
+    @Override
+    public void notify(WebSocketTextMessage textMessage) {
+        existsWebSocketObserver();
+        observer.update(textMessage);
+
+    }
+
+    @Override
+    public void notify(WebSocketBinaryMessage binaryMessage) {
+        existsWebSocketObserver();
+        observer.update(binaryMessage);
+    }
+
+    @Override
+    public void notify(WebSocketControlMessage controlMessage) {
+        existsWebSocketObserver();
+        observer.update(controlMessage);
+    }
+
+    @Override
+    public void notify(WebSocketCloseMessage closeMessage) {
+        existsWebSocketObserver();
+        observer.update(closeMessage);
+    }
+
+    @Override
+    public void notifyError(Throwable throwable) {
+        existsWebSocketObserver();
+        observer.handleError(throwable);
+    }
+
+    private void existsWebSocketObserver() {
+        if (observer == null) {
+            throw new UnsupportedOperationException("WebSocket observer is not set.");
+        }
     }
 }
