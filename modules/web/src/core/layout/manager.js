@@ -15,116 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import GoldenLayout from 'golden-layout';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import Plugin from './../plugin/plugin';
 
-import 'golden-layout/src/css/goldenlayout-base.css';
-import 'golden-layout/src/css/goldenlayout-dark-theme.css';
+import AppView from './views/App';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { REGIONS } from './constants';
 
-/* This is the default layout of the composer third party apps can
- overise this by passing in a special config. */
-const defaultLayout = {
-    settings: {
-        constrainDragToContainer: true,
-        reorderEnabled: true,
-        selectionEnabled: false,
-        popoutWholeStack: false,
-        blockedPopoutsThrowError: true,
-        closePopoutsOnUnload: true,
-        showPopoutIcon: false,
-        showMaximiseIcon: false,
-        showCloseIcon: false,
-    },
-    dimensions: {
-        borderWidth: 2,
-        minItemHeight: 10,
-        minItemWidth: 10,
-        headerHeight: 20,
-        dragProxyWidth: 300,
-        dragProxyHeight: 200,
-    },
-    labels: {
-        close: 'close',
-        maximise: 'maximise',
-        minimise: 'minimise',
-        popout: 'open in new window',
-    },
-    content: [{
-        id: 'root',
-        type: 'column',
-        content: [{
-            id: 'header-area',
-            type: 'column',
-            height: 5,
-            content: [{
-                header: {
-                    show: false,
-                    frozen: true,
-                },
-                splitters: false,
-                type: 'component',
-                componentName: 'testComponent',
-                componentState: { label: 'North' },
-            }],
-        }, {
-            id: 'body',
-            type: 'row',
-            content: [{
-                header: {
-                    show: false,
-                },
-                width: 20,
-                id: 'left-panel',
-                type: 'component',
-                componentName: 'testComponent',
-                componentState: { label: 'Left' },
-            },
-            {
-                id: 'right-panel',
-                type: 'column',
-                content: [{
-                    id: 'editor-area',
-                    type: 'stack',
-                    height: 70,
-                    hasHeaders: true,
-                    content: [{
-                        title: 'file1.bal',
-                        type: 'component',
-                        componentName: 'testComponent',
-                        componentState: { label: 'File1' },
-                    },
-                    {
-                        title: 'file2.bal',
-                        type: 'component',
-                        componentName: 'testComponent',
-                        componentState: { label: 'File2' },
-                    }],
-                }, {
-                    id: 'footer-area',
-                    type: 'stack',
-                    hasHeaders: true,
-                    content: [{
-                        title: 'debug output',
-                        type: 'component',
-                        componentName: 'testComponent',
-                        componentState: { label: 'Debug output' },
-                    },
-                    {
-                        title: 'console',
-                        type: 'component',
-                        componentName: 'testComponent',
-                        componentState: { label: 'Console' },
-                    }],
-                }],
-            },
-            ],
-        },
-        ],
-    }],
+const requiredConfig = {
+    container: PropTypes.string.isRequired,
 };
 
 /**
@@ -134,9 +37,20 @@ const defaultLayout = {
  */
 class LayoutManagerPlugin extends Plugin {
 
+    /**
+     * Bind this context for handlers
+     */
     constructor() {
         super();
-        // this.onDisplayView = this.onDisplayView.bind(this);
+        this.addViewToLayout = this.addViewToLayout.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    init(config) {
+        PropTypes.checkPropTypes(requiredConfig, config, 'config', 'LayoutManagerPlugin');
+        super.init(config);
     }
 
     /**
@@ -149,34 +63,29 @@ class LayoutManagerPlugin extends Plugin {
     /**
      * @inheritdoc
      */
-    init(config) {
-        super.init(config);
-        // overide default config from passed in layout.
-        const glConfig = (this.config && this.config.layout)
-                                ? this.config.layout : defaultLayout;
-        // create the layout
-        this.composerLayout = new GoldenLayout(glConfig);
+    activate(appContext) {
+        super.activate(appContext);
+        this.render();
     }
 
     /**
      * Adds given view to the specified region.
      *
-     * @param {Object} view 
-     * @param {String} region 
+     * @param {ReactComponent} view
+     * @param {String} region @see constants.js
      */
     addViewToLayout(view, region) {
-        // Seperately handle view meant for static regions
+        // Seperately handle views meant for static regions
         if (region === REGIONS.ACTIVITY_BAR || region === REGIONS.HEADER) {
-
         }
     }
 
     /**
-     * @inheritdoc
+     * Render layout.
      */
-    activate(appContext) {
-        super.activate(appContext);
-        this.render();
+    render() {
+        const editorReactRoot = React.createElement(AppView, {}, null);
+        ReactDOM.render(editorReactRoot, document.getElementById(this.config.container));
     }
 
     /**
@@ -191,18 +100,6 @@ class LayoutManagerPlugin extends Plugin {
      */
     getCommandHandlerDefinitions() {
         return getHandlerDefinitions(this);
-    }
-
-    /**
-     * Render layout.
-     *
-     * @memberof LayoutManagerPlugin
-     */
-    render() {
-        this.composerLayout.registerComponent('testComponent', (container, componentState) => {
-            container.getElement().html('<h2>' + componentState.label + '</h2>');
-        });
-        this.composerLayout.init();
     }
 }
 
