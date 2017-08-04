@@ -1,4 +1,7 @@
+import PropTypes from 'prop-types';
+
 import { ACTIVATION_POLICIES } from './constants';
+
 /**
  * Base class for the plugins
  */
@@ -38,6 +41,9 @@ class Plugin {
      *                        @see Plugin#getID
      */
     init(config) {
+        // validate configs using config types
+        PropTypes.checkPropTypes(this.constructor.configTypes,
+                config, 'config', this.constructor.name);
         this.config = config;
     }
 
@@ -51,6 +57,13 @@ class Plugin {
      */
     activate(appContext) {
         this.appContext = appContext;
+    }
+
+    /**
+     * Plugin Activate Hook.
+     * This method will be called when the plugin is unloaded
+     */
+    deactivate() {
     }
 
     /**
@@ -93,5 +106,8 @@ class Plugin {
         return [];
     }
 }
+
+Plugin.configTypes = {
+};
 
 export default Plugin;

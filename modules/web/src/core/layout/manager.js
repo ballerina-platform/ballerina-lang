@@ -26,10 +26,6 @@ import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { REGIONS } from './constants';
 
-const requiredConfig = {
-    container: PropTypes.string.isRequired,
-};
-
 /**
  * LayoutManagerPlugin is responsible for loading view components in to the layout.
  *
@@ -43,14 +39,6 @@ class LayoutManagerPlugin extends Plugin {
     constructor() {
         super();
         this.addViewToLayout = this.addViewToLayout.bind(this);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    init(config) {
-        PropTypes.checkPropTypes(requiredConfig, config, 'config', 'LayoutManagerPlugin');
-        super.init(config);
     }
 
     /**
@@ -84,8 +72,8 @@ class LayoutManagerPlugin extends Plugin {
      * Render layout.
      */
     render() {
-        const editorReactRoot = React.createElement(AppView, {}, null);
-        ReactDOM.render(editorReactRoot, document.getElementById(this.config.container));
+        const root = React.createElement(AppView, {}, null);
+        ReactDOM.render(root, document.getElementById(this.config.container));
     }
 
     /**
@@ -102,5 +90,10 @@ class LayoutManagerPlugin extends Plugin {
         return getHandlerDefinitions(this);
     }
 }
+
+LayoutManagerPlugin.configTypes = {
+    layout: PropTypes.object,
+    container: PropTypes.string.isRequired,
+};
 
 export default LayoutManagerPlugin;
