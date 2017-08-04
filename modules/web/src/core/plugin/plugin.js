@@ -16,7 +16,7 @@ class Plugin {
      * @returns {String} A unique ID for the plugin
      */
     getID() {
-        return 'composer.plugins.generic';
+        return 'composer.plugin.generic';
     }
 
     /**

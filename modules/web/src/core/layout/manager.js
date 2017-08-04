@@ -20,7 +20,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Plugin from './../plugin/plugin';
 
-import AppView from './views/App';
+import App from './components/App';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -72,7 +72,7 @@ class LayoutManagerPlugin extends Plugin {
      * Render layout.
      */
     render() {
-        const root = React.createElement(AppView, {}, null);
+        const root = React.createElement(App, {}, null);
         ReactDOM.render(root, document.getElementById(this.config.container));
     }
 

@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import GLRegion from './GLRegion';
 
 /**
- * React component for App View.
+ * React component for App.
  *
- * @class AppView
+ * @class App
  * @extends {React.Component}
  */
-class AppView extends React.Component {
+class App extends React.Component {
     render() {
         return (
             <GLRegion />
@@ -16,4 +16,4 @@ class AppView extends React.Component {
     }
 }
 
-export default AppView;
+export default App;
