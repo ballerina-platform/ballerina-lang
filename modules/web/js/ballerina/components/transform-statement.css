@@ -413,7 +413,7 @@ svg.plumbConnect path {
     width: 100%;
     font-weight: 400;
     font-size: 20px;
-    padding-left: 220px;
+    padding-left: 30%;
 }
 
 .transform-button:hover{
@@ -426,4 +426,8 @@ svg.plumbConnect path {
 
 .tree-container{
     background-color: #ffffff;
+}
+
+.jtk-droppable {
+  font-size: 8px;
 }
