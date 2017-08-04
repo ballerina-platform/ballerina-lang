@@ -11,3 +11,5 @@ export const REGIONS = {
     EDITOR_AREA: 'EDITOR_AREA',
     BOTTOM_PANEL: 'BOTTOM_PANEL',
 };
+
+export const PLUGIN_ID = 'composer.plugin.layout.manager';

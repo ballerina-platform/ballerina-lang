@@ -19,6 +19,7 @@ import Plugin from './../plugin/plugin';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
+import { PLUGIN_ID } from './constants';
 
 /**
  * ApplicationMenuPlugin is responsible for rendering menu items.
@@ -36,7 +37,7 @@ class ApplicationMenuPlugin extends Plugin {
      * @inheritdoc
      */
     getID() {
-        return 'composer.plugin.menu.manager';
+        return PLUGIN_ID;
     }
 
     /**

@@ -24,7 +24,7 @@ import App from './components/App';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
-import { REGIONS } from './constants';
+import { REGIONS, PLUGIN_ID } from './constants';
 
 /**
  * LayoutManagerPlugin is responsible for loading view components in to the layout.
@@ -45,7 +45,7 @@ class LayoutManagerPlugin extends Plugin {
      * @inheritdoc
      */
     getID() {
-        return 'composer.plugin.layout.manager';
+        return PLUGIN_ID;
     }
 
     /**

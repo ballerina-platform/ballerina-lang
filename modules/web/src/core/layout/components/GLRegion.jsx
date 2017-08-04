@@ -15,14 +15,13 @@ class GLRegion extends React.Component {
 
     constructor(props) {
         super(props);
-        const glConfig = props.layout;
-        // create the layout
-        this.composerLayout = new GoldenLayout(glConfig);
         this.container = undefined;
     }
 
     componentDidMount() {
         if (this.container) {
+            // create the layout
+            this.composerLayout = new GoldenLayout(this.props.layout, this.container);
             this.composerLayout.registerComponent('testComponent', (container, componentState) => {
                 container.getElement().html('<h2>' + componentState.label + '</h2>');
             });
@@ -32,7 +31,7 @@ class GLRegion extends React.Component {
 
     render() {
         return (
-            <div className="app-dynamic-layout" ref={(ref) => { this.container = ref; }} />
+            <div className="dynamic-region" ref={(ref) => { this.container = ref; }} />
         );
     }
 
@@ -59,7 +58,7 @@ GLRegion.defaultProps = {
             borderWidth: 2,
             minItemHeight: 10,
             minItemWidth: 10,
-            headerHeight: 20,
+            headerHeight: 35,
             dragProxyWidth: 300,
             dragProxyHeight: 200,
         },
@@ -73,20 +72,6 @@ GLRegion.defaultProps = {
             id: 'root',
             type: 'column',
             content: [{
-                id: 'header-area',
-                type: 'column',
-                height: 5,
-                content: [{
-                    header: {
-                        show: false,
-                        frozen: true,
-                    },
-                    splitters: false,
-                    type: 'component',
-                    componentName: 'testComponent',
-                    componentState: { label: 'North' },
-                }],
-            }, {
                 id: 'body',
                 type: 'row',
                 content: [{

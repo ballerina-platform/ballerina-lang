@@ -1,9 +1,12 @@
 .header.header-default {
     background-color: $header-bgcolor;
-    min-height: 24px;
+    min-height: $header-min-height;
 
     & .brand {
         color: $header-brand-color;
+        padding: 0 10px;
+        margin-right: 25px;
+        line-height: 35px;
         
         & a {
             color: $header-brand-color;
@@ -11,6 +14,7 @@
         
         & span.appname {
             color: #f17b31;
+            margin-left: 5px;
         }
     }
 }
