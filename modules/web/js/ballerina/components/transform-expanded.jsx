@@ -118,7 +118,6 @@ class TransformExpanded extends React.Component {
             }
             funcNode.removeChild(funcNode.children[index], true);
             //check function parameter is a struct and mapping is a complex mapping
-            debugger;
             if (connection.targetProperty && _.find(self.predefinedStructs, (struct) =>
                         {return struct.typeName == self.getFunctionDefinition(funcNode).getParameters()[index].type})) {
                 let keyValEx = BallerinaASTFactory.createKeyValueExpression();
@@ -140,7 +139,6 @@ class TransformExpanded extends React.Component {
         if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            debugger;
             const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
             let index = _.findIndex(self.getFunctionDefinition(
                                                     connection.sourceReference.getRightExpression()).getReturnParams(),
@@ -260,35 +258,35 @@ class TransformExpanded extends React.Component {
 
 
     createConnection(statement) {
-        if (BallerinaASTFactory.isAssignmentStatement(statement)) {
-            // There can be multiple left expressions.
-            // E.g. : e.name, e.username = p.first_name;
-            const leftExpressions = statement.getLeftExpression();
-            const rightExpression = statement.getRightExpression();
+        debugger;
+        const viewId = this.props.model.getID();
 
-            if (BallerinaASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
-                  BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
-                _.forEach(leftExpressions.getChildren(), (expression) => {
-                    try {
-                       const target = this.getConnectionProperties('target', expression);
-                       const source = this.getConnectionProperties('source', rightExpression);
-                       this.drawConnection(statement.getID(), source, target);
-                    } catch (e) {
-                         log.error(e);
-                    }
-                });
-            } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
-                // draw the function nodes first to fix issues related to rendering arrows with function nodes
-                // not yet drawn in nested cases. TODO : introduce a pooling mechanism to avoid this.
-                this.drawFunctionDefinitionNodes(rightExpression, statement);
-                this.drawFunctionInvocationExpression(leftExpressions, rightExpression, statement);
-            } else {
-                log.error('Invalid expression type in transform statement body');
-            }
-        } else if (BallerinaASTFactory.isCommentStatement(statement)) {
-            //ignore comment statements
-        } else {
+        if (BallerinaASTFactory.isCommentStatement(statement)) {
+            return;
+        }
+
+        if (!BallerinaASTFactory.isAssignmentStatement(statement)) {
             log.error('Invalid statement type in transform statement');
+            return;
+        }
+
+        // There can be multiple left expressions.
+        // E.g. : e.name, e.username = p.first_name;
+        const leftExpression = statement.getLeftExpression();
+        const rightExpression = statement.getRightExpression();
+
+        if (BallerinaASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
+              BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
+            _.forEach(leftExpression.getChildren(), (expression) => {
+                const sourceId = `${rightExpression.getExpressionString().trim()}:${viewId}`;
+                const targetId = `${leftExpression.getExpressionString().trim()}:${viewId}`;
+                this.mapper.addConnection(sourceId, targetId);
+            });
+        }
+
+        if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+            debugger;
+            this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
     }
 
@@ -383,12 +381,11 @@ class TransformExpanded extends React.Component {
 
             this.drawConnection(statement.getID() + functionInvocationExpression.getID(), funcSource, funcTarget);
         }
-
-        //TODO : draw function node here when connection pooling for nested functions is implemented.
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
+        const viewId = this.props.model.getID();
         if (_.isUndefined(func)) {
             alerts.error(
                 'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
@@ -397,7 +394,13 @@ class TransformExpanded extends React.Component {
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
+
         const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+        const params = func.getParameters();
+        const returnParams = func.getReturnParams();
+        const packageName = functionInvocationExpression.getFullPackageName();
+        const funcName = functionInvocationExpression.getFunctionName();
+
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
             if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
                 this.drawInnerFunctionInvocationExpression(
@@ -418,27 +421,23 @@ class TransformExpanded extends React.Component {
                     this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                 });
                 } else {
-                   target = this.getConnectionProperties('target', func.getParameters()[i]);
-                   _.merge(target, funcTarget); // merge parameter props with function props
-                   source = this.getConnectionProperties('source', expression);
-                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                    const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                    const targetId = `${packageName}:${funcName}:${params[i].name}:${viewId}`;
+                    this.mapper.addConnection(sourceId, targetId);
                 }
             }
         });
 
         if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        } else {
-            const funcSource = this.getConnectionProperties('source', functionInvocationExpression);
-            _.forEach(argumentExpressions.getChildren(), (expression, i) => {
-                const source = this.getConnectionProperties('source', func.getReturnParams()[i]);
-                _.merge(source, funcSource); // merge parameter props with function props
-                const target = this.getConnectionProperties('target', expression);
-                this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-            });
         }
 
-        //TODO : draw function node here when connection pooling for nested functions is implemented.
+        _.forEach(argumentExpressions.getChildren(), (expression, i) => {
+            debugger;
+            const sourceId = `${packageName}:${funcName}:${returnParams[i].name || i}:${viewId}`;
+            const targetId = `${expression.getExpressionString().trim()}:${viewId}`
+            this.mapper.addConnection(sourceId, targetId);
+        });
     }
 
     getConnectionProperties(type, expression) {
@@ -675,6 +674,8 @@ class TransformExpanded extends React.Component {
             this.mapper.addTarget(element, null, output);
         });
 
+        this.mapper.reposition(this.mapper);
+
         if(this.props.model === prevProps.model) {
             return;
         }
@@ -685,26 +686,9 @@ class TransformExpanded extends React.Component {
         this.predefinedStructs = [];
         this.getSourcesAndTargets();
 
-        this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
-            this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
-
         _.forEach(nextProps.model.getChildren(), (statement) => {
             this.createConnection(statement);
         });
-
-        // this.props.model.on('child-added', (node) => {
-        //     if (BallerinaASTFactory.isAssignmentStatement(node) &&
-        //             BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
-        //         const functionInvocationExpression = node.getRightExpression();
-        //         const func = this.getFunctionDefinition(functionInvocationExpression);
-        //         if (_.isUndefined(func)) {
-        //             alerts.error('Function definition for "' +
-        //                 functionInvocationExpression.getFunctionName() + '" cannot be found');
-        //             return;
-        //         }
-        //         this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
-        //     }
-        // });
     }
 
     componentDidMount() {
@@ -727,27 +711,11 @@ class TransformExpanded extends React.Component {
             this.createConnection(statement);
         });
 
-        $(window).on('resize', () => {
-            this.mapper.reposition(this.mapper);
-        });
+        this.mapper.reposition(this.mapper);
 
         $(this.transformOverlayContentDiv).find('.leftType, .rightType, .middle-content').on('scroll', () => {
             this.mapper.reposition(this.mapper);
         });
-
-        // this.props.model.on('child-added', (node) => {
-        //     if (BallerinaASTFactory.isAssignmentStatement(node) &&
-        //             BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
-        //         const functionInvocationExpression = node.getRightExpression();
-        //         const func = this.getFunctionDefinition(functionInvocationExpression);
-        //         if (_.isUndefined(func)) {
-        //             alerts.error('Function definition for "' +
-        //                 functionInvocationExpression.getFunctionName() + '" cannot be found');
-        //             return;
-        //         }
-        //         this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
-        //     }
-        // });
     }
 
     onTransformDropZoneActivate(e) {
@@ -1158,6 +1126,7 @@ class TransformExpanded extends React.Component {
                                     enclosingAssignmentStatement={assignmentStmt}
                                     recordSourceElement={this.recordSourceElement}
                                     recordTargetElement={this.recordTargetElement}
+                                    viewId={this.props.model.getID()}
                                 />
                             ))
                         }

@@ -4,7 +4,7 @@ import './tree.css'
 
 export default class Tree extends React.Component {
     renderStruct(endpoint, level) {
-        return <div>
+        return <div key={endpoint.name}>
             {
                 this.renderEndpoint(endpoint, (endpoint.isInner ? 'property' : 'struct-head'), level)
             }
@@ -51,7 +51,7 @@ export default class Tree extends React.Component {
             {
                 endpoints.map(endpoint => {
                     return (
-                        <div className='transform-endpoint-container'>
+                        <div key={endpoint.name} className='transform-endpoint-container'>
                             {
                                 endpoint.type === 'struct' ?
                                 this.renderStruct(endpoint, 0) : this.renderEndpoint(endpoint, 'variable', 0)

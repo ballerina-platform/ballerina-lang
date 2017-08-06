@@ -4,7 +4,9 @@ import './function.css';
 
 export default class FunctionInv extends React.Component {
     render() {
-        const {func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement} = this.props;
+        const {
+            func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId
+        } = this.props;
         const params = func.getParameters().map(paramObj => {
             const param = paramObj.innerType || paramObj;
             const paramDetails = {
@@ -13,17 +15,18 @@ export default class FunctionInv extends React.Component {
                 typeName: param.typeName,
                 properties: param.properties,
                 endpointKind: 'param',
-                paramName: `${func.getFullPackageName()}:${func.getName()}:${param.name}`,
+                paramName: `${func.getFullPackageName()}:${func.getName()}`,
                 enclosingAssignmentStatement,
             };
 
             return paramDetails;
         });
 
-        const returns = func.getReturnParams().map(returnsObj => {
+        const returns = func.getReturnParams().map((returnsObj, index) => {
             return {
-                name: returnsObj.name,
+                name: returnsObj.name||index,
                 type: returnsObj.typeName || returnsObj.type,
+                paramName: `${func.getFullPackageName()}:${func.getName()}`,
                 enclosingAssignmentStatement,
             }
         });
@@ -43,7 +46,7 @@ export default class FunctionInv extends React.Component {
                             type='param'
                             makeConnectPoint={recordTargetElement}
                             endpoints={params}
-                            viewId=''
+                            viewId={viewId}
                         />
                     </div>
                     <div className='func-output'>
@@ -51,7 +54,7 @@ export default class FunctionInv extends React.Component {
                             type='return'
                             makeConnectPoint={recordSourceElement}
                             endpoints={returns}
-                            viewId=''
+                            viewId={viewId}
                         />
                     </div>
                 </div>

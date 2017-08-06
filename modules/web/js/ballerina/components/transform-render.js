@@ -87,7 +87,7 @@ class TransformRender {
                 }],
             ],
         });
-
+        this.jsPlumbInstance.iddd = Math.random();
         this.container.find('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
             const contextMenuDiv = this.container.find('#' + self.contextMenu);
@@ -141,16 +141,6 @@ class TransformRender {
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
-        let isSourceOnlyConnection = true;
-        _.forEach(this.jsPlumbInstance.getConnections(), (currentConnection) => {
-          if(_.isEqual(currentConnection.sourceId, connection.sourceId)) {
-            isSourceOnlyConnection = false;
-          }
-        })
-        if(isSourceOnlyConnection) {
-          this.unmarkConnected(connection.sourceId);
-        }
-        this.unmarkConnected(connection.targetId);
         this.reposition(this);
         this.disconnectCallback(propertyConnection);
     // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
@@ -376,76 +366,88 @@ class TransformRender {
         }
     }
 
-/**
- * Add a connection arrow in the mapper UI
- * @param {object} connection connection object which specified source and target
- */
-    addConnection(connection) {
-        let isSourceExists;
-        let isTargetExists;
-        let sourcePrefix = "";
-        let targetPrefix = "";
-        let targetUUID = "";
-        let sourceUUID = "";
-        let targetTail = "";
-        let sourceTail = ""
+// /**
+//  * Add a connection arrow in the mapper UI
+//  * @param {object} connection connection object which specified source and target
+//  */
+//     addConnection(connection) {
+//         let isSourceExists;
+//         let isTargetExists;
+//         let sourcePrefix = "";
+//         let targetPrefix = "";
+//         let targetUUID = "";
+//         let sourceUUID = "";
+//         let targetTail = "";
+//         let sourceTail = ""
+//
+//         if(connection.sourceId != null) {
+//             sourceUUID = connection.sourceId;
+//             sourceTail = "func-output";
+//             sourcePrefix = "";
+//         }
+//
+//         if(connection.targetId != null) {
+//             targetUUID = connection.targetId;
+//             targetTail = "func-input";
+//             targetPrefix = "";
+//         }
+//
+//         let sourceId = sourcePrefix  + connection.sourceStruct + sourceUUID
+//              + sourceTail;
+//         let targetId = targetPrefix + connection.targetStruct + targetUUID
+//              + targetTail;
+//
+//         if (connection.sourceStruct == connection.sourceProperty[0]) {
+//             // Construct Variable property id
+//             sourceId = connection.sourceStruct;
+//             isSourceExists = true;
+//         } else {
+//             isSourceExists = _.includes(this.existingJsTrees,
+//                 connection.sourceStruct + sourceUUID + this.viewIdSeperator + this.viewId + sourceTail);
+//             for (var i = 0; i < connection.sourceProperty.length; i++) {
+//                 if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
+//                     sourceId += this.idNameSeperator
+//                         + connection.sourceProperty[i];
+//                 }
+//             }
+//         }
+//         if (connection.targetStruct == connection.targetProperty[0]) {
+//             // Construct Variable property id
+//             targetId = connection.targetStruct;
+//             isTargetExists = true;
+//         } else {
+//             isTargetExists = _.includes(this.existingJsTrees,
+//                 connection.targetStruct + targetUUID + this.viewIdSeperator + this.viewId + targetTail);
+//             for (var i = 0; i < connection.targetProperty.length; i++) {
+//                 targetId += this.idNameSeperator
+//                 + connection.targetProperty[i];
+//             }
+//         }
+//         sourceId = sourceId + this.viewIdSeperator + this.viewId;
+//         targetId = targetId + this.viewIdSeperator + this.viewId;
+//
+//         this.jsPlumbInstance.connect({
+//             source: sourceId,
+//             target: targetId,
+//             parameters: { id: connection.id, input:connection.input, output: connection.output}
+//         });
+        // this.container.find(document.getElementById(sourceId)).removeClass("fw-circle-outline").addClass("fw-circle");
+        // this.container.find(document.getElementById(targetId)).removeClass("fw-circle-outline").addClass("fw-circle");
+//         this.reposition(this);
+//
+//     }
 
-        if(connection.sourceId != null) {
-            sourceUUID = connection.sourceId;
-            sourceTail = "func-output";
-            sourcePrefix = "";
-        }
 
-        if(connection.targetId != null) {
-            targetUUID = connection.targetId;
-            targetTail = "func-input";
-            targetPrefix = "";
-        }
-
-        let sourceId = sourcePrefix  + connection.sourceStruct + sourceUUID
-             + sourceTail;
-        let targetId = targetPrefix + connection.targetStruct + targetUUID
-             + targetTail;
-
-        if (connection.sourceStruct == connection.sourceProperty[0]) {
-            // Construct Variable property id
-            sourceId = connection.sourceStruct;
-            isSourceExists = true;
-        } else {
-            isSourceExists = _.includes(this.existingJsTrees,
-                connection.sourceStruct + sourceUUID + this.viewIdSeperator + this.viewId + sourceTail);
-            for (var i = 0; i < connection.sourceProperty.length; i++) {
-                if(!_.isUndefined(connection.sourceProperty) && !_.isUndefined(connection.sourceType)) {
-                    sourceId += this.idNameSeperator
-                        + connection.sourceProperty[i];
-                }
-            }
-        }
-        if (connection.targetStruct == connection.targetProperty[0]) {
-            // Construct Variable property id
-            targetId = connection.targetStruct;
-            isTargetExists = true;
-        } else {
-            isTargetExists = _.includes(this.existingJsTrees,
-                connection.targetStruct + targetUUID + this.viewIdSeperator + this.viewId + targetTail);
-            for (var i = 0; i < connection.targetProperty.length; i++) {
-                targetId += this.idNameSeperator
-                + connection.targetProperty[i];
-            }
-        }
-        sourceId = sourceId + this.viewIdSeperator + this.viewId;
-        targetId = targetId + this.viewIdSeperator + this.viewId;
-
-        this.jsPlumbInstance.connect({
-            source: sourceId,
-            target: targetId,
-            parameters: { id: connection.id, input:connection.input, output: connection.output}
-        });
-        this.markConnected(sourceId);
-        this.markConnected(targetId);
-        this.reposition(this);
-
-    }
+       addConnection(sourceId, targetId) {
+           debugger;
+           console.log(this.jsPlumbInstance);
+           this.jsPlumbInstance.connect({
+               source: sourceId,
+               target: targetId,
+           });
+           this.container.find(document.getElementById(sourceId)).removeClass("fw-circle-outline").addClass("fw-circle");
+           this.container.find(document.getElementById(targetId)).removeClass("fw-circle-outline").addClass("fw-circle");
+       }
 
 
 /**
@@ -799,6 +801,7 @@ addComplexParameter(parentId, struct) {
             maxConnections: 1,
             anchor: ['Left'],
             beforeDrop: params => {
+                console.log(this.jsPlumbInstance);
                 debugger;
                 // Checks property types are equal or type is any
                 const input = params.connection.getParameters().input;
@@ -820,8 +823,6 @@ addComplexParameter(parentId, struct) {
                     connection.id = this.onConnection(connection);
                     params.connection.setParameter('id', connection.id);
                     params.connection.setParameter('output', output);
-                    this.markConnected(params.connection.sourceId);
-                    this.markConnected(params.connection.targetId);
                 }
                 return isValidTypes;
             },
@@ -1036,7 +1037,7 @@ addComplexParameter(parentId, struct) {
     getConnectorConfig(midPoint) {
         return ['Flowchart', {
             midpoint: midPoint,
-            stub: [40, 60],
+            stub: [0, 0],
             cornerRadius: 5,
             alwaysRespectStubs: true,
         }];
@@ -1074,22 +1075,6 @@ addComplexParameter(parentId, struct) {
             this.removeType(container.name);
             removeFunction(reference);
         });
-    }
-
-    /**
-     * mark specified endpoint in the UI
-     * @param  {string} endpointId endpoint identifier to be marked
-     */
-    markConnected(endpointId){
-      this.container.find(document.getElementById(endpointId)).removeClass("fw-circle-outline").addClass("fw-circle");
-    }
-
-    /**
-     * unmark specified endpoint in the UI
-     * @param  {string} endpointId endpoint identifier to be unmarked
-     */
-    unmarkConnected(endpointId){
-      this.container.find(document.getElementById(endpointId)).removeClass("fw-circle").addClass("fw-circle-outline");
     }
 
 }
