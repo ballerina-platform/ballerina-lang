@@ -317,7 +317,7 @@ class BallerinaFileEditor extends React.Component {
 
                             const pkgName = ast.getPackageDefinition().getPackageName();
                             // update package name of the file
-                            file.setPackageName(pkgName || '');
+                            file.setPackageName(pkgName || '.');
                             // init bal env in background
                             BallerinaEnvironment.initialize()
                                 .then(() => {
