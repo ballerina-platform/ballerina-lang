@@ -1893,6 +1893,8 @@ public class BLangModelBuilder {
     public void createRetryStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression countExpression = exprStack.pop();
         checkTRetryCountExprValidity(location, countExpression);
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        transactionStmtBuilder.setRetryCountExpression(countExpression);
         RetryStmt retryStmt = new RetryStmt(location, whiteSpaceDescriptor, countExpression);
         addToBlockStmt(retryStmt);
     }

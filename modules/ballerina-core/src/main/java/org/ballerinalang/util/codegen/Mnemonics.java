@@ -148,6 +148,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.GOTO] = "goto";
         mnemonics[InstructionCodes.HALT] = "halt";
+        mnemonics[InstructionCodes.TR_FALSE] = "tr_false";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";

@@ -220,6 +220,8 @@ public class CodeGenerator implements NodeVisitor {
     private boolean arrayMapAssignment;
     private boolean structAssignment;
 
+    private int transactionIndex = 0;
+
     private Stack<Instruction> breakInstructions = new Stack<>();
     private Stack<Instruction> continueInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
@@ -1166,14 +1168,26 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TransactionStmt transactionStmt) {
+        ++transactionIndex;
+        Expression retryCountExpression = transactionStmt.getRetryCountExpression();
+        int retryCountAvailable = 0;
+        if (retryCountExpression != null) {
+            retryCountExpression.accept(this);
+            retryCountAvailable = 1;
+        }
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = new Instruction(InstructionCodes.GOTO, -1);
         Instruction gotoStartOfAbortedBlock = new Instruction(InstructionCodes.GOTO, -1);
         abortInstructions.push(gotoStartOfAbortedBlock);
 
         //start transaction
+        emit(new Instruction(InstructionCodes.TRBGN, transactionIndex, retryCountAvailable));
         int startIP = nextIP();
-        emit(new Instruction(InstructionCodes.TRBGN));
+        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+
+        //retry transaction
+        Instruction ifInstruction = new Instruction(InstructionCodes.TR_FALSE, transactionIndex, -1);
+        emit(ifInstruction);
 
         //process transaction statements
         transactionStmt.getTransactionBlock().accept(this);
@@ -1190,7 +1204,8 @@ public class CodeGenerator implements NodeVisitor {
             emit(gotoEndOfTransactionBlock);
         }
         abortInstructions.pop();
-        gotoStartOfAbortedBlock.setOperand(0, nextIP());
+        int startOfAbortedIP = nextIP();
+        gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
         emit(new Instruction(InstructionCodes.TREND, -1));
 
         //process aborted block
@@ -1202,14 +1217,23 @@ public class CodeGenerator implements NodeVisitor {
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
         emit(new Instruction(InstructionCodes.TREND, -1));
+        if (transactionStmt.getFailedBlock() != null) {
+            transactionStmt.getFailedBlock().getFailedBlockStmt().accept(this);
+
+        }
+        emit(gotoInstruction);
+        int ifIP = nextIP();
+        ifInstruction.setOperand(1, ifIP);
         if (transactionStmt.getAbortedBlock() != null) {
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
         }
+
 
         emit(new Instruction(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
+        emit(new Instruction(InstructionCodes.TREND, 1));
     }
 
     @Override

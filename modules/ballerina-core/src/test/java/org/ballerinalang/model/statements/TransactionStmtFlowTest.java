@@ -63,7 +63,7 @@ public class TransactionStmtFlowTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmt", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inAbt err end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx inAbt err end");
     }
 
     @Test
@@ -100,7 +100,7 @@ public class TransactionStmtFlowTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testOptionalAborted", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx err end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx err end");
     }
 
     @Test
@@ -136,7 +136,7 @@ public class TransactionStmtFlowTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testOptionalCommitted", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inAbt err end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx inAbt err end");
     }
 
     @Test
@@ -175,7 +175,8 @@ public class TransactionStmtFlowTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inOuterTrx inInnerTrx innerAborted outerAborted err end");
+              "start inOuterTrx inInnerTrx inInnerTrx inInnerTrx innerAbortedinOuterTrx inInnerTrx inInnerTrx "
+              + "inInnerTrx innerAbortedinOuterTrx inInnerTrx inInnerTrx inInnerTrx innerAborted outerAborted err end");
 
     }
 

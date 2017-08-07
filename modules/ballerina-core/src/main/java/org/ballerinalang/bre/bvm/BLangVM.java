@@ -1223,13 +1223,17 @@ public class BLangVM {
                         ip = j;
                     }
                     break;
-
                 case InstructionCodes.GOTO:
                     i = operands[0];
                     ip = i;
                     break;
                 case InstructionCodes.HALT:
                     ip = -1;
+                    break;
+                case InstructionCodes.TR_FALSE:
+                    i = operands[0];
+                    j = operands[1];
+                    retryTransaction(i, j);
                     break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
@@ -1241,10 +1245,13 @@ public class BLangVM {
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.TRBGN:
-                    beginTransaction();
+                    i = operands[0];
+                    j = operands[1];
+                    beginTransaction(i, j);
                     break;
                 case InstructionCodes.TREND:
-                    endTransaction(operands);
+                    i = operands[0];
+                    endTransaction(i);
                     break;
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
@@ -2309,31 +2316,44 @@ public class BLangVM {
         sf.refRegs[i] = bStruct;
     }
 
-    private void endTransaction(int[] operands) {
-        int i;
-        i = operands[0];
+    private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (i == 0) {
+            if (status == 0) { //Transaction success
                 ballerinaTransactionManager.commitTransactionBlock();
-            } else {
+            } else if (status == -1) { //Transaction failed
                 ballerinaTransactionManager.setTransactionError(true);
                 ballerinaTransactionManager.rollbackTransactionBlock();
-            }
-            ballerinaTransactionManager.endTransactionBlock();
-            if (ballerinaTransactionManager.isOuterTransaction()) {
-                context.setBallerinaTransactionManager(null);
+            } else { //status = 1 Transaction aborted
+                ballerinaTransactionManager.endTransactionBlock();
+                if (ballerinaTransactionManager.isOuterTransaction()) {
+                    context.setBallerinaTransactionManager(null);
+                }
             }
         }
     }
 
-    private void beginTransaction() {
+    private void beginTransaction(int transactionId, int retryCountAvailable) {
+        int retryCount = 3;
+        if (retryCountAvailable == 1) {
+            retryCount = (int) controlStack.getCurrentFrame().getLongRegs()[0];
+        }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {
             ballerinaTransactionManager = new BallerinaTransactionManager();
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
-        ballerinaTransactionManager.beginTransactionBlock();
+        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+    }
+
+    private void retryTransaction(int transactionId, int startOfAbortIP) {
+        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
+        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
+        if (currentRetryCount == allowedRetryCount) {
+            ip = startOfAbortIP;
+        }
+        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
     public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {

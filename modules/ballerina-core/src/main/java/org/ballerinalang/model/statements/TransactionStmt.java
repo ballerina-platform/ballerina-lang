@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.Collections;
@@ -39,14 +40,16 @@ public class TransactionStmt extends AbstractStatement {
     private AbortedBlock abortedBlock;
     private CommittedBlock committedBlock;
     private FailedBlock failedBlock;
+    private Expression retryCountExpression;
 
     private TransactionStmt(NodeLocation location, Statement transactionBlock, AbortedBlock abortedBlock,
-                            CommittedBlock committedBlock, FailedBlock failedBlock) {
+                            CommittedBlock committedBlock, FailedBlock failedBlock, Expression retryCountExpression) {
         super(location);
         this.transactionBlock = transactionBlock;
         this.abortedBlock = abortedBlock;
         this.committedBlock = committedBlock;
         this.failedBlock = failedBlock;
+        this.retryCountExpression = retryCountExpression;
     }
 
     public Statement getTransactionBlock() {
@@ -63,6 +66,10 @@ public class TransactionStmt extends AbstractStatement {
 
     public FailedBlock getFailedBlock() {
         return failedBlock;
+    }
+
+    public Expression getRetryCountExpression() {
+        return retryCountExpression;
     }
 
     @Override
@@ -231,6 +238,7 @@ public class TransactionStmt extends AbstractStatement {
         private CommittedBlock committedBlock;
         private NodeLocation location;
         private WhiteSpaceDescriptor whiteSpaceDescriptor;
+        private Expression retryCountExpression;
 
         public void setTransactionBlock(Statement transactionBlock) {
             this.transactionBlock = transactionBlock;
@@ -276,9 +284,17 @@ public class TransactionStmt extends AbstractStatement {
             this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
 
+        public void setRetryCountExpression(Expression expression) {
+            this.retryCountExpression = expression;
+        }
+
+        public Expression getRetryCountExpression() {
+            return retryCountExpression;
+        }
+
         public TransactionStmt build() {
             TransactionStmt transactionStmt = new TransactionStmt(location, transactionBlock,
-                    abortedBlock, committedBlock, failedBlock);
+                    abortedBlock, committedBlock, failedBlock, retryCountExpression);
             transactionStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
             transactionBlock.setParent(transactionStmt);
             if (abortedBlock != null) {
