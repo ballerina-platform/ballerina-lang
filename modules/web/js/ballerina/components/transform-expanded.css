@@ -1,0 +1,48 @@
+.left-content {
+    float: left;
+}
+
+.right-content {
+    float: right;
+}
+
+.left-content, .right-content {
+    width: 340px;
+    padding: 30px 20px 20px 20px;
+}
+
+.transformOverlay .react-autosuggest__input {
+    padding-left: 10px;
+    height: 30px;
+    width: 100%;
+    background-color: #f3f3f3;
+    border: 0;
+}
+
+.transformOverlay .react-autosuggest__container {
+    width: 270px;
+    float: left;
+}
+
+.transformOverlay .react-autosuggest__suggestion {
+    padding-left: 10px;
+    background: #eee;
+}
+
+.transformOverlay .react-autosuggest__suggestions-list {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    list-style-type: none;
+    border: 1px solid #e4e4e4;
+}
+
+.transformOverlay .btn-add-source {
+    float: right;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+    color: #bababb;
+    background: #666769;
+}

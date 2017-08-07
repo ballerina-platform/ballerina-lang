@@ -36,16 +36,22 @@
     padding: 10px;
 }
 
-.leftType {
+.leftType, .rightType {
     width: 300px;
-    height: calc(100% - 10px);
-    margin-top: 105px;
-    margin-left: 20px;
     background: #fefefe;
     color: #3d3d3d;
     float: left;
     position: relative;
     overflow: auto;
+    padding-top: 30px;
+}
+
+.leftType {
+    float: left;
+}
+
+.rightType {
+    float: right;
 }
 
 .middle-content {
@@ -57,19 +63,8 @@
     position: relative;
     overflow: auto;
     border: 1px dashed #ccc;
-    margin: 60px 20px;
-}
-
-.rightType {
-    width: 300px;
-    height: calc(100% - 10px);
-    margin-top: -2px;
-    margin-right: 20px;
-    background: #fefefe;
-    color: #3d3d3d;
-    position: relative;
-    float: right;
-    overflow: auto;
+    margin-top: 30px;
+    padding-top: 30px
 }
 
 .struct {;
@@ -227,68 +222,26 @@ svg.plumbConnect path {
     height: 30px
 }
 
-.transformOverlay-content .react-autosuggest__input {
-    padding-left: 10px;
-    height: 31px;
-    width: 270px;
-    background-color: #f3f3f3;
-    border: 0;
-}
-
-.transformOverlay-content .react-autosuggest__container {
-
-}
-
-.transformOverlay-content .react-autosuggest__suggestion {
-    padding-left: 10px;
-    background: #eee;
-}
-
-.transformOverlay-content .react-autosuggest__suggestions-list {
-    top: 40px;
-    width: 269px;
-    margin: 0;
-    list-style-type: none;
-    border: 1px solid #e4e4e4;
-}
-
-.transformOverlay-content .react-autosuggest__suggestions-container {
-    width: 269px;
-}
-
 .type-select-header {
     padding-top: 15px;
     padding-left: 10px;
 }
 
 .transformOverlay {
-    position: fixed;
-    padding-left: 280px;
-    padding-top: 83px;
+    position: absolute;;
+    padding-left: 244px;
+    background-color: #fefefe;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
-}
-
-.transformOverlay-content {
-    background-color: #fefefe;
-    margin: auto;
-    width: 100%;
-    height: 100%;
-    min-width: 1020px;
-    z-index: 30;
-    pointer-events: auto;
-
 }
 
 /* The Close Button */
 .close-transform {
+    float: left;
     color: #fff;
-    left: 4px;
     top: 0;
-    position: absolute;
     z-index: 41;
     cursor: pointer;
     padding: 8px 10px;
@@ -304,19 +257,11 @@ svg.plumbConnect path {
 .transform-header {
     width: 100%;
     height: 30px;
+    line-height: 30px;
     background-color: #f3f3f3;
     z-index: 40;
-    position: absolute;
     color: #f3f3f3;
     border-bottom: 1px solid #dedede;
-}
-
-.transform-header-padding {
-    width: 100%;
-    height: 60px;
-    background-color: #fff;
-    z-index: 38;
-    position: absolute;
 }
 
 .transform-footer {
@@ -330,8 +275,10 @@ svg.plumbConnect path {
 
 .transform-header-text {
     color: #343434;
-    padding: 5px 5px 5px 35px;
+    float: left;
     font-size: 14px;
+    margin: 0;
+    padding-left: 3px;
 }
 
 .transform-action {

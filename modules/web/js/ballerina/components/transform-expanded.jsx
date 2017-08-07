@@ -29,6 +29,7 @@ import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tree from './transform/tree';
 import FunctionInv from './transform/function';
+import './transform-expanded.css';
 
 class TransformExpanded extends React.Component {
     constructor(props, context){
@@ -159,12 +160,15 @@ class TransformExpanded extends React.Component {
 
         const assignmentStmtSource = connection.sourceReference;
         let funcNode = assignmentStmtTarget.getRightExpression();
-        let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
-                                            (param) => { return param.name == connection.targetProperty[0]});
+
+        let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(), param => {
+            const paramName = param.name || param.fieldName;
+            return param.name === (connection.targetProperty || connection.targetStruct);
+        });
         funcNode.children[index] = assignmentStmtSource.getRightExpression();
+
         //remove the source assignment statement since it is now included in the target assignment statement.
-        const transformStmt = assignmentStmtSource.getParent();
-        transformStmt.removeChild(assignmentStmtSource);
+        this.props.model.removeChild(assignmentStmtSource);
 
         return assignmentStmtTarget.id;
     };
@@ -258,7 +262,6 @@ class TransformExpanded extends React.Component {
 
 
     createConnection(statement) {
-        debugger;
         const viewId = this.props.model.getID();
 
         if (BallerinaASTFactory.isCommentStatement(statement)) {
@@ -285,7 +288,6 @@ class TransformExpanded extends React.Component {
         }
 
         if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
-            debugger;
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
     }
@@ -344,7 +346,8 @@ class TransformExpanded extends React.Component {
     }
 
     drawInnerFunctionInvocationExpression(parentFunctionInvocationExpression, functionInvocationExpression,
-                                                      parentFunctionDefinition, parentParameterIndex, statement) {
+                                          parentFunctionDefinition, parentParameterIndex, statement) {
+        const viewId = this.props.model.getID();
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error(
@@ -354,33 +357,38 @@ class TransformExpanded extends React.Component {
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        } else {
-            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
-            _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(
-                        functionInvocationExpression, expression, func, i, statement);
-                } else {
-                    const target = this.getConnectionProperties('target', func.getParameters()[i]);
-                    _.merge(target, funcTarget); // merge parameter props with function props
-                    const source = this.getConnectionProperties('source', expression);
-                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                }
-            });
         }
 
-        if (parent !== undefined) {
-            const funcSource = this.getConnectionProperties('source', functionInvocationExpression);
-            const funcSourceParam = this.getConnectionProperties('source', func.getReturnParams()[0]);
-            _.merge(funcSource, funcSourceParam); // merge parameter props with function props
+        const params = func.getParameters();
+        const returnParams = func.getReturnParams();
+        const packageName = functionInvocationExpression.getFullPackageName();
+        const funcName = functionInvocationExpression.getFunctionName();
 
-            const funcTarget = this.getConnectionProperties('target', parentFunctionInvocationExpression);
-            const funcTargetParam = this.getConnectionProperties(
-                'target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
-            _.merge(funcTarget, funcTargetParam); // merge parameter props with function props
+        _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
+            if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                this.drawInnerFunctionInvocationExpression(
+                    functionInvocationExpression, expression, func, i, statement);
+            } else {
+                const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                const targetId = `${packageName}:${funcName}:${params[i].name}:${viewId}`;
+                this.mapper.addConnection(sourceId, targetId);
+            }
+        });
 
-            this.drawConnection(statement.getID() + functionInvocationExpression.getID(), funcSource, funcTarget);
+        if (!parentFunctionDefinition) {
+            return;
         }
+
+        const sourceId = `${packageName}:${funcName}:${returnParams[0].name || 0}:${viewId}`;
+        this.mapper.addConnection(sourceId, targetId);
+
+        const parentParams = parentFunctionDefinition.getParameters();
+        const parentPackageName = parentFunctionInvocationExpression.getFullPackageName();
+        const parentFuncName = parentFunctionInvocationExpression.getFunctionName();
+
+        const targetId = `${parentPackageName}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
+
+        this.mapper.addConnection(sourceId, targetId);
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
@@ -395,7 +403,6 @@ class TransformExpanded extends React.Component {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
-        const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
         const params = func.getParameters();
         const returnParams = func.getReturnParams();
         const packageName = functionInvocationExpression.getFullPackageName();
@@ -433,7 +440,6 @@ class TransformExpanded extends React.Component {
         }
 
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
-            debugger;
             const sourceId = `${packageName}:${funcName}:${returnParams[i].name || i}:${viewId}`;
             const targetId = `${expression.getExpressionString().trim()}:${viewId}`
             this.mapper.addConnection(sourceId, targetId);
@@ -1037,6 +1043,22 @@ class TransformExpanded extends React.Component {
         })
     }
 
+    findFunctionInvocations(functionInvocationExpression, functions=[]) {
+        const func = this.getFunctionDefinition(functionInvocationExpression);
+        if (_.isUndefined(func)) {
+            alerts.error('Function definition for "' +
+                functionInvocationExpression.getFunctionName() + '" cannot be found');
+            return;
+        }
+        functionInvocationExpression.getChildren().forEach(child => {
+            if(BallerinaASTFactory.isFunctionInvocationExpression(child)) {
+                this.findFunctionInvocations(child, functions);
+            }
+        });
+        functions.push(func);
+        return functions;
+    }
+
     render() {
         const sourceId = 'sourceStructs' + this.props.model.id;
         const targetId = 'targetStructs' + this.props.model.id;
@@ -1069,23 +1091,21 @@ class TransformExpanded extends React.Component {
         });
 
         const functions = [];
-        children.forEach(child => {
-            if (BallerinaASTFactory.isAssignmentStatement(child) &&
-                    BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
-                const functionInvocationExpression = child.getRightExpression();
-                const func = this.getFunctionDefinition(functionInvocationExpression);
-                if (_.isUndefined(func)) {
-                    alerts.error('Function definition for "' +
-                        functionInvocationExpression.getFunctionName() + '" cannot be found');
-                    return;
-                }
-                functions.push({func, assignmentStmt: child});
+        this.props.model.getChildren().forEach(child => {
+            if(!BallerinaASTFactory.isAssignmentStatement(child)) {
+                return;
+            }
+            const rightExpression = child.getRightExpression();
+
+            if(BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+                const funcInvs = this.findFunctionInvocations(rightExpression).map(
+                    func => ({func, assignmentStmt: child}));
+                functions.push(...funcInvs);
             }
         });
 
         return (
-            <div id='transformOverlay' className='transformOverlay'>
-                <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay-content'
+                <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay'
                     ref={div => this.transformOverlayContentDiv=div }
                     onMouseOver={this.onTransformDropZoneActivate}
                     onMouseOut={this.onTransformDropZoneDeactivate}>
@@ -1096,26 +1116,26 @@ class TransformExpanded extends React.Component {
                             Transform
                         </p>
                     </div>
-                    <div id ="transformHeaderPadding" className="transform-header-padding"></div>
-                    <div className="source-view">
-                        <SuggestionsDropdown
-                            value={this.state.typedSource}
-                            onChange={this.onSourceInputChange}
-                            onEnter={this.onSourceInputEnter}
-                            suggestionsPool={sourcesAndTargets}
-                            placeholder='Select Source'
-                            onSuggestionSelected={this.onSourceSelect}
-                        />
-                        <span
-                            id="btn-add-source"
-                            className="btn-add-type fw-stack fw-lg btn btn-add"
-                            onClick={this.onSourceAdd}
-                        >
-                            <i className="fw fw-add fw-stack-1x"></i>
-                        </span>
-                    </div>
-                    <div className="leftType">
-                        <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
+                    <div className='left-content'>
+                        <div className="select-source">
+                            <SuggestionsDropdown
+                                value={this.state.typedSource}
+                                onChange={this.onSourceInputChange}
+                                onEnter={this.onSourceInputEnter}
+                                suggestionsPool={sourcesAndTargets}
+                                placeholder='Select Source'
+                                onSuggestionSelected={this.onSourceSelect}
+                            />
+                            <span
+                                className="btn-add-source fw-stack fw-lg btn btn-add"
+                                onClick={this.onSourceAdd}
+                            >
+                                <i className="fw fw-add fw-stack-1x"></i>
+                            </span>
+                        </div>
+                        <div className="leftType">
+                            <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
+                        </div>
                     </div>
                     <div className="middle-content">
                         {
@@ -1131,30 +1151,30 @@ class TransformExpanded extends React.Component {
                             ))
                         }
                     </div>
-                    <div className="target-view">
-                        <SuggestionsDropdown
-                            value={this.state.typedTarget}
-                            onChange={this.onTargetInputChange}
-                            onEnter={this.onTargetInputEnter}
-                            suggestionsPool={sourcesAndTargets}
-                            placeholder='Select Target'
-                            onSuggestionSelected={this.onTargetSelect}
-                        />
-                        <span
-                            id="btn-add-target"
-                            className="btn-add-type fw-stack fw-lg btn btn-add"
-                            onClick={this.onTargetAdd}
-                        >
-                            <i className="fw fw-add fw-stack-1x"></i>
-                        </span>
-                    </div>
-                    <div className="rightType">
-                        <Tree viewId={this.props.model.getID()} endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement}/>
+                    <div className='right-content'>
+                        <div className="select-target">
+                            <SuggestionsDropdown
+                                value={this.state.typedTarget}
+                                onChange={this.onTargetInputChange}
+                                onEnter={this.onTargetInputEnter}
+                                suggestionsPool={sourcesAndTargets}
+                                placeholder='Select Target'
+                                onSuggestionSelected={this.onTargetSelect}
+                            />
+                            <span
+                                className="btn-add-source fw-stack fw-lg btn btn-add"
+                                onClick={this.onTargetAdd}
+                            >
+                                <i className="fw fw-add fw-stack-1x"></i>
+                            </span>
+                        </div>
+                        <div className="rightType">
+                            <Tree viewId={this.props.model.getID()} endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement}/>
+                        </div>
                     </div>
                     <div id ="transformContextMenu" className="transformContextMenu"></div>
                     <div id ="transformFooter" className="transform-footer"></div>
                 </div>
-            </div>
         );
     }
 }

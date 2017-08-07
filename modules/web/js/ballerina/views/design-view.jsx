@@ -104,17 +104,15 @@ class DesignView extends React.Component {
                         <div className="html-overlay" ref={this.setOverlayContainer} />
                         <div className="diagram root" ref={this.setDiagramContainer} >
                             <BallerinaDiagram
-                                style={{ display: isTransformActive ? 'none' : 'block' }}
                                 model={this.props.model}
                             />
-                            {isTransformActive &&
-                            <TransformExpanded
-                                style={{ display: isTransformActive ? 'block' : 'none' }}
-                                model={activeTransformModel}
-                            />
-                        }
                         </div>
                     </div>
+                    {isTransformActive &&
+                        <TransformExpanded
+                            model={activeTransformModel}
+                        />
+                    }
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
                     <ToolPaletteView

@@ -53,7 +53,7 @@ class TransformRender {
 
         this.jsPlumbInstance = jsPlumb.getInstance({
             Connector: self.getConnectorConfig(self.midpoint),
-            Container: this.container.get()[0],
+            Container: container.attr("id"),
             PaintStyle: {
                 strokeWidth: 1,
             // todo : load colors from css
@@ -87,7 +87,6 @@ class TransformRender {
                 }],
             ],
         });
-        this.jsPlumbInstance.iddd = Math.random();
         this.container.find('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
             const contextMenuDiv = this.container.find('#' + self.contextMenu);
@@ -440,7 +439,6 @@ class TransformRender {
 
        addConnection(sourceId, targetId) {
            debugger;
-           console.log(this.jsPlumbInstance);
            this.jsPlumbInstance.connect({
                source: sourceId,
                target: targetId,
@@ -1026,6 +1024,7 @@ addComplexParameter(parentId, struct) {
         //     this.container.find('#' + structType.id).css('top', yTargetPointer + 'px');
         //     yTargetPointer += this.container.find('#' + structType.id).height() + functionGap;
         // });
+        self.jsPlumbInstance.recalculateOffsets();
         self.jsPlumbInstance.repaintEverything();
     }
 
