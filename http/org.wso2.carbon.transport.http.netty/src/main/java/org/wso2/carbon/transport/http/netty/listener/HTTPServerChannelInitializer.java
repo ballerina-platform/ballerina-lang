@@ -21,26 +21,17 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerUpgradeHandler;
-import io.netty.handler.codec.http2.Http2CodecUtil;
-import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
-import org.wso2.carbon.transport.http.netty.listener.http2.HTTP2SourceHandlerBuilder;
 import org.wso2.carbon.transport.http.netty.listener.http2.HTTPProtocolNegotiationHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -58,7 +49,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private ConnectionManager connectionManager;
     private ListenerConfiguration listenerConfiguration;
-    private ConnectorFuture connectorFuture;
+    private ServerConnectorFuture serverConnectorFuture;
     private SSLEngine sslEngine;
     private int socketIdleTimeout;
 
@@ -208,7 +199,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 //            p.addLast(Constants.IDLE_STATE_HANDLER,
 //                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
 //                            TimeUnit.MILLISECONDS));
-            pipeline.addLast("SourceHandler", new SourceHandler(connectionManager, listenerConfiguration, this.connectorFuture));
+            pipeline.addLast("SourceHandler", new SourceHandler(connectionManager, listenerConfiguration, this.serverConnectorFuture));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
@@ -227,12 +218,12 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 //        this.sslContext = sslContext;
 //    }
 
-//    public ConnectorFuture getConnectorFuture() {
-//        return connectorFuture;
+//    public ServerConnectorFuture getServerConnectorFuture() {
+//        return serverConnectorFuture;
 //    }
 
-    public void setConnectorFuture(ConnectorFuture connectorFuture) {
-        this.connectorFuture = connectorFuture;
+    public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
+        this.serverConnectorFuture = serverConnectorFuture;
     }
 
     public void setSslEngine(SSLEngine sslEngine) {

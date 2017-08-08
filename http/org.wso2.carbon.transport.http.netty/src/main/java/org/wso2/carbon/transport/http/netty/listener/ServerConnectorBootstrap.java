@@ -21,29 +21,21 @@ package org.wso2.carbon.transport.http.netty.listener;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
 
 /**
  * {@code ServerConnectorBootstrap} is the heart of the HTTP Server Connector.
@@ -109,7 +101,7 @@ public class ServerConnectorBootstrap {
 
 //            httpServerChannelInitializer.registerListenerConfig(listenerConfiguration, http2sslContext);
 //            httpServerChannelInitializer.setSslContext(http2sslContext);
-//            httpServerChannelInitializer.setConnectorFuture(serverConnector.getConnectorFuture());
+//            httpServerChannelInitializer.setServerConnectorFuture(serverConnector.getServerConnectorFuture());
 
             ChannelFuture future = serverBootstrap.bind(
                     new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort())).sync();
@@ -177,7 +169,7 @@ public class ServerConnectorBootstrap {
     public ServerConnector getServerConnector(ListenerConfiguration listenerConfiguration) {
         HTTPServerConnector httpServerConnector = new HTTPServerConnector("serviceID", this,
                 listenerConfiguration.getHost(), listenerConfiguration.getPort());
-        httpServerChannelInitializer.setConnectorFuture(httpServerConnector.getConnectorFuture());
+        httpServerChannelInitializer.setServerConnectorFuture(httpServerConnector.getServerConnectorFuture());
         return httpServerConnector;
     }
 
@@ -225,26 +217,26 @@ public class ServerConnectorBootstrap {
         //        private static final Logger log = LoggerFactory.getLogger(HTTPServerConnector.class);
 
         private ChannelFuture channelFuture;
-        private ConnectorFuture connectorFuture;
+        private ServerConnectorFuture serverConnectorFuture;
         private ServerConnectorBootstrap serverConnectorBootstrap;
         private String host;
         private int port;
 
         public HTTPServerConnector(String id, ServerConnectorBootstrap serverConnectorBootstrap,
                 String host, int port) {
-            connectorFuture = new HTTPConnectorFuture();
+            serverConnectorFuture = new HTTPServerConnectorFuture();
             this.serverConnectorBootstrap = serverConnectorBootstrap;
             this.host = host;
             this.port = port;
         }
 
         @Override
-        public ConnectorFuture start() {
+        public ServerConnectorFuture start() {
             //            if (listenerConfiguration.isBindOnStartup()) { // Already bind at the startup, hence skipping
             //                return null;
             //            }
             channelFuture = serverConnectorBootstrap.bindInterface(this);
-            return getConnectorFuture();
+            return getServerConnectorFuture();
         }
 
         @Override
@@ -305,8 +297,8 @@ public class ServerConnectorBootstrap {
             return listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort();
         }
 
-        public ConnectorFuture getConnectorFuture() {
-            return connectorFuture;
+        public ServerConnectorFuture getServerConnectorFuture() {
+            return serverConnectorFuture;
         }
 
         public String getHost() {

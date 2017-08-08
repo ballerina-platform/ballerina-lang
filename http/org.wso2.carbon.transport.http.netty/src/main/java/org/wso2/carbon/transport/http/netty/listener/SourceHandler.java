@@ -36,7 +36,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -68,18 +68,18 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ListenerConfiguration listenerConfiguration;
     private WebSocketServerHandshaker handshaker;
     private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
-    private ConnectorFuture connectorFuture;
+    private ServerConnectorFuture serverConnectorFuture;
 
     public ListenerConfiguration getListenerConfiguration() {
         return listenerConfiguration;
     }
 
     public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration,
-            ConnectorFuture connectorFuture)
+            ServerConnectorFuture serverConnectorFuture)
             throws Exception {
         this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
-        this.connectorFuture = connectorFuture;
+        this.serverConnectorFuture = serverConnectorFuture;
     }
 
     @Override
@@ -219,12 +219,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (continueRequest) {
 //            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
 //                        .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
-            if (connectorFuture != null) {
+            if (serverConnectorFuture != null) {
                 try {
 //                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx, cMsg));
-                    ConnectorFuture connectorFuture = httpRequestMsg.getHTTPConnectorFuture();
-                    connectorFuture.setHTTPConnectorListener(new ResponseListenerHTTP(this.ctx, httpRequestMsg));
-                    this.connectorFuture.notifyHTTPListener(httpRequestMsg);
+                    ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
+                    serverConnectorFuture.setHTTPConnectorListener(new ResponseListenerHTTP(this.ctx, httpRequestMsg));
+                    this.serverConnectorFuture.notifyHTTPListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
                 }

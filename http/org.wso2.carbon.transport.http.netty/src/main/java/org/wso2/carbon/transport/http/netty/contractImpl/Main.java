@@ -1,6 +1,6 @@
 package org.wso2.carbon.transport.http.netty.contractImpl;
 
-import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -22,8 +22,8 @@ public class Main {
         props.put(Constants.HTTP_PORT, "9009");
 
         ServerConnector serverConnector = httpConnectorFactory.getServerConnector(props);
-        ConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
             @Override
             public void onMessage(CarbonMessage httpMessage) {
                 System.out.println("Message received..");
@@ -38,7 +38,7 @@ public class Main {
 
 //        HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactory() {
 //            @Override
-//            public ConnectorFuture getServerConnector(Properties connectorConfig) {
+//            public ServerConnectorFuture getServerConnector(Properties connectorConfig) {
 //                return null;
 //            }
 //
@@ -48,7 +48,7 @@ public class Main {
 //            }
 //        };
 //
-//        ConnectorFuture observable = httpConnectorFactory.getServerConnector();
+//        ServerConnectorFuture observable = httpConnectorFactory.getServerConnector();
 //
 //        observable.setHTTPConnectorListener((httpMessage, callback) -> {
 //            // you get your message

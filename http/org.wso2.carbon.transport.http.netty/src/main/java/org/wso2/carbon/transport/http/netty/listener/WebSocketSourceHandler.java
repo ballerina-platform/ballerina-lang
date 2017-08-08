@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.websocket.BasicWebSocketChannelContextImpl;
@@ -79,7 +79,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   boolean isSecured, ChannelHandlerContext ctx,
                                   BasicWebSocketChannelContextImpl basicWebSocketChannelContext,
                                   WebSocketSessionImpl serverSession) throws Exception {
-        super(connectionManager, listenerConfiguration, new HTTPConnectorFuture());
+        super(connectionManager, listenerConfiguration, new HTTPServerConnectorFuture());
         this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.ctx = ctx;
