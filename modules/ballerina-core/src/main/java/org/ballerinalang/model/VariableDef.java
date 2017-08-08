@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -27,126 +26,58 @@ import org.ballerinalang.model.types.SimpleTypeName;
  * {@code VariableDef} represent a Variable definition.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
- * a collection of built-in structured types and arrays and record type constructors.
+ * a collection of built-in structured types and arrays and record type constructors, and function pointers.
  *
  * @since 0.8.0
  */
-public class VariableDef implements BLangSymbol, Node {
-    protected NodeLocation location;
-    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
-    protected SimpleTypeName typeName;
-    protected BType type;
-    protected MemoryLocation memoryLocation;
+public interface VariableDef extends BLangSymbol, Node {
 
-    // BLangSymbol related attributes
-    protected Identifier identifier;
-    protected String pkgPath;
-    protected boolean isPublic = false;
-    protected boolean isNative = false;
-    protected SymbolName symbolName;
-    protected SymbolScope symbolScope;
+    /**
+     * Represents the variable kind.
+     */
+    enum Kind {
+        /**
+         * Local variable in a function/action/resource.
+         */
+        LOCAL_VAR,
 
-    public VariableDef(NodeLocation location,
-                       WhiteSpaceDescriptor whiteSpaceDescriptor,
-                       Identifier identifier,
-                       SimpleTypeName typeName,
-                       SymbolName symbolName,
-                       SymbolScope symbolScope) {
-        this.location = location;
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-        this.identifier = identifier;
-        this.symbolName = symbolName;
-        this.typeName = typeName;
-        this.symbolScope = symbolScope;
+        /**
+         * Constant.
+         */
+        CONSTANT,
+
+        /**
+         * Global variable
+         */
+        GLOBAL_VAR,
+
+        /**
+         * Variable defined in the service level.
+         */
+        SERVICE_VAR,
+
+        /**
+         * Variable defined in the connector level.
+         */
+        CONNECTOR_VAR,
+
+        /**
+         * Struct field.
+         */
+        STRUCT_FIELD
     }
 
-    public VariableDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BType type,
-                       SymbolName symbolName) {
-        this.location = location;
-        this.type = type;
-        this.symbolName = symbolName;
-    }
+    BType getType();
 
-    public SimpleTypeName getTypeName() {
-        return typeName;
-    }
+    void setType(BType type);
 
-    public BType getType() {
-        return type;
-    }
+    Kind getKind();
 
-    public void setType(BType type) {
-        this.type = type;
-    }
+    void setKind(Kind kind);
 
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
-    }
+    int getVarIndex();
 
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
-    }
+    void setVarIndex(int index);
 
-    // Methods in BLangSymbol interface
-
-    @Override
-    public String getName() {
-        //There are scenarios where identifier can be null
-        //in a variabledef (parameterDef in returns) hence the null check
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
-    }
-
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
-    }
-
-    @Override
-    public String getPackagePath() {
-        return pkgPath;
-    }
-
-    @Override
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    @Override
-    public boolean isNative() {
-        return isNative;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return symbolScope;
-    }
-
-    // Methods in Node interface
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeLocation getNodeLocation() {
-        return location;
-    }
-
-    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-    }
-
-    @Override
-    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return whiteSpaceDescriptor;
-    }
+    SimpleTypeName getTypeName();
 }

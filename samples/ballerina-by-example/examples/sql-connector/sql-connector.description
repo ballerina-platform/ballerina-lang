@@ -1,3 +1,4 @@
 // Ballerina SQL Connector is used to access and manipulate data in relational
 // databases. It supports update, select, batchUpdate, call, updateWithGeneratedKeys
-// and close actions.
+// and close actions. Before run the sample copy the JDBC driver to the
+// BALLERINA_HOME/bre/lib folder.

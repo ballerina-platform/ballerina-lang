@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Test class for @Produces @Consumes annotation tests
+ * Test class for @Produces @Consumes annotation tests.
  */
 public class ProducesConsumesAnnotationTest {
 

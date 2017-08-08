@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.functions;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -442,6 +443,15 @@ public class XMLTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
     }
+
+    @Test
+    public void testIsSingletonWithMultipleChildren() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIsSingletonWithMultipleChildren");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+
+    }
     
     @Test
     public void testIsEmpty() {
@@ -450,16 +460,51 @@ public class XMLTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
     }
+
+    @Test
+    public void testIsEmptyWithNoElementTextValue() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIsEmptyWithNoElementTextValue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+    }
+
+    @Test
+    public void testIsEmptyWithMultipleChildren() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIsEmptyWithMultipleChildren");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+    }
     
     @Test
     public void testGetItemType() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetItemType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
         
         Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "");
+        Assert.assertEquals(returns[1].stringValue(), "element");
+
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertEquals(returns[2].stringValue(), "");
+    }
+
+    @Test
+    public void testGetItemTypeForElementWithPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetItemTypeForElementWithPrefix");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "element");
+    }
+
+    @Test
+    public void testGetItemTypeForElementWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetItemTypeForElementWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "element");
     }
     
     @Test
@@ -469,10 +514,34 @@ public class XMLTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
     }
+
+    @Test
+    public void testGetElementNameWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementNameForElementWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
+    }
+
+     @Test
+    public void testGetElementNameWithoutNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementNameForElementWithoutNamespace");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test/core}name");
+    }
     
     @Test
     public void testGetTextValue() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetTextValue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "supun");
+    }
+
+    @Test
+    public void testGetTextValueDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetTextValueDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "supun");
@@ -492,6 +561,21 @@ public class XMLTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
     }
+
+    @Test
+    public void testGetElementsFromSequence() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsFromSequence");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
     
     @Test
     public void testGetElementsByName() {
@@ -509,6 +593,119 @@ public class XMLTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
     }
+
+    @Test
+    public void testGetElementsByNameWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameByPrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithDifferentPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameByDifferentPrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameEmptyNamespace() {
+        //related issue 3062
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameEmptyNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 0);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithPrefixForDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNamePrefixForDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is element seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is element seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetElementsByNameWithDifferentNamespaces() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetElementsByNameDifferentNamespaces");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
+
+        // is element seq one is empty?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+
+        // is element seq one is singleton?
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+
+        // is element seq two is empty?
+        Assert.assertSame(returns[4].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+
+        // is element seq two is singleton?
+        Assert.assertSame(returns[5].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+    }
     
     @Test
     public void testGetChildren() {
@@ -520,6 +717,21 @@ public class XMLTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
         
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testGetChildrenFromComplexXml() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetChildrenFromComplexXml");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
@@ -554,6 +766,97 @@ public class XMLTest {
         // is children seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenPrefixedDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenPrefixedDefaultNamespace");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWtihSamePrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithSamePrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWtihDifferentPrefix() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithDifferentPrefix");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test
+    public void testSelectChildrenWtihDifferentNamespaces() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithDifferentNamespaces");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
+
+        // is children seq one is empty?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+
+        // is children seq one is singleton?
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+
+        // is children seq two is empty?
+        Assert.assertSame(returns[4].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+
+        // is children seq two is singleton?
+        Assert.assertSame(returns[5].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
     }
     
     @Test
@@ -601,7 +904,199 @@ public class XMLTest {
         Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
         Assert.assertEquals(children.get(2).stringValue(), "<newLname>setunga-new</newLname>");
     }
-    
+
+    @Test
+    public void testSetChildrenWithDefaultNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenDefaultNamespace");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
+                "<fname>supun</fname><lname>setunga</lname><residency citizen=\"true\">true</residency></name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check children
+        Assert.assertTrue(returns[3] instanceof BXML);
+        BRefValueArray children = ((BXMLSequence) returns[3]).value();
+        Assert.assertEquals(children.size(), 3);
+        Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
+        Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
+        Assert.assertEquals(children.get(2).stringValue(),
+                "<residency xmlns=\"http://sample.com/test\" citizen=\"true\">true</residency>");
+
+        // Check attribute value
+        Assert.assertSame(returns[4].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[4]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenWithDifferentNamespaceForAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDifferentNamespaceForAttribute");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenWithPrefixedAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithPrefixedAttribute");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
+                "<fname>supun</fname><lname>setunga</lname>" +
+                "<residency xmlns:pre=\"http://sample.com/test/code\" pre:citizen=\"true\">true</residency></name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenSameNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithSameNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<ns0:residency ns0:citizen=\"yes\">true</ns0:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+    @Test
+    public void testSetChildrenDifferentNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDifferentNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<ns0:residency xmlns:ns0=\"http://sample.com/test/code\" " +
+                "ns0:citizen=\"yes\">true</ns0:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+    @Test
+    public void testSetChildrenDiffNamespaceWithoutPrefix() {
+        //related issue 3074
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithDiffNamespaceWithoutPrefix");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
+                "xmlns=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<nsncdom:residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
+                "xmlns:citizen=\"yes\">true</nsncdom:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+    @Test
+    public void testSetChildrenDiffAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithAttributeDiffNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
+                "xmlns:pre=\"http://sample.com/test/code\">" +
+                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<ns0:residency pre:citizen=\"yes\">true</ns0:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
+    @Test
+    public void testSetChildrenDiffElement() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenWithElementDiffNamespace");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
+                "xmlns:pre=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                "<pre:residency ns0:citizen=\"yes\">true</pre:residency></ns0:name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check attribute value
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "yes");
+    }
+
     @Test
     public void testCopy() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testCopy");
@@ -781,8 +1276,62 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
-                "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>");
+                "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\"/>");
     }
+
+    @Test
+    public void testAddAttributeWithQName_1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_1");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:pre=\"http://sample.com/wso2/f\" " +
+                "ns4:diff=\"yes\" pre:foo1=\"bar1\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_2() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_2");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns5:foo1=\"bar1\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_3() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_3");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns4:foo1=\"bar1\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_4() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\"/>");
+    }
+
+    @Test
+    public void testAddAttributeWithQName_5() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:foo1=\"bar1\" " +
+                "ns4:diff=\"yes\" foo2=\"bar2\" foo3=\"bar3\"/>");
+    }
+
+
     
     @Test
     public void testUpdateAttributeWithString() {
@@ -791,6 +1340,15 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"newbar1\" ns0Kf5j:foo2=\"newbar2\" " +
                 "ns4:foo3=\"bar3\"/>");
+    }
+
+    @Test
+    public void testUpdateAttributeWithString_1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithString_1");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" xmlns:nsbrlwf=\"http://sample.com/wso2/f/t\" " +
+                "foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\" nsbrlwf:foo3=\"newbar3\"/>");
     }
     
     @Test
@@ -810,6 +1368,15 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"newbar1\" ns3:foo2=\"newbar2\"/>");
+    }
+
+    @Test
+    public void testUpdateAttributeWithQName_1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithQName_1");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns5=\"http://sample.com/wso2/a1\" " +
+                "ns0:foo1=\"newaddedbar1\" ns3:foo2=\"bar2\"/>");
     }
     
     @Test
@@ -1010,5 +1577,415 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar");
+    }
+
+    @Test
+    public void testSetChildrenToElemntInDefaultNameSpace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenToElemntInDefaultNameSpace");
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(),
+                "<name xmlns=\"http://sample.com/test\"><newFname xmlns=\"\">supun-new</newFname></name>");
+    }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "defineEmptyNamespace.bal:2: cannot bind a prefix \\('ns0'\\) to the "
+                    + "empty namespace name")
+    public void testDefineEmptyNamespace() {
+        BTestUtils.getProgramFile("samples/xml/defineEmptyNamespace.bal");
+    }
+
+    @Test
+    public void testToJsonForValue() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJsonForValue");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "value");
+    }
+
+    @Test
+    public void testToJsonForEmptyValue() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJsonForEmptyValue");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test
+    public void testToJsonForComment() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJsonForComment");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{}");
+    }
+
+    @Test
+    public void testToJsonForPI() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJsonForPI");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{}");
+    }
+
+    @Test
+    public void testToJsonForSingleElement() {
+        String xmlStr = "<key>value</key>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key\":\"value\"}");
+    }
+
+    @Test
+    public void testToJsonForEmptySingleElement() {
+        String xmlStr = "<key/>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key\":\"\"}");
+    }
+
+    @Test
+    public void testToJsonForSimpleXML() {
+        String xmlStr = "<person><name>Jack</name><age>40</age></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
+    }
+
+    @Test
+    public void testToJsonForXMLWithTwoLevels() {
+        String xmlStr = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"persons\":{\"person\":{\"name\":\"Jack\",\"address\":\"wso2\"}}}");
+    }
+
+    @Test
+    public void testToJsonForXMLWithThreeLevels() {
+        String xmlStr = "<persons><person><test><name>Jack</name><address>wso2</address></test></person></persons>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"persons\":{\"person\":{\"test\":{\"name\":\"Jack\",\"address\":\"wso2\"}}}}");
+    }
+
+    @Test
+    public void testToJsonXMLWithSingleElementAndAttributes() {
+        String xmlStr = "<name test=\"5\">Jack</name>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"@test\":\"5\",\"#text\":\"Jack\"}}");
+    }
+
+    @Test
+    public void testToJsonXMLWithSingleElementAttributesNamespace() {
+        String xmlStr = "<ns0:name test=\"5\" xmlns:ns0=\"http://sample0.com/test\">Jack</ns0:name>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
+                + "\"@test\":\"5\",\"#text\":\"Jack\"}}");
+    }
+
+    @Test
+    public void testToJsonXMLWithSingleEmptyElementAndAttributes() {
+        String xmlStr = "<ns0:name test=\"5\" xmlns:ns0=\"http://sample0.com/test\"></ns0:name>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
+                + "\"@test\":\"5\"}}");
+    }
+
+    @Test
+    public void testToJsonWithComplexObject() {
+        String xmlStr = "<bookStore><storeName>foo</storeName><postalCode>94</postalCode><isOpen>true</isOpen><address>"
+                + "<street>foo</street><city>94</city><country>true</country></address><codes><item>4</item>"
+                + "<item>8</item><item>9</item></codes></bookStore>\n";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"storeName\":\"foo\",\"postalCode\":\"94\","
+                + "\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"city\":\"94\",\"country\":\"true\"},"
+                + "\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}}");
+    }
+
+    @Test
+    public void testToJsonWithXMLInMiddle() {
+        String xmlStr = "<person><name>Jack</name><age>40</age><!-- some comment --></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
+    }
+
+    @Test
+    public void testToJsonWithSimpleXMLAndAttributes() {
+        String xmlStr = "<person id = \"5\"><name>Jack</name><age>40</age></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"@id\":\"5\",\"name\":\"Jack\",\"age\":\"40\"}}");
+    }
+
+    @Test
+    public void testToJsonWithMultipleAttributes() {
+        String xmlStr = "<person id = \"5\"><name cat = \"A\">Jack</name><age>40</age></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"person\":{\"@id\":\"5\",\"age\":\"40\",\"name\":{\"@cat\":\"A\",\"#text\":\"Jack\"}}}");
+    }
+
+    @Test
+    public void testToJsonWithComplexObjectAttributes() {
+        String xmlStr = "<bookStore status = \"online\"><storeName>foo</storeName><postalCode>94</postalCode>"
+                + "<isOpen>true</isOpen><address><street>foo</street><city code = \"A\">94</city><country>true"
+                + "</country></address><codes quality=\"b\"><item>4</item><item>8</item><item>9</item></codes>"
+                + "</bookStore>\n";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\",\"postalCode\":\"94\","
+                        + "\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"country\":\"true\","
+                        + "\"city\":{\"@code\":\"A\",\"#text\":\"94\"}},\"codes\":{\"@quality\":\"b\","
+                        + "\"item\":[\"4\",\"8\",\"9\"]}}}");
+    }
+
+    @Test
+    public void testToJsonWithComplexObjectWithMultipleAttributes() {
+        String xmlStr = "<bookStore status = \"online\" id = \"5\"><storeName>foo</storeName><postalCode>94"
+                + "</postalCode><isOpen>true</isOpen><address><street>foo</street>"
+                + "<city code = \"A\" reg = \"C\">94</city><country>true</country></address>"
+                + "<codes quality=\"b\" type = \"0\"><item>4</item><item>8</item><item>9</item></codes></bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"5\","
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
+                + "\"country\":\"true\",\"city\":{\"@code\":\"A\",\"@reg\":\"C\",\"#text\":\"94\"}},"
+                + "\"codes\":{\"@quality\":\"b\",\"@type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]}}}");
+    }
+
+    @Test
+    public void testToJsonWithDifferentAttributeTag() {
+        String xmlStr = "<bookStore status = \"online\" id = \"5\"><storeName>foo</storeName><postalCode>94"
+                + "</postalCode><isOpen>true</isOpen><address><street>foo</street>"
+                + "<city code = \"A\" reg = \"C\">94</city><country>true</country></address>"
+                + "<codes quality=\"b\" type = \"0\"><item>4</item><item>8</item><item>9</item></codes></bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithOptions", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"#status\":\"online\",\"#id\":\"5\","
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
+                + "\"country\":\"true\",\"city\":{\"#code\":\"A\",\"#reg\":\"C\",\"#text\":\"94\"}},"
+                + "\"codes\":{\"#quality\":\"b\",\"#type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]}}}");
+    }
+
+    @Test
+    public void testToJsonWithMultipleAttributesNamespaces() {
+        String xmlStr = "<ns0:bookStore status=\"online\" xmlns:ns0=\"http://sample0.com/test\" "
+                + "xmlns:ns1=\"http://sample1.com/test\"><ns0:storeName>foo</ns0:storeName>"
+                + "<ns3:postalCode xmlns:ns3=\"http://sample3.com/test\">94</ns3:postalCode>"
+                + "<ns0:isOpen>true</ns0:isOpen><ns2:address xmlns:ns2=\"http://sample2.com/test\">"
+                + "<ns2:street>foo</ns2:street><ns2:city>111</ns2:city><ns2:country>true</ns2:country>"
+                + "</ns2:address><ns4:codes xmlns:ns4=\"http://sample4.com/test\"><ns4:item>4</ns4:item><ns4:item>8"
+                + "</ns4:item><ns4:item>9</ns4:item></ns4:codes></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
+                + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"ns0:storeName\":\"foo\","
+                + "\"ns0:isOpen\":\"true\",\"ns3:postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\","
+                + "\"#text\":\"94\"},\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
+                + "\"ns2:street\":\"foo\",\"ns2:city\":\"111\",\"ns2:country\":\"true\"},"
+                + "\"ns4:codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\",\"ns4:item\":[\"4\",\"8\",\"9\"]}}}");
+    }
+
+    @Test
+    public void testToJsonWithMultipleAttributesNamespacesWithOptions() {
+        String xmlStr = "<ns0:bookStore status=\"online\" xmlns:ns0=\"http://sample0.com/test\" "
+                + "xmlns:ns1=\"http://sample1.com/test\"><ns0:storeName>foo</ns0:storeName>"
+                + "<ns3:postalCode xmlns:ns3=\"http://sample3.com/test\">94</ns3:postalCode>"
+                + "<ns0:isOpen>true</ns0:isOpen><ns2:address xmlns:ns2=\"http://sample2.com/test\">"
+                + "<ns2:street>foo</ns2:street><ns2:city>111</ns2:city><ns2:country>true</ns2:country>"
+                + "</ns2:address><ns4:codes xmlns:ns4=\"http://sample4.com/test\"><ns4:item>4</ns4:item><ns4:item>8"
+                + "</ns4:item><ns4:item>9</ns4:item></ns4:codes></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithoutNamespace", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\","
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
+                + "\"city\":\"111\",\"country\":\"true\"},\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}}");
+    }
+
+    @Test
+    public void testToJsonWithObjectArray() {
+        String xmlStr = "<books><item><bookName>book1</bookName><bookId>101</bookId></item><item>"
+                + "<bookName>book2</bookName><bookId>102</bookId></item><item><bookName>book3</bookName>"
+                + "<bookId>103</bookId></item></books>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"books\":{\"item\":[{\"bookName\":\"book1\",\"bookId\":\"101\"},{\"bookName\":\"book2\","
+                        + "\"bookId\":\"102\"},{\"bookName\":\"book3\",\"bookId\":\"103\"}]}}");
+    }
+
+    @Test
+    public void testToJsonWithChildElementsWithSameKey() {
+        String xmlStr = "<books><item><item><bookName>book1</bookName><bookId>101</bookId></item></item><item><item>"
+                + "<bookName>book2</bookName><bookId>102</bookId></item></item><item><item><bookName>book3</bookName>"
+                + "<bookId>103</bookId></item></item></books>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"books\":{\"item\":[{\"item\":{\"bookName\":\"book1\",\"bookId\":\"101\"}},{\"item\":"
+                        + "{\"bookName\":\"book2\",\"bookId\":\"102\"}},{\"item\":{\"bookName\":\"book3\","
+                        + "\"bookId\":\"103\"}}]}}");
+    }
+
+    @Test
+    public void testToJsonWithArray() {
+        String xmlStr = "<books><item>book1</item><item>book2</item><item>book3</item></books>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"books\":{\"item\":[\"book1\",\"book2\",\"book3\"]}}");
+    }
+
+    @Test
+    public void testToJSONWithSequenceDistinctKeys() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceDistinctKeys");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\",\"key2\":\"value2\"}");
+    }
+
+    @Test
+    public void testToJSONWithSequenceSimilarKeys() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceSimilarKeys");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key\":[\"value1\",\"value2\",\"value3\"]}");
+    }
+
+    @Test
+    public void testToJSONWithSequenceWithValueArray() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceWithValueArray");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\"]");
+    }
+
+    @Test
+    public void testToJSONWithSequenceWithMultipleElements() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceWithMultipleElements");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"},"
+                + "\"metadata\":\"5\"}");
+    }
+
+    @Test
+    public void testToJSONWithSequenceWithElementAndText() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceWithElementAndText");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":\"value3\"}]");
+    }
+
+    @Test
+    public void testToJSONWithSequenceWithElementAndTextArray() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceWithElementAndTextArray");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"]}]");
+    }
+
+    @Test
+    public void testToJSONWithSequenceWithDifferentElements() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceWithDifferentElements");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"],"
+                + "\"bookName\":\"Book1\",\"bookId\":[\"001\",\"001\"]}]");
+    }
+
+    @Test
+    public void testToJSONWithSequenceWithDifferentComplexElements() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequenceWithDifferentComplexElements");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\","
+                + "\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"city\":\"94\","
+                + "\"country\":\"true\"},\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}},\"metaInfo\":\"some info\"}");
+    }
+
+    @Test
+    public void testToJSONWithAttributeNamespacesAndPreserveNamespace() {
+        String xmlStr = "<ns0:bookStore xmlns:ns0=\"http://sample0.com/test\" status=\"online\" ns0:id = \"10\">"
+                + "<ns0:storeName>foo</ns0:storeName><ns0:isOpen>true</ns0:isOpen>"
+                + "<ns2:address xmlns:ns2=\"http://sample2.com/test\" status=\"online\" ns0:id = \"10\" "
+                + "ns2:code= \"test\">srilanka</ns2:address></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":"
+                + "\"http://sample0.com/test\",\"@status\":\"online\",\"@ns0:id\":\"10\",\"ns0:storeName\":\"foo\","
+                + "\"ns0:isOpen\":\"true\",\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
+                + "\"@status\":\"online\",\"@ns0:id\":\"10\",\"@ns2:code\":\"test\",\"#text\":\"srilanka\"}}}");
+    }
+
+    @Test
+    public void testToJSONWithAttributeNamespacesAndNoPreserveNamespace() {
+        String xmlStr = "<ns0:bookStore xmlns:ns0=\"http://sample0.com/test\" status=\"online\" "
+                + "ns0:id = \"10\"><ns0:storeName>foo</ns0:storeName><ns0:isOpen>true</ns0:isOpen><ns2:address "
+                + "xmlns:ns2=\"http://sample2.com/test\" status=\"online\" ns0:id = \"10\" ns2:code= \"test\">"
+                + "srilanka</ns2:address></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithoutNamespace", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"10\","
+                + "\"storeName\":\"foo\",\"isOpen\":\"true\",\"address\":{\"@status\":\"online\",\"@id\":\"10\","
+                + "\"@code\":\"test\",\"#text\":\"srilanka\"}}}");
+    }
+    
+    @Test
+    public void testGetAttributeFromLiteral() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromLiteral");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "5");
     }
 }

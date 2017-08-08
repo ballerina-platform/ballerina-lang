@@ -27,6 +27,8 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -55,14 +57,25 @@ public class BroadcastText extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         if (context.getServiceInfo() == null) {
-            throw new BallerinaException("This function is only working with services");
+            throw new BallerinaException("This function is only working with WebSocket services");
         }
 
         String text = getStringArgument(context, 0);
-        String serviceName = context.getServiceInfo().getName();
-        List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(serviceName);
+        ServiceInfo service = context.getServiceInfo();
+        WebSocketServicesRegistry servicesRegistry = WebSocketServicesRegistry.getInstance();
+        if (servicesRegistry.isClientService(service)) {
+            ServiceInfo parentService = servicesRegistry.getParentServiceOfClientService(service);
+            broadcast(text, context, parentService);
+        } else {
+            broadcast(text, context, service);
+        }
+        return VOID_RETURN;
+    }
+
+    private void broadcast(String text, Context context, ServiceInfo service) {
+        List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(service);
         if (sessions == null) {
-            throw new BallerinaException("Cannot find a broadcast list for the service: " + serviceName);
+            throw new BallerinaException("Cannot find a broadcast list for the service: " + service);
         }
         sessions.forEach(
                 session -> {
@@ -73,6 +86,5 @@ public class BroadcastText extends AbstractNativeFunction {
                     }
                 }
         );
-        return VOID_RETURN;
     }
 }

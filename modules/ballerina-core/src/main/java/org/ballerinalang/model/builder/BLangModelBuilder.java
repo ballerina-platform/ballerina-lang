@@ -17,10 +17,13 @@
 */
 package org.ballerinalang.model.builder;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
+import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -37,14 +40,13 @@ import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.StructuredUnit;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.builder.BLangModelBuilder.NameReference;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
@@ -59,6 +61,7 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.ModExpression;
@@ -71,7 +74,12 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -116,6 +124,7 @@ import org.ballerinalang.util.parser.antlr4.WhiteSpaceRegions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,12 +154,17 @@ public class BLangModelBuilder {
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
     protected SymbolScope currentScope;
+    protected SymbolScope currentParentScope;
 
     // Builds connectors and services.
     protected CallableUnitGroupBuilder currentCUGroupBuilder;
 
     // Builds functions, actions and resources.
     protected CallableUnitBuilder currentCUBuilder;
+    protected CallableUnitBuilder currentParentCUBuilder;
+
+    protected Stack<BallerinaFunction> lambdaFunctions = new Stack<>();
+    protected int lambdaFunctionCount = 0;
 
     // Keep the parent CUBuilder for worker
     protected Stack<CallableUnitBuilder> parentCUBuilder = new Stack<>();
@@ -177,7 +191,7 @@ public class BLangModelBuilder {
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
 
-    protected Stack<List<KeyValueExpr>> mapStructKVListStack = new Stack<>();
+    protected Stack<List<KeyValueExpr>> keyValueExprListStack = new Stack<>();
     protected Stack<AnnotationAttachment> annonAttachmentStack = new Stack<>();
 
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
@@ -244,6 +258,7 @@ public class BLangModelBuilder {
         currentPackagePath = pkgPath;
         bFileBuilder.setPackagePath(currentPackagePath);
         bFileBuilder.setPackageLocation(location);
+        lambdaFunctionCount = 0;
     }
 
     public void addImplicitImportPackages() {
@@ -371,7 +386,8 @@ public class BLangModelBuilder {
         }
 
         if (currentScope instanceof StructDef) {
-            VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
+            SimpleVariableDef fieldDef = new SimpleVariableDef(location, null, identifier, typeName, symbolName,
+                    currentScope);
             SimpleVarRefExpr fieldRefExpr = new SimpleVarRefExpr(location, null, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
@@ -485,15 +501,25 @@ public class BLangModelBuilder {
      * @param location Location of the target in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attachmentPoint Point to which this annotation can be attached
+     * @param attachPkg Package in which this annotation is valid.
      */
     public void addAnnotationtAttachmentPoint(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                              String attachmentPoint) {
+                                              AttachmentPoint attachmentPoint, String attachPkg) {
         if (whiteSpaceDescriptor != null) {
             annotationDefBuilder.getWhiteSpaceDescriptor()
                     .getChildDescriptor(ATTACHMENT_POINTS)
-                    .addChildDescriptor(attachmentPoint, whiteSpaceDescriptor);
+                    .addChildDescriptor(attachmentPoint.getValue(), whiteSpaceDescriptor);
         }
-        annotationDefBuilder.addAttachmentPoint(attachmentPoint);
+        AnnotationAttachmentPoint annotationAttachmentPoint;
+        if (attachPkg == null) {
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, null);
+        } else if (attachPkg.isEmpty()) {
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, currentPackagePath);
+        } else {
+            String packagePath = validateAndGetPackagePath(location, attachPkg);
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, packagePath);
+        }
+        annotationDefBuilder.addAttachmentPoint(annotationAttachmentPoint);
     }
 
     /**
@@ -607,7 +633,8 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, typeName.getWhiteSpaceDescriptor(),
+                    null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
@@ -765,6 +792,14 @@ public class BLangModelBuilder {
                 expr = new UnaryExpression(location, whiteSpaceDescriptor, Operator.NOT, rExpr);
                 break;
 
+            case "lengthof":
+                expr = new UnaryExpression(location, whiteSpaceDescriptor, Operator.LENGTHOF, rExpr);
+                break;
+
+            case "typeof":
+                expr = new UnaryExpression(location, whiteSpaceDescriptor, Operator.TYPEOF, rExpr);
+                break;
+
             default:
                 String errMsg = BLangExceptionHelper
                         .constructSemanticError(location, SemanticErrors.UNSUPPORTED_OPERATOR, op);
@@ -787,19 +822,20 @@ public class BLangModelBuilder {
     }
 
     public void addFunctionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                          NameReference nameReference, boolean argsAvailable) {
+                                          boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
 
+        SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) exprStack.pop();
         if (argsAvailable) {
             List<Expression> argExprList = exprListStack.pop();
             checkArgExprValidity(location, argExprList);
             cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(nameReference.name);
-        cIExprBuilder.setPkgName(nameReference.pkgName);
-        cIExprBuilder.setPkgPath(nameReference.pkgPath);
+        cIExprBuilder.setName(varRefExpr.getVarName());
+        cIExprBuilder.setPkgName(varRefExpr.getPkgName());
+        cIExprBuilder.setPkgPath(varRefExpr.getPkgPath());
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         invocationExpr.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         exprStack.push(invocationExpr);
@@ -859,20 +895,20 @@ public class BLangModelBuilder {
         exprStack.push(arrayInitExpr);
     }
 
-    public void addMapStructKeyValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addKeyValueExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression valueExpr = exprStack.pop();
         Expression keyExpr = exprStack.pop();
 
-        List<KeyValueExpr> keyValueList = mapStructKVListStack.peek();
+        List<KeyValueExpr> keyValueList = keyValueExprListStack.peek();
         keyValueList.add(new KeyValueExpr(location, whiteSpaceDescriptor, keyExpr, valueExpr));
     }
 
     public void startMapStructLiteral() {
-        mapStructKVListStack.push(new ArrayList<>());
+        keyValueExprListStack.push(new ArrayList<>());
     }
 
     public void createMapStructLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        List<KeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
+        List<KeyValueExpr> keyValueExprList = keyValueExprListStack.pop();
 
         Expression[] argExprs;
         if (keyValueExprList.size() == 0) {
@@ -897,6 +933,54 @@ public class BLangModelBuilder {
 
         ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
                 argExprList.toArray(new Expression[argExprList.size()]));
+        exprStack.push(connectorInitExpr);
+    }
+
+    public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                  SimpleTypeName typeName, boolean argsAvailable,
+                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
+                                                  List<BLangModelBuilder.NameReference> filterNameReferenceList,
+                                                  List<Boolean> argExistenceList) {
+        List<List<Expression>> filterArgExprList = new ArrayList<>();
+        for (int i = 0; i < argExistenceList.size(); i++) {
+            List<Expression> filterArgExpr;
+            if (argExistenceList.get(i)) {
+                filterArgExpr = exprListStack.pop();
+                checkArgExprValidity(location, filterArgExpr);
+            } else {
+                filterArgExpr = new ArrayList<>(0);
+            }
+            filterArgExprList.add(filterArgExpr);
+        }
+
+        List<Expression> argExprList;
+        if (argsAvailable) {
+            argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+        } else {
+            argExprList = new ArrayList<>(0);
+        }
+
+        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
+                argExprList.toArray(new Expression[argExprList.size()]));
+
+        ConnectorInitExpr currentConnectorInitExpr = connectorInitExpr;
+
+        //int j = 0;
+        for (int j = filterNameReferenceList.size() - 1; j >= 0; j--) {
+            BLangModelBuilder.NameReference filterNameReference = filterNameReferenceList.get(j);
+            SimpleTypeName filterTypeName = new SimpleTypeName(filterNameReference.getName(),
+                    filterNameReference.getPackageName(), null);
+            List<Expression> argExpr = filterArgExprList.get(j);
+            filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
+            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
+                    filterTypeName,
+                    argExpr.toArray(new Expression[argExpr.size()]));
+            currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
+            currentConnectorInitExpr = filterConnectorInitExpr;
+        }
+
+        //exprStack.push(filterConnectorInitExpr);
         exprStack.push(connectorInitExpr);
     }
 
@@ -929,6 +1013,38 @@ public class BLangModelBuilder {
     public void startFunctionDef() {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
+    }
+
+    public void startLambdaFunctionDef() {
+        currentParentCUBuilder = currentCUBuilder;
+        currentParentScope = currentScope;
+        currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
+    }
+
+    public void endLambdaFunctionDef() {
+        currentCUBuilder = currentParentCUBuilder;
+        currentScope = currentParentScope;
+    }
+
+    public void createLambdaExpression(NodeLocation location, WhiteSpaceDescriptor wd) {
+        LambdaExpression expression = new LambdaExpression(location, wd, lambdaFunctions.pop());
+        exprStack.push(expression);
+    }
+
+    public void addLambdaFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        String id = currentPackagePath + "$lambda$" + lambdaFunctionCount++;
+        currentCUBuilder.setIdentifier(new Identifier(id));
+        currentCUBuilder.setPkgPath(currentPackagePath);
+        currentCUBuilder.setNative(false);
+        currentCUBuilder.setPublic(false);
+        currentCUBuilder.setNodeLocation(location);
+
+        BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setLambda(true);
+        bFileBuilder.addFunction(function);
+        lambdaFunctions.push(function);
     }
 
     public void startWorkerUnit() {
@@ -1078,7 +1194,7 @@ public class BLangModelBuilder {
     public void createService(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
                               String protocolPkgName) {
         currentCUGroupBuilder.setNodeLocation(location);
-        String protocolPkgPath = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
+        String protocolPkgPath = validateAndGetPackagePath(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setProtocolPkgName(protocolPkgName);
@@ -1094,21 +1210,25 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                                boolean isFilterConnector, String filterSupportedType) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
-
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
+        connector.setFilterConnector(isFilterConnector);
+        if (isFilterConnector) {
+            connector.setFilterSupportedType(connector.getParameterDefs()[0].getTypeName());
+        }
+
         bFileBuilder.addConnector(connector);
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
-
 
     // Statements
     public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -1118,11 +1238,12 @@ public class BLangModelBuilder {
         SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(location,  whiteSpaceDescriptor, identifier.getName());
         SymbolName symbolName = new SymbolName(identifier.getName());
 
-        VariableDef variableDef = new VariableDef(location, whiteSpaceDescriptor, identifier, typeName, symbolName,
+        SimpleVariableDef variableDef = new SimpleVariableDef(location, whiteSpaceDescriptor, identifier, typeName,
+                symbolName,
                 currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
-        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        Expression rhsExpr = exprAvailable && !exprStack.isEmpty() ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
         variableDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
@@ -1647,15 +1768,17 @@ public class BLangModelBuilder {
     }
 
     public void createFunctionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                             NameReference nameReference, boolean argsAvailable) {
+                                             boolean argsAvailable) {
 
-        addFunctionInvocationExpr(location, whiteSpaceDescriptor, nameReference, argsAvailable);
-        FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
+        VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.peek();
+        if (varRefExpr instanceof SimpleVarRefExpr) {
+            addFunctionInvocationExpr(location, whiteSpaceDescriptor, argsAvailable);
+            FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
 
-
-        FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
-        functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+            FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
+            functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+            blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+        }
     }
 
     public void createWorkerInvocationStmt(String workerName, NodeLocation sourceLocation,
@@ -1819,9 +1942,10 @@ public class BLangModelBuilder {
         nameReference.setPkgPath(importPkg.getPath());
     }
 
-    private String validateAndGetPackagePathForServiceProtocol(NodeLocation location, String protocolPkgName) {
-        ImportPackage importPkg = getImportPackage(protocolPkgName);
-        checkForUndefinedPackagePath(location, protocolPkgName, importPkg, () -> protocolPkgName);
+    // Private methods
+    private String validateAndGetPackagePath(NodeLocation location, String pkgName) {
+        ImportPackage importPkg = getImportPackage(pkgName);
+        checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName);
 
         if (importPkg == null) {
             return currentPackagePath;
@@ -1829,9 +1953,6 @@ public class BLangModelBuilder {
         importPkg.markUsed();
         return importPkg.getPath();
     }
-
-
-    // Private methods
 
     private void addToBlockStmt(Statement stmt) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.peek();
@@ -1974,11 +2095,15 @@ public class BLangModelBuilder {
 
     private void collectAnnotationAttachments(List<AnnotationAttachment> annonAttachmentList, int depth, int index) {
         if (index == depth) {
-            annonAttachmentList.add(annonAttachmentStack.pop());
+            if (!annonAttachmentStack.isEmpty()) {
+                annonAttachmentList.add(annonAttachmentStack.pop());
+            }
         } else {
-            AnnotationAttachment attachment = annonAttachmentStack.pop();
-            collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
-            annonAttachmentList.add(attachment);
+            if (!annonAttachmentStack.isEmpty()) {
+                AnnotationAttachment attachment = annonAttachmentStack.pop();
+                collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
+                annonAttachmentList.add(attachment);
+            }
         }
     }
 
@@ -2119,5 +2244,238 @@ public class BLangModelBuilder {
         public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
             this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
+    }
+
+    /**
+     * Start an XML Literal expression, denoted by back-quote in the source file.
+     */
+    public void startXMLLiteral() {
+        keyValueExprListStack.push(new ArrayList<>());
+    }
+
+    /**
+     * Create an {@link XMLQNameExpr}.
+     *  
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param localname Local part of the qname
+     * @param prefix Prefix of the qname
+     */
+    public void createXMLQName(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String localname,
+            String prefix) {
+        XMLQNameExpr xmlQNameRefExpr = new XMLQNameExpr(location, null, localname, null, prefix);
+        xmlQNameRefExpr.setUsedInXML(true);
+        exprStack.push(xmlQNameRefExpr);
+    }
+
+    /**
+     * Start an XML element literal.
+     * 
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param attributeCount Number of attributes in the element
+     */
+    public void startXMLElementLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            int attributeCount) {
+        Expression tagName = exprStack.pop();
+        List<KeyValueExpr> attributeExprs = keyValueExprListStack.pop();
+        XMLElementLiteral xmlElementLiteral = new XMLElementLiteral(location, whiteSpaceDescriptor, tagName,
+                attributeExprs);
+        exprStack.push(xmlElementLiteral);
+    }
+
+    /**
+     * Start an XML element literal.
+     */
+    public void endXMLElementLiteral() {
+        Expression endTagName = exprStack.pop();
+        XMLElementLiteral elementLiteral = (XMLElementLiteral) exprStack.peek();
+        elementLiteral.setEndTagName(endTagName);
+    }
+
+    /**
+     * Set the content of the enclosing XML with current XML Literal.
+     */
+    public void addXMLElementContent() {
+        XMLSequenceLiteral content = (XMLSequenceLiteral) exprStack.pop();
+        XMLElementLiteral parentXmlExpr = (XMLElementLiteral) exprStack.peek();
+        parentXmlExpr.setContent(content);
+        content.setParent(parentXmlExpr);
+    }
+
+    public void createXMLSequence(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, int childrenCount) {
+        List<Expression> contentExprs = new ArrayList<Expression>();
+        for (int i = childrenCount - 1; i >= 0; i--) {
+            Expression xmlLiteral = exprStack.pop();
+
+            if (!(xmlLiteral instanceof XMLSequenceLiteral)) {
+                contentExprs.add(xmlLiteral);
+                continue;
+            }
+
+            Expression[] items = ((XMLSequenceLiteral) xmlLiteral).getItems();
+            for (int j = items.length - 1; j >= 0; j--) {
+                contentExprs.add(items[j]);
+            }
+        }
+        
+        Collections.reverse(contentExprs);
+        XMLSequenceLiteral xmlSequenceExpr = new XMLSequenceLiteral(location, whiteSpaceDescriptor,
+                contentExprs.toArray(new Expression[0]));
+        exprStack.push(xmlSequenceExpr);
+    }
+
+    public void createXMLSequenceLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            String[] exprPrecedingTextFragments, String endingText) {
+        List<Expression> items = new ArrayList<Expression>();
+
+        if (endingText != null && !endingText.isEmpty()) {
+            endingText = StringEscapeUtils.unescapeJava(endingText);
+            endingText = StringEscapeUtils.escapeXml11(endingText);
+            createStringLiteral(location, whiteSpaceDescriptor, endingText);
+            items.add(exprStack.pop());
+        }
+        
+        for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
+            items.add(exprStack.pop());
+
+            String textFragment = exprPrecedingTextFragments[i];
+            if (textFragment != null && !textFragment.isEmpty()) {
+                textFragment = StringEscapeUtils.unescapeJava(textFragment);
+                textFragment = StringEscapeUtils.escapeXml11(textFragment);
+                createStringLiteral(location, whiteSpaceDescriptor, textFragment);
+                items.add(exprStack.pop());
+            }
+        }
+
+        Collections.reverse(items);
+        XMLSequenceLiteral xmlSeqLiteral = new XMLSequenceLiteral(location, whiteSpaceDescriptor,
+                items.toArray(new Expression[items.size()]));
+        exprStack.push(xmlSeqLiteral);
+    }
+
+    /**
+     * Create a quoted literal in XML. If the literal is interpolated,
+     * this will create a add expression.
+     * 
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param exprPrecedingStringFragments Array of string fragments that precede the expressions
+     * @param endingString String fragment at the end of the interpolated string
+     */
+    public void createXMLQuotedLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            String[] exprPrecedingStringFragments, String endingString) {
+        createTemplateStringLiteral(location, whiteSpaceDescriptor, exprPrecedingStringFragments, endingString, false);
+    }
+
+    /**
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param exprPrecedingTextFragments Array of string fragments that precede the expressions
+     * @param endingText Text fragment at the end of the interpolated text
+     */
+    public void createXMLCommentLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            String[] exprPrecedingTextFragments, String endingText) {
+        createTemplateStringLiteral(location, whiteSpaceDescriptor, exprPrecedingTextFragments, endingText, false);
+        Expression content = exprStack.pop();
+        XMLCommentLiteral xmlCommentLiteral = new XMLCommentLiteral(location, whiteSpaceDescriptor, content);
+        exprStack.push(xmlCommentLiteral);
+    }
+
+    /**
+     * Creates an XML Text literal expression.
+     * 
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param text Text content
+     */
+    public void createXMLTextLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String text) {
+        createStringLiteral(location, whiteSpaceDescriptor, text);
+        Expression textLiteral = exprStack.pop();
+        XMLTextLiteral xmlTextLiteral = new XMLTextLiteral(location, whiteSpaceDescriptor, textLiteral);
+        exprStack.push(xmlTextLiteral);
+    }
+
+    /**
+     * Creates an XML processing instruction literal expression.
+     * 
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param target PI target
+     * @param exprPrecedingTextFragments Array of string fragments that precede the expressions
+     * @param endingText Text fragment at the end of the interpolated text
+     */
+    public void createXMLPILiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            String target, String[] exprPrecedingTextFragments, String endingText) {
+        createStringLiteral(location, whiteSpaceDescriptor, target);
+        Expression targetExpr = exprStack.pop();
+        
+        createTemplateStringLiteral(location, whiteSpaceDescriptor, exprPrecedingTextFragments, endingText, false);
+        Expression dataExpr = exprStack.pop();
+        
+        XMLPILiteral xmlPILiteral = new XMLPILiteral(location, whiteSpaceDescriptor, targetExpr, dataExpr);
+        exprStack.push(xmlPILiteral);
+    }
+
+    /**
+     * Creates template string literal. Creates a chain of binary add expressions using the
+     * text fragments and the expressions in an interpolated string.
+     * 
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param exprPrecedingStringFragments Array of string fragments that precede the expressions
+     * @param endingString Text fragment at the end of the interpolated text
+     */
+    private void createTemplateStringLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            String[] exprPrecedingStringFragments, String endingString, boolean escapeXML) {
+        boolean endWithString = endingString != null && !endingString.isEmpty();
+        Expression rExpr = null;
+        Expression lExpr;
+
+        if (endWithString) {
+            endingString = StringEscapeUtils.unescapeJava(endingString);
+            if (escapeXML) {
+                endingString = StringEscapeUtils.escapeXml11(endingString);
+            }
+            createStringLiteral(location, whiteSpaceDescriptor, endingString);
+        }
+
+        if (exprPrecedingStringFragments.length == 0) {
+            // If there are no expressions and no endingString, that means this is an empty text.
+            // Hence create an empty string literal and exit.
+            if (!endWithString) {
+                createStringLiteral(location, whiteSpaceDescriptor, "");
+            }
+            return;
+        }
+
+        if (endWithString) {
+            rExpr = exprStack.pop();
+        }
+
+        for (int i = exprPrecedingStringFragments.length - 1; i >= 0; i--) {
+            if (rExpr == null) {
+                rExpr = exprStack.pop();
+            } else {
+                lExpr = exprStack.pop();
+                rExpr = new AddExpression(location, whiteSpaceDescriptor, lExpr, rExpr);
+            }
+
+            String precedingStr = exprPrecedingStringFragments[i];
+            if (precedingStr == null || precedingStr.isEmpty()) {
+                continue;
+            }
+
+            precedingStr = StringEscapeUtils.unescapeJava(precedingStr);
+            if (escapeXML) {
+                precedingStr = StringEscapeUtils.escapeXml11(precedingStr);
+            }
+            createStringLiteral(location, whiteSpaceDescriptor, precedingStr);
+
+            lExpr = exprStack.pop();
+            rExpr = new AddExpression(location, whiteSpaceDescriptor, lExpr, rExpr);
+        }
+
+        exprStack.push(rExpr);
     }
 }

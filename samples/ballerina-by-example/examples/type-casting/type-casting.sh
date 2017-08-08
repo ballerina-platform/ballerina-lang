@@ -1,2 +1,2 @@
-$ ballerina run main type-casting.bal
+$ ballerina run type-casting.bal
 Jungle cat

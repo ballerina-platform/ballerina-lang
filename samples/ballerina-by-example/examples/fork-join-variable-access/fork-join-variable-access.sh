@@ -1,4 +1,4 @@
-$ ballerina run main fork-join-variable-access.bal
+$ ballerina run fork-join-variable-access.bal
 [default worker] within join:
       Value of integer from W1 is [23]
 [default worker] within join:

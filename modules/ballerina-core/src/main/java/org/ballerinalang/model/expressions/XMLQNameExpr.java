@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -30,17 +29,15 @@ import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
  */
 public class XMLQNameExpr extends AbstractExpression implements VariableReferenceExpr {
     private String localname;
-    private String namepsaceUri;
+    private Expression namepsaceUri;
     private String prefix;
     private boolean usedInXML = false;
-    private MemoryLocation memoryLocation;
     private boolean isLHSExpr;
-
+    
     public XMLQNameExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String localname,
             String namepsaceUri, String prefix) {
         super(location, whiteSpaceDescriptor);
         this.localname = localname;
-        this.namepsaceUri = namepsaceUri == null ? "" : namepsaceUri;
         this.prefix = prefix == null ? "" : prefix;
     }
 
@@ -57,11 +54,11 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
         this.localname = localname;
     }
 
-    public String getNamepsaceUri() {
+    public Expression getNamepsaceUri() {
         return namepsaceUri;
     }
 
-    public void setNamepsaceUri(String namepsaceUri) {
+    public void setNamepsaceUri(Expression namepsaceUri) {
         this.namepsaceUri = namepsaceUri;
     }
 
@@ -73,14 +70,6 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
         this.prefix = prefix;
     }
 
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
-    }
-
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
-    }
-    
     public boolean isUsedInXML() {
         return usedInXML;
     }
@@ -106,6 +95,6 @@ public class XMLQNameExpr extends AbstractExpression implements VariableReferenc
 
     @Override
     public void setParentVarRefExpr(VariableReferenceExpr varRefExpr) {
-        
+
     }
 }

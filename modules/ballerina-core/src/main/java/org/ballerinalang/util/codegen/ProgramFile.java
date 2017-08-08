@@ -17,40 +17,55 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
+import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
 
 /**
  * {@code ProgramFile} is the runtime representation of a compiled Ballerina program.
  *
  * @since 0.87
  */
-public class ProgramFile {
-    // TODO Finalize the magic value;
-    private int magicValue = 0xBBBBBBBB;
+public class ProgramFile implements ConstantPool, AttributeInfoPool {
+    // Entry point flags
+    public static final int EP_MAIN_FLAG = 1;
+    public static final int EP_SERVICE_FLAG = 2;
 
-    private short version = (short) 6;
+    private int magicValue = MAGIC_NUMBER;
+    // TODO Finalize the version number;
+    private short version = VERSION_NUMBER;
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
+    private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
 
-    private Map<String, PackageInfo> packageInfoMap = new HashMap<>();
-
-    private int[] globalVarIndexes;
-    private String mainPackageName = "";
-    private List<String> servicePackageNameList = new ArrayList<>();
+    private int entryPkgCPIndex;
+    private String entryPkgName;
+    private PackageInfo entryPackage;
+    private boolean mainFucAvailable = false;
+    private boolean servicesAvailable = false;
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
     private Path programFilePath;
 
     private StructureType globalMemoryBlock;
+
+    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     public int getMagicValue() {
         return magicValue;
@@ -60,8 +75,52 @@ public class ProgramFile {
         return version;
     }
 
-    // CP
+    public void setVersion(short version) {
+        this.version = version;
+    }
 
+    public int getEntryPkgCPIndex() {
+        return entryPkgCPIndex;
+    }
+
+    public void setEntryPkgCPIndex(int entryPkgCPIndex) {
+        this.entryPkgCPIndex = entryPkgCPIndex;
+    }
+
+    public String getEntryPkgName() {
+        return entryPkgName;
+    }
+
+    public void setEntryPkgName(String entryPkgName) {
+        this.entryPkgName = entryPkgName;
+    }
+
+    public PackageInfo getEntryPackage() {
+        return entryPackage;
+    }
+
+    public void setEntryPackage(PackageInfo entryPackage) {
+        this.entryPackage = entryPackage;
+    }
+
+    public boolean isMainEPAvailable() {
+        return mainFucAvailable;
+    }
+
+    public void setMainEPAvailable(boolean mainFuncAvailable) {
+        this.mainFucAvailable = mainFuncAvailable;
+    }
+
+    public boolean isServiceEPAvailable() {
+        return servicesAvailable;
+    }
+
+    public void setServiceEPAvailable(boolean servicesAvailable) {
+        this.servicesAvailable = servicesAvailable;
+    }
+
+    // CP
+    @Override
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constPool.contains(cpEntry)) {
             return constPool.indexOf(cpEntry);
@@ -71,12 +130,19 @@ public class ProgramFile {
         return constPool.size() - 1;
     }
 
+    @Override
+    public ConstantPoolEntry getCPEntry(int index) {
+        return constPool.get(index);
+    }
+
+    @Override
     public int getCPEntryIndex(ConstantPoolEntry cpEntry) {
         return constPool.indexOf(cpEntry);
     }
 
-    public List<ConstantPoolEntry> getConstPool() {
-        return constPool;
+    @Override
+    public ConstantPoolEntry[] getConstPoolEntries() {
+        return constPool.toArray(new ConstantPoolEntry[0]);
     }
 
     // PackageInfo
@@ -85,7 +151,7 @@ public class ProgramFile {
         return packageInfoMap.get(packageName);
     }
 
-    public PackageInfo[] getPackageInfoCollection() {
+    public PackageInfo[] getPackageInfoEntries() {
         return packageInfoMap.values().toArray(new PackageInfo[0]);
     }
 
@@ -93,40 +159,10 @@ public class ProgramFile {
         packageInfoMap.put(packageName, packageInfo);
     }
 
-    public int[] getGlobalVarIndexes() {
-        return globalVarIndexes;
-    }
-
-    public void setGlobalVarIndexes(int[] globalVarIndexes) {
-        this.globalVarIndexes = globalVarIndexes;
-        this.globalMemoryBlock = new BStruct(null);
-        globalMemoryBlock.init(globalVarIndexes);
-    }
-
     public StructureType getGlobalMemoryBlock() {
         return globalMemoryBlock;
     }
 
-    // Main package.
-
-    public void setMainPackageName(String mainPackageName) {
-        this.mainPackageName = mainPackageName;
-    }
-
-    public String[] getServicePackageNameList() {
-        return servicePackageNameList.toArray(new String[0]);
-    }
-
-    // Service package.
-
-    public String getMainPackageName() {
-        return mainPackageName;
-    }
-
-    public void addServicePackage(String servicePackageName) {
-        this.servicePackageNameList.add(servicePackageName);
-    }
-    
     // Information about ProgramFile, which are set from outside.
 
     public Path getProgramFilePath() {
@@ -135,5 +171,31 @@ public class ProgramFile {
 
     public void setProgramFilePath(Path programFilePath) {
         this.programFilePath = programFilePath;
+    }
+
+    @Override
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
+    }
+
+    @Override
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
+        if (attributeKind == AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE) {
+            // TODO Move this out of the program file to a program context.. Runtime representation of a program.
+            // TODO ProgramFile is the static program data.
+            VarTypeCountAttributeInfo varTypeCountAttribInfo = (VarTypeCountAttributeInfo) attributeInfo;
+            int[] globalVarCount = varTypeCountAttribInfo.getVarTypeCount();
+
+            // Initialize global memory block
+            BStructType dummyType = new BStructType("", "");
+            dummyType.setFieldTypeCount(globalVarCount);
+            this.globalMemoryBlock = new BStruct(dummyType);
+        }
+    }
+
+    @Override
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 }
