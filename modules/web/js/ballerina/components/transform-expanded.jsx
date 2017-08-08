@@ -29,21 +29,37 @@ import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tree from './transform/tree';
 import FunctionInv from './transform/function';
+import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
+import { getResolvedTypeData } from './../../langserver/lang-server-utils';
 import './transform-expanded.css';
 
+/**
+ * React component for transform expanded view
+ * @class TransformExpanded
+ * @extends {React.Component}
+ */
 class TransformExpanded extends React.Component {
-    constructor(props, context){
+
+    /**
+     * Transform extended component constructor
+     * @param {any} props props for the component
+     * @param {any} context context for the component
+     * @memberof TransformExpanded
+     */
+    constructor(props, context) {
         super(props, context);
         this.state = {
+            initializePending: true,
+            // vertices changes must re-render. Hence added as a state.
+            vertices: [],
             typedSource: '',
             typedTarget: '',
             selectedSource: '-1',
             selectedTarget: '-1',
-        }
-        this.predefinedStructs = [];
+        };
         this.sourceElements = {};
         this.targetElements = {};
-        this.getSourcesAndTargets();
+        this.loadVertices();
 
         this.onSourceSelect = this.onSourceSelect.bind(this);
         this.onTargetSelect = this.onTargetSelect.bind(this);
@@ -68,30 +84,27 @@ class TransformExpanded extends React.Component {
         const funPackage = this.context.environment.getPackageByName(functionInvocationExpression.getFullPackageName());
         let funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
          _.forEach(funcDef.getParameters(), (param) => {
-                param.innerType = _.find(this.predefinedStructs, { typeName: param.type });
+                param.innerType = _.find(this.state.vertices, { typeName: param.type });
          });
         return funcDef;
     }
 
     onConnectionCallback(connection) {
-        const self = this;
-        const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
-        const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
+        const sourceStruct = _.find(this.state.vertices, { name: connection.sourceStruct });
+        const targetStruct = _.find(this.state.vertices, { name: connection.targetStruct });
         let sourceExpression;
         let targetExpression;
 
         if (sourceStruct !== undefined) {
-            sourceExpression = self.getStructAccessNode(
+            sourceExpression = this.getStructAccessNode(
                 connection.sourceStruct, connection.sourceProperty,
                       ((sourceStruct.type === 'struct') || (sourceStruct.type.startsWith('json'))));
         }
         if (targetStruct !== undefined) {
-            targetExpression = self.getStructAccessNode(
+            targetExpression = this.getStructAccessNode(
                 connection.targetStruct, connection.targetProperty,
                       ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
         }
-
-        debugger;
 
         if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
             !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
@@ -101,7 +114,7 @@ class TransformExpanded extends React.Component {
             varRefList.addChild(targetExpression);
             assignmentStmt.addChild(varRefList, 0);
             assignmentStmt.addChild(sourceExpression, 1);
-            self.props.model.addChild(assignmentStmt);
+            this.props.model.addChild(assignmentStmt);
             return assignmentStmt.id;
         }
 
@@ -115,7 +128,7 @@ class TransformExpanded extends React.Component {
             } else {
                 funcNode = connection.targetReference.getRightExpression();
             }
-            let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
+            let index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(),
                                     (param) => { return param.name == connection.targetStruct });
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
             if (connection.targetProperty && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
@@ -123,8 +136,8 @@ class TransformExpanded extends React.Component {
             }
             funcNode.removeChild(funcNode.children[index], true);
             //check function parameter is a struct and mapping is a complex mapping
-            if (connection.targetProperty && _.find(self.predefinedStructs, (struct) =>
-                        {return struct.typeName == self.getFunctionDefinition(funcNode).getParameters()[index].type})) {
+            if (connection.targetProperty && _.find(this.state.vertices, (struct) =>
+                        {return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type})) {
                 let keyValEx = BallerinaASTFactory.createKeyValueExpression();
                 let nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
 
@@ -144,8 +157,8 @@ class TransformExpanded extends React.Component {
         if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
-            let index = _.findIndex(self.getFunctionDefinition(
+            const assignmentStmtTarget = this.findEnclosingAssignmentStatement(connection.sourceReference.id);
+            let index = _.findIndex(this.getFunctionDefinition(
                                                     connection.sourceReference.getRightExpression()).getReturnParams(),
                                                             (param) => {
                                                                 return param.name == connection.sourceStruct});
@@ -160,12 +173,12 @@ class TransformExpanded extends React.Component {
         // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
         // will be different from removing a param from a function and then drawing the connection
         // to the parent function invocation.
-        const assignmentStmtTarget = self.getParentAssignmentStmt(connection.targetReference);
+        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetReference);
 
         const assignmentStmtSource = connection.sourceReference;
         let funcNode = assignmentStmtTarget.getRightExpression();
 
-        let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(), param => {
+        let index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), param => {
             const paramName = param.name || param.fieldName;
             return param.name === (connection.targetProperty || connection.targetStruct);
         });
@@ -180,10 +193,8 @@ class TransformExpanded extends React.Component {
 
     onDisconnectionCallback(connection) {
         // on removing a connection
-        const sourceStruct = _.find(this.predefinedStructs, { name: connection.sourceStruct });
-        const targetStruct = _.find(this.predefinedStructs, { name: connection.targetStruct });
-
-        debugger;
+        const sourceStruct = _.find(this.state.vertices, { name: connection.sourceStruct });
+        const targetStruct = _.find(this.state.vertices, { name: connection.targetStruct });
 
         if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
             !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
@@ -417,7 +428,7 @@ class TransformExpanded extends React.Component {
                     target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
                     target.targetProperty.push(propParam.children[0].getVariableName());
-                    let typeDef = _.find(this.predefinedStructs, { typeName: func.getParameters()[i].type});
+                    let typeDef = _.find(this.state.vertices, { typeName: func.getParameters()[i].type});
                     let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
                     target.targetType.push(propType.type);
                     this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
@@ -462,7 +473,7 @@ class TransformExpanded extends React.Component {
             con[type + 'Id'] = expression.getID();
         } else if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
             con[type + 'Struct'] = expression.getVariableName();
-            const varRef = _.find(this.predefinedStructs, { name: expression.getVariableName() });
+            const varRef = _.find(this.state.vertices, { name: expression.getVariableName() });
             if (!_.isUndefined(varRef)) {
                 con[type + 'Type'] = [varRef.type];
             }
@@ -491,7 +502,7 @@ class TransformExpanded extends React.Component {
         if(target.targetProperty.length > 1) {
           targetParent = target.targetProperty[target.targetProperty.length - 2]
         }
-        _.forEach(this.predefinedStructs, (struct) => {
+        _.forEach(this.state.vertices, (struct) => {
             if (struct.name === sourceParent) {
               sourceProp = _.find(struct.properties, (field) => {
                   return field.name === source.sourceProperty[source.sourceProperty.length - 1];
@@ -585,7 +596,7 @@ class TransformExpanded extends React.Component {
 
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             const fieldName = expression.getFieldName();
-            const structDef = _.find(this.predefinedStructs, { name: structName });
+            const structDef = _.find(this.state.vertices, { name: structName });
             if (_.isUndefined(structDef)) {
                 alerts.error('Struct definition for variable "' + structName + '" cannot be found');
                 return;
@@ -626,7 +637,7 @@ class TransformExpanded extends React.Component {
 
     createType(name, typeName, predefinedStruct, isInner, fieldName) {
         const struct = this.getStructType(name, typeName, predefinedStruct, isInner, fieldName);
-        this.predefinedStructs.push(struct);
+        this.state.vertices.push(struct);
         return struct;
     }
 
@@ -657,37 +668,31 @@ class TransformExpanded extends React.Component {
         return struct;
     }
 
-    componentDidUpdate(prevProps) {
-        this.predefinedStructs = [];
-        this.getSourcesAndTargets();
-
+    componentDidUpdate(prevProps, prevState) {
         const sourceKeys = Object.keys(this.sourceElements);
-        sourceKeys.forEach(key => {
-            const {element, input} = this.sourceElements[key];
+        sourceKeys.forEach((key) => {
+            const { element, input } = this.sourceElements[key];
             input.id = key;
             this.mapper.addSource(element, null, null, input);
         });
 
         const targetKeys = Object.keys(this.targetElements);
-        targetKeys.forEach(key => {
-            const {element, output} = this.targetElements[key];
+        targetKeys.forEach((key) => {
+            const { element, output } = this.targetElements[key];
             output.id = key;
             this.mapper.addTarget(element, null, output);
         });
 
         this.mapper.reposition(this.mapper);
 
-        if(this.props.model === prevProps.model) {
+        if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
             return;
         }
 
-        const nextProps = this.props;
         this.mapper.disconnectAll();
+        this.loadVertices();
 
-        this.predefinedStructs = [];
-        this.getSourcesAndTargets();
-
-        _.forEach(nextProps.model.getChildren(), (statement) => {
+        _.forEach(this.props.model.getChildren(), (statement) => {
             this.createConnection(statement);
         });
     }
@@ -697,20 +702,23 @@ class TransformExpanded extends React.Component {
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
 
         const sourceKeys = Object.keys(this.sourceElements);
-        sourceKeys.forEach(key => {
-            const {element, input} = this.sourceElements[key];
+        sourceKeys.forEach((key) => {
+            const { element, input } = this.sourceElements[key];
             this.mapper.addSource(element, null, null, input);
         });
 
         const targetKeys = Object.keys(this.targetElements);
-        targetKeys.forEach(key => {
-            const {element, output} = this.targetElements[key];
+        targetKeys.forEach((key) => {
+            const { element, output } = this.targetElements[key];
             this.mapper.addTarget(element, null, output);
         });
 
-        _.forEach(this.props.model.getChildren(), (statement) => {
-            this.createConnection(statement);
-        });
+        if (this.state.vertices.length > 0) {
+            // if there are no vertices, cannot draw assignment connections
+            _.forEach(this.props.model.getChildren(), (statement) => {
+                this.createConnection(statement);
+            });
+        }
 
         this.mapper.reposition(this.mapper);
 
@@ -733,7 +741,8 @@ class TransformExpanded extends React.Component {
                     // This drop zone is for assignment statements only.
                     // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
                     // is an Assignment Statement, that implies there is a return parameter . If there is no
-                    // return parameter, then it is a Function Invocation Statement, which is validated with below check.
+                    // return parameter, then it is a Function Invocation Statement,
+                    // which is validated with below check.
                     return model.getFactory().isAssignmentStatement(nodeBeingDragged);
                 },
                 () => {
@@ -809,7 +818,7 @@ class TransformExpanded extends React.Component {
     addSource(selectedSource) {
         let inputDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
-        if (this.setSource(selectedSource, this.predefinedStructs, this.props.model, inputDef.id)) {
+        if (this.setSource(selectedSource, this.state.vertices, this.props.model, inputDef.id)) {
             let inputs = this.props.model.getInput();
             inputs.push(inputDef);
             this.props.model.setInput(inputs);
@@ -820,7 +829,7 @@ class TransformExpanded extends React.Component {
     addTarget(selectedTarget) {
         let outDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
-        if (this.setTarget(selectedTarget, this.predefinedStructs, this.props.model, outDef.id)) {
+        if (this.setTarget(selectedTarget, this.state.vertices, this.props.model, outDef.id)) {
             let outputs = this.props.model.getOutput();
             outputs.push(outDef);
             this.props.model.setOutput(outputs);
@@ -857,6 +866,91 @@ class TransformExpanded extends React.Component {
             }
         });
         return argArray;
+    }
+
+    /**
+     * Load vertices of the transform graph.
+     * @memberof TransformExpanded
+     */
+    loadVertices() {
+        getLangServerClientInstance().then((langServerClient) => {
+            const vertices = [];
+
+            const fileData = this.context.designView.context.editor.props.file.attributes;
+            const lineNo = this.props.model.getLineNumber();
+
+            const options = {
+                textDocument: fileData.content,
+                position: {
+                    line: lineNo,
+                    // TODO replace with column number once implemented in AST node
+                    character: 10,
+                },
+                fileName: fileData.name,
+                filePath: fileData.path,
+                packageName: fileData.packageName,
+            };
+
+            langServerClient.getCompletions(options, (response) => {
+                const completions = response.result.filter((completionItem) => {
+                    // all variables have type as 9 as per the declaration in lang server
+                    return (completionItem.kind === 9);
+                });
+                const transformVars = completions.map((completionItem) => {
+                    const typeData = getResolvedTypeData(completionItem);
+                    return ({
+                        type: typeData.typeName,
+                        name: completionItem.label,
+                        pkgName: typeData.packageName,
+                        constraint: typeData.constraint,
+                    });
+                });
+                _.forEach(transformVars, (arg) => {
+                    let isStruct = false;
+                    const structDef = this.getStructDefinition(arg.pkgName, arg.type);
+                    if (structDef !== undefined) {
+                        arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
+                        const struct = this.createType(arg.name, arg.type, structDef);
+                        vertices.push({ name: struct.name, type: struct.typeName });
+                        isStruct = true;
+                    }
+                    if (!isStruct) {
+                        const variableType = {};
+                        variableType.id = arg.id;
+                        variableType.name = arg.name;
+                        if (arg.constraint !== undefined) {
+                            variableType.type = arg.type + '<'
+                                        + ((arg.constraint.packageName) ? arg.constraint.packageName + ':' : '')
+                                        + arg.constraint.type + '>';
+                            variableType.constraintType = arg.constraint;
+                            const constraintDef = this.getStructDefinition(
+                                arg.constraint.packageName, arg.constraint.type);
+                            if (constraintDef !== undefined) {
+                                const constraint = this.getStructType(arg.name, variableType.type, constraintDef, true);
+                                // For constraint types, the field types must be the same type as the variable and
+                                // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
+                                // type has to be json and not string. Hence converting all field types to variable
+                                // type.
+                                // TODO : revisit this conversion if ballerina language supports constrained field
+                                // access to be treated as the field type (i.e. as string from the struct field
+                                // and not json)
+                                this.convertFieldType(constraint.properties, arg.type);
+
+                                // constraint properties (fields) become variable fields
+                                variableType.properties = constraint.properties;
+                                variableType.constraint = constraint;
+                            }
+                        } else {
+                            variableType.type = arg.type;
+                        }
+                        vertices.push({ name: variableType.name, type: variableType.type });
+                    }
+                });
+                // set state with new vertices
+                this.setState({ vertices });
+                return completions;
+            });
+        }).catch(error => alerts.error('Could not initialize transform statement view ' + error));
     }
 
     getSourcesAndTargets() {
@@ -911,7 +1005,7 @@ class TransformExpanded extends React.Component {
                 } else {
                     variableType.type = arg.type;
                 }
-                this.predefinedStructs.push(variableType);
+                this.state.vertices.push(variableType);
                 items.push({ name: variableType.name, type: variableType.type });
             }
         });
@@ -936,70 +1030,21 @@ class TransformExpanded extends React.Component {
         }
     }
 
-    setSource(currentSelection, predefinedStructs) {
-        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection });
-        if (_.isUndefined(sourceSelection)){
+    setSource(currentSelection) {
+        const sourceSelection = _.find(this.state.vertices, { name: currentSelection });
+        if (_.isUndefined(sourceSelection)) {
             alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
         }
-
-        // const removeFunc = id => {
-        //     this.mapper.removeType(id);
-        //     _.remove(this.props.model.getInput(),(currentObject) => {
-        //         return currentObject.getVariableName() === id;
-        //     });
-        //     this.removeAssignmentStatements(id, "source");
-        //     this.props.model.setInput(this.props.model.getInput());
-        //     var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
-        //     currentSelectionObj.added = false;
-        // }
-        //
-        // if (!sourceSelection.added) {
-        //     if (sourceSelection.type === 'struct') {
-        //         this.mapper.addSourceType(sourceSelection, removeFunc);
-        //     } else if (sourceSelection.constraint !== undefined) {
-        //         this.mapper.addSourceType(sourceSelection.constraint, removeFunc);
-        //     } else {
-        //         this.mapper.addVariable(sourceSelection, 'source', removeFunc);
-        //     }
-        //     sourceSelection.added = true;
-
         return true;
-
     }
 
-    setTarget(currentSelection, predefinedStructs) {
-        var targetSelection = _.find(predefinedStructs, { name: currentSelection});
-        if (_.isUndefined(targetSelection)){
+    setTarget(currentSelection) {
+        const targetSelection = _.find(this.state.vertices, { name: currentSelection });
+        if (_.isUndefined(targetSelection)) {
             alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
         }
-
-        // const removeFunc = id => {
-        //     this.mapper.removeType(id);
-        //     _.remove(this.props.model.getOutput(),(currentObject) => {
-        //         return currentObject.getVariableName() === id;
-        //     });
-        //     this.removeAssignmentStatements(id, "target");
-        //     this.props.model.setOutput(this.props.model.getOutput());
-        //     var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
-        //     currentSelectionObj.added = false;
-        // }
-        //
-        // if (!targetSelection.added) {
-        //     if (targetSelection.type === 'struct') {
-        //         this.mapper.addTargetType(targetSelection, removeFunc);
-        //     } else if (targetSelection.constraint !== undefined) {
-        //         this.mapper.addTargetType(targetSelection.constraint, removeFunc);
-        //     } else {
-        //         this.mapper.addVariable(targetSelection, 'target', removeFunc);
-        //     }
-        //     targetSelection.added = true;
-        //     return true;
-        // }
-        //
-        // return false;
-
         return true;
     }
 
@@ -1068,127 +1113,138 @@ class TransformExpanded extends React.Component {
     render() {
         const sourceId = 'sourceStructs' + this.props.model.id;
         const targetId = 'targetStructs' + this.props.model.id;
-        const sourcesAndTargets = this.predefinedStructs.filter(endpoint => (!endpoint.isInner));
+        const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.getInput();
         const outputNodes = this.props.model.getOutput();
-        const children = this.props.model.getChildren();
-
         const inputs = [];
-        inputNodes.forEach(inputNode => {
-            const name = inputNode.getVariableName();
-            const sourceSelection = _.find(this.predefinedStructs, { name });
-            if (_.isUndefined(sourceSelection)) {
-                alerts.error('Mapping source "' + name + '" cannot be found');
-                return;
-            }
-            inputs.push(sourceSelection);
-        });
-
         const outputs = [];
-        outputNodes.forEach(outputNode => {
-            const name = outputNode.getVariableName();
-            const targetSelection = _.find(this.predefinedStructs, { name });
-            if (_.isUndefined(targetSelection)) {
-                alerts.error('Mapping target "' + name + '" cannot be found');
-                return;
-            }
-
-            outputs.push(targetSelection);
-        });
-
         const functions = [];
-        this.props.model.getChildren().forEach(child => {
-            if(!BallerinaASTFactory.isAssignmentStatement(child)) {
-                return;
-            }
-            const rightExpression = child.getRightExpression();
 
-            if(BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
-                const funcInvs = this.findFunctionInvocations(rightExpression);
-                funcInvs.forEach(funcDetails => {funcDetails.assignmentStmt = child});
-                functions.push(...funcInvs);
-            }
-        });
+        if (this.state.vertices.length > 0) {
+            inputNodes.forEach(inputNode => {
+                const name = inputNode.getVariableName();
+                const sourceSelection = _.find(vertices, { name });
+                if (_.isUndefined(sourceSelection)) {
+                    alerts.error('Mapping source "' + name + '" cannot be found');
+                    return;
+                }
+                inputs.push(sourceSelection);
+            });
+
+            outputNodes.forEach((outputNode) => {
+                const name = outputNode.getVariableName();
+                const targetSelection = _.find(vertices, { name });
+                if (_.isUndefined(targetSelection)) {
+                    alerts.error('Mapping target "' + name + '" cannot be found');
+                    return;
+                }
+
+                outputs.push(targetSelection);
+            });
+
+            this.props.model.getChildren().forEach((child) => {
+                if (!BallerinaASTFactory.isAssignmentStatement(child)) {
+                    return;
+                }
+                const rightExpression = child.getRightExpression();
+
+                if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+                    const funcInvs = this.findFunctionInvocations(rightExpression);
+                    funcInvs.forEach((funcDetails) => {
+                        funcDetails.assignmentStmt = child;
+                    });
+                    functions.push(...funcInvs);
+                }
+            });
+        }
 
         return (
-                <div id={`transformOverlay-content-${this.props.model.getID()}`} className='transformOverlay'
-                    ref={div => this.transformOverlayContentDiv=div }
-                    onMouseOver={this.onTransformDropZoneActivate}
-                    onMouseOut={this.onTransformDropZoneDeactivate}>
-                    <div id ="transformHeader" className="transform-header">
-                        <i onClick={this.onClose} className="fw fw-left icon close-transform"></i>
-                        <p className="transform-header-text ">
-                            <i className="transform-header-icon fw fw-type-converter"></i>
-                            Transform
-                        </p>
-                    </div>
-                    <div className='left-content'>
-                        <div className="select-source">
-                            <SuggestionsDropdown
-                                value={this.state.typedSource}
-                                onChange={this.onSourceInputChange}
-                                onEnter={this.onSourceInputEnter}
-                                suggestionsPool={sourcesAndTargets}
-                                placeholder='Select Source'
-                                onSuggestionSelected={this.onSourceSelect}
-                            />
-                            <span
-                                className="btn-add-source fw-stack fw-lg btn btn-add"
-                                onClick={this.onSourceAdd}
-                            >
-                                <i className="fw fw-add fw-stack-1x"></i>
-                            </span>
-                        </div>
-                        <div className="leftType">
-                            <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source'
-                                makeConnectPoint={this.recordSourceElement}
-                                removeTypeCallbackFunc={this.removeSourceType}
-                            />
-                        </div>
-                    </div>
-                    <div className="middle-content">
-                        {
-                            functions.map(({func, assignmentStmt, parentFunc, funcInv}) => (
-                                <FunctionInv
-                                    key={func.getId()}
-                                    func={func}
-                                    enclosingAssignmentStatement={assignmentStmt}
-                                    parentFunc={parentFunc}
-                                    funcInv={funcInv}
-                                    recordSourceElement={this.recordSourceElement}
-                                    recordTargetElement={this.recordTargetElement}
-                                    viewId={this.props.model.getID()}
-                                />
-                            ))
-                        }
-                    </div>
-                    <div className='right-content'>
-                        <div className="select-target">
-                            <SuggestionsDropdown
-                                value={this.state.typedTarget}
-                                onChange={this.onTargetInputChange}
-                                onEnter={this.onTargetInputEnter}
-                                suggestionsPool={sourcesAndTargets}
-                                placeholder='Select Target'
-                                onSuggestionSelected={this.onTargetSelect}
-                            />
-                            <span
-                                className="btn-add-source fw-stack fw-lg btn btn-add"
-                                onClick={this.onTargetAdd}
-                            >
-                                <i className="fw fw-add fw-stack-1x"></i>
-                            </span>
-                        </div>
-                        <div className="rightType">
-                            <Tree viewId={this.props.model.getID()} endpoints={outputs} type='target'
-                                makeConnectPoint={this.recordTargetElement}
-                                removeTypeCallbackFunc={this.removeTargetType}
-                            />
-                        </div>
-                    </div>
-                    <div id ="transformContextMenu" className="transformContextMenu"></div>
-                    <div id ="transformFooter" className="transform-footer"></div>
+            <div
+                id={`transformOverlay-content-${this.props.model.getID()}`}
+                className='transformOverlay'
+                ref={div => this.transformOverlayContentDiv=div }
+                onMouseOver={this.onTransformDropZoneActivate}
+                onMouseOut={this.onTransformDropZoneDeactivate}>
+                <div id='transformHeader' className='transform-header'>
+                    <i onClick={this.onClose} className='fw fw-left icon close-transform'></i>
+                    <p className='transform-header-text '>
+                        <i className='transform-header-icon fw fw-type-converter'></i>
+                        Transform
+                    </p>
                 </div>
+                <div className='left-content'>
+                    <div className="select-source">
+                        <SuggestionsDropdown
+                            value={this.state.typedSource}
+                            onChange={this.onSourceInputChange}
+                            onEnter={this.onSourceInputEnter}
+                            suggestionsPool={vertices}
+                            placeholder='Select Source'
+                            onSuggestionSelected={this.onSourceSelect}
+                        />
+                        <span
+                            className="btn-add-source fw-stack fw-lg btn btn-add"
+                            onClick={this.onSourceAdd}
+                        >
+                            <i className="fw fw-add fw-stack-1x"></i>
+                        </span>
+                    </div>
+                    <div className="leftType">
+                        <Tree
+                            viewId= {this.props.model.getID()}
+                            endpoints={inputs}
+                            type='source'
+                            makeConnectPoint={this.recordSourceElement}
+                            removeTypeCallbackFunc={this.removeSourceType}
+                        />
+                    </div>
+                </div>
+                <div className="middle-content">
+                    {
+                        functions.map(({ func, assignmentStmt, parentFunc, funcInv }) => (
+                            <FunctionInv
+                                key={func.getId()}
+                                func={func}
+                                enclosingAssignmentStatement={assignmentStmt}
+                                parentFunc={parentFunc}
+                                funcInv={funcInv}
+                                recordSourceElement={this.recordSourceElement}
+                                recordTargetElement={this.recordTargetElement}
+                                viewId={this.props.model.getID()}
+                            />
+                        ))
+                    }
+                </div>
+                <div className='right-content'>
+                    <div className="select-target">
+                        <SuggestionsDropdown
+                            value={this.state.typedTarget}
+                            onChange={this.onTargetInputChange}
+                            onEnter={this.onTargetInputEnter}
+                            suggestionsPool={vertices}
+                            placeholder='Select Target'
+                            onSuggestionSelected={this.onTargetSelect}
+                        />
+                        <span
+                            className="btn-add-source fw-stack fw-lg btn btn-add"
+                            onClick={this.onTargetAdd}
+                        >
+                            <i className='fw fw-add fw-stack-1x'></i>
+                        </span>
+                    </div>
+                    <div className='rightType'>
+                        <Tree
+                            viewId={this.props.model.getID()}
+                            endpoints={outputs}
+                            type='target'
+                            makeConnectPoint={this.recordTargetElement}
+                            removeTypeCallbackFunc={this.removeTargetType}
+                        />
+                    </div>
+                </div>
+                <div id ='transformContextMenu' className='transformContextMenu'></div>
+                <div id ='transformFooter' className='transform-footer'></div>
+            </div>
         );
     }
 }
@@ -1204,12 +1260,3 @@ TransformExpanded.contextTypes = {
 };
 
 export default TransformExpanded;
-
-
-
-// WEBPACK FOOTER //
-// ./js/ballerina/components/transform-expanded.jsx
-
-
-// WEBPACK FOOTER //
-// ./js/ballerina/components/transform-expanded.jsx
