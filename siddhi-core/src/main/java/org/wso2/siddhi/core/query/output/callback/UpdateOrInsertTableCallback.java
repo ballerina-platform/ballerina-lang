@@ -23,12 +23,10 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.wso2.siddhi.core.table.CompiledUpdateSet;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.parser.MatcherParser;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 /**
  * Implementation of {@link OutputCallback} to receive processed Siddhi events from
@@ -37,29 +35,28 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
  */
 public class UpdateOrInsertTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
-    private final UpdateAttributeMapper[] updateAttributeMappers;
     private final AddingStreamEventExtractor addingStreamEventExtractor;
     private Table table;
     private CompiledCondition compiledCondition;
+    private CompiledUpdateSet compiledUpdateSet;
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public UpdateOrInsertTableCallback(Table table, CompiledCondition compiledCondition, AbstractDefinition
-            updatingStreamDefinition,
-                                       int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool
-                                               stateEventPool,
-                                       StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
+    public UpdateOrInsertTableCallback(Table table, CompiledCondition compiledCondition,
+                                       CompiledUpdateSet compiledUpdateSet,
+                                       int matchingStreamIndex, boolean convertToStreamEvent,
+                                       StateEventPool stateEventPool, StreamEventPool streamEventPool,
+                                       StreamEventConverter streamEventConvertor) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.table = table;
         this.compiledCondition = compiledCondition;
+        this.compiledUpdateSet = compiledUpdateSet;
         this.convertToStreamEvent = convertToStreamEvent;
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
         this.streamEventConvertor = streamEventConvertor;
-        this.updateAttributeMappers = MatcherParser.constructUpdateAttributeMapper(table.getTableDefinition(),
-                updatingStreamDefinition.getAttributeList(), matchingStreamIndex);
         this.addingStreamEventExtractor = new AddingStreamEventExtractor(matchingStreamIndex);
     }
 
@@ -72,9 +69,8 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
             constructMatchingStateEventChunk(updateOrAddEventChunk, convertToStreamEvent, stateEventPool,
                     matchingStreamIndex, streamEventPool, streamEventConvertor);
-            table.updateOrAddEvents(updateOrAddStateEventChunk, compiledCondition, updateAttributeMappers,
+            table.updateOrAddEvents(updateOrAddStateEventChunk, compiledCondition, compiledUpdateSet,
                     addingStreamEventExtractor);
         }
     }
-
 }

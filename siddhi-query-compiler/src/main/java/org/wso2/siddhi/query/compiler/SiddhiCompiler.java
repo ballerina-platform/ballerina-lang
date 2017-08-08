@@ -37,11 +37,13 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.wso2.siddhi.query.api.SiddhiApp;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 import org.wso2.siddhi.query.compiler.internal.SiddhiErrorListener;
@@ -102,6 +104,23 @@ public class SiddhiCompiler {
 
         SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
         return (TableDefinition) eval.visit(tree);
+    }
+
+    public static AggregationDefinition parseAggregationDefinition(String source) throws SiddhiParserException {
+
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.definition_aggregation_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (AggregationDefinition) eval.visit(tree);
     }
 
     public static Partition parsePartition(String source) throws SiddhiParserException {
@@ -169,4 +188,22 @@ public class SiddhiCompiler {
         SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
         return (TimeConstant) eval.visit(tree);
     }
+
+    public static StoreQuery parseStoreQuery(String storeQuery) throws SiddhiParserException {
+
+        ANTLRInputStream input = new ANTLRInputStream(storeQuery);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.store_query_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (StoreQuery) eval.visit(tree);
+    }
+
 }

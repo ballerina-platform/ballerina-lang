@@ -37,6 +37,7 @@ import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -60,7 +61,7 @@ import java.util.concurrent.Executors;
  * Class to parse {@link SiddhiApp}
  */
 public class SiddhiAppParser {
-    private static final Logger log = Logger.getLogger(SiddhiAppRuntimeBuilder.class);
+    private static final Logger log = Logger.getLogger(SiddhiAppParser.class);
 
     /**
      * Parse an SiddhiApp returning SiddhiAppRuntime
@@ -195,7 +196,8 @@ public class SiddhiAppParser {
         defineTableDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getTableDefinitionMap());
         defineWindowDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getWindowDefinitionMap());
         defineFunctionDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getFunctionDefinitionMap());
-        for (Window window : siddhiAppRuntimeBuilder.getEventWindowMap().values()) {
+        defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap());
+        for (Window window : siddhiAppRuntimeBuilder.getWindowMap().values()) {
             String metricName =
                     siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
@@ -211,7 +213,7 @@ public class SiddhiAppParser {
                         .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
             }
             window.init(siddhiAppRuntimeBuilder.getTableMap(), siddhiAppRuntimeBuilder
-                    .getEventWindowMap(), latencyTracker, window.getWindowDefinition().getId());
+                    .getWindowMap(), latencyTracker, window.getWindowDefinition().getId());
         }
         try {
             int queryIndex = 1;
@@ -221,11 +223,12 @@ public class SiddhiAppParser {
                             siddhiAppRuntimeBuilder.getStreamDefinitionMap(),
                             siddhiAppRuntimeBuilder.getTableDefinitionMap(),
                             siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
+                            siddhiAppRuntimeBuilder.getAggregationDefinitionMap(),
                             siddhiAppRuntimeBuilder.getTableMap(),
-                            siddhiAppRuntimeBuilder.getEventWindowMap(),
-                            siddhiAppRuntimeBuilder.getEventSourceMap(),
-                            siddhiAppRuntimeBuilder.getEventSinkMap(),
-                            siddhiAppRuntimeBuilder.getLockSynchronizer(), String.valueOf(queryIndex));
+                            siddhiAppRuntimeBuilder.getAggregationMap(),
+                            siddhiAppRuntimeBuilder.getWindowMap(),
+                            siddhiAppRuntimeBuilder.getLockSynchronizer(),
+                            String.valueOf(queryIndex));
                     siddhiAppRuntimeBuilder.addQuery(queryRuntime);
                     queryIndex++;
                 } else {
@@ -283,5 +286,13 @@ public class SiddhiAppParser {
         for (WindowDefinition definition : windowDefinitionMap.values()) {
             siddhiAppRuntimeBuilder.defineWindow(definition);
         }
+    }
+
+    private static void defineAggregationDefinitions(SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
+                                                     Map<String, AggregationDefinition> aggregationDefinitionMap) {
+        for (AggregationDefinition definition : aggregationDefinitionMap.values()) {
+            siddhiAppRuntimeBuilder.defineAggregation(definition);
+        }
+
     }
 }

@@ -20,12 +20,16 @@ package org.wso2.siddhi.core;
 
 import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
+import org.wso2.siddhi.core.exception.StoreQueryCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.query.StoreQueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
@@ -40,12 +44,17 @@ import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.parser.StoreQueryParser;
 import org.wso2.siddhi.core.util.snapshot.AsyncSnapshotPersistor;
 import org.wso2.siddhi.core.util.snapshot.PersistenceReference;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.StoreQuery;
+import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,13 +70,15 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
- * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an siddhiApp
+ * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an SiddhiApp
  * and streamJunctions and inputHandlers used
  */
 public class SiddhiAppRuntime {
     private static final Logger log = Logger.getLogger(SiddhiAppRuntime.class);
+    private final Map<String, Window> windowMap;
     private final Map<String, List<Source>> sourceMap;
     private final Map<String, List<Sink>> sinkMap;
+    private ConcurrentMap<String, AggregationRuntime> aggregationMap;
     private Map<String, AbstractDefinition> streamDefinitionMap =
             new ConcurrentHashMap<String,
                     AbstractDefinition>(); // Contains stream definition.
@@ -82,16 +93,22 @@ public class SiddhiAppRuntime {
     private Map<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); // Contains event tables.
     private Map<String, PartitionRuntime> partitionMap =
             new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
+    private Map<StoreQuery, StoreQueryRuntime> storeQueryRuntimeMap =
+            new ConcurrentHashMap<>(); // Contains partitions.
     private SiddhiAppContext siddhiAppContext;
     private Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
+    private LatencyTracker storeQueryLatencyTracker;
     private SiddhiDebugger siddhiDebugger;
 
     public SiddhiAppRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
-                            Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
+                            Map<String, AbstractDefinition> tableDefinitionMap,
+                            InputManager inputManager,
                             Map<String, QueryRuntime> queryProcessorMap,
                             Map<String, StreamJunction> streamJunctionMap,
                             Map<String, Table> tableMap,
+                            Map<String, Window> windowMap,
+                            ConcurrentMap<String, AggregationRuntime> aggregationMap,
                             Map<String, List<Source>> sourceMap,
                             Map<String, List<Sink>> sinkMap,
                             Map<String, PartitionRuntime> partitionMap,
@@ -103,6 +120,8 @@ public class SiddhiAppRuntime {
         this.queryProcessorMap = queryProcessorMap;
         this.streamJunctionMap = streamJunctionMap;
         this.tableMap = tableMap;
+        this.windowMap = windowMap;
+        this.aggregationMap = aggregationMap;
         this.sourceMap = sourceMap;
         this.sinkMap = sinkMap;
         this.partitionMap = partitionMap;
@@ -115,6 +134,8 @@ public class SiddhiAppRuntime {
                     .getFactory()
                     .createMemoryUsageTracker(siddhiAppContext.getStatisticsManager());
             monitorQueryMemoryUsage();
+            storeQueryLatencyTracker = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration()
+                    .getFactory().createLatencyTracker("store_query", siddhiAppContext.getStatisticsManager());
         }
 
         for (Map.Entry<String, List<Sink>> sinkEntries : sinkMap.entrySet()) {
@@ -193,6 +214,32 @@ public class SiddhiAppRuntime {
         }
         callback.setQuery(queryRuntime.getQuery());
         queryRuntime.addCallback(callback);
+    }
+
+    public Event[] query(StoreQuery storeQuery) {
+        try {
+            if (storeQueryLatencyTracker != null) {
+                storeQueryLatencyTracker.markIn();
+            }
+            StoreQueryRuntime storeQueryRuntime = storeQueryRuntimeMap.get(storeQuery);
+            if (storeQueryRuntime == null) {
+                storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
+                        aggregationMap);
+                storeQueryRuntimeMap.put(storeQuery, storeQueryRuntime);
+            }
+
+            return storeQueryRuntime.execute();
+        } catch (RuntimeException e) {
+            throw new StoreQueryCreationException(e.getMessage(), e);
+        } finally {
+            if (storeQueryLatencyTracker != null) {
+                storeQueryLatencyTracker.markOut();
+            }
+        }
+    }
+
+    public Event[] query(String storeQuery) {
+        return query(SiddhiCompiler.parseStoreQuery(storeQuery));
     }
 
     public InputHandler getInputHandler(String streamId) {

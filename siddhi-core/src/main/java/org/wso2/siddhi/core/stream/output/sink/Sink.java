@@ -160,7 +160,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 isConnected.set(true);
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
-            } catch (ConnectionUnavailableException | RuntimeException e) {
+            } catch (ConnectionUnavailableException e) {
                 LOG.error("Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
                         "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
@@ -170,6 +170,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
                     }
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
+            } catch (RuntimeException e) {
+                LOG.error("Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ".", e);
+                throw e;
             }
         }
     }

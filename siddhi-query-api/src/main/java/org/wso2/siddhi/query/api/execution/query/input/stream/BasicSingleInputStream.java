@@ -35,12 +35,11 @@ public class BasicSingleInputStream extends SingleInputStream {
     }
 
     protected BasicSingleInputStream(String streamId, boolean isInnerStream) {
-        this(streamId, null, isInnerStream);
+        super(streamId, isInnerStream);
     }
 
     public BasicSingleInputStream(String streamReferenceId, String streamId) {
         this(streamReferenceId, streamId, false);
-
     }
 
     public BasicSingleInputStream(String streamReferenceId, String streamId, boolean isInnerStream) {

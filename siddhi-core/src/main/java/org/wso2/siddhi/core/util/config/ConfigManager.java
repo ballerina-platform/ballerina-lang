@@ -18,11 +18,15 @@
 
 package org.wso2.siddhi.core.util.config;
 
+import java.util.Map;
+
 /**
- * Siddhi Configuration Manager
+ * Siddhi Configuration Manager.
  */
 public interface ConfigManager {
 
     ConfigReader generateConfigReader(String namespace, String name);
+
+    Map<String, String> extractStoreConfigs(String name);
 
 }

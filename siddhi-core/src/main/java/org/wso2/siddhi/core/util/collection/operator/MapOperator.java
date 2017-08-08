@@ -23,8 +23,8 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 import java.util.Map;
 
@@ -58,18 +58,18 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
-            updateAttributeMappers) {
-        super.update(updatingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(), updateAttributeMappers);
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
+        super.update(updatingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(), compiledUpdateSet);
     }
 
     @Override
     public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                  InMemoryCompiledUpdateSet compiledUpdateSet,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
         return super.tryUpdate(updatingOrAddingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(),
-                updateAttributeMappers, addingStreamEventExtractor);
+                compiledUpdateSet, addingStreamEventExtractor);
     }
 
 }

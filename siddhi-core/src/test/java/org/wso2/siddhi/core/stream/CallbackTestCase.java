@@ -67,8 +67,8 @@ public class CallbackTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 eventArrived = true;
             }
@@ -118,8 +118,8 @@ public class CallbackTestCase {
 
         siddhiAppRuntime.addCallback("query3", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
             }
 
         });

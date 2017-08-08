@@ -119,9 +119,9 @@ public class PartitionRuntime implements Snapshotable {
 
                 if (outputStreamJunction == null) {
                     outputStreamJunction = new StreamJunction(streamDefinition,
-                                                              siddhiAppContext.getExecutorService(),
-                                                              siddhiAppContext.getBufferSize(),
-                                                              siddhiAppContext);
+                            siddhiAppContext.getExecutorService(),
+                            siddhiAppContext.getBufferSize(),
+                            siddhiAppContext);
                     localStreamJunctionMap.putIfAbsent(id, outputStreamJunction);
                 }
                 insertIntoStreamCallback.init(localStreamJunctionMap.get(id));
@@ -132,9 +132,9 @@ public class PartitionRuntime implements Snapshotable {
 
                 if (outputStreamJunction == null) {
                     outputStreamJunction = new StreamJunction(streamDefinition,
-                                                              siddhiAppContext.getExecutorService(),
-                                                              siddhiAppContext.getBufferSize(),
-                                                              siddhiAppContext);
+                            siddhiAppContext.getExecutorService(),
+                            siddhiAppContext.getBufferSize(),
+                            siddhiAppContext);
                     streamJunctionMap.putIfAbsent(id, outputStreamJunction);
                 }
                 insertIntoStreamCallback.init(streamJunctionMap.get(id));
@@ -149,8 +149,8 @@ public class PartitionRuntime implements Snapshotable {
                                      MetaStateEvent metaEvent) {
         Query query = queryRuntime.getQuery();
         List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition,
-                                                                                 metaEvent,
-                                                                                 executors, siddhiAppContext, null)
+                metaEvent,
+                executors, siddhiAppContext, null)
                 .getPartitionExecutorLists();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime) {
             SingleInputStream singleInputStream = (SingleInputStream) query.getInputStream();
@@ -160,11 +160,11 @@ public class PartitionRuntime implements Snapshotable {
             SingleInputStream leftSingleInputStream = (SingleInputStream) ((JoinInputStream) query.getInputStream())
                     .getLeftInputStream();
             addPartitionReceiver(leftSingleInputStream.getStreamId(), leftSingleInputStream.isInnerStream(),
-                                 metaEvent.getMetaStreamEvent(0), partitionExecutors.get(0));
+                    metaEvent.getMetaStreamEvent(0), partitionExecutors.get(0));
             SingleInputStream rightSingleInputStream = (SingleInputStream) ((JoinInputStream) query.getInputStream())
                     .getRightInputStream();
             addPartitionReceiver(rightSingleInputStream.getStreamId(), rightSingleInputStream.isInnerStream(),
-                                 metaEvent.getMetaStreamEvent(1), partitionExecutors.get(1));
+                    metaEvent.getMetaStreamEvent(1), partitionExecutors.get(1));
         } else if (queryRuntime.getStreamRuntime() instanceof StateStreamRuntime) {
             StateElement stateElement = ((StateInputStream) query.getInputStream()).getStateElement();
             addPartitionReceiverForStateElement(stateElement, metaEvent, partitionExecutors, 0);
@@ -176,21 +176,21 @@ public class PartitionRuntime implements Snapshotable {
                                                             executorIndex) {
         if (stateElement instanceof EveryStateElement) {
             return addPartitionReceiverForStateElement(((EveryStateElement) stateElement).getStateElement(),
-                                                       metaEvent, partitionExecutors, executorIndex);
+                    metaEvent, partitionExecutors, executorIndex);
         } else if (stateElement instanceof NextStateElement) {
             executorIndex = addPartitionReceiverForStateElement(((NextStateElement) stateElement).getStateElement(),
-                                                                metaEvent, partitionExecutors, executorIndex);
+                    metaEvent, partitionExecutors, executorIndex);
             return addPartitionReceiverForStateElement(((NextStateElement) stateElement).getNextStateElement(),
-                                                       metaEvent, partitionExecutors, executorIndex);
+                    metaEvent, partitionExecutors, executorIndex);
         } else if (stateElement instanceof CountStateElement) {
             return addPartitionReceiverForStateElement(((CountStateElement) stateElement).getStreamStateElement(),
-                                                       metaEvent, partitionExecutors, executorIndex);
+                    metaEvent, partitionExecutors, executorIndex);
         } else if (stateElement instanceof LogicalStateElement) {
             executorIndex = addPartitionReceiverForStateElement(((LogicalStateElement) stateElement)
-                                                                        .getStreamStateElement1(), metaEvent,
-                                                                partitionExecutors, executorIndex);
+                            .getStreamStateElement1(), metaEvent,
+                    partitionExecutors, executorIndex);
             return addPartitionReceiverForStateElement(((LogicalStateElement) stateElement).getStreamStateElement2(),
-                                                       metaEvent, partitionExecutors, executorIndex);
+                    metaEvent, partitionExecutors, executorIndex);
         } else {  //if stateElement is an instanceof StreamStateElement
             SingleInputStream singleInputStream = ((StreamStateElement) stateElement).getBasicSingleInputStream();
             addPartitionReceiver(singleInputStream.getStreamId(), singleInputStream.isInnerStream(), metaEvent
@@ -201,8 +201,8 @@ public class PartitionRuntime implements Snapshotable {
 
     private void addPartitionReceiver(String streamId, boolean isInnerStream, MetaStreamEvent metaStreamEvent,
                                       List<PartitionExecutor> partitionExecutors) {
-        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent() &&
-                !metaStreamEvent.isWindowEvent()) {
+        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream &&
+                metaStreamEvent.getEventType() == MetaStreamEvent.EventType.DEFAULT) {
             PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(
                     siddhiAppContext, metaStreamEvent, (StreamDefinition) streamDefinitionMap.get(streamId),
                     partitionExecutors, this);
@@ -249,8 +249,8 @@ public class PartitionRuntime implements Snapshotable {
                         if (streamJunction == null) {
                             streamJunction = new StreamJunction(streamDefinition, siddhiAppContext
                                     .getExecutorService(),
-                                                                siddhiAppContext.getBufferSize(),
-                                                                siddhiAppContext);
+                                    siddhiAppContext.getBufferSize(),
+                                    siddhiAppContext);
                             localStreamJunctionMap.put(streamId + key, streamJunction);
                         }
                         streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get

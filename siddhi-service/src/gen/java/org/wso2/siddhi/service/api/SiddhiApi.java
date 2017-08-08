@@ -40,7 +40,7 @@ public class SiddhiApi {
     @Path("/artifact/deploy")
     @Consumes({"text/plain"})
     @Produces({"application/json"})
-    @io.swagger.annotations.ApiOperation(value = "", notes = "Deploys the siddhi app. Request **siddhiApp** " +
+    @io.swagger.annotations.ApiOperation(value = "", notes = "Deploys the siddhi app. Request **SiddhiApp** " +
             "explains the Siddhi Query ", response = Success.class, tags = {})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Successful response", response = Success.class),

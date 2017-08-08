@@ -38,8 +38,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private List<AbstractDefinition> inputDefinitions = new ArrayList<AbstractDefinition>();
     private String inputReferenceId;
     private StreamDefinition outputStreamDefinition;
-    private boolean tableEvent = false;
-    private boolean windowEvent = false;
+    private EventType eventType = EventType.DEFAULT;
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;
@@ -123,23 +122,22 @@ public class MetaStreamEvent implements MetaComplexEvent {
         return outputStreamDefinition;
     }
 
-    public boolean isTableEvent() {
-        return tableEvent;
+    public EventType getEventType() {
+        return eventType;
     }
 
-    public void setTableEvent(boolean tableEvent) {
-        this.tableEvent = tableEvent;
-    }
-
-    public boolean isWindowEvent() {
-        return windowEvent;
-    }
-
-    public void setWindowEvent(boolean windowEvent) {
-        this.windowEvent = windowEvent;
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
     }
 
     public AbstractDefinition getLastInputDefinition() {
         return inputDefinitions.get(inputDefinitions.size() - 1);
+    }
+
+    /**
+     * Type of Meta Events
+     */
+    public enum EventType {
+        TABLE, WINDOW, AGGREGATE, DEFAULT
     }
 }

@@ -19,6 +19,7 @@ package org.wso2.siddhi.core.stream.event;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
@@ -280,10 +281,12 @@ public class EventTestCase {
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")));
         query.insertInto("outputStream");
-        Map<String, AbstractDefinition> tableDefinitionMap = new HashMap<String, AbstractDefinition>();
-        Map<String, AbstractDefinition> windowDefinitionMap = new HashMap<String, AbstractDefinition>();
+        Map<String, AbstractDefinition> tableDefinitionMap = new HashMap<>();
+        Map<String, AbstractDefinition> windowDefinitionMap = new HashMap<>();
+        Map<String, AbstractDefinition> aggregationDefinitionMap = new HashMap<>();
         Map<String, Table> tableMap = new HashMap<String, Table>();
         Map<String, Window> eventWindowMap = new HashMap<String, Window>();
+        Map<String, AggregationRuntime> aggregationMap = new HashMap<String, AggregationRuntime>();
         Map<String, List<Source>> eventSourceMap = new HashMap<String, List<Source>>();
         Map<String, List<Sink>> eventSinkMap = new HashMap<String, List<Sink>>();
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
@@ -296,7 +299,8 @@ public class EventTestCase {
         context.setElementIdGenerator(new ElementIdGenerator(context.getName()));
         context.setSnapshotService(new SnapshotService(context));
         QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, tableMap, eventWindowMap, eventSourceMap, eventSinkMap, lockSynchronizer, "1");
+                windowDefinitionMap, aggregationDefinitionMap, tableMap, aggregationMap, eventWindowMap,
+                lockSynchronizer, "1");
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());

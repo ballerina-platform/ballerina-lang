@@ -13,8 +13,8 @@ Siddhi currently have several prewritten extensions as follows;
 </#list>
 
 </#macro>
-<@displayRepositoriesList title="Extensions released under GPL License" extensionRepositories=gplExtensionRepositories/>
 <@displayRepositoriesList title="Extensions released under Apache 2.0 License" extensionRepositories=apacheExtensionRepositories/>
+<@displayRepositoriesList title="Extensions released under GPL License" extensionRepositories=gplExtensionRepositories/>
 
 ## Extension Repositories
 

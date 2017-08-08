@@ -17,10 +17,14 @@
  */
 package org.wso2.siddhi.query.api.annotation;
 
+import java.io.Serializable;
+
 /**
- * Created by suho on 8/1/14.
+ * Annotation element
  */
-public class Element {
+public class Element implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private final String key;
     private final String value;
 

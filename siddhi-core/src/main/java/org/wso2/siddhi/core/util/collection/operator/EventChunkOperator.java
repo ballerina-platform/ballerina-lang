@@ -23,8 +23,10 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
+
+import java.util.Map;
 
 /**
  * Operator which is related to non-indexed In-memory table operations.
@@ -102,8 +104,8 @@ public class EventChunkOperator implements Operator {
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
-            updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
         ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
@@ -114,8 +116,9 @@ public class EventChunkOperator implements Operator {
                     StreamEvent storeEvent = storeEventChunk.next();
                     updatingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
-                        for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            updateAttributeMapper.mapOutputData(updatingEvent, storeEvent);
+                        for (Map.Entry<Integer, ExpressionExecutor> entry :
+                                compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                            storeEvent.setOutputData(entry.getValue().execute(updatingEvent), entry.getKey());
                         }
                     }
                 }
@@ -128,7 +131,7 @@ public class EventChunkOperator implements Operator {
     @Override
     public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object
             storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    InMemoryCompiledUpdateSet compiledUpdateSet,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         updatingOrAddingEventChunk.reset();
@@ -143,8 +146,10 @@ public class EventChunkOperator implements Operator {
                     StreamEvent storeEvent = storeEventChunk.next();
                     overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
-                        for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEvent);
+                        for (Map.Entry<Integer, ExpressionExecutor> entry :
+                                compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                            storeEvent.setOutputData(entry.getValue().
+                                    execute(overwritingOrAddingEvent), entry.getKey());
                         }
                         updated = true;
                     }

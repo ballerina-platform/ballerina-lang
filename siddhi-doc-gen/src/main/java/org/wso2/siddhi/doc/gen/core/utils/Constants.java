@@ -60,7 +60,9 @@ public class Constants {
     public static final String GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT = "-m";
     public static final String GIT_COMMIT_COMMAND_MESSAGE_FORMAT = "[WSO2-Release] [Release %s] " +
             "update documentation for release %s";
-    public static final String GIT_PUSH_COMMAND = "git push origin master";
+    public static final String GIT_PUSH_COMMAND = "push";
+    public static final String GIT_PUSH_COMMAND_REMOTE = "origin";
+    public static final String GIT_PUSH_COMMAND_REMOTE_BRANCH = "master";
 
     public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     public static final String CORE_NAMESPACE = "core";

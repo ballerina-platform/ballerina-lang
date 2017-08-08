@@ -62,8 +62,8 @@ public class LogicalPatternTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG"}, inEvents[0].getData());
@@ -113,8 +113,8 @@ public class LogicalPatternTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     Assert.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
@@ -164,8 +164,8 @@ public class LogicalPatternTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, null}, inEvents[0].getData());
@@ -217,8 +217,8 @@ public class LogicalPatternTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 4.7f}, inEvents[0].getData());
@@ -270,8 +270,8 @@ public class LogicalPatternTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 72.7f}, inEvents[0].getData());
@@ -323,8 +323,8 @@ public class LogicalPatternTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 75.7f}, inEvents[0].getData());
@@ -1030,6 +1030,74 @@ public class LogicalPatternTestCase {
         Assert.assertEquals("Number of success events", 0, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", false, eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test
+    public void testQuery19() throws InterruptedException {
+        log.info("testQuery19 - OUT 2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); " +
+                "define stream Stream2 (symbol string, price float, volume int); " +
+                "define stream Stream3 (symbol string, price float, volume int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from every (e1=Stream1[price>10] and e2=Stream2[price>20]) -> e3=Stream3[price>30] " +
+                "select e1.symbol as symbol1, e2.symbol as symbol2, e3.symbol as symbol3 " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                    eventArrived = true;
+
+                    switch (inEventCount) {
+                        case 1:
+                            Assert.assertArrayEquals(new Object[]{"ORACLE", "MICROSOFT", "GOOGLE"},
+                                    inEvents[0].getData());
+                            break;
+                        case 2:
+                            Assert.assertArrayEquals(new Object[]{"IBM", "WSO2", "GOOGLE"}, inEvents[0].getData());
+                    }
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
+        InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
+
+        siddhiAppRuntime.start();
+
+        stream1.send(new Object[]{"ORACLE", 15.0f, 100});
+        Thread.sleep(100);
+        stream2.send(new Object[]{"MICROSOFT", 45.0f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"IBM", 55.0f, 100});
+        Thread.sleep(100);
+        stream2.send(new Object[]{"WSO2", 65.0f, 100});
+        Thread.sleep(100);
+        stream3.send(new Object[]{"GOOGLE", 75.0f, 100});
+        Thread.sleep(100);
+
+
+        Assert.assertEquals("Number of success events", 2, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

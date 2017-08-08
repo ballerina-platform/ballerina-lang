@@ -23,10 +23,13 @@ import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+import java.io.Serializable;
+
 /**
  * Rate limiting of query output
  */
-public abstract class OutputRate {
+public abstract class OutputRate implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public static EventOutputRate perEvents(Constant events) {
         if (events instanceof LongConstant) {

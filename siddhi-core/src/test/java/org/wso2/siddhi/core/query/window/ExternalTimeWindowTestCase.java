@@ -49,19 +49,19 @@ public class ExternalTimeWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "define stream LoginEvents (timeStamp long, ip string) ;";
+                "define stream LoginEvents (timestamp long, ip string) ;";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from LoginEvents#window.externalTime(timeStamp,5 sec) " +
-                "select timeStamp, ip  " +
+                "from LoginEvents#window.externalTime(timestamp,5 sec) " +
+                "select timestamp, ip  " +
                 "insert all events into uniqueIps ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }

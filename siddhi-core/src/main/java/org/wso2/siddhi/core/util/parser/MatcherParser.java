@@ -21,12 +21,9 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-
-import java.util.List;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
@@ -42,7 +39,7 @@ public class MatcherParser {
         int storeEventIndex = 0;
 
         MetaStreamEvent tableStreamEvent = new MetaStreamEvent();
-        tableStreamEvent.setTableEvent(true);
+        tableStreamEvent.setEventType(MetaStreamEvent.EventType.TABLE);
         tableStreamEvent.addInputDefinition(candsidateDefinition);
         for (Attribute attribute : candsidateDefinition.getAttributeList()) {
             tableStreamEvent.addOutputData(attribute);
@@ -82,20 +79,7 @@ public class MatcherParser {
             }
         }
         return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex,
-                                          metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
-                                          candsidateDefinition, currentState);
-    }
-
-    public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition,
-                                                                         List<Attribute> updatingStreamDefinition,
-                                                                         int matchingStreamEventPosition) {
-        UpdateAttributeMapper[] updateAttributeMappers = new UpdateAttributeMapper[updatingStreamDefinition.size()];
-        for (int i = 0; i < updatingStreamDefinition.size(); i++) {
-            Attribute streamAttribute = updatingStreamDefinition.get(i);
-            updateAttributeMappers[i] = new UpdateAttributeMapper(i,
-                                                                  tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
-                                                                  matchingStreamEventPosition);
-        }
-        return updateAttributeMappers;
+                metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
+                candsidateDefinition, currentState);
     }
 }

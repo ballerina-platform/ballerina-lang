@@ -21,20 +21,26 @@ import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Selector selecting query output stream attributes
  */
-public class Selector {
+public class Selector implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private List<OutputAttribute> selectionList = new ArrayList<OutputAttribute>();
     private List<Variable> groupByList = new ArrayList<Variable>();
     private Expression havingExpression;
 
     public static Selector selector() {
         return new Selector();
+    }
+
+    public static BasicSelector basicSelector() {
+        return new BasicSelector();
     }
 
     public Selector select(String rename, Expression expression) {

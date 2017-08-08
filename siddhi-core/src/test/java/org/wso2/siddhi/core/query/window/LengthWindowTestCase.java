@@ -58,8 +58,8 @@ public class LengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertEquals("Message order inEventCount", inEventCount, inEvents[0].getData(2));
                 Assert.assertEquals("Events cannot be expired", false, inEvents[0].isExpired());
                 inEventCount = inEventCount + inEvents.length;
@@ -144,8 +144,8 @@ public class LengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
                         if (event.isExpired()) {

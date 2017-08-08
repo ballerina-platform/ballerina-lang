@@ -18,6 +18,7 @@
 package org.wso2.siddhi.doc.gen.commons.metadata;
 
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
@@ -44,7 +45,8 @@ public enum ExtensionType {
     SINK("Sink"),
     SOURCE_MAPPER("Source Mapper"),
     SINK_MAPPER("Sink Mapper"),
-    STORE("Store");
+    STORE("Store"),
+    SCRIPT("Script");
 
     /**
      * Contains the name to be displayed as the extension type
@@ -69,6 +71,7 @@ public enum ExtensionType {
         superClassMap.put(ExtensionType.SOURCE_MAPPER, SourceMapper.class);
         superClassMap.put(ExtensionType.SINK_MAPPER, SinkMapper.class);
         superClassMap.put(ExtensionType.STORE, Table.class);
+        superClassMap.put(ExtensionType.SCRIPT, Script.class);
     }
 
     ExtensionType(String value) {

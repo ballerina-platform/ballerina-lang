@@ -50,16 +50,16 @@ public interface FindableProcessor {
      * To construct a finder having the capability of finding events at the processor that corresponds to the incoming
      * matchingEvent and the given matching expression logic.
      *
-     * @param expression                  the matching expression
+     * @param condition                   the matching condition
      * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
-     * @param siddhiAppContext        current siddhi app context
+     * @param siddhiAppContext            current siddhi app context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
-     * @param tableMap               map of event tables
+     * @param tableMap                    map of event tables
      * @param queryName                   query name of findable processor belongs to.
      * @return compiled Condition having the capability of matching events against the incoming matchingEvent
      */
-    CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                       SiddhiAppContext siddhiAppContext,
-                                       List<VariableExpressionExecutor> variableExpressionExecutors,
-                                       Map<String, Table> tableMap, String queryName);
+    CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                        SiddhiAppContext siddhiAppContext,
+                                        List<VariableExpressionExecutor> variableExpressionExecutors,
+                                        Map<String, Table> tableMap, String queryName);
 }

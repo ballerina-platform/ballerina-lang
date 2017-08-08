@@ -26,14 +26,18 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -103,7 +107,7 @@ public abstract class Table implements FindableProcessor {
                 return find(matchingEvent, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" + 
+            LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" +
                       tableDefinition.getId() + "' as its still trying to reconnect!");
             return null;
         } else {
@@ -139,46 +143,47 @@ public abstract class Table implements FindableProcessor {
                                    CompiledCondition compiledCondition) throws ConnectionUnavailableException;
 
 
-    public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                             UpdateAttributeMapper[] updateAttributeMappers) {
+    public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk,
+                             CompiledCondition compiledCondition,
+                             CompiledUpdateSet compiledUpdateSet) {
         if (isConnected.get()) {
             try {
-                update(updatingEventChunk, compiledCondition, updateAttributeMappers);
+                update(updatingEventChunk, compiledCondition, compiledUpdateSet);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                updateEvents(updatingEventChunk, compiledCondition, updateAttributeMappers);
+                updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Table '" + tableDefinition.getId() +
                     "' as its still trying to reconnect!, events dropped '" + updatingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateEvents(updatingEventChunk, compiledCondition, updateAttributeMappers);
+            updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
         }
     }
 
     protected abstract void update(ComplexEventChunk<StateEvent> updatingEventChunk,
                                    CompiledCondition compiledCondition,
-                                   UpdateAttributeMapper[] updateAttributeMappers)
+                                   CompiledUpdateSet compiledUpdateSet)
             throws ConnectionUnavailableException;
 
     public void updateOrAddEvents(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
                                   CompiledCondition compiledCondition,
-                                  UpdateAttributeMapper[] updateAttributeMappers,
+                                  CompiledUpdateSet compiledUpdateSet,
                                   AddingStreamEventExtractor addingStreamEventExtractor) {
         if (isConnected.get()) {
             try {
-                updateOrAdd(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                updateOrAdd(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                         addingStreamEventExtractor);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry connection immediately.", e);
                 connectWithRetry();
-                updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                         addingStreamEventExtractor);
             }
         } else if (isTryingToConnect.get()) {
@@ -186,14 +191,14 @@ public abstract class Table implements FindableProcessor {
                     "' as its still trying to reconnect!, events dropped '" + updateOrAddingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+            updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                     addingStreamEventExtractor);
         }
     }
 
     protected abstract void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
                                         CompiledCondition compiledCondition,
-                                        UpdateAttributeMapper[] updateAttributeMappers,
+                                        CompiledUpdateSet compiledUpdateSet,
                                         AddingStreamEventExtractor addingStreamEventExtractor)
             throws ConnectionUnavailableException;
 
@@ -229,7 +234,7 @@ public abstract class Table implements FindableProcessor {
                 isConnected.set(true);
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
-            } catch (ConnectionUnavailableException | RuntimeException e) {
+            } catch (ConnectionUnavailableException e) {
                 LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
                         "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
@@ -239,9 +244,33 @@ public abstract class Table implements FindableProcessor {
                     }
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
+            } catch (RuntimeException e) {
+                LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ".", e);
+                throw e;
             }
         }
     }
+
+    /**
+     * Builds the "compiled" set clause of an update query.
+     * Here, all the pre-processing that can be done prior to receiving the update event is done,
+     * so that such pre-processing work will not be done at each update-event-arrival.
+     *
+     * @param updateSet                   the set of assignment expressions, each containing the table column to be
+     *                                    updated and the expression to be assigned.
+     * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
+     * @param siddhiAppContext            current siddhi app context
+     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
+     * @param tableMap                    map of event tables
+     * @param queryName                   query name to which the update statement belongs.
+     * @return
+     */
+    public abstract CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
+                                       MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                       SiddhiAppContext siddhiAppContext,
+                                       List<VariableExpressionExecutor> variableExpressionExecutors,
+                                       Map<String, Table> tableMap, String queryName);
 
     protected abstract void connect() throws ConnectionUnavailableException;
 

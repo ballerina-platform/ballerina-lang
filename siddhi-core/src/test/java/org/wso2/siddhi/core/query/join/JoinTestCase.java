@@ -65,8 +65,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.addAndGet(inEvents.length);
                     }
@@ -114,8 +114,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.addAndGet(inEvents.length);
                     }
@@ -164,8 +164,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.addAndGet(inEvents.length);
                     }
@@ -210,8 +210,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         for (Event event : inEvents) {
                             org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
@@ -267,8 +267,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
             });
@@ -338,8 +338,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
             });
@@ -375,8 +375,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
             });
@@ -412,8 +412,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.getAndAdd(inEvents.length);
                     }
@@ -458,8 +458,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.getAndAdd(inEvents.length);
                     }
@@ -506,8 +506,8 @@ public class JoinTestCase {
         try {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.getAndAdd(inEvents.length);
                     }
@@ -584,8 +584,8 @@ public class JoinTestCase {
             InputHandler itemsStream = siddhiAppRuntime.getInputHandler("dow_items_stream");
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
             });
@@ -629,8 +629,8 @@ public class JoinTestCase {
             InputHandler itemsStream = siddhiAppRuntime.getInputHandler("dow_items_stream");
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
 
@@ -676,8 +676,8 @@ public class JoinTestCase {
 
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
 
@@ -722,8 +722,8 @@ public class JoinTestCase {
             InputHandler itemsStream = siddhiAppRuntime.getInputHandler("dow_items_stream");
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     eventArrived = true;
                 }
             });
@@ -782,26 +782,26 @@ public class JoinTestCase {
             InputHandler deleteIn = siddhiAppRuntime.getInputHandler("deleteIn");
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                     inEventCount.incrementAndGet();
                     if (inEventCount.get() == 1) {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
                     } else {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
                     }
                 }
             });
             siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                     removeEventCount.incrementAndGet();
                     if (removeEventCount.get() == 1) {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
                     } else {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
                     }
                 }
@@ -851,13 +851,13 @@ public class JoinTestCase {
             InputHandler deleteIn = siddhiAppRuntime.getInputHandler("deleteIn");
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                     inEventCount.incrementAndGet();
                     if (inEventCount.get() == 1) {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
                     } else {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 2L);
                     }
                 }
@@ -908,13 +908,13 @@ public class JoinTestCase {
             InputHandler deleteIn = siddhiAppRuntime.getInputHandler("deleteIn");
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                     inEventCount.incrementAndGet();
                     if (inEventCount.get() == 1) {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
                     } else {
-                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         Assert.assertTrue((Long) inEvents[0].getData(0) == 2L);
                     }
                 }

@@ -18,10 +18,12 @@
 
 package org.wso2.siddhi.core.util.parser;
 
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -32,8 +34,6 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
@@ -65,27 +65,26 @@ public class QueryParser {
     /**
      * Parse a query and return corresponding QueryRuntime.
      *
-     * @param query               query to be parsed.
-     * @param siddhiAppContext    associated Siddhi app context.
-     * @param streamDefinitionMap keyvalue containing user given stream definitions.
-     * @param tableDefinitionMap  keyvalue containing table definitions.
-     * @param windowDefinitionMap keyvalue containing window definition map.
-     * @param tableMap            keyvalue containing event tables.
-     * @param eventWindowMap      keyvalue containing event window map.
-     * @param eventSourceMap      keyvalue containing event source map.
-     * @param eventSinkMap        keyvalue containing event sink map.
-     * @param lockSynchronizer    Lock synchronizer for sync the lock across queries.
-     * @param queryIndex          query index to identify unknown query by number
+     * @param query                    query to be parsed.
+     * @param siddhiAppContext         associated Siddhi app context.
+     * @param streamDefinitionMap      keyvalue containing user given stream definitions.
+     * @param tableDefinitionMap       keyvalue containing table definitions.
+     * @param windowDefinitionMap      keyvalue containing window definition map.
+     * @param aggregationDefinitionMap keyvalue containing aggregation definition map.
+     * @param tableMap                 keyvalue containing event tables.
+     * @param aggregationMap           keyvalue containing aggrigation runtimes.
+     * @param windowMap                keyvalue containing event window map.
+     * @param lockSynchronizer         Lock synchronizer for sync the lock across queries.
+     * @param queryIndex               query index to identify unknown query by number
      * @return queryRuntime
      */
     public static QueryRuntime parse(Query query, SiddhiAppContext siddhiAppContext,
                                      Map<String, AbstractDefinition> streamDefinitionMap,
                                      Map<String, AbstractDefinition> tableDefinitionMap,
                                      Map<String, AbstractDefinition> windowDefinitionMap,
+                                     Map<String, AbstractDefinition> aggregationDefinitionMap,
                                      Map<String, Table> tableMap,
-                                     Map<String, Window> eventWindowMap,
-                                     Map<String, List<Source>> eventSourceMap,
-                                     Map<String, List<Sink>> eventSinkMap,
+                                     Map<String, AggregationRuntime> aggregationMap, Map<String, Window> windowMap,
                                      LockSynchronizer lockSynchronizer,
                                      String queryIndex) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
@@ -102,29 +101,17 @@ public class QueryParser {
             } else {
                 queryName = "query_" + queryIndex + "_" + UUID.randomUUID().toString();
             }
-            if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
-                if (nameElement != null) {
-                    String metricName =
-                            siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
-                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
-                                    SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
-                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
-                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_QUERIES +
-                                    SiddhiConstants.METRIC_DELIMITER + queryName;
-                    latencyTracker = siddhiAppContext.getSiddhiContext()
-                            .getStatisticsConfiguration()
-                            .getFactory()
-                            .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
-                }
-            }
+            latencyTracker = QueryParserHelper.getLatencyTracker(siddhiAppContext, queryName,
+                    SiddhiConstants.METRIC_INFIX_QUERIES);
             OutputStream.OutputEventType outputEventType = query.getOutputStream().getOutputEventType();
             boolean outputExpectsExpiredEvents = false;
             if (outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS) {
                 outputExpectsExpiredEvents = true;
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    siddhiAppContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap,
-                    eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+                    siddhiAppContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
+                    aggregationDefinitionMap, tableMap, windowMap, aggregationMap, executors, latencyTracker,
+                    outputExpectsExpiredEvents, queryName);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     siddhiAppContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, queryName);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
@@ -156,10 +143,11 @@ public class QueryParser {
                         MetaStateEvent metaStateEvent = (MetaStateEvent) streamRuntime.getMetaComplexEvent();
                         MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
 
-                        if (metaStreamEvents[0].isWindowEvent() && metaStreamEvents[1].isWindowEvent()) {
-                            LockWrapper leftLockWrapper = eventWindowMap.get(metaStreamEvents[0]
+                        if (metaStreamEvents[0].getEventType() == EventType.WINDOW &&
+                                metaStreamEvents[1].getEventType() == EventType.WINDOW) {
+                            LockWrapper leftLockWrapper = windowMap.get(metaStreamEvents[0]
                                     .getLastInputDefinition().getId()).getLock();
-                            LockWrapper rightLockWrapper = eventWindowMap.get(metaStreamEvents[1]
+                            LockWrapper rightLockWrapper = windowMap.get(metaStreamEvents[1]
                                     .getLastInputDefinition().getId()).getLock();
 
                             if (!leftLockWrapper.equals(rightLockWrapper)) {
@@ -171,13 +159,13 @@ public class QueryParser {
                             // If either of their lock is updated later, the other lock also will be update by the
                             // LockSynchronizer.
                             lockWrapper = leftLockWrapper;
-                        } else if (metaStreamEvents[0].isWindowEvent()) {
+                        } else if (metaStreamEvents[0].getEventType() == EventType.WINDOW) {
                             // Share the same wrapper as the query lock wrapper
-                            lockWrapper = eventWindowMap.get(metaStreamEvents[0].getLastInputDefinition().getId())
+                            lockWrapper = windowMap.get(metaStreamEvents[0].getLastInputDefinition().getId())
                                     .getLock();
-                        } else if (metaStreamEvents[1].isWindowEvent()) {
+                        } else if (metaStreamEvents[1].getEventType() == EventType.WINDOW) {
                             // Share the same wrapper as the query lock wrapper
-                            lockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId())
+                            lockWrapper = windowMap.get(metaStreamEvents[1].getLastInputDefinition().getId())
                                     .getLock();
                         } else {
                             // Join does not contain any Window
@@ -194,9 +182,9 @@ public class QueryParser {
                 }
             }
 
-            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream()
-                            .getId(),
-                    query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow,
+            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(
+                    query.getOutputStream().getId(), query.getOutputRate(),
+                    query.getSelector().getGroupByList().size() != 0, isWindow,
                     siddhiAppContext.getScheduledExecutorService(), siddhiAppContext, queryName);
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
                 selector.setBatchingEnabled(false);
@@ -204,7 +192,7 @@ public class QueryParser {
             siddhiAppContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), tableMap, eventWindowMap,
+                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), tableMap, windowMap,
                     siddhiAppContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
@@ -241,4 +229,6 @@ public class QueryParser {
         }
         return queryRuntime;
     }
+
+
 }

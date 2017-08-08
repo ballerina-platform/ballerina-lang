@@ -327,13 +327,19 @@ public class DocumentationUtils {
 
         try {
             executeCommand(new String[] {Constants.GIT_COMMAND,
+                    Constants.GIT_ADD_COMMAND,
+                    docsDirectory}, logger);
+            executeCommand(new String[] {Constants.GIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
                     String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
                     Constants.GIT_COMMIT_COMMAND_FILES_ARGUMENT,
                     docsDirectory,
                     mkdocsConfigFile.getAbsolutePath()}, logger);
-            executeCommand(new String[] {Constants.GIT_COMMAND, Constants.GIT_PUSH_COMMAND}, logger);
+            executeCommand(new String[] {Constants.GIT_COMMAND,
+                    Constants.GIT_PUSH_COMMAND,
+                    Constants.GIT_PUSH_COMMAND_REMOTE,
+                    Constants.GIT_PUSH_COMMAND_REMOTE_BRANCH}, logger);
         } catch (Throwable t) {
             logger.warn("Failed to update the documentation on GitHub repository", t);
         }
@@ -567,15 +573,6 @@ public class DocumentationUtils {
                 }
             } catch (TemplateException e) {
                 throw new MojoFailureException("Invalid Free Marker template found in " + templateFile, e);
-            }
-
-            // Adding the generated file to git
-            try {
-                executeCommand(new String[] {Constants.GIT_COMMAND,
-                        Constants.GIT_ADD_COMMAND,
-                        outputFile.getAbsolutePath()}, logger);
-            } catch (Throwable t) {
-                logger.warn("Failed to execute git-add for file " + outputFile.getAbsolutePath(), t);
             }
         } catch (IOException e) {
             throw new MojoFailureException("Unable to find template file " + templateFile, e);

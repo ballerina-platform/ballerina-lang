@@ -17,11 +17,14 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.stream;
 
+import java.io.Serializable;
+
 /**
  * Query output stream
  */
-public abstract class OutputStream {
+public abstract class OutputStream implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     protected String id;
     protected OutputEventType outputEventType;
 

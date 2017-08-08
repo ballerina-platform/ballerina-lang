@@ -20,6 +20,7 @@ package org.wso2.siddhi.query.api;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -40,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Siddhi siddhi app
+ *  Siddhi siddhi app
  */
 public class SiddhiApp {
 
@@ -48,6 +49,7 @@ public class SiddhiApp {
     private Map<String, TableDefinition> tableDefinitionMap = new HashMap<String, TableDefinition>();
     private Map<String, WindowDefinition> windowDefinitionMap = new HashMap<String, WindowDefinition>();
     private Map<String, TriggerDefinition> triggerDefinitionMap = new HashMap<String, TriggerDefinition>();
+    private Map<String, AggregationDefinition> aggregationDefinitionMap = new HashMap<String, AggregationDefinition>();
     private List<ExecutionElement> executionElementList = new ArrayList<ExecutionElement>();
     private List<String> executionElementNameList = new ArrayList<String>();
     private List<Annotation> annotations = new ArrayList<Annotation>();
@@ -84,6 +86,19 @@ public class SiddhiApp {
         }
         checkDuplicateDefinition(streamDefinition);
         this.streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
+        return this;
+    }
+
+    public SiddhiApp defineAggregation(AggregationDefinition aggregationDefinition) {
+        if (aggregationDefinition == null) {
+            throw new SiddhiAppValidationException("Aggregation Definition should not be null");
+        }
+        if (aggregationDefinition.getId() == null) {
+            throw new SiddhiAppValidationException("Aggregation Id should not be null for Aggregation Definition");
+        }
+        checkDuplicateDefinition(aggregationDefinition);
+        this.aggregationDefinitionMap.put(aggregationDefinition.getId(), aggregationDefinition);
+
         return this;
     }
 
@@ -156,6 +171,12 @@ public class SiddhiApp {
                     definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
         }
+        AggregationDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
+        if (existingAggregationDefinition != null
+                && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
+            throw new DuplicateDefinitionException("Aggregate Definition with same Aggregate Id '" + definition.getId()
+                    + "' already exist : " + existingAggregationDefinition + ", hence cannot add " + definition);
+        }
     }
 
     public SiddhiApp addQuery(Query query) {
@@ -169,8 +190,8 @@ public class SiddhiApp {
             name = element.getValue();
         }
         if (name != null && executionElementNameList.contains(name)) {
-            throw new SiddhiAppValidationException("Cannot add Query as another Execution Element already uses " +
-                    "its name=" + name);
+throw new SiddhiAppValidationException(
+                    "Cannot add Query as another Execution Element already uses " + "its name=" + name);
         }
         executionElementNameList.add(name);
         this.executionElementList.add(query);
@@ -188,8 +209,8 @@ public class SiddhiApp {
             name = element.getValue();
         }
         if (name != null && executionElementNameList.contains(name)) {
-            throw new SiddhiAppValidationException("Cannot add Partition as another Execution Element already " +
-                    "uses its name=" + name);
+throw new SiddhiAppValidationException(
+                    "Cannot add Partition as another Execution Element already " + "uses its name=" + name);
         }
         executionElementNameList.add(name);
         this.executionElementList.add(partition);
@@ -225,17 +246,16 @@ public class SiddhiApp {
         return windowDefinitionMap;
     }
 
+    public Map<String, AggregationDefinition> getAggregationDefinitionMap() {
+        return aggregationDefinitionMap;
+    }
 
     @Override
     public String toString() {
-        return "SiddhiApp{" +
-                "streamDefinitionMap=" + streamDefinitionMap +
-                ", tableDefinitionMap=" + tableDefinitionMap +
-                ", windowDefinitionMap=" + windowDefinitionMap +
-                ", executionElementList=" + executionElementList +
-                ", executionElementNameList=" + executionElementNameList +
-                ", annotations=" + annotations +
-                '}';
+return "SiddhiApp{" + "streamDefinitionMap=" + streamDefinitionMap + ", tableDefinitionMap="
+                + tableDefinitionMap + ", windowDefinitionMap=" + windowDefinitionMap + ", aggregationDefinitionMap="
+                + aggregationDefinitionMap + ", executionElementList=" + executionElementList
+                + ", executionElementNameList=" + executionElementNameList + ", annotations=" + annotations + '}';
     }
 
     @Override
@@ -268,7 +288,10 @@ public class SiddhiApp {
                 .tableDefinitionMap != null) {
             return false;
         }
-
+        if (aggregationDefinitionMap != null ? !aggregationDefinitionMap.equals(that.aggregationDefinitionMap)
+                : that.aggregationDefinitionMap != null) {
+            return false;
+        }
         return true;
     }
 
@@ -276,6 +299,7 @@ public class SiddhiApp {
     public int hashCode() {
         int result = streamDefinitionMap != null ? streamDefinitionMap.hashCode() : 0;
         result = 31 * result + (tableDefinitionMap != null ? tableDefinitionMap.hashCode() : 0);
+        result = 31 * result + (aggregationDefinitionMap != null ? aggregationDefinitionMap.hashCode() : 0);
         result = 31 * result + (executionElementList != null ? executionElementList.hashCode() : 0);
         result = 31 * result + (executionElementNameList != null ? executionElementNameList.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);

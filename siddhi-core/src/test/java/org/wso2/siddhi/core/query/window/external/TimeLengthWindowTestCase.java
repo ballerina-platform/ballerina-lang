@@ -65,8 +65,8 @@ public class TimeLengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -118,8 +118,8 @@ public class TimeLengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -171,8 +171,8 @@ public class TimeLengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -235,8 +235,8 @@ public class TimeLengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -292,8 +292,8 @@ public class TimeLengthWindowTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorStream + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
 
                 if (inEvents != null) {
                     if (inEvents[0].getData(0).toString().equals("id6")) {
@@ -373,8 +373,8 @@ public class TimeLengthWindowTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorStream + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertEquals((long) count + 1, (inEvents[0].getData(1)));
 
                 count++;
@@ -424,8 +424,8 @@ public class TimeLengthWindowTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
                         if (event.isExpired()) {

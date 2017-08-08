@@ -54,7 +54,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest1') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -69,8 +69,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
@@ -111,7 +111,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest2') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -126,8 +126,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
@@ -168,7 +168,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest3') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -183,8 +183,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
@@ -225,7 +225,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest4') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -240,8 +240,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                     Assert.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.9".equals(inEvents[0]
@@ -283,7 +283,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest5') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -298,8 +298,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                     Assert.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.3".equals(inEvents[0]
@@ -342,7 +342,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest6') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -358,8 +358,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
@@ -401,7 +401,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest7') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -417,8 +417,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
@@ -460,7 +460,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest8') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(2) " +
@@ -476,8 +476,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
@@ -519,7 +519,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest7') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(2) " +
@@ -535,8 +535,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (removeEvents != null) {
                     count += removeEvents.length;
                 } else {
@@ -578,7 +578,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest10') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(2) " +
@@ -594,8 +594,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (removeEvents != null) {
                     count += removeEvents.length;
                 } else {
@@ -637,7 +637,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest11') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(2) " +
@@ -653,8 +653,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount += inEvents.length;
                 }
@@ -698,7 +698,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest11') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(2) " +
@@ -714,8 +714,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount += inEvents.length;
                 }
@@ -759,7 +759,7 @@ public class TimeOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('EventOutputRateLimitTest11') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(2) " +
@@ -775,8 +775,8 @@ public class TimeOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount += inEvents.length;
                 }
