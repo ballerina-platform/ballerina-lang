@@ -443,7 +443,7 @@ public class LangServerManager {
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
             if (!("temp".equals(filePath)) && !(".".equals(packageName))) {
-                logger.warn("Invalid params for getProgramPackages");
+                // No need to resolve packages if the package is not defined or if the file is not saved
                 return;
             }
             Path file = Paths.get(filePath + File.separator + fileName);

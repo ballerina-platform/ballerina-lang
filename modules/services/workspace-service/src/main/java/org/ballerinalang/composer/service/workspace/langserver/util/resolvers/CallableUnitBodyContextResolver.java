@@ -52,6 +52,7 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
             workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
             workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
             workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
+            workerItem.setKind(ItemResolverConstants.WORKER_KIND);
             completionItems.add(workerItem);
 
             completionItems

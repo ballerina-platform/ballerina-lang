@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemData;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NamespaceDeclaration;
@@ -88,6 +89,7 @@ public abstract class AbstractItemResolver {
     void populateClientConnectorCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
+        completionItem.setKind(ItemResolverConstants.ACTION_KIND);
     }
 
     /**
@@ -112,6 +114,7 @@ public abstract class AbstractItemResolver {
         completionItem.setInsertText(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItem.setKind(ItemResolverConstants.FUNCTION_KIND);
     }
 
     /**
@@ -122,6 +125,7 @@ public abstract class AbstractItemResolver {
     void populateNativePackageProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
+        completionItem.setKind(ItemResolverConstants.PACKAGE_KIND);
     }
 
     /**
@@ -132,7 +136,13 @@ public abstract class AbstractItemResolver {
     void populateVariableDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
+
+        CompletionItemData data = new CompletionItemData();
+        data.addData("type", ((VariableDef) symbolInfo.getSymbol()).getTypeName());
+        completionItem.setData(data);
+
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
+        completionItem.setKind(ItemResolverConstants.VAR_DEF_KIND);
     }
 
     /**
@@ -144,6 +154,7 @@ public abstract class AbstractItemResolver {
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItem.setKind(ItemResolverConstants.STRUCT_KIND);
     }
 
     /**
@@ -153,6 +164,7 @@ public abstract class AbstractItemResolver {
      */
     void populateBTypeCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.B_TYPE);
+        completionItem.setKind(ItemResolverConstants.B_TYPE_KIND);
     }
 
     /**

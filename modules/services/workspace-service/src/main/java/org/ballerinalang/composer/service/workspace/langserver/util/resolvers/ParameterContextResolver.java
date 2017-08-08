@@ -45,6 +45,7 @@ public class ParameterContextResolver extends AbstractItemResolver {
             completionItem.setLabel(symbolInfo.getSymbolName());
             completionItem.setInsertText(symbolInfo.getSymbolName());
             completionItem.setDetail(ItemResolverConstants.B_TYPE);
+            completionItem.setKind(ItemResolverConstants.PARAMETER_KIND);
             completionItems.add(completionItem);
         });
 

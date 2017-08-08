@@ -390,7 +390,7 @@ class FunctionDefinition extends CallableDefinition {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
-            self.addChild(child, -1, true, true);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNodeTemp);
         });
     }
