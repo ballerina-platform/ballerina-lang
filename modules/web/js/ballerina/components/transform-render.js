@@ -164,7 +164,6 @@ class TransformRender {
     getConnectionObject(id, source, target) {
         const sourceName = source.name;
         const targetName = target.name;
-        debugger;
 
         let sourceReference;
         let rootSourceStructName;
@@ -420,7 +419,6 @@ class TransformRender {
 
 
        addConnection(sourceId, targetId) {
-           debugger;
            this.jsPlumbInstance.connect({
                source: sourceId,
                target: targetId,
