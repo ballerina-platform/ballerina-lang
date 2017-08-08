@@ -123,10 +123,6 @@ public class IncrementalExecutor implements Executor {
                                 baseIncrementalValueStore;
     }
 
-    public StreamEventPool getStreamEventPool () {
-        return streamEventPool;
-    }
-
     public boolean isRoot() {
         return isRoot;
     }

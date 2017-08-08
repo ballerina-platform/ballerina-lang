@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -136,25 +137,54 @@ public class AggregationRuntime {
         perExpressionExecutor = ExpressionParser.parseExpression(per, matchingMetaInfoHolder.getMetaStateEvent(),
                 matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext,
                 false, 0, queryName);
+        if (perExpressionExecutor.getReturnType() != Attribute.Type.STRING) {
+            throw new SiddhiAppCreationException("Query " + queryName + "'s per value expected a string but found "
+                    + perExpressionExecutor.getReturnType());
+        }
         if (within.getTimeRange().size() == 2) {
-            Expression greaterThanEqualExpression = Expression.compare(Expression.variable("_TIMESTAMP"),
-                    Compare.Operator.GREATER_THAN_EQUAL, Expression.function("time", "timestampInMilliseconds",
-                            within.getTimeRange().get(0), Expression.value("yyyy-MM-dd HH:mm:ss ZZ")));
-            Expression lessThanExpression = Expression.compare(Expression.variable("_TIMESTAMP"),
-                    Compare.Operator.LESS_THAN, Expression.function("time", "timestampInMilliseconds",
-                            within.getTimeRange().get(1), Expression.value("yyyy-MM-dd HH:mm:ss ZZ")));
+            Expression greaterThanEqualExpression;
+            Expression lessThanExpression;
+            ExpressionExecutor startTime = ExpressionParser.parseExpression(within.getTimeRange().get(0),
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap,
+                    variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
+            ExpressionExecutor endTime = ExpressionParser.parseExpression(within.getTimeRange().get(1),
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap,
+                    variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
+            if (startTime.getReturnType() == Attribute.Type.STRING) {
+                greaterThanEqualExpression = Expression.compare(Expression.variable("_TIMESTAMP"),
+                        Compare.Operator.GREATER_THAN_EQUAL, Expression.function("time", "timestampInMilliseconds",
+                                within.getTimeRange().get(0), Expression.value("yyyy-MM-dd HH:mm:ss ZZ")));
+            } else if (startTime.getReturnType() == Attribute.Type.LONG) {
+                greaterThanEqualExpression = Expression.compare(Expression.variable("_TIMESTAMP"),
+                        Compare.Operator.GREATER_THAN_EQUAL, within.getTimeRange().get(0));
+            } else {
+                throw new SiddhiAppCreationException("The first value of within clause must return "
+                        + "string or long, but found " + startTime.getReturnType());
+            }
+            if (endTime.getReturnType() == Attribute.Type.STRING) {
+                lessThanExpression = Expression.compare(Expression.variable("_TIMESTAMP"), Compare.Operator.LESS_THAN,
+                        Expression.function("time", "timestampInMilliseconds", within.getTimeRange().get(1),
+                                Expression.value("yyyy-MM-dd HH:mm:ss ZZ")));
+            } else if (endTime.getReturnType() == Attribute.Type.LONG) {
+                lessThanExpression = Expression.compare(Expression.variable("_TIMESTAMP"), Compare.Operator.LESS_THAN,
+                        within.getTimeRange().get(1));
+            } else {
+                throw new SiddhiAppCreationException("The second value of within clause must return "
+                        + "string or long, but found " + endTime.getReturnType());
+            }
             completeWithinExpression = Expression.and(greaterThanEqualExpression, lessThanExpression);
         } else if (within.getTimeRange().size() == 1) {
             Expression[] regexArray = new Expression[TimePeriod.Duration.values().length];
-            Expression[] startTimeAsStringArray = new Expression[TimePeriod.Duration.values().length];
-            Expression[] startTimeAsUnixArray = new Expression[TimePeriod.Duration.values().length];
-            Expression[] endTimeAsLongArray = new Expression[TimePeriod.Duration.values().length];
             Expression[] completeWithinExpressionArray = new Expression[TimePeriod.Duration.values().length];
-            populateExecutorMapsForSingleWithin(regexArray, startTimeAsStringArray, startTimeAsUnixArray,
-                    endTimeAsLongArray, completeWithinExpressionArray, within, matchingMetaInfoHolder,
-                    variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
+            ExpressionExecutor withinValue = ExpressionParser.parseExpression(within.getTimeRange().get(0),
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap,
+                    variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
+            if (withinValue.getReturnType() != Attribute.Type.STRING) {
+                throw new SiddhiAppCreationException(
+                        "The within clause must return " + "string, but found " + withinValue.getReturnType());
+            }
+            populateSingleWithinExpressionArray(regexArray, completeWithinExpressionArray, within);
             // Since there are 6 durations (sec, min, hour, day, month, year) each expression array has 6 elements.
-            // TODO: 8/4/17 where to handle incorrect input which doesn't match any?
             completeWithinExpression = Expression.function("ifThenElse", regexArray[0],
                     completeWithinExpressionArray[0],
                     Expression.function("ifThenElse", regexArray[1], completeWithinExpressionArray[1],
@@ -240,15 +270,15 @@ public class AggregationRuntime {
         return MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, streamDefinition, UNKNOWN_STATE);
     }
 
-    private static void populateExecutorMapsForSingleWithin(Expression[] regexArray,
-            Expression[] startTimeAsStringArray, Expression[] startTimeAsUnixArray, Expression[] endTimeAsUnixArray,
-            Expression[] completeWithinExpressionArray, Within within, MatchingMetaInfoHolder matchingMetaInfoHolder,
-            List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName,
-            SiddhiAppContext siddhiAppContext) {
+    private static void populateSingleWithinExpressionArray(Expression[] regexArray,
+            Expression[] completeWithinExpressionArray, Within within) {
+        Expression[] startTimeAsStringArray = new Expression[TimePeriod.Duration.values().length];
+        Expression[] startTimeAsUnixArray = new Expression[TimePeriod.Duration.values().length];
+        Expression[] endTimeAsUnixArray = new Expression[TimePeriod.Duration.values().length];
+        Expression timeZone;
+        Expression thisYear;
+        Expression getNextYearBeginning;
         for (TimePeriod.Duration duration : TimePeriod.Duration.values()) {
-            Expression timeZone;
-            Expression thisYear;
-            Expression getNextYearBeginning;
             switch (duration) {
             case SECONDS:
                 regexArray[0] = Expression.function("str", "regexp", within.getTimeRange().get(0), Expression.value(
@@ -264,8 +294,8 @@ public class AggregationRuntime {
                                 endTimeAsUnixArray[0]));
                 break;
             case MINUTES:
-                regexArray[1] = Expression.function("str", "regexp", within.getTimeRange().get(0), Expression
-                        .value("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:]\\*\\*\\s[+-]{1}[0-9]{2}[:][0-9]{2}"));
+                regexArray[1] = Expression.function("str", "regexp", within.getTimeRange().get(0), Expression.value(
+                        "[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:]\\*\\*\\s[+-]{1}[0-9]{2}[:][0-9]{2}"));
                 startTimeAsStringArray[1] = Expression.function("str", "replaceAll", within.getTimeRange().get(0),
                         Expression.value("\\*"), Expression.value("0"));
                 startTimeAsUnixArray[1] = Expression.function("time", "timestampInMilliseconds",

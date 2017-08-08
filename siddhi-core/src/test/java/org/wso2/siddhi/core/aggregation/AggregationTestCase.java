@@ -441,8 +441,8 @@ public class AggregationTestCase {
 //                "within \"2017-06-01 04:05:51 +00:00\", \"2017-06-01 04:05:52 +00:00\" " +
 //                "within \"2017-06-01 09:35:51 +05:30\", \"2017-06-01 09:35:52 +05:30\" " +
 //                "within b.startTime,  b.endTime " +
-                "within b.startTime " +
-//                "within \"2017-06-01 **:**:** +05:30\" " +
+                "within  1496289951000L, 1496289952000L" +
+//                "within b.startTime " +
 //                "within \"2017-06-01 04:05:51 +00:00\" " +
 //                "within \"2017-06-01 09:35:51 +05:30\" " +
 //                "per \"minutes\" " +

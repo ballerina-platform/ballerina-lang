@@ -487,10 +487,15 @@ public class AggregationParser {
         ExpressionExecutor timestampExecutor = ExpressionParser.parseExpression(timestampExpression,
                 metaStreamEvent, 0, tableMap, variableExpressionExecutors,
                 siddhiAppContext, false, 0, aggregatorName);
-        if (timestampExecutor.getReturnType() != Attribute.Type.LONG) {
+        if (timestampExecutor.getReturnType() == Attribute.Type.STRING) {
+            timestampExecutor = ExpressionParser.parseExpression(Expression.function("time", "timestampInMilliseconds",
+                    timestampExpression, Expression.value("yyyy-MM-dd HH:mm:ss ZZ")),
+                    metaStreamEvent, 0, tableMap, variableExpressionExecutors,
+                    siddhiAppContext, false, 0, aggregatorName);
+        } else if (timestampExecutor.getReturnType() != Attribute.Type.LONG) {
             throw new SiddhiAppCreationException(
-                    "AggregationDefinition '" + aggregationDefinition.getId() + "'s aggregateAttribute does not" +
-                            " return long, but returns " + timestampExecutor.getReturnType() + ". " +
+                    "AggregationDefinition '" + aggregationDefinition.getId() + "'s aggregateAttribute expects " +
+                            "long or string, but found " + timestampExecutor.getReturnType() + ". " +
                             "Hence, can't create the siddhi app '" + siddhiAppContext.getName() + "'");
         }
         return timestampExecutor;
