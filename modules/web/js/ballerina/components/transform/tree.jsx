@@ -4,7 +4,7 @@ import './tree.css'
 
 export default class Tree extends React.Component {
     renderStruct(endpoint, level) {
-        const { makeConnectPoint, viewId, type } = this.props;
+        const { makeConnectPoint, viewId, type, removeTypeCallbackFunc } = this.props;
         const key = `${endpoint.fieldName || endpoint.name}:${viewId}`;
         return <div>
             <VariableEndpoint
@@ -15,6 +15,7 @@ export default class Tree extends React.Component {
                 endpointKind={endpoint.isInner ? 'property' : 'struct-head'}
                 makeConnectPoint={makeConnectPoint}
                 level={level}
+                removeTypeCallbackFunc={removeTypeCallbackFunc}
             />
             {
                 endpoint.properties.map(property => {
@@ -32,6 +33,7 @@ export default class Tree extends React.Component {
                         endpointKind='property'
                         makeConnectPoint={makeConnectPoint}
                         level={level+1}
+                        removeTypeCallbackFunc={removeTypeCallbackFunc}
                     />
                 })
             }
@@ -39,7 +41,7 @@ export default class Tree extends React.Component {
     }
 
     render() {
-        const { endpoints, type, makeConnectPoint, viewId } = this.props;
+        const { endpoints, type, makeConnectPoint, viewId, removeTypeCallbackFunc } = this.props;
         return (
             <div className='transform-endpoint-tree'>
                 { endpoints.map(endpoint => {
@@ -56,6 +58,7 @@ export default class Tree extends React.Component {
                                     endpointKind='variable'
                                     makeConnectPoint={makeConnectPoint}
                                     level={0}
+                                    removeTypeCallbackFunc={removeTypeCallbackFunc}
                                 />
                             </div>
                         );

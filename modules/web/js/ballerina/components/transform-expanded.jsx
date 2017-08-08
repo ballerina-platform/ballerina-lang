@@ -58,6 +58,8 @@ class TransformExpanded extends React.Component {
         this.addTarget = this.addTarget.bind(this);
         this.recordSourceElement = this.recordSourceElement.bind(this);
         this.recordTargetElement = this.recordTargetElement.bind(this);
+        this.removeSourceType = this.removeSourceType.bind(this);
+        this.removeTargetType = this.removeTargetType.bind(this);
     }
 
     getFunctionDefinition(functionInvocationExpression) {
@@ -817,6 +819,17 @@ class TransformExpanded extends React.Component {
         this.addTarget(this.state.selectedTarget);
     }
 
+    removeSourceType(removedType){
+      this.props.model.removeInput(removedType);
+      this.mapper.removeType(removedType.name);
+
+    }
+
+    removeTargetType(removedType){
+      this.props.model.removeOutput(removedType);
+      this.mapper.removeType(removedType.name);
+    }
+
     addSource(selectedSource) {
         let inputDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
@@ -1122,7 +1135,7 @@ class TransformExpanded extends React.Component {
                         </span>
                     </div>
                     <div className="leftType">
-                        <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} />
+                        <Tree viewId={this.props.model.getID()} endpoints={inputs} type='source' makeConnectPoint={this.recordSourceElement} removeTypeCallbackFunc={this.removeSourceType}/>
                     </div>
                     <div className="middle-content">
                         <span className="middle-content-title">Drag Function here</span>
@@ -1145,7 +1158,7 @@ class TransformExpanded extends React.Component {
                         </span>
                     </div>
                     <div className="rightType">
-                        <Tree viewId={this.props.model.getID()} endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement}/>
+                        <Tree viewId={this.props.model.getID()} endpoints={outputs} type='target' makeConnectPoint={this.recordTargetElement} removeTypeCallbackFunc={this.removeTargetType}/>
                     </div>
                     <div id ="transformContextMenu" className="transformContextMenu"></div>
                     <div id ="transformFooter" className="transform-footer"></div>
