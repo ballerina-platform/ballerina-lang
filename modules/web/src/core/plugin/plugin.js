@@ -70,43 +70,14 @@ class Plugin {
     }
 
     /**
-     * Returns the list of command definitions
-     * that this particular plugin is contributing.
+     * Provides the contributions from this plugin.
+     * IMPORTANT: This method will be called before the plugin is activated.
      *
-     * @return {Object[]} Command definitions
-     */
-    getCommandDefinitions() {
-        return [];
-    }
-
-    /**
-     * Returns the list of command handlers
-     * that this particular plugin is contributing.
+     * @return {Object} Contributions
      *
-     * @return {Object[]} Command Handler Definitionns
      */
-    getCommandHandlerDefinitions() {
-        return [];
-    }
-
-    /**
-     * Returns the list of menu definitions
-     * that this particular plugin is contributing.
-     *
-     * @return {Object[]} Menu definitions
-     */
-    getMenuDefinitions() {
-        return [];
-    }
-
-    /**
-     * Returns the list of view definitions
-     * that this particular plugin is contributing.
-     *
-     * @return {Object[]} View definitions
-     */
-    getViews() {
-        return [];
+    getContributions() {
+        return {};
     }
 }
 

@@ -16,6 +16,7 @@
  * under the License.
  */
 import Plugin from './../plugin/plugin';
+import { CONTRIBUTIONS } from './../plugin/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -43,15 +44,13 @@ class ApplicationMenuPlugin extends Plugin {
     /**
      * @inheritdoc
      */
-    getCommandDefinitions() {
-        return getCommandDefinitions();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    getCommandHandlerDefinitions() {
-        return getHandlerDefinitions(this);
+    getContributions() {
+        const { COMMANDS, HANDLERS, VIEWS } = CONTRIBUTIONS;
+        return {
+            [COMMANDS]: getCommandDefinitions(this),
+            [HANDLERS]: getHandlerDefinitions(this),
+            [VIEWS]: [],
+        };
     }
 }
 

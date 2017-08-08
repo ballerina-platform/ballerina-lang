@@ -19,7 +19,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import 'css/preloader.css';
 import Plugin from './plugin/plugin';
-import { ACTIVATION_POLICIES } from './plugin/constants';
+import { ACTIVATION_POLICIES, CONTRIBUTIONS } from './plugin/constants';
 
 import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
@@ -125,16 +125,16 @@ class Application {
      * @param {Plugin} plugin plugin instance
      */
     _discoverContributions(plugin) {
-         // load command definitions
-        const commandDefs = plugin.getCommandDefinitions();
-        commandDefs.forEach((command) => {
-            this.commandManager.registerCommand(command);
+        const contributions = plugin.getContributions();
+        const commands = _.get(contributions, CONTRIBUTIONS.COMMANDS, []);
+        const handlers = _.get(contributions, CONTRIBUTIONS.HANDLERS, []);
+
+        commands.forEach((commandDef) => {
+            this.commandManager.registerCommand(commandDef);
         });
 
-        // load command handlers
-        const commandHandlerDefs = plugin.getCommandHandlerDefinitions();
-        commandHandlerDefs.forEach((commandHandlerDef) => {
-            const { cmdID, handler, context } = commandHandlerDef;
+        handlers.forEach((handlerDef) => {
+            const { cmdID, handler, context } = handlerDef;
             this.commandManager.registerHandler(cmdID, handler, context);
         });
     }

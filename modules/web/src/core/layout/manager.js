@@ -19,6 +19,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Plugin from './../plugin/plugin';
+import { CONTRIBUTIONS } from './../plugin/constants';
 
 import App from './components/App';
 
@@ -79,16 +80,14 @@ class LayoutManagerPlugin extends Plugin {
     /**
      * @inheritdoc
      */
-    getCommandDefinitions() {
-        return getCommandDefinitions();
+    getContributions() {
+        const { COMMANDS, HANDLERS } = CONTRIBUTIONS;
+        return {
+            [COMMANDS]: getCommandDefinitions(this),
+            [HANDLERS]: getHandlerDefinitions(this),
+        };
     }
 
-    /**
-     * @inheritdoc
-     */
-    getCommandHandlerDefinitions() {
-        return getHandlerDefinitions(this);
-    }
 }
 
 LayoutManagerPlugin.configTypes = {
