@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.values.StructureType;
 
 /**
@@ -131,25 +132,25 @@ public class AnnAttributeValue {
 
     public void loadDynamicAttributeValues(StructureType globalMemoryBlock) {
         if (runTimeValue) {
-            switch (typeTag) {
-                case 1: //INT_TAG
+            switch (typeDesc) {
+                case TypeSignature.SIG_BOOLEAN:
+                    booleanValue = globalMemoryBlock.getBooleanField(memoryOffset) == 1 ? true : false;
+                    break;
+                case TypeSignature.SIG_INT:
                     intValue = globalMemoryBlock.getIntField(memoryOffset);
                     break;
-                case 2: //FLOAT_TAG
+                case TypeSignature.SIG_FLOAT:
                     floatValue = globalMemoryBlock.getFloatField(memoryOffset);
                     break;
-                case 3: //STRING_TAG
+                case TypeSignature.SIG_STRING:
                     stringValue = globalMemoryBlock.getStringField(memoryOffset);
-                    break;
-                case 4: //BOOLEAN_TAG
-                    booleanValue = globalMemoryBlock.getBooleanField(memoryOffset) == 1 ? true : false;
                     break;
             }
             runTimeValue = false;
         } else if (annotationAttachmentValue != null) {
             annotationAttachmentValue.loadDynamicAttributes(globalMemoryBlock);
         } else if (attributeValueArray != null) {
-            for (AnnotationAttributeValue attributeValue : attributeValueArray) {
+            for (AnnAttributeValue attributeValue : attributeValueArray) {
                 attributeValue.loadDynamicAttributeValues(globalMemoryBlock);
             }
         }

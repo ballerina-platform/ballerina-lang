@@ -17,9 +17,8 @@
 */
 package org.ballerinalang.util.codegen.attributes;
 
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 
 import java.util.ArrayList;
 import java.util.List;

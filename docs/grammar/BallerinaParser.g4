@@ -195,6 +195,7 @@ xmlLocalName
 
  annotationAttributeValue
      :   simpleLiteral
+     |   nameReference
      |   annotationAttachment
      |   annotationAttributeArray
      ;

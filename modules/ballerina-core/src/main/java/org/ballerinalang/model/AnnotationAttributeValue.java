@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -33,7 +32,6 @@ import java.util.Arrays;
 public class AnnotationAttributeValue  implements Node {
     BValue bValue;
     SimpleVarRefExpr varRefExpr;
-    GlobalVarLocation memoryLocation;
     AnnotationAttachment annotationValue;
     AnnotationAttributeValue[] valueArray;
     NodeLocation location;
@@ -82,14 +80,6 @@ public class AnnotationAttributeValue  implements Node {
 
     public SimpleVarRefExpr getVarRefExpr() {
         return varRefExpr;
-    }
-
-    public GlobalVarLocation getMemoryLocation() {
-        return memoryLocation;
-    }
-
-    public void setMemoryLocation(GlobalVarLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
     }
 
     public AnnotationAttributeValue[] getValueArray() {

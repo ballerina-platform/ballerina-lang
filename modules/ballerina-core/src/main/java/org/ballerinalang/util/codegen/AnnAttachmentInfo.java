@@ -19,7 +19,6 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.values.StructureType;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -61,7 +60,7 @@ public class AnnAttachmentInfo {
         return name;
     }
 
-    public Map<String, AnnotationAttributeValue> getAttributeValueMap() {
+    public Map<String, AnnAttributeKeyValuePair> getAttributeValueMap() {
         return attributeValueMap;
     }
 

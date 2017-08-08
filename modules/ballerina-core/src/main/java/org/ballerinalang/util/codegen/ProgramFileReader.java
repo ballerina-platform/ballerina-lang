@@ -1173,6 +1173,15 @@ public class ProgramFileReader {
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
         String typeDesc = typeDescCPEntry.getValue();
 
+        boolean isRuntime = dataInStream.readBoolean();
+        if (isRuntime) {
+            int memOffset = dataInStream.readInt();
+            attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
+            attributeValue.setMemoryOffset(memOffset);
+            attributeValue.setRunTimeValue(isRuntime);
+            return attributeValue;
+        }
+
         int valueCPIndex;
         switch (typeDesc) {
             case TypeSignature.SIG_ANNOTATION:

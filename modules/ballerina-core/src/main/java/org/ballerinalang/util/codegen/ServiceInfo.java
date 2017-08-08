@@ -108,7 +108,7 @@ public class ServiceInfo extends StructureTypeInfo {
 
     public void loadDynamicAnnotations(StructureType globalMemoryBlock) {
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo == null) {
             return;
         }
