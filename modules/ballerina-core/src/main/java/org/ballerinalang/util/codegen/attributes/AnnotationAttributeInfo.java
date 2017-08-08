@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.codegen.attributes;
 
-import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 
 import java.util.ArrayList;
@@ -57,9 +56,4 @@ public class AnnotationAttributeInfo implements AttributeInfo {
         return attributeNameIndex;
     }
 
-    public void loadDynamicAttributes(StructureType globalMemoryBlock) {
-        attachmentList.forEach(a -> {
-            a.loadDynamicAttributes(globalMemoryBlock);
-        });
-    }
 }

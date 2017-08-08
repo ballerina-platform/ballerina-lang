@@ -1175,10 +1175,15 @@ public class ProgramFileReader {
 
         boolean isRuntime = dataInStream.readBoolean();
         if (isRuntime) {
-            int memOffset = dataInStream.readInt();
-            attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
-            attributeValue.setMemoryOffset(memOffset);
-            attributeValue.setRunTimeValue(isRuntime);
+            int constPkgCPIndex = dataInStream.readInt();
+            int constNameCPIndex = dataInStream.readInt();
+
+            UTF8CPEntry constPkgCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constPkgCPIndex);
+            UTF8CPEntry constNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constNameCPIndex);
+            attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkgCPEntry.getValue(), constNameCPIndex, constNameCPEntry.getValue());
+            attributeValue.setRunTimeProvisioned(isRuntime);
+            programFile.addUnresolvedAnnAttrValue(attributeValue);
             return attributeValue;
         }
 

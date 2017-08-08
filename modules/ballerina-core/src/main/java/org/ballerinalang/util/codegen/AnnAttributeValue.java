@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.TypeSignature;
-import org.ballerinalang.model.values.StructureType;
-
 /**
  * {@code AnnotationAttributeValue} contains the value of a Ballerina annotation attribute.
  *
@@ -34,8 +31,11 @@ public class AnnAttributeValue {
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
-    private boolean runTimeValue = false;
-    private int memoryOffset = -1;
+    private boolean runTimeProvisioned = false;
+    private int constPkgCPIndex;
+    private String constPkg;
+    private int constNameCPIndex;
+    private String constName;
 
     private AnnAttachmentInfo annotationAttachmentValue;
 
@@ -56,6 +56,16 @@ public class AnnAttributeValue {
         this.typeDescCPIndex = typeDescCPIndex;
         this.typeDesc = typeDesc;
         this.attributeValueArray = attributeValueArray;
+    }
+
+    public AnnAttributeValue(int typeDescCPIndex, String typeDesc, int constPkgCPIndex, String constPkg,
+                             int constNameCPIndex, String constName) {
+        this.typeDescCPIndex = typeDescCPIndex;
+        this.typeDesc = typeDesc;
+        this.constPkgCPIndex = constPkgCPIndex;
+        this.constPkg = constPkg;
+        this.constNameCPIndex = constNameCPIndex;
+        this.constName = constName;
     }
 
     public int getTypeDescCPIndex() {
@@ -106,20 +116,28 @@ public class AnnAttributeValue {
         this.booleanValue = booleanValue;
     }
 
-    public boolean isRunTimeValue() {
-        return runTimeValue;
+    public boolean isRunTimeProvisioned() {
+        return runTimeProvisioned;
     }
 
-    public void setRunTimeValue(boolean runTimeValue) {
-        this.runTimeValue = runTimeValue;
+    public void setRunTimeProvisioned(boolean runTimeProvisioned) {
+        this.runTimeProvisioned = runTimeProvisioned;
     }
 
-    public int getMemoryOffset() {
-        return memoryOffset;
+    public int getConstPkgCPIndex() {
+        return constPkgCPIndex;
     }
 
-    public void setMemoryOffset(int memoryOffset) {
-        this.memoryOffset = memoryOffset;
+    public String getConstPkg() {
+        return constPkg;
+    }
+
+    public int getConstNameCPIndex() {
+        return constNameCPIndex;
+    }
+
+    public String getConstName() {
+        return constName;
     }
 
     public AnnAttachmentInfo getAnnotationAttachmentValue() {
@@ -130,30 +148,4 @@ public class AnnAttributeValue {
         return attributeValueArray;
     }
 
-    public void loadDynamicAttributeValues(StructureType globalMemoryBlock) {
-        if (runTimeValue) {
-            switch (typeDesc) {
-                case TypeSignature.SIG_BOOLEAN:
-                    booleanValue = globalMemoryBlock.getBooleanField(memoryOffset) == 1 ? true : false;
-                    break;
-                case TypeSignature.SIG_INT:
-                    intValue = globalMemoryBlock.getIntField(memoryOffset);
-                    break;
-                case TypeSignature.SIG_FLOAT:
-                    floatValue = globalMemoryBlock.getFloatField(memoryOffset);
-                    break;
-                case TypeSignature.SIG_STRING:
-                    stringValue = globalMemoryBlock.getStringField(memoryOffset);
-                    break;
-            }
-            runTimeValue = false;
-        } else if (annotationAttachmentValue != null) {
-            annotationAttachmentValue.loadDynamicAttributes(globalMemoryBlock);
-        } else if (attributeValueArray != null) {
-            for (AnnAttributeValue attributeValue : attributeValueArray) {
-                attributeValue.loadDynamicAttributeValues(globalMemoryBlock);
-            }
-        }
-
-    }
 }

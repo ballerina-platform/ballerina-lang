@@ -65,7 +65,8 @@ public class BLangProgramRunner {
         bContext.disableNonBlocking = true;
 
         // Invoke package init function
-        BLangFunctions.invokeFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+//        BLangFunctions.invokeFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -85,7 +86,7 @@ public class BLangProgramRunner {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
                         serviceInfo.getProtocolPkgPath());
             }
-            serviceInfo.loadDynamicAnnotations(programFile.getGlobalMemoryBlock());
+//            serviceInfo.loadDynamicAnnotations(programFile.getGlobalMemoryBlock());
             // Deploy service
             DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
                     .serviceRegistered(serviceInfo);
@@ -121,7 +122,7 @@ public class BLangProgramRunner {
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);

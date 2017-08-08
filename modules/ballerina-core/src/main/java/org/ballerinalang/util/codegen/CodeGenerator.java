@@ -209,6 +209,7 @@ public class CodeGenerator implements NodeVisitor {
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private LocalVariableAttributeInfo currentlGlobalVarAttribInfo;
     private LineNumberTableAttributeInfo lineNumberTableAttributeInfo;
     private CallableUnitInfo currentCallableUnitInfo;
     private int workerChannelCount = 0;
@@ -287,6 +288,12 @@ public class CodeGenerator implements NodeVisitor {
         int lineNumberAttribNameIndex = currentPkgInfo.addCPEntry(lineNumberAttribUTF8CPEntry);
         lineNumberTableAttributeInfo = new LineNumberTableAttributeInfo(lineNumberAttribNameIndex);
 
+        UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(
+                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.toString());
+        int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+        currentlGlobalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, currentlGlobalVarAttribInfo);
+
         visitConstants(bLangPackage.getConsts());
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
@@ -310,6 +317,7 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+        currentlGlobalVarAttribInfo = null;
     }
 
     private void visitConstants(ConstDef[] constDefs) {
@@ -326,6 +334,10 @@ public class CodeGenerator implements NodeVisitor {
                     typeSigCPIndex, typeSigUTF8Entry.getValue());
             packageVarInfo.setType(varType);
             currentPkgInfo.addConstantInfo(constDef.getName(), packageVarInfo);
+
+
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(constDef.getVariableDefStmt().getVariableDef());
+            currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
 
             // TODO Populate annotation attribute
         }
@@ -2994,9 +3006,21 @@ public class CodeGenerator implements NodeVisitor {
             String typeDesc = attributeValue.getType().getSig().toString();
             UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
             int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
-            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
-            attribValue.setRunTimeValue(true);
-            attribValue.setMemoryOffset(attributeValue.getVarRefExpr().getVariableDef().getVarIndex());
+
+
+            String constPkg = attributeValue.getVarRefExpr().getVariableDef().getPackagePath();
+            UTF8CPEntry constPkgCPEntry = new UTF8CPEntry(constPkg);
+            int constPkgCPIndex = currentPkgInfo.addCPEntry(constPkgCPEntry);
+
+            String constName = attributeValue.getVarRefExpr().getVariableDef().getName();
+            UTF8CPEntry constNameCPEntry = new UTF8CPEntry(constName);
+            int constNameCPIndex = currentPkgInfo.addCPEntry(constNameCPEntry);
+
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkg, constNameCPIndex, constName);
+            attribValue.setRunTimeProvisioned(true);
+
+            programFile.addUnresolvedAnnAttrValue(attribValue);
         } else {
             org.ballerinalang.model.AnnotationAttributeValue[] attributeValues = attributeValue.getValueArray();
             AnnAttributeValue[] annotationAttribValues = new AnnAttributeValue[attributeValues.length];

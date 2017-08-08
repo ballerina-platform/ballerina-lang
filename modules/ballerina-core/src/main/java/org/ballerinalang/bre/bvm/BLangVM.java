@@ -2201,7 +2201,7 @@ public class BLangVM {
                 continue;
             }
             localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
-                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
+                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVariableName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
                     variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {

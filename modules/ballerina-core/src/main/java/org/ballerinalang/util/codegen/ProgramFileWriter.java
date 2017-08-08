@@ -605,9 +605,10 @@ public class ProgramFileWriter {
     private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
                                                AnnAttributeValue attributeValue) throws IOException {
         dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
-        dataOutStream.writeBoolean(attributeValue.isRunTimeValue());
-        if (attributeValue.isRunTimeValue()) {
-            dataOutStream.writeInt(attributeValue.getMemoryOffset());
+        dataOutStream.writeBoolean(attributeValue.isRunTimeProvisioned());
+        if (attributeValue.isRunTimeProvisioned()) {
+            dataOutStream.writeInt(attributeValue.getConstPkgCPIndex());
+            dataOutStream.writeInt(attributeValue.getConstNameCPIndex());
             return;
         }
         String typeDesc = attributeValue.getTypeDesc();
