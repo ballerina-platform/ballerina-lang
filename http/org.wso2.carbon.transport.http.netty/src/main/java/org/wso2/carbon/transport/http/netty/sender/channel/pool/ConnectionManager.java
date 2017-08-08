@@ -203,18 +203,28 @@ public class ConnectionManager {
                 }
 
                 if (pipeline.get(Constants.LOGGING_HANDLER) == null) {
-                    pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
-                                       new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
-                                                                sourceHandler.getInboundChannelContext()
-                                                                        .channel().id()
-                                                                        .asShortText()));
+                    if (sourceHandler != null) {
+                        pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
+                                           new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
+                                                                    sourceHandler.getInboundChannelContext()
+                                                                            .channel().id()
+                                                                            .asShortText()));
+                    } else {
+                        pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
+                                           new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG));
+                    }
                 }
 
                 targetChannel.setRequestWritten(true);
                 ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
             }
         } catch (Exception e) {
-            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            String msg;
+            if (e.getMessage() != null) {
+                msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            } else {
+                msg = "Failed to send the request.";
+            }
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             carbonMessage.setMessagingException(messagingException);
