@@ -1,6 +1,6 @@
 package org.wso2.carbon.transport.http.netty.contractImpl;
 
-import org.wso2.carbon.transport.http.netty.contract.ConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -10,22 +10,22 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class ServerConnectorObseravable implements ConnectorFuture {
 
-    ConnectorListener observable;
+    HTTPConnectorListener observable;
 
     @Override
-    public void setConnectorListener(ConnectorListener connectorListener) {
+    public void setHTTPConnectorListener(HTTPConnectorListener connectorListener) {
         this.observable = connectorListener;
     }
 
     @Override
-    public void removeListener(ConnectorListener connectorListener) {
+    public void removeHTTPListener(HTTPConnectorListener connectorListener) {
         if (this.observable == connectorListener) {
             this.observable = null;
         }
     }
 
     @Override
-    public void notifyListener(HTTPCarbonMessage httpMessage) {
+    public void notifyHTTPListener(HTTPCarbonMessage httpMessage) {
         this.observable.onMessage(httpMessage);
     }
 }

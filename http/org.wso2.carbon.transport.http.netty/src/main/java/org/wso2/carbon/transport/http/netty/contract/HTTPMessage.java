@@ -6,9 +6,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * Represents an inbound http request.
  */
 public class HTTPMessage extends CarbonMessage {
-    ConnectorListener connectorListener;
+    HTTPConnectorListener connectorListener;
 
-    public void setConnectorFuture(ConnectorListener connectorListener) {
+    public void setConnectorFuture(HTTPConnectorListener connectorListener) {
         this.connectorListener = connectorListener;
     }
 }
