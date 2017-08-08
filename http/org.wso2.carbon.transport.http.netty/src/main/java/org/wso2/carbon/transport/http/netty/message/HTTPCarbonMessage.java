@@ -26,7 +26,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.ConnectorListener;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
@@ -232,6 +231,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
     }
 
     public void respond(HTTPCarbonMessage httpCarbonMessage) {
-        connectorFuture.notifyListener(httpCarbonMessage);
+        connectorFuture.notifyHTTPListener(httpCarbonMessage);
     }
 }

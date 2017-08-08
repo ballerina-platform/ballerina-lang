@@ -69,7 +69,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     /**
      * @param channelId This works as the serverSession id of the WebSocket connection.
      * @param connectionManager connection manager for WebSocket connection.
-     * @param listenerConfiguration ConnectorListener configuration for WebSocket connection.
+     * @param listenerConfiguration HTTPConnectorListener configuration for WebSocket connection.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param isSecured indication of whether the connection is secured or not.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.

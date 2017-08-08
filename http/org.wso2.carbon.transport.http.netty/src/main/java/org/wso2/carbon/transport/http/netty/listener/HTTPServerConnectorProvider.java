@@ -95,7 +95,7 @@ public class HTTPServerConnectorProvider{
 //    /**
 //     * Method to build listener configuration using provided properties map.
 //     *
-//     * @param id            ConnectorListener id
+//     * @param id            HTTPConnectorListener id
 //     * @param properties    Property map
 //     * @return              listener config
 //     */

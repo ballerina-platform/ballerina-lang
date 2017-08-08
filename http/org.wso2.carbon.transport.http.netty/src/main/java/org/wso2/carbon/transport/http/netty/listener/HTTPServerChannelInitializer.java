@@ -147,7 +147,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline for TLS NPN negotiation to HTTP/2.
      *
      * @param ch                    Channel
-     * @param listenerConfiguration ConnectorListener Configuration
+     * @param listenerConfiguration HTTPConnectorListener Configuration
      * @param sslContext            Netty http2 ALPN SSL context
      */
     private void configureHttp2TLSPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration, SslContext
@@ -162,7 +162,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline for a cleartext upgrade from HTTP to HTTP/2.0
      *
      * @param ch                    Channel
-     * @param listenerConfiguration ConnectorListener Configuration
+     * @param listenerConfiguration HTTPConnectorListener Configuration
      */
 //    private void configureHttp2Pipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
 //        ChannelPipeline p = ch.pipeline();
@@ -189,7 +189,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline if user sent HTTP requests
      *
      * @param pipeline                    Channel
-     * @param listenerConfiguration ConnectorListener Configuration
+     * @param listenerConfiguration HTTPConnectorListener Configuration
      */
     public void configureHTTPPipeline(ChannelPipeline pipeline, ListenerConfiguration listenerConfiguration) {
         // Removed the default encoder since http/2 version upgrade already added to pipeline

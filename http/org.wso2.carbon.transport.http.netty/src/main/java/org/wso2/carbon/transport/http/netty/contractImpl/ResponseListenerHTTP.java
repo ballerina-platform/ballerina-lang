@@ -13,7 +13,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.contract.ConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.carbon.transport.http.netty.listener.ResponseContentWriter;
@@ -24,12 +24,12 @@ import java.nio.ByteBuffer;
 /**
  * Get executed when the response is available.
  */
-public class ResponseListener implements ConnectorListener {
+public class ResponseListenerHTTP implements HTTPConnectorListener {
 
     private ChannelHandlerContext ctx;
     private RequestDataHolder requestDataHolder;
 
-    public ResponseListener(ChannelHandlerContext channelHandlerContext, CarbonMessage requestMsg) {
+    public ResponseListenerHTTP(ChannelHandlerContext channelHandlerContext, CarbonMessage requestMsg) {
         this.ctx = channelHandlerContext;
         requestDataHolder = new RequestDataHolder(requestMsg);
     }
