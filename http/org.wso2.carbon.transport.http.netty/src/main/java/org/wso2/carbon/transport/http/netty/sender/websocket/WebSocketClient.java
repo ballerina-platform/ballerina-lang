@@ -42,6 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.Headers;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
@@ -68,6 +70,8 @@ public class WebSocketClient {
     private final Headers headers;
     private final WebSocketSourceHandler sourceHandler;
     private final CarbonMessageProcessor messageProcessor;
+    private final WebSocketChannelContextImpl channelContext;
+    private final WebSocketConnectorListener observer;
 
     /**
      * @param url url of the remote endpoint.
@@ -75,16 +79,21 @@ public class WebSocketClient {
      * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
      */
-    public WebSocketClient(String url, String clientServiceName, String subprotocol, boolean allowExtensions,
-                           Headers headers, WebSocketSourceHandler sourceHandler,
-                           CarbonMessageProcessor messageProcessor) {
+    public WebSocketClient(String url, String subprotocol, String clientServiceName, boolean allowExtensions,
+                           Headers headers,
+                           WebSocketSourceHandler sourceHandler,
+                           CarbonMessageProcessor messageProcessor,
+                           WebSocketChannelContextImpl channelContext,
+                           WebSocketConnectorListener observer) {
         this.url = url;
-        this.clientServiceName = clientServiceName;
         this.subprotocol = subprotocol;
+        this.clientServiceName = clientServiceName;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
         this.sourceHandler = sourceHandler;
         this.messageProcessor = messageProcessor;
+        this.channelContext = channelContext;
+        this.observer = observer;
     }
 
     /**
@@ -135,8 +144,7 @@ public class WebSocketClient {
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, url, clientServiceName,
-                                             messageProcessor);
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, url, observer, channelContext);
 
         Bootstrap b = new Bootstrap();
         b.group(group)

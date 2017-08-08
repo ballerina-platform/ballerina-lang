@@ -17,10 +17,10 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.internal.websocket.message;
+package org.wso2.carbon.transport.http.netty.contractImpl.websocket.message;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
 
 /**
  * Implementation of {@link WebSocketCloseMessage}.

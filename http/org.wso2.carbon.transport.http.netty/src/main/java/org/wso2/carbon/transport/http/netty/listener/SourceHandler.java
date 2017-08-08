@@ -39,15 +39,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contractImpl.ResponseListenerHTTP;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.websocket.BasicWebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketInitMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -66,7 +65,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
     protected ListenerConfiguration listenerConfiguration;
-    private WebSocketServerHandshaker handshaker;
     private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     private ServerConnectorFuture serverConnectorFuture;
 

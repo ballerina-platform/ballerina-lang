@@ -20,64 +20,51 @@
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
 /**
- * Observable for WebSocket server connector.
+ * Message processor for WebSocket inbound messages.
  */
-public interface WebSocketObservable {
+public interface WebSocketConnectorListener {
 
     /**
-     * Set the {@link WebSocketInboundObserver} for the Observable.
-     *
-     * @param observer for the given Observable.
-     */
-    void setObserver(WebSocketInboundObserver observer);
-
-    /**
-     * Remove the observer from the Observable.
-     *
-     * @param observer {@link WebSocketInboundObserver} which should be removed.
-     */
-    void removeObserver(WebSocketInboundObserver observer);
-
-    /**
-     * Notify WebSocket handshake. This will initialize a client connection for WebSocket
+     * Trigger WebSocket handshake. This will initialize a client connection for WebSocket
      * server connector.
      *
      * @param initMessage {@link WebSocketInitMessage} to initialize connection.
      */
-    void notify(WebSocketInitMessage initMessage);
+    void onMessage(WebSocketInitMessage initMessage);
 
     /**
-     * Notify incoming WebSocket text messages.
+     * Trigger incoming WebSocket text messages.
      *
      * @param textMessage {@link WebSocketTextMessage} to process text messages.
      */
-    void notify(WebSocketTextMessage textMessage);
+    void onMessage(WebSocketTextMessage textMessage);
 
     /**
-     * Notify incoming WebSocket binary messages.
+     * Trigger incoming WebSocket binary messages.
      *
      * @param binaryMessage {@link WebSocketBinaryMessage} to process binary messages.
      */
-    void notify(WebSocketBinaryMessage binaryMessage);
+    void onMessage(WebSocketBinaryMessage binaryMessage);
 
     /**
-     * Notify incoming WebSocket control messages.
+     * Trigger incoming WebSocket control messages.
      *
      * @param controlMessage {@link WebSocketControlMessage} to indicate a incoming pong messages.
      */
-    void notify(WebSocketControlMessage controlMessage);
+    void onMessage(WebSocketControlMessage controlMessage);
 
     /**
-     * Notify incoming WebSocket close messages.
+     * Trigger incoming WebSocket close messages.
      *
      * @param closeMessage {@link WebSocketCloseMessage} to indicate incoming close messages.
      */
-    void notify(WebSocketCloseMessage closeMessage);
+    void onMessage(WebSocketCloseMessage closeMessage);
 
     /**
-     * Notify any transport error.
+     * Trigger any transport error.
      *
      * @param throwable error received from transport.
      */
-    void notifyError(Throwable throwable);
+    void onError(Throwable throwable);
+
 }

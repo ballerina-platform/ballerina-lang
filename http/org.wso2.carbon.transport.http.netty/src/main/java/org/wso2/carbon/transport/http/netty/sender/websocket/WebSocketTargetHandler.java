@@ -37,16 +37,16 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInboundObserver;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketBinaryMessageImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketCloseMessageImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketControlMessageImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.message.WebSocketTextMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketBinaryMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketCloseMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketControlMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketTextMessageImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.InetSocketAddress;
@@ -67,14 +67,14 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketClientHandshaker handshaker;
     private final WebSocketSourceHandler sourceHandler;
     private final String requestedUri;
-    private final WebSocketInboundObserver observer;
+    private final WebSocketConnectorListener observer;
     private final WebSocketChannelContextImpl webSocketChannelContext;
     private ChannelHandlerContext ctx;
     private WebSocketSessionImpl clientSession;
     private ChannelPromise handshakeFuture;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  String requestedUri, WebSocketInboundObserver observer,
+                                  String requestedUri, WebSocketConnectorListener observer,
                                   WebSocketChannelContextImpl webSocketChannelContext) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
@@ -114,7 +114,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         String reasonText = "Client is going away";
         WebSocketCloseMessageImpl webSocketCloseMessage =
                 new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
-        observer.update(webSocketCloseMessage);
+        observer.onMessage(webSocketCloseMessage);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             boolean isFinalFragment = textFrame.isFinalFragment();
             WebSocketTextMessageImpl textMessage =
                     new WebSocketTextMessageImpl(text, isFinalFragment, webSocketChannelContext);
-            observer.update(textMessage);
+            observer.onMessage(textMessage);
 
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
@@ -154,7 +154,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             WebSocketBinaryMessageImpl binaryMessage =
                     new WebSocketBinaryMessageImpl(byteBuffer, finalFragment, webSocketChannelContext);
-            observer.update(binaryMessage);
+            observer.onMessage(binaryMessage);
 
         } else if (frame instanceof PongWebSocketFrame) {
             PongWebSocketFrame pongWebSocketFrame = (PongWebSocketFrame) msg;
@@ -162,7 +162,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             WebSocketControlMessageImpl webSocketControlMessage =
                     new WebSocketControlMessageImpl(WebSocketControlSignal.PONG, byteBuffer, webSocketChannelContext);
-            observer.update(webSocketControlMessage);
+            observer.onMessage(webSocketControlMessage);
 
         } else if (frame instanceof PingWebSocketFrame) {
             PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
@@ -174,7 +174,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             ctx.channel().close();
             WebSocketCloseMessageImpl webSocketCloseMessage =
                     new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
-            observer.update(webSocketCloseMessage);
+            observer.onMessage(webSocketCloseMessage);
 
         } else {
             throw new UnknownWebSocketFrameTypeException("Cannot identify the WebSocket frame type");
@@ -197,7 +197,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             log.error("Handshake failed : " + cause.getMessage(), cause);
             handshakeFuture.setFailure(cause);
         }
-        observer.handleError(cause);
+        observer.onError(cause);
         ctx.close();
     }
 }

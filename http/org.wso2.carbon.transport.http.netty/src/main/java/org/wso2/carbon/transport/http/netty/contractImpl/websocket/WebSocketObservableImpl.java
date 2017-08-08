@@ -17,14 +17,14 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.internal.websocket;
+package org.wso2.carbon.transport.http.netty.contractImpl.websocket;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketObservable;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInboundObserver;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
@@ -32,53 +32,53 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMess
  */
 public class WebSocketObservableImpl implements WebSocketObservable {
 
-    private WebSocketInboundObserver observer = null;
+    private WebSocketConnectorListener observer = null;
 
     @Override
-    public void setObserver(WebSocketInboundObserver observer) {
+    public void setObserver(WebSocketConnectorListener observer) {
         this.observer = observer;
     }
 
     @Override
-    public void removeObserver(WebSocketInboundObserver observer) {
+    public void removeObserver(WebSocketConnectorListener observer) {
         this.observer = null;
     }
 
     @Override
     public void notify(WebSocketInitMessage initMessage) {
         existsWebSocketObserver();
-        observer.update(initMessage);
+        observer.onMessage(initMessage);
     }
 
     @Override
     public void notify(WebSocketTextMessage textMessage) {
         existsWebSocketObserver();
-        observer.update(textMessage);
+        observer.onMessage(textMessage);
 
     }
 
     @Override
     public void notify(WebSocketBinaryMessage binaryMessage) {
         existsWebSocketObserver();
-        observer.update(binaryMessage);
+        observer.onMessage(binaryMessage);
     }
 
     @Override
     public void notify(WebSocketControlMessage controlMessage) {
         existsWebSocketObserver();
-        observer.update(controlMessage);
+        observer.onMessage(controlMessage);
     }
 
     @Override
     public void notify(WebSocketCloseMessage closeMessage) {
         existsWebSocketObserver();
-        observer.update(closeMessage);
+        observer.onMessage(closeMessage);
     }
 
     @Override
     public void notifyError(Throwable throwable) {
         existsWebSocketObserver();
-        observer.handleError(throwable);
+        observer.onError(throwable);
     }
 
     private void existsWebSocketObserver() {
