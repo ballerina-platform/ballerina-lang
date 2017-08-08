@@ -48,7 +48,7 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     }
 
     @Override
-    public HTTPClientConnector getClientConnector(Map<String, String> connectorConfig) {
+    public HTTPClientConnector getHTTPClientConnector(Map<String, String> connectorConfig) {
         return null;
     }
 

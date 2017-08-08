@@ -8,12 +8,16 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Main Test
  */
 public class Main {
     public static void main(String[] args) {
+
+        Executor executor = Executors.newSingleThreadExecutor();
 
         HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
 
@@ -26,8 +30,7 @@ public class Main {
         serverConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
             @Override
             public void onMessage(CarbonMessage httpMessage) {
-                System.out.println("Message received..");
-                httpMessage.release();
+                executor.execute(new MainRunner(httpMessage));
             }
 
             @Override
@@ -61,4 +64,5 @@ public class Main {
 
 //        XMLReader xmlReader = new XMLReaderFactory.createXMLReader("sss");
     }
+
 }
