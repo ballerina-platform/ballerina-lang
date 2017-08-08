@@ -2,7 +2,7 @@
 ${readMeFileLine}
 </#list>
 
-## API Docs:
+## API Docs
 
 <#if documentationFiles??>
 <#list documentationFiles as documentationFile>

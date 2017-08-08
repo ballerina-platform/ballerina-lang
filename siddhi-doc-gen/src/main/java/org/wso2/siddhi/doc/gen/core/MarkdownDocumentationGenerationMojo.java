@@ -38,6 +38,7 @@ import java.util.List;
  */
 @Mojo(
         name = "generate-md-docs",
+        aggregator = true,
         defaultPhase = LifecyclePhase.INSTALL,
         requiresDependencyResolution = ResolutionScope.TEST
 )
@@ -59,8 +60,8 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
      * The path of the readme file in the base directory
      * Optional
      */
-    @Parameter(property = "read.me.file")
-    private File readMeFile;
+    @Parameter(property = "home.page.template.file")
+    private File homePageTemplateFile;
 
     /**
      * The path of the mkdocs.yml file in the base directory
@@ -85,6 +86,12 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Finding the root maven project
+        MavenProject rootMavenProject = mavenProject;
+        while (rootMavenProject.getParent().getBasedir() != null) {
+            rootMavenProject = rootMavenProject.getParent();
+        }
+
         // Setting the relevant modules target directory if not set by user
         String moduleTargetPath;
         if (moduleTargetDirectory != null) {
@@ -98,18 +105,18 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
         if (docGenBaseDirectory != null) {
             docGenPath = docGenBaseDirectory.getAbsolutePath();
         } else {
-            docGenPath = mavenProject.getParent().getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
+            docGenPath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
         // Setting the read me file path if not set by user
-        if (readMeFile == null) {
-            readMeFile = new File(mavenProject.getParent().getBasedir() + File.separator + Constants.README_FILE_NAME
-                    + Constants.MARKDOWN_FILE_EXTENSION);
+        if (homePageTemplateFile == null) {
+            homePageTemplateFile = new File(rootMavenProject.getBasedir() + File.separator
+                    + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
         }
 
         // Setting the mkdocs config file path if not set by user
         if (mkdocsConfigFile == null) {
-            mkdocsConfigFile = new File(mavenProject.getParent().getBasedir() + File.separator
+            mkdocsConfigFile = new File(rootMavenProject.getBasedir() + File.separator
                     + Constants.MKDOCS_CONFIG_FILE_NAME + Constants.YAML_FILE_EXTENSION);
         }
 
@@ -132,8 +139,10 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
 
         // Generating the documentation
         if (namespaceMetaDataList.size() > 0) {
-            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath, mavenProject.getVersion());
-            DocumentationUtils.updateHomePage(readMeFile, docGenPath, homePageFileName, mkdocsConfigFile, getLog());
+            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath,
+                    mavenProject.getVersion(), getLog());
+            DocumentationUtils.updateHomePage(homePageTemplateFile, docGenPath,
+                    homePageFileName, mkdocsConfigFile, getLog());
         }
     }
 }
