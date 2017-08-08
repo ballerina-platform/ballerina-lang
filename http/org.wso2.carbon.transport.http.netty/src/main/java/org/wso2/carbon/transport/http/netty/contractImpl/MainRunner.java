@@ -16,6 +16,11 @@ public class MainRunner implements Runnable {
     @Override
     public void run() {
         System.out.println("Message received..");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         String requestContentType = httpMessage.getHeader("Content-Type");
         httpMessage.getHeaders().clear();

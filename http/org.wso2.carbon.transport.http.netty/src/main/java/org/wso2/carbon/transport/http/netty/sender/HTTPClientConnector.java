@@ -139,8 +139,8 @@ public class HTTPClientConnector implements ClientConnector {
         }
 
         try {
-            connectionManager.
-                    executeTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
+//            connectionManager.
+//                    executeTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
         } catch (Exception failedCause) {
             throw new ClientConnectorException(failedCause.getMessage(), failedCause);
         }

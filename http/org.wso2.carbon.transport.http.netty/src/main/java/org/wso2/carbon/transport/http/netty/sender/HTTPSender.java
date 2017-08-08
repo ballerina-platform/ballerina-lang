@@ -103,8 +103,8 @@ public class HTTPSender implements TransportSender {
         }
 
         try {
-            connectionManager
-                    .executeTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
+//            connectionManager
+//                    .executeTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
         } catch (Exception failedCause) {
             throw new MessageProcessorException(failedCause.getMessage(), failedCause);
         }

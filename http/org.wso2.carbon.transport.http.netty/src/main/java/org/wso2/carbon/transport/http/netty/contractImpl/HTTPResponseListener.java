@@ -24,12 +24,12 @@ import java.nio.ByteBuffer;
 /**
  * Get executed when the response is available.
  */
-public class ResponseListenerHTTP implements HTTPConnectorListener {
+public class HTTPResponseListener implements HTTPConnectorListener {
 
     private ChannelHandlerContext ctx;
     private RequestDataHolder requestDataHolder;
 
-    public ResponseListenerHTTP(ChannelHandlerContext channelHandlerContext, CarbonMessage requestMsg) {
+    public HTTPResponseListener(ChannelHandlerContext channelHandlerContext, CarbonMessage requestMsg) {
         this.ctx = channelHandlerContext;
         requestDataHolder = new RequestDataHolder(requestMsg);
     }

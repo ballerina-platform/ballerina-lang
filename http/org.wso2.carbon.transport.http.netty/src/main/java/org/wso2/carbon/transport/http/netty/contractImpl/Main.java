@@ -39,7 +39,13 @@ public class Main {
             }
         });
 
-//        HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactory() {
+        try {
+            Thread.sleep(10000000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //        HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactory() {
 //            @Override
 //            public ServerConnectorFuture getServerConnector(Properties connectorConfig) {
 //                return null;

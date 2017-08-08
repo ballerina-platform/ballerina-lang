@@ -65,7 +65,7 @@ public class ChannelUtils {
      */
     @SuppressWarnings("unchecked")
     public static ChannelFuture getNewChannelFuture(TargetChannel targetChannel, EventLoopGroup eventLoopGroup,
-            Class eventLoopClass, HttpRoute httpRoute, SenderConfiguration senderConfiguration) {
+            Class eventLoopClass, HttpRoute httpRoute, SSLConfig sslConfig) {
         BootstrapConfiguration bootstrapConfiguration = BootstrapConfiguration.getInstance();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.channel(eventLoopClass);
@@ -77,7 +77,7 @@ public class ChannelUtils {
 
         // set the pipeline factory, which creates the pipeline for each newly created channels
         SSLEngine sslEngine = null;
-        SSLConfig sslConfig = senderConfiguration.getSslConfig();
+//        SSLConfig sslConfig = senderConfiguration.getSslConfig();
         if (sslConfig != null) {
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             sslEngine = sslHandlerFactory.build();

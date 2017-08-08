@@ -30,8 +30,11 @@ import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -66,8 +69,7 @@ public class ConnectionManager {
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
     }
 
-    private GenericObjectPool createPoolForRoute(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-            Class eventLoopClass, SenderConfiguration senderConfiguration) {
+    private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
         GenericObjectPool.Config config = new GenericObjectPool.Config();
         config.maxActive = poolConfiguration.getMaxActivePerPool();
         config.maxIdle = poolConfiguration.getMaxIdlePerPool();
@@ -78,10 +80,7 @@ public class ConnectionManager {
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
         config.maxWait = poolConfiguration.getMaxWait();
-        return new GenericObjectPool(
-                new PoolableTargetChannelFactory(httpRoute, eventLoopGroup, eventLoopClass, senderConfiguration),
-                config);
-
+        return new GenericObjectPool(poolableTargetChannelFactory, config);
     }
 
     private GenericObjectPool createPoolForRoutePerSrcHndlr(GenericObjectPool genericObjectPool) {
@@ -119,15 +118,16 @@ public class ConnectionManager {
      *
      * @param httpRoute           BE address
      * @param sourceHandler       Incoming channel
-     * @param senderConfiguration netty sender config
-     * @param httpRequest         http request
+     * @param sslConfig           netty sender config
      * @param carbonMessage       carbon message
-     * @param carbonCallback      carbon call back
+     * @param httpClientConnectorFuture      carbon call back
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
     public void executeTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
-            SenderConfiguration senderConfiguration, HttpRequest httpRequest, CarbonMessage carbonMessage,
-            CarbonCallback carbonCallback) throws Exception {
+            SSLConfig sslConfig, HTTPCarbonMessage carbonMessage, int socketIdleTimeout,
+            HTTPClientConnectorFuture httpClientConnectorFuture) throws Exception {
+
+        HttpRequest httpRequest = Util.createHttpRequest(carbonMessage);
 
         // Take connections from Global connection pool
         try {
@@ -145,7 +145,10 @@ public class ConnectionManager {
                     Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
                     trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
                     if (trgHlrConnPool == null) {
-                        trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                        PoolableTargetChannelFactory poolableTargetChannelFactory =
+                                new PoolableTargetChannelFactory(
+                                        httpRoute, group, cl, sslConfig);
+                        trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                         srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                     }
                 } else {
@@ -154,7 +157,10 @@ public class ConnectionManager {
                     if (trgHlrConnPool == null) {
                         synchronized (this) {
                             if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
-                                trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                                PoolableTargetChannelFactory poolableTargetChannelFactory =
+                                        new PoolableTargetChannelFactory(
+                                                httpRoute, group, cl, sslConfig);
+                                trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                                 this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                             }
                             trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
@@ -169,7 +175,10 @@ public class ConnectionManager {
 
                 synchronized (this) {
                     if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
-                        trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                        PoolableTargetChannelFactory poolableTargetChannelFactory =
+                                new PoolableTargetChannelFactory(
+                                        httpRoute, group, cl, sslConfig);
+                        trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                         this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                     }
                     trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
@@ -183,11 +192,10 @@ public class ConnectionManager {
                 targetChannel.setCorrelatedSource(sourceHandler);
                 targetChannel.setHttpRoute(httpRoute);
                 TargetHandler targetHandler = targetChannel.getTargetHandler();
-                targetHandler.setCallback(carbonCallback);
+                targetHandler.setHttpClientConnectorFuture(httpClientConnectorFuture);
                 targetHandler.setIncomingMsg(carbonMessage);
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
-                int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
                 targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
                         new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
                 targetChannel.setRequestWritten(true);
@@ -198,7 +206,7 @@ public class ConnectionManager {
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             carbonMessage.setMessagingException(messagingException);
-            carbonCallback.done(carbonMessage);
+            httpClientConnectorFuture.notifyHTTPListener(carbonMessage);
         }
     }
 
