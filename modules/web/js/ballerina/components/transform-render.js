@@ -168,8 +168,8 @@ class TransformRender {
 
         let sourceReference;
         let rootSourceStructName;
-        if(source.enclosingAssignmentStatement) {
-            sourceReference = source.enclosingAssignmentStatement;
+        if(source.parentFunc || source.enclosingAssignmentStatement) {
+            sourceReference = source.parentFunc || source.enclosingAssignmentStatement;
         }
         if(source.root) {
             sourceReference = source.root.enclosingAssignmentStatement;
@@ -178,8 +178,8 @@ class TransformRender {
 
         let targetReference;
         let rootTargetStructName;
-        if(target.enclosingAssignmentStatement) {
-            targetReference = target.enclosingAssignmentStatement;
+        if(target.parentFunc || target.enclosingAssignmentStatement) {
+            targetReference = target.parentFunc || target.enclosingAssignmentStatement;
         }
         if(target.root) {
             targetReference = target.root.enclosingAssignmentStatement;
@@ -191,11 +191,13 @@ class TransformRender {
             sourceStruct: rootSourceStructName || source.structName || sourceName,
             sourceProperty: source.fieldName,
             sourceType: source.type,
+            sourceFuncInv: source.funcInv,
             sourceReference,
             isSourceFunction: source.endpointKind.startsWith('function-'),
             targetStruct: rootTargetStructName || target.structName || targetName,
             targetProperty: target.fieldName,
             targetType: target.type,
+            targetFuncInv: target.funcInv,
             targetReference,
             isTargetFunction: target.endpointKind.startsWith('function-'),
             isComplexMapping: false,
@@ -798,6 +800,9 @@ addComplexParameter(parentId, struct) {
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ['Left'],
+            parameters: {
+                output
+            },
             beforeDrop: params => {
                 console.log(this.jsPlumbInstance);
                 debugger;

@@ -89,6 +89,8 @@ class TransformExpanded extends React.Component {
                       ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
         }
 
+        debugger;
+
         if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
             !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
             // Connection is from source struct to target struct.
@@ -175,63 +177,49 @@ class TransformExpanded extends React.Component {
 
 
     onDisconnectionCallback(connection) {
-        const self = this;
         // on removing a connection
-        const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
-        const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
+        const sourceStruct = _.find(this.predefinedStructs, { name: connection.sourceStruct });
+        const targetStruct = _.find(this.predefinedStructs, { name: connection.targetStruct });
 
-        let sourceExpression;
-        let targetExpression;
+        debugger;
 
-        if (targetStruct !== undefined) {
-            sourceExpression = self.getStructAccessNode(
-                connection.targetStruct, connection.targetProperty,
-                        ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
-        } else {
-            sourceExpression = self.getStructAccessNode(
-                connection.targetStruct, connection.targetProperty, false);
+        if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
+            !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
+            const assignmentStmt = _.find(this.props.model.children, { id: connection.id });
+            this.props.model.removeChild(assignmentStmt);
+            return;
         }
 
-        if (sourceStruct !== undefined) {
-            targetExpression = self.getStructAccessNode(
-                connection.sourceStruct, connection.sourceProperty,
-                        ((sourceStruct.type === 'struct') || (sourceStruct.type.startsWith('json'))));
-        } else {
-            targetExpression = self.getStructAccessNode(
-                connection.sourceStruct, connection.sourceProperty, false);
-        }
-
-        if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
-            const assignmentStmt = _.find(self.props.model.children, { id: connection.id });
-            self.props.model.removeChild(assignmentStmt);
-        } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
+        if (!_.isUndefined(sourceStruct) && connection.isTargetFunction) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
-
             // get the function invocation expression for nested and single cases.
-            const funcInvocationExpression = self.findFunctionInvocationById(
-                assignmentStmtSource, connection.targetReference.id);
+            let funcInvocationExpression = connection.targetFuncInv;
+
             const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
-                return (child.getExpressionString().trim() === targetExpression.getExpressionString().trim());
+                return (child.getExpressionString().trim() === (connection.sourceProperty || connection.sourceStruct));
             });
             funcInvocationExpression.removeChild(expression);
-        } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+            return;
+        }
+
+        if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
             // Connection target is not a struct and source is a struct.
             // Target could be a function node.
-            const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
+            const assignmentStmtTarget = connection.sourceReference;
             const expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
-                return (child.getExpressionString().trim() === sourceExpression.getExpressionString().trim());
+                return (child.getExpressionString().trim() === (connection.targetProperty || connection.targetStruct));
             });
             assignmentStmtTarget.getLeftExpression().removeChild(expression);
-        } else {
-            // Connection source and target are not structs
-            // Source and target could be function nodes.
-            const targetFuncInvocationExpression = connection.targetReference;
-            const sourceFuncInvocationExpression = connection.sourceReference;
-
-            targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
+            return;
         }
+
+        // Connection source and target are not structs
+        // Source and target could be function nodes.
+        const targetFuncInvocationExpression = connection.targetFuncInv;
+        const sourceFuncInvocationExpression = connection.sourceFuncInv;
+
+        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
     };
 
     recordSourceElement(element, id, input) {
@@ -1043,7 +1031,7 @@ class TransformExpanded extends React.Component {
         })
     }
 
-    findFunctionInvocations(functionInvocationExpression, functions=[]) {
+    findFunctionInvocations(functionInvocationExpression, functions=[], parentFunc) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error('Function definition for "' +
@@ -1052,10 +1040,10 @@ class TransformExpanded extends React.Component {
         }
         functionInvocationExpression.getChildren().forEach(child => {
             if(BallerinaASTFactory.isFunctionInvocationExpression(child)) {
-                this.findFunctionInvocations(child, functions);
+                this.findFunctionInvocations(child, functions, functionInvocationExpression);
             }
         });
-        functions.push(func);
+        functions.push({func, parentFunc, funcInv: functionInvocationExpression});
         return functions;
     }
 
@@ -1098,8 +1086,8 @@ class TransformExpanded extends React.Component {
             const rightExpression = child.getRightExpression();
 
             if(BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
-                const funcInvs = this.findFunctionInvocations(rightExpression).map(
-                    func => ({func, assignmentStmt: child}));
+                const funcInvs = this.findFunctionInvocations(rightExpression);
+                funcInvs.forEach(funcDetails => {funcDetails.assignmentStmt = child});
                 functions.push(...funcInvs);
             }
         });
@@ -1139,11 +1127,13 @@ class TransformExpanded extends React.Component {
                     </div>
                     <div className="middle-content">
                         {
-                            functions.map(({func, assignmentStmt}) => (
+                            functions.map(({func, assignmentStmt, parentFunc, funcInv}) => (
                                 <FunctionInv
                                     key={func.getId()}
                                     func={func}
                                     enclosingAssignmentStatement={assignmentStmt}
+                                    parentFunc={parentFunc}
+                                    funcInv={funcInv}
                                     recordSourceElement={this.recordSourceElement}
                                     recordTargetElement={this.recordTargetElement}
                                     viewId={this.props.model.getID()}

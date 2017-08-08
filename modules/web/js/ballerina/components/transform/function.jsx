@@ -5,7 +5,8 @@ import './function.css';
 export default class FunctionInv extends React.Component {
     render() {
         const {
-            func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId
+            func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
+            parentFunc, funcInv,
         } = this.props;
         const params = func.getParameters().map(paramObj => {
             const param = paramObj.innerType || paramObj;
@@ -17,6 +18,8 @@ export default class FunctionInv extends React.Component {
                 endpointKind: 'param',
                 paramName: `${func.getFullPackageName()}:${func.getName()}`,
                 enclosingAssignmentStatement,
+                parentFunc,
+                funcInv,
             };
 
             return paramDetails;
@@ -28,6 +31,7 @@ export default class FunctionInv extends React.Component {
                 type: returnsObj.typeName || returnsObj.type,
                 paramName: `${func.getFullPackageName()}:${func.getName()}`,
                 enclosingAssignmentStatement,
+                parentFunc,
             }
         });
 

@@ -31,10 +31,11 @@
 
 .transformOverlay .react-autosuggest__suggestions-list {
     position: absolute;
-    z-index: 1;
+    z-index: 100;
     margin: 0;
     list-style-type: none;
     border: 1px solid #e4e4e4;
+    width: 270px;
 }
 
 .transformOverlay .btn-add-source {
