@@ -25,4 +25,19 @@ public class HTTPConnectorFuture implements ConnectorFuture {
     public void notifyHTTPListener(HTTPCarbonMessage httpMessage) {
         connectorListener.onMessage(httpMessage);
     }
+
+    @Override
+    public void setWSConnectorListener(HTTPConnectorListener connectorListener) {
+
+    }
+
+    @Override
+    public void removeWSListener(HTTPConnectorListener connectorListener) {
+
+    }
+
+    @Override
+    public void notifyWSListener(HTTPCarbonMessage httpMessage) {
+
+    }
 }
