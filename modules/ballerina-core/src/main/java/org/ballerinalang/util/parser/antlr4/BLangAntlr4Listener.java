@@ -1313,21 +1313,29 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
+            if (filterConnectorInitStack.size() > 0) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
+            } else {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
+            }
         }
 
         if (filterNameReferenceList.size() == 0) {
             modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
                     connectorTypeName, argsAvailable);
         } else {
-                WhiteSpaceDescriptor filterWhiteSpaceDescriptor = null;
-                if (isVerboseMode) {
-                    filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
-                }
+                List<WhiteSpaceDescriptor> filterInitWSDescriptors = new ArrayList<>();
                 List<Boolean> argExistenceList = new ArrayList<>();
                 int filterCount = filterConnectorInitStack.size();
                 for (int i = 0; i < filterCount; i++) {
                     BallerinaParser.ExpressionListContext expressionListContext = filterConnectorInitStack.pop();
+                    if (isVerboseMode) {
+                        BallerinaParser.FilterInitExpressionContext filterInitExpressionContext =
+                                ctx.filterInitExpressionList().filterInitExpression(i);
+                        WhiteSpaceDescriptor initExprWSDescriptor =
+                                WhiteSpaceUtil.getFilterInitExpressionWS(tokenStream, filterInitExpressionContext);
+                        filterInitWSDescriptors.add(initExprWSDescriptor);
+                    }
                     if (expressionListContext != null) {
                         argExistenceList.add(true);
                     } else {
@@ -1335,8 +1343,8 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
                     }
                 }
                 modelBuilder.createConnectorWithFilterInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                        connectorTypeName, argsAvailable, filterWhiteSpaceDescriptor, filterNameReferenceList,
-                        argExistenceList);
+                        connectorTypeName, argsAvailable, filterNameReferenceList,
+                        argExistenceList, filterInitWSDescriptors);
         }
 
     }
