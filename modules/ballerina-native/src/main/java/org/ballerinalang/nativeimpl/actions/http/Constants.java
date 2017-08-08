@@ -67,6 +67,10 @@ public class Constants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
+    public static final String CONNECTOR_TIMEOUT = "timeout";
+
+    /* Application level timeout */
+    public static final long DEFAULT_SENDER_TIMEOUT = 60000;
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
 

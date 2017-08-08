@@ -35,6 +35,8 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
@@ -47,8 +49,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final String BALLERINA_USER_AGENT;
 
-    /* Application level timeout */
-    private static final long SENDER_TIMEOUT = 180000; // TODO: Make this configurable with endpoint timeout impl
+    private long timeout = -1;
 
     static {
         String version = System.getProperty(BALLERINA_VERSION);
@@ -63,6 +64,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
+        // Timeout value is optional. Hence it will not be validated
+        if (connector.getIntField(0) > 0) {
+            timeout = connector.getIntField(0);
+        } else {
+            timeout = Constants.DEFAULT_SENDER_TIMEOUT;
+        }
         // Handle operations for empty content messages initiated from the Ballerina core itself
         if (cMsg instanceof DefaultCarbonMessage && cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
             cMsg.setEndOfMsgAdded(true);
@@ -146,7 +153,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
-            clientConnector.send(message, balConnectorCallback);
+            Map<String, String> options = new HashMap<>();
+            options.put(Constants.CONNECTOR_TIMEOUT, Long.toString(timeout));
+            clientConnector.send(message, balConnectorCallback, options);
 
             // Wait till Response comes
             long startTime = System.currentTimeMillis();
@@ -154,10 +163,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 synchronized (context) {
                     if (!balConnectorCallback.isResponseArrived()) {
                         logger.debug("Waiting for a response");
-                        context.wait(SENDER_TIMEOUT);
-                        if (System.currentTimeMillis() >= (startTime + SENDER_TIMEOUT)) {
+                        context.wait(timeout);
+                        if (System.currentTimeMillis() >= (startTime + timeout)) {
                             throw new RuntimeException("response was not received within sender timeout of " +
-                                                       SENDER_TIMEOUT / 1000 + " seconds");
+                                                       timeout / 1000 + " seconds");
                         }
                     }
                 }
