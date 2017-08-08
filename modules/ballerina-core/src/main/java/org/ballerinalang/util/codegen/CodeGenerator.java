@@ -310,6 +310,7 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+        bLangPackage.setSymbolsDefined(true);
     }
 
     private void visitConstants(ConstDef[] constDefs) {
