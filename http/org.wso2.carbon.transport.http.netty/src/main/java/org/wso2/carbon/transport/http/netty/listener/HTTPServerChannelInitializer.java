@@ -32,16 +32,18 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.http2.HTTP2SourceHandlerBuilder;
 import org.wso2.carbon.transport.http.netty.listener.http2.HTTPProtocolNegotiationHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
@@ -53,23 +55,26 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         implements CarbonTransportInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
+
     private ConnectionManager connectionManager;
+    private ListenerConfiguration listenerConfiguration;
+    private ConnectorFuture connectorFuture;
+    private SSLEngine sslEngine;
+    private int socketIdleTimeout;
 
-    private Map<Integer, ListenerConfiguration> listenerConfigurationMap = new HashMap<>();
-    private Map<Integer, SslContext> sslContextMap = new HashMap<>();
-
-    public HTTPServerChannelInitializer() {
+    public HTTPServerChannelInitializer(ListenerConfiguration listenerConfiguration) {
+        this.listenerConfiguration = listenerConfiguration;
     }
 
-    public void registerListenerConfig(ListenerConfiguration listenerConfiguration, SslContext sslContext) {
-        listenerConfigurationMap.put(listenerConfiguration.getPort(), listenerConfiguration);
-        sslContextMap.put(listenerConfiguration.getPort(), sslContext);
-    }
+//    public void registerListenerConfig(ListenerConfiguration listenerConfiguration, SslContext sslContext) {
+//        listenerConfigurationMap.put(listenerConfiguration.getPort(), listenerConfiguration);
+//        sslContextMap.put(listenerConfiguration.getPort(), sslContext);
+//    }
 
-    public void unRegisterListenerConfig(ListenerConfiguration listenerConfiguration) {
-        listenerConfigurationMap.remove(listenerConfiguration.getPort());
-        sslContextMap.remove(listenerConfiguration.getPort());
-    }
+//    public void unRegisterListenerConfig(ListenerConfiguration listenerConfiguration) {
+//        listenerConfigurationMap.remove(listenerConfiguration.getPort());
+//        sslContextMap.remove(listenerConfiguration.getPort());
+//    }
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -89,36 +94,52 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         if (log.isDebugEnabled()) {
             log.debug("Initializing source channel pipeline");
         }
-        int port = ch.localAddress().getPort();
-        ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(port);
-        ChannelPipeline p = ch.pipeline();
-        /*
-         * HTTP2 required ALPN Protocol support. Server is required to have ALPN protocol libraries at class path
-         * If http2 in enabled , Assume required libraries available and HTTP/1 and HTTP2 requests will be handled.
-         */
-        if (listenerConfiguration.isHttp2()) {
-            SslContext sslContext = sslContextMap.get(port);
-            if (sslContextMap.get(port) != null) {
-                /*
-                 * In HTTP2 we have two upgrade handlers for HTTPS and HTTP
-                 * HTTP - Default upgrade handler
-                 * HTTPS - Upgrade during SSL Handshake using Application Layer Protocol negotiation .
-                 */
-                // Configure Upgrade handler for HTTP/2 requests Over TLS
-                configureHttp2TLSPipeline(ch, listenerConfiguration, sslContext);
-            } else {
-                // Configure Upgrade handler for HTTP/2 requests
-                configureHttp2Pipeline(ch, listenerConfiguration);
-            }
-        } else {
-            // Configure Pipeline to handle HTTP/1 requests if HTTP/2 not enabled.
-            if (listenerConfiguration.getSslConfig() != null) {
-                SSLEngine sslEngine = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).build();
-                ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
+//        int port = ch.localAddress().getPort();
+        ListenerConfiguration listenerConfiguration = this.listenerConfiguration;
+        ChannelPipeline pipeline = ch.pipeline();
+//        /*
+//         * HTTP2 required ALPN Protocol support. Server is required to have ALPN protocol libraries at class path
+//         * If http2 in enabled , Assume required libraries available and HTTP/1 and HTTP2 requests will be handled.
+//         */
+//        if (listenerConfiguration.isHttp2()) {
+//            SslContext sslContext = this.sslContext;
+//            if (sslContext != null) {
+//                /*
+//                 * In HTTP2 we have two upgrade handlers for HTTPS and HTTP
+//                 * HTTP - Default upgrade handler
+//                 * HTTPS - Upgrade during SSL Handshake using Application Layer Protocol negotiation .
+//                 */
+//                // Configure Upgrade handler for HTTP/2 requests Over TLS
+//                configureHttp2TLSPipeline(ch, listenerConfiguration, sslContext);
+//            } else {
+//                // Configure Upgrade handler for HTTP/2 requests
+//                configureHttp2Pipeline(ch, listenerConfiguration);
+//            }
+//        } else {
+//            // Configure Pipeline to handle HTTP/1 requests if HTTP/2 not enabled.
+//            if (listenerConfiguration.getSslConfig() != null) {
+//                SSLEngine sslEngine = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).build();
+//                ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
+//
+//            }
+//            p.addLast("encoder", new HttpResponseEncoder());
+//            configureHTTPPipeline(ch, listenerConfiguration);
+//        }
 
-            }
-            p.addLast("encoder", new HttpResponseEncoder());
-            configureHTTPPipeline(ch, listenerConfiguration);
+//        if (listenerConfiguration.getSslConfig() != null) {
+//            SSLEngine sslEngine = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).build();
+//            ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
+//        }
+        pipeline.addLast("encoder", new HttpResponseEncoder());
+        configureHTTPPipeline(pipeline, listenerConfiguration);
+
+        if (socketIdleTimeout > 0) {
+            pipeline.addBefore("SourceHandler", Constants.IDLE_STATE_HANDLER,
+                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout, TimeUnit.MILLISECONDS));
+        }
+
+        if (sslEngine != null) {
+            pipeline.addFirst("ssl", new SslHandler(sslEngine));
         }
     }
 
@@ -126,7 +147,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline for TLS NPN negotiation to HTTP/2.
      *
      * @param ch                    Channel
-     * @param listenerConfiguration Listener Configuration
+     * @param listenerConfiguration ConnectorListener Configuration
      * @param sslContext            Netty http2 ALPN SSL context
      */
     private void configureHttp2TLSPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration, SslContext
@@ -141,54 +162,53 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline for a cleartext upgrade from HTTP to HTTP/2.0
      *
      * @param ch                    Channel
-     * @param listenerConfiguration Listener Configuration
+     * @param listenerConfiguration ConnectorListener Configuration
      */
-    private void configureHttp2Pipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
-        ChannelPipeline p = ch.pipeline();
-        // Add http2 upgrade decoder and upgrade handler for check http version
-        final HttpServerCodec sourceCodec = new HttpServerCodec();
-        final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
-            if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-                return new Http2ServerUpgradeCodec("http2-handler", new
-                        HTTP2SourceHandlerBuilder(connectionManager, listenerConfiguration).build());
-            } else {
-                return null;
-            }
-        };
-        p.addLast("encoder", sourceCodec);
-        p.addLast("http2-upgrade", new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory));
-        /**
-         * Requests will be propagated to next handlers if no upgrade has been attempted and the client is just
-         * talking HTTP.
-         */
-        configureHTTPPipeline(ch, listenerConfiguration);
-    }
+//    private void configureHttp2Pipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
+//        ChannelPipeline p = ch.pipeline();
+//        // Add http2 upgrade decoder and upgrade handler for check http version
+//        final HttpServerCodec sourceCodec = new HttpServerCodec();
+//        final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
+//            if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
+//                return new Http2ServerUpgradeCodec("http2-handler", new
+//                        HTTP2SourceHandlerBuilder(connectionManager, listenerConfiguration).build());
+//            } else {
+//                return null;
+//            }
+//        };
+//        p.addLast("encoder", sourceCodec);
+//        p.addLast("http2-upgrade", new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory));
+//        /**
+//         * Requests will be propagated to next handlers if no upgrade has been attempted and the client is just
+//         * talking HTTP.
+//         */
+//        configureHTTPPipeline(ch, listenerConfiguration);
+//    }
 
     /**
      * Configure the pipeline if user sent HTTP requests
      *
-     * @param ch                    Channel
-     * @param listenerConfiguration Listener Configuration
+     * @param pipeline                    Channel
+     * @param listenerConfiguration ConnectorListener Configuration
      */
-    public void configureHTTPPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
-        ChannelPipeline p = ch.pipeline();
+    public void configureHTTPPipeline(ChannelPipeline pipeline, ListenerConfiguration listenerConfiguration) {
         // Removed the default encoder since http/2 version upgrade already added to pipeline
         if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
-            p.addLast("decoder", new CustomHttpRequestDecoder());
+            pipeline.addLast("decoder", new CustomHttpRequestDecoder());
         } else {
-            p.addLast("decoder", new HttpRequestDecoder());
+            pipeline.addLast("decoder", new HttpRequestDecoder());
         }
         if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
-            p.addLast("custom-aggregator", new CustomHttpObjectAggregator());
+            pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator());
         }
-        p.addLast("compressor", new HttpContentCompressor());
-        p.addLast("chunkWriter", new ChunkedWriteHandler());
+        pipeline.addLast("compressor", new HttpContentCompressor());
+        pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(120000);
-            p.addLast(Constants.IDLE_STATE_HANDLER,
-                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
-                            TimeUnit.MILLISECONDS));
-            p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
+//            int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(120000);
+//            p.addLast(Constants.IDLE_STATE_HANDLER,
+//                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
+//                            TimeUnit.MILLISECONDS));
+            pipeline.addLast("SourceHandler", new SourceHandler(connectionManager, listenerConfiguration, this.connectorFuture));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
@@ -201,5 +221,25 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+//    public void setSslContext(SslContext sslContext) {
+//        this.sslContext = sslContext;
+//    }
+
+//    public ConnectorFuture getConnectorFuture() {
+//        return connectorFuture;
+//    }
+
+    public void setConnectorFuture(ConnectorFuture connectorFuture) {
+        this.connectorFuture = connectorFuture;
+    }
+
+    public void setSslEngine(SSLEngine sslEngine) {
+        this.sslEngine = sslEngine;
+    }
+
+    public void setIdleTimeout(int idleTimeout) {
+        this.socketIdleTimeout = idleTimeout;
     }
 }

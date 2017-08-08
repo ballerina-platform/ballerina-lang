@@ -70,8 +70,8 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
                         byteBufferList.forEach(buf -> byteBuff.put(buf));
                         String requestValue = new String(byteBuff.array());
 
-                        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+//                        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+//                        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
 
                         if (responseValue != null) {
                             byte[] array = responseValue.getBytes("UTF-8");

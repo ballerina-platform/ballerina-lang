@@ -63,8 +63,8 @@ public class ContentReadingProcessor implements CarbonMessageProcessor {
                     carbonCallback.done(defaultCarbonMessage);
 
                 } else {
-                    carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                    carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+//                    carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+//                    carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
                     clientConnector.send(carbonMessage, carbonCallback);
                 }
             } catch (ClientConnectorException | IOException e) {

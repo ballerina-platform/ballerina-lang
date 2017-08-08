@@ -36,7 +36,7 @@ public class TransportServiceCapabilityProvider implements CapabilityProvider {
 
     @Override
     public int getCount() {
-        //Only one Listener configuration is needed for server startup.
+        //Only one ConnectorListener configuration is needed for server startup.
         return ConfigurationBuilder.getInstance().getConfiguration().getListenerConfigurations().size();
     }
 }

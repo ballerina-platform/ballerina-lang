@@ -28,9 +28,8 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
-import org.wso2.carbon.transport.http.netty.listener.ServerConnectorController;
+import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.carbon.transport.http.netty.sender.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -50,177 +49,177 @@ import static org.testng.AssertJUnit.fail;
  */
 public class TestUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
-
+//    private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
+//
     public static final int TEST_SERVER_PORT = 9000;
     public static final String TEST_HOST = "localhost";
-
+//
     public static final int SERVERS_SETUP_TIME = 10000;
     public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
-
+//
     public static final String TRANSPORT_URI = "http://localhost:8490/";
 
-    public static void cleanUp(List<HTTPServerConnector> serverConnectors, HTTPServer httpServer)
-            throws ServerConnectorException {
-        try {
-            Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-
-        for (HTTPServerConnector httpServerConnector : serverConnectors) {
-            httpServerConnector.stop();
-        }
-
-        serverConnectors.get(0).getServerConnectorController().stop();
-
-        httpServer.shutdown();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-    }
-
-    public static List<HTTPServerConnector> startConnectors(TransportsConfiguration transportsConfiguration,
-                                                            CarbonMessageProcessor carbonMessageProcessor) {
-
-        List<HTTPServerConnector> connectors = new ArrayList<>();
-
-        ServerConnectorController serverConnectorController = new ServerConnectorController(transportsConfiguration);
-
-        Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
-
-        HTTPClientConnector httpClientConnector =
-                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
-                        transportsConfiguration.getTransportProperties());
-
-        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
-
-        carbonMessageProcessor.setClientConnector(httpClientConnector);
-
-        Thread transportRunner = new Thread(() -> {
-            try {
-                serverConnectorController.start();
-            } catch (Exception e) {
-                log.error("Unable to start Server Connector Controller ", e);
-            }
-        });
-        transportRunner.start();
-
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-
-        listenerConfigurationSet.forEach(config -> {
-            HTTPServerConnector connector = new HTTPServerConnector(config.getId());
-            connector.setListenerConfiguration(config);
-            connector.setServerConnectorController(serverConnectorController);
-            serverConnectorController.bindInterface(connector);
-            connector.setMessageProcessor(carbonMessageProcessor);
-            connectors.add(connector);
-        });
-
-        return connectors;
-    }
-
-    public static HTTPServer startHTTPServer(int port) {
-        HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                httpServer.start();
-            }
-        });
-        serverThread.start();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-        return httpServer;
-    }
-
-    public static HTTPServer startHTTPServer(int port, String message, String contentType) {
-        HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(() -> {
-            httpServer.start();
-            httpServer.setMessage(message, contentType);
-        });
-        serverThread.start();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-        return httpServer;
-    }
-
-    public static void shutDownCarbonTransport(HTTPTransportListener httpTransportListener) {
-        httpTransportListener.stop();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interuppted while sleeping ", e);
-        }
-    }
-
-    public static void shutDownHttpServer(HTTPServer httpServer) {
-        httpServer.shutdown();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-    }
-
-    public static String getContent(HttpURLConnection urlConn) throws IOException {
-        return new String(ByteStreams.toByteArray(urlConn.getInputStream()), Charsets.UTF_8);
-    }
-
-    public static void writeContent(HttpURLConnection urlConn, String content) throws IOException {
-        urlConn.getOutputStream().write(content.getBytes(Charsets.UTF_8));
-        urlConn.getOutputStream().flush();
-    }
-
-    public static HttpURLConnection request(URI baseURI, String path, String method, boolean keepAlive)
-            throws IOException {
-        URL url = baseURI.resolve(path).toURL();
-        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-        if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
-            urlConn.setDoOutput(true);
-        }
-        urlConn.setRequestMethod(method);
-        if (!keepAlive) {
-            urlConn.setRequestProperty("Connection", "Keep-Alive");
-        }
-
-        return urlConn;
-    }
-
-    public static void setHeader(HttpURLConnection urlConnection, String key, String value) {
-        urlConnection.setRequestProperty(key, value);
-    }
-    public static void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        HTTPTransportContextHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
-    }
-    public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
-            TransportsConfiguration transportsConfiguration) {
-        HTTPClientConnector httpClientConnector =
-                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
-                        transportsConfiguration.getTransportProperties());
-        carbonMessageProcessor.setClientConnector(httpClientConnector);
-        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
-    }
-
-    public static void handleException(String msg, Exception ex) {
-        log.error(msg, ex);
-        fail(msg);
-    }
+//    public static void cleanUp(List<HTTPServerConnector> serverConnectors, HTTPServer httpServer)
+//            throws ServerConnectorException {
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//
+//        for (HTTPServerConnector httpServerConnector : serverConnectors) {
+//            httpServerConnector.stop();
+//        }
+//
+//        serverConnectors.get(0).getServerConnectorBootstrap().stop();
+//
+//        httpServer.shutdown();
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//    }
+//
+//    public static List<HTTPServerConnector> startConnectors(TransportsConfiguration transportsConfiguration,
+//                                                            CarbonMessageProcessor carbonMessageProcessor) {
+//
+//        List<HTTPServerConnector> connectors = new ArrayList<>();
+//
+//        ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(transportsConfiguration);
+//
+//        Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
+//
+//        HTTPClientConnector httpClientConnector =
+//                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
+//                        transportsConfiguration.getTransportProperties());
+//
+//        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+//
+//        carbonMessageProcessor.setClientConnector(httpClientConnector);
+//
+//        Thread transportRunner = new Thread(() -> {
+//            try {
+//                serverConnectorBootstrap.initialize();
+//            } catch (Exception e) {
+//                log.error("Unable to initialize Server Connector Controller ", e);
+//            }
+//        });
+//        transportRunner.start();
+//
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//
+//        listenerConfigurationSet.forEach(config -> {
+//            HTTPServerConnector connector = new HTTPServerConnector(config.getId());
+//            connector.setListenerConfiguration(config);
+//            connector.setServerConnectorBootstrap(serverConnectorBootstrap);
+//            serverConnectorBootstrap.bindInterface(connector);
+//            connector.setMessageProcessor(carbonMessageProcessor);
+//            connectors.add(connector);
+//        });
+//
+//        return connectors;
+//    }
+//
+//    public static HTTPServer startHTTPServer(int port) {
+//        HTTPServer httpServer = new HTTPServer(port);
+//        Thread serverThread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                httpServer.start();
+//            }
+//        });
+//        serverThread.start();
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//        return httpServer;
+//    }
+//
+//    public static HTTPServer startHTTPServer(int port, String message, String contentType) {
+//        HTTPServer httpServer = new HTTPServer(port);
+//        Thread serverThread = new Thread(() -> {
+//            httpServer.start();
+//            httpServer.setMessage(message, contentType);
+//        });
+//        serverThread.start();
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//        return httpServer;
+//    }
+//
+//    public static void shutDownCarbonTransport(HTTPTransportListener httpTransportListener) {
+//        httpTransportListener.stop();
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interuppted while sleeping ", e);
+//        }
+//    }
+//
+//    public static void shutDownHttpServer(HTTPServer httpServer) {
+//        httpServer.shutdown();
+//        try {
+//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+//        } catch (InterruptedException e) {
+//            log.error("Thread Interrupted while sleeping ", e);
+//        }
+//    }
+//
+//    public static String getContent(HttpURLConnection urlConn) throws IOException {
+//        return new String(ByteStreams.toByteArray(urlConn.getInputStream()), Charsets.UTF_8);
+//    }
+//
+//    public static void writeContent(HttpURLConnection urlConn, String content) throws IOException {
+//        urlConn.getOutputStream().write(content.getBytes(Charsets.UTF_8));
+//        urlConn.getOutputStream().flush();
+//    }
+//
+//    public static HttpURLConnection request(URI baseURI, String path, String method, boolean keepAlive)
+//            throws IOException {
+//        URL url = baseURI.resolve(path).toURL();
+//        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+//        if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
+//            urlConn.setDoOutput(true);
+//        }
+//        urlConn.setRequestMethod(method);
+//        if (!keepAlive) {
+//            urlConn.setRequestProperty("Connection", "Keep-Alive");
+//        }
+//
+//        return urlConn;
+//    }
+//
+//    public static void setHeader(HttpURLConnection urlConnection, String key, String value) {
+//        urlConnection.setRequestProperty(key, value);
+//    }
+//    public static void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+//        HTTPTransportContextHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
+//    }
+//    public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
+//            TransportsConfiguration transportsConfiguration) {
+//        HTTPClientConnector httpClientConnector =
+//                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
+//                        transportsConfiguration.getTransportProperties());
+//        carbonMessageProcessor.setClientConnector(httpClientConnector);
+//        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+//    }
+//
+//    public static void handleException(String msg, Exception ex) {
+//        log.error(msg, ex);
+//        fail(msg);
+//    }
 
 }
 

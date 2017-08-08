@@ -38,9 +38,11 @@ import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
@@ -67,7 +69,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     /**
      * @param channelId This works as the serverSession id of the WebSocket connection.
      * @param connectionManager connection manager for WebSocket connection.
-     * @param listenerConfiguration Listener configuration for WebSocket connection.
+     * @param listenerConfiguration ConnectorListener configuration for WebSocket connection.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param isSecured indication of whether the connection is secured or not.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
@@ -76,7 +78,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   ListenerConfiguration listenerConfiguration, HttpRequest httpRequest,
                                   boolean isSecured, ChannelHandlerContext ctx,
                                   WebSocketSessionImpl serverSession) throws Exception {
-        super(connectionManager, listenerConfiguration);
+        super(connectionManager, listenerConfiguration, new HTTPConnectorFuture());
         this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.isSecured = isSecured;
@@ -172,7 +174,6 @@ public class WebSocketSourceHandler extends SourceHandler {
     Carbon Message is published to registered message processor
     Message Processor should return transport thread immediately
      */
-    @Override
     protected void publishToMessageProcessor(CarbonMessage cMsg) {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
