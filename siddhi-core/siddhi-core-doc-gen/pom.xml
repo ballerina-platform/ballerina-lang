@@ -37,13 +37,58 @@
                         <phase>compile</phase>
                         <goals>
                             <goal>generate-md-docs</goal>
+                            <goal>generate-extensions-index</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
                     <moduleTargetDirectory>../target/</moduleTargetDirectory>
+                    <extensionRepositories>
+                        <!-- Extensions released under Apache 2.0 License -->
+                        <extensionRepository>siddhi-execution-extrema</extensionRepository>
+                        <extensionRepository>siddhi-execution-kalmanfilter</extensionRepository>
+                        <extensionRepository>siddhi-execution-priority</extensionRepository>
+                        <extensionRepository>siddhi-execution-sentiment</extensionRepository>
+                        <extensionRepository>siddhi-execution-stats</extensionRepository>
+                        <extensionRepository>siddhi-execution-string</extensionRepository>
+                        <extensionRepository>siddhi-execution-unique</extensionRepository>
+                        <extensionRepository>siddhi-io-http</extensionRepository>
+                        <extensionRepository>siddhi-io-jms</extensionRepository>
+                        <extensionRepository>siddhi-io-kafka</extensionRepository>
+                        <extensionRepository>siddhi-io-tcp</extensionRepository>
+                        <extensionRepository>siddhi-io-wso2event</extensionRepository>
+                        <extensionRepository>siddhi-map-text</extensionRepository>
+                        <extensionRepository>siddhi-map-wso2event</extensionRepository>
+                        <extensionRepository>siddhi-map-xml</extensionRepository>
+                        <extensionRepository>siddhi-store-rdbms</extensionRepository>
+
+                        <!-- Extensions released under GPL License -->
+                        <extensionRepository>siddhi-gpl-execution-r</extensionRepository>
+                    </extensionRepositories>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>documentation-deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wso2.siddhi</groupId>
+                        <artifactId>siddhi-doc-gen</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>deploy-mkdocs-github-pages</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
