@@ -351,3 +351,68 @@ function testTransactionStmtVariableRetry() (string) {
 function getRetryCount () (int) {
     return 2;
 }
+
+function testMultipleTransactionStmtSuccess() (string) {
+    string a = "start";
+    try {
+        transaction {
+            a = a + " inFirstTrxBlockBegin";
+            int i = 0;
+            a = a + " inFirstTrxBlockEnd";
+        } committed {
+            a = a + " inFirstCmt";
+        } aborted {
+            a = a + " inFirstAgt";
+        }
+        a = a + " inFirstTrxEnd";
+        transaction {
+            a = a + " inSecTrxBlockBegin";
+            int k = 0;
+            a = a + " inSecTrxBlockEnd";
+        } committed {
+            a = a + " inSecCmt";
+        } aborted {
+            a = a + " inSecAbt";
+        }
+        a = a + " inFSecTrxEnd";
+    } catch (errors:Error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}
+
+function testMultipleTransactionStmtError() (string) {
+    string a = "start";
+    try {
+        transaction {
+            a = a + " inFirstTrxBlockBegin";
+            int i = 0;
+            a = a + " inFirstTrxBlockEnd";
+            errors:Error err = {msg:" err"};
+            throw err;
+        } failed {
+            a = a + " inFirstTFld";
+            retry 2;
+        } committed {
+            a = a + " inFirstTCmt";
+        } aborted {
+            a = a + " inFirstTAbt";
+        }
+        a = a + " inFirstTrxEnd";
+        transaction {
+            a = a + " inSecTrxBlockBegin";
+            int k = 0;
+            a = a + " inSecTrxBlockEnd";
+        } committed {
+            a = a + " inSecCmt";
+        } aborted {
+            a = a + " inSecAbt";
+        }
+        a = a + " inFSecTrxEnd";
+    } catch (errors:Error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}

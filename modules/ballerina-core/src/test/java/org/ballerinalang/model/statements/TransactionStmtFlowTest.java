@@ -295,6 +295,24 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx inCmt end");
     }
 
+    @Test
+    public void testMultipleTransactionStmtSuccess() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMultipleTransactionStmtSuccess");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inFirstTrxBlockBegin inFirstTrxBlockEnd inFirstCmt "
+                + "inFirstTrxEnd inSecTrxBlockBegin inSecTrxBlockEnd inSecCmt inFSecTrxEnd end");
+    }
+
+    @Test
+    public void testMultipleTransactionStmtError() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMultipleTransactionStmtError");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inFirstTrxBlockBegin inFirstTrxBlockEnd inFirstTFld "
+                + "inFirstTrxBlockBegin inFirstTrxBlockEnd inFirstTFld inFirstTAbt err end");
+    }
+
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry1.bal:7: " +
             "retry statement not allowed here.*")
     public void testTransactionInvalidRetry1() {
