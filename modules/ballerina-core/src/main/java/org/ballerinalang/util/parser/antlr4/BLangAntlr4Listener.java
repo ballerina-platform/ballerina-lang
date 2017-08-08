@@ -2138,7 +2138,6 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getRetryStmtWS(tokenStream, ctx);
         }
-
         modelBuilder.createRetryStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
