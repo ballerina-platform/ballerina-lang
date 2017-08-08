@@ -22,7 +22,7 @@ export default class Tree extends React.Component {
     }
 
     renderEndpoint(endpoint, kind, level) {
-        const { endpoints, type, makeConnectPoint, viewId } = this.props;
+        const { endpoints, type, makeConnectPoint, viewId, removeTypeCallbackFunc } = this.props;
         let paramNamePrefix =  endpoint.paramName ? `${endpoint.paramName}:` : '';
         const key = `${paramNamePrefix}${endpoint.fieldName || endpoint.name}:${viewId}`;
 
@@ -40,6 +40,7 @@ export default class Tree extends React.Component {
                 endpointKind={endpointKind}
                 makeConnectPoint={makeConnectPoint}
                 level={level}
+                removeTypeCallbackFunc={removeTypeCallbackFunc}
             />
         );
     }

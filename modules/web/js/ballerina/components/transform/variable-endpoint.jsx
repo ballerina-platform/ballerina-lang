@@ -3,7 +3,7 @@ import './variable-endpoint.css';
 
 export default class VariableEndpoint extends React.Component {
     render() {
-        const {variable, makeConnectPoint, type, endpointKind, level, id} = this.props;
+        const {variable, makeConnectPoint, type, endpointKind, level, id, removeTypeCallbackFunc} = this.props;
         const connectPointClass = `${type}-connect-point`;
 
         let iconType = 'fw-variable';
@@ -36,7 +36,7 @@ export default class VariableEndpoint extends React.Component {
                 </span>
                 {
                     (endpointKind === 'variable' || endpointKind === 'struct-head') &&
-                    <span id={variable.id + '-button'} className='fw-stack fw-lg btn btn-remove'>
+                    <span id={variable.id + '-button'} onClick={event => removeTypeCallbackFunc(variable)} className='fw-stack fw-lg btn btn-remove'>
                         <i className='fw fw-delete fw-stack-1x'/>
                     </span>
                 }

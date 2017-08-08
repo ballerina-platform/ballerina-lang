@@ -339,32 +339,12 @@ class TransformRender {
  * @param {string} name identifier of the type
  */
     removeType(name) {
-        const typeId = name + this.viewIdSeperator + this.viewId;
-        if (this.container.find('#' + typeId).attr('class') != null) {
-            let typeConns;
-            let lookupClass = 'property';
-
-            if (this.container.find('#' + typeId).attr('class').includes('struct')) {
-                lookupClass = 'jstree-anchor';
-                typeConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + typeId + '"]')
-                .find('.' + lookupClass);
-            } else if (this.container.find('#' + typeId).attr('class').includes('variable')) {
-                lookupClass = 'variable-content';
-                typeConns = $('div[id^="' + typeId + '"]').find('.' + lookupClass);
-            } else {
-                lookupClass = 'jstree-anchor';
-                typeConns = $('div[id^="'+ typeId + '"]').find('.' + lookupClass);
+        _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
+            if (_.includes(con.sourceId, name) || _.includes(con.targetId, name) ) {
+                this.jsPlumbInstance.detach(con);
             }
-
-            const self = this;
-            _.forEach(typeConns, (structCon) => {
-                if (_.includes(structCon.className, lookupClass)) {
-                    self.jsPlumbInstance.remove(structCon.id);
-                }
-            });
-            this.container.find('#' + typeId).remove();
-            this.reposition(this);
-        }
+        });
+        this.reposition(this);
     }
 
 // /**
