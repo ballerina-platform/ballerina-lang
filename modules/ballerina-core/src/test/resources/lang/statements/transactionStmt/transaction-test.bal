@@ -257,3 +257,32 @@ function testTransactionStmtWithoutFailed (int i) (string) {
     a = a + " end";
     return a;
 }
+
+function testTransactionStmtWithRetryOff (int i) (string) {
+    string a = "start";
+    try {
+        transaction {
+            a = a + " inTrx";
+            try {
+                if (i == - 1) {
+                    errors:Error err = { msg:" err"};
+                    throw err;
+                }
+            } catch (TrxError err) {
+                a = a + err.msg;
+            }
+            a = a + " endTrx";
+        } failed {
+            a = a + " inFailed";
+            retry 0;
+        } aborted {
+            a = a + " inAbt";
+        } committed {
+            a = a + " inCmt";
+        }
+    } catch (errors:Error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}

@@ -2350,8 +2350,10 @@ public class BLangVM {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
         int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
-        if (currentRetryCount == allowedRetryCount) {
-            ip = startOfAbortIP;
+        if (currentRetryCount >= allowedRetryCount) {
+            if (currentRetryCount != 0) {
+                ip = startOfAbortIP;
+            }
         }
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }

@@ -253,6 +253,15 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
+    public void testTransactionStmtWithRetryOff() {
+        BValue[] args = {new BInteger(-1)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithRetryOff", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inAbt err end");
+    }
+
+    @Test
     public void testTransactionStmtWithoutFailed() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithoutFailed", args);
