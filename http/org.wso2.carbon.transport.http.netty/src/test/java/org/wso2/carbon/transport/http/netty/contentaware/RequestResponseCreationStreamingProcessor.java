@@ -65,8 +65,8 @@ public class RequestResponseCreationStreamingProcessor implements CarbonMessageP
                         outputStream.write(bytes);
                         outputStream.flush();
                         newMsg.setEndOfMsgAdded(true);
-                        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+//                        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+//                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
                         EngineCallBack engineCallBack = new EngineCallBack(carbonCallback);
                         clientConnector.send(newMsg, engineCallBack);
                     }

@@ -75,7 +75,7 @@ public class HTTPTransportListener extends TransportListener {
         super(listenerConfigurationSet.iterator().next().getId());
 
         if (listenerConfigurationSet.isEmpty()) {
-            log.error("Cannot find registered listener configurations  hence cannot start the transport listeners");
+            log.error("Cannot find registered listener configurations  hence cannot initialize the transport listeners");
             return;
         }
 
@@ -99,7 +99,7 @@ public class HTTPTransportListener extends TransportListener {
 
     @Override
     public void start() {
-        log.info("Starting  HTTP Transport Listener");
+        log.info("Starting  HTTP Transport ConnectorListener");
         startTransport();
     }
 
@@ -248,7 +248,7 @@ public class HTTPTransportListener extends TransportListener {
                 return true;
             }
         } else {
-            log.error("Cannot find defined Listener interface  for Listener id " + interfaceId);
+            log.error("Cannot find defined ConnectorListener interface  for ConnectorListener id " + interfaceId);
         }
         return false;
     }
@@ -298,10 +298,10 @@ public class HTTPTransportListener extends TransportListener {
                 }
                 future.channel().close();
                 if (listenerConfiguration.getSslConfig() == null) {
-                    log.info("HTTP Listener stopped on listening interface " + interfaceId + " attached to   host  "
+                    log.info("HTTP ConnectorListener stopped on listening interface " + interfaceId + " attached to   host  "
                             + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
                 } else {
-                    log.info("HTTPS Listener stopped on listening interface " + interfaceId + " attached to   host  "
+                    log.info("HTTPS ConnectorListener stopped on listening interface " + interfaceId + " attached to   host  "
                             + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
                 }
                 return true;

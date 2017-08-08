@@ -30,6 +30,7 @@ import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
@@ -97,7 +98,8 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
 
-            p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
+            p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration,
+                    new HTTPConnectorFuture()));
 
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);

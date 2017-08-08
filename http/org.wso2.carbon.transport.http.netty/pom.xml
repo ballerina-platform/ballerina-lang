@@ -204,7 +204,7 @@
             com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",
         </import.package>
         <carbon.component>
-            startup.listener;componentName="netty-transports-mgt";
+            startup.connectorListener;componentName="netty-transports-mgt";
             requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
             org.wso2.carbon.messaging.CarbonMessageProcessor",
             osgi.service; objectClass="org.wso2.carbon.messaging.ServerConnectorProvider"

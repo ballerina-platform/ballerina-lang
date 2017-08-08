@@ -36,12 +36,16 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ConnectorFuture;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractImpl.ResponseListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.websocket.BasicWebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
@@ -63,17 +67,21 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
-    protected Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     protected ListenerConfiguration listenerConfiguration;
+    private WebSocketServerHandshaker handshaker;
+    private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
+    private ConnectorFuture connectorFuture;
 
     public ListenerConfiguration getListenerConfiguration() {
         return listenerConfiguration;
     }
 
-    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration)
+    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration,
+            ConnectorFuture connectorFuture)
             throws Exception {
         this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
+        this.connectorFuture = connectorFuture;
     }
 
     @Override
@@ -193,9 +201,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
-    protected void publishToMessageProcessor(CarbonMessage cMsg) throws URISyntaxException {
+    protected void publishToMessageProcessor(HTTPCarbonMessage httpRequestMsg) throws URISyntaxException {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(httpRequestMsg);
         }
 
         boolean continueRequest = true;
@@ -203,19 +211,22 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
             continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
-                        CarbonCallback responseCallback = (CarbonCallback) cMsg
+                    .executeRequestContinuationValidator(httpRequestMsg, carbonMessage -> {
+                        CarbonCallback responseCallback = (CarbonCallback) httpRequestMsg
                                 .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
 
         }
         if (continueRequest) {
-            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                        .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
-            if (carbonMessageProcessor != null) {
+//            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+//                        .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
+            if (connectorFuture != null) {
                 try {
-                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx, cMsg));
+//                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx, cMsg));
+                    ConnectorFuture connectorFuture = httpRequestMsg.getHTTPConnectorFuture();
+                    connectorFuture.setConnectorListener(new ResponseListener(this.ctx, httpRequestMsg));
+                    this.connectorFuture.notifyListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
                 }

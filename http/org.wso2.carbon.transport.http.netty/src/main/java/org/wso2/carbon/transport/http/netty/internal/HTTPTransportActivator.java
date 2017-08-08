@@ -34,8 +34,8 @@ public class HTTPTransportActivator implements BundleActivator {
         HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
-        bundleContext
-                .registerService(ServerConnectorProvider.class, new HTTPServerConnectorProvider(), null);
+//        bundleContext
+//                .registerService(ServerConnectorProvider.class, new HTTPServerConnectorProvider(), null);
     }
 
     @Override
