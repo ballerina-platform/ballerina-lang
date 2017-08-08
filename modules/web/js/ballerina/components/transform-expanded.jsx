@@ -187,7 +187,12 @@ class TransformExpanded extends React.Component {
 
         if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
             !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
-            const assignmentStmt = _.find(this.props.model.children, { id: connection.id });
+            const assignmentStmt = _.find(this.props.model.getChildren(), child => {
+                const leftExpression = child.getLeftExpression().getExpressionString().trim();
+                const rightExpression = child.getRightExpression().getExpressionString().trim();
+                return leftExpression === (connection.targetProperty || connection.targetStruct) &&
+                    rightExpression === (connection.sourceProperty || connection.sourceStruct);
+            });
             this.props.model.removeChild(assignmentStmt);
             return;
         }
