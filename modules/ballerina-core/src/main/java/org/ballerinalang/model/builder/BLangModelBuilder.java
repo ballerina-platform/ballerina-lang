@@ -923,9 +923,9 @@ public class BLangModelBuilder {
 
     public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                                   SimpleTypeName typeName, boolean argsAvailable,
-                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
                                                   List<BLangModelBuilder.NameReference> filterNameReferenceList,
-                                                  List<Boolean> argExistenceList) {
+                                                  List<Boolean> argExistenceList,
+                                                  List<WhiteSpaceDescriptor> filterInitWSDescriptors) {
         List<List<Expression>> filterArgExprList = new ArrayList<>();
         for (int i = 0; i < argExistenceList.size(); i++) {
             List<Expression> filterArgExpr;
@@ -958,8 +958,9 @@ public class BLangModelBuilder {
                     filterNameReference.getPackageName(), null);
             List<Expression> argExpr = filterArgExprList.get(j);
             filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
-            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
-                    filterTypeName,
+            WhiteSpaceDescriptor wsDescriptor = (filterInitWSDescriptors.size() == 0 ?
+                    null : filterInitWSDescriptors.get(j));
+            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, wsDescriptor, filterTypeName,
                     argExpr.toArray(new Expression[argExpr.size()]));
             currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
             currentConnectorInitExpr = filterConnectorInitExpr;
