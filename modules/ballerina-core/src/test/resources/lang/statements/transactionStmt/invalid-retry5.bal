@@ -3,8 +3,12 @@ function testTransaction(int i) (string) {
     transaction {
         a = a + " inTrx";
     } failed {
-        retry 4;
         a = a + " inFailed";
+        if (i > 4) {
+            retry 4;
+        } else {
+            retry 3;
+        }
     } committed {
         a = a + " inTrx";
     }

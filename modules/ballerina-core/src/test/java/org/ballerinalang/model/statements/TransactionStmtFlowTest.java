@@ -270,6 +270,31 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx err end");
     }
 
+    @Test
+    public void testTransactionStmtConstRetry() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtConstRetry");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx "
+                + "inFailed err end");
+    }
+
+    @Test
+    public void testTransactionStmtVariableRetry() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtVariableRetry");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed err end");
+    }
+
+    @Test
+    public void testTransactionStmtSuccess() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtSuccess");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inCmt end");
+    }
+
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry1.bal:7: " +
             "retry statement not allowed here.*")
     public void testTransactionInvalidRetry1() {
@@ -280,6 +305,24 @@ public class TransactionStmtFlowTest {
             "unreachable statement*")
     public void testTransactionInvalidRetry2() {
         BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry2.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry3.bal:7: " +
+            "invalid retry count*")
+    public void testTransactionInvalidRetry3() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry3.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry4.bal:7: " +
+            "invalid retry count*")
+    public void testTransactionInvalidRetry4() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry4.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry5.bal:8: " +
+            "retry statement should be a root level statement within failed block*")
+    public void testTransactionInvalidRetry5() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry5.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort1.bal:7: " +

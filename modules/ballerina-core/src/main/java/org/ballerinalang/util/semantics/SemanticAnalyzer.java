@@ -1515,7 +1515,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(RetryStmt retryStmt) {
-
+        checkParent(retryStmt);
     }
 
     @Override
@@ -4093,6 +4093,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                 } else if (StatementKind.CONTINUE == childStmtType) {
                     BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
                 }
+            }
+            if (StatementKind.RETRY == childStmtType) {
+                StatementKind parentStmtType = stmt.getParent().getKind();
+                if (StatementKind.FAILED_BLOCK != parentStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_STMT_LOCATION);
+                }
+                break;
             }
             parent = parent.getParent();
         }

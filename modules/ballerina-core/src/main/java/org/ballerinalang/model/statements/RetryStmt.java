@@ -48,6 +48,6 @@ public class RetryStmt extends AbstractStatement {
 
     @Override
     public StatementKind getKind() {
-        return StatementKind.ABORT;
+        return StatementKind.RETRY;
     }
 }

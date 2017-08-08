@@ -6,6 +6,8 @@ struct TrxError {
     string data;
 }
 
+const int RETRYCOUNT = 4;
+
 function testTransactionStmt (int i) (string) {
     string a = "start";
     try {
@@ -285,4 +287,67 @@ function testTransactionStmtWithRetryOff (int i) (string) {
     }
     a = a + " end";
     return a;
+}
+
+function testTransactionStmtConstRetry() (string) {
+    string a = "start";
+    try {
+        transaction {
+            a = a + " inTrx";
+            errors:Error err = {msg:" err"};
+            throw err;
+        } failed {
+            a = a + " inFailed";
+            retry RETRYCOUNT;
+        } committed {
+            a = a + " inTrx";
+        }
+    } catch (errors:Error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtSuccess() (string) {
+    string a = "start";
+    try {
+        transaction {
+            a = a + " inTrx";
+        } failed {
+            a = a + " inFailed";
+            retry RETRYCOUNT;
+        } committed {
+            a = a + " inCmt";
+        }
+    } catch (errors:Error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtVariableRetry() (string) {
+    int retryCount =  getRetryCount();
+    string a = "start";
+    try {
+        transaction {
+            a = a + " inTrx";
+            errors:Error err = {msg:" err"};
+            throw err;
+        } failed {
+            a = a + " inFailed";
+            retry retryCount;
+        } committed {
+            a = a + " inTrx";
+        }
+    } catch (errors:Error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}
+
+function getRetryCount () (int) {
+    return 2;
 }

@@ -133,6 +133,7 @@ public enum SemanticErrors {
     INVALID_ACTION_FIRST_PARAMETER("invalid.action.first.parameter", "SEMANTIC_0109"),
     RETRY_STMT_NOT_ALLOWED_HERE("retry.stmt.not.allowed.here", "SEMANTIC_0110"),
     INVALID_RETRY_COUNT("invalid.retry.count", "SEMANTIC_0111"),
+    INVALID_RETRY_STMT_LOCATION("invalid.retry.stmt.location", "SEMANTIC_0112"),
     ;
 
     private String errorMsgKey;

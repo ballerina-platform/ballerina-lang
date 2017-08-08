@@ -2098,7 +2098,11 @@ public class BLangModelBuilder {
         boolean error = true;
         if (retryCountExpr instanceof BasicLiteral) {
             if (TypeConstants.INT_TNAME.equals(((BasicLiteral) retryCountExpr).getTypeName().getName())) {
-                error = false;
+                if (((BasicLiteral) retryCountExpr).getBValue().intValue() < 0) {
+                    error = true;
+                } else {
+                    error = false;
+                }
             }
         } else if (retryCountExpr instanceof VariableReferenceExpr) {
             error = false;
