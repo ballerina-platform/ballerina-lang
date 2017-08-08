@@ -13,7 +13,24 @@
     "lint": "eslint . --ext .jsx --ext .js",
     "lintfile": "eslint",
     "storybook": "start-storybook -p 6006 --dont-track",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "test-jest": "jest ./react-test/"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
+    "unmockedModulePathPatterns": [
+      "react"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json"
+    ],
+    "moduleDirectories": ["lib", "js", "node_modules","react-test"]
   },
   "repository": {
     "type": "git",
@@ -50,7 +67,12 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1",
-    "yargs": "^1.3.3"
+    "yargs": "^1.3.3",
+    "jest": "^20.0.4",
+    "babel-jest": "^20.0.3",
+    "react-test-renderer":"^15.6.1",
+    "enzyme": "^2.9.1",
+    "jest-enzyme":"^3.6.1"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",
