@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.CustomHttpObjectAggregator;
 import org.wso2.carbon.transport.http.netty.listener.CustomHttpRequestDecoder;
@@ -82,7 +82,7 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
             p.addLast("chunkWriter", new ChunkedWriteHandler());
             try {
                 p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration,
-                        new HTTPConnectorFuture()));
+                        new HTTPServerConnectorFuture()));
             } catch (Exception e) {
                 log.error("Cannot Create SourceHandler ", e);
             }

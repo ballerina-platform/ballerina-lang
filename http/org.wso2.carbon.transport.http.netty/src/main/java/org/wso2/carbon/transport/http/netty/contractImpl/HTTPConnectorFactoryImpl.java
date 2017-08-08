@@ -1,17 +1,13 @@
 package org.wso2.carbon.transport.http.netty.contractImpl;
 
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
-import org.wso2.carbon.transport.http.netty.contract.ClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
 
@@ -52,7 +48,7 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     }
 
     @Override
-    public ClientConnector getClientConnector(Map<String, String> connectorConfig) {
+    public HTTPClientConnector getClientConnector(Map<String, String> connectorConfig) {
         return null;
     }
 

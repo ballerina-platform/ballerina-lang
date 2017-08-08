@@ -7,5 +7,5 @@ import java.util.Map;
  */
 public interface HTTPConnectorFactory {
     ServerConnector getServerConnector(Map<String, String> connectorConfig);
-    ClientConnector getClientConnector(Map<String, String> connectorConfig);
+    HTTPClientConnector getHTTPClientConnector(Map<String, String> connectorConfig);
 }
