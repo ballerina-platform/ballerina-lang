@@ -127,11 +127,10 @@ public class DocumentationUtils {
      * @param namespaceMetaDataList      Metadata in this repository
      * @param documentationBaseDirectory The path of the directory in which the documentation will be generated
      * @param documentationVersion       The version of the documentation being generated
-     * @param logger                     The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                             String documentationBaseDirectory, String documentationVersion, Log logger)
+                                             String documentationBaseDirectory, String documentationVersion)
             throws MojoFailureException {
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
@@ -144,7 +143,7 @@ public class DocumentationUtils {
         generateFileFromTemplate(
                 Constants.MARKDOWN_DOCUMENTATION_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
-                rootDataModel, documentationBaseDirectory, outputFileRelativePath, logger
+                rootDataModel, documentationBaseDirectory, outputFileRelativePath
         );
     }
 
@@ -171,16 +170,15 @@ public class DocumentationUtils {
         // Retrieving the documentation file names
         File documentationDirectory = new File(documentationBaseDirectory
                 + File.separator + Constants.API_SUB_DIRECTORY);
-        String[] documentationFiles = documentationDirectory.list();
+        String[] documentationFiles = documentationDirectory.list(
+                (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
+        );
 
-        // Getting only the markdown files
-        List<String> documentationFilesList = new ArrayList<>();
-        if (documentationFiles != null) {
-            for (String documentationFile : documentationFiles) {
-                if (documentationFile.endsWith(Constants.MARKDOWN_FILE_EXTENSION)) {
-                    documentationFilesList.add(documentationFile);
-                }
-            }
+        List<String> documentationFilesList;
+        if (documentationFiles == null) {
+            documentationFilesList = new ArrayList<>();
+        } else {
+            documentationFilesList = Arrays.asList(documentationFiles);
         }
 
         // Generating data model
@@ -192,15 +190,59 @@ public class DocumentationUtils {
                 Constants.MARKDOWN_HOME_PAGE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
                 rootDataModel, documentationBaseDirectory,
-                homePageFileName + Constants.MARKDOWN_FILE_EXTENSION, logger
+                homePageFileName + Constants.MARKDOWN_FILE_EXTENSION
         );
 
-        // Adding the links in the home page to the mkdocs config
+        // Updating the links in the home page to the mkdocs config
         try {
             updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationFilesList);
         } catch (FileNotFoundException e) {
             logger.warn("Unable to find mkdocs configuration file: " + mkdocsConfigFile.getAbsolutePath()
                     + ". Mkdocs configuration file not updated.");
+        }
+    }
+
+    /**
+     * Remove the snapshot version documentation files from docs/api directory
+     *
+     * @param mkdocsConfigFile           The mkdocs configuration file
+     * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
+     * @param logger                     The maven plugin logger
+     */
+    public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String  documentationBaseDirectory, Log logger) {
+        File apiDocsDirectory = new File(documentationBaseDirectory
+                + File.separator + Constants.API_SUB_DIRECTORY);
+
+        // Retrieving the documentation file names
+        String[] documentationFileNames = apiDocsDirectory.list(
+                (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
+        );
+
+        if (documentationFileNames != null) {
+            List<String> documentationFilesList = new ArrayList<>();
+
+            // Removing snapshot files and creating a list of the files that are left out
+            for (String documentationFileName : documentationFileNames) {
+                if (documentationFileName.endsWith(Constants.SNAPSHOT_VERSION_POSTFIX
+                        + Constants.MARKDOWN_FILE_EXTENSION)) {
+                    // Removing the snapshot documentation file
+                    File documentationFile = new File(apiDocsDirectory.getAbsolutePath()
+                            + File.separator + documentationFileName);
+                    if (!documentationFile.delete()) {
+                        logger.warn("Failed to delete SNAPSHOT documentation file " + documentationFile.getAbsolutePath());
+                    }
+                } else {
+                    documentationFilesList.add(documentationFileName);
+                }
+            }
+
+            // Updating the links in the home page to the mkdocs config
+            try {
+                updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationFilesList);
+            } catch (FileNotFoundException e) {
+                logger.warn("Unable to find mkdocs configuration file: "
+                        + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
+            }
         }
     }
 
@@ -265,12 +307,10 @@ public class DocumentationUtils {
      * @param extensionRepositoryOwner   The extension repository owner's name
      * @param documentationBaseDirectory The output directory path in which the extension index will be generated
      * @param extensionsIndexFileName    The name of the index file that will be generated
-     * @param logger                     The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void createExtensionsIndex(List<String> extensionRepositories, String extensionRepositoryOwner,
-                                             String documentationBaseDirectory, String extensionsIndexFileName,
-                                             Log logger)
+                                             String documentationBaseDirectory, String extensionsIndexFileName)
             throws MojoFailureException {
         // Separating Apache and GPL extensions based on siddhi repository prefix conventions
         List<String> gplExtensionRepositories = new ArrayList<>();
@@ -293,7 +333,7 @@ public class DocumentationUtils {
                 Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
                 rootDataModel, documentationBaseDirectory,
-                extensionsIndexFileName + Constants.MARKDOWN_FILE_EXTENSION, logger
+                extensionsIndexFileName + Constants.MARKDOWN_FILE_EXTENSION
         );
     }
 
@@ -534,11 +574,10 @@ public class DocumentationUtils {
      * @param dataModel       The data model to be used for generating the output files from template files
      * @param outputDirectory The output directory in which the file will be generated
      * @param outputFileName  The name of the file that will be generated
-     * @param logger          The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     private static void generateFileFromTemplate(String templateFile, Object dataModel,
-                                                 String outputDirectory, String outputFileName, Log logger)
+                                                 String outputDirectory, String outputFileName)
             throws MojoFailureException {
         // Creating the free marker configuration
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);

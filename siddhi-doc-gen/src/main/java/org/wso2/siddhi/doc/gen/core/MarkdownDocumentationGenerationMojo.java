@@ -101,11 +101,11 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
         }
 
         // Setting the documentation output directory if not set by user
-        String docGenPath;
+        String docGenBasePath;
         if (docGenBaseDirectory != null) {
-            docGenPath = docGenBaseDirectory.getAbsolutePath();
+            docGenBasePath = docGenBaseDirectory.getAbsolutePath();
         } else {
-            docGenPath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
+            docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
         // Setting the read me file path if not set by user
@@ -139,9 +139,8 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
 
         // Generating the documentation
         if (namespaceMetaDataList.size() > 0) {
-            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath,
-                    mavenProject.getVersion(), getLog());
-            DocumentationUtils.updateHomePage(homePageTemplateFile, docGenPath,
+            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenBasePath, mavenProject.getVersion());
+            DocumentationUtils.updateHomePage(homePageTemplateFile, docGenBasePath,
                     homePageFileName, mkdocsConfigFile, getLog());
         }
     }

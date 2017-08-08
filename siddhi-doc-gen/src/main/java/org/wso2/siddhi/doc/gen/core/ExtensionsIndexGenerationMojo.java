@@ -90,11 +90,11 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
         }
 
         // Setting the documentation output directory if not set by user
-        String docGenPath;
+        String docGenBasePath;
         if (docGenBaseDirectory != null) {
-            docGenPath = docGenBaseDirectory.getAbsolutePath();
+            docGenBasePath = docGenBaseDirectory.getAbsolutePath();
         } else {
-            docGenPath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
+            docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
         // Setting the documentation output file name if not set by user
@@ -104,7 +104,7 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
 
         // Creating a extensions index
         DocumentationUtils.createExtensionsIndex(
-                extensionRepositories, extensionRepositoryOwner, docGenPath, indexGenFileName, getLog()
+                extensionRepositories, extensionRepositoryOwner, docGenBasePath, indexGenFileName
         );
     }
 }

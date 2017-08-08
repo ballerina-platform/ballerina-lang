@@ -66,4 +66,5 @@ public class Constants {
 
     public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     public static final String CORE_NAMESPACE = "core";
+    public static final String SNAPSHOT_VERSION_POSTFIX = "-SNAPSHOT";
 }

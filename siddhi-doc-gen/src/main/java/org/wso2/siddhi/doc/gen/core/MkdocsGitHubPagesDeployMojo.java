@@ -73,15 +73,16 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
         }
 
         // Setting the documentation output directory if not set by user
-        String docGenPath;
+        String docGenBasePath;
         if (docGenBaseDirectory != null) {
-            docGenPath = docGenBaseDirectory.getAbsolutePath();
+            docGenBasePath = docGenBaseDirectory.getAbsolutePath();
         } else {
-            docGenPath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
+            docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
+        DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
         DocumentationUtils.deployMkdocsOnGitHubPages(mkdocsConfigFile, getLog());
-        DocumentationUtils.updateDocumentationOnGitHub(docGenPath, mkdocsConfigFile,
+        DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile,
                 mavenProject.getVersion(), getLog());
     }
 }
