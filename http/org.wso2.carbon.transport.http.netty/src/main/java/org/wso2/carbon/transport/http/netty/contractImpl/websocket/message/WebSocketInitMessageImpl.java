@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
@@ -44,8 +45,10 @@ public class WebSocketInitMessageImpl extends BasicWebSocketChannelContextImpl i
     private final HttpRequest httpRequest;
     private final WebSocketServerHandshaker handshaker;
     private final BasicWebSocketChannelContextImpl basicWebSocketChannelContext;
+    private final ServerConnectorFuture connectorFuture;
 
-    public WebSocketInitMessageImpl(HttpRequest httpRequest, BasicWebSocketChannelContextImpl webSocketChannelContext,
+    public WebSocketInitMessageImpl(HttpRequest httpRequest, ServerConnectorFuture connectorFuture,
+                                    BasicWebSocketChannelContextImpl webSocketChannelContext,
                                     ChannelHandlerContext ctx) {
         super(webSocketChannelContext.getSubProtocol(), webSocketChannelContext.getTarget(),
               webSocketChannelContext.getListenerPort(), webSocketChannelContext.isConnectionSecured(),
@@ -54,6 +57,7 @@ public class WebSocketInitMessageImpl extends BasicWebSocketChannelContextImpl i
         this.httpRequest = httpRequest;
         this.basicWebSocketChannelContext = webSocketChannelContext;
         this.ctx = ctx;
+        this.connectorFuture = connectorFuture;
 
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), subProtocol, true);
@@ -68,7 +72,7 @@ public class WebSocketInitMessageImpl extends BasicWebSocketChannelContextImpl i
             WebSocketSourceHandler webSocketSourceHandler =
                     new WebSocketSourceHandler(WebSocketUtil.getSessionID(ctx), this.connectionManager,
                                                this.listenerConfiguration, httpRequest, isConnectionSecured, ctx,
-                                               basicWebSocketChannelContext, serverSession);
+                                               basicWebSocketChannelContext, connectorFuture, serverSession);
             handshaker.handshake(ctx.channel(), httpRequest);
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
@@ -77,7 +81,7 @@ public class WebSocketInitMessageImpl extends BasicWebSocketChannelContextImpl i
 
             // TODO: handle Idle state in WebSocket with configurations.
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
-            pipeline.remove("handler");
+            pipeline.remove("SourceHandler");
 
             setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
             return serverSession;

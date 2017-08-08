@@ -50,6 +50,6 @@ public class WebSocketTextMessageImpl extends WebSocketChannelContextImpl implem
 
     @Override
     public boolean isFinalFragment() {
-        return isFinalFragment();
+        return isFinalFragment;
     }
 }

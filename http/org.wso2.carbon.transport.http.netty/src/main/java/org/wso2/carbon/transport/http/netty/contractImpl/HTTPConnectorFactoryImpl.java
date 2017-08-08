@@ -8,6 +8,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
 
@@ -49,6 +50,11 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
 
     @Override
     public HTTPClientConnector getHTTPClientConnector(Map<String, String> connectorConfig) {
+        return null;
+    }
+
+    @Override
+    public WebSocketClientConnector getWSClientConnector(Map<String, String> connectorConfig) {
         return null;
     }
 

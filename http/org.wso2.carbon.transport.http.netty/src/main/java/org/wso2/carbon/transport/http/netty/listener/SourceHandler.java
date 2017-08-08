@@ -190,9 +190,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     listenerConfiguration);
 
             WebSocketInitMessageImpl initMessage =
-                    new WebSocketInitMessageImpl(httpRequest, webSocketChannelContext,ctx);
+                    new WebSocketInitMessageImpl(httpRequest, serverConnectorFuture, webSocketChannelContext,ctx);
 
-            // TODO: Publish Message
+            serverConnectorFuture.notifyWSListener(initMessage);
     }
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread

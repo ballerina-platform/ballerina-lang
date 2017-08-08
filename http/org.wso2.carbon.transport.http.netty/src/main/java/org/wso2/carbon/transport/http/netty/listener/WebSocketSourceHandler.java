@@ -30,14 +30,12 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contractImpl.HTTPServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
@@ -65,6 +63,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final boolean isSecured;
     private final WebSocketSessionImpl serverSession;
     private final WebSocketChannelContextImpl webSocketChannelContext;
+    private final ServerConnectorFuture connectorFuture;
 
     /**
      * @param channelId This works as the serverSession id of the WebSocket connection.
@@ -78,12 +77,14 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   ListenerConfiguration listenerConfiguration, HttpRequest httpRequest,
                                   boolean isSecured, ChannelHandlerContext ctx,
                                   BasicWebSocketChannelContextImpl basicWebSocketChannelContext,
+                                  ServerConnectorFuture connectorFuture,
                                   WebSocketSessionImpl serverSession) throws Exception {
         super(connectionManager, listenerConfiguration, new HTTPServerConnectorFuture());
         this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.ctx = ctx;
         this.isSecured = isSecured;
+        this.connectorFuture = connectorFuture;
         this.serverSession = serverSession;
         this.webSocketChannelContext =
                 setupCommonProperties(new WebSocketChannelContextImpl(serverSession, basicWebSocketChannelContext));
@@ -124,7 +125,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             String reasonText = "Client is going away";
             WebSocketCloseMessageImpl webSocketCloseMessage =
                     new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
-            // TODO: Notify the observer.
+            connectorFuture.notifyWSListener(webSocketCloseMessage);
         }
     }
 
@@ -140,7 +141,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             boolean isFinalFragment = textWebSocketFrame.isFinalFragment();
             WebSocketTextMessageImpl webSocketTextMessage =
                     new WebSocketTextMessageImpl(text, isFinalFragment, webSocketChannelContext);
-            // TODO: Notify the observer.
+            connectorFuture.notifyWSListener(webSocketTextMessage);
 
         } else if (msg instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
@@ -149,7 +150,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             WebSocketBinaryMessageImpl webSocketBinaryMessage =
                     new WebSocketBinaryMessageImpl(byteBuffer, finalFragment, webSocketChannelContext);
-            // TODO: Notify the observer.
+            connectorFuture.notifyWSListener(webSocketBinaryMessage);
 
         } else if (msg instanceof CloseWebSocketFrame) {
             CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
@@ -159,7 +160,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             serverSession.setIsOpen(false);
             WebSocketCloseMessageImpl webSocketCloseMessage =
                     new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
-            // TODO: Notify the observer.
+            connectorFuture.notifyWSListener(webSocketCloseMessage);
 
         } else if (msg instanceof PingWebSocketFrame) {
             PingWebSocketFrame pingWebSocketFrame = (PingWebSocketFrame) msg;
@@ -172,31 +173,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             WebSocketControlMessageImpl webSocketControlMessage =
                     new WebSocketControlMessageImpl(WebSocketControlSignal.PONG, byteBuffer, webSocketChannelContext);
-        }
-    }
-
-
-    /*
-    Carbon Message is published to registered message processor
-    Message Processor should return transport thread immediately
-     */
-    protected void publishToMessageProcessor(CarbonMessage cMsg) {
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
-        }
-
-        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
-        if (carbonMessageProcessor != null) {
-            try {
-                carbonMessageProcessor.receive(cMsg, null);
-            } catch (Exception e) {
-                logger.error("Error while submitting CarbonMessage to CarbonMessageProcessor.", e);
-                ctx.channel().close();
-            }
-        } else {
-            logger.error("Cannot find registered MessageProcessor to forward the message.");
-            ctx.channel().close();
+            connectorFuture.notifyWSListener(webSocketControlMessage);
         }
     }
 

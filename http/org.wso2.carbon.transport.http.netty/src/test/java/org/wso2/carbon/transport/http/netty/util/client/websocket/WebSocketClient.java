@@ -59,7 +59,7 @@ public class WebSocketClient {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
 
     private final String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                                TestUtil.TEST_HOST, 8490, "test"));
+                                                                TestUtil.TEST_HOST, 9009, "test"));
 
     private Channel channel = null;
     private WebSocketClientHandler handler;

@@ -32,7 +32,6 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -94,7 +93,7 @@ public class WebSocketClientTest {
 //        ByteBuffer buffer = ByteBuffer.wrap(bytes);
 //        session.getBasicRemote().sendPing(buffer);
 //        Thread.sleep(sleepTime);
-//        Assert.assertTrue(messageProcessor.isPongReceivedToClient());
+//        Assert.assertTrue(messageProcessor.isPongReceived());
 //        shutDownClient(session);
 //    }
 //
