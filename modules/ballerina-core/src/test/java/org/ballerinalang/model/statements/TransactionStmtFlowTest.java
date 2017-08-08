@@ -191,6 +191,88 @@ public class TransactionStmtFlowTest {
 
     }
 
+    @Test
+    public void testNestedTransactionWithFailed1() {
+        BValue[] args = {new BInteger(-1)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedTransactionWithFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inOuterTrx inInnerTrx innerFailed inInnerTrx innerFailed innerAborted outerFailed inOuterTrx "
+                     + "inInnerTrx innerFailed inInnerTrx innerFailed innerAborted outerFailed inOuterTrx "
+                     + "inInnerTrx innerFailed inInnerTrx innerFailed innerAborted outerFailed outerAborted err end");
+
+    }
+
+    @Test
+    public void testNestedTransactionWithFailed2() {
+        BValue[] args = {new BInteger(-10)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedTransactionWithFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inOuterTrx inInnerTrx trxErr endInnerTrx inInnerCmt endOuterTrx inOuterCmt  end");
+
+    }
+
+    @Test
+    public void testTransactionStmtWithFailed1() {
+        BValue[] args = {new BInteger(-1)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx "
+                + "inFailed inAbt err end");
+    }
+
+    @Test
+    public void testTransactionStmtWithFailed2() {
+        BValue[] args = {new BInteger(0)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx abort inAbt end");
+    }
+
+    @Test
+    public void testTransactionStmtWithFailed3() {
+        BValue[] args = {new BInteger(-2)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx trxErr endTrx inCmt end");
+    }
+
+    @Test
+    public void testTransactionStmtWithFailed4() {
+        BValue[] args = {new BInteger(1)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx success endTrx inCmt end");
+    }
+
+    @Test
+    public void testTransactionStmtWithoutFailed() {
+        BValue[] args = {new BInteger(-1)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtWithoutFailed", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx err end");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry1.bal:7: " +
+            "retry statement not allowed here.*")
+    public void testTransactionInvalidRetry1() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry1.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry2.bal:7: " +
+            "unreachable statement*")
+    public void testTransactionInvalidRetry2() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry2.bal");
+    }
+
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort1.bal:7: " +
             "abort statement is not allowed here.*")
     public void testInvalidAbort1() {
