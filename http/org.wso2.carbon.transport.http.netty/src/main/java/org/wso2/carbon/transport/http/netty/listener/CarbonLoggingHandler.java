@@ -18,10 +18,15 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+
+import static io.netty.buffer.ByteBufUtil.appendPrettyHexDump;
+import static io.netty.util.internal.StringUtil.NEWLINE;
 
 /**
  * A custom LoggingHandler for the HTTP wire logs
@@ -105,14 +110,56 @@ public class CarbonLoggingHandler extends LoggingHandler {
         String channelId = ctx.channel().id().asShortText();
         String local = ctx.channel().localAddress().toString();
         String remote = ctx.channel().remoteAddress().toString();
-        String msgStr = String.valueOf(msg);
+        String msgStr;
+
+        if (msg instanceof ByteBuf) {
+            msgStr = formatPayload((ByteBuf) msg);
+        } else if (msg instanceof ByteBufHolder) {
+            msgStr = formatPayload((ByteBufHolder) msg);
+        } else {
+            msgStr = String.valueOf(msg);
+        }
 
         StringBuilder buf = new StringBuilder(
-                7 + channelId.length() + 14 + correlatedSourceId.length() + 7 + local.length() + 10 + remote.length() +
-                        2 + eventName.length() + 2 + msgStr.length());
+                7 + channelId.length() + 14 + correlatedSourceId.length() + 7 + local.length() + 10 +
+                        remote.length() + 2 + eventName.length() + 2 + msgStr.length());
 
         return buf.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
                 .append(", host:").append(local).append(" - remote:").append(remote).append("] ")
                 .append(eventName).append(": ").append(msgStr).toString();
+    }
+
+    private static String formatPayload(ByteBuf msg) {
+        int length = msg.readableBytes();
+        if (length == 0) {
+            return " 0B";
+        } else {
+            int rows = length / 16 + (length % 16 == 0 ? 0 : 1) + 4;
+            StringBuilder buf = new StringBuilder(10 + 1 + 2 + rows * 80);
+
+            buf.append(length).append('B').append(NEWLINE);
+            appendPrettyHexDump(buf, msg);
+
+            return buf.toString();
+        }
+    }
+
+    private static String formatPayload(ByteBufHolder msg) {
+        String msgStr = msg.toString();
+        ByteBuf content = msg.content();
+        int length = content.readableBytes();
+        if (length == 0) {
+            StringBuilder buf = new StringBuilder(2 + msgStr.length() + 4);
+            buf.append(msgStr).append(", 0B");
+            return buf.toString();
+        } else {
+            int rows = length / 16 + (length % 16 == 0 ? 0 : 1) + 4;
+            StringBuilder buf = new StringBuilder(2 + msgStr.length() + 2 + 10 + 1 + 2 + rows * 80);
+
+            buf.append(msgStr).append(", ").append(length).append('B').append(NEWLINE);
+            appendPrettyHexDump(buf, content);
+
+            return buf.toString();
+        }
     }
 }
