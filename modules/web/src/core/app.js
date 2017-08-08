@@ -78,9 +78,8 @@ class Application {
      */
     loadOtherPlugins() {
         const { app: { plugins } } = this.config;
-        const pluginsFromConfig = _.get(this.config, plugins, []);
-        if (_.isArray(pluginsFromConfig)) {
-            pluginsFromConfig.forEach((plugin) => {
+        if (_.isArray(plugins)) {
+            plugins.forEach((plugin) => {
                 this.loadPlugin(plugin);
             });
         }

@@ -18,9 +18,13 @@
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
+import { REGIONS } from './../layout/constants';
+
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
-import { PLUGIN_ID } from './constants';
+import { PLUGIN_ID, VIEW_IDS } from './constants';
+
+import AppMenuView from './views/AppMenu';
 
 /**
  * ApplicationMenuPlugin is responsible for rendering menu items.
@@ -49,7 +53,19 @@ class ApplicationMenuPlugin extends Plugin {
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
-            [VIEWS]: [],
+            [VIEWS]: [
+                {
+                    id: VIEW_IDS.APP_MENU,
+                    component: AppMenuView,
+                    propsProvider: () => {
+                        return {
+                            menu: this.menuItems,
+                        };
+                    },
+                    region: REGIONS.HEADER,
+                    displayOnLoad: true,
+                },
+            ],
         };
     }
 }

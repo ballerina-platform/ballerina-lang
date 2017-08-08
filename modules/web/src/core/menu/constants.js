@@ -4,4 +4,8 @@ export const COMMANDS = {
     UPDATE_MENU_ITEM: 'update-menu-item',
 };
 
+export const VIEW_IDS = {
+    APP_MENU: 'composer.view.application.menu',
+};
+
 export const PLUGIN_ID = 'composer.plugin.menu.manager';
