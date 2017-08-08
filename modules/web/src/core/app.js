@@ -21,7 +21,7 @@ import 'css/preloader.css';
 import Plugin from './plugin/plugin';
 import { ACTIVATION_POLICIES } from './plugin/constants';
 
-import commandManager from './command/manager';
+import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
 import MenuManager from './menu/manager';
 
@@ -42,50 +42,62 @@ class Application {
         // to config object from plugins, etc.
         Object.freeze(config);
         Object.preventExtensions(config);
+        this.config = config;
 
         // init plugins collection
         this.plugins = [];
 
         // init the application context
-        this.appContext = {
-            commandChannel: commandManager.commandChannelProxy,
-        };
+        this.appContext = {};
 
-        // Initialize core plugins
-        this.plugins.push(new LayoutManager());
-        this.plugins.push(new MenuManager());
+        // Initialize core plugins first
+        this.commandManager = new CommandManager();
+        this.layoutManager = new LayoutManager();
+        this.menuManager = new MenuManager();
 
-        // load other plugins
-        this.loadPlugins(_.get(config, 'app.plugins', []));
+        // Unless the necessities to keep direct references within app
+        // & to be the very first set of plugins to be init/activate,
+        // core plugins will be same as other plugins
+        this.plugins.push(this.commandManager);
+        this.plugins.push(this.layoutManager);
+        this.plugins.push(this.menuManager);
 
-        // if any plugin specific configs are found
-        // provide them to the plugin.
-        const { pluginConfigs } = config;
+        // load plugins contributed via config
+        this.loadPlugins();
+
+        const { pluginConfigs } = this.config;
+
+        // First: Init all the plugins
         this.plugins.forEach((plugin) => {
+            // if any plugin specific configs are found
+            // provide them to the plugin.
+            // (This is to let devs override plugin configs externally)
             plugin.init(_.get(pluginConfigs, plugin.getID(), {}));
+        });
 
-            // Register command definitions
+        // Second: Discover all the contributions from plugins
+        this.plugins.forEach((plugin) => {
+            // load command definitions
             const commandDefs = plugin.getCommandDefinitions();
             commandDefs.forEach((command) => {
-                commandManager.registerCommand(command);
+                this.commandManager.registerCommand(command);
             });
 
-            // Register command handlers
+            // load command handlers
             const commandHandlerDefs = plugin.getCommandHandlerDefinitions();
             commandHandlerDefs.forEach((commandHandlerDef) => {
                 const { cmdID, handler, context } = commandHandlerDef;
-                commandManager.registerHandler(cmdID, handler, context);
+                this.commandManager.registerHandler(cmdID, handler, context);
             });
         });
     }
 
     /**
-     * Load other configured plugins.
-     *
-     * @param {[Plugin]} pluginsFromConfig Pre configured plugins from config.
-     *                                     (Similar to webpack.config)
+     * Load other configured plugins
      */
-    loadPlugins(pluginsFromConfig) {
+    loadPlugins() {
+        const { app: { plugins } } = this.config;
+        const pluginsFromConfig = _.get(this.config, plugins, []);
         if (_.isArray(pluginsFromConfig)) {
             pluginsFromConfig.forEach((plugin) => {
                 if (plugin instanceof Plugin) {

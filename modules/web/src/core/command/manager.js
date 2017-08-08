@@ -19,23 +19,29 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import log from 'log';
 import Mousetrap from 'mousetrap';
+import { PLUGIN_ID } from './constants';
 import CommandChannel from './channel';
-import CommandChannelProxy from './channel-proxy';
 import { isClientOnMacOS } from './../utils/client-info';
-
-let commandChannel;
+import Plugin from './../plugin/plugin';
 
 /**
  * Command Manager
  */
-class CommandManager {
+class CommandManager extends Plugin {
 
     /**
-     * Constructs the command manager
+     * @inheritdoc
      */
-    constructor() {
-        commandChannel = new CommandChannel();
-        this.commandChannelProxy = new CommandChannelProxy(commandChannel);
+    getID() {
+        return PLUGIN_ID;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    init(config) {
+        super.init(config);
+        this.commandChannel = new CommandChannel();
         this.commands = [];
     }
 
@@ -61,7 +67,7 @@ class CommandManager {
                 const { shortcuts } = cmd;
                 const key = isClientOnMacOS() ? shortcuts.mac.key : shortcuts.other.key;
                 Mousetrap.bind(key, (e) => {
-                    commandChannel.trigger(cmd);
+                    this.commandChannel.trigger(cmd);
                     e.preventDefault();
                     e.stopPropagation();
                 });
@@ -81,7 +87,7 @@ class CommandManager {
         if (!_.isEqual(_.findIndex(this.commands, ['id', cmdID]), -1)) {
             _.remove(this.commands, ['id', cmdID]);
             // remove all handlers for the command
-            commandChannel.off(cmdID, null);
+            this.commandChannel.off(cmdID, null);
             log.debug(`Command: ${cmdID} is unregistered.`);
         } else {
             log.warn(`Command: ${cmdID} cannot be found in registered commands.`);
@@ -99,7 +105,7 @@ class CommandManager {
         if (_.isEqual(_.findIndex(this.commands, ['id', cmdID]), -1)) {
             log.warn(`No such registered command found. Command: ${cmdID}`);
         }
-        commandChannel.on(cmdID, handler, context);
+        this.commandChannel.on(cmdID, handler, context);
     }
 
     /**
@@ -109,7 +115,7 @@ class CommandManager {
      * @param {Function} handler handler function
      */
     unRegisterHandler(cmd, handler) {
-        commandChannel.off(cmd, handler);
+        this.commandChannel.off(cmd, handler);
     }
 
     /**
@@ -128,7 +134,7 @@ class CommandManager {
                     // validate command args
                     PropTypes.checkPropTypes(argTypes, args, 'command-args', cmd);
                 }
-                commandChannel.trigger(cmdID, args);
+                this.commandChannel.trigger(cmdID, args);
             }
         }
     }
@@ -143,4 +149,4 @@ class CommandManager {
     }
 }
 
-export default new CommandManager();
+export default CommandManager;
