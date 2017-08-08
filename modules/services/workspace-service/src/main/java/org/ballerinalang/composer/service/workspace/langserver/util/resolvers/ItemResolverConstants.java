@@ -135,4 +135,15 @@ public class ItemResolverConstants {
     public static final int PRIORITY_6 = 6;
     public static final int PRIORITY_7 = 7;
 
+    // Kind constants
+    public static final int PACKAGE_KIND = 1;
+    public static final int B_TYPE_KIND = 2;
+    public static final int WORKER_KIND = 3;
+    public static final int PARAMETER_KIND = 4;
+    public static final int STATEMENT_KIND = 5;
+    public static final int FUNCTION_KIND = 6;
+    public static final int ACTION_KIND = 7;
+    public static final int STRUCT_KIND = 8;
+    public static final int VAR_DEF_KIND = 9;
+
 }
