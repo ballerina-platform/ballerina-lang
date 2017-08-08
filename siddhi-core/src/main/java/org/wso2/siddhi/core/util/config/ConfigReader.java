@@ -18,10 +18,15 @@
 
 package org.wso2.siddhi.core.util.config;
 
+import java.util.Map;
+
 /**
  * Siddhi Configuration Reader
  */
 public interface ConfigReader {
 
     String readConfig(String name, String defaultValue);
+
+    Map<String, String> getAllConfigs();
+
 }
