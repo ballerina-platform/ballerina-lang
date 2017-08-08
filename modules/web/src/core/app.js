@@ -48,7 +48,10 @@ class Application {
         this.plugins = [];
 
         // init the application context
-        this.appContext = {};
+        this.appContext = {
+            pluginContexts: {
+            },
+        };
 
         // Initialize core plugins first
         this.commandManager = new CommandManager();
@@ -62,49 +65,78 @@ class Application {
         this.plugins.push(this.layoutManager);
         this.plugins.push(this.menuManager);
 
+        // load core plugins first
+        this.plugins.forEach((plugin) => {
+            this.loadPlugin(plugin);
+        });
         // load plugins contributed via config
-        this.loadPlugins();
-
-        const { pluginConfigs } = this.config;
-
-        // First: Init all the plugins
-        this.plugins.forEach((plugin) => {
-            // if any plugin specific configs are found
-            // provide them to the plugin.
-            // (This is to let devs override plugin configs externally)
-            plugin.init(_.get(pluginConfigs, plugin.getID(), {}));
-        });
-
-        // Second: Discover all the contributions from plugins
-        this.plugins.forEach((plugin) => {
-            // load command definitions
-            const commandDefs = plugin.getCommandDefinitions();
-            commandDefs.forEach((command) => {
-                this.commandManager.registerCommand(command);
-            });
-
-            // load command handlers
-            const commandHandlerDefs = plugin.getCommandHandlerDefinitions();
-            commandHandlerDefs.forEach((commandHandlerDef) => {
-                const { cmdID, handler, context } = commandHandlerDef;
-                this.commandManager.registerHandler(cmdID, handler, context);
-            });
-        });
+        this.loadOtherPlugins();
     }
 
     /**
      * Load other configured plugins
      */
-    loadPlugins() {
+    loadOtherPlugins() {
         const { app: { plugins } } = this.config;
         const pluginsFromConfig = _.get(this.config, plugins, []);
         if (_.isArray(pluginsFromConfig)) {
             pluginsFromConfig.forEach((plugin) => {
-                if (plugin instanceof Plugin) {
-                    this.plugins.push(plugin);
-                }
+                this.loadPlugin(plugin);
             });
         }
+    }
+
+    /**
+     * Load a plugin
+     *
+     * @param {Plugin} plugin plugin instance
+     */
+    loadPlugin(plugin) {
+        if (!(plugin instanceof Plugin)) {
+            throw new Error('Invalid prototype for a plugin.');
+        }
+        this.plugins.push(plugin);
+        this._initPlugin(plugin);
+        this._discoverContributions(plugin);
+        if (plugin.getActivationPolicy().type ===
+                     ACTIVATION_POLICIES.APP_STARTUP) {
+            plugin.activate(this.appContext);
+        }
+    }
+
+    /**
+     * Initialize plugin
+     *
+     * @param {Plugin} plugin plugin instance
+     */
+    _initPlugin(plugin) {
+        const { pluginConfigs } = this.config;
+        // if any plugin specific configs are found
+        // provide them to the plugin.
+        // (This is to let devs override plugin configs externally)
+        const pluginContext = plugin.init(_.get(pluginConfigs, plugin.getID(), {}));
+        // set public plugin context
+        this.appContext.pluginContexts[plugin.getID()] = pluginContext;
+    }
+
+    /**
+     * Discover contributions from plugins
+     *
+     * @param {Plugin} plugin plugin instance
+     */
+    _discoverContributions(plugin) {
+         // load command definitions
+        const commandDefs = plugin.getCommandDefinitions();
+        commandDefs.forEach((command) => {
+            this.commandManager.registerCommand(command);
+        });
+
+        // load command handlers
+        const commandHandlerDefs = plugin.getCommandHandlerDefinitions();
+        commandHandlerDefs.forEach((commandHandlerDef) => {
+            const { cmdID, handler, context } = commandHandlerDef;
+            this.commandManager.registerHandler(cmdID, handler, context);
+        });
     }
 
     /**
@@ -113,14 +145,6 @@ class Application {
      * @memberof Application
      */
     render() {
-        // activate plugins which needs to be activated during startup
-        // while providing the application context
-        this.plugins.forEach((plugin) => {
-            if (plugin.getActivationPolicy().type ===
-                     ACTIVATION_POLICIES.APP_STARTUP) {
-                plugin.activate(this.appContext);
-            }
-        });
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.
         this.hidePreLoader();

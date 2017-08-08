@@ -39,12 +39,15 @@ class Plugin {
      * @param {Object} config Specic configurations for the plugin
      *                        This will be derived using unique plugin ID
      *                        @see Plugin#getID
+     * @returns {Object} pluginContext The API which is accessible to public
+     *
      */
     init(config) {
         // validate configs using config types
         PropTypes.checkPropTypes(this.constructor.configTypes,
                 config, 'config', this.constructor.name);
         this.config = config;
+        return {};
     }
 
     /**

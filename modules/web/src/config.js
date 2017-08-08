@@ -1,11 +1,13 @@
+import { PLUGIN_ID as LAYOUT_MANAGER_PLUGIN_ID } from './core/layout/constants';
+
 export default {
     app: {
         plugins: [],
     },
-    // overridden plugin specific configs - if any.
+    // provide plugin specific configs - if any.
     // plugin-id will be the key
     pluginConfigs: {
-        'composer.plugin.layout.manager': {
+        [LAYOUT_MANAGER_PLUGIN_ID]: {
             container: 'app-container',
         },
     },

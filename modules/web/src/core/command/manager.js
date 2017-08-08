@@ -29,6 +29,11 @@ import Plugin from './../plugin/plugin';
  */
 class CommandManager extends Plugin {
 
+    constructor() {
+        super();
+        this.dispatch = this.dispatch.bind(this);
+    }
+
     /**
      * @inheritdoc
      */
@@ -43,6 +48,9 @@ class CommandManager extends Plugin {
         super.init(config);
         this.commandChannel = new CommandChannel();
         this.commands = [];
+        return {
+            dispatch: this.dispatch,
+        };
     }
 
     /**
