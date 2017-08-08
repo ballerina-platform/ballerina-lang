@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.internal.websocket.message;
 
-import org.wso2.carbon.connector.framework.websocket.WebSocketTextMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketChannelContextImpl;
 
 

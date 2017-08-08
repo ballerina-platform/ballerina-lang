@@ -19,28 +19,28 @@
 
 package org.wso2.carbon.transport.http.netty.internal.websocket;
 
-import org.wso2.carbon.connector.framework.websocket.WebSocketBinaryMessage;
-import org.wso2.carbon.connector.framework.websocket.WebSocketCloseMessage;
-import org.wso2.carbon.connector.framework.websocket.WebSocketControlMessage;
-import org.wso2.carbon.connector.framework.websocket.WebSocketInitMessage;
-import org.wso2.carbon.connector.framework.websocket.WebSocketObservable;
-import org.wso2.carbon.connector.framework.websocket.WebSocketObserver;
-import org.wso2.carbon.connector.framework.websocket.WebSocketTextMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketObservable;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInboundObserver;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
  * Implementation for {@link WebSocketObservable}.
  */
 public class WebSocketObservableImpl implements WebSocketObservable {
 
-    private WebSocketObserver observer = null;
+    private WebSocketInboundObserver observer = null;
 
     @Override
-    public void setObserver(WebSocketObserver observer) {
+    public void setObserver(WebSocketInboundObserver observer) {
         this.observer = observer;
     }
 
     @Override
-    public void removeObserver(WebSocketObserver observer) {
+    public void removeObserver(WebSocketInboundObserver observer) {
         this.observer = null;
     }
 

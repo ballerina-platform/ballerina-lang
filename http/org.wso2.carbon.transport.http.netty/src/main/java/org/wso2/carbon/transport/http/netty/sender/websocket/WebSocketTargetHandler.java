@@ -36,8 +36,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.connector.framework.websocket.WebSocketControlSignal;
-import org.wso2.carbon.connector.framework.websocket.WebSocketObserver;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInboundObserver;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketChannelContextImpl;
@@ -67,19 +67,18 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketClientHandshaker handshaker;
     private final WebSocketSourceHandler sourceHandler;
     private final String requestedUri;
-    private final WebSocketObserver observer;
+    private final WebSocketInboundObserver observer;
     private final WebSocketChannelContextImpl webSocketChannelContext;
-    private final ChannelHandlerContext ctx;
+    private ChannelHandlerContext ctx;
     private WebSocketSessionImpl clientSession;
     private ChannelPromise handshakeFuture;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  String requestedUri, ChannelHandlerContext ctx, WebSocketObserver observer,
+                                  String requestedUri, WebSocketInboundObserver observer,
                                   WebSocketChannelContextImpl webSocketChannelContext) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
         this.requestedUri = requestedUri;
-        this.ctx = ctx;
         this.observer = observer;
         this.webSocketChannelContext = setupCommonProperties(webSocketChannelContext);
         handshakeFuture = null;
@@ -96,6 +95,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
+        this.ctx = ctx;
     }
 
     @Override

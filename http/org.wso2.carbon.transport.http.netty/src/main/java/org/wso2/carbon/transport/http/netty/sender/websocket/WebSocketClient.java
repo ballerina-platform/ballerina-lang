@@ -135,7 +135,7 @@ public class WebSocketClient {
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, clientServiceName,
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, url, clientServiceName,
                                              messageProcessor);
 
         Bootstrap b = new Bootstrap();

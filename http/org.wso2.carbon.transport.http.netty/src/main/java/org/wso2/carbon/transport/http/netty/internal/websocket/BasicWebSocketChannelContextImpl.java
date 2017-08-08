@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.internal.websocket;
 
-import org.wso2.carbon.connector.framework.websocket.WebSocketChannelContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketChannelContext;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 

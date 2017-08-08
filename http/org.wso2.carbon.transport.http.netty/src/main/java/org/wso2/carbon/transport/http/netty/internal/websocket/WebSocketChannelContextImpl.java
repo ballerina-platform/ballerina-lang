@@ -19,8 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.internal.websocket;
 
-import org.wso2.carbon.connector.framework.websocket.WebSocketChannelContext;
-import org.wso2.carbon.connector.framework.websocket.WebSocketSessionContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketSessionContext;
 
 import java.util.LinkedList;
 import java.util.List;

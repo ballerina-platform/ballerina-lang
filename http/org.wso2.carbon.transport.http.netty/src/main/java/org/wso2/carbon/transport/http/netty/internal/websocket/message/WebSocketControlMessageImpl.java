@@ -19,8 +19,8 @@
 
 package org.wso2.carbon.transport.http.netty.internal.websocket.message;
 
-import org.wso2.carbon.connector.framework.websocket.WebSocketControlMessage;
-import org.wso2.carbon.connector.framework.websocket.WebSocketControlSignal;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketChannelContextImpl;
 
 import java.nio.ByteBuffer;

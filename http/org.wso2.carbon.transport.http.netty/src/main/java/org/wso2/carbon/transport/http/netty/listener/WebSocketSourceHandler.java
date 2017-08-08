@@ -30,7 +30,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.connector.framework.websocket.WebSocketControlSignal;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;

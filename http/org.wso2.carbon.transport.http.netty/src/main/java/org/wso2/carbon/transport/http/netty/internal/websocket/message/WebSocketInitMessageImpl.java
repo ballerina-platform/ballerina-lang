@@ -25,7 +25,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import org.wso2.carbon.connector.framework.websocket.WebSocketInitMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.internal.websocket.BasicWebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
