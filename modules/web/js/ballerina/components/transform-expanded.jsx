@@ -135,11 +135,10 @@ class TransformExpanded extends React.Component {
                 refType = funcNode.children[index];
             }
             funcNode.removeChild(funcNode.children[index], true);
-            //check function parameter is a struct and mapping is a complex mapping
-            if (connection.targetProperty && _.find(this.state.vertices, (struct) =>
-                        {return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type})) {
-                let keyValEx = BallerinaASTFactory.createKeyValueExpression();
-                let nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            // check function parameter is a struct and mapping is a complex mapping
+            if (connection.targetProperty && _.find(this.state.vertices, (struct) => { return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type; })) {
+                const keyValEx = BallerinaASTFactory.createKeyValueExpression();
+                const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
 
                 const propChain = connection.targetProperty.split('.').splice(1);
 
