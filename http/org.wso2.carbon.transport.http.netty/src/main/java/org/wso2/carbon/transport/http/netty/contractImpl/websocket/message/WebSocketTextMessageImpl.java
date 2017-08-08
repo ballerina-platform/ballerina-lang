@@ -32,13 +32,13 @@ public class WebSocketTextMessageImpl extends WebSocketChannelContextImpl implem
     private final boolean isFinalFragment;
 
     public WebSocketTextMessageImpl(String text, WebSocketChannelContextImpl channelContext) {
-        super(channelContext.getServerSession(), channelContext.getChannelContext());
+        super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.text = text;
         this.isFinalFragment = true;
     }
 
     public WebSocketTextMessageImpl(String text, boolean isFinalFragment, WebSocketChannelContextImpl channelContext) {
-        super(channelContext.getServerSession(), channelContext.getChannelContext());
+        super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.text = text;
         this.isFinalFragment = isFinalFragment;
     }

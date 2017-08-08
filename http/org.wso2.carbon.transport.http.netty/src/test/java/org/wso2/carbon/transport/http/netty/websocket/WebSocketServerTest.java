@@ -24,14 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
@@ -39,7 +35,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLException;
@@ -52,14 +47,14 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 public class WebSocketServerTest {
 
-    HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
+    private static final Logger log = LoggerFactory.getLogger(WebSocketServerTest.class);
 
-    Logger log = LoggerFactory.getLogger(WebSocketServerTest.class);
-    private final int threadSleepTime = 100;
+    private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
+    private final int threadSleepTime = 500;
     private WebSocketClient primaryClient = new WebSocketClient();
     private WebSocketClient secondaryClient = new WebSocketClient();
     private ServerConnector serverConnector;
-    private WebSocketTestConnectorListener connectorListener;
+    private WebSocketTestServerConnectorListener connectorListener;
 
     @BeforeClass
     public void setup() {
@@ -69,7 +64,7 @@ public class WebSocketServerTest {
         props.put(Constants.HOST, "localhost");
         props.put(Constants.HTTP_PORT, "9009");
         serverConnector = httpConnectorFactory.getServerConnector(props);
-        connectorListener = new WebSocketTestConnectorListener();
+        connectorListener = new WebSocketTestServerConnectorListener();
         serverConnector.start().setWSConnectorListener(connectorListener);
     }
 

@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -26,5 +29,15 @@ import javax.websocket.Session;
  */
 public interface WebSocketClientConnector {
 
-    Session connect(WebSocketConnectorListener listener);
+    Session connect(WebSocketConnectorListener listener) throws ClientConnectorException;
+
+    Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
+            throws ClientConnectorException;
+
+    Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext)
+            throws ClientConnectorException;
+
+
+    Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext,
+                    Map<String, String> customHeaders) throws ClientConnectorException;
 }

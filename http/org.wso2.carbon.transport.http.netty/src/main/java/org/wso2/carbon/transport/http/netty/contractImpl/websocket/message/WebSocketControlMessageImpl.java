@@ -35,7 +35,7 @@ public class WebSocketControlMessageImpl extends WebSocketChannelContextImpl imp
 
     public WebSocketControlMessageImpl(WebSocketControlSignal controlSignal, ByteBuffer buffer,
                                        WebSocketChannelContextImpl channelContext) {
-        super(channelContext.getServerSession(), channelContext.getChannelContext());
+        super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.controlSignal = controlSignal;
         this.buffer = buffer;
     }

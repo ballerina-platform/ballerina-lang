@@ -40,6 +40,17 @@ public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext
     protected final ConnectionManager connectionManager;
     protected final ListenerConfiguration listenerConfiguration;
 
+    public BasicWebSocketChannelContextImpl(String subProtocol, String target, boolean isConnectionSecured,
+                                            boolean isServerMessage) {
+        this.subProtocol = subProtocol;
+        this.target = target;
+        this.listenerPort = null;
+        this.isConnectionSecured = isConnectionSecured;
+        this.isServerMessage = isServerMessage;
+        this.connectionManager = null;
+        this.listenerConfiguration = null;
+    }
+
     public BasicWebSocketChannelContextImpl(String subProtocol, String target, String listenerPort,
                                             boolean isConnectionSecured, boolean isServerMessage,
                                             ConnectionManager connectionManager,

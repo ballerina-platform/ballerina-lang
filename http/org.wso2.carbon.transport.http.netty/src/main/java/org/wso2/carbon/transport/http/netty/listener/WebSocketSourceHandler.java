@@ -61,12 +61,12 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final String channelId;
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
-    private final WebSocketSessionImpl serverSession;
+    private final WebSocketSessionImpl channelSession;
     private final WebSocketChannelContextImpl webSocketChannelContext;
     private final ServerConnectorFuture connectorFuture;
 
     /**
-     * @param channelId This works as the serverSession id of the WebSocket connection.
+     * @param channelId This works as the channelSession id of the WebSocket connection.
      * @param connectionManager connection manager for WebSocket connection.
      * @param listenerConfiguration HTTPConnectorListener configuration for WebSocket connection.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
@@ -78,16 +78,16 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   boolean isSecured, ChannelHandlerContext ctx,
                                   BasicWebSocketChannelContextImpl basicWebSocketChannelContext,
                                   ServerConnectorFuture connectorFuture,
-                                  WebSocketSessionImpl serverSession) throws Exception {
+                                  WebSocketSessionImpl channelSession) throws Exception {
         super(connectionManager, listenerConfiguration, new HTTPServerConnectorFuture());
         this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.ctx = ctx;
         this.isSecured = isSecured;
         this.connectorFuture = connectorFuture;
-        this.serverSession = serverSession;
+        this.channelSession = channelSession;
         this.webSocketChannelContext =
-                setupCommonProperties(new WebSocketChannelContextImpl(serverSession, basicWebSocketChannelContext));
+                setupCommonProperties(new WebSocketChannelContextImpl(channelSession, basicWebSocketChannelContext));
     }
 
     /**
@@ -114,13 +114,13 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @return the server session of this source handler.
      */
     public Session getServerSession() {
-        return  serverSession;
+        return channelSession;
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (serverSession.isOpen()) {
-            serverSession.setIsOpen(false);
+        if (channelSession.isOpen()) {
+            channelSession.setIsOpen(false);
             int statusCode = 1001; // Client is going away.
             String reasonText = "Client is going away";
             WebSocketCloseMessageImpl webSocketCloseMessage =
@@ -157,7 +157,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             String reasonText = closeWebSocketFrame.reasonText();
             int statusCode = closeWebSocketFrame.statusCode();
             ctx.channel().close();
-            serverSession.setIsOpen(false);
+            channelSession.setIsOpen(false);
             WebSocketCloseMessageImpl webSocketCloseMessage =
                     new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
             connectorFuture.notifyWSListener(webSocketCloseMessage);

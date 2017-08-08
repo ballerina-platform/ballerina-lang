@@ -31,7 +31,7 @@ public class WebSocketCloseMessageImpl extends WebSocketChannelContextImpl imple
     private final String closeReason;
 
     public WebSocketCloseMessageImpl(int closeCode, String closeReason, WebSocketChannelContextImpl channelContext) {
-        super(channelContext.getServerSession(), channelContext.getChannelContext());
+        super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.closeCode = closeCode;
         this.closeReason = closeReason;
     }

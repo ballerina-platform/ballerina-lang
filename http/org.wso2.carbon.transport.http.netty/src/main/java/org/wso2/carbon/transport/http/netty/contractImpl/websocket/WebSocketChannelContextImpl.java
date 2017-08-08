@@ -30,15 +30,15 @@ import javax.websocket.Session;
  */
 public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImpl implements WebSocketSessionContext {
 
-    protected final Session serverSession;
+    protected final Session channelSession;
     protected final List<Session> clientSessions = new LinkedList<>();
     protected final BasicWebSocketChannelContextImpl channelContext;
 
-    public WebSocketChannelContextImpl(Session serverSession, BasicWebSocketChannelContextImpl channelContext) {
+    public WebSocketChannelContextImpl(Session channelSession, BasicWebSocketChannelContextImpl channelContext) {
         super(channelContext.subProtocol, channelContext.target, channelContext.listenerPort,
               channelContext.isConnectionSecured, channelContext.isServerMessage, channelContext.connectionManager,
               channelContext.listenerConfiguration);
-        this.serverSession = serverSession;
+        this.channelSession = channelSession;
         this.channelContext = channelContext;
     }
 
@@ -51,8 +51,8 @@ public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImp
     }
 
     @Override
-    public Session getServerSession() {
-        return serverSession;
+    public Session getChannelSession() {
+        return channelSession;
     }
 
     @Override

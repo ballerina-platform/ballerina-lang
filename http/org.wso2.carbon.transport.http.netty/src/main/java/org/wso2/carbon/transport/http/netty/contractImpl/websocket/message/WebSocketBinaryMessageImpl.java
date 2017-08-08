@@ -34,7 +34,7 @@ public class WebSocketBinaryMessageImpl extends WebSocketChannelContextImpl impl
 
     public WebSocketBinaryMessageImpl(ByteBuffer buffer, boolean isFinalFragment,
                                       WebSocketChannelContextImpl channelContext) {
-        super(channelContext.getServerSession(), channelContext.getChannelContext());
+        super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.buffer = buffer;
         this.isFinalFragment = isFinalFragment;
     }

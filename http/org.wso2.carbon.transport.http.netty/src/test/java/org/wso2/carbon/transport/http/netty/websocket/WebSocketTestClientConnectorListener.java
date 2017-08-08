@@ -40,55 +40,28 @@ import javax.websocket.Session;
 /**
  * WebSocket test class for WebSocket Connector Listener.
  */
-public class WebSocketTestConnectorListener implements WebSocketConnectorListener {
+public class WebSocketTestClientConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketTestConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
     private List<Session> sessionList = new LinkedList<>();
     private String receivedTextToClient;
     private ByteBuffer receivedByteBufferToClient;
-    private boolean isPongReceived;
+    private boolean isPongReceived = false;
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        try {
-            Session session = initMessage.handshake();
-            sessionList.forEach(
-                    currentSession -> {
-                        try {
-                            currentSession.getBasicRemote().
-                                    sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-                        } catch (IOException e) {
-                            log.error("IO exception when sending data : " + e.getMessage(), e);
-                        }
-                    }
-            );
-            sessionList.add(session);
-        } catch (ProtocolException e) {
-            handleError(e);
-        }
+        // Not applicable
     }
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session session = textMessage.getServerSession();
         receivedTextToClient = textMessage.getText();
-        try {
-            session.getBasicRemote().sendText(receivedTextToClient);
-        } catch (IOException e) {
-            handleError(e);
-        }
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session session = binaryMessage.getServerSession();
         receivedByteBufferToClient = binaryMessage.getByteBuffer();
-        try {
-            session.getBasicRemote().sendBinary(receivedByteBufferToClient);
-        } catch (IOException e) {
-            handleError(e);
-        }
     }
 
     @Override
@@ -100,16 +73,7 @@ public class WebSocketTestConnectorListener implements WebSocketConnectorListene
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        sessionList.forEach(
-                currentSession -> {
-                    try {
-                        currentSession.getBasicRemote().
-                                sendText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
-                    } catch (IOException e) {
-                        log.error("IO exception when sending data : " + e.getMessage(), e);
-                    }
-                }
-        );
+
     }
 
     @Override
@@ -119,6 +83,7 @@ public class WebSocketTestConnectorListener implements WebSocketConnectorListene
 
     /**
      * Retrieve the latest text received to client.
+     *
      * @return the latest text received to the client.
      */
     public String getReceivedTextToClient() {
@@ -129,6 +94,7 @@ public class WebSocketTestConnectorListener implements WebSocketConnectorListene
 
     /**
      * Retrieve the latest {@link ByteBuffer} received to client.
+     *
      * @return the latest {@link ByteBuffer} received to client.
      */
     public ByteBuffer getReceivedByteBufferToClient() {
@@ -139,6 +105,7 @@ public class WebSocketTestConnectorListener implements WebSocketConnectorListene
 
     /**
      * Retrieve whether a pong is received client.
+     *
      * @return true if a pong is received to client.
      */
     public boolean isPongReceived() {
