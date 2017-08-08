@@ -9,15 +9,14 @@ import { COMMANDS } from './constants';
 export function getHandlerDefinitions(layoutManager) {
     return [
         {
-            cmdID: COMMANDS.ADD_VIEW_TO_LAYOUT,
-            handler: (view, options) => {
-                const { region } = options;
-                layoutManager.addViewToLayout(view, region);
+            cmdID: COMMANDS.SHOW_VIEW,
+            handler: (id, region, viewProps) => {
+                
             },
         },
         {
-            cmdID: COMMANDS.REMOVE_VIEW_FROM_LAYOUT,
-            handler: (view) => {
+            cmdID: COMMANDS.HIDE_VIEW,
+            handler: (id) => {
                 // TODO
             },
         },

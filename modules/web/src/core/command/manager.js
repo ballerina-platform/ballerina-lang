@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import log from 'log';
 import Mousetrap from 'mousetrap';
@@ -120,7 +121,15 @@ class CommandManager {
      */
     dispatch(cmdID, ...args) {
         if (!_.isUndefined(cmdID)) {
-            commandChannel.trigger(cmdID, args);
+            const cmd = _.find(this.commands, ['id', cmdID]);
+            if (!_.isNil(cmd)) {
+                const argTypes = cmd.argTypes;
+                if (!_.isNil(argTypes)) {
+                    // validate command args
+                    PropTypes.checkPropTypes(argTypes, args, 'command-args', cmd);
+                }
+                commandChannel.trigger(cmdID, args);
+            }
         }
     }
 

@@ -60,7 +60,7 @@ class Plugin {
     }
 
     /**
-     * Plugin Activate Hook.
+     * Plugin Deactivate Hook.
      * This method will be called when the plugin is unloaded
      */
     deactivate() {

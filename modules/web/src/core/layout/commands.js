@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { COMMANDS } from './constants';
 
 /**
@@ -9,10 +10,18 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions() {
     return [
         {
-            id: COMMANDS.ADD_VIEW_TO_LAYOUT,
+            id: COMMANDS.SHOW_VIEW,
+            argTypes: {
+                id: PropTypes.string.isRequired,
+                region: PropTypes.string.isRequired,
+                viewProps: PropTypes.Object,
+            },
         },
         {
-            id: COMMANDS.REMOVE_VIEW_FROM_LAYOUT,
+            id: COMMANDS.HIDE_VIEW,
+            argTypes: {
+                id: PropTypes.string.isRequired,
+            },
         },
     ];
 }
