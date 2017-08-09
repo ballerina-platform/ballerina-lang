@@ -34,7 +34,7 @@ export default class FunctionInv extends React.Component {
                 typeName: param.typeName,
                 properties: param.properties,
                 endpointKind: 'param',
-                paramName: `${func.getFullPackageName()}:${func.getName()}`,
+                paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
                 parentFunc,
                 funcInv,
@@ -47,7 +47,7 @@ export default class FunctionInv extends React.Component {
             return {
                 name: returnsObj.name || index,
                 type: returnsObj.typeName || returnsObj.type,
-                paramName: `${func.getFullPackageName()}:${func.getName()}`,
+                paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
                 parentFunc,
             };
