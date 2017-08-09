@@ -134,7 +134,21 @@ class TryCatchStatement extends Statement {
      * @returns {CatchStatement} catch statement
      */
     getCatchStatements() {
-        return this._catchStatements;
+        return _.filter(this.getChildren(), (child) => {
+            return this.getFactory().isCatchStatement(child);
+        });
+    }
+
+    /**
+     * Get the finally statement
+     * @returns {FinallyStatement} finally statement
+     */
+    getFinallyStatement() {
+        const finallyStatements = _.filter(this.getChildren(), (child) => {
+            return this.getFactory().isFinallyStatement(child);
+        });
+
+        return (finallyStatements.length > 0) ? finallyStatements[0] : undefined;
     }
 }
 
