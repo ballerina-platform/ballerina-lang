@@ -78,6 +78,7 @@ class ForkJoinStatementDimensionCalculatorVisitor {
         _.forEach(workers, (child) => {
             child.viewState.bBox.h = bodyInnerH;
             child.viewState.components.statementContainer.h = bodyInnerH;
+            child.viewState.components.workerScopeContainer.h = bodyH - DesignerDefaults.lifeLine.gutter.v;
         });
 
         _.forEach(workers, (child) => {
@@ -86,8 +87,9 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             const connectorChildren = child.filterChildren(innerChild => ASTFactory.isConnectorDeclaration(innerChild));
             if (connectorChildren.length > 0) {
                 _.forEach(connectorChildren, (innerChild) => {
-                   innerChild.viewState.components.statementContainer.h = bodyInnerH;
-
+                    innerChild.viewState.components.statementContainer.h = bodyInnerH;
+                   // ToDo inlcude a proper padding amount
+                    containerW += DesignerDefaults.statement.padding.right;
                 });
             }
         });

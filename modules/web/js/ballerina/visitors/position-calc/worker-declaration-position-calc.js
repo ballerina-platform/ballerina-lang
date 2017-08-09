@@ -105,10 +105,16 @@ class WorkerDeclarationPositionCalcVisitor {
                 });
                 totalConnectorWidth += ((connectors.length + 1) * DesignerDefaults.connectorDeclaration.padding);
             }
-
-            x = previousStatementContainer.getRight() + previousWorker.getViewState().components.statementContainer.expansionW +
-                    totalConnectorWidth + (isInFork ? DesignerDefaults.fork.lifeLineGutterH :
-                    DesignerDefaults.lifeLine.gutter.h);
+            if (isInFork) {
+                x = previousWorker.getViewState().components.workerScopeContainer.x +
+                    previousWorker.getViewState().components.workerScopeContainer.w +
+                    previousWorker.getViewState().components.workerScopeContainer.expansionW +
+                    DesignerDefaults.variablesPane.leftRightPadding;
+            } else {
+                x = previousStatementContainer.getRight() + previousWorker.getViewState().components
+                        .statementContainer.expansionW +
+                    totalConnectorWidth + DesignerDefaults.lifeLine.gutter.h;
+            }
         } else {
             const exception = {
                 message: 'Invalid index found for Worker Declaration',
