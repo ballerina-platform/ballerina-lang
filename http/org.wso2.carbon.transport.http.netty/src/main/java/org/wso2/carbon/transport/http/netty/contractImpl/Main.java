@@ -5,6 +5,7 @@ import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +30,8 @@ public class Main {
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
             @Override
-            public void onMessage(CarbonMessage httpMessage) {
-                executor.execute(new MainRunner(httpMessage));
+            public void onMessage(HTTPCarbonMessage httpMessage) {
+                executor.execute(new MainRunner(httpMessage, httpConnectorFactory));
             }
 
             @Override
@@ -44,31 +45,6 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        //        HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactory() {
-//            @Override
-//            public ServerConnectorFuture getServerConnector(Properties connectorConfig) {
-//                return null;
-//            }
-//
-//            @Override
-//            public HTTPConnectorListener getHTTPClientConnector(Properties connectorConfig) {
-//                return null;
-//            }
-//        };
-//
-//        ServerConnectorFuture observable = httpConnectorFactory.getServerConnector();
-//
-//        observable.setHTTPConnectorListener((httpMessage, callback) -> {
-//            // you get your message
-//        });
-//
-//        HTTPConnectorListener observer = httpConnectorFactory.getHTTPClientConnector();
-//        observer.onMessage();
-//
-//        observable.notifyHTTPListener();
-
-//        XMLReader xmlReader = new XMLReaderFactory.createXMLReader("sss");
     }
 
 }

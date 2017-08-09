@@ -148,7 +148,7 @@ public class ChannelUtils {
      * @param carbonMessage Carbon Message
      * @return
      */
-    public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage)
+    public static boolean writeContent(Channel channel, HttpRequest httpRequest, HTTPCarbonMessage carbonMessage)
                                                                                         throws Exception {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
@@ -156,50 +156,71 @@ public class ChannelUtils {
         }
         channel.write(httpRequest);
 
-        if (carbonMessage instanceof HTTPCarbonMessage) {
-            HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) carbonMessage;
-            while (true) {
-                if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
-                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    break;
-                }
-                HttpContent httpContent = nettyCMsg.getHttpContent();
-                if (httpContent instanceof LastHttpContent) {
-                    channel.writeAndFlush(httpContent);
-                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestSending(carbonMessage);
-                    }
-                    break;
-                }
-                if (httpContent != null) {
-                    channel.write(httpContent);
-                }
-
-            }
-        } else if (carbonMessage instanceof DefaultCarbonMessage || carbonMessage instanceof TextCarbonMessage
-                || carbonMessage instanceof BinaryCarbonMessage) {
-            if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
+        HTTPCarbonMessage nettyCMsg = carbonMessage;
+        while (true) {
+            if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
                 channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                return true;
+                break;
             }
-            while (true) {
-                ByteBuffer byteBuffer = carbonMessage.getMessageBody();
-                ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-                channel.write(httpContent);
-                if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
-                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestSending(carbonMessage);
-                    }
-                    break;
+            HttpContent httpContent = nettyCMsg.getHttpContent();
+            if (httpContent instanceof LastHttpContent) {
+                channel.writeAndFlush(httpContent);
+                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                            executeAtTargetRequestSending(carbonMessage);
                 }
+                break;
             }
-        } else {
-            throw new ClientConnectorException("Unsupported message type");
+            if (httpContent != null) {
+                channel.write(httpContent);
+            }
         }
+
+//        if (carbonMessage instanceof HTTPCarbonMessage) {
+//            HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) carbonMessage;
+//            while (true) {
+//                if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
+//                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+//                    break;
+//                }
+//                HttpContent httpContent = nettyCMsg.getHttpContent();
+//                if (httpContent instanceof LastHttpContent) {
+//                    channel.writeAndFlush(httpContent);
+//                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                executeAtTargetRequestSending(carbonMessage);
+//                    }
+//                    break;
+//                }
+//                if (httpContent != null) {
+//                    channel.write(httpContent);
+//                }
+//
+//            }
+//        }
+//        else if (carbonMessage instanceof DefaultCarbonMessage || carbonMessage instanceof TextCarbonMessage
+//                || carbonMessage instanceof BinaryCarbonMessage) {
+//            if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
+//                channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+//                return true;
+//            }
+//            while (true) {
+//                ByteBuffer byteBuffer = carbonMessage.getMessageBody();
+//                ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
+//                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+//                channel.write(httpContent);
+//                if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
+//                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+//                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                executeAtTargetRequestSending(carbonMessage);
+//                    }
+//                    break;
+//                }
+//            }
+//        } else {
+//            throw new ClientConnectorException("Unsupported message type");
+//        }
 
         return true;
     }

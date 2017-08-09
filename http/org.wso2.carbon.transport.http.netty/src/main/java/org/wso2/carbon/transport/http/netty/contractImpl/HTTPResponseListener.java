@@ -35,7 +35,7 @@ public class HTTPResponseListener implements HTTPConnectorListener {
     }
 
     @Override
-    public void onMessage(CarbonMessage httpMessage) {
+    public void onMessage(HTTPCarbonMessage httpMessage) {
         boolean connectionCloseAfterResponse = shouldConnectionClose(httpMessage);
 
         Util.prepareBuiltMessageForTransfer(httpMessage);
@@ -51,57 +51,82 @@ public class HTTPResponseListener implements HTTPConnectorListener {
         if (!httpMessage.isBufferContent()) {
             httpMessage.setWriter(new ResponseContentWriter(ctx));
         } else {
-            if (httpMessage instanceof HTTPCarbonMessage) {
-                HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) httpMessage;
-                while (true) {
-                    if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
-                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                        if (connectionCloseAfterResponse) {
-                            future.addListener(ChannelFutureListener.CLOSE);
-                        }
-                        break;
-                    }
-                    HttpContent httpContent = nettyCMsg.getHttpContent();
-                    if (httpContent instanceof LastHttpContent) {
-                        ChannelFuture future = ctx.writeAndFlush(httpContent);
-                        if (connectionCloseAfterResponse) {
-                            future.addListener(ChannelFutureListener.CLOSE);
-                        }
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtSourceResponseSending(httpMessage);
-                        }
-                        break;
-                    }
-                    ctx.write(httpContent);
-                }
-            } else if (httpMessage instanceof DefaultCarbonMessage) {
-                DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) httpMessage;
-                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+            HTTPCarbonMessage nettyCMsg = httpMessage;
+            while (true) {
+                if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
                     ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     if (connectionCloseAfterResponse) {
                         future.addListener(ChannelFutureListener.CLOSE);
                     }
-                    return;
+                    break;
                 }
-                while (true) {
-                    ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-                    DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-                    ctx.write(httpContent);
-                    if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtSourceResponseSending(httpMessage);
-                        }
-                        if (connectionCloseAfterResponse) {
-                            future.addListener(ChannelFutureListener.CLOSE);
-                        }
-                        break;
+                HttpContent httpContent = nettyCMsg.getHttpContent();
+                if (httpContent instanceof LastHttpContent) {
+                    ChannelFuture future = ctx.writeAndFlush(httpContent);
+                    if (connectionCloseAfterResponse) {
+                        future.addListener(ChannelFutureListener.CLOSE);
                     }
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                                executeAtSourceResponseSending(httpMessage);
+                    }
+                    break;
                 }
+                ctx.write(httpContent);
             }
+
+//            if (httpMessage instanceof HTTPCarbonMessage) {
+//                HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) httpMessage;
+//                while (true) {
+//                    if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
+//                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+//                        if (connectionCloseAfterResponse) {
+//                            future.addListener(ChannelFutureListener.CLOSE);
+//                        }
+//                        break;
+//                    }
+//                    HttpContent httpContent = nettyCMsg.getHttpContent();
+//                    if (httpContent instanceof LastHttpContent) {
+//                        ChannelFuture future = ctx.writeAndFlush(httpContent);
+//                        if (connectionCloseAfterResponse) {
+//                            future.addListener(ChannelFutureListener.CLOSE);
+//                        }
+//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                    executeAtSourceResponseSending(httpMessage);
+//                        }
+//                        break;
+//                    }
+//                    ctx.write(httpContent);
+//                }
+//            }
+//            else if (httpMessage instanceof DefaultCarbonMessage) {
+//                DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) httpMessage;
+//                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+//                    ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+//                    if (connectionCloseAfterResponse) {
+//                        future.addListener(ChannelFutureListener.CLOSE);
+//                    }
+//                    return;
+//                }
+//                while (true) {
+//                    ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
+//                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
+//                    DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+//                    ctx.write(httpContent);
+//                    if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+//                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                    executeAtSourceResponseSending(httpMessage);
+//                        }
+//                        if (connectionCloseAfterResponse) {
+//                            future.addListener(ChannelFutureListener.CLOSE);
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
         }
     }
 

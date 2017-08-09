@@ -97,38 +97,38 @@ public class ClientRequestWorker implements Runnable {
 //
 //        }
 
-        TargetChannel targetChannel = processThroughConnectionPool();
-        if (targetChannel != null) {
-            targetChannel.setHttpRoute(httpRoute);
-            if (targetChannel.getTargetHandler() != null) {
-                targetChannel.getTargetHandler().setCallback(carbonCallback);
-                targetChannel.getTargetHandler().setIncomingMsg(carbonMessage);
-                targetChannel.getTargetHandler().setTargetChannel(targetChannel);
-                targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-            } else {
-                log.error("Cannot find registered TargetHandler probably connection creation is failed");
-                String msg = "Connection creation failed for ";
-                MessagingException messagingException = new MessagingException(msg, 101503);
-                carbonMessage.setMessagingException(messagingException);
-                carbonCallback.done(carbonMessage);
-                return;
-            }
-
-            boolean written = false;
-            if (targetChannel.getChannel() != null) {
-                try {
-                    written = ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
-                } catch (Exception e) {
-                    log.error("Unsupported message type");
-                }
-            }
-            if (written) {
-                targetChannel.setRequestWritten(true);
-            }
-            if (sourceHandler != null) {
-                targetChannel.setCorrelatedSource(sourceHandler);
-            }
-        }
+//        TargetChannel targetChannel = processThroughConnectionPool();
+//        if (targetChannel != null) {
+//            targetChannel.setHttpRoute(httpRoute);
+//            if (targetChannel.getTargetHandler() != null) {
+//                targetChannel.getTargetHandler().setCallback(carbonCallback);
+//                targetChannel.getTargetHandler().setIncomingMsg(carbonMessage);
+//                targetChannel.getTargetHandler().setTargetChannel(targetChannel);
+//                targetChannel.getTargetHandler().setConnectionManager(connectionManager);
+//            } else {
+//                log.error("Cannot find registered TargetHandler probably connection creation is failed");
+//                String msg = "Connection creation failed for ";
+//                MessagingException messagingException = new MessagingException(msg, 101503);
+//                carbonMessage.setMessagingException(messagingException);
+//                carbonCallback.done(carbonMessage);
+//                return;
+//            }
+//
+//            boolean written = false;
+//            if (targetChannel.getChannel() != null) {
+//                try {
+//                    written = ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
+//                } catch (Exception e) {
+//                    log.error("Unsupported message type");
+//                }
+//            }
+//            if (written) {
+//                targetChannel.setRequestWritten(true);
+//            }
+//            if (sourceHandler != null) {
+//                targetChannel.setCorrelatedSource(sourceHandler);
+//            }
+//        }
     }
 
     private TargetChannel processThroughConnectionPool() {
