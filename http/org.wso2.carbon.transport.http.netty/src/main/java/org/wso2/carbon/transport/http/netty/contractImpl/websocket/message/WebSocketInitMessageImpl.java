@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -34,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionI
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.ProtocolException;
+import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
 
 /**
@@ -77,11 +79,42 @@ public class WebSocketInitMessageImpl extends BasicWebSocketChannelContextImpl i
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
             ChannelPipeline pipeline = ctx.pipeline();
-            pipeline.addLast("ws_handler", webSocketSourceHandler);
+            pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
 
-            // TODO: handle Idle state in WebSocket with configurations.
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
-            pipeline.remove("SourceHandler");
+            pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
+
+            setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
+            return serverSession;
+        } catch (Exception e) {
+            /*
+            Code 1002 : indicates that an endpoint is terminating the connection
+            due to a protocol error.
+             */
+            handshaker.close(ctx.channel(),
+                             new CloseWebSocketFrame(1002,
+                                                     "Terminating the connection due to a protocol error."));
+            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Session handshake(int idleTimeout) throws ProtocolException {
+        try {
+            WebSocketSessionImpl serverSession = WebSocketUtil.getSession(ctx, isConnectionSecured, target);
+            WebSocketSourceHandler webSocketSourceHandler =
+                    new WebSocketSourceHandler(WebSocketUtil.getSessionID(ctx), this.connectionManager,
+                                               this.listenerConfiguration, httpRequest, isConnectionSecured, ctx,
+                                               basicWebSocketChannelContext, connectorFuture, serverSession);
+            handshaker.handshake(ctx.channel(), httpRequest);
+
+            //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+            ChannelPipeline pipeline = ctx.pipeline();
+            pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                             new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout, TimeUnit.MILLISECONDS));
+            pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
+
+            pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
 
             setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
             return serverSession;

@@ -28,12 +28,23 @@ import javax.websocket.Session;
 public interface WebSocketInitMessage extends WebSocketChannelContext {
 
     /**
-     * Complete the handshake of a given request.
+     * Complete the handshake of a given request. There will not be a idle timeout for the connection if this
+     * method is used.
      *
      * @return the Server session for the newly created WebSocket connection.
      * @throws ProtocolException if error occurred while proceeding with the handshake.
      */
     Session handshake() throws ProtocolException;
+
+    /**
+     * Complete the handshake of a given request. The connection will be timed out if the connection is idle for
+     * given time period.
+     *
+     * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
+     * @return the Server session for the newly created WebSocket connection.
+     * @throws ProtocolException if error occurred while proceeding with the handshake.
+     */
+    Session handshake(int idleTimeout) throws ProtocolException;
 
     /**
      * Cancel the handshake.
