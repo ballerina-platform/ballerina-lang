@@ -368,7 +368,7 @@ class TransformExpanded extends React.Component {
 
         const params = func.getParameters();
         const returnParams = func.getReturnParams();
-        const packageName = functionInvocationExpression.getFullPackageName();
+        const functionInvID = functionInvocationExpression.getID();
         const funcName = functionInvocationExpression.getFunctionName();
 
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
@@ -377,7 +377,7 @@ class TransformExpanded extends React.Component {
                     functionInvocationExpression, expression, func, i, statement);
             } else {
                 const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                const targetId = `${packageName}:${funcName}:${params[i].name}:${viewId}`;
+                const targetId = `${functionInvID}:${funcName}:${params[i].name}:${viewId}`;
                 this.mapper.addConnection(sourceId, targetId);
             }
         });
@@ -386,14 +386,14 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        const sourceId = `${packageName}:${funcName}:${returnParams[0].name || 0}:${viewId}`;
+        const sourceId = `${functionInvID}:${funcName}:${returnParams[0].name || 0}:${viewId}`;
         this.mapper.addConnection(sourceId, targetId);
 
         const parentParams = parentFunctionDefinition.getParameters();
-        const parentPackageName = parentFunctionInvocationExpression.getFullPackageName();
+        const parentFuncInvID = parentFunctionInvocationExpression.getID();
         const parentFuncName = parentFunctionInvocationExpression.getFunctionName();
 
-        const targetId = `${parentPackageName}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
+        const targetId = `${parentFuncInvID}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
 
         this.mapper.addConnection(sourceId, targetId);
     }
@@ -412,7 +412,7 @@ class TransformExpanded extends React.Component {
 
         const params = func.getParameters();
         const returnParams = func.getReturnParams();
-        const packageName = functionInvocationExpression.getFullPackageName();
+        const funcInvID = functionInvocationExpression.getID();
         const funcName = functionInvocationExpression.getFunctionName();
 
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
@@ -436,7 +436,7 @@ class TransformExpanded extends React.Component {
                     });
                 } else {
                     const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                    const targetId = `${packageName}:${funcName}:${params[i].name}:${viewId}`;
+                    const targetId = `${funcInvID}:${funcName}:${params[i].name}:${viewId}`;
                     this.mapper.addConnection(sourceId, targetId);
                 }
             }
@@ -447,7 +447,7 @@ class TransformExpanded extends React.Component {
         }
 
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
-            const sourceId = `${packageName}:${funcName}:${returnParams[i].name || i}:${viewId}`;
+            const sourceId = `${funcInvID}:${funcName}:${returnParams[i].name || i}:${viewId}`;
             const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             this.mapper.addConnection(sourceId, targetId);
         });
@@ -683,18 +683,20 @@ class TransformExpanded extends React.Component {
             this.mapper.addTarget(element, null, output);
         });
 
-        this.mapper.reposition(this.mapper);
+        this.mapper.disconnectAll();
+
+        _.forEach(this.props.model.getChildren(), (statement) => {
+            this.createConnection(statement);
+        });
 
         if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
             return;
         }
 
-        this.mapper.disconnectAll();
+        this.mapper.reposition(this.mapper);
+
         this.loadVertices();
 
-        _.forEach(this.props.model.getChildren(), (statement) => {
-            this.createConnection(statement);
-        });
     }
 
     componentDidMount() {
@@ -1068,7 +1070,6 @@ class TransformExpanded extends React.Component {
                 }
             });
         }
-
         return (
             <div
                 id={`transformOverlay-content-${this.props.model.getID()}`}
@@ -1115,7 +1116,7 @@ class TransformExpanded extends React.Component {
                     {
                         functions.map(({ func, assignmentStmt, parentFunc, funcInv }) => (
                             <FunctionInv
-                                key={func.getId()}
+                                key={funcInv.getID()}
                                 func={func}
                                 enclosingAssignmentStatement={assignmentStmt}
                                 parentFunc={parentFunc}
