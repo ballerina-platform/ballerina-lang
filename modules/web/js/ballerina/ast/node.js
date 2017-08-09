@@ -293,29 +293,6 @@ class ASTNode extends EventChannel {
     }
 
     /**
-     * Filter matching children belonging to current scope from the predicate function
-     * @param {func} predicateFunction a function returning a boolean to match filter condition from children
-     * @return {[ASTNode]} array of matching AST nodes
-     */
-    filterChildrenInScope(predicateFunction) {
-        let children = [];
-        let scope = this;
-        let scopeIndex = this.getParent().getIndexOfChild(this);
-        // Traverse through current scopes parents
-        while (!_.isUndefined(scope.getParent())) {
-            // Get children declared before the current scope with the index
-            // TODO : remove index scoping for now since param arguments get removed in transform
-            // children = children.concat(
-            //                 _.filter(scope.getChildren(),
-            //                         (curNode) => { return curNode.getParent().getIndexOfChild(curNode) < scopeIndex; }));
-            children = children.concat(scope.getChildren());
-            scopeIndex = scope.getParent().getIndexOfChild(scope);
-            scope = scope.getParent();
-        }
-        return _.filter(children, predicateFunction);
-    }
-
-    /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
