@@ -7,7 +7,7 @@ connector HelloWorld(string consumerKey, string consumerSecret, string accessTok
     @doc:Description{value:"HelloWorld connector action"}
     @doc:Param{value:"args: arguments"}
     @doc:Return{value:"response object"}
-    action sayHello(HelloWorld t, string msg) (message) {
+    action sayHello(string msg) (message) {
         message request;
         message response;
         return response;
