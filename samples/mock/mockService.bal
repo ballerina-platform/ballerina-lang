@@ -3,8 +3,8 @@ package mock;
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:BasePath {value: "/mock"}
-service mockService {
+@http:configuration {basePath:"/mock"}
+service<http> mockService {
 
     @http:GET{}
     @http:Path{ value: "/"}
