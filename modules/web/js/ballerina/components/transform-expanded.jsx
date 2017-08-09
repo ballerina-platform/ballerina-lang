@@ -952,66 +952,6 @@ class TransformExpanded extends React.Component {
         }).catch(error => alerts.error('Could not initialize transform statement view ' + error));
     }
 
-    getSourcesAndTargets() {
-        const variables = this.props.model.filterChildrenInScope(
-                                     this.props.model.getFactory().isVariableDefinitionStatement);
-        const argHolders = this.props.model.filterChildrenInScope(
-                                     this.props.model.getFactory().isArgumentParameterDefinitionHolder);
-        const paramArgs = [];
-        _.forEach(argHolders, (argHolder) => {
-            _.forEach(argHolder.getChildren(), (arg) => {
-                paramArgs.push(arg);
-            });
-        });
-
-        const transformVars = this.getTransformVarJson(variables.concat(paramArgs));
-        const items = [];
-
-        _.forEach(transformVars, (arg) => {
-            let isStruct = false;
-            const structDef = this.getStructDefinition(arg.pkgName, arg.type);
-
-            if (structDef !== undefined) {
-                arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
-                const struct = this.createType(arg.name, arg.type, structDef);
-                items.push({ name: struct.name, type: struct.typeName });
-                isStruct = true;
-            }
-
-            if (!isStruct) {
-                const variableType = {};
-                variableType.id = arg.id;
-                variableType.name = arg.name;
-                if (arg.constraint !== undefined) {
-                    variableType.type = arg.type + '<'
-                                  + ((arg.constraint.pkgName) ? arg.constraint.pkgName + ':' : '')
-                                  + arg.constraint.type + '>';
-                    variableType.constraintType = arg.constraint;
-                    const constraintDef = this.getStructDefinition(arg.constraint.pkgName, arg.constraint.type);
-                    if (constraintDef !== undefined) {
-                        const constraint = this.getStructType(arg.name, variableType.type, constraintDef, true);
-                        // For constraint types, the field types must be the same type as the variable and
-                        // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
-                        // type has to be json and not string. Hence converting all field types to variable type.
-                        // TODO : revisit this conversion if ballerina language supports constrained field access to be
-                        // be treated as the field type (i.e. as string from the struct field and not json)
-                        this.convertFieldType(constraint.properties, arg.type);
-
-                        // constraint properties (fields) become variable fields
-                        variableType.properties = constraint.properties;
-                        variableType.constraint = constraint;
-                    }
-                } else {
-                    variableType.type = arg.type;
-                }
-                this.state.vertices.push(variableType);
-                items.push({ name: variableType.name, type: variableType.type });
-            }
-        });
-
-        return items;
-    }
-
     /**
      * Converts the property types to a given type
      * @param {[Property]} properties properties
