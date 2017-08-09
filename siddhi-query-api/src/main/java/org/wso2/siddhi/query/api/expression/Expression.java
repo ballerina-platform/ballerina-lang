@@ -18,6 +18,7 @@
 package org.wso2.siddhi.query.api.expression;
 
 
+import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.expression.condition.And;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 import org.wso2.siddhi.query.api.expression.condition.In;
@@ -31,6 +32,8 @@ import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import org.wso2.siddhi.query.api.expression.constant.StringConstant;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
+import org.wso2.siddhi.query.api.expression.incremental.IncrementalUnixTime;
+import org.wso2.siddhi.query.api.expression.incremental.IncrementalWithinTime;
 import org.wso2.siddhi.query.api.expression.math.Add;
 import org.wso2.siddhi.query.api.expression.math.Divide;
 import org.wso2.siddhi.query.api.expression.math.Mod;
@@ -142,6 +145,14 @@ public abstract class Expression implements Serializable {
 
     public static Expression isNullInnerStream(String streamId, int streamIndex) {
         return new IsNull(streamId, streamIndex, true);
+    }
+
+    public static Expression incrementalWithinTime(Within within, Expression timeExpression) {
+        return new IncrementalWithinTime(within, timeExpression);
+    }
+
+    public static Expression incrementalUnixTime(Expression timeExpression) {
+        return new IncrementalUnixTime(timeExpression);
     }
 
     /**

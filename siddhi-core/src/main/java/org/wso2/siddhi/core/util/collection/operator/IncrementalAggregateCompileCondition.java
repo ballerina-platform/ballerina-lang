@@ -48,7 +48,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private Map<TimePeriod.Duration, Table> aggregationTables;
     private Map<TimePeriod.Duration, Object> inMemoryStoreMap;
     private List<TimePeriod.Duration> incrementalDurations;
-    private ExpressionExecutor acceptedTimeFormatExecutor;
     private final StreamEvent resetEvent;
     private final StreamEventCloner storeEventCloner;
     private final StreamEventCloner outputEventCloner;
@@ -59,7 +58,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             List<ExpressionExecutor> baseExecutors, Map<TimePeriod.Duration, Table> aggregationTables,
             Map<TimePeriod.Duration, Object> inMemoryStoreMap, MetaStreamEvent internalMetaStreamEvent,
             List<TimePeriod.Duration> incrementalDurations, List<ExpressionExecutor> outputExpressionExecutors,
-            MetaStreamEvent finalOutputMetaStreamEvent, ExpressionExecutor acceptedTimeFormatExecutor) {
+            MetaStreamEvent finalOutputMetaStreamEvent) {
         this.tableCompiledConditions = tableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.finalCompiledCondition = finalCompiledCondition;
@@ -74,7 +73,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.resetEvent.setType(ComplexEvent.Type.RESET);
         this.storeEventCloner = new StreamEventCloner(internalMetaStreamEvent, streamEventPoolForInternalMeta);
         this.outputEventCloner = new StreamEventCloner(finalOutputMetaStreamEvent, streamEventPoolForFinalMeta);
-        this.acceptedTimeFormatExecutor = acceptedTimeFormatExecutor;
     }
 
     @Override
@@ -85,16 +83,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
             boolean perEqualsRootExecutorDuration) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(true);
-        if (acceptedTimeFormatExecutor != null) {
-            if (!((Boolean) acceptedTimeFormatExecutor.execute(matchingEvent))) {
-                throw new SiddhiAppRuntimeException("Incorrect format provided for within clause. "
-                        + "Supported formats are <yyyy>-**-** **:**:** <ZZ>, " + "<yyyy>-<MM>-** **:**:** <ZZ>, "
-                        + "<yyyy>-<MM>-<dd> **:**:** <ZZ>, " + "<yyyy>-<MM>-<dd> <HH>:**:** <ZZ>, "
-                        + "<yyyy>-<MM>-<dd> <HH>:<mm>:** <ZZ>, and "
-                        + "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <ZZ>. The ISO 8601 UTC offset must be provided for "
-                        + "<ZZ> (ex. +05:30, -11:00");
-            }
-        }
         StreamEvent matchFromPersistedEvents = aggregationTables.get(perValue).find(matchingEvent,
                 tableCompiledConditions.get(perValue));
         complexEventChunk.add(matchFromPersistedEvents);

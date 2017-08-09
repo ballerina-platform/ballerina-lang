@@ -488,8 +488,7 @@ public class AggregationParser {
                 metaStreamEvent, 0, tableMap, variableExpressionExecutors,
                 siddhiAppContext, false, 0, aggregatorName);
         if (timestampExecutor.getReturnType() == Attribute.Type.STRING) {
-            timestampExecutor = ExpressionParser.parseExpression(Expression.function("time", "timestampInMilliseconds",
-                    timestampExpression, Expression.value("yyyy-MM-dd HH:mm:ss ZZ")),
+            timestampExecutor = ExpressionParser.parseExpression(Expression.incrementalUnixTime(timestampExpression),
                     metaStreamEvent, 0, tableMap, variableExpressionExecutors,
                     siddhiAppContext, false, 0, aggregatorName);
         } else if (timestampExecutor.getReturnType() != Attribute.Type.LONG) {
