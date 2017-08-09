@@ -39,8 +39,8 @@ export default class FunctionInv extends React.Component {
             <div className='transform-expanded-func func'>
                 <div className='function-header'>
                     <i className='fw fw-function fw-inverse'/>
-                    <span>{func.getName()}</span>
-                    <span className='fw-stack fw-lg btn btn-remove'>
+                    <span className='func-name'>{func.getName()}</span>
+                    <span className='fw-stack fw-lg btn btn-remove-func'>
                         <i className='fw-delete fw-stack-1x fw-inverse'/>
                     </span>
                 </div>
