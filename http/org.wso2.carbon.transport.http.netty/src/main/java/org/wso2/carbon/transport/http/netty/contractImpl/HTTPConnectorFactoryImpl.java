@@ -12,6 +12,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
+import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.io.File;
@@ -72,6 +73,7 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
 
         }
         ConnectionManager connectionManager = ConnectionManager.getInstance(transportProperties);
+        BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
         return new HTTPClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
     }
