@@ -23,7 +23,7 @@ import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine } from './../configs/designer-defaults';
+import { lifeLine, canvas, panel } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
 
 class ResourceDefinition extends React.Component {
@@ -44,7 +44,7 @@ class ResourceDefinition extends React.Component {
         const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
         const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
         statementContainerBBoxClone.w += connectorOffset;
-
+        const workerScopeContainerBBox = this.props.model.getViewState().components.workerScopeContainer;
         // lets calculate function worker lifeline bounding box.
         const resource_worker_bBox = {};
         resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
@@ -59,6 +59,10 @@ class ResourceDefinition extends React.Component {
 
 
         const children = getComponentForNodeArray(this.props.model.getChildren());
+        // Check for connector declaration children
+        const nodeFactory = this.props.model.getFactory();
+        const connectorChildren = _.filter(this.props.model.getChildren(),
+            child => nodeFactory.isConnectorDeclaration(child));
 
         const titleComponentData = [{
             isNode: true,
@@ -93,6 +97,21 @@ class ResourceDefinition extends React.Component {
                             icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                             iconColor='#025482'
                         />
+                        { connectorChildren.length > 0 &&
+                        <rect
+                            x={workerScopeContainerBBox.x}
+                            y={workerScopeContainerBBox.y}
+                            width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                            height={workerScopeContainerBBox.h}
+                            style={{ fill: 'none',
+                                stroke: '#67696d',
+                                strokeWidth: 2,
+                                strokeLinecap: 'round',
+                                strokeLinejoin: 'miter',
+                                strokeMiterlimit: 4,
+                                strokeOpacity: 1,
+                                strokeDasharray: 5 }}
+                        />}
                         <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBoxClone}>
                             {children}
                         </StatementContainer>

@@ -196,6 +196,7 @@ class SizingUtil {
         viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
     }
 
+    // Populate functions
     populatePanelDecoratorBBox(node, name) {
         const viewState = node.getViewState();
         const components = viewState.components;
@@ -221,6 +222,8 @@ class SizingUtil {
         }
 
         components.statementContainer = new SimpleBBox();
+        components.workerScopeContainer = new SimpleBBox();
+
         let connectorOffset = 0;
         const statementChildren = node.filterChildren(
             child => BallerinaASTFactory.isStatement(child) || BallerinaASTFactory.isConnectorDeclaration(child));
@@ -228,13 +231,14 @@ class SizingUtil {
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         let statementHeight = 0;
-
+        let connectorsForWorker = 0;
         _.forEach(statementChildren, (child) => {
             let childW = 0;
             let childH = 0;
             if (BallerinaASTFactory.isConnectorDeclaration(child)) {
                 childW = child.viewState.components.statementViewState.bBox.w;
                 childH = child.viewState.components.statementViewState.bBox.h;
+                connectorsForWorker += child.viewState.bBox.w + blockStatement.heading.width;
             } else {
                 childW = child.viewState.bBox.w;
                 childH = child.viewState.bBox.h;
@@ -261,6 +265,12 @@ class SizingUtil {
         components.statementContainer.h = statementHeight;
         components.statementContainer.w = statementWidth;
 
+        /* components.workerScopeContainer.h = statementHeight + DesignerDefaults.canvas.padding.top +
+            DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.height +
+            DesignerDefaults.statement.padding.top + DesignerDefaults.statement.padding.bottom;*/
+        components.workerScopeContainer.w = statementWidth;
+        components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
+
         components.body = new SimpleBBox();
 
         const workerChildren = node.filterChildren(child => BallerinaASTFactory.isWorkerDeclaration(child));
@@ -280,6 +290,9 @@ class SizingUtil {
         components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
 
         const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
+        components.workerScopeContainer.h = components.statementContainer.h + DesignerDefaults.canvas.padding.top +
+            DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
+            + DesignerDefaults.statement.padding.bottom;
 
         let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), (child) => {
@@ -290,11 +303,27 @@ class SizingUtil {
             } else {
                 childViewState = child.getViewState();
             }
-            lifeLineWidth += childViewState.bBox.w + childViewState.bBox.expansionW + DesignerDefaults.lifeLine.gutter.h;
+            lifeLineWidth += childViewState.bBox.w + childViewState.bBox.expansionW +
+                DesignerDefaults.lifeLine.gutter.h;
             childViewState.bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
                 (DesignerDefaults.lifeLine.head.height * 2);
             childViewState.components.statementContainer.h = _.max([components.statementContainer.h,
                 highestStatementContainerHeight]);
+            if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                childViewState.components.workerScopeContainer.h = components.statementContainer.h +
+                    DesignerDefaults.canvas.padding.top +
+                    DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
+                    + DesignerDefaults.statement.padding.bottom;
+            }
+            // Set the connector height of the worker's children
+            const connectorChildrenOfWorker = child.filterChildren(innerChild => BallerinaASTFactory
+            .isConnectorDeclaration(innerChild));
+            if (connectorChildrenOfWorker.length > 0) {
+                _.forEach(connectorChildrenOfWorker, (innerChild) => {
+                    innerChild.getViewState().components.statementContainer.h = _.max([components.statementContainer.h,
+                        highestStatementContainerHeight]);
+                });
+            }
         });
         if (node.viewState.collapsed) {
             components.body.h = 0;

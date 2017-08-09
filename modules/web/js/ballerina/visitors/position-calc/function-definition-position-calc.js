@@ -53,10 +53,12 @@ class FunctionDefinitionPositionCalcVisitor {
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
         const viewState = node.getViewState();
         const statementContainer = viewState.components.statementContainer;
+        const workerScopeContainer = viewState.components.workerScopeContainer;
         statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
         statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
-
+        workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
         // populate panel heading positioning.
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }

@@ -63,14 +63,15 @@ class ForkJoinStatementDimensionCalculatorVisitor {
      * */
     endVisit(node) {
         const viewState = node.getViewState();
-        let containerW = DesignerDefaults.fork.lifeLineGutterH;
+        let containerW = DesignerDefaults.statement.width;
         const workers = node.filterChildren(child => ASTFactory.isWorkerDeclaration(child));
         const join = node.filterChildren(child => ASTFactory.isJoinStatement(child));
         const timeout = node.filterChildren(child => ASTFactory.isTimeoutStatement(child));
         const childWithMaxHeight = _.maxBy(workers, child => child.getViewState().bBox.h);
 
         const bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0) +
-            (DesignerDefaults.statement.gutter.v * 2);
+            (DesignerDefaults.statement.gutter.v * 2) + DesignerDefaults.lifeLine.gutter.v +
+            DesignerDefaults.statement.height;
 
         const bodyInnerH = (childWithMaxHeight ? childWithMaxHeight.getViewState().components.statementContainer.h : 0);
 
@@ -80,7 +81,15 @@ class ForkJoinStatementDimensionCalculatorVisitor {
         });
 
         _.forEach(workers, (child) => {
-            containerW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
+            containerW += (child.getViewState().components.workerScopeContainer.w
+            + child.getViewState().components.workerScopeContainer.expansionW);
+            const connectorChildren = child.filterChildren(innerChild => ASTFactory.isConnectorDeclaration(innerChild));
+            if (connectorChildren.length > 0) {
+                _.forEach(connectorChildren, (innerChild) => {
+                   innerChild.viewState.components.statementContainer.h = bodyInnerH;
+
+                });
+            }
         });
 
         const dropZoneHeight = DesignerDefaults.statement.gutter.v;

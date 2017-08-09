@@ -146,6 +146,8 @@ export const fork = {
     padding: {
         top: statement.gutter.v,
         bottom: statement.gutter.v,
+        left: 15,
+        right: 15,
     },
     lifeLineGutterH: 6,
 };
@@ -279,6 +281,10 @@ export const iconForTool = {
     padding: {
         left: 5,
     },
+};
+
+export const connectorDeclaration = {
+    padding: 40,
 };
 
 export const variablesPane = {

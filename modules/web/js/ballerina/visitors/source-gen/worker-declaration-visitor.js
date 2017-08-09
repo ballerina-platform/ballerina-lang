@@ -20,7 +20,7 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclaration from '../../ast/worker-declaration';
-
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 /**
  * Source generation for the worker Declaration
  */
@@ -106,6 +106,15 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
     visitVariableDeclaration(variableDeclaration) {
         const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
+    }
+
+    /**
+     * Visit connector declarations
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration AST node
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 }
 
