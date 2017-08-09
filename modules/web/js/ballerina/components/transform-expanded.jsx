@@ -82,10 +82,10 @@ class TransformExpanded extends React.Component {
 
     getFunctionDefinition(functionInvocationExpression) {
         const funPackage = this.context.environment.getPackageByName(functionInvocationExpression.getFullPackageName());
-        let funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
-         _.forEach(funcDef.getParameters(), (param) => {
-                param.innerType = _.find(this.state.vertices, { typeName: param.type });
-         });
+        const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+        _.forEach(funcDef.getParameters(), (param) => {
+            param.innerType = _.find(this.state.vertices, { typeName: param.type });
+        });
         return funcDef;
     }
 
@@ -128,18 +128,17 @@ class TransformExpanded extends React.Component {
             } else {
                 funcNode = connection.targetReference.getRightExpression();
             }
-            let index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(),
-                                    (param) => { return param.name == connection.targetStruct });
+            const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(),
+                                    (param) => { return param.name == connection.targetStruct; });
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
             if (connection.targetProperty && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
             }
             funcNode.removeChild(funcNode.children[index], true);
-            //check function parameter is a struct and mapping is a complex mapping
-            if (connection.targetProperty && _.find(this.state.vertices, (struct) =>
-                        {return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type})) {
-                let keyValEx = BallerinaASTFactory.createKeyValueExpression();
-                let nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            // check function parameter is a struct and mapping is a complex mapping
+            if (connection.targetProperty && _.find(this.state.vertices, (struct) => { return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type; })) {
+                const keyValEx = BallerinaASTFactory.createKeyValueExpression();
+                const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
 
                 const propChain = connection.targetProperty.split('.').splice(1);
 
@@ -158,10 +157,11 @@ class TransformExpanded extends React.Component {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             const assignmentStmtTarget = this.findEnclosingAssignmentStatement(connection.sourceReference.id);
-            let index = _.findIndex(this.getFunctionDefinition(
+            const index = _.findIndex(this.getFunctionDefinition(
                                                     connection.sourceReference.getRightExpression()).getReturnParams(),
                                                             (param) => {
-                                                                return param.name == connection.sourceStruct});
+                                                                return param.name == connection.sourceStruct;
+                                                            });
             assignmentStmtTarget.getLeftExpression().addChild(targetExpression, index);
             return assignmentStmtTarget.id;
         }
@@ -176,19 +176,19 @@ class TransformExpanded extends React.Component {
         const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetReference);
 
         const assignmentStmtSource = connection.sourceReference;
-        let funcNode = assignmentStmtTarget.getRightExpression();
+        const funcNode = assignmentStmtTarget.getRightExpression();
 
-        let index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), param => {
+        const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), (param) => {
             const paramName = param.name || param.fieldName;
             return param.name === (connection.targetProperty || connection.targetStruct);
         });
         funcNode.children[index] = assignmentStmtSource.getRightExpression();
 
-        //remove the source assignment statement since it is now included in the target assignment statement.
+        // remove the source assignment statement since it is now included in the target assignment statement.
         this.props.model.removeChild(assignmentStmtSource);
 
         return assignmentStmtTarget.id;
-    };
+    }
 
 
     onDisconnectionCallback(connection) {
@@ -198,7 +198,7 @@ class TransformExpanded extends React.Component {
 
         if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
             !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
-            const assignmentStmt = _.find(this.props.model.getChildren(), child => {
+            const assignmentStmt = _.find(this.props.model.getChildren(), (child) => {
                 const leftExpression = child.getLeftExpression().getExpressionString().trim();
                 const rightExpression = child.getRightExpression().getExpressionString().trim();
                 return leftExpression === (connection.targetProperty || connection.targetStruct) &&
@@ -212,7 +212,7 @@ class TransformExpanded extends React.Component {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             // get the function invocation expression for nested and single cases.
-            let funcInvocationExpression = connection.targetFuncInv;
+            const funcInvocationExpression = connection.targetFuncInv;
 
             const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                 return (child.getExpressionString().trim() === (connection.sourceProperty || connection.sourceStruct));
@@ -238,29 +238,29 @@ class TransformExpanded extends React.Component {
         const sourceFuncInvocationExpression = connection.sourceFuncInv;
 
         targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
-    };
+    }
 
     recordSourceElement(element, id, input) {
-        if(!element || element.isSource){
+        if (!element || element.isSource) {
             return;
         }
-        this.sourceElements[id] = {element, input};
+        this.sourceElements[id] = { element, input };
     }
 
     recordTargetElement(element, id, output) {
-        if(!element || element.isTarget){
+        if (!element || element.isTarget) {
             return;
         }
-        this.targetElements[id] = {element, output};
+        this.targetElements[id] = { element, output };
     }
 
     getStructAccessNode(name, property, isStruct) {
         if (!isStruct) {
-            let simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString(name);
             return simpleVarRefExpression;
         } else {
-            let fieldVarRefExpression = BallerinaASTFactory.createFieldBasedVarRefExpression();
+            const fieldVarRefExpression = BallerinaASTFactory.createFieldBasedVarRefExpression();
             fieldVarRefExpression.setExpressionFromString(property);
             return fieldVarRefExpression;
         }
@@ -326,10 +326,10 @@ class TransformExpanded extends React.Component {
 
     drawInnerFunctionDefinitionNodes(parentFunctionInvocationExpression, functionInvocationExpression, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
-            if (_.isUndefined(func)) {
-                alerts.error(
+        if (_.isUndefined(func)) {
+            alerts.error(
                     'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
-                return;
+            return;
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
@@ -343,8 +343,8 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        //Removing this node means removing the function invocation from the parent function invocation.
-        //Hence passing the current function invocation as remove reference.
+        // Removing this node means removing the function invocation from the parent function invocation.
+        // Hence passing the current function invocation as remove reference.
         this.mapper.addFunction(
             func, functionInvocationExpression,
             parentFunctionInvocationExpression.removeChild.bind(parentFunctionInvocationExpression),
@@ -422,17 +422,17 @@ class TransformExpanded extends React.Component {
                 let target;
                 let source;
                 if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
-                //if parameter is a key value expression, iterate each expression and draw connections
-                _.forEach(expression.children, (propParam) => {
-                    source = this.getConnectionProperties('source', propParam.children[1]);
-                    target = this.getConnectionProperties('target', func.getParameters()[i]);
-                    _.merge(target, funcTarget); // merge parameter props with function props
-                    target.targetProperty.push(propParam.children[0].getVariableName());
-                    let typeDef = _.find(this.state.vertices, { typeName: func.getParameters()[i].type});
-                    let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
-                    target.targetType.push(propType.type);
-                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                });
+                // if parameter is a key value expression, iterate each expression and draw connections
+                    _.forEach(expression.children, (propParam) => {
+                        source = this.getConnectionProperties('source', propParam.children[1]);
+                        target = this.getConnectionProperties('target', func.getParameters()[i]);
+                        _.merge(target, funcTarget); // merge parameter props with function props
+                        target.targetProperty.push(propParam.children[0].getVariableName());
+                        const typeDef = _.find(this.state.vertices, { typeName: func.getParameters()[i].type });
+                        const propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName() });
+                        target.targetType.push(propType.type);
+                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                    });
                 } else {
                     const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                     const targetId = `${packageName}:${funcName}:${params[i].name}:${viewId}`;
@@ -447,7 +447,7 @@ class TransformExpanded extends React.Component {
 
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
             const sourceId = `${packageName}:${funcName}:${returnParams[i].name || i}:${viewId}`;
-            const targetId = `${expression.getExpressionString().trim()}:${viewId}`
+            const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             this.mapper.addConnection(sourceId, targetId);
         });
     }
@@ -494,32 +494,32 @@ class TransformExpanded extends React.Component {
         let sourceProp;
         let targetProp;
         let sourceParent = source.sourceStruct;
-        let targetParent =target.targetStruct;
+        let targetParent = target.targetStruct;
 
-        if(source.sourceProperty.length > 1) {
-          sourceParent = source.sourceProperty[source.sourceProperty.length  - 2];
+        if (source.sourceProperty.length > 1) {
+            sourceParent = source.sourceProperty[source.sourceProperty.length - 2];
         }
-        if(target.targetProperty.length > 1) {
-          targetParent = target.targetProperty[target.targetProperty.length - 2]
+        if (target.targetProperty.length > 1) {
+            targetParent = target.targetProperty[target.targetProperty.length - 2];
         }
         _.forEach(this.state.vertices, (struct) => {
             if (struct.name === sourceParent) {
-              sourceProp = _.find(struct.properties, (field) => {
-                  return field.name === source.sourceProperty[source.sourceProperty.length - 1];
-              });
-              if(_.isUndefined(sourceProp)) {
-                sourceProp = struct;
-              }
-            } else if (struct.name === targetParent){
-               targetProp = _.find(struct.properties, (field) => {
-                  return field.name === target.targetProperty[target.targetProperty.length - 1];
-              });
-              if(_.isUndefined(targetProp)) {
-                targetProp = struct;
-              }
+                sourceProp = _.find(struct.properties, (field) => {
+                    return field.name === source.sourceProperty[source.sourceProperty.length - 1];
+                });
+                if (_.isUndefined(sourceProp)) {
+                    sourceProp = struct;
+                }
+            } else if (struct.name === targetParent) {
+                targetProp = _.find(struct.properties, (field) => {
+                    return field.name === target.targetProperty[target.targetProperty.length - 1];
+                });
+                if (_.isUndefined(targetProp)) {
+                    targetProp = struct;
+                }
             }
         });
-        const con = { id: id, input:sourceProp, output:targetProp};
+        const con = { id, input: sourceProp, output: targetProp };
         _.merge(con, source, target);
         this.mapper.addConnection(con);
     }
@@ -545,7 +545,7 @@ class TransformExpanded extends React.Component {
     * @memberof TransformStatementDecorator
     */
     getParentAssignmentStmt(node) {
-        if (BallerinaASTFactory.isAssignmentStatement(node)){
+        if (BallerinaASTFactory.isAssignmentStatement(node)) {
             return node;
         } else {
             return this.getParentAssignmentStmt(node.getParent());
@@ -560,11 +560,11 @@ class TransformExpanded extends React.Component {
      * @memberof TransformStatementDecorator
      */
     findEnclosingAssignmentStatement(id) {
-        let assignmentStmts = this.props.model.getChildren();
-        let assignmentStmt = this.findExistingAssignmentStatement(id);
+        const assignmentStmts = this.props.model.getChildren();
+        const assignmentStmt = this.findExistingAssignmentStatement(id);
         if (assignmentStmt === undefined) {
             return _.find(assignmentStmts, (assignmentStmt) => {
-                let expression = this.findFunctionInvocationById(assignmentStmt, id);
+                const expression = this.findFunctionInvocationById(assignmentStmt, id);
                 if (expression !== undefined) {
                     return assignmentStmt;
                 }
@@ -656,9 +656,9 @@ class TransformExpanded extends React.Component {
             property.type = field.getType();
             property.packageName = field.getPackageName();
             property.structName = name;
-            property.fieldName = (fieldName || name) + `.${property.name}`
+            property.fieldName = (fieldName || name) + `.${property.name}`;
 
-            let innerStruct = this.getStructDefinition(property.packageName, property.type);
+            const innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (!_.isUndefined(innerStruct) && typeName !== property.type) {
                 property.innerType = this.createType(property.name, property.type, innerStruct, true, property.fieldName);
             }
@@ -764,25 +764,25 @@ class TransformExpanded extends React.Component {
         e.stopPropagation();
     }
 
-    onSourceInputChange(e, {newValue}) {
+    onSourceInputChange(e, { newValue }) {
         this.setState({
             typedSource: newValue,
         });
     }
 
-    onTargetInputChange(e, {newValue}) {
+    onTargetInputChange(e, { newValue }) {
         this.setState({
             typedTarget: newValue,
         });
     }
 
-    onSourceSelect(e, {suggestionValue}) {
+    onSourceSelect(e, { suggestionValue }) {
         this.setState({
             selectedSource: suggestionValue,
         });
     }
 
-    onTargetSelect(e, {suggestionValue}) {
+    onTargetSelect(e, { suggestionValue }) {
         this.setState({
             selectedTarget: suggestionValue,
         });
@@ -804,35 +804,35 @@ class TransformExpanded extends React.Component {
         this.addTarget(this.state.selectedTarget);
     }
 
-    removeSourceType(removedType){
-      this.mapper.removeType(removedType.name);
-      this.props.model.removeInput(removedType);
+    removeSourceType(removedType) {
+        this.mapper.removeType(removedType.name);
+        this.props.model.removeInput(removedType);
     }
 
-    removeTargetType(removedType){
-      this.mapper.removeType(removedType.name);
-      this.props.model.removeOutput(removedType);
+    removeTargetType(removedType) {
+        this.mapper.removeType(removedType.name);
+        this.props.model.removeOutput(removedType);
     }
 
     addSource(selectedSource) {
-        let inputDef = BallerinaASTFactory
+        const inputDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
         if (this.setSource(selectedSource, this.state.vertices, this.props.model, inputDef.id)) {
-            let inputs = this.props.model.getInput();
+            const inputs = this.props.model.getInput();
             inputs.push(inputDef);
             this.props.model.setInput(inputs);
-            this.setState({typedSource: ''});
+            this.setState({ typedSource: '' });
         }
     }
 
     addTarget(selectedTarget) {
-        let outDef = BallerinaASTFactory
+        const outDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
         if (this.setTarget(selectedTarget, this.state.vertices, this.props.model, outDef.id)) {
-            let outputs = this.props.model.getOutput();
+            const outputs = this.props.model.getOutput();
             outputs.push(outDef);
             this.props.model.setOutput(outputs);
-            this.setState({typedTarget: ''});
+            this.setState({ typedTarget: '' });
         }
     }
 
@@ -954,9 +954,9 @@ class TransformExpanded extends React.Component {
 
     getSourcesAndTargets() {
         const variables = this.props.model.filterChildrenInScope(
-                                     this.props.model.getFactory().isVariableDefinitionStatement)
+                                     this.props.model.getFactory().isVariableDefinitionStatement);
         const argHolders = this.props.model.filterChildrenInScope(
-                                     this.props.model.getFactory().isArgumentParameterDefinitionHolder)
+                                     this.props.model.getFactory().isArgumentParameterDefinitionHolder);
         const paramArgs = [];
         _.forEach(argHolders, (argHolder) => {
             _.forEach(argHolder.getChildren(), (arg) => {
@@ -1050,62 +1050,61 @@ class TransformExpanded extends React.Component {
     removeAssignmentStatements(id, type) {
         const statementsToRemove = [];
 
-        this.props.model.getChildren().forEach(currentObject => {
+        this.props.model.getChildren().forEach((currentObject) => {
             let nodeToRemove;
 
-            if(type === "source") {
+            if (type === 'source') {
                 nodeToRemove = currentObject.getRightExpression();
             } else {
                 nodeToRemove = currentObject.getLeftExpression();
             }
 
             if (nodeToRemove.getFactory().isFieldBasedVarRefExpression(nodeToRemove)) {
-                if(nodeToRemove.getExpressionString().startsWith(`${id}.`)){
+                if (nodeToRemove.getExpressionString().startsWith(`${id}.`)) {
                     statementsToRemove.push(currentObject);
                     return;
                 }
             }
 
             if ((nodeToRemove.getFactory().isVariableReferenceList(nodeToRemove))) {
-                nodeToRemove.getChildren().forEach(childVarRef => {
+                nodeToRemove.getChildren().forEach((childVarRef) => {
                     if (nodeToRemove.getFactory().isFieldBasedVarRefExpression(childVarRef)) {
-                        if(childVarRef.getExpressionString().startsWith(`${id}.`)){
+                        if (childVarRef.getExpressionString().startsWith(`${id}.`)) {
                             statementsToRemove.push(currentObject);
                             return;
                         }
                     }
 
-                    if(childVarRef.getVariableName() === id) {
+                    if (childVarRef.getVariableName() === id) {
                         statementsToRemove.push(currentObject);
-                        return;
                     }
                 });
                 return;
             }
 
-            if(nodeToRemove.getVariableName() === id) {
+            if (nodeToRemove.getVariableName() === id) {
                 statementsToRemove.push(currentObject);
             }
         });
 
-        statementsToRemove.forEach(statement => {
+        statementsToRemove.forEach((statement) => {
             this.props.model.removeChild(statement);
-        })
+        });
     }
 
-    findFunctionInvocations(functionInvocationExpression, functions=[], parentFunc) {
+    findFunctionInvocations(functionInvocationExpression, functions = [], parentFunc) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error('Function definition for "' +
                 functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
-        functionInvocationExpression.getChildren().forEach(child => {
-            if(BallerinaASTFactory.isFunctionInvocationExpression(child)) {
+        functionInvocationExpression.getChildren().forEach((child) => {
+            if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                 this.findFunctionInvocations(child, functions, functionInvocationExpression);
             }
         });
-        functions.push({func, parentFunc, funcInv: functionInvocationExpression});
+        functions.push({ func, parentFunc, funcInv: functionInvocationExpression });
         return functions;
     }
 
@@ -1120,7 +1119,7 @@ class TransformExpanded extends React.Component {
         const functions = [];
 
         if (this.state.vertices.length > 0) {
-            inputNodes.forEach(inputNode => {
+            inputNodes.forEach((inputNode) => {
                 const name = inputNode.getVariableName();
                 const sourceSelection = _.find(vertices, { name });
                 if (_.isUndefined(sourceSelection)) {
@@ -1161,13 +1160,14 @@ class TransformExpanded extends React.Component {
             <div
                 id={`transformOverlay-content-${this.props.model.getID()}`}
                 className='transformOverlay'
-                ref={div => this.transformOverlayContentDiv=div }
+                ref={div => this.transformOverlayContentDiv = div}
                 onMouseOver={this.onTransformDropZoneActivate}
-                onMouseOut={this.onTransformDropZoneDeactivate}>
+                onMouseOut={this.onTransformDropZoneDeactivate}
+            >
                 <div id='transformHeader' className='transform-header'>
-                    <i onClick={this.onClose} className='fw fw-left icon close-transform'></i>
+                    <i onClick={this.onClose} className='fw fw-left icon close-transform' />
                     <p className='transform-header-text '>
-                        <i className='transform-header-icon fw fw-type-converter'></i>
+                        <i className='transform-header-icon fw fw-type-converter' />
                         Transform
                     </p>
                 </div>
@@ -1185,12 +1185,12 @@ class TransformExpanded extends React.Component {
                             className="btn-add-source fw-stack fw-lg btn btn-add"
                             onClick={this.onSourceAdd}
                         >
-                            <i className="fw fw-add fw-stack-1x"></i>
+                            <i className="fw fw-add fw-stack-1x" />
                         </span>
                     </div>
                     <div className="leftType">
                         <Tree
-                            viewId= {this.props.model.getID()}
+                            viewId={this.props.model.getID()}
                             endpoints={inputs}
                             type='source'
                             makeConnectPoint={this.recordSourceElement}
@@ -1228,7 +1228,7 @@ class TransformExpanded extends React.Component {
                             className="btn-add-source fw-stack fw-lg btn btn-add"
                             onClick={this.onTargetAdd}
                         >
-                            <i className='fw fw-add fw-stack-1x'></i>
+                            <i className='fw fw-add fw-stack-1x' />
                         </span>
                     </div>
                     <div className='rightType'>
@@ -1241,8 +1241,8 @@ class TransformExpanded extends React.Component {
                         />
                     </div>
                 </div>
-                <div id ='transformContextMenu' className='transformContextMenu'></div>
-                <div id ='transformFooter' className='transform-footer'></div>
+                <div id='transformContextMenu' className='transformContextMenu' />
+                <div id='transformFooter' className='transform-footer' />
             </div>
         );
     }

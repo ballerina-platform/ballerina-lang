@@ -146,8 +146,3 @@ class SimpleVariableReferenceExpression extends Expression {
 }
 
 export default SimpleVariableReferenceExpression;
-
-
-
-// WEBPACK FOOTER //
-// ./js/ballerina/ast/expressions/simple-variable-reference-expression.js

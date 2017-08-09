@@ -67,7 +67,6 @@ class Diagram extends React.Component {
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.
         this.props.model.accept(this.dimentionCalc);
-        console.log(this.props.model);
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.getViewState();

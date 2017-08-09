@@ -35,7 +35,7 @@ class TransformRender {
         this.container = container;
         this.references = [];
         this.placeHolderName = 'transformOverlay-content';
-        this.viewId = container.attr("id").replace(this.placeHolderName+"-","");
+        this.viewId = container.attr('id').replace(this.placeHolderName + '-', '');
         this.contextMenu = 'transformContextMenu';
         this.jsTreePrefix = 'jstree-container';
         this.viewIdSeperator = ':';
@@ -53,7 +53,7 @@ class TransformRender {
 
         this.jsPlumbInstance = jsPlumb.getInstance({
             Connector: self.getConnectorConfig(self.midpoint),
-            Container: container.attr("id"),
+            Container: container.attr('id'),
             PaintStyle: {
                 strokeWidth: 1,
             // todo : load colors from css
@@ -136,7 +136,7 @@ class TransformRender {
     disconnect(connection) {
         const self = this;
         const propertyConnection = this.getConnectionObject(connection.getParameter('id'),
-        connection.getParameter("input"), connection.getParameter("output"));
+        connection.getParameter('input'), connection.getParameter('output'));
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
@@ -167,20 +167,20 @@ class TransformRender {
 
         let sourceReference;
         let rootSourceStructName;
-        if(source.parentFunc || source.enclosingAssignmentStatement) {
+        if (source.parentFunc || source.enclosingAssignmentStatement) {
             sourceReference = source.parentFunc || source.enclosingAssignmentStatement;
         }
-        if(source.root) {
+        if (source.root) {
             sourceReference = source.root.enclosingAssignmentStatement;
             rootSourceStructName = source.root.name;
         }
 
         let targetReference;
         let rootTargetStructName;
-        if(target.parentFunc || target.enclosingAssignmentStatement) {
+        if (target.parentFunc || target.enclosingAssignmentStatement) {
             targetReference = target.parentFunc || target.enclosingAssignmentStatement;
         }
-        if(target.root) {
+        if (target.root) {
             targetReference = target.root.enclosingAssignmentStatement;
             rootTargetStructName = target.root.name;
         }
@@ -340,16 +340,16 @@ class TransformRender {
     removeType(name) {
         _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
             if (con.sourceId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                _.forEach($(".jtk-droppable"), (element) => {
+                _.forEach($('.jtk-droppable'), (element) => {
                     if (element.id.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                      this.jsPlumbInstance.remove(element.id);
+                        this.jsPlumbInstance.remove(element.id);
                     }
                 });
                 this.unmarkConnected(con.targetId);
             } else if (con.targetId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                _.forEach($(".jtk-droppable"), (element) => {
+                _.forEach($('.jtk-droppable'), (element) => {
                     if (element.id.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                      this.jsPlumbInstance.remove(element.id);
+                        this.jsPlumbInstance.remove(element.id);
                     }
                 });
                 this.jsPlumbInstance.remove(con.targetId);
@@ -431,14 +431,14 @@ class TransformRender {
 //     }
 
 
-       addConnection(sourceId, targetId) {
-           this.jsPlumbInstance.connect({
-               source: sourceId,
-               target: targetId,
-           });
-           this.container.find(document.getElementById(sourceId)).removeClass("fw-circle-outline").addClass("fw-circle");
-           this.container.find(document.getElementById(targetId)).removeClass("fw-circle-outline").addClass("fw-circle");
-       }
+    addConnection(sourceId, targetId) {
+        this.jsPlumbInstance.connect({
+            source: sourceId,
+            target: targetId,
+        });
+        this.container.find(document.getElementById(sourceId)).removeClass('fw-circle-outline').addClass('fw-circle');
+        this.container.find(document.getElementById(targetId)).removeClass('fw-circle-outline').addClass('fw-circle');
+    }
 
 
 /**
@@ -477,21 +477,21 @@ class TransformRender {
             self.existingJsTrees.push(structId);
             self.reposition(self);
             _.forEach(self.connectionPool, (conPoolObj) => {
-                let targetUUID = "";
-                let sourceUUID = "";
+                let targetUUID = '';
+                let sourceUUID = '';
 
-                if(conPoolObj.connection.sourceId != null) {
+                if (conPoolObj.connection.sourceId != null) {
                     sourceUUID = conPoolObj.connection.sourceId;
                 }
 
-                if(conPoolObj.connection.targetId != null) {
+                if (conPoolObj.connection.targetId != null) {
                     targetUUID = conPoolObj.connection.targetId;
                 }
 
-                if (!conPoolObj.connected && structId.replace("func-input","").replace("func-output","") ===
+                if (!conPoolObj.connected && structId.replace('func-input', '').replace('func-output', '') ===
                         conPoolObj.connection.sourceStruct + sourceUUID + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
-                } else if (!conPoolObj.connected && structId.replace("func-input","").replace("func-output","") ===
+                } else if (!conPoolObj.connected && structId.replace('func-input', '').replace('func-output', '') ===
                         conPoolObj.connection.targetStruct + targetUUID + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isTargetExists = true;
                 }
@@ -547,17 +547,17 @@ class TransformRender {
  * @param parentId Id of the parentElement where the element needs to be added.
  * @param struct  Object which specifies the id, name, and type of the struct.
  */
-addComplexParameter(parentId, struct) {
-    const self = this;
-    _.forEach(struct.getParameters(), (property) => {
-        if (property.innerType != null && property.innerType.properties.length > 0) {
-        const complexStructEl = self.makeProperty(this.container.find('#' + parentId), property.name, property.type, true);
-        self.addComplexProperty(complexStructEl.attr('id'), property.innerType);
-    } else {
-        self.makeProperty(this.container.find('#' + parentId), property.name, property.type, true);
+    addComplexParameter(parentId, struct) {
+        const self = this;
+        _.forEach(struct.getParameters(), (property) => {
+            if (property.innerType != null && property.innerType.properties.length > 0) {
+                const complexStructEl = self.makeProperty(this.container.find('#' + parentId), property.name, property.type, true);
+                self.addComplexProperty(complexStructEl.attr('id'), property.innerType);
+            } else {
+                self.makeProperty(this.container.find('#' + parentId), property.name, property.type, true);
+            }
+        });
     }
-});
-}
 
 
 /**
@@ -613,7 +613,7 @@ addComplexParameter(parentId, struct) {
 
     addVariable(variable, type, removeCallback) {
         const id = variable.name + this.viewIdSeperator + this.viewId;
-        const propId = variable.name + this.idNameSeperator + this.viewId  + this.nameTypeSeperator + variable.type;
+        const propId = variable.name + this.idNameSeperator + this.viewId + this.nameTypeSeperator + variable.type;
         const newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
         const varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
         const property = $('<a>').attr('id', propId).addClass('variable-content');
@@ -687,14 +687,14 @@ addComplexParameter(parentId, struct) {
             newFunc.append(funcName);
             newFunc.append(inputContent);
             newFunc.append(outputContent);
-            newFunc.css({top: 0, left: 0});
+            newFunc.css({ top: 0, left: 0 });
             this.container.find('.middle-content').append(newFunc);
             this.onRemove(id, func, onFunctionRemove, removeReference);
             this.addComplexParameter(jsTreeIdIn, func);
             this.processJSTree(jsTreeIdIn, jsTreeIdIn, this.addTarget);
 
             _.forEach(func.getReturnParams(), (parameter) => {
-                const property =  self.makeProperty(this.container.find('#' + jsTreeIdOut), parameter.name, parameter.type);
+                const property = self.makeProperty(this.container.find('#' + jsTreeIdOut), parameter.name, parameter.type);
             });
             this.processJSTree(jsTreeIdOut, jsTreeIdOut, this.addSource);
 
@@ -732,9 +732,9 @@ addComplexParameter(parentId, struct) {
     makeProperty(parentId, name, type) {
         const id = parentId.selector.replace('#', '') + this.idNameSeperator + name + this.nameTypeSeperator + type;
         const ul = $('<ul class="property">');
-        let li = $('<li class="property">').attr('id', id);
-        if(!_.isUndefined(name)) {
-           li.text(name + ' : ' + type);
+        const li = $('<li class="property">').attr('id', id);
+        if (!_.isUndefined(name)) {
+            li.text(name + ' : ' + type);
         } else {
             li.text(type);
         }
@@ -753,8 +753,8 @@ addComplexParameter(parentId, struct) {
         const connectionConfig = {
             anchor: ['Right'],
             parameters: {
-                input
-            }
+                input,
+            },
         };
         if (maxConnections) {
             connectionConfig.maxConnections = 1;
@@ -792,9 +792,9 @@ addComplexParameter(parentId, struct) {
             maxConnections: 1,
             anchor: ['Left'],
             parameters: {
-                output
+                output,
             },
-            beforeDrop: params => {
+            beforeDrop: (params) => {
                 console.log(this.jsPlumbInstance);
                 debugger;
                 // Checks property types are equal or type is any
@@ -804,9 +804,9 @@ addComplexParameter(parentId, struct) {
                 let isValidTypes;
 
                 if (sourceType === 'struct' || targetType === 'struct') {
-                  isValidTypes = input.typeName == output.typeName;
+                    isValidTypes = input.typeName == output.typeName;
                 } else {
-                  isValidTypes = sourceType === targetType || sourceType === "any" || targetType === "any"
+                    isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
                       || sourceType === 'json' || targetType === 'json';
                 }
 
