@@ -795,8 +795,6 @@ class TransformRender {
                 output,
             },
             beforeDrop: (params) => {
-                console.log(this.jsPlumbInstance);
-                debugger;
                 // Checks property types are equal or type is any
                 const input = params.connection.getParameters().input;
                 const sourceType = input.type;
