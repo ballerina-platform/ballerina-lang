@@ -86,7 +86,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 }
                 CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
                         .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-                if (carbonMessageProcessor != null) {
+                if (httpClientConnectorFuture != null) {
                     try {
 //                        HTTPTransportContextHolder.getInstance()
 //                                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID))

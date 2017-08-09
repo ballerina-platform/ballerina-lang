@@ -30,9 +30,9 @@ import javax.websocket.Session;
 public interface WebSocketSessionContext {
 
     /**
-     * Retrieve the server session of the connection.
+     * Retrieve the session of the connection.
      *
-     * @return the server session of the connection.
+     * @return the session of the connection.
      */
     Session getChannelSession();
 
