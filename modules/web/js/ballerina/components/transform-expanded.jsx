@@ -820,14 +820,13 @@ class TransformExpanded extends React.Component {
     }
 
     removeSourceType(removedType){
-      this.props.model.removeInput(removedType);
       this.mapper.removeType(removedType.name);
-
+      this.props.model.removeInput(removedType);
     }
 
     removeTargetType(removedType){
-      this.props.model.removeOutput(removedType);
       this.mapper.removeType(removedType.name);
+      this.props.model.removeOutput(removedType);
     }
 
     addSource(selectedSource) {

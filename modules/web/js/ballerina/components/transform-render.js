@@ -338,8 +338,21 @@ class TransformRender {
  */
     removeType(name) {
         _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
-            if (_.includes(con.sourceId, name) || _.includes(con.targetId, name) ) {
-                this.jsPlumbInstance.detach(con);
+            if (con.sourceId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
+                _.forEach($(".jtk-droppable"), (element) => {
+                    if (element.id.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
+                      this.jsPlumbInstance.remove(element.id);
+                    }
+                });
+                this.unmarkConnected(con.targetId);
+            } else if (con.targetId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
+                _.forEach($(".jtk-droppable"), (element) => {
+                    if (element.id.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
+                      this.jsPlumbInstance.remove(element.id);
+                    }
+                });
+                this.jsPlumbInstance.remove(con.targetId);
+                this.unmarkConnected(con.sourceId);
             }
         });
         this.reposition(this);
