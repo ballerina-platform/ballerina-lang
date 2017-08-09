@@ -40,12 +40,13 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.Headers;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import javax.net.ssl.SSLException;
 import javax.websocket.Session;
 
@@ -62,12 +63,12 @@ public class WebSocketClient {
     private boolean handshakeDone = false;
 
     private final String url;
+    private final String target;
     private final String subprotocol;
-    private final String clientServiceName;
     private final boolean allowExtensions;
-    private final Headers headers;
+    private final Map<String, String> headers;
     private final WebSocketSourceHandler sourceHandler;
-    private final CarbonMessageProcessor messageProcessor;
+    private final WebSocketConnectorListener connectorListener;
 
     /**
      * @param url url of the remote endpoint.
@@ -75,16 +76,21 @@ public class WebSocketClient {
      * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
      */
-    public WebSocketClient(String url, String clientServiceName, String subprotocol, boolean allowExtensions,
-                           Headers headers, WebSocketSourceHandler sourceHandler,
-                           CarbonMessageProcessor messageProcessor) {
+    public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
+                           Map<String, String> headers,
+                           WebSocketSourceHandler sourceHandler, WebSocketConnectorListener connectorListener) {
         this.url = url;
-        this.clientServiceName = clientServiceName;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
         this.sourceHandler = sourceHandler;
-        this.messageProcessor = messageProcessor;
+
+        if (target == null) {
+            this.target = "client";
+        } else {
+            this.target = target;
+        }
+        this.connectorListener = connectorListener;
     }
 
     /**
@@ -129,14 +135,18 @@ public class WebSocketClient {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
 
         // Adding custom headers to the handshake request.
-        headers.getAll().forEach(
-                header -> httpHeaders.add(header.getName(), header.getValue())
+        headers.entrySet().forEach(
+                entry -> httpHeaders.add(entry.getKey(), entry.getValue())
         );
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, clientServiceName,
-                                             messageProcessor);
+
+        BasicWebSocketChannelContextImpl webSocketChannelContext =
+                new BasicWebSocketChannelContextImpl(subprotocol, target, ssl, false);
+
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, url, connectorListener,
+                                             webSocketChannelContext);
 
         Bootstrap b = new Bootstrap();
         b.group(group)

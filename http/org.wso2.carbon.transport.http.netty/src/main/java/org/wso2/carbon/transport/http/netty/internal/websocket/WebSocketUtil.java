@@ -20,13 +20,16 @@
 package org.wso2.carbon.transport.http.netty.internal.websocket;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpRequest;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.net.URISyntaxException;
 
 /**
  * Utility class for WebSocket client connector.
  */
-public class Util {
+public class WebSocketUtil {
 
     public static String getSessionID(ChannelHandlerContext ctx) {
         return ctx.channel().id().asLongText();
@@ -35,5 +38,13 @@ public class Util {
     public static WebSocketSessionImpl getSession(ChannelHandlerContext ctx,
                                                   boolean isSecured, String uri) throws URISyntaxException {
         return new WebSocketSessionImpl(ctx, isSecured, uri, getSessionID(ctx));
+    }
+
+    public static String getSubProtocol(HttpRequest request) {
+        HttpHeaders headers = request.headers();
+        if (headers.contains(Constants.WEBSOCKET_HEADER_SUBPROTOCOL)) {
+            return headers.get(Constants.WEBSOCKET_HEADER_SUBPROTOCOL);
+        }
+        return null;
     }
 }

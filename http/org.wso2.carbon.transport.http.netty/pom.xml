@@ -121,6 +121,10 @@
             <version>${guava.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.connector.framework</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

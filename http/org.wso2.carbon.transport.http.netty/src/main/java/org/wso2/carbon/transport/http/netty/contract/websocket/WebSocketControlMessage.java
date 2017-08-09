@@ -17,26 +17,26 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.listener;
+package org.wso2.carbon.transport.http.netty.contract.websocket;
 
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-
-import java.util.concurrent.CountDownLatch;
+import java.nio.ByteBuffer;
 
 /**
- * Callback for WebSocket handshake.
+ * This message contains the details of WebSocket bong message.
  */
-public class WebSocketCallback implements CarbonCallback {
+public interface WebSocketControlMessage extends WebSocketChannelContext, WebSocketSessionContext {
 
-    CountDownLatch countDownLatch;
+    /**
+     * Get the control signal.
+     *
+     * @return the control signal as a {@link WebSocketControlSignal}.
+     */
+    WebSocketControlSignal getControlSignal();
 
-    public WebSocketCallback(CountDownLatch countDownLatch) {
-        this.countDownLatch = countDownLatch;
-    }
-
-    @Override
-    public void done(CarbonMessage cMsg) {
-        countDownLatch.countDown();
-    }
+    /**
+     * Get the payload of the control signal.
+     *
+     * @return the payload of the control signal.
+     */
+    ByteBuffer getPayload();
 }

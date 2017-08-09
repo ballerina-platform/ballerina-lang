@@ -25,19 +25,18 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.util.TestUtil;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 
@@ -46,102 +45,97 @@ import javax.websocket.Session;
  */
 public class WebSocketClientTest {
 
-//    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTest.class);
-//
-//    WebSocketMessageProcessor messageProcessor = new WebSocketMessageProcessor();
-//    HTTPClientConnector clientConnector = new WebSocketClientConnector();
-//    private List<HTTPServerConnector> serverConnectors;
-//    private final String url = "ws://localhost:8490/websocket";
-//    private final String clientId1 = "clientId1";
-//    private final String clientId2 = "clientId2";
-//    private final int sleepTime = 100;
-//
-//    @BeforeClass
-//    public void setup() {
-//        log.info(System.lineSeparator() +
-//                         "---------------------WebSocket Client Connector Test Cases---------------------");
-//        TransportsConfiguration configuration = ConfigurationBuilder.getInstance().getConfiguration(
-//                "src/test/resources/simple-test-config/netty-transports.yml");
-//        serverConnectors = TestUtil.startConnectors(configuration, messageProcessor);
-//        clientConnector.setMessageProcessor(messageProcessor);
-//    }
-//
-//    @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
-//    public void testTextReceived() throws ClientConnectorException, InterruptedException, IOException {
-//        Session session = handshake();
-//        String text = "testText";
-//        session.getBasicRemote().sendText(text);
-//        Thread.sleep(sleepTime);
-//        Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text);
-//        shutDownClient(session);
-//    }
-//
-//    @Test(description = "Test binary message sending and receiving.")
-//    public void testBinaryReceived() throws ClientConnectorException, InterruptedException, IOException {
-//        Session session = handshake();
-//        byte[] bytes = {1, 2, 3, 4, 5};
-//        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-//        session.getBasicRemote().sendBinary(buffer);
-//        Thread.sleep(sleepTime);
-//        Assert.assertEquals(messageProcessor.getReceivedByteBufferToClient(), buffer);
-//        shutDownClient(session);
-//    }
-//
-//    @Test(description = "Test ping pong messaging. ")
-//    public void testPingPong() throws ClientConnectorException, InterruptedException, IOException {
-//        Session session = handshake();
-//        byte[] bytes = {1, 2, 3, 4, 5};
-//        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-//        session.getBasicRemote().sendPing(buffer);
-//        Thread.sleep(sleepTime);
-//        Assert.assertTrue(messageProcessor.isPongReceivedToClient());
-//        shutDownClient(session);
-//    }
-//
-//    @Test(description = "Test multiple clients handling, sending and receiving text messages for them.")
-//    public void testMultipleClients() throws ClientConnectorException, InterruptedException, IOException {
-//        Session session1 = handshake();
-//        Session session2 = handshake();
-//        String text1 = "testText1";
-//        String text2 = "testText2";
-//
-//        session1.getBasicRemote().sendText(text1);
-//        Thread.sleep(sleepTime);
-//        Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text1);
-//
-//        session2.getBasicRemote().sendText(text2);
-//        Thread.sleep(sleepTime);
-//        Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text2);
-//
-//        session1.getBasicRemote().sendText(text2);
-//        Thread.sleep(sleepTime);
-//        Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text2);
-//
-//        shutDownClient(session1);
-//        shutDownClient(session2);
-//    }
-//
-//    @AfterClass
-//    public void cleanUp() throws ServerConnectorException, InterruptedException {
-//        serverConnectors.forEach(
-//                serverConnector -> {
-//                    serverConnector.stop();
-//                }
-//        );
-//    }
-//
-//    private Session handshake() throws ClientConnectorException {
-//        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-//                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
-//        controlCarbonMessage.setProperty(Constants.REMOTE_ADDRESS, url);
-//        controlCarbonMessage.setProperty(Constants.TO, "clientService");
-//        return (Session) clientConnector.init(controlCarbonMessage, null, null);
-//    }
-//
-//    private void shutDownClient(Session session) throws ClientConnectorException, IOException {
-//        session.close(new CloseReason(
-//                () -> 1000,
-//                "Normal Closure"
-//        ));
-//    }
+    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTest.class);
+
+    private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
+    private final String url = "ws://localhost:8490/websocket";
+    private final int sleepTime = 500;
+    private WebSocketClientConnector clientConnector;
+    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
+
+    @BeforeClass
+    public void setup() throws InterruptedException, ClientConnectorException {
+        log.info(System.lineSeparator() +
+                         "---------------------WebSocket Client Connector Test Cases---------------------");
+        remoteServer.run();
+        Map<String, String> props = new HashMap<>();
+        props.put(Constants.REMOTE_ADDRESS, url);
+        props.put(Constants.WEBSOCKET_SUBPROTOCOLS, null);
+        clientConnector = httpConnectorFactory.getWSClientConnector(props);
+    }
+
+    @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
+    public void testTextReceived() throws ClientConnectorException, InterruptedException, IOException {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        Session session = handshake(connectorListener);
+        String text = "testText";
+        session.getBasicRemote().sendText(text);
+        Thread.sleep(sleepTime);
+        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text);
+        shutDownClient(session);
+    }
+
+    @Test(description = "Test binary message sending and receiving.")
+    public void testBinaryReceived() throws ClientConnectorException, InterruptedException, IOException {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        Session session = handshake(connectorListener);
+        byte[] bytes = {1, 2, 3, 4, 5};
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        session.getBasicRemote().sendBinary(buffer);
+        Thread.sleep(sleepTime);
+        Assert.assertEquals(connectorListener.getReceivedByteBufferToClient(), buffer);
+        shutDownClient(session);
+    }
+
+    @Test(description = "Test ping pong messaging.")
+    public void testPingPong() throws ClientConnectorException, InterruptedException, IOException {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        Session session = handshake(connectorListener);
+        byte[] bytes = {1, 2, 3, 4, 5};
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        session.getBasicRemote().sendPing(buffer);
+        Thread.sleep(sleepTime);
+        Assert.assertTrue(connectorListener.isPongReceived());
+        shutDownClient(session);
+    }
+
+    @Test(description = "Test multiple clients handling, sending and receiving text messages for them.")
+    public void testMultipleClients() throws ClientConnectorException, InterruptedException, IOException {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        Session session1 = handshake(connectorListener);
+        Session session2 = handshake(connectorListener);
+        String text1 = "testText1";
+        String text2 = "testText2";
+
+        session1.getBasicRemote().sendText(text1);
+        Thread.sleep(sleepTime);
+        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text1);
+
+        session2.getBasicRemote().sendText(text2);
+        Thread.sleep(sleepTime);
+        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text2);
+
+        session2.getBasicRemote().sendText(text2);
+        Thread.sleep(sleepTime);
+        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text2);
+
+        shutDownClient(session1);
+        shutDownClient(session2);
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException, InterruptedException {
+        remoteServer.stop();
+    }
+
+    private Session handshake(WebSocketConnectorListener connectorListener) throws ClientConnectorException {
+        return clientConnector.connect(connectorListener);
+    }
+
+    private void shutDownClient(Session session) throws ClientConnectorException, IOException {
+        session.close(new CloseReason(
+                () -> 1000,
+                "Normal Closure"
+        ));
+    }
 }

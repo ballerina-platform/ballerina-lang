@@ -125,7 +125,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         configureHTTPPipeline(pipeline, listenerConfiguration);
 
         if (socketIdleTimeout > 0) {
-            pipeline.addBefore("SourceHandler", Constants.IDLE_STATE_HANDLER,
+            pipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout, TimeUnit.MILLISECONDS));
         }
 
@@ -199,7 +199,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 //            p.addLast(Constants.IDLE_STATE_HANDLER,
 //                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
 //                            TimeUnit.MILLISECONDS));
-            pipeline.addLast("SourceHandler", new SourceHandler(connectionManager, listenerConfiguration, this.serverConnectorFuture));
+            pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                             new SourceHandler(connectionManager, listenerConfiguration, this.serverConnectorFuture));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

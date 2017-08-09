@@ -10,6 +10,8 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketClientConnectorImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -76,6 +78,17 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
         return new HTTPClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
+    }
+
+    @Override
+    public WebSocketClientConnector getWSClientConnector(Map<String, String> connectorConfig) {
+        String subProtocol = connectorConfig.get(Constants.WEBSOCKET_SUBPROTOCOLS);
+        String remoteUrl = connectorConfig.get(Constants.REMOTE_ADDRESS);
+        String target = connectorConfig.get(Constants.TO);
+
+        // TODO: Allow extensions when any type is supported.
+        boolean allowExtensions = true;
+        return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocol, allowExtensions);
     }
 
     private ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
