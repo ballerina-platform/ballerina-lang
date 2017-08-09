@@ -98,6 +98,7 @@ class AssignmentStatement extends React.Component {
                                                                 actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
+            source.setActionConnectorName(destination.getConnectorVariable());
             source.setConnector(destination);
             model.getStatementString();
             model.trigger('tree-modified', { type: 'custom', title: 'action set' });
