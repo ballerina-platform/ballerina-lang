@@ -1,5 +1,7 @@
 package org.wso2.carbon.transport.http.netty.contractImpl;
 
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
@@ -12,9 +14,11 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientCo
 import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketClientConnectorImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,7 +55,27 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
 
     @Override
     public HTTPClientConnector getHTTPClientConnector(Map<String, String> connectorConfig) {
-        return null;
+        String nettyConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
+                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
+        nettyConfigFile = "/home/shaf/Documents/source/public/ballerina/tools-distribution"
+                + "/modules/ballerina/conf/netty-transports.yml";
+
+        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+        SenderConfiguration senderConfiguration = getSenderConfiguration(trpConfig);
+        SSLConfig sslConfig = senderConfiguration.getSslConfig();
+        int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
+
+        Map<String, Object> transportProperties = new HashMap<>();
+        Set<TransportProperty> transportPropertiesSet = trpConfig.getTransportProperties();
+
+        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+            transportProperties = transportPropertiesSet.stream().collect(
+                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+
+        }
+        ConnectionManager connectionManager = ConnectionManager.getInstance(transportProperties);
+
+        return new HTTPClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
     }
 
     @Override
@@ -93,5 +117,13 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
         // Create Bootstrap Configuration from listener parameters
         ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
         return ServerBootstrapConfiguration.getInstance();
+    }
+
+    private SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
+        Map<String, SenderConfiguration> senderConfigurations =
+                transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
+                        .toMap(senderConf ->
+                                senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
+        return senderConfigurations.get("http");
     }
 }
