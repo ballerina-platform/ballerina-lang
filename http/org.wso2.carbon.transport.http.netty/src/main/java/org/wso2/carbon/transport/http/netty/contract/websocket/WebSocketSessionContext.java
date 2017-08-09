@@ -37,6 +37,13 @@ public interface WebSocketSessionContext {
     Session getChannelSession();
 
     /**
+     * Retrieve the server session of the connection.
+     *
+     * @return the server session if exists.
+     */
+    Session getServerSession();
+
+    /**
      * Retrieve the client session array relates to the listener channel.
      *
      * @return the client session array relates to the listener channel.

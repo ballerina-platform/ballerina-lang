@@ -102,11 +102,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         handshaker.handshake(ctx.channel());
-        clientSession = WebSocketUtil.getSession(ctx, webSocketChannelContext.isConnectionSecured() , requestedUri);
-        if (sourceHandler != null) {
-            sourceHandler.addClientSession(clientSession);
-        }
-        webSocketChannelContext = setupCommonProperties(webSocketChannelContext);
+        clientSession = getChannelSession(ctx);
     }
 
     @Override
@@ -127,10 +123,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
-            clientSession = WebSocketUtil.getSession(ctx, webSocketChannelContext.isConnectionSecured() , requestedUri);
-            if (sourceHandler != null) {
-                sourceHandler.addClientSession(clientSession);
-            }
+            clientSession = getChannelSession(ctx);
             return;
         }
 
@@ -191,6 +184,16 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         webSocketChannelContext.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
         return webSocketChannelContext;
+    }
+
+    private WebSocketSessionImpl getChannelSession(ChannelHandlerContext ctx) throws URISyntaxException {
+        clientSession = WebSocketUtil.getSession(ctx, webSocketChannelContext.isConnectionSecured() , requestedUri);
+        if (sourceHandler != null) {
+            sourceHandler.addClientSession(clientSession);
+            webSocketChannelContext.setServerSession(sourceHandler.getServerSession());
+        }
+        webSocketChannelContext = setupCommonProperties(webSocketChannelContext);
+        return clientSession;
     }
 
     @Override
