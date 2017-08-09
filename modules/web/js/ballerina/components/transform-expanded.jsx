@@ -238,7 +238,13 @@ class TransformExpanded extends React.Component {
         const targetFuncInvocationExpression = connection.targetFuncInv;
         const sourceFuncInvocationExpression = connection.sourceFuncInv;
 
-        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
+        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression, true);
+
+        const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+        const varRefList = BallerinaASTFactory.createVariableReferenceList();
+        assignmentStmt.addChild(varRefList, 0);
+        assignmentStmt.addChild(sourceFuncInvocationExpression, 1);
+        this.props.model.addChild(assignmentStmt, this.props.model.getIndexOfChild(connection.targetReference));
     }
 
     recordSourceElement(element, id, input) {

@@ -51,6 +51,7 @@ export default class FunctionInv extends React.Component {
                 paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
                 parentFunc,
+                funcInv,
             };
         });
 
