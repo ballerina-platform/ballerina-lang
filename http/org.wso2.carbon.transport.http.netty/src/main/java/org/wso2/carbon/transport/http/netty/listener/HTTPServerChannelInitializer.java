@@ -27,11 +27,11 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.http2.HTTPProtocolNegotiationHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -125,8 +125,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         configureHTTPPipeline(pipeline, listenerConfiguration);
 
         if (socketIdleTimeout > 0) {
-            pipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout, TimeUnit.MILLISECONDS));
+            pipeline.addBefore(
+                    Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
+                                         TimeUnit.MILLISECONDS));
         }
 
         if (sslEngine != null) {

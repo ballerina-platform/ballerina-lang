@@ -1,7 +1,5 @@
-package org.wso2.carbon.transport.http.netty.contractImpl;
+package org.wso2.carbon.transport.http.netty.contractimpl;
 
-import org.eclipse.equinox.internal.util.impl.tpt.threadpool.Executor;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;

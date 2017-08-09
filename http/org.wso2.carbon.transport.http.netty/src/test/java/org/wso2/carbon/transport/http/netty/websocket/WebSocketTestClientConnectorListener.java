@@ -28,10 +28,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
-import java.io.IOException;
-import java.net.ProtocolException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;

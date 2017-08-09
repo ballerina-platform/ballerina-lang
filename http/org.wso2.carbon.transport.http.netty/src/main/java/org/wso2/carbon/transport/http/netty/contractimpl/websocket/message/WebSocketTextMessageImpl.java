@@ -17,27 +17,27 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket.message;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
 
 
 /**
  * Implementation of {@link WebSocketTextMessage}.
  */
-public class WebSocketTextMessageImpl extends WebSocketChannelContextImpl implements WebSocketTextMessage {
+public class WebSocketTextMessageImpl extends WebSocketMessageContextImpl implements WebSocketTextMessage {
 
     private final String text;
     private final boolean isFinalFragment;
 
-    public WebSocketTextMessageImpl(String text, WebSocketChannelContextImpl channelContext) {
+    public WebSocketTextMessageImpl(String text, WebSocketMessageContextImpl channelContext) {
         super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.text = text;
         this.isFinalFragment = true;
     }
 
-    public WebSocketTextMessageImpl(String text, boolean isFinalFragment, WebSocketChannelContextImpl channelContext) {
+    public WebSocketTextMessageImpl(String text, boolean isFinalFragment, WebSocketMessageContextImpl channelContext) {
         super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.text = text;
         this.isFinalFragment = isFinalFragment;

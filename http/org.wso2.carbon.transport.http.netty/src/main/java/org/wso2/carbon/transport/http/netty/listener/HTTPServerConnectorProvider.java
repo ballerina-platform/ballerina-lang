@@ -22,7 +22,7 @@ package org.wso2.carbon.transport.http.netty.listener;
  * {@code HTTPServerConnectorProvider} is responsible for providing and managing HTTP Listeners
  */
 //public class HTTPServerConnectorProvider extends ServerConnectorProvider {
-public class HTTPServerConnectorProvider{
+public class HTTPServerConnectorProvider {
 
 //    private ServerConnectorBootstrap serverConnectorBootstrap;
 //

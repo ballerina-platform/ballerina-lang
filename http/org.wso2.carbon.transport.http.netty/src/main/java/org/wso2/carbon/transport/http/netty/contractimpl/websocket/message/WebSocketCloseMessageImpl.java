@@ -17,20 +17,20 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket.message;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
 
 /**
  * Implementation of {@link WebSocketCloseMessage}.
  */
-public class WebSocketCloseMessageImpl extends WebSocketChannelContextImpl implements WebSocketCloseMessage {
+public class WebSocketCloseMessageImpl extends WebSocketMessageContextImpl implements WebSocketCloseMessage {
 
     private final int closeCode;
     private final String closeReason;
 
-    public WebSocketCloseMessageImpl(int closeCode, String closeReason, WebSocketChannelContextImpl channelContext) {
+    public WebSocketCloseMessageImpl(int closeCode, String closeReason, WebSocketMessageContextImpl channelContext) {
         super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.closeCode = closeCode;
         this.closeReason = closeReason;

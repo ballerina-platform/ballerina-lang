@@ -17,23 +17,23 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket.message;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
 
 import java.nio.ByteBuffer;
 
 /**
  * Implementation of {@link WebSocketBinaryMessage}.
  */
-public class WebSocketBinaryMessageImpl extends WebSocketChannelContextImpl implements WebSocketBinaryMessage {
+public class WebSocketBinaryMessageImpl extends WebSocketMessageContextImpl implements WebSocketBinaryMessage {
 
     private final ByteBuffer buffer;
     private final boolean isFinalFragment;
 
     public WebSocketBinaryMessageImpl(ByteBuffer buffer, boolean isFinalFragment,
-                                      WebSocketChannelContextImpl channelContext) {
+                                      WebSocketMessageContextImpl channelContext) {
         super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.buffer = buffer;
         this.isFinalFragment = isFinalFragment;
@@ -52,7 +52,7 @@ public class WebSocketBinaryMessageImpl extends WebSocketChannelContextImpl impl
         } else {
             int remaining = buffer.remaining();
             bytes = new byte[remaining];
-            for (int i = 0; i< remaining; i++) {
+            for (int i = 0; i < remaining; i++) {
                 bytes[i] = buffer.get();
             }
         }

@@ -17,9 +17,9 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketSessionContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,14 +28,14 @@ import javax.websocket.Session;
 /**
  * WebSocket channel handler context with Session context.
  */
-public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImpl implements WebSocketSessionContext {
+public class WebSocketMessageContextImpl extends BasicWebSocketMessageContextImpl implements WebSocketMessageContext {
 
     protected Session serverSession = null;
     protected final Session channelSession;
     protected final List<Session> clientSessions = new LinkedList<>();
-    protected final BasicWebSocketChannelContextImpl channelContext;
+    protected final BasicWebSocketMessageContextImpl channelContext;
 
-    public WebSocketChannelContextImpl(Session channelSession, BasicWebSocketChannelContextImpl channelContext) {
+    public WebSocketMessageContextImpl(Session channelSession, BasicWebSocketMessageContextImpl channelContext) {
         super(channelContext.subProtocol, channelContext.target, channelContext.listenerPort,
               channelContext.isConnectionSecured, channelContext.isServerMessage, channelContext.connectionManager,
               channelContext.listenerConfiguration);
@@ -51,7 +51,7 @@ public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImp
         this.serverSession = serverSession;
     }
 
-    public BasicWebSocketChannelContextImpl getChannelContext() {
+    public BasicWebSocketMessageContextImpl getChannelContext() {
         return channelContext;
     }
 

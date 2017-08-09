@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -89,7 +89,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     @Override
     public Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext)
             throws ClientConnectorException {
-        WebSocketChannelContextImpl channelContextImp = (WebSocketChannelContextImpl) channelContext;
+        WebSocketMessageContextImpl channelContextImp = (WebSocketMessageContextImpl) channelContext;
         WebSocketSourceHandler sourceHandler =
                 (WebSocketSourceHandler) channelContextImp.getProperty(Constants.SRC_HANDLER);
         Map<String, String> headers = new HashMap<>();
@@ -110,7 +110,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     @Override
     public Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext,
                            Map<String, String> customHeaders) throws ClientConnectorException {
-        WebSocketChannelContextImpl channelContextImp = (WebSocketChannelContextImpl) channelContext;
+        WebSocketMessageContextImpl channelContextImp = (WebSocketMessageContextImpl) channelContext;
         WebSocketSourceHandler sourceHandler =
                 (WebSocketSourceHandler) channelContextImp.getProperty(Constants.SRC_HANDLER);
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,

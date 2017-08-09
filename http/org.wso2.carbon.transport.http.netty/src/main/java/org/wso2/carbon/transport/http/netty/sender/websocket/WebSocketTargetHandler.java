@@ -36,18 +36,18 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketTextMessageImpl;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketBinaryMessageImpl;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketCloseMessageImpl;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketControlMessageImpl;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketTextMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.InetSocketAddress;
@@ -69,19 +69,19 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketSourceHandler sourceHandler;
     private final String requestedUri;
     private final WebSocketConnectorListener connectorListener;
-    private WebSocketChannelContextImpl webSocketChannelContext;
+    private WebSocketMessageContextImpl webSocketChannelContext;
     private ChannelHandlerContext ctx;
     private WebSocketSessionImpl clientSession;
     private ChannelPromise handshakeFuture;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
                                   String requestedUri, WebSocketConnectorListener connectorListener,
-                                  BasicWebSocketChannelContextImpl webSocketChannelContext) {
+                                  BasicWebSocketMessageContextImpl webSocketChannelContext) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
         this.requestedUri = requestedUri;
         this.connectorListener = connectorListener;
-        this.webSocketChannelContext = new WebSocketChannelContextImpl(null, webSocketChannelContext);
+        this.webSocketChannelContext = new WebSocketMessageContextImpl(null, webSocketChannelContext);
         handshakeFuture = null;
     }
 
@@ -176,7 +176,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         }
     }
 
-    private WebSocketChannelContextImpl setupCommonProperties(WebSocketChannelContextImpl webSocketChannelContext) {
+    private WebSocketMessageContextImpl setupCommonProperties(WebSocketMessageContextImpl webSocketChannelContext) {
         webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);
         webSocketChannelContext.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                                             ((InetSocketAddress) ctx.channel().localAddress()).getPort());

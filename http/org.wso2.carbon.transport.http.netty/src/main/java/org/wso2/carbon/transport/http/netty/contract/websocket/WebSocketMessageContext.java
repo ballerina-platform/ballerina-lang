@@ -27,7 +27,7 @@ import javax.websocket.Session;
  * <b>Note: Use this interface in the application level only and only if the user needs only the session details
  * of a WebSocket message otherwise use the extensions of this interface.</b>
  */
-public interface WebSocketSessionContext {
+public interface WebSocketMessageContext {
 
     /**
      * Retrieve the session of the connection.

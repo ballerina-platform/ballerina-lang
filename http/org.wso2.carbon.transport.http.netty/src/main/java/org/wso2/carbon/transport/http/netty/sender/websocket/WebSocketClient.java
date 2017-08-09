@@ -41,7 +41,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
@@ -72,9 +72,12 @@ public class WebSocketClient {
 
     /**
      * @param url url of the remote endpoint.
-     * @param subprotocol the negotiable sub-protocol if server is asking for it.
-     * @param allowExtensions true is extensions are allowed.
-     * @param headers any specific headers which need to send to the server.
+     * @param target the negotiable sub-protocol if server is asking for it.
+     * @param subprotocol true is extensions are allowed.
+     * @param allowExtensions any specific headers which need to send to the server.
+     * @param headers custom headers for the handshake.
+     * @param sourceHandler {@link WebSocketSourceHandler} for pass-through purposes.
+     * @param connectorListener {@link WebSocketConnectorListener} to notify incoming messages from the server.
      */
     public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
                            Map<String, String> headers,
@@ -142,8 +145,8 @@ public class WebSocketClient {
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
 
-        BasicWebSocketChannelContextImpl webSocketChannelContext =
-                new BasicWebSocketChannelContextImpl(subprotocol, target, ssl, false);
+        BasicWebSocketMessageContextImpl webSocketChannelContext =
+                new BasicWebSocketMessageContextImpl(subprotocol, target, ssl, false);
 
         handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, url, connectorListener,
                                              webSocketChannelContext);
