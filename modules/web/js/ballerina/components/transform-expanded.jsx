@@ -49,7 +49,6 @@ class TransformExpanded extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            initializePending: true,
             // vertices changes must re-render. Hence added as a state.
             vertices: [],
             typedSource: '',
@@ -136,17 +135,19 @@ class TransformExpanded extends React.Component {
             }
             funcNode.removeChild(funcNode.children[index], true);
             // check function parameter is a struct and mapping is a complex mapping
-            if (connection.targetProperty && _.find(this.state.vertices, (struct) => { return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type; })) {
+            if (connection.targetProperty && _.find(this.state.vertices, (struct) => {
+                return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type;
+            })) {
                 const keyValEx = BallerinaASTFactory.createKeyValueExpression();
                 const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
 
                 const propChain = connection.targetProperty.split('.').splice(1);
 
                 nameVarRefExpression.setExpressionFromString(propChain[0]);
-            	keyValEx.addChild(nameVarRefExpression);
-            	keyValEx.addChild(sourceExpression);
+                keyValEx.addChild(nameVarRefExpression);
+                keyValEx.addChild(sourceExpression);
                 refType.addChild(keyValEx);
-            	funcNode.addChild(refType, index);
+                funcNode.addChild(refType, index);
             } else {
                 funcNode.addChild(sourceExpression, index);
             }
@@ -637,7 +638,6 @@ class TransformExpanded extends React.Component {
 
     createType(name, typeName, predefinedStruct, isInner, fieldName) {
         const struct = this.getStructType(name, typeName, predefinedStruct, isInner, fieldName);
-        this.state.vertices.push(struct);
         return struct;
     }
 
@@ -841,32 +841,6 @@ class TransformExpanded extends React.Component {
         designView.setTransformActive(false);
     }
 
-    getTransformVarJson(args) {
-        const argArray = [];
-        _.forEach(args, (argument) => {
-            if (BallerinaASTFactory.isVariableDefinitionStatement(argument)) {
-                const arg = {
-                    id: argument.getID(),
-                    type: argument.getVariableType(),
-                    name: argument.getVariableDef().getName(),
-                    pkgName: argument.getVariableDef().getPkgName(),
-                    constraint: argument.getVariableDef().getTypeConstraint(),
-                };
-                argArray.push(arg);
-            } else if (BallerinaASTFactory.isParameterDefinition(argument)) {
-                const arg = {
-                    id: argument.getID(),
-                    type: argument.getTypeName(),
-                    name: argument.getName(),
-                    pkgName: argument.getPkgName(),
-                    constraint: argument.getTypeConstraint(),
-                };
-                argArray.push(arg);
-            }
-        });
-        return argArray;
-    }
-
     /**
      * Load vertices of the transform graph.
      * @memberof TransformExpanded
@@ -883,7 +857,7 @@ class TransformExpanded extends React.Component {
                 position: {
                     line: lineNo,
                     // TODO replace with column number once implemented in AST node
-                    character: 10,
+                    character: 0,
                 },
                 fileName: fileData.name,
                 filePath: fileData.path,
@@ -909,8 +883,8 @@ class TransformExpanded extends React.Component {
                     const structDef = this.getStructDefinition(arg.pkgName, arg.type);
                     if (structDef !== undefined) {
                         arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
-                        const struct = this.createType(arg.name, arg.type, structDef);
-                        vertices.push({ name: struct.name, type: struct.typeName });
+                        const structVar = this.createType(arg.name, arg.type, structDef);
+                        vertices.push(structVar);
                         isStruct = true;
                     }
                     if (!isStruct) {
@@ -947,7 +921,6 @@ class TransformExpanded extends React.Component {
                 });
                 // set state with new vertices
                 this.setState({ vertices });
-                return completions;
             });
         }).catch(error => alerts.error('Could not initialize transform statement view ' + error));
     }
