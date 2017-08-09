@@ -619,26 +619,22 @@ class TransformExpanded extends React.Component {
     }
 
     getStructDefinition(packageIdentifier, structName) {
-        let _package;
-        if (packageIdentifier !== undefined) {
-            _package = this.context.environment.getPackageByIdentifier(packageIdentifier);
+        let pkg;
+        if (packageIdentifier == null) {
+            // check both undefined and null
+            pkg = this.context.environment.getCurrentPackage();
         } else {
-            _package = this.context.environment.getCurrentPackage();
+            pkg = this.context.environment.getPackageByIdentifier(packageIdentifier);
         }
 
-        if (_package === undefined) {
+        if (pkg === undefined) {
             alerts.error('Referred package ' + packageIdentifier + ' cannot be resolved');
             return;
         }
 
-        return _.find(_package.getStructDefinitions(), (structDef) => {
+        return _.find(pkg.getStructDefinitions(), (structDef) => {
             return structName === structDef.getName();
         });
-    }
-
-    createType(name, typeName, predefinedStruct, isInner, fieldName) {
-        const struct = this.getStructType(name, typeName, predefinedStruct, isInner, fieldName);
-        return struct;
     }
 
     getStructType(name, typeName, predefinedStruct, isInner, fieldName) {
@@ -660,7 +656,7 @@ class TransformExpanded extends React.Component {
 
             const innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (!_.isUndefined(innerStruct) && typeName !== property.type) {
-                property.innerType = this.createType(property.name, property.type, innerStruct, true, property.fieldName);
+                property.innerType = this.getStructType(property.name, property.type, innerStruct, true, property.fieldName);
             }
 
             struct.properties.push(property);
@@ -883,7 +879,7 @@ class TransformExpanded extends React.Component {
                     const structDef = this.getStructDefinition(arg.pkgName, arg.type);
                     if (structDef !== undefined) {
                         arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
-                        const structVar = this.createType(arg.name, arg.type, structDef);
+                        const structVar = this.getStructType(arg.name, arg.type, structDef);
                         vertices.push(structVar);
                         isStruct = true;
                     }
@@ -899,7 +895,7 @@ class TransformExpanded extends React.Component {
                             const constraintDef = this.getStructDefinition(
                                 arg.constraint.packageName, arg.constraint.type);
                             if (constraintDef !== undefined) {
-                                const constraint = this.getStructType(arg.name, variableType.type, constraintDef, true);
+                                const constraintVar = this.getStructType(arg.name, variableType.type, constraintDef);
                                 // For constraint types, the field types must be the same type as the variable and
                                 // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
                                 // type has to be json and not string. Hence converting all field types to variable
@@ -907,16 +903,17 @@ class TransformExpanded extends React.Component {
                                 // TODO : revisit this conversion if ballerina language supports constrained field
                                 // access to be treated as the field type (i.e. as string from the struct field
                                 // and not json)
-                                this.convertFieldType(constraint.properties, arg.type);
+                                this.convertFieldType(constraintVar.properties, arg.type);
 
                                 // constraint properties (fields) become variable fields
-                                variableType.properties = constraint.properties;
-                                variableType.constraint = constraint;
+                                // variableType.properties = constraint.properties;
+                                // variableType.constraint = constraint;
+                                vertices.push(constraintVar);
                             }
                         } else {
                             variableType.type = arg.type;
+                            vertices.push({ name: variableType.name, type: variableType.type });
                         }
-                        vertices.push({ name: variableType.name, type: variableType.type });
                     }
                 });
                 // set state with new vertices
