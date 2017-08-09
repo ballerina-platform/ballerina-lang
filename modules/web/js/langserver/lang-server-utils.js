@@ -15,17 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-
-export function uuid() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    return `${s4() + s4()}-${s4()}-${s4()}-${
-        s4()}-${s4()}${s4()}${s4()}`;
-}
 
 /**
  * @param {CompletionItem} completionItem completion item
@@ -36,7 +25,7 @@ export function getResolvedTypeData(completionItem) {
     let typeName = completionItem.detail;
     let packageName;
     let constraint;
-    if (completionItem.data.data.type) {
+    if ((completionItem.data) && (completionItem.data.data.type)) {
         // there are more details on the type. e.g. : array dimensions, constraints
         const data = completionItem.data.data.type;
         if (data.isArrayType) {
@@ -49,7 +38,5 @@ export function getResolvedTypeData(completionItem) {
             constraint = { type: data.constraint.name, packageName: data.constraint.pkgName };
         }
     }
-
-    // const id = uuid();
     return ({ typeName, packageName, constraint });
 }
