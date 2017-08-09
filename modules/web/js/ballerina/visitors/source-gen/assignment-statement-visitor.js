@@ -20,6 +20,7 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import AssignmentStatement from '../../ast/statements/assignment-statement';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 import FunctionDefinitionVisitor from './function-definition-visitor';
+import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
 
 /**
  * Assignment statement source generation visitor
@@ -50,26 +51,27 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         assignmentStatement.setLineNumber(lineNumber, { doSilently: true });
         const rightExpression = assignmentStatement.getRightExpression();
-        // TODO: replace with
+        const leftExpression = assignmentStatement.getLeftExpression();
+
+        const varStr = assignmentStatement.getIsDeclaredWithVar() ? 'var' + assignmentStatement.getWSRegion(1) : '';
+        const leftStr = !_.isNil(leftExpression) ? leftExpression.getExpressionString() : '';
+        const spaceStr = ((!_.isNil(leftExpression) && !_.isEmpty(leftExpression.getChildren()) &&
+        _.last(leftExpression.getChildren()).whiteSpace.useDefault) ? ' ' : '');
+        const prefix = (varStr + leftStr + spaceStr) + '=' + assignmentStatement.getWSRegion(3);
+        this.appendSource(prefix);
+        let constructedSourceSegment = prefix;
         if (ASTFactory.isLambdaExpression(rightExpression)) {
-            const varStr = assignmentStatement.getIsDeclaredWithVar() ? 'var' + assignmentStatement.getWSRegion(1) : '';
-            const leftStr = !_.isNil(assignmentStatement.getChildren()[0]) ?
-                assignmentStatement.getLeftExpression().getExpressionString() : '';
-            const spaceStr = ((!_.isNil(assignmentStatement.getLeftExpression()) &&
-            !_.isEmpty(assignmentStatement.getLeftExpression().getChildren()) &&
-            _.last(assignmentStatement.getLeftExpression().getChildren()).whiteSpace.useDefault) ? ' ' : '');
-            const prefix = (varStr + leftStr + spaceStr) + '=' + assignmentStatement.getWSRegion(3);
-            this.appendSource(prefix);
             const child = rightExpression.children[0];
             child.accept(new FunctionDefinitionVisitor(this));
-        } else {
-            const constructedSourceSegment = assignmentStatement.getStatementString();
-            const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
-
-            // Increase the total number of lines
-            this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-            this.appendSource(constructedSourceSegment);
+        } else if (ASTFactory.isActionInvocationExpression(rightExpression)) {
+            rightExpression.accept(new ActionInvocationStatementVisitor(this));
+        } else if (!_.isNil(rightExpression)) {
+            const expressionStr = rightExpression.getExpressionString();
+            constructedSourceSegment += expressionStr;
+            this.appendSource(expressionStr);
         }
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
     }
 
     /**
