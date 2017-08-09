@@ -699,7 +699,20 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
-
+        StringBuffer buffer = new StringBuffer();
+        bufferStack.push(buffer);
+        if (indexBasedVarRefExpr.getVarRefExpr() != null) {
+            indexBasedVarRefExpr.getVarRefExpr().accept(this);
+            buffer.append(bufferStack.peek());
+            bufferStack.pop();
+            buffer.append("[");
+        }
+        if (indexBasedVarRefExpr.getIndexExpr() != null) {
+            indexBasedVarRefExpr.getIndexExpr().accept(this);
+            buffer.append(bufferStack.peek());
+            bufferStack.pop();
+            buffer.append("]");
+        }
     }
 
     @Override
