@@ -273,8 +273,9 @@ class ActionInvocationExpression extends Expression {
     }
 
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
-            this.getFactory().isConnectorInitExpression(target.getChildren()[1]));
+        return (this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
+            this.getFactory().isConnectorInitExpression(target.getChildren()[1]))) &&
+            this.getTopLevelParent().getID() === target.getTopLevelParent().getID();
     }
 }
 
