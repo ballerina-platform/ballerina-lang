@@ -22,7 +22,7 @@ import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import LifeLineDecorator from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine, panel, canvas } from './../configs/designer-defaults';
+import { lifeLine} from './../configs/designer-defaults';
 import ConnectorActionAST from './../ast/connector-action';
 import ImageUtil from './image-util';
 

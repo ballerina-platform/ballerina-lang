@@ -22,7 +22,7 @@ import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine, canvas, connectorDeclaration } from './../configs/designer-defaults';
+import { lifeLine} from './../configs/designer-defaults';
 import ImageUtil from './image-util';
 
 class FunctionDefinition extends React.Component {

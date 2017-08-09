@@ -23,7 +23,7 @@ import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine, canvas, panel } from './../configs/designer-defaults';
+import { lifeLine} from './../configs/designer-defaults';
 import ImageUtil from './image-util';
 
 class ResourceDefinition extends React.Component {
