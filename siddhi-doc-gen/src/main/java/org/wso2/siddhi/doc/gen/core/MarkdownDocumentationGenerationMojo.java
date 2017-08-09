@@ -140,8 +140,8 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
         // Generating the documentation
         if (namespaceMetaDataList.size() > 0) {
             DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenBasePath, mavenProject.getVersion());
-            DocumentationUtils.updateHomePage(homePageTemplateFile, docGenBasePath,
-                    homePageFileName, mkdocsConfigFile, getLog());
+            DocumentationUtils.updateHomePage(homePageTemplateFile, docGenBasePath, homePageFileName, mkdocsConfigFile,
+                    mavenProject.getVersion(), namespaceMetaDataList, getLog());
         }
     }
 }

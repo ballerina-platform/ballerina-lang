@@ -53,6 +53,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -150,20 +151,24 @@ public class DocumentationUtils {
     /**
      * Update the documentation home page
      *
-     * @param readMeFile                 The path to the read me file
+     * @param homePageTemplateFile       The path to the read me file
      * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
      * @param homePageFileName           The name of the documentation file that will be generated
      * @param mkdocsConfigFile           The name of the mkdocs file
+     * @param latestDocumentationVersion The version of the latest documentation generated
+     * @param namespaceMetaDataList      Metadata in this repository
      * @param logger                     The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    public static void updateHomePage(File readMeFile, String documentationBaseDirectory,
-                                      String homePageFileName, File mkdocsConfigFile, Log logger)
+    public static void updateHomePage(File homePageTemplateFile, String documentationBaseDirectory,
+                                      String homePageFileName, File mkdocsConfigFile,
+                                      String latestDocumentationVersion, List<NamespaceMetaData> namespaceMetaDataList,
+                                      Log logger)
             throws MojoFailureException {
         // Retrieving the content of the README.md file
-        List<String> readMeFileLines = new ArrayList<>();
+        List<String> homePageTemplateFileLines = new ArrayList<>();
         try {
-            readMeFileLines = Files.readLines(readMeFile, Constants.DEFAULT_CHARSET);
+            homePageTemplateFileLines = Files.readLines(homePageTemplateFile, Constants.DEFAULT_CHARSET);
         } catch (IOException ignored) {
         }
 
@@ -183,8 +188,11 @@ public class DocumentationUtils {
 
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
-        rootDataModel.put("readMeFileLines", readMeFileLines);
+        rootDataModel.put("homePageTemplateFileLines", homePageTemplateFileLines);
         rootDataModel.put("documentationFiles", documentationFilesList);
+        rootDataModel.put("latestDocumentationVersion", latestDocumentationVersion);
+        rootDataModel.put("metaData", namespaceMetaDataList);
+        rootDataModel.put("formatDescription", new FormatDescriptionMethod());
 
         generateFileFromTemplate(
                 Constants.MARKDOWN_HOME_PAGE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
@@ -229,7 +237,8 @@ public class DocumentationUtils {
                     File documentationFile = new File(apiDocsDirectory.getAbsolutePath()
                             + File.separator + documentationFileName);
                     if (!documentationFile.delete()) {
-                        logger.warn("Failed to delete SNAPSHOT documentation file " + documentationFile.getAbsolutePath());
+                        logger.warn("Failed to delete SNAPSHOT documentation file "
+                                + documentationFile.getAbsolutePath());
                     }
                 } else {
                     documentationFilesList.add(documentationFileName);
@@ -261,8 +270,7 @@ public class DocumentationUtils {
         Yaml yaml = new Yaml(dumperOptions);
 
         // Reading the mkdocs configuration
-        Map<String, Object> yamlConfig;
-        yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
+        Map<String, Object> yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
                 new FileInputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
         );
 
@@ -341,14 +349,17 @@ public class DocumentationUtils {
      * Deploy the mkdocs website on GitHub pages
      *
      * @param mkdocsConfigFile The mkdocs configuration file
+     * @param version          The version of the documentation
      * @param logger           The maven logger
      */
-    public static void deployMkdocsOnGitHubPages(File mkdocsConfigFile, Log logger) {
+    public static void deployMkdocsOnGitHubPages(File mkdocsConfigFile, String version, Log logger) {
         try {
             executeCommand(new String[] {Constants.MKDOCS_COMMAND,
                     Constants.MKDOCS_GITHUB_DEPLOY_COMMAND,
                     Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT,
-                    mkdocsConfigFile.getAbsolutePath()}, logger);
+                    mkdocsConfigFile.getAbsolutePath(),
+                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_MESSAGE_ARGUMENT,
+                    String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version)}, logger);
         } catch (Throwable t) {
             logger.warn("Failed to execute mkdocs gh-deploy. Skipping deployment of documentation.", t);
         }
@@ -576,7 +587,7 @@ public class DocumentationUtils {
      * @param outputFileName  The name of the file that will be generated
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    private static void generateFileFromTemplate(String templateFile, Object dataModel,
+    private static void generateFileFromTemplate(String templateFile, Map<String, Object> dataModel,
                                                  String outputDirectory, String outputFileName)
             throws MojoFailureException {
         // Creating the free marker configuration
@@ -587,6 +598,26 @@ public class DocumentationUtils {
                 DocumentationUtils.class,
                 File.separator + Constants.TEMPLATES_DIRECTORY
         );
+
+        // Adding the constants to the freemarker data model
+        Map<String, String> constantsClassFieldMap = new HashMap<>();
+        for (Field field : Constants.class.getDeclaredFields()) {
+            try {
+                constantsClassFieldMap.put(field.getName(), field.get(null).toString());
+            } catch (IllegalAccessException ignored) {  // Ignoring inaccessible variables
+            }
+        }
+        dataModel.put("CONSTANTS", constantsClassFieldMap);
+
+        // Adding the ExtensionType enum values to the freemarker data model
+        Map<String, String> extensionTypeEnumMap = new HashMap<>();
+        for (Field field : ExtensionType.class.getDeclaredFields()) {
+            try {
+                extensionTypeEnumMap.put(field.getName(), ((ExtensionType) field.get(null)).getValue());
+            } catch (IllegalAccessException ignored) {  // Ignoring inaccessible variables
+            }
+        }
+        dataModel.put("EXTENSION_TYPE", extensionTypeEnumMap);
 
         try {
             // Fetching the template
