@@ -84,15 +84,6 @@
     background-color: #dcdcdc;
 }
 
-.variable-content:hover,
-.variable-content:hover > span {
-    color: #f17b31 !important;
-}
-
-.variable-content {
-    cursor: pointer;
-}
-
 .property {
     padding: 5;
     font-size: 0.94em;

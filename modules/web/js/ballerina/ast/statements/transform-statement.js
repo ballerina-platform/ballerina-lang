@@ -141,7 +141,7 @@ class TransformStatement extends Statement {
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
            if (_.includes(child.getRightExpression().getExpressionString(), input.name)) {
-             this.removeChild(child);
+             this.removeChild(child, true, true);
            }
       });
 
@@ -165,7 +165,7 @@ class TransformStatement extends Statement {
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
            if (_.includes(child.getLeftExpression().getExpressionString(),output.name)) {
-             this.removeChild(child);
+             this.removeChild(child, true, true);
            }
       });
 
