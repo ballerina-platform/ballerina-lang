@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.logging;
 
+import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
 import org.ballerinalang.logging.handlers.HTTPTraceLogHandler;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -60,32 +62,27 @@ public class BLogManager extends LogManager {
     }
 
     public void setWirelogHandler(String wirelogFlag) throws IOException {
-        File file;
-        if ("--default".equals(wirelogFlag)) {
-            file = new File(
-                    System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
+        Handler handler;
+        if ("--console".equals(wirelogFlag)) {
+            handler = new ConsoleHandler();
+            handler.setFormatter(new HTTPTraceLogFormatter());
         } else {
-            file = Paths.get(wirelogFlag).toFile();
-        }
+            File file;
 
-        if (!file.exists()) {
-            if (!file.getParentFile().exists()) {
-                if (file.getParentFile().mkdirs()) {
-                    if (!file.createNewFile()) {
-                        throw new IOException("error in creating the file: " + file.getAbsolutePath());
-                    }
-                } else {
-                    throw new IOException(
-                            "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
-                }
+            if ("--default".equals(wirelogFlag)) {
+                file = new File(
+                        System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
             } else {
-                if (!file.createNewFile()) {
-                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
-                }
+                file = Paths.get(wirelogFlag).toFile();
             }
+
+            if (!file.exists()) {
+                createFile(file);
+            }
+
+            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
         }
 
-        Handler handler = new HTTPTraceLogHandler(file.getAbsolutePath());
         handler.setLevel(Level.FINE);
 
         if (httpTraceLogger == null) {
@@ -96,6 +93,23 @@ public class BLogManager extends LogManager {
         removeHandlers(httpTraceLogger);
         httpTraceLogger.addHandler(handler);
         httpTraceLogger.setLevel(Level.FINE);
+    }
+
+    private static void createFile(File file) throws IOException {
+        if (!file.getParentFile().exists()) {
+            if (file.getParentFile().mkdirs()) {
+                if (!file.createNewFile()) {
+                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
+                }
+            } else {
+                throw new IOException(
+                        "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
+            }
+        } else {
+            if (!file.createNewFile()) {
+                throw new IOException("error in creating the file: " + file.getAbsolutePath());
+            }
+        }
     }
 
     private static void removeHandlers(Logger logger) {

@@ -195,8 +195,9 @@ public class Main {
         private String ballerinaDebugPort;
 
         @Parameter(names = "--wirelog",
-                   description = "path to the wire log file, use of --default sets " +
-                                                                "'<BALLERINA_HOME>/logs/http.log' as the log file")
+                   description = "path to the wire log file, " +
+                                        "use of --default sets '<BALLERINA_HOME>/logs/http.log' as the log file, " +
+                                        "use --console to log to std_out")
         private String wirelog;
 
         public void execute() {
