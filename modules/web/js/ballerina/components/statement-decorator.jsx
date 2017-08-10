@@ -154,11 +154,14 @@ class StatementDecorator extends React.Component {
      * Navigates to code line in the source view from the design view node
      */
     onJumpToCodeLine() {
-        const { viewState: { fullExpression } } = this.props;
         const { editor } = this.context;
-
-        editor.setActiveView('SOURCE_VIEW');
-        editor.jumpToLine({ expression: fullExpression });
+        const { position } = this.props.model;
+        // Node has position info - came through parser
+        if (position) {
+            const { startLine, startOffset } = position;
+            editor.jumpToSourcePosition(startLine - 1, startOffset);
+        } else {
+        }
     }
 
     /**

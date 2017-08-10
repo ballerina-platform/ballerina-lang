@@ -47,8 +47,7 @@ class LifeLine extends React.Component {
      *
      */
     onJumptoCodeLine() {
-        editor.switchToView(SOURCE_VIEW);
-        editor.jumpToLine({});
+        this.context.editor.jumpToSourcePosition(1, 0);
     }
 
     onUpdate(text) {

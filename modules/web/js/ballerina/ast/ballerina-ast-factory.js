@@ -1974,6 +1974,17 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     }
 
     node.setLineNumber(jsonNode.line_number, { doSilently: true });
+
+    if (!_.isNil(jsonNode.position_info)) {
+        const { start_line, start_offset, stop_line, stop_offset } = jsonNode.position_info;
+        const position = {
+            startLine: start_line,
+            startOffset: start_offset,
+            stopLine: stop_line,
+            stopOffset: stop_offset
+        };
+        node.setPosition(position, { doSilently: true });
+    }
     if (jsonNode.is_identifier_literal) {
         node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, { doSilently: true });
     }

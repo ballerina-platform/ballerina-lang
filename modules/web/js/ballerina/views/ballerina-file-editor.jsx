@@ -36,7 +36,7 @@ import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
-import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
+import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 
@@ -200,6 +200,22 @@ class BallerinaFileEditor extends React.Component {
 
     resetSwaggerView() {
         this.hideSwaggerAceEditor = false;
+    }
+
+    /**
+     * Activates source view and move cursor to given position
+     *
+     * @param {number} line Line number
+     * @param {number} offset Line offset
+     */
+    jumpToSourcePosition(line, offset) {
+        this.setActiveView(SOURCE_VIEW);
+        this.props.commandManager
+            .dispatch(GO_TO_POSITION, {
+                file: this.props.file,
+                row: line,
+                column: offset,
+            });
     }
 
     /**

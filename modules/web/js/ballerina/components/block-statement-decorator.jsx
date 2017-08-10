@@ -86,7 +86,15 @@ class BlockStatementDecorator extends React.Component {
      *
      */
     onJumpToCodeLine() {
-        document.getElementsByClassName('view-source-btn')[0].click();
+        const { editor } = this.context;
+        const { position } = this.props.model;
+        // Node has position info - came through parser
+        if (position) {
+            const { startLine, startOffset } = position;
+            editor.jumpToSourcePosition(startLine - 1, startOffset);
+        } else {
+            
+        }
     }
 
     /**
@@ -364,6 +372,7 @@ BlockStatementDecorator.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default breakpointHOC(BlockStatementDecorator);
