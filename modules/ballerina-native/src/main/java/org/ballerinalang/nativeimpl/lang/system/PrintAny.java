@@ -58,6 +58,7 @@ public class PrintAny extends AbstractNativeFunction {
         return VOID_RETURN;
     }
 
+    @Override
     public BValue getRefArgument(Context context, int index) {
         if (index > -1 && index < getArgumentTypeNames().length) {
             return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
