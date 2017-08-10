@@ -10,6 +10,12 @@ annotation configuration attach service<>, service<ws> {
     string keyStoreFile;
     string keyStorePass;
     string certPass;
+    string[] allowOrigin;
+    string allowCredentials;
+    string[] allowMethods;
+    string[] allowHeaders;
+    string maxAge;
+    string[] exposeHeaders;
 }
 
 annotation resourceConfig attach resource {

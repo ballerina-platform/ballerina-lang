@@ -90,4 +90,22 @@ public class Constants {
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
+
+    public static final String ORIGIN = "Origin";
+    public static final String AC_REQUEST_METHODS = "Access-Control-Request-Method";
+    public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
+    public static final String AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    public static final String AC_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    public static final String AC_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    public static final String AC_MAX_AGE = "Access-Control-Max-Age";
+    public static final String AC_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    public static final String AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+
+    public static final String ALLOW_ORIGIN = "allowOrigin";
+    public static final String ALLOW_CREDENTIALS = "allowCredentials";
+    public static final String ALLOW_METHODS = "allowMethods";
+    public static final String MAX_AGE = "maxAge";
+    public static final String ALLOW_HEADERS = "allowHeaders";
+    public static final String EXPOSE_HEADERS = "exposeHeaders";
+
 }
