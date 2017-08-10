@@ -46,8 +46,7 @@ public class BTypeValue implements BRefType<BType> {
 
     @Override
     public String stringValue() {
-        return (typeValue.getPackagePath() == null || typeValue.getPackagePath().equals(".")) ?
-                typeValue.getName() : typeValue.getPackagePath() + ":" + typeValue.getName();
+        return typeValue.toString();
     }
 
     @Override
