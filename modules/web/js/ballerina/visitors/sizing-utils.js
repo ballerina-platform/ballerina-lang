@@ -113,18 +113,48 @@ class SizingUtil {
 
     populateCompoundStatementChild(node, expression = undefined) {
         const viewState = node.getViewState();
-        const components = {};
+        const components = viewState.components;
         components.statementContainer = new SimpleBBox();
         const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        const connectorDeclarationChildren = node.filterChildren(BallerinaASTFactory.isConnectorDeclaration);
         let statementContainerWidth = 0;
         let statementContainerHeight = 0;
-
+        let widthExpansion = 0;
+        let statementContainerWidthExpansion = 0;
+        // Iterate over statement children
         _.forEach(statementChildren, (child) => {
             statementContainerHeight += child.viewState.bBox.h;
             if (child.viewState.bBox.w > statementContainerWidth) {
                 statementContainerWidth = child.viewState.bBox.w;
             }
+            if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
+                statementContainerWidthExpansion = child.viewState.bBox.expansionW;
+                widthExpansion = child.viewState.bBox.expansionW;
+            }
         });
+        // Iterate over connector declaration children
+        _.forEach(connectorDeclarationChildren, (child) => {
+            statementContainerHeight += statement.height + statement.gutter.v;
+            widthExpansion += (child.viewState.bBox.w + blockStatement.heading.width);
+            if (child.viewState.components.statementViewState.bBox.w > statementContainerWidth) {
+                statementContainerWidth = child.viewState.components.statementViewState.bBox.w;
+            }
+        });
+        // Iterating to set the height of the connector
+        if (connectorDeclarationChildren.length > 0) {
+            if (statementContainerHeight > (DesignerDefaults.statementContainer.height)) {
+                _.forEach(connectorDeclarationChildren, (child) => {
+                    child.viewState.components.statementContainer.h = statementContainerHeight - (
+                        DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+                        (DesignerDefaults.variablesPane.leftRightPadding * 2)) - DesignerDefaults.statement.padding.bottom
+                        + DesignerDefaults.statement.height;
+                });
+            } else {
+                statementContainerHeight = DesignerDefaults.statementContainer.height + (
+                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+                    (DesignerDefaults.variablesPane.leftRightPadding * 2)) + DesignerDefaults.statement.padding.bottom;
+            }
+        }
 
         /**
          * Add the left padding and right padding for the statement container and
@@ -145,13 +175,13 @@ class SizingUtil {
             components.expression = this.getTextWidth(expression, 0, available);
         }
 
-        components.statementContainer.h = statementContainerHeight;
+        components.statementContainer.h = statementContainerHeight + DesignerDefaults.statement.height;
         components.statementContainer.w = statementContainerWidth;
-
-        viewState.bBox.h = statementContainerHeight + blockStatement.heading.height;
+        viewState.bBox.h = statementContainerHeight + blockStatement.heading.height + DesignerDefaults.statement.height;
+        viewState.bBox.expansionW = widthExpansion;
+        viewState.bBox.expansionH = statementContainerHeight + DesignerDefaults.statement.height;
         viewState.bBox.w = statementContainerWidth;
-
-        viewState.components = components;
+        components.statementContainer.expansionW = statementContainerWidthExpansion;
     }
 
     addParamDimenstion(viewState, expression, param, offset) {
@@ -166,9 +196,10 @@ class SizingUtil {
         viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
     }
 
+    // Populate functions
     populatePanelDecoratorBBox(node, name) {
         const viewState = node.getViewState();
-        const components = {};
+        const components = viewState.components;
 
         const textWidth = util.getTextWidth(name);
         viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
@@ -191,19 +222,23 @@ class SizingUtil {
         }
 
         components.statementContainer = new SimpleBBox();
+        components.workerScopeContainer = new SimpleBBox();
+
+        let connectorOffset = 0;
         const statementChildren = node.filterChildren(
             child => BallerinaASTFactory.isStatement(child) || BallerinaASTFactory.isConnectorDeclaration(child));
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         let statementHeight = 0;
-
+        let connectorsForWorker = 0;
         _.forEach(statementChildren, (child) => {
             let childW = 0;
             let childH = 0;
             if (BallerinaASTFactory.isConnectorDeclaration(child)) {
                 childW = child.viewState.components.statementViewState.bBox.w;
                 childH = child.viewState.components.statementViewState.bBox.h;
+                connectorsForWorker += child.viewState.bBox.w + blockStatement.heading.width;
             } else {
                 childW = child.viewState.bBox.w;
                 childH = child.viewState.bBox.h;
@@ -211,9 +246,12 @@ class SizingUtil {
             statementHeight += childH;
             if ((childW + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = childW + statementContainerWidthPadding;
+                if (child.viewState.bBox.expansionW > connectorOffset) {
+                    connectorOffset = child.viewState.bBox.expansionW;
+                }
             }
         });
-
+        components.statementContainer.expansionW = connectorOffset;
         /**
          * We add an extra gap to the statement container height, in order to maintain the gap between the
          * last statement's bottom margin and the default worker bottom rect's top margin
@@ -226,6 +264,8 @@ class SizingUtil {
 
         components.statementContainer.h = statementHeight;
         components.statementContainer.w = statementWidth;
+        components.workerScopeContainer.w = statementWidth;
+        components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
 
         components.body = new SimpleBBox();
 
@@ -246,6 +286,9 @@ class SizingUtil {
         components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
 
         const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
+        components.workerScopeContainer.h = components.statementContainer.h + DesignerDefaults.canvas.padding.top +
+            DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
+            + DesignerDefaults.statement.padding.bottom;
 
         let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), (child) => {
@@ -256,13 +299,28 @@ class SizingUtil {
             } else {
                 childViewState = child.getViewState();
             }
-            lifeLineWidth += childViewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
+            lifeLineWidth += childViewState.bBox.w + childViewState.bBox.expansionW +
+                DesignerDefaults.lifeLine.gutter.h;
             childViewState.bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
                 (DesignerDefaults.lifeLine.head.height * 2);
             childViewState.components.statementContainer.h = _.max([components.statementContainer.h,
                 highestStatementContainerHeight]);
+            if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                childViewState.components.workerScopeContainer.h = components.statementContainer.h +
+                    DesignerDefaults.canvas.padding.top +
+                    DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
+                    + DesignerDefaults.statement.padding.bottom;
+            }
+            // Set the connector height of the worker's children
+            const connectorChildrenOfWorker = child.filterChildren(innerChild => BallerinaASTFactory
+            .isConnectorDeclaration(innerChild));
+            if (connectorChildrenOfWorker.length > 0) {
+                _.forEach(connectorChildrenOfWorker, (innerChild) => {
+                    innerChild.getViewState().components.statementContainer.h = _.max([components.statementContainer.h,
+                        highestStatementContainerHeight]);
+                });
+            }
         });
-
         if (node.viewState.collapsed) {
             components.body.h = 0;
         } else {
@@ -272,15 +330,13 @@ class SizingUtil {
         }
 
         components.body.w = components.statementContainer.w + DesignerDefaults.panel.body.padding.right +
-            DesignerDefaults.panel.body.padding.left + lifeLineWidth;
+            DesignerDefaults.panel.body.padding.left + lifeLineWidth + components.statementContainer.expansionW;
         components.annotation.w = components.body.w;
 
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
 
         components.parametersPrefixContainer = {};
         components.parametersPrefixContainer.w = util.getTextWidth('Parameters: ').w;
-
-        viewState.components = components;
         this.populateHeadingWidth(node);
     }
 
@@ -465,7 +521,6 @@ class SizingUtil {
         _.forEach(connectors, (stmt) => {
             totalHeight += stmt.getViewState().components.statementViewState.bBox.h;
         });
-
 
 
         totalHeight += childNode.getViewState().bBox.h;

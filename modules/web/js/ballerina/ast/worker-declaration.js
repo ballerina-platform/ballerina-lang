@@ -179,6 +179,59 @@ class WorkerDeclaration extends ASTNode {
         });
         return argsAsString;
     }
+
+    /**
+     * Get the connector by name
+     * @param connectorName
+     */
+    getConnectorByName(connectorName) {
+        const factory = this.getFactory();
+        const connectorReference = _.find(this.getChildren(), (child) => {
+            let connectorVariableName;
+            if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
+                const variableReferenceList = [];
+
+                _.forEach(child.getChildren()[0].getChildren(), (variableRef) => {
+                    variableReferenceList.push(variableRef.getExpressionString());
+                });
+
+                connectorVariableName = (_.join(variableReferenceList, ',')).trim();
+            } else if (factory.isConnectorDeclaration(child)) {
+                connectorVariableName = child.getConnectorVariable();
+            }
+
+            return connectorVariableName === connectorName;
+        });
+
+        return connectorReference;
+    }
+
+    /**
+     * Get the connectors in immediate scope
+     */
+    getConnectorsInImmediateScope() {
+        const factory = this.getFactory();
+        return _.filter(this.getChildren(), (child) => {
+            return factory.isConnectorDeclaration(child);
+        });
+    }
+
+    /**
+     * Get the connector declarations
+     */
+    getConnectionDeclarations() {
+        const connectorDeclaration = [];
+        const self = this;
+
+        _.forEach(this.getChildren(), (child) => {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
+    }
 }
 
 export default WorkerDeclaration;

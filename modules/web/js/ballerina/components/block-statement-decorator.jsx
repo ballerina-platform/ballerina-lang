@@ -29,6 +29,7 @@ import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
 import breakpointHOC from './../../debugger/breakpoint-hoc';
 
+
 const CLASS_MAP = {
     hidden: 'hide-action',
     visible: 'show-action',
@@ -192,9 +193,8 @@ class BlockStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit} = this.props;
         const model = this.props.model;
-
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
 
@@ -232,12 +232,13 @@ class BlockStatementDecorator extends React.Component {
             actionBox.width,
             actionBox.height);
         const utilClassName = CLASS_MAP[this.state.active];
-        
+
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         const separatorGapV = titleH / 3;
+        const maxWidth = bBox.w + bBox.expansionW;
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -246,11 +247,11 @@ class BlockStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect" />
+                <rect x={bBox.x} y={bBox.y} width={maxWidth} height={bBox.h} className="background-empty-rect" />
                 <rect
                     x={bBox.x}
                     y={bBox.y}
-                    width={bBox.w}
+                    width={maxWidth}
                     height={titleH}
                     rx="0"
                     ry="0"

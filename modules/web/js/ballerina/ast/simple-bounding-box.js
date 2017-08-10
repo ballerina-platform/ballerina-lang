@@ -22,13 +22,18 @@ class SimpleBBox {
      * @param y
      * @param w
      * @param h
+     * @param expansionW
+     * @param expansionH
      * @constructor
      */
-    constructor(x, y, w, h) {
+    constructor(x, y, w, h, expansionW, expansionH) {
         this.x = x || 0;
         this.y = y || 0;
         this.w = w || 0;
         this.h = h || 0;
+        this.expansionW = expansionW || 0;
+        this.expansionH = expansionH || 0;
+
     }
 
     /**

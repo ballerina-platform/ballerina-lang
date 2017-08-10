@@ -44,12 +44,23 @@ class WorkerDeclaration extends React.Component {
 
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
+        const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().
+            components.statementContainer);
+        const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
+
+        statementContainerBBoxClone.w += connectorOffset;
+        const workerScopeContainerBBox = this.props.model.viewState.components.workerScopeContainer;
         const workerBBox = {};
         const children = getComponentForNodeArray(this.props.model.getChildren());
+        const nodeFactory = this.props.model.getFactory();
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         workerBBox.w = DesignerDefaults.lifeLine.width;
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
+
+        // Check for connector declaration children
+        const connectorChildren = _.filter(this.props.model.getChildren(),
+            child => nodeFactory.isConnectorDeclaration(child));
 
         const classes = {
             lineClass: 'worker-life-line',
@@ -57,7 +68,7 @@ class WorkerDeclaration extends React.Component {
         };
 
         return (<g>
-            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
+            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBoxClone} />
             <LifeLine
                 title={util.getTextWidth(this.props.model.getWorkerName(), 0,
                     DesignerDefaults.lifeLine.width - 30).text}
@@ -70,6 +81,21 @@ class WorkerDeclaration extends React.Component {
                 icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                 iconColor='#0380c6'
             />
+            { connectorChildren.length > 0 &&
+                <rect
+                    x={workerScopeContainerBBox.x}
+                    y={workerScopeContainerBBox.y}
+                    width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                    height={workerScopeContainerBBox.h}
+                    style={{ fill: 'none',
+                        stroke: '#67696d',
+                        strokeWidth: 2,
+                        strokeLinecap: 'round',
+                        strokeLinejoin: 'miter',
+                        strokeMiterlimit: 4,
+                        strokeOpacity: 1,
+                        strokeDasharray: 5 }}
+                /> }
             {children}
         </g>
         );

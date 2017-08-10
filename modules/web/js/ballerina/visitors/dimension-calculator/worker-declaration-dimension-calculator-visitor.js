@@ -63,35 +63,63 @@ class WorkerDeclarationDimensionCalculatorVisitor {
      * */
     endVisit(node) {
         const viewState = node.getViewState();
-        const components = {};
-
+        const components = viewState.components;
         components.statementContainer = new SimpleBBox();
+        components.workerScopeContainer = new SimpleBBox();
+
         const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.lifeLine.width + statementContainerWidthPadding;
         let statementHeight = 0;
-
+        const connectorDeclarationChildren = node.filterChildren(BallerinaASTFactory.isConnectorDeclaration);
+        let widthExpansion = 0;
+        let statementContainerWidthExpansion = 0;
+        // Iterate over statement children
         _.forEach(statementChildren, (child) => {
             statementHeight += child.viewState.bBox.h;
             if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
+            if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
+                statementContainerWidthExpansion = child.viewState.bBox.expansionW;
+                widthExpansion = child.viewState.bBox.expansionW;
+            }
         });
-
+        // Iterate over connector declaration children
+        _.forEach(connectorDeclarationChildren, (child) => {
+            statementHeight += DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
+            widthExpansion += (child.viewState.bBox.w + DesignerDefaults.blockStatement.heading.width);
+            if (child.viewState.components.statementViewState.bBox.w > statementWidth) {
+                statementWidth = child.viewState.components.statementViewState.bBox.w;
+            }
+        });
+        viewState.bBox.expansionH = statementHeight;
+        // Iterating to set the height of the connector
+        if (connectorDeclarationChildren.length > 0) {
+            if (statementHeight < (DesignerDefaults.statementContainer.height)) {
+                statementHeight = DesignerDefaults.statementContainer.height + (
+                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+                    (DesignerDefaults.variablesPane.leftRightPadding * 2)) + DesignerDefaults.statement.padding.bottom;
+            }
+        }
+        statementHeight += DesignerDefaults.statement.gutter.v * 2;
         /**
          * We add an extra gap to the statement container height, in order to maintain the gap between the
          * last statement's bottom margin and the default worker bottom rect's top margin
          */
-        statementHeight += DesignerDefaults.statement.gutter.v * 2;
 
         viewState.bBox.h = statementHeight + (DesignerDefaults.lifeLine.head.height * 2);
         viewState.bBox.w = statementWidth;
-
-        components.statementContainer.h = statementHeight;
+        components.statementContainer.h = statementHeight + DesignerDefaults.statement.height;
         components.statementContainer.w = statementWidth;
-
-        viewState.components = components;
+        viewState.bBox.expansionW = widthExpansion;
+        components.statementContainer.expansionW = statementContainerWidthExpansion;
+        components.workerScopeContainer.h = statementHeight  + DesignerDefaults.canvas.padding.top +
+        DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.height + DesignerDefaults.statement.padding.top
+        + DesignerDefaults.statement.padding.bottom;
+        components.workerScopeContainer.w = statementWidth;
+        components.workerScopeContainer.expansionW = widthExpansion;
     }
 }
 
