@@ -171,12 +171,22 @@ class ActionInvocationExpression extends Expression {
         let parent = this.getParent();
         const factory = this.getFactory();
 
-        // Iteratively we find the most atomic parent node which can hold a connector
-        // ATM those are [FunctionDefinition, ResourceDefinition, ConnectorAction]
+        // Iteratively we find the parent node which holds that particular connector with the given name
+        // Those can be [FunctionDefinition, ResourceDefinition, ConnectorAction, BlockStatements including
+        // IfElsetatement, WhileStatement, TryCatchStatement, TransactionStatement, Fork-JoinStatement]
         while (!factory.isBallerinaAstRoot(parent)) {
-            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent)
-                || factory.isConnectorAction(parent)) {
-                break;
+            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent) ||
+                factory.isWorkerDeclaration(parent) || factory.isConnectorAction(parent) ||
+                factory.isIfElseStatement(parent) || factory.isIfStatement(parent) ||
+                factory.isElseStatement(parent) || factory.isElseIfStatement(parent) ||
+                factory.isWhileStatement(parent) || factory.isTryCatchStatement(parent) ||
+                factory.isTryStatement(parent) || factory.isCatchStatement(parent) ||
+                factory.isTransactionStatement(parent) || factory.isAbortedStatement(parent) ||
+                factory.isCommittedStatement(parent) || factory.isTransactionAbortedStatement(parent) ||
+                factory.isForkJoinStatement(parent)) {
+                if (parent.getConnectorByName(connectorVariable)) {
+                    break;
+                }
             }
             parent = parent.getParent();
         }
