@@ -369,3 +369,8 @@ svg.plumbConnect path {
 .jtk-droppable {
   font-size: 8px;
 }
+
+.jtk-droppable:hover {
+  font-size: 12px;
+  color: #f17b31;
+}
