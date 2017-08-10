@@ -1,4 +1,4 @@
-[![Build Status](https://wso2.org/jenkins/job/ballerinalang/job/ballerina/badge/icon)](https://wso2.org/jenkins/job/ballerinalang/job/ballerina/)
+[![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerinalang/ballerina)](https://wso2.org/jenkins/job/ballerinalang/job/ballerina/)
 
 # Hello, I'm Ballerina.
 
