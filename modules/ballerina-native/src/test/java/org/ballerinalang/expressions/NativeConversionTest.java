@@ -258,7 +258,7 @@ public class NativeConversionTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToStructWithMissingFields");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\",age:25,parent:null,info:" + 
                 "{\"status\":\"single\"},address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72]," +
-                "a:null,score:0.0,alive:0}");
+                "a:null,score:0.0,alive:false}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
@@ -463,5 +463,19 @@ public class NativeConversionTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructWithStringArrayToJSON");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\",\"Doe\"]}");
+    }
+
+    @Test
+    public void testEmptyJSONtoStructWithDefaults() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithDefaults");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null}");
+    }
+
+    @Test
+    public void testEmptyJSONtoStructWithoutDefaults() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithoutDefaults");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null}");
     }
 }

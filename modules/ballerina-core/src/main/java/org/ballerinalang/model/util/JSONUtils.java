@@ -597,21 +597,6 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link JsonNode} to {@link BInteger}.
-     * 
-     * @param jsonNode {@link JsonNode} to be converted
-     * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
-     */
-    private static BInteger jsonNodeToInteger(JsonNode jsonNode) {
-        if (jsonNode.isInt() || jsonNode.isLong()) {
-            return new BInteger(jsonNode.longValue());
-        }
-        
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-            BTypes.typeInt, getTypeName(jsonNode));
-    }
-
-    /**
      * Convert {@link JsonNode} to int.
      *
      * @param jsonNode {@link JsonNode} to be converted
@@ -624,21 +609,6 @@ public class JSONUtils {
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                 BTypes.typeInt, getTypeName(jsonNode));
-    }
-
-    /**
-     * Convert {@link JsonNode} to {@link BFloat}.
-     * 
-     * @param jsonNode {@link JsonNode} to be converted
-     * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
-     */
-    private static BFloat jsonNodeToBFloat(JsonNode jsonNode) {
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
-            return new BFloat(jsonNode.doubleValue());
-        }
-        
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-            BTypes.typeFloat, getTypeName(jsonNode));
     }
 
     /**
@@ -657,21 +627,6 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link JsonNode} to {@link BBoolean}. 
-     * 
-     * @param jsonNode {@link JsonNode} to be converted
-     * @return BBoolean value of the JSON, if its a boolean node. Error, otherwise.
-     */
-    private static BBoolean jsonNodeToBoolean(JsonNode jsonNode) {
-        if (jsonNode.isBoolean()) {
-            return new BBoolean(jsonNode.booleanValue());
-        }
-        
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-            BTypes.typeBoolean, getTypeName(jsonNode));
-    }
-
-    /**
      * Convert {@link JsonNode} to boolean.
      *
      * @param jsonNode {@link JsonNode} to be converted
@@ -684,29 +639,6 @@ public class JSONUtils {
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                 BTypes.typeBoolean, getTypeName(jsonNode));
-    }
-
-    /**
-     * Convert a JSON node to a map.
-     * 
-     * @param jsonNode JSON to convert
-     * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values 
-     * of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
-     */
-    private static BMap<BString, ?> jsonNodeToMap(JsonNode jsonNode) {
-        BMap<BString, BValue> map = BTypes.typeMap.getEmptyValue();
-
-        if (!jsonNode.isObject()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    getComplexObjectTypeName(JsonNodeType.OBJECT), getTypeName(jsonNode));
-        }
-
-        Iterator<Entry<String, JsonNode>> fields = jsonNode.fields();
-        while (fields.hasNext()) {
-            Entry<String, JsonNode> field = fields.next();
-            map.put(new BString(field.getKey()), getBValue(field.getValue()));
-        }
-        return map;
     }
 
     /**

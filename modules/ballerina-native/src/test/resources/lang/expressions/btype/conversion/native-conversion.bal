@@ -574,3 +574,33 @@ function testStructToMapWithRefTypeArray() (map, int){
    
     return m, writers[0].age;
 }
+
+struct StructWithDefaults {
+    string s = "string value";
+    int a = 45;
+    float f = 5.3;
+    boolean b = true;
+    json j;
+}
+
+function testEmptyJSONtoStructWithDefaults() (StructWithDefaults) {
+    json j = {};
+    var testStruct, _ = <StructWithDefaults> j;
+    
+    return testStruct;
+}
+
+struct StructWithoutDefaults {
+    string s;
+    int a;
+    float f;
+    boolean b;
+    json j;
+}
+
+function testEmptyJSONtoStructWithoutDefaults() (StructWithoutDefaults) {
+    json j = {};
+    var testStruct, _ = <StructWithoutDefaults> j;
+    
+    return testStruct;
+}
