@@ -104,6 +104,7 @@ ERRCHAR=103
 StringTemplateLiteralEnd=104
 StringTemplateExpressionStart=105
 StringTemplateText=106
+TEMPLATE_ERRCHAR=107
 'package'=1
 'import'=2
 'as'=3
