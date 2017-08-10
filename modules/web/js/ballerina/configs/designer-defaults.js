@@ -196,9 +196,6 @@ export const structDefinition = {
     body: {
         height: 100,
     },
-    submitButtonWidth: 40,
-    columnPadding: 5,
-    panelPadding: 10,
 };
 
 export const annotationAttributeDefinition = {
@@ -287,7 +284,10 @@ export const iconForTool = {
 };
 
 export const connectorDeclaration = {
-    padding: 40,
+    gutter: {
+        v: 40,
+        h: 40,
+    },
 };
 
 export const variablesPane = {

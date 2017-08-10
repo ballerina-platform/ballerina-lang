@@ -81,7 +81,7 @@ class WorkerDeclarationPositionCalcVisitor {
                             totalConnectorWidth += (connector.getViewState().components.statementContainer.w +
                                 connector.getViewState().components.statementContainer.expansionW);
                         });
-                        totalConnectorWidth += ((connectors.length + 1) * DesignerDefaults.connectorDeclaration.padding);
+                        totalConnectorWidth += ((connectors.length + 1) * DesignerDefaults.connectorDeclaration.gutter.h);
                     }
                     x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
                             parentViewState.components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h +
@@ -103,7 +103,7 @@ class WorkerDeclarationPositionCalcVisitor {
                     totalConnectorWidth += (connector.getViewState().components.statementContainer.w +
                     connector.getViewState().components.statementContainer.expansionW);
                 });
-                totalConnectorWidth += ((connectors.length + 1) * DesignerDefaults.connectorDeclaration.padding);
+                totalConnectorWidth += ((connectors.length + 1) * DesignerDefaults.connectorDeclaration.gutter.h);
             }
             if (isInFork) {
                 x = previousWorker.getViewState().components.workerScopeContainer.x +
