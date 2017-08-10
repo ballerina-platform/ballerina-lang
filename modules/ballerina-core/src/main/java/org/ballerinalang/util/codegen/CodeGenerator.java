@@ -2300,7 +2300,9 @@ public class CodeGenerator implements NodeVisitor {
         // Else, treat it as QName
 
         Expression namespaceUriLiteral = xmlQNameRefExpr.getNamepsaceUri();
-        namespaceUriLiteral.accept(this);
+        if (!namespaceUriLiteral.hasTemporaryValues()) {
+            namespaceUriLiteral.accept(this);
+        }
 
         BasicLiteral localNameLiteral =
                 new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getLocalname()));
@@ -2326,6 +2328,9 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(XMLElementLiteral xmlElementLiteral) {
         int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
         xmlElementLiteral.setTempOffset(xmlVarRegIndex);
+
+        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
+        defaultNamespaceUri.accept(this);
 
         Expression startTagName = xmlElementLiteral.getStartTagName();
         startTagName.accept(this);
@@ -2361,9 +2366,6 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             endTagNameRegIndex = startTagNameRegIndex;
         }
-
-        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
-        defaultNamespaceUri.accept(this);
 
         // Create an empty xml with the given QName
         emit(InstructionCodes.NEWXMLELEMENT, xmlVarRegIndex, startTagNameRegIndex, endTagNameRegIndex,

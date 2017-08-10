@@ -20,45 +20,41 @@ package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Check whether the XML sequence is empty.
+ * Searches in children recursively for elements matching the name and returns a sequence containing them all.
+ * Does not search within a matched result.
  * 
- * @since 0.88
+ * @since 0.92
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "isEmpty",
-        args = {@Argument(name = "x", type = TypeEnum.XML)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        functionName = "selectDescendants",
+        args = {@Argument(name = "x", type = TypeEnum.XML),
+                @Argument(name = "qname", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Check whether the XML sequence is empty.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
-        value = "An XML object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "flag",
-        value = "Flag indicating whether the XML sequence is empty") })
-public class IsEmpty extends AbstractNativeFunction {
+public class SelectDescendants extends AbstractNativeFunction {
 
-    private static final String OPERATION = "check xml is empty";
+    private static final String OPERATION = "select descendants from xml";
 
     @Override
     public BValue[] execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            result = xml.isEmpty();
+            BXML<?> value = (BXML<?>) getRefArgument(ctx, 0);
+            BString qname = new BString(getStringArgument(ctx, 0));
+            result = value.descendants(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

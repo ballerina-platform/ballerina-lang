@@ -126,13 +126,18 @@ function testUpdateNamespaceAsAttribute() (xml, xml) {
 }
 
 function testUpdateAttributeWithString() (xml) {
-    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+    xmlns "http://defaultNs/";
     
-    // without namespaceUri
-    x1@["foo1"] = "newbar1";
+    xml x1 = xmls:parse("<root xmlns:ns0=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0:foo2=\"bar2\" foo3=\"bar3\"/>");
+    
+    // with empty namespaceUri
+    x1@["{}foo1"] = "newbar1";
     
     // with a new namespaceUri
     x1@["{http://sample.com/wso2/e}foo2"] = "newbar2";
+    
+    // without namespaceUri
+    x1@["foo3"] = "newbar3";
     
     return x1;
 }
@@ -174,8 +179,9 @@ function testUpdateAttributeWithQName_1() (xml) {
 }
 
 function testGetAttributeWithString() (string, string, string) {
-    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
-    return x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/e}foo3"];
+    xmlns "http://sample.com/wso2/f";
+    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+    return x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/eee}foo2"];
 }
 
 function testGetAttributeWithoutLocalname() (string) {
