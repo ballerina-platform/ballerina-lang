@@ -34,8 +34,8 @@ public class StringTemplateLiteralNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-          expectedExceptionsMessageRegExp = "stringTemplateNegativeTest2.bal:3: incompatible types: expected " +
-                  "'string', found 'json'")
+          expectedExceptionsMessageRegExp = "stringTemplateNegativeTest2.bal:3: invalid operation: incompatible types" +
+                  " 'string' and 'json'")
     public void testStringTemplate2() {
         BTestUtils.getProgramFile("samples/stringTemplate/stringTemplateNegativeTest2.bal");
     }
