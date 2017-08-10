@@ -20,6 +20,7 @@
 // environment using jsdom.
 const jsdom = require('jsdom').jsdom;
 
+global.WebSocket = require('ws');
 global.document = jsdom('');
 global.window = document.defaultView;
 Object.keys(document.defaultView).forEach((property) => {

@@ -68,7 +68,7 @@ describe('Ballerina Composer Test Suite', () => {
             .then(() => beforeAllDone())
             .catch(beforeAllDone);
     });
-    const testResDir = path.resolve(path.join(directory, 'js', 'tests', 'resources'));
+    const testResDir = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'parser'));
     const testFiles = findBalFilesInDirSync(testResDir);
     testFiles.forEach((testFile) => {
         /* global it */
