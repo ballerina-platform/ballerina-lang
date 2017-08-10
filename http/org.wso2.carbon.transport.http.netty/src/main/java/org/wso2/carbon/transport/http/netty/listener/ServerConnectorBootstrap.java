@@ -24,6 +24,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
@@ -83,14 +85,30 @@ public class ServerConnectorBootstrap {
         }
     }
 
-    public ChannelFuture bindInterface(HTTPServerConnector serverConnector) {
+    private ChannelFuture bindInterface(HTTPServerConnector serverConnector) {
 
         if (!initialized) {
             log.error("ServerConnectorBootstrap is not initialized");
             return null;
         }
 
-        try {
+        ChannelFuture future = serverBootstrap.bind(
+                new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
+        future.addListener(future1 -> {
+            if (future1.isSuccess()) {
+                log.info("Started listener " +
+                        listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort());
+                log.info("HTTP(S) Interface " + listenerConfiguration.getId() + " starting on host  " +
+                        listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+            } else {
+                log.error("Cannot bind port for host " + listenerConfiguration.getHost() + " port "
+                        + listenerConfiguration.getPort());
+            }
+        });
+
+        return future;
+
+        // TODO: Fix this with HTTP2
 //            ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
 //            SslContext http2sslContext = null;
 //            // Create HTTP/2 ssl context during interface binding.
@@ -102,29 +120,6 @@ public class ServerConnectorBootstrap {
 //            httpServerChannelInitializer.registerListenerConfig(listenerConfiguration, http2sslContext);
 //            httpServerChannelInitializer.setSslContext(http2sslContext);
 //            httpServerChannelInitializer.setServerConnectorFuture(serverConnector.getServerConnectorFuture());
-
-            ChannelFuture future = serverBootstrap.bind(
-                    new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort())).sync();
-
-            if (future.isSuccess()) {
-                log.info("Started listener " +
-                        listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort());
-                log.info("HTTP(S) Interface " + listenerConfiguration.getId() + " starting on host  " +
-                        listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
-                return future;
-            } else {
-                log.error("Cannot bind port for host " + listenerConfiguration.getHost() + " port "
-                          + listenerConfiguration.getPort());
-            }
-        } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
-        }
-//        catch (SSLException e) {
-//            log.error("Error occurred while configuring HTTP/2 SSL context for host "
-//                    + serverConnector.getListenerConfiguration().getHost() + " port "
-//                    + serverConnector.getListenerConfiguration().getPort());
-//        }
-        return null;
     }
 
     public boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
