@@ -286,6 +286,10 @@ public class BLangFunctions {
 
     public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         invokeFunction(programFile, initFuncInfo, context);
+        if (context.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
         if (programFile.getUnresolvedAnnAttrValues() == null) {
             return;
         }

@@ -66,10 +66,6 @@ public class BLangProgramRunner {
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
-        }
 
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
@@ -121,10 +117,6 @@ public class BLangProgramRunner {
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
-        }
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
