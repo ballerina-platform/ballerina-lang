@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import BallerinaASTFactory from '../ballerina-ast-factory';
 
 /**
  * Class to represent an Transform statement.
@@ -140,7 +141,12 @@ class TransformStatement extends Statement {
       });
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
-           if (_.includes(child.getRightExpression().getExpressionString(), input.name)) {
+           if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+             if (child.getRightExpression().children[0].getVarRoot().getVariableName()  == input.name) {
+                  this.getChildById(child.getID()).getRightExpression().children[0]
+                                                                = BallerinaASTFactory.createNullLiteralExpression();
+             }
+           } else if(child.getRightExpression().children[0].getVariableName() == input.name){
              this.removeChild(child, true, true);
            }
       });
@@ -164,9 +170,14 @@ class TransformStatement extends Statement {
       });
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
-           if (_.includes(child.getLeftExpression().getExpressionString(),output.name)) {
-             this.removeChild(child, true, true);
-           }
+          if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+            if (child.getLeftExpression().children[0].getVarRoot().getVariableName()  == output.name) {
+                this.getChildById(child.getID()).getLeftExpression()
+                          .removeChild(this.getChildById(child.getID()).getLeftExpression().children[0]);
+            }
+          } else if(child.getLeftExpression().children[0].getFieldName() == output.name){
+            this.removeChild(child, true, true);
+          }
       });
 
       this.trigger('tree-modified', {
