@@ -87,12 +87,12 @@ class SwaggerParser {
                     // methods.
                     if (_.isNil(existingResource)) {
                         existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
-                            const httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+                            const httpMethods = resourceDefinition.getHttpMethodValues();
                             const pathValue = resourceDefinition.getPathAnnotationValue();
-                            return !_.isNil(httpMethodAnnotation) && !_.isNil(pathValue) &&
+                            return httpMethods.length > 0 && !_.isNil(pathValue) &&
                                 _.isEqual(pathString, pathValue.replace(/"/g, ''))
                                  &&
-                                _.isEqual(httpMethodAsString, httpMethodAnnotation.getName().toLowerCase());
+                                _.isEqual(httpMethodAsString, httpMethods[0].toLowerCase());
                         });
                         // if operationId exists set it as resource name.
                         if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
@@ -434,14 +434,9 @@ class SwaggerParser {
      * @param {object} httpMethodJsonObject The http method object of the swagger json.
      */
     mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
-        // Creating @Path annotation.
-        this.createPathAnnotation(resourceDefinition, pathString);
-        // Creating the http method annotation.
-        this.createHttpMethodAnnotation(resourceDefinition, httpMethodAsString);
-        // Creating @Consumes annotation.
-        this.createConsumesAnnotation(resourceDefinition, httpMethodJsonObject.consumes);
-        // Creating @Produces annotation.
-        this.createProducesAnnotation(resourceDefinition, httpMethodJsonObject.produces);
+        // Creating @http:resourceConfig annotation.
+        this.createHttpResourceConfigAnnotation(resourceDefinition, pathString, httpMethodAsString,
+            httpMethodJsonObject);
         // Creating @ResourceConfig annotation.
         this.createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
         // Creating parameter definitions for the resource definition.
@@ -461,43 +456,42 @@ class SwaggerParser {
      * @param {stringany} pathString The path value.
      * @memberof SwaggerParser
      */
-    createPathAnnotation(resourceDefinition, pathString) {
-        const pathAnnotation = ASTFactory.createAnnotationAttachment({
+    createHttpResourceConfigAnnotation(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
+        const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
             fullPackageName: HTTP_FULL_PACKAGE,
             packageName: HTTP_PACKAGE,
-            name: 'Path',
+            name: 'resourceConfig',
         });
+
+        const httpMethodsBValues = [];
+        httpMethodsBValues.push(ASTFactory.createBValue({ stringValue: httpMethodAsString.toUpperCase() }));
+        SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'methods', httpMethodsBValues);
 
         if (!_.isNil(pathString)) {
             const pathBValue = ASTFactory.createBValue({ stringValue: pathString });
-            SwaggerParser.setAnnotationAttribute(pathAnnotation, 'value', pathBValue);
+            SwaggerParser.setAnnotationAttribute(resourceConfigAnnotation, 'path', pathBValue);
+        }
+
+        if (!_.isNil(httpMethodJsonObject.produces)) {
+            const producesBValues = [];
+            httpMethodJsonObject.produces.forEach((produceEntry) => {
+                producesBValues.push(ASTFactory.createBValue({ stringValue: produceEntry }));
+            });
+            SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'produces', producesBValues);
+        }
+
+        if (!_.isNil(httpMethodJsonObject.consumes)) {
+            const consumeBValues = [];
+            httpMethodJsonObject.consumes.forEach((consumeEntry) => {
+                consumeBValues.push(ASTFactory.createBValue({ stringValue: consumeEntry }));
+            });
+            SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'consumes', consumeBValues);
         }
 
         const resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
-        const pathAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
-            HTTP_PACKAGE, 'Path');
-        resourceDefinition.addChild(pathAnnotation, pathAnnotationIndex);
-    }
-
-    /**
-     * Creates or updates the http method for the resource definition.
-     *
-     * @param {ResourceDefinition} resourceDefinition The resource defintion to be updated.
-     * @param {string} httpMethodAsString The http method.
-     * @memberof SwaggerParser
-     */
-    createHttpMethodAnnotation(resourceDefinition, httpMethodAsString) {
-        const methodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-        if (!_.isNil(methodAnnotation)) {
-            methodAnnotation.setName(httpMethodAsString.toUpperCase());
-        } else {
-            const httpMethodAnnotation = ASTFactory.createAnnotationAttachment({
-                fullPackageName: HTTP_FULL_PACKAGE,
-                packageName: HTTP_PACKAGE,
-                name: httpMethodAsString,
-            });
-            resourceDefinition.addChild(httpMethodAnnotation);
-        }
+        const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+            HTTP_PACKAGE, 'resourceConfig');
+        resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex);
     }
 
     /**

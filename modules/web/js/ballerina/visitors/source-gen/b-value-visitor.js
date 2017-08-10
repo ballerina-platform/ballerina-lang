@@ -45,7 +45,21 @@ class BValueVisitor extends AbstractSourceGenVisitor {
         if (bValue.getBType() === 'string') {
             this.appendSource(`"${_.trim(bValue.getStringValue(), '"')}"`);
         } else {
-            this.appendSource(bValue.getStringValue());
+            if (bValue.getBType() === 'int') {
+                if (bValue.getStringValue() === undefined) {
+                    this.appendSource(0);
+                } else {
+                    this.appendSource(bValue.getStringValue());
+                }
+            } else if (bValue.getBType() === 'boolean') {
+                if (bValue.getStringValue() === undefined) {
+                    this.appendSource(false);
+                } else {
+                    this.appendSource(bValue.getStringValue());
+                }
+            } else {
+                this.appendSource(bValue.getStringValue());
+            }
         }
     }
 

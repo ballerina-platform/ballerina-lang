@@ -20,9 +20,11 @@ import ballerina.net.http.swagger;
 }
 service<http> Service4 {
 
-    @http:GET{}
-    @http:Path{value: "/pets/{id}"}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig{
+        methods: ["GET"],
+        path: "/pets/{id}",
+        produces: ["application/json"]
+    }
     @swagger:Responses {
         value:[
             @swagger:Response {

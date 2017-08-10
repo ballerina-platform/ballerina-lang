@@ -343,87 +343,121 @@ class ResourceDefinition extends ASTNode {
     }
 
     /**
-     * Gets the @http:Path{value: '/abc'} annotation attachment AST.
-     * @param {boolean} ifNotExist - whether the path annotation exist or not
-     * @return {AnnotationAttachment|undefined} - annotation attachment
-     */
-    getPathAnnotation(ifNotExist = false) {
-        let pathAnnotation;
-        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
-            if (annotationAST.getFullPackageName().toLowerCase() === 'ballerina.net.http' &&
-                annotationAST.getPackageName().toLowerCase() === 'http' &&
-                annotationAST.getName() === 'Path') {
-                pathAnnotation = annotationAST;
-            }
-        });
-        // if path annotation is not define we will create one with default behaviour.
-        if (_.isNil(pathAnnotation) && ifNotExist) {
-            // Creating path annotation.
-            pathAnnotation = BallerinaASTFactory.createAnnotationAttachment({
-                fullPackageName: 'ballerina.net.http',
-                packageName: 'http',
-                name: 'Path',
-            });
-
-            const annotationAttributeValue = BallerinaASTFactory.createAnnotationAttributeValue();
-            annotationAttributeValue.addChild(BallerinaASTFactory.createBValue({
-                type: 'string',
-                stringValue: this.getResourceName(),
-            }));
-
-            const annotationAttribute = BallerinaASTFactory.createAnnotationAttribute({
-                key: 'value',
-            });
-            annotationAttribute.addChild(annotationAttributeValue);
-            pathAnnotation.addChild(annotationAttribute);
-            this.addChild(pathAnnotation, 1);
-        }
-
-        return pathAnnotation;
-    }
-
-    /**
-     * Gets the path value in the @http:Path annotation.
+     * Gets the path value in the @http:resourceConfig annotation.
      *
-     * @param {boolean} [ifNotExist=false] Creates if path annotation doesnt exists.
+     * @param {boolean} [ifNotExist=false] Creates if path value doesnt exists when true.
      * @returns {string} The path value.
      * @memberof ResourceDefinition
      */
     getPathAnnotationValue(ifNotExist = false) {
-        const pathAnnotationAttachment = this.getPathAnnotation(ifNotExist);
-        if (pathAnnotationAttachment) {
-            const annotationAttribute = pathAnnotationAttachment.getChildren()[0];
-            const annotationAttributeValue = annotationAttribute.getValue();
-            const bValue = annotationAttributeValue.getChildren()[0];
-            return bValue.getStringValue();
-        } else {
-            return undefined;
-        }
-    }
-
-    /**
-     * Gets the @http:GET{} annotation AST
-     * @return {Annotation|undefined} - Annotation AST model
-     */
-    getHttpMethodAnnotation() {
-        let httpMethodAnnotation;
+        let pathValue;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
-            if (annotationAST.isHttpMethod()) {
-                httpMethodAnnotation = annotationAST;
+            if (annotationAST.getFullPackageName() === 'ballerina.net.http' &&
+                annotationAST.getPackageName() === 'http' &&
+                annotationAST.getName() === 'resourceConfig') {
+                const resourceConfigAnnotation = annotationAST;
+
+                resourceConfigAnnotation.getChildren().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getKey() === 'path') {
+                        const pathAnnotationAttributeValue = annotationAttribute.getValue();
+                        if (pathAnnotationAttributeValue.getChildren() > 0) {
+                            pathValue = pathAnnotationAttributeValue[0].getStringValue();
+                        }
+                    }
+                });
             }
         });
 
         // Creating GET http method annotation.
-        if (_.isUndefined(httpMethodAnnotation)) {
-            httpMethodAnnotation = BallerinaASTFactory.createAnnotationAttachment({
+        if (pathValue === undefined && ifNotExist) {
+            const resourceConfigAnnotation = this.getFactory().createAnnotationAttachment({
                 fullPackageName: 'ballerina.net.http',
                 packageName: 'http',
-                name: 'GET',
+                name: 'resourceConfig',
             });
-            this.addChild(httpMethodAnnotation, 0);
+            const pathAttribute = this.getFactory().createAnnotationAttribute({
+                key: 'path',
+            });
+
+            const pathAttributeValue = this.getFactory().createAnnotationAttributeValue();
+
+            const pathBValue = this.getFactory().createBValue({
+                stringValue: '/' + this.getResourceName(),
+            });
+
+            pathAttributeValue.addChild(pathBValue);
+            pathAttribute.addChild(pathAttributeValue);
+            resourceConfigAnnotation.addChild(pathAttribute);
+            this.addChild(resourceConfigAnnotation, 0);
+
+            pathValue = '/' + this.getResourceName();
         }
 
-        return httpMethodAnnotation;
+        return pathValue;
+    }
+
+    /**
+     * Gets the http methods for the resource.
+     * @returns {string[]} http methods.
+     * @memberof ResourceDefinition
+     */
+    getHttpMethodValues() {
+        const httpMethods = [];
+        this.getChildrenOfType(this.getFactory().isAnnotationAttachment).forEach((annotationAST) => {
+            if (annotationAST.getFullPackageName() === 'ballerina.net.http' &&
+                annotationAST.getPackageName() === 'http' &&
+                annotationAST.getName() === 'resourceConfig') {
+                const resourceConfigAnnotation = annotationAST;
+
+                resourceConfigAnnotation.getChildren().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getKey() === 'methods') {
+                        const httpMethodsArray = annotationAttribute.getValue();
+                        httpMethodsArray.getChildren().forEach((httpMethod) => {
+                            httpMethods.push(httpMethod.getStringValue());
+                        });
+                    }
+                });
+            }
+        });
+
+        // Creating GET http method annotation.
+        if (httpMethods.length === 0) {
+            let resourceConfigAnnotation;
+            this.getChildrenOfType(this.getFactory().isAnnotationAttachment).forEach((annotationAST) => {
+                if (annotationAST.getFullPackageName() === 'ballerina.net.http' &&
+                    annotationAST.getPackageName() === 'http' &&
+                    annotationAST.getName() === 'resourceConfig') {
+                    resourceConfigAnnotation = annotationAST;
+                }
+            });
+            if (resourceConfigAnnotation === undefined) {
+                resourceConfigAnnotation = this.getFactory().createAnnotationAttachment({
+                    fullPackageName: 'ballerina.net.http',
+                    packageName: 'http',
+                    name: 'resourceConfig',
+                });
+            }
+            const httpMethodAttribute = this.getFactory().createAnnotationAttribute({
+                key: 'methods',
+            });
+
+            const httpMethodsAttributeValue = this.getFactory().createAnnotationAttributeValue();
+            const httpMethodsArray = this.getFactory().createAnnotationAttributeValue();
+
+            const getHttpValue = this.getFactory().createBValue({
+                stringValue: 'GET',
+            });
+
+            httpMethodsArray.addChild(getHttpValue);
+            httpMethodsAttributeValue.addChild(httpMethodsArray);
+            httpMethodAttribute.addChild(httpMethodsAttributeValue);
+            resourceConfigAnnotation.addChild(httpMethodAttribute);
+            this.addChild(resourceConfigAnnotation, 0);
+
+            httpMethods.push('GET');
+        }
+
+        return httpMethods;
     }
 }
 

@@ -34,15 +34,13 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string",
-            "x-UniqueVariableKey": "id"
+            "type": "string"
           },
           {
             "name": "tag",
             "in": "query",
             "required": false,
-            "type": "string",
-            "x-UniqueVariableKey": "tag"
+            "type": "string"
           }
         ]
       }

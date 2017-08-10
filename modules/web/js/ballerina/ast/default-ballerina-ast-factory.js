@@ -81,12 +81,26 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     const resourceDef = BallerinaASTFactory.createResourceDefinition(args);
 
     // Creating GET http method annotation.
-    const getHttpMethodAnnotation = BallerinaASTFactory.createAnnotationAttachment({
+    const resourceConfigAnnotation = BallerinaASTFactory.createAnnotationAttachment({
         fullPackageName: 'ballerina.net.http',
         packageName: 'http',
-        name: 'GET',
+        name: 'resourceConfig',
     });
-    resourceDef.addChild(getHttpMethodAnnotation, 0);
+    const httpMethodAttribute = BallerinaASTFactory.createAnnotationAttribute({
+        key: 'methods',
+    });
+
+    const httpMethodsValue = BallerinaASTFactory.createAnnotationAttributeValue();
+    const httpMethodsArray = BallerinaASTFactory.createAnnotationAttributeValue();
+    const getHttpValue = BallerinaASTFactory.createBValue({
+        stringValue: 'GET',
+    });
+
+    httpMethodsArray.addChild(getHttpValue);
+    httpMethodsValue.addChild(httpMethodsArray);
+    httpMethodAttribute.addChild(httpMethodsValue);
+    resourceConfigAnnotation.addChild(httpMethodAttribute);
+    resourceDef.addChild(resourceConfigAnnotation, 0);
 
     const parameterDef = BallerinaASTFactory.createParameterDefinition(args);
     parameterDef.setTypeName('message');
@@ -99,19 +113,6 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     const replyStatement = DefaultBallerinaASTFactory.createReplyStatement(args);
     resourceDef.addChild(replyStatement);
 
-    const responsesAnnotation = BallerinaASTFactory.createAnnotationAttachment({
-        fullPackageName: 'ballerina.net.http.swagger',
-        packageName: 'swagger',
-        name: 'Responses',
-    });
-
-    const annotationAttribute = BallerinaASTFactory.createAnnotationAttribute({
-        key: 'value',
-    });
-
-    annotationAttribute.addChild(BallerinaASTFactory.createAnnotationAttributeValue());
-    responsesAnnotation.addChild(annotationAttribute);
-    responsesAnnotation.accept(new EnableDefaultWSVisitor());
     return resourceDef;
 };
 
