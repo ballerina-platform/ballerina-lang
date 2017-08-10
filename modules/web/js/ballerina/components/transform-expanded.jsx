@@ -1034,23 +1034,22 @@ class TransformExpanded extends React.Component {
             inputNodes.forEach((inputNode) => {
                 const name = inputNode.getVariableName();
                 const sourceSelection = _.find(vertices, { name });
-                _.remove(vertices, (vertex)=> { return vertex.name == sourceSelection.name})
                 if (_.isUndefined(sourceSelection)) {
                     alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
                 }
+                _.remove(vertices, (vertex)=> { return vertex.name == sourceSelection.name})
                 inputs.push(sourceSelection);
             });
 
             outputNodes.forEach((outputNode) => {
                 const name = outputNode.getVariableName();
                 const targetSelection = _.find(vertices, { name });
-                _.remove(vertices, (vertex)=> { return vertex.name == targetSelection.name})
                 if (_.isUndefined(targetSelection)) {
                     alerts.error('Mapping target "' + name + '" cannot be found');
                     return;
                 }
-
+                _.remove(vertices, (vertex)=> { return vertex.name == targetSelection.name})
                 outputs.push(targetSelection);
             });
 
