@@ -59,6 +59,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
             }
+            processImplicitHeaders(service, method, cMsg);
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("no matching resource found for path : "
                     + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
@@ -81,5 +82,11 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
         }
         return subPath;
+    }
+
+    private void processImplicitHeaders(ServiceInfo service, String method, CarbonMessage cMsg) {
+        if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
+            service.getResourceInfoEntries();
+        }
     }
 }

@@ -130,9 +130,11 @@ public abstract class Node {
         if (resource == null) {
             resource = tryMatchingToDefaultVerb(httpMethod);
         }
-        if (resource == null) {
+        if (resource == null && !httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
             carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
             throw new BallerinaException();
+        } else if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
+            return null;
         }
         return resource;
     }
@@ -238,6 +240,9 @@ public abstract class Node {
     }
 
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
+        if (this.resource == null) {
+            return null;
+        }
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
         String[] consumesList  = resource.getConsumesList();
@@ -271,6 +276,9 @@ public abstract class Node {
     }
 
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
+        if (this.resource == null) {
+            return null;
+        }
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
         String[] producesList = resource.getProducesList();
