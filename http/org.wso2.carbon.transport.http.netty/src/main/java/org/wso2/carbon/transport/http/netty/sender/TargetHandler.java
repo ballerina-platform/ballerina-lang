@@ -40,6 +40,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,8 +85,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                             executeAtTargetResponseReceiving(cMsg);
                 }
-                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                        .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
+//                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+//                        .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
                 if (httpClientConnectorFuture != null) {
                     try {
 //                        HTTPTransportContextHolder.getInstance()
@@ -166,9 +167,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
         if (carbonMessageProcessor != null) {
             try {
-                HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
-                        .getProperty(Constants.MESSAGE_PROCESSOR_ID))
-                        .receive(createErrorMessage(payload), callback);
+//                HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
+//                        .getProperty(Constants.MESSAGE_PROCESSOR_ID))
+//                        .receive(createErrorMessage(payload), callback);
+                httpClientConnectorFuture.notifyHTTPListener(createErrorMessage(payload));
+
             } catch (Exception e) {
                 LOG.error("Error while handover response to MessageProcessor ", e);
             }
@@ -200,10 +203,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    protected CarbonMessage createErrorMessage(String payload) {
-        DefaultCarbonMessage response = new DefaultCarbonMessage();
+    protected HTTPCarbonMessage createErrorMessage(String payload) {
+        HTTPCarbonMessage response = new HTTPCarbonMessage();
 
-        response.setStringMessageBody(payload);
+        response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
+        response.setEndOfMsgAdded(true);
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
 
         Map<String, String> transportHeaders = new HashMap<>();

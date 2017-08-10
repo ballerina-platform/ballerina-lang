@@ -31,16 +31,9 @@ public class HTTPMessageUtil {
         httpCarbonMessage.setWriter(carbonMessage.getWriter());
         httpCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
 
-        httpCarbonMessage.addMessageBody(carbonMessage.getMessageBody());
+        carbonMessage.getFullMessageBody().forEach((buffer) -> httpCarbonMessage.addMessageBody(buffer));
 
-        while (true) {
-            if (carbonMessage.isEndOfMsgAdded() || carbonMessage.isEmpty()) {
-                break;
-            }
-            httpCarbonMessage.addMessageBody(carbonMessage.getMessageBody());
-        }
-
-        httpCarbonMessage.setEndOfMsgAdded(true);
+        httpCarbonMessage.setEndOfMsgAdded(carbonMessage.isEndOfMsgAdded());
 
         return httpCarbonMessage;
     }

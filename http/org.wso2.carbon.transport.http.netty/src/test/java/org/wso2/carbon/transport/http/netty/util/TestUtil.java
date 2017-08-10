@@ -88,7 +88,9 @@ public class TestUtil {
             httpServerConnector.stop();
         }
 
-        ConnectionManager.getInstance().getTargetChannelPool().clear();
+        if (ConnectionManager.getInstance() != null) {
+            ConnectionManager.getInstance().getTargetChannelPool().clear();
+        }
         HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully();
         HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully();
 

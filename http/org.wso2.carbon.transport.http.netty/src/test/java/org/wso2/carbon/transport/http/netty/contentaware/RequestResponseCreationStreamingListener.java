@@ -18,6 +18,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -46,82 +47,65 @@ public class RequestResponseCreationStreamingListener implements HTTPConnectorLi
 
     @Override
     public void onMessage(HTTPCarbonMessage httpRequest) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    InputStream inputStream = httpRequest.getInputStream();
+        executor.execute(() -> {
+            try {
+                InputStream inputStream = httpRequest.getInputStream();
 
-                    CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpRequest);
-                    OutputStream outputStream = newMsg.getOutputStream();
-                    byte[] bytes = IOUtils.toByteArray(inputStream);
-                    outputStream.write(bytes);
-                    outputStream.flush();
-                    newMsg.setEndOfMsgAdded(true);
-                    newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                    newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpRequest);
+                OutputStream outputStream = newMsg.getOutputStream();
+                byte[] bytes = IOUtils.toByteArray(inputStream);
+                outputStream.write(bytes);
+                outputStream.flush();
+                newMsg.setEndOfMsgAdded(true);
+                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
 
-                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
+                HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
 
-                    Map<String, Object> transportProperties = new HashMap<>();
-                    Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                    if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                        transportProperties = transportPropertiesSet.stream().collect(
-                                Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+                Map<String, Object> transportProperties = new HashMap<>();
+                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
+                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+                    transportProperties = transportPropertiesSet.stream().collect(
+                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
 
+                }
+
+                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+
+                HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
+                HTTPClientConnector clientConnector =
+                        httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpCarbonMessage);
+                httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+                    @Override
+                    public void onMessage(HTTPCarbonMessage httpMessage) {
+                        executor.execute(() -> {
+                            InputStream inputStream = httpMessage.getInputStream();
+
+                            CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpMessage);
+                            OutputStream outputStream = newMsg.getOutputStream();
+                            try {
+                                byte[] bytes = IOUtils.toByteArray(inputStream);
+                                outputStream.write(bytes);
+                                outputStream.flush();
+                            } catch (IOException e) {
+                                throw new RuntimeException("Cannot read Input Stream from Response", e);
+                            }
+                            newMsg.setEndOfMsgAdded(true);
+
+                            HTTPCarbonMessage httpCarbonMessage1 = HTTPMessageUtil.convertCarbonMessage(newMsg);
+                            httpRequest.respond(httpCarbonMessage1);
+                        });
                     }
 
-                    SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+                    @Override
+                    public void onError(Throwable throwable) {
 
-                    HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
-                    HTTPClientConnector clientConnector =
-                            httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
-                    HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpCarbonMessage);
-                    httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+                    }
+                });
 
-                        String requestValue = "test";
-
-                        @Override
-                        public void onMessage(HTTPCarbonMessage httpMessage) {
-                            int length = httpMessage.getFullMessageLength();
-                            List<ByteBuffer> byteBufferList = httpMessage.getFullMessageBody();
-
-                            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                            byteBufferList.forEach(buf -> byteBuffer.put(buf));
-                            String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
-                            if (requestValue != null) {
-                                byte[] array = new byte[0];
-                                try {
-                                    array = responseValue.getBytes("UTF-8");
-                                } catch (UnsupportedEncodingException e) {
-
-                                }
-                                ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-                                byteBuff.put(array);
-                                byteBuff.flip();
-                                CarbonMessage newMsg =
-                                        MessageUtil.cloneCarbonMessageWithOutData(httpCarbonMessage);
-                                if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                                    newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-                                }
-                                newMsg.addMessageBody(byteBuff);
-                                newMsg.setEndOfMsgAdded(true);
-
-                                HTTPCarbonMessage httpCarbonMessage1 = HTTPMessageUtil
-                                        .convertCarbonMessage(newMsg);
-                                httpRequest.respond(httpCarbonMessage1);
-                            }
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-
-                        }
-                    });
-
-                } catch (Exception e) {
-                    logger.error("Error while reading stream", e);
-                }
+            } catch (Exception e) {
+                logger.error("Error while reading stream", e);
             }
         });
     }

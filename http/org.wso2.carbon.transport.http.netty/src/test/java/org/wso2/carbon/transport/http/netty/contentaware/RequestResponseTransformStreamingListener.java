@@ -41,36 +41,35 @@ public class RequestResponseTransformStreamingListener implements HTTPConnectorL
 
     @Override
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    InputStream inputStream = httpRequestMessage.getInputStream();
-                    OutputStream outputStream = httpRequestMessage.getOutputStream();
-                    byte[] bytes = IOUtils.toByteArray(inputStream);
-                    outputStream.write(bytes);
-                    outputStream.flush();
-                    httpRequestMessage.setEndOfMsgAdded(true);
-                    httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                    httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+        executor.execute(() -> {
+            try {
+                InputStream inputStream = httpRequestMessage.getInputStream();
+                OutputStream outputStream = httpRequestMessage.getOutputStream();
+                byte[] bytes = IOUtils.toByteArray(inputStream);
+                outputStream.write(bytes);
+                outputStream.flush();
+                httpRequestMessage.setEndOfMsgAdded(true);
+                httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
 
-                    Map<String, Object> transportProperties = new HashMap<>();
-                    Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                    if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                        transportProperties = transportPropertiesSet.stream().collect(
-                                Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+                Map<String, Object> transportProperties = new HashMap<>();
+                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
+                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+                    transportProperties = transportPropertiesSet.stream().collect(
+                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
 
-                    }
+                }
 
-                    SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
 
-                    HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
-                    HTTPClientConnector clientConnector =
-                            httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
-                    HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpRequestMessage);
-                    httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
-                        @Override
-                        public void onMessage(HTTPCarbonMessage httpResponse) {
+                HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
+                HTTPClientConnector clientConnector =
+                        httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpRequestMessage);
+                httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+                    @Override
+                    public void onMessage(HTTPCarbonMessage httpResponse) {
+                        executor.execute(() -> {
                             InputStream inputS = httpResponse.getInputStream();
                             OutputStream outputS = httpResponse.getOutputStream();
                             try {
@@ -82,16 +81,16 @@ public class RequestResponseTransformStreamingListener implements HTTPConnectorL
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }
                             httpRequestMessage.respond(httpResponse);
-                        }
+                        });
+                    }
 
-                        @Override
-                        public void onError(Throwable throwable) {
+                    @Override
+                    public void onError(Throwable throwable) {
 
-                        }
-                    });
-                } catch (Exception e) {
-                    logger.error("Error while reading stream", e);
-                }
+                    }
+                });
+            } catch (Exception e) {
+                logger.error("Error while reading stream", e);
             }
         });
     }
