@@ -73,7 +73,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setupConnectionManager(Map<String, Object> transportProperties) {
         try {
-            connectionManager = ConnectionManager.getInstance(transportProperties);
+            ConnectionManager.init(transportProperties);
+            connectionManager = ConnectionManager.getInstance();
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);
             throw new RuntimeException(e);

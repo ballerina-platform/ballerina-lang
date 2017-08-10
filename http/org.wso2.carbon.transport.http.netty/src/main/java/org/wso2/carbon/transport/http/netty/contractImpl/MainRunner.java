@@ -1,7 +1,5 @@
 package org.wso2.carbon.transport.http.netty.contractImpl;
 
-import org.eclipse.equinox.internal.util.impl.tpt.threadpool.Executor;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
@@ -29,7 +27,7 @@ public class MainRunner implements Runnable {
     public void run() {
         System.out.println("Message received..");
         Map<String, String> props = new HashMap<>();
-        HTTPClientConnector clientConnector = httpConnectorFactory.getHTTPClientConnector(props);
+        HTTPClientConnector clientConnector = httpConnectorFactory.getHTTPClientConnector(null, null);
         try {
             request.setProperty(Constants.HOST, "localhost");
             request.setProperty(Constants.PORT, 8688);

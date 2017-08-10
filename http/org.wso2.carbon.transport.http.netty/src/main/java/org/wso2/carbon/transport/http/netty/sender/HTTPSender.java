@@ -66,7 +66,8 @@ public class HTTPSender implements TransportSender {
         }
 
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
-        this.connectionManager = ConnectionManager.getInstance(transportProperties);
+        ConnectionManager.init(transportProperties);
+        this.connectionManager = ConnectionManager.getInstance();
     }
 
     @Override

@@ -26,7 +26,7 @@ public class Main {
         props.put(Constants.HOST, "localhost");
         props.put(Constants.HTTP_PORT, "9009");
 
-        ServerConnector serverConnector = httpConnectorFactory.getServerConnector(props);
+        ServerConnector serverConnector = httpConnectorFactory.getServerConnector(null, null);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
             @Override

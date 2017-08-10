@@ -26,8 +26,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
@@ -61,9 +64,12 @@ public class WebSocketServerTest {
         log.info(System.lineSeparator() +
                          "---------------------WebSocket Server Test Cases---------------------");
         Map<String, String> props = new HashMap<>();
-        props.put(Constants.HOST, "localhost");
-        props.put(Constants.HTTP_PORT, "9009");
-        serverConnector = httpConnectorFactory.getServerConnector(props);
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setHost("localhost");
+        listenerConfiguration.setPort(9009);
+
+        serverConnector = httpConnectorFactory.getServerConnector(ServerBootstrapConfiguration.getInstance(),
+                listenerConfiguration);
         connectorListener = new WebSocketTestServerConnectorListener();
         serverConnector.start().setWSConnectorListener(connectorListener);
     }
