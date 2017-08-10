@@ -202,7 +202,8 @@ public class ConnectionManager {
                                                             TimeUnit.MILLISECONDS));
                 }
 
-                if (pipeline.get(Constants.LOGGING_HANDLER) == null) {
+                if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))
+                                                    && pipeline.get(Constants.LOGGING_HANDLER) == null) {
                     if (sourceHandler != null) {
                         pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
                                            new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
