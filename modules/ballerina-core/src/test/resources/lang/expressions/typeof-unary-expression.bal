@@ -315,3 +315,14 @@ function anyToTypeExplicitCast() (type, any) {
     var t, _ = (type)typeOfInt;
     return t, typeOfInt;
 }
+
+function getTypeStringValue()(type){
+    int value = 4;
+    return (typeof value);
+}
+
+function getStructTypeStringValue()(type){
+    Person jack;
+    jack = {name:"Jack", age:25};
+    return (typeof jack);
+}

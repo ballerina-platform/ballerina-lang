@@ -417,6 +417,32 @@ public class TypeOfUnaryExpressionTest {
         Assert.assertEquals(returns[0], returns[1]);
 
     }
+
+    @Test(description = "Test access string value of a type")
+    public void testTypeStringValue() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getTypeStringValue", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+
+        String typeString = returns[0].stringValue();
+        String typeStringExpected = "int";
+        Assert.assertEquals(typeString, typeStringExpected);
+    }
+
+    @Test(description = "Test access string value of a Struct type")
+    public void getStructTypeStringValue() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getStructTypeStringValue", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+
+        String typeString = returns[0].stringValue();
+        String typeStringExpected = "Person";
+        Assert.assertEquals(typeString, typeStringExpected);
+    }
 }
 
 
