@@ -2458,44 +2458,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(StringTemplateLiteral stringTemplateLiteral) {
-        Expression[] items = stringTemplateLiteral.getItems();
-        List<Expression> newItems = new ArrayList<>();
-        // Consecutive non-string type items are converted to string, and combined together using binary add
-        // expressions.
-        Expression addExpr = null;
-        for (int i = 0; i < items.length; i++) {
-            Expression currentItem = items[i];
-            currentItem.accept(this);
-            if (currentItem.getType() != BTypes.typeString) {
-                Expression castExpr = getImplicitConversionExpr(currentItem, currentItem.getType(), BTypes.typeString);
-                if (castExpr == null) {
-                    BLangExceptionHelper.throwSemanticError(currentItem, SemanticErrors.INCOMPATIBLE_TYPES,
-                                                            BTypes.typeString, currentItem.getType());
-                }
-                currentItem = castExpr;
+        Expression[] items = stringTemplateLiteral.getArgExprs();
+        if (items.length == 1) {
+            items[0].accept(this);
+            stringTemplateLiteral.setConcatExpr(items[0]);
+        } else if (items.length > 1) {
+            Expression expression = items[0];
+            for (int i = 1; i < items.length; i++) {
+                Expression currentItem = items[i];
+                expression = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                                               expression, currentItem);
             }
-            if (addExpr == null) {
-                addExpr = currentItem;
-                continue;
-            }
-            if (addExpr.getType() == BTypes.typeString) {
-                addExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
-                                            addExpr, currentItem);
-            } else {
-                newItems.add(addExpr);
-                addExpr = currentItem;
-            }
-            addExpr.setType(BTypes.typeString);
+            expression.accept(this);
+            stringTemplateLiteral.setConcatExpr(expression);
         }
-        if (addExpr != null) {
-            newItems.add(addExpr);
-        }
-        // Replace the existing items with the new reduced items
-        items = newItems.toArray(new Expression[newItems.size()]);
-        stringTemplateLiteral.setItems(items);
-
-        // Create and set XML concatenation expression using all the items in the sequence
-        stringTemplateLiteral.setConcatExpr(getStringConcatExpression(items));
     }
 
     @Override
@@ -4187,29 +4163,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             concatExpr.setType(BTypes.typeXML);
         }
 
-        return concatExpr;
-    }
-
-    private Expression getStringConcatExpression(Expression[] items) {
-        if (items.length == 0) {
-            return null;
-        }
-        Expression concatExpr = null;
-        for (int i = 0; i < items.length; i++) {
-            Expression currentItem = items[i];
-            if (currentItem.getType() == BTypes.typeString) {
-                currentItem = new StringTemplateLiteral(currentItem.getNodeLocation(),
-                                                        currentItem.getWhiteSpaceDescriptor(), currentItem);
-                items[0] = currentItem;
-            }
-            if (concatExpr == null) {
-                concatExpr = currentItem;
-                continue;
-            }
-            concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
-                                           concatExpr, currentItem);
-            concatExpr.setType(BTypes.typeString);
-        }
         return concatExpr;
     }
 

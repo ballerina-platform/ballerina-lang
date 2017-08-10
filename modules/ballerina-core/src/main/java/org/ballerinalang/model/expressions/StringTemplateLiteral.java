@@ -27,28 +27,14 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.92
  */
-public class StringTemplateLiteral extends AbstractExpression {
+public class StringTemplateLiteral extends NaryExpression {
 
-    private Expression[] items;
     private Expression concatExpr;
 
     public StringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] items) {
-        super(location, whiteSpaceDescriptor);
+        super(location, whiteSpaceDescriptor, items);
         setType(BTypes.typeString);
-        this.items = items;
-    }
 
-    public StringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression content) {
-        super(location, whiteSpaceDescriptor);
-        this.concatExpr = content;
-    }
-
-    public Expression[] getItems() {
-        return items;
-    }
-
-    public void setItems(Expression[] content) {
-        this.items = content;
     }
 
     public Expression getConcatExpr() {
@@ -57,10 +43,6 @@ public class StringTemplateLiteral extends AbstractExpression {
 
     public void setConcatExpr(Expression concatExpr) {
         this.concatExpr = concatExpr;
-    }
-
-    public boolean isEmpty() {
-        return items.length == 0;
     }
 
     @Override

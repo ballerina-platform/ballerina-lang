@@ -1985,7 +1985,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
 
     }
-    
+
     @Override
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         if (ctx.exception == null) {
@@ -2710,25 +2710,46 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
+        // Calling StringTemplateExpressionStart will return all of the text sequences except for the last text
+        // sequence if there are multiple text sequences. If this is empty, that means there is only one text sequence
+        // and it can be retrieved using stringTemplateText method.
+        // Eg:- `Hello {{firstName}} {{lastName}} !!!`
+        // In here, nodes are "Hello ", " {{".
         List<TerminalNode> nodes = ctx.StringTemplateExpressionStart();
-        StringTemplateTextContext endTextNode = ctx.stringTemplateText();
-        String endingText = endTextNode == null ? null : StringEscapeUtils.unescapeJava(endTextNode.getText());
 
+        // Get the last text sequence.
+        // Eg:- `Hello {{firstName}} {{lastName}} !!!`
+        // In here, last text sequence is " !!!".
+        StringTemplateTextContext endTextNode = ctx.stringTemplateText();
+
+        String endingText = null;
+        if (endTextNode != null) {
+            if (!isVerboseMode) {
+                endingText = StringEscapeUtils.unescapeJava(endTextNode.getText());
+            } else {
+                endingText = endTextNode.getText();
+            }
+        }
+
+        // If the node are empty, that means we only have a text sequence.
         if (nodes.size() == 0) {
             modelBuilder.createStringTemplateLiteral(getCurrentLocation(ctx), null, endingText);
             return;
         }
 
-        String[] templateStrLiterals = new String[nodes.size()];
-        int i = 0;
-        for (TerminalNode node : nodes) {
-            if (node == null) {
-                templateStrLiterals[i++] = null;
-                continue;
+        // If the nodes are not empty, we get all text sequences to an array.
+        String[] templateStrLiterals = nodes.stream().map(node -> {
+            // Note that all of the text sequences ends with '{{' and we need to remove that before concatenating. If
+            // there is not preceding text sequence, the result will be an empty string.
+            String text = node.getText();
+            text = text.substring(0, text.length() - 2);
+            if (!isVerboseMode) {
+                return StringEscapeUtils.unescapeJava(text);
+            } else {
+                return text;
             }
-            String str = node.getText();
-            templateStrLiterals[i++] = StringEscapeUtils.unescapeJava(str.substring(0, str.length() - 2));
-        }
+        }).toArray(String[]::new);
+
         modelBuilder.createStringTemplateLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
     }
 
@@ -2969,7 +2990,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         //      (a, b, c)       => childCount = 5, noOfArguments = 3;
         //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
         // Here childCount is always an odd number.
-        // noOfArguments = childCount mod 2 + 1
+        // noOfArguments = childCount div 2 + 1
         return childCountExprList / 2 + 1;
     }
 }

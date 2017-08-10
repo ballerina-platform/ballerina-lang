@@ -211,7 +211,7 @@ public class BLangModelBuilder {
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
 
     protected List<String> errorMsgs = new ArrayList<>();
-    
+
     protected List<String> namespaces = new ArrayList<String>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -2241,7 +2241,7 @@ public class BLangModelBuilder {
 
     /**
      * Create an {@link XMLQNameExpr}.
-     *  
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param localname Local part of the qname
@@ -2256,7 +2256,7 @@ public class BLangModelBuilder {
 
     /**
      * Start an XML element literal.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attributeCount Number of attributes in the element
@@ -2343,23 +2343,26 @@ public class BLangModelBuilder {
     public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                             String[] exprPrecedingTextFragments, String endingText) {
         List<Expression> items = new ArrayList<>();
-
+        // First we process the last text sequence and add it to the list. Please note that the items will be added
+        // in reverse order later. So later we reverse the list.
         if (endingText != null && !endingText.isEmpty()) {
             createStringLiteral(location, whiteSpaceDescriptor, endingText);
             items.add(exprStack.pop());
         }
-
+        // Iterate through all of the text fragments in reverse order. We do this becase
         for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
             items.add(exprStack.pop());
-
             String textFragment = exprPrecedingTextFragments[i];
+            // If the text fragment is empty, that means that is at the beginning. So we don't get an expression in
+            // that case.
             if (textFragment != null && !textFragment.isEmpty()) {
                 createStringLiteral(location, whiteSpaceDescriptor, textFragment);
                 items.add(exprStack.pop());
             }
         }
-
+        // Reverse the list.
         Collections.reverse(items);
+        // Create and add a string template literal to the expression stack.
         StringTemplateLiteral templateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
                                                                           items.toArray(new Expression[items.size()]));
         exprStack.push(templateLiteral);
@@ -2395,7 +2398,7 @@ public class BLangModelBuilder {
 
     /**
      * Creates an XML Text literal expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param text Text content
@@ -2407,6 +2410,13 @@ public class BLangModelBuilder {
         exprStack.push(xmlTextLiteral);
     }
 
+    /**
+     * Creates an String Template literal expression.
+     *
+     * @param location
+     * @param whiteSpaceDescriptor
+     * @param text
+     */
     public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                             String text) {
         createStringLiteral(location, whiteSpaceDescriptor, text);
@@ -2418,7 +2428,7 @@ public class BLangModelBuilder {
 
     /**
      * Creates an XML processing instruction literal expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param target PI target
@@ -2429,10 +2439,10 @@ public class BLangModelBuilder {
             String target, String[] exprPrecedingTextFragments, String endingText) {
         createStringLiteral(location, whiteSpaceDescriptor, target);
         Expression targetExpr = exprStack.pop();
-        
+
         createTemplateStringLiteral(location, whiteSpaceDescriptor, exprPrecedingTextFragments, endingText, false);
         Expression dataExpr = exprStack.pop();
-        
+
         XMLPILiteral xmlPILiteral = new XMLPILiteral(location, whiteSpaceDescriptor, targetExpr, dataExpr);
         exprStack.push(xmlPILiteral);
     }
@@ -2440,7 +2450,7 @@ public class BLangModelBuilder {
     /**
      * Creates template string literal. Creates a chain of binary add expressions using the
      * text fragments and the expressions in an interpolated string.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param exprPrecedingStringFragments Array of string fragments that precede the expressions
