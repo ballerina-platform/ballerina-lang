@@ -55,6 +55,16 @@ class FunctionDefinitionPositionCalcVisitor {
         const statementContainer = viewState.components.statementContainer;
         const workerScopeContainer = viewState.components.workerScopeContainer;
         statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        if (node.isLambda()) {
+            const parentViewState = node.getParent().getParent().getViewState();
+            viewState.bBox.y = parentViewState.bBox.getBottom() - viewState.bBox.h;
+            viewState.bBox.x = parentViewState.bBox.x;
+            viewState.components.body.y = viewState.bBox.y;
+            viewState.components.body.x = viewState.bBox.x;
+            statementContainer.x = viewState.bBox.x + (viewState.bBox.w - statementContainer.w) / 2;
+        } else {
+            statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        }
         statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
         workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;

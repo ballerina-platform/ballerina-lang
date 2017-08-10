@@ -81,48 +81,72 @@ class FunctionDefinition extends React.Component {
             isNode: true,
             model: this.props.model.getReturnParameterDefinitionHolder(),
         }];
-        return (<PanelDecorator
-            icon={icons}
-            title={name}
-            bBox={bBox}
-            model={this.props.model}
-            dropTarget={this.props.model}
-            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-            titleComponentData={titleComponentData}
+        const isLambda = this.props.model.isLambda();
+        const lifeline = (<LifeLine
+            title="default"
+            bBox={function_worker_bBox}
+            classes={classes}
+            icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+            iconColor='#025482'
+        />);
+        const statemnts = (<StatementContainer
+            dropTarget={this.props.model
+            }
+            title="StatementContainer"
+            bBox={statementContainerBBox}
         >
-            <LifeLine
-                title="default"
-                bBox={function_worker_bBox}
-                classes={classes}
-                icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                iconColor='#025482'
-            />
-            { connectorChildren.length > 0 &&
-            <rect
-                x={workerScopeContainerBBox.x}
-                y={workerScopeContainerBBox.y}
-                width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                height={workerScopeContainerBBox.h}
-                style={{ fill: 'none',
-                    stroke: '#67696d',
-                    strokeWidth: 2,
-                    strokeLinecap: 'round',
-                    strokeLinejoin: 'miter',
-                    strokeMiterlimit: 4,
-                    strokeOpacity: 1,
-                    strokeDasharray: 5 }}
-            />}
-            <StatementContainer
-                dropTarget={this.props.model}
-                title="StatementContainer"
-                bBox={statementContainerBBoxClone}
-            >
-                {children}
-            </StatementContainer>
-        </PanelDecorator>);
+            { children }
+        </StatementContainer>);
+
+        if (isLambda) {
+            return (<g>
+                <rect x={bBox.x} y={bBox.y} height={30} width={bBox.w} className="return-parameter-group" />
+                {lifeline}
+                {statemnts}
+            </g>);
+        } else {
+            return (
+                <PanelDecorator
+                    icon={icons}
+                    title={name}
+                    bBox={bBox}
+                    model={this.props.model}
+                    dropTarget={this.props.model}
+                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    titleComponentData={titleComponentData}
+                >
+                    <LifeLine
+                        title="default"
+                        bBox={function_worker_bBox}
+                        classes={classes}
+                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                        iconColor='#025482'
+                    />
+                    { connectorChildren.length > 0 &&
+                    <rect
+                        x={workerScopeContainerBBox.x}
+                        y={workerScopeContainerBBox.y}
+                        width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                        height={workerScopeContainerBBox.h}
+                        style={{ fill: 'none',
+                            stroke: '#67696d',
+                            strokeWidth: 2,
+                            strokeLinecap: 'round',
+                            strokeLinejoin: 'miter',
+                            strokeMiterlimit: 4,
+                            strokeOpacity: 1,
+                            strokeDasharray: 5 }}
+                    />}
+                    <StatementContainer
+                        dropTarget={this.props.model}
+                        title="StatementContainer"
+                        bBox={statementContainerBBoxClone}
+                    >
+                        {children}
+                    </StatementContainer>
+                </PanelDecorator>);
+        }
     }
-
-
 }
 
 export default FunctionDefinition;

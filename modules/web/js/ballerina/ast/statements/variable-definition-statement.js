@@ -50,9 +50,6 @@ class VariableDefinitionStatement extends Statement {
         let variableDefinitionStatementString = !_.isNil(this.getVariableDef().getPkgName()) ?
             (this.getVariableDef().getPkgName() + ':') : '';
         const isIdentifierLiteral = this.getChildren()[0].isIdentifierLiteral;
-        if (this.viewState.source) {
-            return this.viewState.source.replace(/;\s*$/, '');
-        }
         variableDefinitionStatementString += this.getBType();
         if (this.getVariableDef().isArray()) {
             for (let itr = 0; itr < this.getVariableDef().getDimensions(); itr++) {
@@ -199,7 +196,10 @@ class VariableDefinitionStatement extends Statement {
      * @override
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        // TODO: multiple lambdas
+        const lambdaSource = this.filterChildren(this.getFactory().isLambdaExpression)[0].getLambdaFunction();
+            // '0.children.0.viewState.source', 'function(){}');
+        const fragment = FragmentUtils.createStatementFragment(stmtString.replace('ƒ', lambdaSource) + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {
@@ -215,7 +215,7 @@ class VariableDefinitionStatement extends Statement {
                             state = false;
                             log.warn('Variable type and the default value type are not the same');
                             if (_.isFunction(callback)) {
-                                callback({isValid: false, response: parsedJson});
+                                callback({ isValid: false, response: parsedJson });
                             }
                         }
                     }

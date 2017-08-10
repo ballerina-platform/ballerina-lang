@@ -254,10 +254,10 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
     const viewState = node.getViewState();
 
     if (node.getArguments) {
-        viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
-            + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding;
+        const isLambda = node.isLambda && node.isLambda();
+        viewState.components.openingParameter.x = viewState.bBox.x + (isLambda ? 0 : (
+        viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
+        + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding));
         viewState.components.openingParameter.y = viewState.bBox.y
             + viewState.components.annotation.h;
 

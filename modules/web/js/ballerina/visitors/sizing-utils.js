@@ -215,7 +215,7 @@ class SizingUtil {
             node.viewState.showAnnotationContainer = true;
         }
 
-        if (!node.viewState.showAnnotationContainer) {
+        if (!node.viewState.showAnnotationContainer || (node.isLambda && node.isLambda())) {
             components.annotation.h = 0;
         } else {
             components.annotation.h = this.getAnnotationHeight(node, 40);
@@ -753,6 +753,7 @@ class SizingUtil {
 
     populateHeadingWidth(node) {
         const viewState = node.getViewState();
+        const isLambda = (node.isLambda && node.isLambda());
         // // Creating components for parameters
         if (node.getArguments) {
             // Creating component for opening bracket of the parameters view.
@@ -800,16 +801,16 @@ class SizingUtil {
             viewState.components.heading.w += viewState.components.returnTypesIcon.w
                 + viewState.components.openingReturnType.w
                 + viewState.components.closingReturnType.w
-                + this.getReturnTypeWidth(node) + 120;
+                + this.getReturnTypeWidth(node) + (isLambda ? 0 : 120);
         }
 
-        viewState.components.heading.w += viewState.titleWidth + 100;
+        viewState.components.heading.w += viewState.titleWidth + (isLambda ? 0 : 100);
 
         // Get the largest among component heading width and component body width.
         const componentWidth = viewState.components.heading.w > viewState.components.body.w
             ? viewState.components.heading.w : viewState.components.body.w;
 
-        viewState.bBox.w = componentWidth + (DesignerDefaults.panel.wrapper.gutter.h * 2);
+        viewState.bBox.w = componentWidth + (isLambda ? 0 : (DesignerDefaults.panel.wrapper.gutter.h * 2));
     }
 
     /**
