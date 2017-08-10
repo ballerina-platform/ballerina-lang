@@ -19,6 +19,7 @@
 import React from 'react';
 import Tree from './tree.jsx';
 import './function.css';
+import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
 
 export default class FunctionInv extends React.Component {
     render() {
@@ -51,15 +52,40 @@ export default class FunctionInv extends React.Component {
                 paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
                 parentFunc,
+                funcInv,
             };
         });
+
+        const onRemove = () => {
+            // add children function invocations to the transform model so that only this function invocation
+            // is removed from the view
+            funcInv.getChildren().forEach(childFuncInv => {
+                if(!BallerinaASTFactory.isFunctionInvocationExpression(childFuncInv)){
+                    return;
+                }
+
+                const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+                const varRefList = BallerinaASTFactory.createVariableReferenceList();
+                assignmentStmt.addChild(varRefList, 0);
+                assignmentStmt.addChild(childFuncInv, 1);
+                const transformModel = enclosingAssignmentStatement.getParent();
+                transformModel.addChild(assignmentStmt,
+                    transformModel.getIndexOfChild(enclosingAssignmentStatement), true);
+            });
+
+            if(!parentFunc) {
+                enclosingAssignmentStatement.getParent().removeChild(enclosingAssignmentStatement);
+            } else {
+                parentFunc.removeChild(funcInv);
+            }
+        }
 
         return (
             <div className='transform-expanded-func func'>
                 <div className='function-header'>
                     <i className='fw fw-function fw-inverse' />
                     <span className='func-name'>{func.getName()}</span>
-                    <span className='fw-stack fw-lg btn btn-remove-func'>
+                    <span onClick={onRemove} className='fw-stack fw-lg btn btn-remove-func'>
                         <i className='fw-delete fw-stack-1x fw-inverse' />
                     </span>
                 </div>
