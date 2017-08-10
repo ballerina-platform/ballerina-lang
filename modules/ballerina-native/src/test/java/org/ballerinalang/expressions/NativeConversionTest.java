@@ -429,4 +429,39 @@ public class NativeConversionTest {
         Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'Person': error while mapping" +
             " 'parent': incompatible types: expected 'json-object', found 'string'");
     }
+
+    @Test
+    public void testStructToMapWithRefTypeArray() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructToMapWithRefTypeArray");
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+
+        BValue name = map.get("title");
+        Assert.assertTrue(name instanceof BString);
+        Assert.assertEquals(name.stringValue(), "The Revenant");
+
+        BValue age = map.get("year");
+        Assert.assertTrue(age instanceof BInteger);
+        Assert.assertEquals(((BInteger) age).intValue(), 2015);
+
+        BValue marks = map.get("genre");
+        Assert.assertTrue(marks instanceof BStringArray);
+        BStringArray genreArray = (BStringArray) marks;
+        Assert.assertEquals(genreArray.get(0), "Adventure");
+        Assert.assertEquals(genreArray.get(1), "Drama");
+        Assert.assertEquals(genreArray.get(2), "Thriller");
+
+        BValue actors = map.get("actors");
+        Assert.assertTrue(actors instanceof BRefValueArray);
+        BRefValueArray actorsArray = (BRefValueArray) actors;
+        Assert.assertTrue(actorsArray.get(0) instanceof BStruct);
+        Assert.assertEquals(actorsArray.get(0).stringValue(), "{fname:\"Leonardo\",lname:\"DiCaprio\",age:35}");
+    }
+
+    @Test
+    public void testStructWithStringArrayToJSON() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructWithStringArrayToJSON");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\",\"Doe\"]}");
+    }
 }

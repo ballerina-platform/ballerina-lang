@@ -532,3 +532,45 @@ function JsonToStructWithErrors() (PersonA, errors:TypeConversionError) {
     
     return person, err;
 }
+
+struct PhoneBook {
+    string[] names;
+}
+
+function testStructWithStringArrayToJSON() (json){
+    PhoneBook phonebook = { names:["John", "Doe"]};
+    var phonebookJson, error = <json> phonebook;
+    return phonebookJson;
+}
+
+struct person {
+    string fname;
+    string lname;
+    int age;
+}
+
+struct movie {
+    string title;
+    int year;
+    string released;
+    string[] genre;
+    person[] writers;
+    person[] actors;
+}
+
+function testStructToMapWithRefTypeArray() (map, int){
+    movie theRevenant = {title:"The Revenant",
+                         year:2015,
+                         released:"08 Jan 2016",
+                         genre:["Adventure", "Drama", "Thriller"],
+                         writers:[{fname:"Michael", lname:"Punke", age:30}],
+                         actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
+                                 {fname:"Tom", lname:"Hardy", age:34}]};
+                                 
+    map m = <map> theRevenant;
+    
+    any a = m["writers"];
+    var writers, _ = (person[])a;
+   
+    return m, writers[0].age;
+}

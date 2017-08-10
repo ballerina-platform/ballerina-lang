@@ -215,17 +215,17 @@ public class JSONUtils {
         if (bArray instanceof BIntArray) {
             return convertArrayToJSON((BIntArray) bArray);
         } else if (bArray instanceof BFloatArray) {
-            convertArrayToJSON((BFloatArray) bArray);
+            return convertArrayToJSON((BFloatArray) bArray);
         } else if (bArray instanceof BStringArray) {
-            convertArrayToJSON((BStringArray) bArray);
+            return convertArrayToJSON((BStringArray) bArray);
         } else if (bArray instanceof BBooleanArray) {
-            convertArrayToJSON((BBooleanArray) bArray);
+            return convertArrayToJSON((BBooleanArray) bArray);
         } else if (bArray instanceof BRefValueArray) {
-            convertArrayToJSON((BRefValueArray) bArray);
+            return convertArrayToJSON((BRefValueArray) bArray);
         }
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                BTypes.typeJSON, BTypes.typeBlob);
+                BTypes.typeJSON, bArray.getType());
     }
 
     /**
