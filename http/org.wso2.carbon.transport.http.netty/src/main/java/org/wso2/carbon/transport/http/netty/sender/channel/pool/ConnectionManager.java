@@ -126,87 +126,91 @@ public class ConnectionManager {
             SSLConfig sslConfig, HTTPCarbonMessage carbonMessage, int socketIdleTimeout,
             HTTPClientConnectorFuture httpClientConnectorFuture) throws Exception {
 
-        HttpRequest httpRequest = Util.createHttpRequest(carbonMessage);
+        GenericObjectPool trgHlrConnPool;
 
-        // Take connections from Global connection pool
-        try {
-            GenericObjectPool trgHlrConnPool;
-            TargetChannel targetChannel;
+        if (sourceHandler != null) {
+            EventLoopGroup group;
+            ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
+            group = ctx.channel().eventLoop();
+            Class cl = ctx.channel().getClass();
 
-            if (sourceHandler != null) {
-                EventLoopGroup group;
-                ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
-                group = ctx.channel().eventLoop();
-                Class cl = ctx.channel().getClass();
-
-                if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
-                    // This is faster than the above one (about 2k difference)
-                    Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
-                    trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
-                    if (trgHlrConnPool == null) {
-                        PoolableTargetChannelFactory poolableTargetChannelFactory =
-                                new PoolableTargetChannelFactory(
-                                        httpRoute, group, cl, sslConfig);
-                        trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
-                        srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
-                    }
-                } else {
-                    Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
-                    trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
-                    if (trgHlrConnPool == null) {
-                        synchronized (this) {
-                            if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
-                                PoolableTargetChannelFactory poolableTargetChannelFactory =
-                                        new PoolableTargetChannelFactory(
-                                                httpRoute, group, cl, sslConfig);
-                                trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
-                                this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
-                            }
-                            trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
-                            trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
-                        }
-                        srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
-                    }
+            if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
+                // This is faster than the above one (about 2k difference)
+                Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
+                trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
+                if (trgHlrConnPool == null) {
+                    PoolableTargetChannelFactory poolableTargetChannelFactory =
+                            new PoolableTargetChannelFactory(
+                                    httpRoute, group, cl, sslConfig);
+                    trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
+                    srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
             } else {
-                Class cl = NioSocketChannel.class;
-                EventLoopGroup group = clientEventGroup;
-
-                synchronized (this) {
-                    if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
-                        PoolableTargetChannelFactory poolableTargetChannelFactory =
-                                new PoolableTargetChannelFactory(
-                                        httpRoute, group, cl, sslConfig);
-                        trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
-                        this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
+                Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
+                trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
+                if (trgHlrConnPool == null) {
+                    synchronized (this) {
+                        if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
+                            PoolableTargetChannelFactory poolableTargetChannelFactory =
+                                    new PoolableTargetChannelFactory(
+                                            httpRoute, group, cl, sslConfig);
+                            trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
+                            this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
+                        }
+                        trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
+                        trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
                     }
-                    trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
+                    srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
             }
+        } else {
+            Class cl = NioSocketChannel.class;
+            EventLoopGroup group = clientEventGroup;
 
-            targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
+            synchronized (this) {
+                if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
+                    PoolableTargetChannelFactory poolableTargetChannelFactory =
+                            new PoolableTargetChannelFactory(
+                                    httpRoute, group, cl, sslConfig);
+                    trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
+                    this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
+                }
+                trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
+            }
+        }
 
+        TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
+        targetChannel.getChannel().eventLoop().execute(() -> {
+
+            HttpRequest httpRequest = Util.createHttpRequest(carbonMessage);
+            Util.prepareBuiltMessageForTransfer(carbonMessage);
+            Util.setupTransferEncodingForRequest(carbonMessage);
             if (targetChannel.getChannel() != null) {
                 targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
                 targetChannel.setCorrelatedSource(sourceHandler);
                 targetChannel.setHttpRoute(httpRoute);
                 TargetHandler targetHandler = targetChannel.getTargetHandler();
                 targetHandler.setHttpClientConnectorFuture(httpClientConnectorFuture);
+                targetHandler.setListener(carbonMessage.getResponseListener());
                 targetHandler.setIncomingMsg(carbonMessage);
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
-                targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
-                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
+                targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER,
+                        Constants.IDLE_STATE_HANDLER,
+                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
+                                TimeUnit.MILLISECONDS));
                 targetChannel.setRequestWritten(true);
-                ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
+                try {
+                    ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
+                } catch (Exception e) {
+                    String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+                    log.error(msg, e);
+                    MessagingException messagingException = new MessagingException(msg, e, 101500);
+                    carbonMessage.setMessagingException(messagingException);
+                    httpClientConnectorFuture.notifyHTTPListener(carbonMessage);
+                }
             }
-        } catch (Exception e) {
-            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
-            log.error(msg, e);
-            MessagingException messagingException = new MessagingException(msg, e, 101500);
-            carbonMessage.setMessagingException(messagingException);
-            httpClientConnectorFuture.notifyHTTPListener(carbonMessage);
-        }
+        });
     }
 
     // TODO: Additional thread pool is not needed. Finalize it and remove it.

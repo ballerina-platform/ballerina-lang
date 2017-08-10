@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
@@ -39,9 +38,6 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
     public HTTPClientConnectorFuture send(HTTPCarbonMessage httpCarbonMessage) throws Exception {
         HTTPClientConnectorFuture httpClientConnectorFuture = new HTTPClientConnectorFutureImpl();
 
-        Util.prepareBuiltMessageForTransfer(httpCarbonMessage);
-        Util.setupTransferEncodingForRequest(httpCarbonMessage);
-
         // Fetch Host
         String host;
         Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
@@ -72,8 +68,6 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
             log.debug("SRC_HANDLER property not found in the message." +
                     " Message is not originated from the HTTP Server connector");
         }
-
-//        int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
 
         try {
             connectionManager.executeTargetChannel(route, srcHandler, sslConfig,

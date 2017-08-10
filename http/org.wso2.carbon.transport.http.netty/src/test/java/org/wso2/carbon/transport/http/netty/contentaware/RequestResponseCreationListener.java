@@ -134,37 +134,35 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                             httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
 
                     HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
-                    HTTPClientConnectorFuture clientConnectorFuture = clientConnector.send(httpCarbonMessage);
-                    clientConnectorFuture
-                            .setHTTPConnectorListener(new HTTPConnectorListener() {
-                                @Override
-                                public void onMessage(HTTPCarbonMessage httpResponse) {
-                                    executor.execute(() -> {
-                                        int length = httpResponse.getFullMessageLength();
-                                        List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
+                    httpCarbonMessage.setResponseListener(new HTTPConnectorListener() {
+                        @Override
+                        public void onMessage(HTTPCarbonMessage httpResponse) {
+                            executor.execute(() -> {
+                                int length = httpResponse.getFullMessageLength();
+                                List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
 
-                                        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                                        byteBufferList.forEach(buf -> byteBuffer.put(buf));
-                                        String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
-                                        if (requestValue != null) {
-                                            byte[] array = new byte[0];
-                                            try {
-                                                array = responseValue.getBytes("UTF-8");
-                                            } catch (UnsupportedEncodingException e) {
+                                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                                byteBufferList.forEach(buf -> byteBuffer.put(buf));
+                                String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+                                if (requestValue != null) {
+                                    byte[] array = new byte[0];
+                                    try {
+                                        array = responseValue.getBytes("UTF-8");
+                                    } catch (UnsupportedEncodingException e) {
 
-                                            }
+                                    }
 
-                                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-                                            byteBuff.put(array);
-                                            byteBuff.flip();
-                                            CarbonMessage carbonMessage = MessageUtil
-                                                    .cloneCarbonMessageWithOutData(httpResponse);
-                                            if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                                                carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
-                                                        String.valueOf(array.length));
-                                            }
-                                            carbonMessage.addMessageBody(byteBuff);
-                                            carbonMessage.setEndOfMsgAdded(true);
+                                    ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+                                    byteBuff.put(array);
+                                    byteBuff.flip();
+                                    CarbonMessage carbonMessage = MessageUtil
+                                            .cloneCarbonMessageWithOutData(httpResponse);
+                                    if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                                        carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                                                String.valueOf(array.length));
+                                    }
+                                    carbonMessage.addMessageBody(byteBuff);
+                                    carbonMessage.setEndOfMsgAdded(true);
 
                                             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
                                                     .convertCarbonMessage(carbonMessage);
@@ -178,11 +176,12 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                                     });
                                 }
 
-                                @Override
-                                public void onError(Throwable throwable) {
+                        @Override
+                        public void onError(Throwable throwable) {
 
-                                }
-                            });
+                        }
+                    });
+                    clientConnector.send(httpCarbonMessage);
                 } catch (UnsupportedEncodingException e) {
                     logger.error("Encoding is not supported", e);
                 } catch (ClientConnectorException e) {

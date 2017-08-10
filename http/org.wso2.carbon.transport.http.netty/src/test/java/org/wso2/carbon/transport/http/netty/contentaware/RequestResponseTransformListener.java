@@ -36,7 +36,6 @@ public class RequestResponseTransformListener implements HTTPConnectorListener {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String responseValue;
     private String requestValue;
-    private HTTPClientConnector clientConnector;
     private TransportsConfiguration configuration;
 
     public RequestResponseTransformListener(String responseValue, TransportsConfiguration configuration) {
@@ -79,10 +78,9 @@ public class RequestResponseTransformListener implements HTTPConnectorListener {
                 SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
 
                 HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
-                clientConnector =
+                HTTPClientConnector clientConnector =
                         httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
-                HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpRequest);
-                httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+                httpRequest.setResponseListener(new HTTPConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
@@ -119,6 +117,7 @@ public class RequestResponseTransformListener implements HTTPConnectorListener {
 
                     }
                 });
+                clientConnector.send(httpRequest);
             } catch (Exception e) {
                 logger.error("Error while reading stream", e);
             }

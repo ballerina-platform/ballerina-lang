@@ -25,6 +25,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
@@ -58,7 +60,8 @@ public class HTTPCarbonMessage extends CarbonMessage {
     // Variable to keep the status on whether the last content was added during the clone
     private boolean isEndMarked = false;
     private int soTimeOut = 60;
-    ServerConnectorFuture serverConnectorFuture = new HTTPServerConnectorFuture();
+    private ServerConnectorFuture serverConnectorFuture = new HTTPServerConnectorFuture();
+    private HTTPConnectorListener listener;
 
     public HTTPCarbonMessage() {
         BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
@@ -233,5 +236,13 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         serverConnectorFuture.notifyHTTPListener(httpCarbonMessage);
+    }
+
+    public void setResponseListener(HTTPConnectorListener listener) {
+        this.listener = listener;
+    }
+
+    public HTTPConnectorListener getResponseListener() {
+        return this.listener;
     }
 }

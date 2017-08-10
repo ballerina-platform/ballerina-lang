@@ -82,9 +82,9 @@ public class HTTPServer {
     /**
      * Shutdown the HTTPServer
      */
-    public void shutdown() {
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+    public void shutdown() throws InterruptedException {
+        bossGroup.shutdownGracefully().sync();
+        workerGroup.shutdownGracefully().sync();
         logger.info("HTTPServer shutdown ");
     }
 
