@@ -40,10 +40,11 @@ export default class VariableEndpoint extends React.Component {
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
                     <span className='variable-content'>
-                        <span className='property-name'>
-                            {variable.name}
-                        </span>
-                        <span className='property-name'>:</span>
+                        {variable.name &&
+                            <span className='property-name'>
+                                {variable.name}:
+                            </span>
+                        }
                         <span className='property-type'>
                             {variable.typeName || variable.type}
                         </span>

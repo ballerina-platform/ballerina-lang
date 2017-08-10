@@ -45,7 +45,8 @@ export default class FunctionInv extends React.Component {
 
         const returns = func.getReturnParams().map((returnsObj, index) => {
             return {
-                name: returnsObj.name || index,
+                name: returnsObj.name,
+                id: returnsObj.name || index,
                 type: returnsObj.typeName || returnsObj.type,
                 paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
