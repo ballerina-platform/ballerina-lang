@@ -25,7 +25,7 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 /**
  * Antlr Visitor interface for Siddhi conditions.
  */
-public interface ConditionVisitor {
+public interface ExpressionVisitor {
 
     /*And*/
     void beginVisitAnd();

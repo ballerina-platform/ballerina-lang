@@ -62,7 +62,7 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 <table>
     <tr>
         <th>Name</th>
-        <th>Description</th>
+        <th style="min-width:20em">Description</th>
         <th>Default Value</th>
         <th>Possible Data Types</th>
         <th>Optional</th>
@@ -70,12 +70,12 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
     </tr>
     <#items as parameter>
     <tr>
-        <td valign="top">${parameter.name}</td>
-        <td valign="top"><p style="word-wrap: break-word">${formatDescription(parameter.description)}</p></td>
-        <td valign="top">${parameter.defaultValue}</td>
-        <td valign="top">${parameter.type?join("<br>", "")}</td>
-        <td valign="top"><#if parameter.optional>Yes<#else>No</#if></td>
-        <td valign="top"><#if parameter.dynamic>Yes<#else>No</#if></td>
+        <td style="vertical-align: top">${parameter.name}</td>
+        <td style="vertical-align: top; word-wrap: break-word">${formatDescription(parameter.description)}</td>
+        <td style="vertical-align: top">${parameter.defaultValue}</td>
+        <td style="vertical-align: top">${parameter.type?join("<br>", "")}</td>
+        <td style="vertical-align: top"><#if parameter.optional>Yes<#else>No</#if></td>
+        <td style="vertical-align: top"><#if parameter.dynamic>Yes<#else>No</#if></td>
     </tr>
     </#items>
 </table>
@@ -87,16 +87,16 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 <table>
     <tr>
         <th>Name</th>
-        <th>Description</th>
+        <th style="min-width:20em">Description</th>
         <th>Default Value</th>
         <th>Possible Parameters</th>
     </tr>
     <#items as systemParameter>
     <tr>
-        <td valign="top">${systemParameter.name}</td>
-        <td valign="top"><p style="word-wrap: break-word">${formatDescription(systemParameter.description)}</p></td>
-        <td valign="top">${systemParameter.defaultValue}</td>
-        <td valign="top">${systemParameter.possibleParameters?join("<br>", "")}</td>
+        <td style="vertical-align: top">${systemParameter.name}</td>
+        <td style="vertical-align: top; word-wrap: break-word">${formatDescription(systemParameter.description)}</td>
+        <td style="vertical-align: top">${systemParameter.defaultValue}</td>
+        <td style="vertical-align: top">${systemParameter.possibleParameters?join("<br>", "")}</td>
     </tr>
     </#items>
 </table>
@@ -109,14 +109,14 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 <table>
     <tr>
         <th>Name</th>
-        <th>Description</th>
+        <th style="min-width:20em">Description</th>
         <th>Possible Types</th>
     </tr>
     <#items as returnAttribute>
     <tr>
-        <td valign="top">${returnAttribute.name}</td>
-        <td valign="top"><p style="word-wrap: break-word">${formatDescription(returnAttribute.description)}</p></td>
-        <td valign="top">${returnAttribute.type?join("<br>", "")}</td>
+        <td style="vertical-align: top">${returnAttribute.name}</td>
+        <td style="vertical-align: top; word-wrap: break-word">${formatDescription(returnAttribute.description)}</td>
+        <td style="vertical-align: top">${returnAttribute.type?join("<br>", "")}</td>
     </tr>
     </#items>
 </table>

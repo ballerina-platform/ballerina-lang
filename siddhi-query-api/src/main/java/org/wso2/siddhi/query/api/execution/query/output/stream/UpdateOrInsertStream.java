@@ -24,8 +24,25 @@ import org.wso2.siddhi.query.api.expression.Expression;
  */
 public class UpdateOrInsertStream extends OutputStream {
     protected Expression onUpdateExpression;
+    private UpdateSet updateSetter;
 
-    public UpdateOrInsertStream(String tableId, OutputEventType outputEventType, Expression onUpdateExpression) {
+    public UpdateOrInsertStream(String tableId, OutputEventType outputEventType, UpdateSet updateSet,
+                                Expression onUpdateExpression) {
+        this.updateSetter = updateSet;
+        this.id = tableId;
+        this.outputEventType = outputEventType;
+        this.onUpdateExpression = onUpdateExpression;
+    }
+
+    public UpdateOrInsertStream(String tableId, UpdateSet updateSet, Expression onUpdateExpression) {
+        this.updateSetter = updateSet;
+        this.id = tableId;
+        this.outputEventType = OutputEventType.CURRENT_EVENTS;
+        this.onUpdateExpression = onUpdateExpression;
+    }
+
+    public UpdateOrInsertStream(String tableId, OutputEventType outputEventType,
+                                Expression onUpdateExpression) {
         this.id = tableId;
         this.outputEventType = outputEventType;
         this.onUpdateExpression = onUpdateExpression;
@@ -37,6 +54,10 @@ public class UpdateOrInsertStream extends OutputStream {
         this.onUpdateExpression = onUpdateExpression;
     }
 
+    public static UpdateSet updateSet() {
+        return new UpdateSet();
+    }
+
     public Expression getOnUpdateExpression() {
         return onUpdateExpression;
     }
@@ -45,11 +66,20 @@ public class UpdateOrInsertStream extends OutputStream {
         this.onUpdateExpression = onUpdateExpression;
     }
 
+    public UpdateSet getUpdateSet() {
+        return updateSetter;
+    }
+
+    public void setUpdateSet(UpdateSet updateSet) {
+        this.updateSetter = updateSet;
+    }
+
     @Override
     public String toString() {
-        return "UpdateStream{" +
+        return "UpdateOrInsertStream{" +
                 "onUpdateExpression=" + onUpdateExpression +
-                "} " + super.toString();
+                ", updateSet=" + updateSetter +
+                '}';
     }
 
     @Override
@@ -57,7 +87,7 @@ public class UpdateOrInsertStream extends OutputStream {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof UpdateOrInsertStream)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         if (!super.equals(o)) {
@@ -66,18 +96,18 @@ public class UpdateOrInsertStream extends OutputStream {
 
         UpdateOrInsertStream that = (UpdateOrInsertStream) o;
 
-        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) : that
-                .onUpdateExpression != null) {
+        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) :
+                that.onUpdateExpression != null) {
             return false;
         }
-
-        return true;
+        return updateSetter != null ? updateSetter.equals(that.updateSetter) : that.updateSetter == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (onUpdateExpression != null ? onUpdateExpression.hashCode() : 0);
+        result = 31 * result + (updateSetter != null ? updateSetter.hashCode() : 0);
         return result;
     }
 }

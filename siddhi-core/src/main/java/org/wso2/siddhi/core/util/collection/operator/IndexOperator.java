@@ -23,12 +23,14 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -71,8 +73,8 @@ public class IndexOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
-            updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                       InMemoryCompiledUpdateSet compiledUpdateSet) {
 
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
@@ -82,17 +84,15 @@ public class IndexOperator implements Operator {
             if (streamEvents != null) {
                 ComplexEventChunk<StreamEvent> foundEventChunk = new ComplexEventChunk<>(false);
                 foundEventChunk.add(streamEvents);
-                update((IndexedEventHolder) storeEvents, updateAttributeMappers, updatingEvent, foundEventChunk);
+                update((IndexedEventHolder) storeEvents, compiledUpdateSet, updatingEvent, foundEventChunk);
             }
         }
-
-
     }
 
     @Override
     public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                  InMemoryCompiledUpdateSet compiledUpdateSet,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
                 (updatingOrAddingEventChunk.isBatch());
@@ -106,7 +106,7 @@ public class IndexOperator implements Operator {
             if (foundEventChunk.getFirst() != null) {
                 //for cases when indexed attribute is also updated but that not changed
                 //to reduce number of passes needed to update the events
-                update((IndexedEventHolder) storeEvents, updateAttributeMappers, overwritingOrAddingEvent,
+                update((IndexedEventHolder) storeEvents, compiledUpdateSet, overwritingOrAddingEvent,
                         foundEventChunk);
             } else {
                 failedEventChunk.add(addingStreamEventExtractor.getAddingStreamEvent(overwritingOrAddingEvent));
@@ -115,37 +115,37 @@ public class IndexOperator implements Operator {
         return failedEventChunk;
     }
 
-    private void update(IndexedEventHolder storeEvents, UpdateAttributeMapper[] updateAttributeMappers,
+    private void update(IndexedEventHolder storeEvents, InMemoryCompiledUpdateSet compiledUpdateSet,
                         StateEvent overwritingOrAddingEvent, ComplexEventChunk<StreamEvent> foundEventChunk) {
         //for cases when indexed attribute is also updated but that not changed
         //to reduce number of passes needed to update the events
         boolean doDeleteUpdate = false;
         boolean fail = false;
-        for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+            for (Map.Entry<Integer, ExpressionExecutor> entry :
+                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
             if (doDeleteUpdate || fail) {
                 break;
             }
-            if (storeEvents.isAttributeIndexed(updateAttributeMapper.getStoreEventAttributePosition())) {
+            if (storeEvents.isAttributeIndexed(entry.getKey())) {
                 //Todo how much check we need to do before falling back to Delete and then Update
                 foundEventChunk.reset();
                 Set<Object> keys = null;
-                if (updateAttributeMapper.getStoreEventAttributePosition() == storeEvents
+                if (entry.getKey() == storeEvents
                         .getPrimaryKeyAttributePosition()) {
-                    keys = new HashSet<Object>(storeEvents.getAllPrimaryKeys());
+                    keys = new HashSet<>(storeEvents.getAllPrimaryKeys());
                 }
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
-                    Object updatingDate = updateAttributeMapper.getUpdateEventOutputData(overwritingOrAddingEvent);
-                    Object storeEventData = streamEvent.getOutputData()[updateAttributeMapper
-                            .getStoreEventAttributePosition()];
-                    if (updatingDate != null && storeEventData != null && !updatingDate.equals(storeEventData)) {
+                    Object updatingData = entry.getValue().execute(overwritingOrAddingEvent);
+                    Object storeEventData = streamEvent.getOutputData()[entry.getKey()];
+                    if (updatingData != null && storeEventData != null && !updatingData.equals(storeEventData)) {
                         doDeleteUpdate = true;
                         if (keys != null) {
                             keys.remove(storeEventData);
-                            if (!keys.add(updatingDate)) {
+                            if (!keys.add(updatingData)) {
                                 log.error("Update failed for event :" + overwritingOrAddingEvent + ", as there is " +
                                         "already an event stored with primary key '" +
-                                        updatingDate + "' at '" + queryName + "'");
+                                        updatingData + "' at '" + queryName + "'");
                                 fail = true;
                                 break;
                             }
@@ -167,8 +167,9 @@ public class IndexOperator implements Operator {
                     StreamEvent streamEvent = foundEventChunk.next();
                     foundEventChunk.remove();
                     streamEvent.setNext(null); // to make the chained state back to normal
-                    for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                        updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
+                    for (Map.Entry<Integer, ExpressionExecutor> entry :
+                            compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                        streamEvent.setOutputData(entry.getValue().execute(overwritingOrAddingEvent), entry.getKey());
                     }
                     toUpdateEventChunk.add(streamEvent);
                 }
@@ -177,8 +178,9 @@ public class IndexOperator implements Operator {
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
                     streamEvent.setNext(null); // to make the chained state back to normal
-                    for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                        updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
+                    for (Map.Entry<Integer, ExpressionExecutor> entry :
+                            compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                        streamEvent.setOutputData(entry.getValue().execute(overwritingOrAddingEvent), entry.getKey());
                     }
                 }
             }

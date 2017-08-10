@@ -79,11 +79,11 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              SiddhiAppContext siddhiAppContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName) {
-        return aggregationRuntime.compileCondition(expression, within, per, matchingMetaInfoHolder,
+    public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
+        return aggregationRuntime.compileExpression(condition, within, per, matchingMetaInfoHolder,
                 variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
     }
 

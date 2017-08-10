@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.wso2.siddhi.core.exception.StoreQueryRuntimeException;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -105,7 +105,7 @@ public class StoreQueryRuntime {
                 }
             }
         } catch (Throwable t) {
-            throw new SiddhiAppRuntimeException("Error executing '" + queryName + "', " + t.getMessage(), t);
+            throw new StoreQueryRuntimeException("Error executing '" + queryName + "', " + t.getMessage(), t);
         }
     }
 

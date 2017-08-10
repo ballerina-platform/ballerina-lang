@@ -216,7 +216,7 @@ public class ExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         Map<String, String> configMap = new HashMap<>();
         configMap.put("email.getAllNew.append.abc", "true");
-        siddhiManager.setConfigManager(new InMemoryConfigManager(configMap));
+        siddhiManager.setConfigManager(new InMemoryConfigManager(configMap, null));
         siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
         siddhiManager.setExtension("email:getAllNew", StringConcatAggregatorString.class);
 

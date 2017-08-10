@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.util.collection.operator;
 
 /**
- * Represent a logical condition
+ * Represent a logical expression
  */
-public interface CompiledCondition {
+public interface CompiledCondition extends CompiledExpression {
 
     CompiledCondition cloneCompiledCondition(String key);
 

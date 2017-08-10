@@ -21,9 +21,9 @@ package org.wso2.siddhi.core.util.collection.operator;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 
 /**
@@ -39,7 +39,7 @@ public class OverwriteTableIndexOperator extends IndexOperator {
     @Override
     public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    InMemoryCompiledUpdateSet compiledUpdateSet,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
 
         updatingOrAddingEventChunk.reset();

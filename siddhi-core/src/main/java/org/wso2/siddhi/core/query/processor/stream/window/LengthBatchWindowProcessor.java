@@ -201,14 +201,14 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              SiddhiAppContext siddhiAppContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName) {
+    public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
+        return OperatorParser.constructOperator(expiredEventChunk, condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 }

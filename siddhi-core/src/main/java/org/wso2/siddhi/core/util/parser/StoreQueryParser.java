@@ -115,7 +115,7 @@ public class StoreQueryParser {
                 initMetaStreamEvent(metaStreamEvent, aggregation.getAggregationDefinition());
                 MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                         aggregation.getAggregationDefinition());
-                CompiledCondition compiledCondition = aggregation.compileCondition(onCondition, within, per,
+                CompiledCondition compiledCondition = aggregation.compileExpression(onCondition, within, per,
                         generateMatchingMetaInfoHolder(metaStreamEvent, aggregation.getAggregationDefinition()),
                         variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
                 StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(aggregation, compiledCondition, queryName,

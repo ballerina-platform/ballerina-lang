@@ -17,6 +17,21 @@
  */
 package org.wso2.siddhi.doc.gen.commons.metadata;
 
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.function.Script;
+import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
+import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.input.source.SourceMapper;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
+import org.wso2.siddhi.core.table.Table;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Enum for holding extension types supported by the doc generator
  */
@@ -34,9 +49,30 @@ public enum ExtensionType {
     SCRIPT("Script");
 
     /**
-     * The name to be displayed as the extension type
+     * Contains the name to be displayed as the extension type
      */
     private final String value;
+
+    /**
+     * The map from extension class type to super class
+     */
+    private static final Map<ExtensionType, Class<?>> superClassMap;
+
+    static {
+        // Populating the processor super class map
+        superClassMap = new HashMap<>();
+        superClassMap.put(ExtensionType.FUNCTION, FunctionExecutor.class);
+        superClassMap.put(ExtensionType.ATTRIBUTE_AGGREGATOR, AttributeAggregator.class);
+        superClassMap.put(ExtensionType.WINDOW, WindowProcessor.class);
+        superClassMap.put(ExtensionType.STREAM_FUNCTION, StreamFunctionProcessor.class);
+        superClassMap.put(ExtensionType.STREAM_PROCESSOR, StreamProcessor.class);
+        superClassMap.put(ExtensionType.SOURCE, Source.class);
+        superClassMap.put(ExtensionType.SINK, Sink.class);
+        superClassMap.put(ExtensionType.SOURCE_MAPPER, SourceMapper.class);
+        superClassMap.put(ExtensionType.SINK_MAPPER, SinkMapper.class);
+        superClassMap.put(ExtensionType.STORE, Table.class);
+        superClassMap.put(ExtensionType.SCRIPT, Script.class);
+    }
 
     ExtensionType(String value) {
         this.value = value;
@@ -44,5 +80,9 @@ public enum ExtensionType {
 
     public String getValue() {
         return value;
+    }
+
+    public static Map<ExtensionType, Class<?>> getSuperClassMap() {
+        return superClassMap;
     }
 }

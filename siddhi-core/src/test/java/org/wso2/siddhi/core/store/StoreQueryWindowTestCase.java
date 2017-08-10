@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.StoreQueryCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
@@ -177,6 +178,34 @@ public class StoreQueryWindowTestCase {
         Assert.assertEquals(2, events.length);
 
         siddhiAppRuntime.shutdown();
+    }
 
+    @Test(expected = StoreQueryCreationException.class)
+    public void test5() throws InterruptedException {
+        log.info("Test5 table");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define window StockWindow (symbol string, price float, volume long) length(3); ";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
+        try {
+
+            siddhiAppRuntime.start();
+
+            Event[] events = siddhiAppRuntime.query("" +
+                    "from StockWindow1 " +
+                    "on price > 5 " +
+                    "select symbol1, sum(volume) as totalVolume " +
+                    "group by symbol " +
+                    "having totalVolume >150 ");
+            EventPrinter.print(events);
+            Assert.assertEquals(1, events.length);
+            Assert.assertEquals(200L, events[0].getData(1));
+
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
     }
 }

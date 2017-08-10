@@ -19,15 +19,22 @@
 package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.query.table.util.TestStore;
+import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
 import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created on 1/17/15.
@@ -245,4 +252,132 @@ public class DefineTableTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         siddhiAppRuntime.shutdown();
     }
+
+    @Test
+    public void testQuery16() {
+        log.info("testTableDefinition16 - Table w/ ref");
+
+        Map<String, String> storeConfigs = new HashMap<>();
+        storeConfigs.put("test1.type", "test");
+        storeConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
+        inMemoryConfigManager.extractStoreConfigs("test1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(inMemoryConfigManager);
+        siddhiManager.setExtension("store:test", TestStore.class);
+        String siddhiApp = "" +
+                "@store(ref='test1')" +
+                "define table testTable (symbol string, price int, volume float); ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
+
+        Map<String, String> expectedStoreConfigs = new HashMap<>();
+        expectedStoreConfigs.put("type", "test");
+        expectedStoreConfigs.put("uri", "http://localhost");
+        Assert.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+    }
+
+    @Test
+    public void testQuery17() throws InterruptedException {
+        log.info("testTableDefinition17 - Table w/o ref");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String siddhiApp = "" +
+                "define stream StockStream(symbol string, price int, volume float);" +
+                "@store(type='test', uri='http://localhost:8080')" +
+                "define table testStore (symbol string, price int, volume float); ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
+
+        Map<String, String> expectedStoreConfigs = new HashMap<>();
+        expectedStoreConfigs.put("type", "test");
+        expectedStoreConfigs.put("uri", "http://localhost:8080");
+        Assert.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+    }
+
+    @Test
+    public void testQuery18() {
+        log.info("testTableDefinition18 - Table w/ ref and additional properties");
+
+        Map<String, String> storeConfigs = new HashMap<>();
+        storeConfigs.put("test1.type", "test");
+        storeConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
+        inMemoryConfigManager.extractStoreConfigs("test1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(inMemoryConfigManager);
+        siddhiManager.setExtension("store:test", TestStore.class);
+        String siddhiApp = "" +
+                "@store(ref='test1', uri='http://localhost:8080', table.name ='Foo')" +
+                "define table testTable (symbol string, price int, volume float); ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
+
+        Map<String, String> expectedStoreConfigs = new HashMap<>();
+        expectedStoreConfigs.put("type", "test");
+        expectedStoreConfigs.put("uri", "http://localhost:8080");
+        expectedStoreConfigs.put("table.name", "Foo");
+        Assert.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+    }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void testQuery19() {
+        log.info("testTableDefinition19 - Table w/ ref w/o type");
+
+        Map<String, String> storeConfigs = new HashMap<>();
+        storeConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
+        inMemoryConfigManager.extractStoreConfigs("test1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(inMemoryConfigManager);
+        siddhiManager.setExtension("store:test", TestStore.class);
+        String siddhiApp = "" +
+                "@store(ref='test1', uri='http://localhost:8080', table.name ='Foo')" +
+                "define table testTable (symbol string, price int, volume float); ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void testQuery20() {
+        log.info("testTableDefinition20 - Table w/ ref to an undefined store");
+
+        Map<String, String> storeConfigs = new HashMap<>();
+        storeConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
+        inMemoryConfigManager.extractStoreConfigs("test2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(inMemoryConfigManager);
+        siddhiManager.setExtension("store:test", TestStore.class);
+        String siddhiApp = "" +
+                "@store(ref='test2', uri='http://localhost:8080', table.name ='Foo')" +
+                "define table testTable (symbol string, price int, volume float); ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void testQuery21() {
+        log.info("testTableDefinition21 - Table w/ ref to an undefined store type");
+
+        Map<String, String> storeConfigs = new HashMap<>();
+        storeConfigs.put("test1.type", "testdb");
+        storeConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
+        inMemoryConfigManager.extractStoreConfigs("test2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(inMemoryConfigManager);
+        siddhiManager.setExtension("store:test", TestStore.class);
+        String siddhiApp = "" +
+                "@store(ref='test2', uri='http://localhost:8080', table.name ='Foo')" +
+                "define table testTable (symbol string, price int, volume float); ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
+    }
+
 }

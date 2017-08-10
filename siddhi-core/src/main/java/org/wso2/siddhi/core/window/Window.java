@@ -231,12 +231,12 @@ public class Window implements FindableProcessor, Snapshotable {
      * {@inheritDoc}
      */
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              SiddhiAppContext siddhiAppContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName) {
+    public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               SiddhiAppContext siddhiAppContext,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
-            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression,
+            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(condition,
                     matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap,
                     queryName);
         } else {

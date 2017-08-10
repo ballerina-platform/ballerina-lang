@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -125,12 +126,21 @@ public class TableQueryTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.variable("price"))
+                        select("price", Expression.variable("price")).
+                        select("volume", Expression.variable("volume"))
         );
-        query.updateBy("StockQuote", OutputStream.OutputEventType.ALL_EVENTS, Expression.compare(
-                Expression.variable("symbol"),
-                Compare.Operator.EQUAL,
-                Expression.variable("symbol").ofStream("StockQuote")));
+        query.updateBy("StockQuote", OutputStream.OutputEventType.ALL_EVENTS,
+                UpdateStream.updateSet().
+                        set(
+                                Expression.variable("price").ofStream("StockQuote"),
+                                Expression.variable("price")).
+                        set(
+                                Expression.variable("volume").ofStream("StockQuote"),
+                                Expression.variable("volume")),
+                Expression.compare(
+                        Expression.variable("symbol"),
+                        Compare.Operator.EQUAL,
+                        Expression.variable("symbol").ofStream("StockQuote")));
 
     }
 

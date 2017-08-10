@@ -121,7 +121,7 @@ public abstract class Source implements Snapshotable {
                 isConnected.set(true);
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
-            } catch (ConnectionUnavailableException | RuntimeException e) {
+            } catch (ConnectionUnavailableException e) {
                 LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
                         "', " + e.getMessage() + ", will retry in '" +
                         backoffRetryCounter.getTimeInterval() + "'.", e);
@@ -132,6 +132,10 @@ public abstract class Source implements Snapshotable {
                     }
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
+            } catch (RuntimeException e) {
+                LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ".", e);
+                throw e;
             }
         }
     }

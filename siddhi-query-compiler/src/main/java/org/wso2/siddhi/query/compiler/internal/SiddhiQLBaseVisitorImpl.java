@@ -65,6 +65,7 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
@@ -1253,11 +1254,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                     throw newSiddhiParserException(ctx, "UPDATE OR INTO INSERT be only used with Tables!");
                 }
                 if (ctx.output_event_type() != null) {
-                    return new UpdateOrInsertStream(source.streamId,
-                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                            (Expression) visit(ctx.expression()));
+                    if (ctx.set_clause() != null) {
+                        return new UpdateOrInsertStream(source.streamId,
+                                (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                (UpdateSet) visit(ctx.set_clause()),
+                                (Expression) visit(ctx.expression()));
+                    } else {
+                        return new UpdateOrInsertStream(source.streamId,
+                                (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                (Expression) visit(ctx.expression()));
+                    }
                 } else {
-                    return new UpdateOrInsertStream(source.streamId, (Expression) visit(ctx.expression()));
+                    if (ctx.set_clause() != null) {
+                        return new UpdateOrInsertStream(source.streamId,
+                                (UpdateSet) visit(ctx.set_clause()), (Expression) visit(ctx.expression()));
+                    } else {
+                        return new UpdateOrInsertStream(source.streamId, (Expression) visit(ctx.expression()));
+                    }
                 }
             } else {
                 if (ctx.output_event_type() != null) {
@@ -1285,11 +1298,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 throw newSiddhiParserException(ctx, "DELETE can be only used with Tables!");
             }
             if (ctx.output_event_type() != null) {
-                return new UpdateStream(source.streamId,
-                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                        (Expression) visit(ctx.expression()));
+                if (ctx.set_clause() != null) {
+                    return new UpdateStream(source.streamId,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                            (UpdateSet) visit(ctx.set_clause()),
+                            (Expression) visit(ctx.expression()));
+                } else {
+                    return new UpdateStream(source.streamId,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                            (Expression) visit(ctx.expression()));
+                }
             } else {
-                return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
+                if (ctx.set_clause() != null) {
+                    return new UpdateStream(source.streamId, (UpdateSet) visit(ctx.set_clause()),
+                            (Expression) visit(ctx.expression()));
+                } else {
+                    return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
+                }
             }
         } else if (ctx.RETURN() != null) {
             if (ctx.output_event_type() != null) {
@@ -1330,6 +1355,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } else {
             return OutputStream.OutputEventType.CURRENT_EVENTS;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public UpdateSet visitSet_clause(@NotNull SiddhiQLParser.Set_clauseContext ctx) {
+        UpdateSet updateSet = new UpdateSet();
+        for (SiddhiQLParser.Set_assignmentContext setAssignmentContext : ctx.set_assignment()) {
+            updateSet.set(((Variable) visit(setAssignmentContext.attribute_reference())),
+                    (Expression) visit(setAssignmentContext.expression()));
+        }
+        return updateSet;
     }
 
     /**
