@@ -31,7 +31,7 @@ public class AnnAttributeValue {
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
-    private boolean runTimeProvisioned = false;
+    private boolean constVarExpr = false;
     private int constPkgCPIndex;
     private String constPkg;
     private int constNameCPIndex;
@@ -116,12 +116,12 @@ public class AnnAttributeValue {
         this.booleanValue = booleanValue;
     }
 
-    public boolean isRunTimeProvisioned() {
-        return runTimeProvisioned;
+    public boolean isConstVarExpr() {
+        return constVarExpr;
     }
 
-    public void setRunTimeProvisioned(boolean runTimeProvisioned) {
-        this.runTimeProvisioned = runTimeProvisioned;
+    public void setConstVarExpr(boolean constVarExpr) {
+        this.constVarExpr = constVarExpr;
     }
 
     public int getConstPkgCPIndex() {

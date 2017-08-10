@@ -605,8 +605,8 @@ public class ProgramFileWriter {
     private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
                                                AnnAttributeValue attributeValue) throws IOException {
         dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
-        dataOutStream.writeBoolean(attributeValue.isRunTimeProvisioned());
-        if (attributeValue.isRunTimeProvisioned()) {
+        dataOutStream.writeBoolean(attributeValue.isConstVarExpr());
+        if (attributeValue.isConstVarExpr()) {
             dataOutStream.writeInt(attributeValue.getConstPkgCPIndex());
             dataOutStream.writeInt(attributeValue.getConstNameCPIndex());
             return;

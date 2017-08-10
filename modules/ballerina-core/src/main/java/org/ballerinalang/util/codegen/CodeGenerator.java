@@ -335,7 +335,6 @@ public class CodeGenerator implements NodeVisitor {
             packageVarInfo.setType(varType);
             currentPkgInfo.addConstantInfo(constDef.getName(), packageVarInfo);
 
-
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(constDef.getVariableDefStmt().getVariableDef());
             currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
 
@@ -357,6 +356,9 @@ public class CodeGenerator implements NodeVisitor {
                     typeSigCPIndex, typeSigUTF8Entry.getValue());
             packageVarInfo.setType(varType);
             currentPkgInfo.addPackageVarInfo(varDef.getName(), packageVarInfo);
+
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varDef.getVariableDefStmt().getVariableDef());
+            currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
 
             // TODO Populate annotation attribute
         }
@@ -3018,7 +3020,7 @@ public class CodeGenerator implements NodeVisitor {
 
             attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
                     constPkg, constNameCPIndex, constName);
-            attribValue.setRunTimeProvisioned(true);
+            attribValue.setConstVarExpr(true);
 
             programFile.addUnresolvedAnnAttrValue(attribValue);
         } else {
