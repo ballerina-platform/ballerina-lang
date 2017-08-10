@@ -229,7 +229,6 @@ public class WhiteSpaceUtil {
                     getWhitespaceToRight(tokenStream,
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
-        Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
@@ -459,8 +458,6 @@ public class WhiteSpaceUtil {
                     getWhitespaceToLeft(tokenStream,
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
-
-        Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
