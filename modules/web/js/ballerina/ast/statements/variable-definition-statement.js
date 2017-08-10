@@ -197,8 +197,11 @@ class VariableDefinitionStatement extends Statement {
      */
     setStatementFromString(stmtString, callback) {
         // TODO: multiple lambdas
-        const lambdaSource = this.filterChildren(this.getFactory().isLambdaExpression)[0].getLambdaFunction();
-            // '0.children.0.viewState.source', 'function(){}');
+        const lambdaChildrend = this.filterChildren(this.getFactory().isLambdaExpression);
+        let lambdaSource;
+        if (lambdaChildrend.length > 0) {
+            lambdaSource = lambdaChildrend[0].getLambdaFunction().viewState.source;
+        }
         const fragment = FragmentUtils.createStatementFragment(stmtString.replace('ƒ', lambdaSource) + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;

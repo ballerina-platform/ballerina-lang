@@ -228,7 +228,8 @@ class AssignmentStatement extends React.Component {
         }
 
         let lambdaFunc = null;
-        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)) {
+        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)
+            && BallerinaASTFactory.isLambdaExpression(rightExpression.getConnectorExpression())) {
             lambdaFunc = rightExpression.getConnectorExpression().getLambdaFunction();
         }
 
