@@ -477,6 +477,7 @@ class ASTNode extends EventChannel {
     removeDebugHit() {
         this.isDebugHit = false;
     }
+
     /**
      * Set lineNumber atribute to node
      * @param {number} lineNumber
@@ -485,6 +486,17 @@ class ASTNode extends EventChannel {
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     }
+
+    /**
+     * Set position info atribute to node
+     * @param {object} position
+     * @param {object} options
+     */
+    setPosition(position, options) {
+        this.setAttribute('position', position, options);
+    }
+
+
     /**
      * Set isLiteral atribute to node
      * @param {boolean} isLiteral
