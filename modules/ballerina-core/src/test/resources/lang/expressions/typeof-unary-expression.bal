@@ -295,3 +295,9 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
         return 2;
     }
 }
+
+function getTypeStringValue()(type){
+    int value = 4;
+    return (typeof value);
+}
+

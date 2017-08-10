@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -375,6 +376,19 @@ public class TypeOfUnaryExpressionTest {
         int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 1;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test access string value of a type")
+    public void testTypeStringValue() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getTypeStringValue", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+
+        String typeString = returns[0].stringValue();
+        String typeStringExpected = "int.type";
+        Assert.assertEquals(typeString, typeStringExpected);
     }
 }
 

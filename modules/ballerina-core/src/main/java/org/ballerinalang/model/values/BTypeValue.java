@@ -46,7 +46,7 @@ public class BTypeValue implements BRefType<BType> {
 
     @Override
     public String stringValue() {
-        return null;
+        return typeValue.getName() + ".type";
     }
 
     @Override
