@@ -1070,6 +1070,22 @@ class TransformRender {
         });
     }
 
+  /**
+   * mark specified endpoint in the UI
+   * @param  {string} endpointId endpoint identifier to be marked
+   */
+  markConnected(endpointId){
+    this.container.find(document.getElementById(endpointId)).removeClass("fw-circle-outline").addClass("fw-circle");
+  }
+
+  /**
+   * unmark specified endpoint in the UI
+   * @param  {string} endpointId endpoint identifier to be unmarked
+   */
+  unmarkConnected(endpointId){
+    this.container.find(document.getElementById(endpointId)).removeClass("fw-circle").addClass("fw-circle-outline");
+  }
+
 }
 
 export default TransformRender;
