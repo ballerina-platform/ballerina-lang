@@ -20,16 +20,16 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketChannelContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementation of {@link WebSocketChannelContext}.
+ * Implementation of {@link WebSocketMessageContext}.
  */
-public class BasicWebSocketMessageContextImpl implements WebSocketChannelContext {
+public class BasicWebSocketMessageContextImpl implements WebSocketMessageContext {
 
     private final Map<String, Object> properties = new HashMap<>();
     protected final String subProtocol;

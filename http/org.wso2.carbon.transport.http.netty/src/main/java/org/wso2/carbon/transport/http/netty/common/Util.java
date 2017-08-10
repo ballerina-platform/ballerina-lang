@@ -153,9 +153,10 @@ public class Util {
     }
 
     /**
-     * Prepare response message with Transfer-Encoding/Content-Length
+     * Prepare response message with Transfer-Encoding/Content-Length.
      *
-     * @param cMsg CarbonMessage
+     * @param cMsg Carbon message.
+     * @param requestDataHolder Requested data holder.
      */
     public static void setupTransferEncodingForResponse(CarbonMessage cMsg, RequestDataHolder requestDataHolder) {
 

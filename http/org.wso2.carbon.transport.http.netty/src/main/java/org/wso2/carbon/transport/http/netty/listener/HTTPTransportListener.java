@@ -305,7 +305,8 @@ public class HTTPTransportListener extends TransportListener {
                                      " and port " + listenerConfiguration.getPort());
                 } else {
                     log.info("HTTPS HTTPConnectorListener stopped on listening interface " + interfaceId +
-                                     " attached to host " + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                                     " attached to host " + listenerConfiguration.getHost() + " and port " +
+                                     listenerConfiguration.getPort());
                 }
                 return true;
             }

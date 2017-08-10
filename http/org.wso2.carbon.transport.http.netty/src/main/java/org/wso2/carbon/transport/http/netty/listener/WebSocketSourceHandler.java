@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPServerConnectorFuture;
@@ -134,7 +135,8 @@ public class WebSocketSourceHandler extends SourceHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg)
+            throws UnknownWebSocketFrameTypeException, ServerConnectorException {
         if (!(msg instanceof WebSocketFrame)) {
             logger.error("Expecting WebSocketFrame. Unknown type.");
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
@@ -190,5 +192,11 @@ public class WebSocketSourceHandler extends SourceHandler {
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
         webSocketChannelContext.setProperty(Constants.CHANNEL_ID, channelId);
         return webSocketChannelContext;
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        connectorFuture.notifyWSListener(cause);
     }
 }

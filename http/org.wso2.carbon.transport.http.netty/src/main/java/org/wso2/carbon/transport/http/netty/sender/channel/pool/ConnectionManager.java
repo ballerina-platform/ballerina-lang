@@ -113,14 +113,14 @@ public class ConnectionManager {
     }
 
     /**
-     * Provide target channel for given http route.
      *
      * @param httpRoute           BE address
      * @param sourceHandler       Incoming channel
      * @param sslConfig           netty sender config
      * @param carbonMessage       carbon message
-     * @param httpClientConnectorFuture      carbon call back
-     * @throws Exception to notify any errors occur during retrieving the target channel
+     * @param socketIdleTimeout   Idle timeout for the retrieved socket.
+     * @param httpClientConnectorFuture       carbon call back
+     * @throws Exception    to notify any errors occur during retrieving the target channel
      */
     public void executeTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
             SSLConfig sslConfig, HTTPCarbonMessage carbonMessage, int socketIdleTimeout,

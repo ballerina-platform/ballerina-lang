@@ -19,33 +19,34 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
-import java.nio.ByteBuffer;
+import java.util.List;
+import javax.websocket.Session;
 
 /**
- * This message contains the details of WebSocket binary message.
+ * This interface represents the necessary methods for WebSocket context.
+ * <b>Note: Use this interface in the application level only and only if the user needs only the session details
+ * of a WebSocket message otherwise use the extensions of this interface.</b>
  */
-public interface WebSocketBinaryMessage extends WebSocketMessageContext, WebSocketMessageSessionContext {
+public interface WebSocketMessageSessionContext {
 
     /**
-     * Get the binary data as a byteBuffer.
+     * Retrieve the session of the connection.
      *
-     * @return binary data as a {@link ByteBuffer}.
+     * @return the session of the connection.
      */
-    ByteBuffer getByteBuffer();
+    Session getChannelSession();
 
     /**
-     * Get the binary data as a byte array.
+     * Retrieve the server session of the connection.
      *
-     * @return the binary data as a byte array.
+     * @return the server session if exists.
      */
-    byte[] getByteArray();
+    Session getServerSession();
 
     /**
-     * Check whether the message is a final fragment. <br>
-     * <b> This is true if the user receives single messages and not a fragments of a message. So if the user is
-     * pretty sure that the messages receiving are single messages user does not have to use this method.</b>
+     * Retrieve the client session array relates to the listener channel.
      *
-     * @return true if the received binary data is a final fragment.
+     * @return the client session array relates to the listener channel.
      */
-    boolean isFinalFragment();
+    List<Session> getClientSessions();
 }

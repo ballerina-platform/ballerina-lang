@@ -69,10 +69,10 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketSourceHandler sourceHandler;
     private final String requestedUri;
     private final WebSocketConnectorListener connectorListener;
-    private WebSocketMessageContextImpl webSocketChannelContext;
-    private ChannelHandlerContext ctx;
-    private WebSocketSessionImpl clientSession;
-    private ChannelPromise handshakeFuture;
+    private WebSocketMessageContextImpl webSocketChannelContext = null;
+    private ChannelHandlerContext ctx = null;
+    private WebSocketSessionImpl clientSession = null;
+    private ChannelPromise handshakeFuture = null;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
                                   String requestedUri, WebSocketConnectorListener connectorListener,

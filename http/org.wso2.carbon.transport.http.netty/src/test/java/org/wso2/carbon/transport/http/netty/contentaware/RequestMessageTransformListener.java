@@ -2,11 +2,8 @@ package org.wso2.carbon.transport.http.netty.contentaware;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 

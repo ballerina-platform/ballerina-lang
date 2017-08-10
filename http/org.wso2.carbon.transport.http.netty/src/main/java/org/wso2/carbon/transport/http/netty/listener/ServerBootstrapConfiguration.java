@@ -26,7 +26,8 @@ import java.util.Map;
  */
 public class ServerBootstrapConfiguration {
 
-    private static ServerBootstrapConfiguration bootstrapConfig;
+    private static final Map<String, Object> properties = new HashMap<>();
+    private static ServerBootstrapConfiguration bootstrapConfig = new ServerBootstrapConfiguration(properties);
 
     private boolean tcpNoDelay, keepAlive, socketReuse;
 
@@ -87,10 +88,6 @@ public class ServerBootstrapConfiguration {
     }
 
     public static ServerBootstrapConfiguration getInstance() {
-        if (bootstrapConfig == null) {
-            Map<String, Object> properties = new HashMap<>();
-            bootstrapConfig = new ServerBootstrapConfiguration(properties);
-        }
         return bootstrapConfig;
     }
 
@@ -101,7 +98,7 @@ public class ServerBootstrapConfiguration {
     /**
      * configure transport level properties such as socket timeouts, tcp no delay
      *
-     * @param properties
+     * @param properties to create new bootstrap configuration.
      */
     public static void createBootStrapConfiguration(Map<String, Object> properties) {
         bootstrapConfig = new ServerBootstrapConfiguration(properties);

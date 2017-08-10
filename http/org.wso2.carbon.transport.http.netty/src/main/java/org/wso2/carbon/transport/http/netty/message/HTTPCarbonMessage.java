@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
@@ -230,7 +231,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         return this.serverConnectorFuture;
     }
 
-    public void respond(HTTPCarbonMessage httpCarbonMessage) {
+    public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         serverConnectorFuture.notifyHTTPListener(httpCarbonMessage);
     }
 }

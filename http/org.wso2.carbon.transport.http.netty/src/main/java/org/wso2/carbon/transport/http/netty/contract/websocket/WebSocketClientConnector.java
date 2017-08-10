@@ -34,10 +34,10 @@ public interface WebSocketClientConnector {
     Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
             throws ClientConnectorException;
 
-    Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext)
+    Session connect(WebSocketConnectorListener listener, WebSocketMessageContext channelContext)
             throws ClientConnectorException;
 
 
-    Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext,
+    Session connect(WebSocketConnectorListener listener, WebSocketMessageContext channelContext,
                     Map<String, String> customHeaders) throws ClientConnectorException;
 }

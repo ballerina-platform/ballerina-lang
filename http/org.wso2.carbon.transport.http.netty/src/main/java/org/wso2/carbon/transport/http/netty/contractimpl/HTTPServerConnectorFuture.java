@@ -1,6 +1,7 @@
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -24,12 +25,10 @@ public class HTTPServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void removeHTTPListener(HTTPConnectorListener connectorListener) {
-        this.httpConnectorListener = null;
-    }
-
-    @Override
-    public void notifyHTTPListener(HTTPCarbonMessage httpMessage) {
+    public void notifyHTTPListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
         httpConnectorListener.onMessage(httpMessage);
     }
 
@@ -39,37 +38,50 @@ public class HTTPServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void removeWSListener(WebSocketConnectorListener connectorListener) {
-        this.wsConnectorListener = null;
-    }
-
-    @Override
-    public void notifyWSListener(WebSocketInitMessage initMessage) {
+    public void notifyWSListener(WebSocketInitMessage initMessage) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
         wsConnectorListener.onMessage(initMessage);
     }
 
     @Override
-    public void notifyWSListener(WebSocketTextMessage textMessage) {
+    public void notifyWSListener(WebSocketTextMessage textMessage) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
         wsConnectorListener.onMessage(textMessage);
     }
 
     @Override
-    public void notifyWSListener(WebSocketBinaryMessage binaryMessage) {
+    public void notifyWSListener(WebSocketBinaryMessage binaryMessage) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
         wsConnectorListener.onMessage(binaryMessage);
     }
 
     @Override
-    public void notifyWSListener(WebSocketControlMessage controlMessage) {
+    public void notifyWSListener(WebSocketControlMessage controlMessage) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
         wsConnectorListener.onMessage(controlMessage);
     }
 
     @Override
-    public void notifyWSListener(WebSocketCloseMessage closeMessage) {
+    public void notifyWSListener(WebSocketCloseMessage closeMessage) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
         wsConnectorListener.onMessage(closeMessage);
     }
 
     @Override
-    public void notifyWSListener(Throwable throwable) {
+    public void notifyWSListener(Throwable throwable) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
         wsConnectorListener.onError(throwable);
     }
 }

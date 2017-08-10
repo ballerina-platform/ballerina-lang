@@ -22,7 +22,7 @@ package org.wso2.carbon.transport.http.netty.contract.websocket;
 /**
  * This message contains the details of WebSocket close message.
  */
-public interface WebSocketCloseMessage extends WebSocketChannelContext, WebSocketMessageContext {
+public interface WebSocketCloseMessage extends WebSocketMessageContext, WebSocketMessageSessionContext {
 
     /**
      * Get the status code of closing the connection.

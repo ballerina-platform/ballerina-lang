@@ -9,7 +9,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class HTTPClientConnectorFutureImpl implements HTTPClientConnectorFuture {
 
-    private HTTPConnectorListener httpConnectorListener;
+    private HTTPConnectorListener httpConnectorListener = null;
 
     @Override
     public void setHTTPConnectorListener(HTTPConnectorListener connectorListener) {

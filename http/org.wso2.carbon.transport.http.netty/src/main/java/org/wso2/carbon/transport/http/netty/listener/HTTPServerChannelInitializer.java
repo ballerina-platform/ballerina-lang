@@ -138,21 +138,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /**
-     * Configure the pipeline for TLS NPN negotiation to HTTP/2.
-     *
-     * @param ch                    Channel
-     * @param listenerConfiguration HTTPConnectorListener Configuration
-     * @param sslContext            Netty http2 ALPN SSL context
-     */
-    private void configureHttp2TLSPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration, SslContext
-            sslContext) {
-        ChannelPipeline p = ch.pipeline();
-        p.addLast("ssl", sslContext.newHandler(ch.alloc()));
-        p.addLast("http-upgrade", new HTTPProtocolNegotiationHandler(connectionManager, listenerConfiguration));
-
-    }
-
-    /**
      * Configure the pipeline for a cleartext upgrade from HTTP to HTTP/2.0
      *
      * @param ch                    Channel

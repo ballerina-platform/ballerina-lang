@@ -19,34 +19,46 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
-import java.util.List;
-import javax.websocket.Session;
-
 /**
- * This interface represents the necessary methods for WebSocket context.
- * <b>Note: Use this interface in the application level only and only if the user needs only the session details
+ * This is the common interface for all WebSocket messages.
+ * <b>Note: Use this interface in the application level only and only if the user needs only the channel details
  * of a WebSocket message otherwise use the extensions of this interface.</b>
  */
 public interface WebSocketMessageContext {
 
     /**
-     * Retrieve the session of the connection.
+     * Retrieve negotiated sub-protocol.
      *
-     * @return the session of the connection.
+     * @return the negotiated sub-protocol.
      */
-    Session getChannelSession();
+    String getSubProtocol();
 
     /**
-     * Retrieve the server session of the connection.
+     * Retrieve the target of the application as a String.
      *
-     * @return the server session if exists.
+     * @return the target of the application.
      */
-    Session getServerSession();
+    String getTarget();
 
     /**
-     * Retrieve the client session array relates to the listener channel.
+     * Retrieve the listener port of the the incoming message.
      *
-     * @return the client session array relates to the listener channel.
+     * @return the listener port.
      */
-    List<Session> getClientSessions();
+    String getListenerPort();
+
+    /**
+     * Check whether the given connection is secured or not.
+     *
+     * @return true if the connection is secured.
+     */
+    boolean isConnectionSecured();
+
+    /**
+     * Check whether the message is coming from server connector or client connector.
+     *
+     * @return true if the message is coming from server connector else return false if the message is coming from
+     * client connector.
+     */
+    boolean isServerMessage();
 }

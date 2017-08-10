@@ -97,42 +97,4 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
         boolean allowExtensions = true;
         return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocol, allowExtensions);
     }
-
-    private ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
-        String host = properties.get(Constants.HTTP_HOST) != null ?
-                properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
-        int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
-
-        ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String schema = properties.get(Constants.HTTP_SCHEME);
-        if (schema != null && schema.equals("https")) {
-            config.setScheme(schema);
-            config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
-            config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
-            config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
-            //todo fill truststore stuff
-        }
-        return config;
-    }
-
-    private ServerBootstrapConfiguration getServerBootstrapConfiguration(Set<TransportProperty>
-            transportPropertiesSet) {
-        Map<String, Object> transportProperties = new HashMap<>();
-
-        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-            transportProperties = transportPropertiesSet.stream().collect(
-                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-        }
-        // Create Bootstrap Configuration from listener parameters
-        ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
-        return ServerBootstrapConfiguration.getInstance();
-    }
-
-    private SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
-        Map<String, SenderConfiguration> senderConfigurations =
-                transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
-                        .toMap(senderConf ->
-                                senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
-        return senderConfigurations.get("http");
-    }
 }

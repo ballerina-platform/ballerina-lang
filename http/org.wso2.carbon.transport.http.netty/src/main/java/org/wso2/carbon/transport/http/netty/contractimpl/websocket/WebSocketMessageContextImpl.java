@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageSessionContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +28,8 @@ import javax.websocket.Session;
 /**
  * WebSocket channel handler context with Session context.
  */
-public class WebSocketMessageContextImpl extends BasicWebSocketMessageContextImpl implements WebSocketMessageContext {
+public class WebSocketMessageContextImpl extends BasicWebSocketMessageContextImpl implements
+                                                                                  WebSocketMessageSessionContext {
 
     protected Session serverSession = null;
     protected final Session channelSession;
