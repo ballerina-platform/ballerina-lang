@@ -27,7 +27,7 @@ public class MainRunner implements Runnable {
     public void run() {
         System.out.println("Message received..");
         Map<String, String> props = new HashMap<>();
-        HTTPClientConnector clientConnector = httpConnectorFactory.getHTTPClientConnector(props);
+        HTTPClientConnector clientConnector = httpConnectorFactory.getHTTPClientConnector(null, null);
         try {
             request.setProperty(Constants.HOST, "localhost");
             request.setProperty(Constants.PORT, 8688);

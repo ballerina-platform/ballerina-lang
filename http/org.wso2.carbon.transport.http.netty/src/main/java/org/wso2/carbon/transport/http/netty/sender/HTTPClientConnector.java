@@ -81,7 +81,8 @@ public class HTTPClientConnector implements ClientConnector {
         }
 
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
-        this.connectionManager = ConnectionManager.getInstance(transportProperties);
+        ConnectionManager.init(transportProperties);
+        this.connectionManager = ConnectionManager.getInstance();
     }
 
     @Override

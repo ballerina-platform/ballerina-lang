@@ -32,17 +32,21 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
 
     @Override
-    public ServerConnector getServerConnector(Map<String, String> connectorConfig) {
+    public ServerConnector getServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
+            ListenerConfiguration listenerConfig) {
 
-        String nettyConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
-                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
-        nettyConfigFile = "/home/shaf/Documents/source/public/ballerina/tools-distribution"
-                + "/modules/ballerina/conf/netty-transports.yml";
+//        String nettyConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
+//                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
+//        nettyConfigFile = connectorConfig.get("FILE_PATH");
+//        if (nettyConfigFile != null) {
+//            nettyConfigFile = "/home/shaf/Documents/source/public/ballerina/tools-distribution"
+//                    + "/modules/ballerina/conf/netty-transports.yml";
+//        }
 
-        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
-        ListenerConfiguration listenerConfig = buildListenerConfig("serviceName", connectorConfig);
-        ServerBootstrapConfiguration serverBootstrapConfiguration = getServerBootstrapConfiguration(
-                trpConfig.getTransportProperties());
+//        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+//        ListenerConfiguration listenerConfig = buildListenerConfig("serviceName", connectorConfig);
+//        ServerBootstrapConfiguration serverBootstrapConfiguration = getServerBootstrapConfiguration(
+//                trpConfig.getTransportProperties());
 
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(listenerConfig);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
@@ -55,26 +59,31 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     }
 
     @Override
-    public HTTPClientConnector getHTTPClientConnector(Map<String, String> connectorConfig) {
-        String nettyConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
-                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
-        nettyConfigFile = "/home/shaf/Documents/source/public/ballerina/tools-distribution"
-                + "/modules/ballerina/conf/netty-transports.yml";
+    public HTTPClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
+            SenderConfiguration senderConfiguration) {
+//        String nettyConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
+//                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
+//        nettyConfigFile = "/home/shaf/Documents/source/public/ballerina/tools-distribution"
+//                + "/modules/ballerina/conf/netty-transports.yml";
 
-        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
-        SenderConfiguration senderConfiguration = getSenderConfiguration(trpConfig);
+//        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+//        SenderConfiguration senderConfiguration = getSenderConfiguration(trpConfig);
+//        SSLConfig sslConfig = senderConfiguration.getSslConfig();
+//        int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
+
+//        Map<String, Object> transportProperties = new HashMap<>();
+//        Set<TransportProperty> transportPropertiesSet = trpConfig.getTransportProperties();
+
+//        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+//            transportProperties = transportPropertiesSet.stream().collect(
+//                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+//
+//        }
         SSLConfig sslConfig = senderConfiguration.getSslConfig();
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
 
-        Map<String, Object> transportProperties = new HashMap<>();
-        Set<TransportProperty> transportPropertiesSet = trpConfig.getTransportProperties();
-
-        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-            transportProperties = transportPropertiesSet.stream().collect(
-                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-        }
-        ConnectionManager connectionManager = ConnectionManager.getInstance(transportProperties);
+        ConnectionManager.init(transportProperties);
+        ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
         return new HTTPClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);

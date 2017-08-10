@@ -93,7 +93,11 @@ public class ConnectionManager {
         return new GenericObjectPool(new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool), config);
     }
 
-    public static ConnectionManager getInstance(Map<String, Object> transportProperties) {
+    public static ConnectionManager getInstance() {
+        return connectionManager;
+    }
+
+    public static void init(Map<String, Object> transportProperties) {
         if (connectionManager == null) {
             synchronized (ConnectionManager.class) {
                 if (connectionManager == null) {
@@ -105,9 +109,7 @@ public class ConnectionManager {
                     connectionManager = new ConnectionManager(poolConfiguration, transportProperties);
                 }
             }
-
         }
-        return connectionManager;
     }
 
     /**

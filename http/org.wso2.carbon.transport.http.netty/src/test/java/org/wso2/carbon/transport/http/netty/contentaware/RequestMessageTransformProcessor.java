@@ -64,8 +64,8 @@ public class RequestMessageTransformProcessor implements CarbonMessageProcessor 
                     carbonCallback.done(carbonMessage);
                 } else {
                     List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
-//                    carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-//                    carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                    carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                    carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
 
                     try {
                         if (transformedValue != null) {
