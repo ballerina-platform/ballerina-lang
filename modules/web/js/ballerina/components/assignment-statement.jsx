@@ -31,6 +31,7 @@ import ConnectorActivationContainer from './connector-activation-container';
 import LifeLine from './lifeline.jsx';
 import ImageUtil from './image-util';
 import { util } from './../visitors/sizing-utils';
+import FunctionDefinition from './function-definition';
 
 /**
  * Assignment statement decorator.
@@ -189,15 +190,16 @@ class AssignmentStatement extends React.Component {
         const arrowStartPointX = bBox.getRight();
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
+        const rightExpression = model.getRightExpression();
         const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(
-                        model.getRightExpression()) ? model.getRightExpression() : undefined;
+            rightExpression) ? rightExpression : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
         const backArrowStart = { x: 0, y: 0 };
         const backArrowEnd = { x: 0, y: 0 };
         let connectorDeclaration;
-        if (BallerinaASTFactory.isConnectorInitExpression(model.getChildren()[1])) {
+        if (BallerinaASTFactory.isConnectorInitExpression(rightExpression)) {
             connectorDeclaration = this.renderConnectorDeclaration(model.getViewState().connectorDeclViewState);
         }
 
@@ -225,6 +227,11 @@ class AssignmentStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
+        let lambdaFunc = null;
+        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)
+            && BallerinaASTFactory.isLambdaExpression(rightExpression.getConnectorExpression())) {
+            lambdaFunc = rightExpression.getConnectorExpression().getLambdaFunction();
+        }
 
         return (
             <g>
@@ -252,6 +259,9 @@ class AssignmentStatement extends React.Component {
                     </g>
                     }
                 </StatementDecorator>
+                {lambdaFunc &&
+                <FunctionDefinition model={lambdaFunc} />
+                }
                 {connectorDeclaration}
             </g>);
     }

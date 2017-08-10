@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import BallerinaASTFactory from '../ballerina-ast-factory';
 
 /**
  * Class to represent an Transform statement.
@@ -128,6 +129,64 @@ class TransformStatement extends Statement {
      */
     getStatementString() {
         return 'transform';
+    }
+
+    /**
+     * Remove specified type from transform inputs
+     * @param  {object} input input type needs to be removed
+     */
+    removeInput(input){
+      _.remove(this.input, function(inputVal) {
+          return inputVal.getVariableName() === input.name;
+      });
+
+      _.forEach(_.cloneDeep(this.getChildren()), (child) => {
+           if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+             if (child.getRightExpression().children[0].getVarRoot().getVariableName()  == input.name) {
+                  this.getChildById(child.getID()).getRightExpression().children[0]
+                                                                = BallerinaASTFactory.createNullLiteralExpression();
+             }
+           } else if(child.getRightExpression().children[0].getVariableName() == input.name){
+             this.removeChild(child, true, true);
+           }
+      });
+
+      this.trigger('tree-modified', {
+          origin: this,
+          type: 'input-removed',
+          title: `Remove ${input.name}`,
+          data: {
+          }
+      });
+    }
+
+    /**
+     * Remove specified type from transform outputs
+     * @param  {object} output input type needs to be removed
+     */
+    removeOutput(output) {
+      _.remove(this.output, function(outputVal) {
+          return outputVal.getVariableName() === output.name;
+      });
+
+      _.forEach(_.cloneDeep(this.getChildren()), (child) => {
+          if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+            if (child.getLeftExpression().children[0].getVarRoot().getVariableName()  == output.name) {
+                this.getChildById(child.getID()).getLeftExpression()
+                          .removeChild(this.getChildById(child.getID()).getLeftExpression().children[0]);
+            }
+          } else if(child.getLeftExpression().children[0].getFieldName() == output.name){
+            this.removeChild(child, true, true);
+          }
+      });
+
+      this.trigger('tree-modified', {
+          origin: this,
+          type: 'output-removed',
+          title: `Remove ${output.name}`,
+          data: {
+          }
+      });
     }
 }
 

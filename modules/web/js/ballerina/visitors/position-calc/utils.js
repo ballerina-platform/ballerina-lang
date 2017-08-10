@@ -113,6 +113,7 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     const parentBBox = parentViewState.bBox;
     const bBox = viewSate.bBox;
     const statementContainerBBox = viewSate.components.statementContainer;
+    const workerScopeContainer = viewSate.components.workerScopeContainer;
     const headerBBox = viewSate.components.heading;
     const bodyBBox = viewSate.components.body;
     const annotation = viewSate.components.annotation;
@@ -159,7 +160,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
     statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
         DesignerDefaults.lifeLine.head.height;
-
+    workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
+    workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
     bBox.x = x;
     bBox.y = y;
     headerBBox.x = headerX;
@@ -252,10 +254,10 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
     const viewState = node.getViewState();
 
     if (node.getArguments) {
-        viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
-            + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding;
+        const isLambda = node.isLambda && node.isLambda();
+        viewState.components.openingParameter.x = viewState.bBox.x + (isLambda ? 0 : (
+        viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
+        + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding));
         viewState.components.openingParameter.y = viewState.bBox.y
             + viewState.components.annotation.h;
 

@@ -107,7 +107,9 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
         this.appendSource(constructedSourceSegment);
-        this.getParent().appendSource(this.getGeneratedSource());
+        const generatedSource = this.getGeneratedSource();
+        functionDefinition.getViewState().source = generatedSource;
+        this.getParent().appendSource(generatedSource);
     }
 
     /**

@@ -45,6 +45,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         ifItem.setInsertText(ItemResolverConstants.IF_TEMPLATE);
         ifItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         ifItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        ifItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(ifItem);
 
         // Populate While Statement template
@@ -53,6 +54,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         whileItem.setInsertText(ItemResolverConstants.WHILE_TEMPLATE);
         whileItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         whileItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        whileItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(whileItem);
 
         // Populate Iterate Statement template
@@ -61,6 +63,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         iterateItem.setInsertText(ItemResolverConstants.ITERATE_TEMPLATE);
         iterateItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         iterateItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        iterateItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(iterateItem);
 
         // Populate Fork Statement template
@@ -69,6 +72,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         forkItem.setInsertText(ItemResolverConstants.FORK_TEMPLATE);
         forkItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         forkItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        forkItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(forkItem);
 
         // Populate Try Catch Statement template
@@ -77,6 +81,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         tryCatchItem.setInsertText(ItemResolverConstants.TRY_CATCH_TEMPLATE);
         tryCatchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         tryCatchItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        tryCatchItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(tryCatchItem);
 
         // Populate Transaction Statement template
@@ -93,6 +98,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         transformItem.setInsertText(ItemResolverConstants.TRANSFORM_TEMPLATE);
         transformItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         transformItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        transformItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(transformItem);
 
         // Populate Trigger Worker Statement template
@@ -101,6 +107,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         workerInvokeItem.setInsertText(ItemResolverConstants.TRIGGER_WORKER_TEMPLATE);
         workerInvokeItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         workerInvokeItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        workerInvokeItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(workerInvokeItem);
 
         // Populate Worker Reply Statement template
@@ -109,6 +116,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         workerReplyItem.setInsertText(ItemResolverConstants.WORKER_REPLY_TEMPLATE);
         workerReplyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         workerReplyItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        workerReplyItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(workerReplyItem);
 
         // Populate Continue Statement template
@@ -117,6 +125,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         continueItem.setInsertText(ItemResolverConstants.CONTINUE_TEMPLATE);
         continueItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         continueItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        continueItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(continueItem);
 
         // Populate Break Statement template
@@ -125,6 +134,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         breakItem.setInsertText(ItemResolverConstants.BREAK_TEMPLATE);
         breakItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         breakItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        breakItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(breakItem);
 
         // Populate Return Statement template
@@ -133,6 +143,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         returnItem.setInsertText(ItemResolverConstants.RETURN_TEMPLATE);
         returnItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         returnItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        returnItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(returnItem);
 
         // Populate Reply Statement template
@@ -141,6 +152,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         replyItem.setInsertText(ItemResolverConstants.REPLY_TEMPLATE);
         replyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         replyItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        replyItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(replyItem);
 
         // Populate Worker Reply Statement template
@@ -149,6 +161,7 @@ public class StatementTemplateFilter implements SymbolFilter {
         abortItem.setInsertText(ItemResolverConstants.ABORT_TEMPLATE);
         abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         abortItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        abortItem.setKind(ItemResolverConstants.STATEMENT_KIND);
         completionItems.add(abortItem);
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));

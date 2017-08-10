@@ -25,6 +25,8 @@ import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ASTFactory from './../ast/ballerina-ast-factory';
+import FunctionDefinition from './function-definition';
+import { statement } from './../configs/designer-defaults';
 
 /**
  * Variable Definition Statement Decorator.
@@ -103,7 +105,7 @@ class VariableDefinitionStatement extends React.Component {
 
         // calculate the bBox for the statement
         this.statementBox = {};
-        this.statementBox.h = bBox.h - innerZoneHeight;
+        this.statementBox.h = statement.height;
         this.statementBox.y = bBox.y + innerZoneHeight;
         this.statementBox.w = bBox.w;
         this.statementBox.x = bBox.x;
@@ -146,6 +148,13 @@ class VariableDefinitionStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
+        const lambdaChildren = this.props.model.filterChildren(child => ASTFactory.isLambdaExpression(child));
+        let lambdaFunc = null;
+        if (lambdaChildren.length > 0) {
+            lambdaFunc = lambdaChildren[0].getLambdaFunction();
+        }
+
+
         return (
             <StatementDecorator
                 model={model}
@@ -170,6 +179,9 @@ class VariableDefinitionStatement extends React.Component {
                     {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
                 </g>
             }
+                { lambdaFunc &&
+                <FunctionDefinition model={lambdaFunc}/>
+                }
             </StatementDecorator>);
     }
 }

@@ -71,6 +71,10 @@ class ActionInvocationExpression extends Expression {
         return this._fullPackageName;
     }
 
+    getConnectorExpression() {
+        return this._connectorExpr;
+    }
+
     /**
      * Set action name
      * @param {string} actionName
@@ -140,6 +144,7 @@ class ActionInvocationExpression extends Expression {
         if (jsonNode.children.length > 0) {
             this._connectorExpr = this.getFactory().createFromJson(jsonNode.children[0]);
             this._connectorExpr.initFromJson(jsonNode.children[0]);
+            this._connectorExpr.setParent(this.getParent());
             const connector = this.getInvocationConnector(this._connectorExpr.getExpressionString());
             this.setConnector(connector, { doSilently: true });
 
@@ -273,8 +278,9 @@ class ActionInvocationExpression extends Expression {
     }
 
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
-            this.getFactory().isConnectorInitExpression(target.getChildren()[1]));
+        return (this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
+            this.getFactory().isConnectorInitExpression(target.getChildren()[1]))) &&
+            this.getTopLevelParent().getID() === target.getTopLevelParent().getID();
     }
 }
 

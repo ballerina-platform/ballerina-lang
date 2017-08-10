@@ -77,6 +77,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -1098,8 +1099,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
             // add else catch to parent try-catch
             tryCatchStmtObj.add(BLangJSONModelConstants.CATCH_BLOCKS, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
-        tempJsonArrayRef.pop();
 
         if (tryCatchStmt.getFinallyBlock() != null) {
             JsonObject finallyBlockObj = new JsonObject();
@@ -1878,6 +1879,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 BLangJSONModelConstants.CONNECTOR_INIT_EXPR);
         connectorInitExprObj.add(BLangJSONModelConstants.CONNECTOR_NAME,
                 simpleTypeNameToJson(connectorInitExpr.getTypeName()));
+        if (connectorInitExpr.getParentConnectorInitExpr() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+            connectorInitExpr.getParentConnectorInitExpr().accept(this);
+            connectorInitExprObj.add(BLangJSONModelConstants.PARENT_CONNECTOR_INIT_EXPR,
+                    tempJsonArrayRef.peek().get(0));
+            tempJsonArrayRef.pop();
+        }
         tempJsonArrayRef.push(new JsonArray());
         if (connectorInitExpr.getArgExprs() != null) {
             for (Expression expression : connectorInitExpr.getArgExprs()) {
@@ -2073,6 +2081,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     private void addPosition(JsonObject jsonObj, NodeLocation nodeLocation) {
         if (nodeLocation != null) {
             jsonObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(nodeLocation.getLineNumber()));
+
+            JsonObject position = new JsonObject();
+            position.addProperty(BLangJSONModelConstants.START_LINE, nodeLocation.startLineNumber);
+            position.addProperty(BLangJSONModelConstants.START_OFFSET, nodeLocation.startColumn);
+            position.addProperty(BLangJSONModelConstants.STOP_LINE, nodeLocation.stopLineNumber);
+            position.addProperty(BLangJSONModelConstants.STOP_OFFSET, nodeLocation.startColumn);
+
+            jsonObj.add(BLangJSONModelConstants.POSITION_INFO, position);
         }
     }
 
@@ -2134,6 +2150,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
 
     }
 

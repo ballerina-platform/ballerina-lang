@@ -33,6 +33,8 @@ public class CompletionItem {
 
     private String insertText;
 
+    private CompletionItemData data;
+
     // TODO: add the necessary other information accordingly
 
     public String getLabel() {
@@ -81,5 +83,13 @@ public class CompletionItem {
 
     public void setInsertText(String insertText) {
         this.insertText = insertText;
+    }
+
+    public void setData(CompletionItemData data) {
+        this.data = data;
+    }
+
+    public CompletionItemData getData() {
+        return data;
     }
 }

@@ -53,10 +53,25 @@ class FunctionDefinitionPositionCalcVisitor {
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
         const viewState = node.getViewState();
         const statementContainer = viewState.components.statementContainer;
-        statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        const workerScopeContainer = viewState.components.workerScopeContainer;
+        if (node.isLambda()) {
+            const parentViewState = node.getParent().getParent().getViewState();
+            viewState.bBox.y = parentViewState.bBox.getBottom() - viewState.bBox.h;
+            viewState.bBox.x = parentViewState.bBox.x;
+            viewState.components.body.y = viewState.bBox.y;
+            viewState.components.body.x = viewState.bBox.x;
+            if (node.filterChildren(node.getFactory().isConnectorDeclaration).length > 0) {
+                statementContainer.x = viewState.bBox.x + DesignerDefaults.innerPanel.body.padding.left;
+            } else {
+                statementContainer.x = viewState.bBox.x + (viewState.bBox.w - statementContainer.w) / 2;
+            }
+        } else {
+            statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        }
         statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
-
+        workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
         // populate panel heading positioning.
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }

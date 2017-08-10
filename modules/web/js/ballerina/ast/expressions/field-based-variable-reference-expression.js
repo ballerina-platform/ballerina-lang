@@ -55,6 +55,23 @@ class FieldBasedVariableReferenceExpression extends Expression {
     }
 
     /**
+     * Get root variable reference for specified variable
+     * @param  {Object} variable specified variable node
+     * @return {Object} root variable reference
+     */
+      getVarRoot(variable) {
+        if(_.isUndefined(variable)) {
+          variable = this;
+        }
+
+        if(!_.isUndefined(variable.children) && variable.children.length > 0) {
+          return this.getVarRoot(variable.children[0]);
+        } else {
+          return variable;
+        }
+      }
+
+    /**
      * @see initFromJson docs
      * @returns {Expression} begining expression
      */

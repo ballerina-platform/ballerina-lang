@@ -64,10 +64,6 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        //TODO : transform recovery
-        if (this.viewState.source && !BallerinaASTFactory.isTransformStatement(this.parent)) {
-            return this.viewState.source.replace(/;\s*$/, '');
-        }
         return ((this.getIsDeclaredWithVar() ? 'var' + this.getWSRegion(1) : '')
                 + (!_.isNil(this.getChildren()[0])
                 ? this.getLeftExpression().getExpressionString() : '')
@@ -105,7 +101,18 @@ class AssignmentStatement extends Statement {
      * @returns {void}
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const rightExpression = this.getRightExpression();
+        const factory = this.getFactory();
+        let lambdaSource = null;
+        if (factory.isActionInvocationExpression(rightExpression)) {
+            const connectorExpression = rightExpression.getConnectorExpression();
+            if (factory.isLambdaExpression(connectorExpression)) {
+                lambdaSource = connectorExpression.getLambdaFunction().getViewState().source;
+            }
+        }
+
+        const fragment = FragmentUtils.createStatementFragment(
+            stmtString.replace('ƒ', lambdaSource || 'function(){}') + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {

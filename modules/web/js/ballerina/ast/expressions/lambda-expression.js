@@ -47,7 +47,15 @@ class LambdaExpression extends Expression {
     }
 
     getExpressionString() {
-        return 'function(){}';
+        return 'ƒ';
+    }
+
+    /**
+     * 
+     * @return {FunctionDefinition}
+     */
+    getLambdaFunction() {
+        return this.getChildren()[0];
     }
 
 }
