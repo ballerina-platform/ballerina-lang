@@ -280,14 +280,6 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmtVariableRetry() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtVariableRetry");
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inTrx inFailed err end");
-    }
-
-    @Test
     public void testTransactionStmtSuccess() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testTransactionStmtSuccess");
 
@@ -341,6 +333,12 @@ public class TransactionStmtFlowTest {
             "retry statement should be a root level statement within failed block*")
     public void testTransactionInvalidRetry5() {
         BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry5.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry6.bal:8: " +
+            "invalid retry count*")
+    public void testTransactionInvalidRetry6() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry6.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort1.bal:7: " +

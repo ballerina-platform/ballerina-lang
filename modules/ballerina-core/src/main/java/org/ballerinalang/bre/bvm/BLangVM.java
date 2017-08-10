@@ -2334,9 +2334,13 @@ public class BLangVM {
     }
 
     private void beginTransaction(int transactionId, int retryCountAvailable) {
+        //Transaction is attempted three times by default to improve resiliency
         int retryCount = 3;
         if (retryCountAvailable == 1) {
             retryCount = (int) controlStack.getCurrentFrame().getLongRegs()[0];
+            if (retryCount < 0) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
+            }
         }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {

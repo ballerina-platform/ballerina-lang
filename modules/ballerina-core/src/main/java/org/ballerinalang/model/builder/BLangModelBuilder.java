@@ -1892,7 +1892,6 @@ public class BLangModelBuilder {
 
     public void createRetryStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression countExpression = exprStack.pop();
-        checkTRetryCountExprValidity(location, countExpression);
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         transactionStmtBuilder.setRetryCountExpression(countExpression);
         RetryStmt retryStmt = new RetryStmt(location, whiteSpaceDescriptor, countExpression);
@@ -2090,25 +2089,6 @@ public class BLangModelBuilder {
         }
 
         if (errMsg != null) {
-            errorMsgs.add(errMsg);
-        }
-    }
-
-    private void checkTRetryCountExprValidity(NodeLocation location, Expression retryCountExpr) {
-        boolean error = true;
-        if (retryCountExpr instanceof BasicLiteral) {
-            if (TypeConstants.INT_TNAME.equals(((BasicLiteral) retryCountExpr).getTypeName().getName())) {
-                if (((BasicLiteral) retryCountExpr).getBValue().intValue() < 0) {
-                    error = true;
-                } else {
-                    error = false;
-                }
-            }
-        } else if (retryCountExpr instanceof VariableReferenceExpr) {
-            error = false;
-        }
-        if (error) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.INVALID_RETRY_COUNT);
             errorMsgs.add(errMsg);
         }
     }

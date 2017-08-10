@@ -1515,7 +1515,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(RetryStmt retryStmt) {
-        checkParent(retryStmt);
+        retryStmt.getRetryCountExpression().accept(this);
+        checkRetryStmtValidity(retryStmt);
     }
 
     @Override
@@ -4094,14 +4095,35 @@ public class SemanticAnalyzer implements NodeVisitor {
                     BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
                 }
             }
-            if (StatementKind.RETRY == childStmtType) {
-                StatementKind parentStmtType = stmt.getParent().getKind();
-                if (StatementKind.FAILED_BLOCK != parentStmtType) {
-                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_STMT_LOCATION);
-                }
-                break;
-            }
             parent = parent.getParent();
+        }
+    }
+
+    private static void checkRetryStmtValidity(RetryStmt stmt) {
+        //Check whether the retry statement is root level statement in the failed block
+        StatementKind parentStmtType = stmt.getParent().getKind();
+        if (StatementKind.FAILED_BLOCK != parentStmtType) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_STMT_LOCATION);
+        }
+        //Only non negative integer constants and integer literals are allowed as retry count;
+        Expression retryCountExpr = stmt.getRetryCountExpression();
+        boolean error = true;
+        if (retryCountExpr instanceof BasicLiteral) {
+            if (TypeConstants.INT_TNAME.equals(((BasicLiteral) retryCountExpr).getTypeName().getName())) {
+                if (((BasicLiteral) retryCountExpr).getBValue().intValue() >= 0) {
+                    error = false;
+                }
+            }
+        } else if (retryCountExpr instanceof VariableReferenceExpr) {
+            VariableDef variableDef = ((SimpleVarRefExpr) retryCountExpr).getVariableDef();
+            if (variableDef.getKind() == VariableDef.Kind.CONSTANT) {
+                if (TypeConstants.INT_TNAME.equals(variableDef.getTypeName().getName())) {
+                    error = false;
+                }
+            }
+        }
+        if (error) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_COUNT);
         }
     }
 

@@ -327,31 +327,6 @@ function testTransactionStmtSuccess() (string) {
     return a;
 }
 
-function testTransactionStmtVariableRetry() (string) {
-    int retryCount =  getRetryCount();
-    string a = "start";
-    try {
-        transaction {
-            a = a + " inTrx";
-            errors:Error err = {msg:" err"};
-            throw err;
-        } failed {
-            a = a + " inFailed";
-            retry retryCount;
-        } committed {
-            a = a + " inTrx";
-        }
-    } catch (errors:Error err) {
-        a = a + err.msg;
-    }
-    a = a + " end";
-    return a;
-}
-
-function getRetryCount () (int) {
-    return 2;
-}
-
 function testMultipleTransactionStmtSuccess() (string) {
     string a = "start";
     try {
