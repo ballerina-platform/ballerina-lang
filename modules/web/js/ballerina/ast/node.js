@@ -442,7 +442,7 @@ class ASTNode extends EventChannel {
     static isValidIdentifier(identifier) {
         if (_.isUndefined(identifier)) {
             return false;
-        } else if (/^[a-zA-Z0-9_]*$/.test(identifier)) {
+        } else if (/^[a-zA-Z_$][a-zA-Z0-9_]*$/.test(identifier)) {
             return true;
         }
         return false;
