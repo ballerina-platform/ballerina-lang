@@ -97,6 +97,11 @@ public class LangServerManager {
     private Set<Map.Entry<String, ModelPackage>> packages;
     private Map<Path, Map<String, ModelPackage>> programPackagesMap;
     private Map<Path, BLangProgram> programMap;
+    
+    /**
+     * Caching the built in packages.
+     */
+    private Map<String, ModelPackage> builtInNativePackages;
 
     /**
      * Private constructor
@@ -477,12 +482,14 @@ public class LangServerManager {
         if (message instanceof RequestMessage) {
             JsonObject response = new JsonObject();
             // Load all the packages associated the runtime
-            Map<String, ModelPackage> packages = Utils.getAllPackages();
-            LangServerManager.this.setPackages(packages.entrySet());
+            if (builtInNativePackages == null) {
+                builtInNativePackages = Utils.getAllPackages();
+            }
+            LangServerManager.this.setPackages(builtInNativePackages.entrySet());
 
             // add package info into response
             Gson gson = new Gson();
-            String json = gson.toJson(packages.values());
+            String json = gson.toJson(builtInNativePackages.values());
             JsonParser parser = new JsonParser();
             JsonArray packagesArray = parser.parse(json).getAsJsonArray();
             response.add("packages", packagesArray);
