@@ -134,28 +134,28 @@ public class HTTPServicesRegistry {
             return;
         }
 
-        for (String listenerId : listenerProp.keySet()) {
-            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerId);
-            Map<String, String> propMap = listenerProp.get(listenerId);
+        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entry.getKey());
+            Map<String, String> propMap = entry.getValue();
             if (servicesOnInterface == null) {
                 // Assumption : this is always sequential, no two simultaneous calls can get here
                 servicesOnInterface = new HashMap<>();
-                servicesInfoMap.put(listenerId, servicesOnInterface);
+                servicesInfoMap.put(entry.getKey(), servicesOnInterface);
                 //It comes to here means, this is a new http configuration, in that case,
                 //shouldn't try to find a listener in connector manager, because, if there is already
                 //a listener for the given id, then we don't have a way to make sure that
                 //configuration are same in given configuration and existing listener
                 ServerConnector connector = BallerinaConnectorManager.getInstance()
-                            .createServerConnector(Constants.PROTOCOL_HTTP, listenerId, propMap);
-                listenerPropMap.put(listenerId, propMap);
+                            .createServerConnector(Constants.PROTOCOL_HTTP, entry.getKey(), propMap);
+                listenerPropMap.put(entry.getKey(), propMap);
                 if (connector == null) {
                     throw new BallerinaException(
-                            "ServerConnector interface not registered for : " + listenerId);
+                            "ServerConnector interface not registered for : " + entry.getKey());
                 }
                 // Delay the startup until all services are deployed
                 BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
             } else {
-                Map<String, String> existingMap = listenerPropMap.get(listenerId);
+                Map<String, String> existingMap = listenerPropMap.get(entry.getKey());
                 if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.SERVER_CONNECTOR_ALREADY_EXIST,
                             propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
