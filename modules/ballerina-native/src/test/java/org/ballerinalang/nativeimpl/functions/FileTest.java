@@ -314,7 +314,8 @@ public class FileTest {
         String targetPath = "temp/writeln-file.txt";
         File targetFile = new File(targetPath);
         byte[] content = "Sample Text".getBytes();
-        byte[] newline = ("Sample Text" + System.getProperty("line.separator")).getBytes();
+//        byte[] newline = ("Sample Text" + System.getProperty("line.separator")).getBytes();
+        byte[] newline = ("Sample Text" + System.lineSeparator()).getBytes();
         BBlob byteContent = new BBlob(content);
         BBlob byteNewLine = new BBlob(newline);
         BValue[] args = { byteContent, new BString(targetPath) };
