@@ -35,6 +35,7 @@ import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -57,6 +58,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private CarbonCallback callback;
     private HTTPClientConnectorFuture httpClientConnectorFuture;
+    private HTTPConnectorListener listener;
     private HTTPCarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
@@ -87,12 +89,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 }
 //                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
 //                        .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-                if (httpClientConnectorFuture != null) {
+                if (this.listener != null) {
                     try {
 //                        HTTPTransportContextHolder.getInstance()
 //                                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID))
 //                                .receive(cMsg, callback);
-                        httpClientConnectorFuture.notifyHTTPListener(cMsg);
+                        listener.onMessage(cMsg);
                     } catch (Exception e) {
                         LOG.error("Error while handover response to MessageProcessor ", e);
                     }
@@ -144,6 +146,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public void setHttpClientConnectorFuture(HTTPClientConnectorFuture httpClientConnectorFuture) {
         this.httpClientConnectorFuture = httpClientConnectorFuture;
+    }
+
+    public void setListener(HTTPConnectorListener listener) {
+        this.listener = listener;
     }
 
     public void setConnectionManager(ConnectionManager connectionManager) {

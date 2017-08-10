@@ -56,8 +56,7 @@ public class PassthroughMessageProcessorListener implements HTTPConnectorListene
                 clientConnector =
                         httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
 
-                HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpRequestMessage);
-                httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+                httpRequestMessage.setResponseListener(new HTTPConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> httpRequestMessage.respond(httpResponse));
@@ -68,6 +67,7 @@ public class PassthroughMessageProcessorListener implements HTTPConnectorListene
 
                     }
                 });
+                clientConnector.send(httpRequestMessage);
             } catch (Exception e) {
                 e.printStackTrace();
             }

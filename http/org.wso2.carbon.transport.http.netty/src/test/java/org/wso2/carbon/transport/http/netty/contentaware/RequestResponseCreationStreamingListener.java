@@ -75,8 +75,7 @@ public class RequestResponseCreationStreamingListener implements HTTPConnectorLi
                 HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
                 HTTPClientConnector clientConnector =
                         httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
-                HTTPClientConnectorFuture httpClientConnectorFuture = clientConnector.send(httpCarbonMessage);
-                httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
+                httpCarbonMessage.setResponseListener(new HTTPConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
@@ -103,6 +102,7 @@ public class RequestResponseCreationStreamingListener implements HTTPConnectorLi
 
                     }
                 });
+                clientConnector.send(httpCarbonMessage);
 
             } catch (Exception e) {
                 logger.error("Error while reading stream", e);
