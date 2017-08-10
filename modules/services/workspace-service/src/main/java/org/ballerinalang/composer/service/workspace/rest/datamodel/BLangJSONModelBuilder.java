@@ -1098,8 +1098,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
             // add else catch to parent try-catch
             tryCatchStmtObj.add(BLangJSONModelConstants.CATCH_BLOCKS, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
-        tempJsonArrayRef.pop();
 
         if (tryCatchStmt.getFinallyBlock() != null) {
             JsonObject finallyBlockObj = new JsonObject();
