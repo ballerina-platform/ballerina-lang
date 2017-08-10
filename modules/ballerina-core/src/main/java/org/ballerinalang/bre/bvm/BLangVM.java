@@ -1354,6 +1354,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2MSG:
+                case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
@@ -1744,6 +1745,9 @@ public class BLangVM {
                 break;
             case InstructionCodes.ANY2MSG:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
+                break;
+            case InstructionCodes.ANY2TYPE:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
                 break;
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);

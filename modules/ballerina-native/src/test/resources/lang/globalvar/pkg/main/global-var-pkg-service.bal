@@ -2,7 +2,7 @@ package lang.globalvar.pkg.main;
 
 import ballerina.lang.messages;
 import ballerina.net.http;
-import lang.globalvar.pkg.var;
+import lang.globalvar.pkg.varpkg;
 
 
 
@@ -13,26 +13,26 @@ any glbVarAny = 88343;
 
 float glbVarFloatChange = 99;
 
-float glbVarFloat1 = var:glbVarFloat;
+float glbVarFloat1 = varpkg:glbVarFloat;
 
 float glbVarFunc = functInv();
 
-int glbVarPkgFunc = var:getIntValue();
+int glbVarPkgFunc = varpkg:getIntValue();
 
-@http:BasePath {value:"/globalvar-pkg"}
-service GlobalVar {
+@http:configuration {basePath:"/globalvar-pkg"}
+service<http> GlobalVar {
 
-    string serviceVarFloat = glbVarFloat;
+    string serviceVarFloat = <string> glbVarFloat;
 
-    string serviceVarString = var:glbVarString;
+    string serviceVarString = varpkg:glbVarString;
 
     @http:GET{}
     @http:Path {value:"/defined"}
     resource accessGlobalVarFromOtherPkg (message m) {
         message response = {};
-        int pkgInt = var:glbVarInt;
-        string pkgString = var:glbVarString;
-        float pkgFloat = var:glbVarFloat;
+        int pkgInt = varpkg:glbVarInt;
+        string pkgString = varpkg:glbVarString;
+        float pkgFloat = varpkg:glbVarFloat;
         json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
         messages:setJsonPayload(response, responseJson);
         reply response;
@@ -80,7 +80,7 @@ service GlobalVar {
     resource changeGlobalVarInDiffPkg (message m) {
         message response = {};
 
-        var:glbVarFloatChange = 345432.454;
+        varpkg:glbVarFloatChange = 345432.454;
 
         reply response;
     }
@@ -90,14 +90,14 @@ service GlobalVar {
 }
 
 
-@http:BasePath {value:"/globalvar-second-pkg"}
-service GlobalVarSecond {
+@http:configuration {basePath:"/globalvar-second-pkg"}
+service<http> GlobalVarSecond {
 
     @http:GET{}
     @http:Path {value:"/get-changed-resource-level"}
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
-        float changeVarFloat = var:glbVarFloatChange;
+        float changeVarFloat = varpkg:glbVarFloatChange;
         json responseJson = {"changeVarFloat":changeVarFloat};
         messages:setJsonPayload(response, responseJson);
         reply response;

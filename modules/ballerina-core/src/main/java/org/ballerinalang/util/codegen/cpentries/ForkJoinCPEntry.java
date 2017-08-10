@@ -69,6 +69,6 @@ public class ForkJoinCPEntry implements ConstantPoolEntry {
 
     @Override
     public int hashCode() {
-        return (int) (forkJoinCPIndex ^ (forkJoinCPIndex >>> 32));
+        return forkJoinCPIndex;
     }
 }
