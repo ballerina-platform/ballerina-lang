@@ -31,11 +31,17 @@ public class SkipAutoPopupInFloatingPointLiterals extends CompletionConfidence {
     public ThreeState shouldSkipAutopopup(@NotNull PsiElement contextElement, @NotNull PsiFile psiFile, int offset) {
         PsiElement elementAtOffset = psiFile.findElementAt(offset);
         if (elementAtOffset == null) {
-            return ThreeState.UNSURE;
-        }
-        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtOffset);
-        if (prevVisibleLeaf instanceof FloatingPointLiteral) {
-            return ThreeState.YES;
+            if (offset > 0) {
+                elementAtOffset = psiFile.findElementAt(offset - 1);
+                if (elementAtOffset instanceof FloatingPointLiteral) {
+                    return ThreeState.YES;
+                }
+            }
+        } else {
+            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtOffset);
+            if (prevVisibleLeaf instanceof FloatingPointLiteral) {
+                return ThreeState.YES;
+            }
         }
         return ThreeState.UNSURE;
     }
