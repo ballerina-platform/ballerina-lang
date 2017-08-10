@@ -186,6 +186,26 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Go to source of given AST Node
+     *
+     * @param {ASTNode} node AST Node
+     */
+    goToSource(node) {
+        if (!_.isNil(node)) {
+            const { position, type } = node;
+            // If node has position info
+            if (position) {
+                const { startLine, startOffset } = position;
+                this.jumpToSourcePosition(startLine - 1, startOffset);
+            } else {
+                log.error(`Unable to find location info from ${type} node.`);
+            }
+        } else {
+            log.error('Invalid node to find source line.');
+        }
+    }
+
+    /**
      * Activates source view and move cursor to given position
      *
      * @param {number} line Line number

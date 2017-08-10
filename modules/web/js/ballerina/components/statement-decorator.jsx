@@ -155,13 +155,7 @@ class StatementDecorator extends React.Component {
      */
     onJumpToCodeLine() {
         const { editor } = this.context;
-        const { position } = this.props.model;
-        // Node has position info - came through parser
-        if (position) {
-            const { startLine, startOffset } = position;
-            editor.jumpToSourcePosition(startLine - 1, startOffset);
-        } else {
-        }
+        editor.goToSource(this.props.model);
     }
 
     /**
