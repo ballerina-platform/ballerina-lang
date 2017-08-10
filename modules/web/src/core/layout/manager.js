@@ -39,6 +39,14 @@ class LayoutManagerPlugin extends Plugin {
      */
     constructor() {
         super();
+        this.layout = {
+            [REGIONS.HEADER]: [],
+            [REGIONS.ACTIVITY_BAR]: [],
+            [REGIONS.LEFT_PANEL]: [],
+            [REGIONS.RIGHT_PANEL]: [],
+            [REGIONS.EDITOR_AREA]: [],
+            [REGIONS.BOTTOM_PANEL]: [],
+        };
         this.addViewToLayout = this.addViewToLayout.bind(this);
     }
 
@@ -60,20 +68,18 @@ class LayoutManagerPlugin extends Plugin {
     /**
      * Adds given view to the specified region.
      *
-     * @param {ReactComponent} view
-     * @param {String} region @see constants.js
+     * @param {Object} view definition
      */
-    addViewToLayout(view, region) {
-        // Seperately handle views meant for static regions
-        if (region === REGIONS.ACTIVITY_BAR || region === REGIONS.HEADER) {
-        }
+    addViewToLayout(view) {
+        this.layout[view.region].push(view);
     }
 
     /**
      * Render layout.
      */
     render() {
-        const root = React.createElement(App, {}, null);
+        const layout = this.layout;
+        const root = React.createElement(App, { layout }, null);
         ReactDOM.render(root, document.getElementById(this.config.container));
     }
 

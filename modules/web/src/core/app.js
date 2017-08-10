@@ -127,6 +127,7 @@ class Application {
         const contributions = plugin.getContributions();
         const commands = _.get(contributions, CONTRIBUTIONS.COMMANDS, []);
         const handlers = _.get(contributions, CONTRIBUTIONS.HANDLERS, []);
+        const views = _.get(contributions, CONTRIBUTIONS.VIEWS, []);
 
         commands.forEach((commandDef) => {
             this.commandManager.registerCommand(commandDef);
@@ -136,6 +137,10 @@ class Application {
             const { cmdID, handler, context } = handlerDef;
             this.commandManager.registerHandler(cmdID, handler, context);
         });
+
+        views.forEach((viewDef) => {
+            this.layoutManager.addViewToLayout(viewDef);
+        });
     }
 
     /**
@@ -144,6 +149,7 @@ class Application {
      * @memberof Application
      */
     render() {
+        this.layoutManager.render();
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.
         this.hidePreLoader();

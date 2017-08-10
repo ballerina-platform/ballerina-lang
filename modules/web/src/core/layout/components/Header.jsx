@@ -21,9 +21,8 @@ class Header extends React.Component {
                             <span>Ballerina</span><span className="appname">Composer </span>
                         </a>
                     </div>
-                    <div id="menu-bar-container" className="menu-bar" />
+                    { this.props.children }
                 </div>
-                { this.props.children }
             </header>
         );
     }
