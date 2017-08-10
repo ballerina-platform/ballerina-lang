@@ -33,6 +33,8 @@ class ConnectorInitExpression extends Expression {
         super('ConnectorInitExpression');
         this._arguments = _.get(args, 'arguments', []);
         this._connectorName = _.get(args, 'connectorName');
+        this._parentConnectorInitExpression = _.get(args, 'parentConnectorInitExpression');
+        this._isFilterConnectorInitExpr = _.get(args, 'isFilterConnectorInitExpr', false);
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
@@ -75,6 +77,40 @@ class ConnectorInitExpression extends Expression {
     }
 
     /**
+     * Set the parent connector init expression
+     * @param {ConnectorInitExpression} connectorInitExpr - parent connector init expression
+     */
+    setParentConnectorInitExpression(connectorInitExpr) {
+        this._parentConnectorInitExpression = connectorInitExpr;
+    }
+
+    /**
+     * Get the parent connector init expression
+     * @return {ConnectorInitExpression} - parent connector init expression
+     */
+    getParentConnectorInitExpression() {
+        return this._parentConnectorInitExpression;
+    }
+
+    /**
+     * Set whether the connector init is a filter connector init expression
+     * If the connector init is a parentConnectorInitExpression of some other connector, the former will be
+     * FilterConnectorInit expression
+     * @param {boolean} isFilterConnectorInit - true|false
+     */
+    setIsFilterConnectorInitExpr(isFilterConnectorInit) {
+        this._isFilterConnectorInitExpr = isFilterConnectorInit;
+    }
+
+    /**
+     * Return whether the connector is a FilterConnectorInitExpression or not
+     * @return {boolean} - true | false
+     */
+    getIsFilterConnectorInitExpr() {
+        return this._isFilterConnectorInitExpr;
+    }
+
+    /**
      * initialize ConnectorInitExpression from json object
      * @param {Object} jsonNode to initialize from
      */
@@ -96,6 +132,12 @@ class ConnectorInitExpression extends Expression {
         if (!_.isNil(jsonNode.connector_name)) {
             connectorName = self.getFactory().createFromJson(jsonNode.connector_name);
             connectorName.initFromJson(jsonNode.connector_name);
+        }
+        if (!_.isNil(jsonNode.parent_connector_init_expr)) {
+            const parentConnectorInitExpression = self.getFactory().createFromJson(jsonNode.parent_connector_init_expr);
+            parentConnectorInitExpression.initFromJson(jsonNode.parent_connector_init_expr);
+            parentConnectorInitExpression.setIsFilterConnectorInitExpr(true);
+            this.setParentConnectorInitExpression(parentConnectorInitExpression);
         }
         this.setConnectorName(connectorName, { doSilently: true });
         this.setArgs(argExprs, { doSilently: true });
@@ -137,18 +179,59 @@ class ConnectorInitExpression extends Expression {
      * @return {string} - expression string
      */
     getExpressionString() {
-        let expr = 'create' + this.getWSRegion(1)
-            + this.getConnectorName().toString()
-            + (this.whiteSpace.useDefault ? ' ' : '')
+        let expr = 'create' + this.getConnectorInstanceString();
+        if (!_.isUndefined(this.getParentConnectorInitExpression())) {
+            expr += (this.whiteSpace.useDefault ? ' ' : this.getWSRegion(3))
+                + 'with'
+                + (this.whiteSpace.useDefault ? ' ' : this.getWSRegion(4))
+                + this.getParentConnectorInitExpressionString();
+        }
+        return expr;
+    }
+
+    /**
+     * Get the connector instance signature
+     * Ex: TestConnector(arg1, arg2)
+     * @return {string} - connector instance signature
+     */
+    getConnectorInstanceString() {
+        let spacesBeforeNameRef = '';
+        let spacesNameRefToArgStart = '';
+
+        if (this.getIsFilterConnectorInitExpr()) {
+            spacesBeforeNameRef = this.whiteSpace.useDefault ? ' ' : this.getWSRegion(0);
+            spacesNameRefToArgStart = this.whiteSpace.useDefault ? ' ' : this.getWSRegion(1);
+        } else {
+            spacesBeforeNameRef = this.whiteSpace.useDefault ? ' ' : this.getWSRegion(1);
+            spacesNameRefToArgStart = this.whiteSpace.useDefault ? ' ' : this.getWSRegion(2);
+        }
+
+        let connectorInstanceString = spacesBeforeNameRef +
+            this.getConnectorName().toString().trim()
+            + spacesNameRefToArgStart
             + '(';
+
         this.getArgs().forEach((arg, index) => {
             if (index !== 0) {
-                expr += ',';
-                expr += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
+                connectorInstanceString += ',';
+                connectorInstanceString += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
             }
-            expr += arg.getExpressionString();
+            connectorInstanceString += arg.getExpressionString();
         });
-        return expr + ')';
+
+        return connectorInstanceString + ')';
+    }
+
+    getParentConnectorInitExpressionString() {
+        let expr = '';
+        if (!_.isUndefined(this.getParentConnectorInitExpression())) {
+            expr = this.getParentConnectorInitExpression().getConnectorInstanceString();
+            if (!_.isUndefined(this.getParentConnectorInitExpression().getParentConnectorInitExpression())) {
+                expr += ',';
+            }
+            expr += this.getParentConnectorInitExpression().getParentConnectorInitExpressionString();
+        }
+        return expr;
     }
 }
 
