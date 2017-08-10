@@ -18,6 +18,7 @@ package org.wso2.carbon.transport.http.netty.listener;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -86,6 +87,10 @@ public class ServerBootstrapConfiguration {
     }
 
     public static ServerBootstrapConfiguration getInstance() {
+        if (bootstrapConfig == null) {
+            Map<String, Object> properties = new HashMap<>();
+            bootstrapConfig = new ServerBootstrapConfiguration(properties);
+        }
         return bootstrapConfig;
     }
 
