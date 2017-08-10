@@ -3640,8 +3640,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                         getParentConnectorInitExpr();
                 BType type = null;
                 while (filterConnectorInitExpr != null) {
-                    BLangSymbol symbol = currentPackageScope.resolve(new SymbolName(filterConnectorInitExpr.
-                            getTypeName().getName(), currentPkg));
+                    BLangSymbol symbol;
+                    if (filterConnectorInitExpr.getTypeName().getPackagePath() != null) {
+                        symbol = currentPackageScope.resolve(new SymbolName(filterConnectorInitExpr.
+                                getTypeName().getName(), filterConnectorInitExpr.getTypeName().getPackagePath()));
+                    } else {
+                        symbol = currentPackageScope.resolve(new SymbolName(filterConnectorInitExpr.
+                                getTypeName().getName(), currentPkg));
+                    }
                     if (symbol instanceof BallerinaConnectorDef) {
                         type = (BType) symbol;
                         filterConnectorInitExpr.setInheritedType(type);

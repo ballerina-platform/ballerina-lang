@@ -138,6 +138,10 @@ public class ProgramFileReader {
         programFile.setEntryPackage(entryPkg);
         entryPkg.setProgramFile(programFile);
 
+        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
+            resolveConnectorMethodTables(packageInfo);
+        }
+
         // Read program level attributes
         readAttributeInfoEntries(dataInStream, programFile, programFile);
         return programFile;
@@ -355,7 +359,7 @@ public class ProgramFileReader {
         // Resolve unresolved CP entries.
         resolveCPEntries();
 
-        resolveConnectorMethodTables(packageInfo);
+//        resolveConnectorMethodTables(packageInfo);
 
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
@@ -1544,8 +1548,9 @@ public class ProgramFileReader {
             Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
             for (Integer key : methodTableInteger.keySet()) {
                 int keyType = methodTableInteger.get(key);
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(key);
-                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) packageInfo.getCPEntry(keyType);
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) programFile.getEntryPackage().getCPEntry(key);
+                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) programFile.getEntryPackage().
+                        getCPEntry(keyType);
                 ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
                 methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
             }
