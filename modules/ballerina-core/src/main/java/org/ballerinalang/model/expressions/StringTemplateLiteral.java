@@ -20,7 +20,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.types.BTypes;
 
 /**
  * {@link StringTemplateLiteral} represents a string template literal in Ballerina.
@@ -33,8 +32,6 @@ public class StringTemplateLiteral extends NaryExpression {
 
     public StringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] items) {
         super(location, whiteSpaceDescriptor, items);
-        setType(BTypes.typeString);
-
     }
 
     public Expression getConcatExpr() {

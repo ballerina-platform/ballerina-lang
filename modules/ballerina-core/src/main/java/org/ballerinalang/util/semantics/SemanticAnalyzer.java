@@ -2459,19 +2459,21 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(StringTemplateLiteral stringTemplateLiteral) {
         Expression[] items = stringTemplateLiteral.getArgExprs();
+        Expression concatExpr;
         if (items.length == 1) {
-            items[0].accept(this);
-            stringTemplateLiteral.setConcatExpr(items[0]);
-        } else if (items.length > 1) {
-            Expression expression = items[0];
+            concatExpr = items[0];
+        } else {
+            concatExpr = items[0];
             for (int i = 1; i < items.length; i++) {
                 Expression currentItem = items[i];
-                expression = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
-                                               expression, currentItem);
+                concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                                               concatExpr, currentItem);
             }
-            expression.accept(this);
-            stringTemplateLiteral.setConcatExpr(expression);
         }
+        concatExpr.accept(this);
+        concatExpr.setType(BTypes.typeString);
+        stringTemplateLiteral.setConcatExpr(concatExpr);
+        stringTemplateLiteral.setType(BTypes.typeString);
     }
 
     @Override
