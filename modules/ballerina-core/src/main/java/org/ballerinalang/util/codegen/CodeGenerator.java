@@ -2054,7 +2054,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT) {
+        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT
+                || variableKind == VariableDef.Kind.SERVICE_VAR) {
             int gvIndex = variableDef.getVarIndex();
 
             if (variableStore) {
