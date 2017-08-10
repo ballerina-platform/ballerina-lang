@@ -196,6 +196,9 @@ export const structDefinition = {
     body: {
         height: 100,
     },
+    submitButtonWidth: 40,
+    columnPadding: 5,
+    panelPadding: 10,
 };
 
 export const annotationAttributeDefinition = {
