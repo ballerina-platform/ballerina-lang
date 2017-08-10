@@ -27,7 +27,7 @@ export default class FunctionInv extends React.Component {
             parentFunc, funcInv,
         } = this.props;
         const params = func.getParameters().map((paramObj) => {
-            const param = paramObj.innerType || paramObj;
+            const param = paramObj.typeDef || paramObj;
             const paramDetails = {
                 name: paramObj.name,
                 type: param.type,
