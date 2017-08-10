@@ -47,8 +47,8 @@ class LifeLine extends React.Component {
      *
      */
     onJumptoCodeLine() {
-        editor.switchToView(SOURCE_VIEW);
-        editor.jumpToLine({});
+        const { editor } = this.context;
+        editor.goToSource(this.props.model);
     }
 
     onUpdate(text) {
@@ -230,6 +230,7 @@ class LifeLine extends React.Component {
 }
 
 LifeLine.contextTypes = {
+    model: PropTypes.instanceOf(Object),
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,

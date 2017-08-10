@@ -38,9 +38,9 @@ class AnnotationRenderingVisitor {
         const annotations = node.getChildrenOfType(ASTFactory.isAnnotationAttachment);
 
         if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
-            ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
-            ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
-                ASTFactory.isStructDefinition(node)) {
+            ASTFactory.isConnectorDefinition(node) || ASTFactory.isConnectorAction(node) ||
+            ASTFactory.isAnnotationDefinition(node) || ASTFactory.isStructDefinition(node) ||
+            (ASTFactory.isFunctionDefinition(node) && !node.isLambda())) {
             if (node.viewState.showAnnotationContainer && !node.getParent().getViewState().collapsed) {
                 const bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h;

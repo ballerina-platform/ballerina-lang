@@ -259,9 +259,21 @@ public class BLangJSONModelConstants {
 
     public static final String CONNECTOR_INIT_EXPR = "connector_init_expr";
 
+    public static final String PARENT_CONNECTOR_INIT_EXPR = "parent_connector_init_expr";
+
     public static final String ARGUMENTS = "arguments";
 
     public static final String LINE_NUMBER = "line_number";
+
+    public static final String POSITION_INFO = "position_info";
+
+    public static final String START_LINE = "start_line";
+
+    public static final String START_OFFSET = "start_offset";
+
+    public static final String STOP_LINE = "stop_line";
+
+    public static final String STOP_OFFSET = "stop_offset";
 
     public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";
 

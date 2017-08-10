@@ -1878,6 +1878,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 BLangJSONModelConstants.CONNECTOR_INIT_EXPR);
         connectorInitExprObj.add(BLangJSONModelConstants.CONNECTOR_NAME,
                 simpleTypeNameToJson(connectorInitExpr.getTypeName()));
+        if (connectorInitExpr.getParentConnectorInitExpr() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+            connectorInitExpr.getParentConnectorInitExpr().accept(this);
+            connectorInitExprObj.add(BLangJSONModelConstants.PARENT_CONNECTOR_INIT_EXPR,
+                    tempJsonArrayRef.peek().get(0));
+            tempJsonArrayRef.pop();
+        }
         tempJsonArrayRef.push(new JsonArray());
         if (connectorInitExpr.getArgExprs() != null) {
             for (Expression expression : connectorInitExpr.getArgExprs()) {
@@ -2073,6 +2080,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     private void addPosition(JsonObject jsonObj, NodeLocation nodeLocation) {
         if (nodeLocation != null) {
             jsonObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(nodeLocation.getLineNumber()));
+
+            JsonObject position = new JsonObject();
+            position.addProperty(BLangJSONModelConstants.START_LINE, nodeLocation.startLineNumber);
+            position.addProperty(BLangJSONModelConstants.START_OFFSET, nodeLocation.startColumn);
+            position.addProperty(BLangJSONModelConstants.STOP_LINE, nodeLocation.stopLineNumber);
+            position.addProperty(BLangJSONModelConstants.STOP_OFFSET, nodeLocation.startColumn);
+
+            jsonObj.add(BLangJSONModelConstants.POSITION_INFO, position);
         }
     }
 

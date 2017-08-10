@@ -1,0 +1,47 @@
+.transform-endpoint .btn {
+    float: right;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+}
+
+.transform-endpoint .variable-icon {
+    width: 20px;
+    float: none;
+}
+
+.transform-endpoint .tree-view-icon {
+    width: 20px;
+    display: inline-block;
+    float: none;
+}
+
+.transform-endpoint .source-connect-point {
+    float: right;
+}
+
+.transform-endpoint .target-connect-point {
+    float: left;
+}
+
+.transform-endpoint .return-connect-point {
+    float: right;
+}
+
+.transform-endpoint .param-connect-point {
+    float: left;
+}
+
+.transform-endpoint {
+    position: relative;
+    height: 30px;
+}
+
+.tree-view-icon {
+    width: 10px;
+    float: left;
+    text-align: center;
+    margin: 0;
+    line-height: 30px;
+}

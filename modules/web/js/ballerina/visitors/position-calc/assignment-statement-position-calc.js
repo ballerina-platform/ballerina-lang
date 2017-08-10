@@ -21,6 +21,7 @@ import _ from 'lodash';
 import * as PositioningUtils from './utils';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import PositionCalculatorVisitor from '../position-calculator-visitor';
 
 /**
  * Position visitor class for Assignment Statement.
@@ -57,12 +58,18 @@ class AssignmentStatementPositionCalcVisitor {
     }
 
     /**
+     * @param {AssignmentStatement} node
      * visit the visitor.
      *
      * @memberOf AssignmentStatementPositionCalcVisitor
      * */
-    visit() {
+    visit(node) {
         log.debug('visit AssignmentStatementPositionCalc');
+        const child = node.getRightExpression();
+        if (ASTFactory.isActionInvocationExpression(child) &&
+            ASTFactory.isLambdaExpression(child.getConnectorExpression())) {
+            child.getConnectorExpression().getLambdaFunction().accept(new PositionCalculatorVisitor());
+        }
     }
 
     /**
