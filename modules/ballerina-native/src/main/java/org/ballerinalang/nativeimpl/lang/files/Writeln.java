@@ -46,7 +46,6 @@ public class Writeln extends AbstractNativeFunction {
     @Override public BValue[] execute(Context context) {
 
         byte[] content = getBlobArgument(context, 0);
-//        byte[] newLine = System.getProperty("line.separator").getBytes(Charset.defaultCharset());
         byte[] newLine = System.lineSeparator().getBytes(Charset.defaultCharset());
         BStruct destination = (BStruct) getRefArgument(context, 0);
         try {
