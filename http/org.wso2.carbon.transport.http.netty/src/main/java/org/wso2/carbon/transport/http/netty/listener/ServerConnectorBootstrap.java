@@ -62,29 +62,6 @@ public class ServerConnectorBootstrap {
         initialized = true;
     }
 
-    public void stop() {
-        httpServerChannelInitializer.getConnectionManager().getTargetChannelPool().clear();
-        shutdownEventLoops();
-    }
-
-    private void shutdownEventLoops() {
-        try {
-            EventLoopGroup bossGroup = HTTPTransportContextHolder.getInstance().getBossGroup();
-            if (bossGroup != null) {
-                bossGroup.shutdownGracefully().sync();
-                HTTPTransportContextHolder.getInstance().setBossGroup(null);
-            }
-            EventLoopGroup workerGroup = HTTPTransportContextHolder.getInstance().getWorkerGroup();
-            if (workerGroup != null) {
-                workerGroup.shutdownGracefully().sync();
-                HTTPTransportContextHolder.getInstance().setWorkerGroup(null);
-            }
-            log.info("HTTP transport event loops stopped successfully");
-        } catch (InterruptedException e) {
-            log.error("Error while shutting down event loops " + e.getMessage());
-        }
-    }
-
     private ChannelFuture bindInterface(HTTPServerConnector serverConnector) {
 
         if (!initialized) {
@@ -150,16 +127,6 @@ public class ServerConnectorBootstrap {
         return false;
     }
 
-//    public TransportsConfiguration getTransportsConfiguration() {
-//        return transportsConfiguration;
-//    }
-
-    public void setChannelInitializer(ListenerConfiguration listenerConfiguration) {
-        httpServerChannelInitializer = new HTTPServerChannelInitializer(listenerConfiguration);
-        serverBootstrap.childHandler(httpServerChannelInitializer);
-        this.listenerConfiguration = listenerConfiguration;
-    }
-
     public ServerConnector getServerConnector(ListenerConfiguration listenerConfiguration) {
         HTTPServerConnector httpServerConnector = new HTTPServerConnector("serviceID", this,
                 listenerConfiguration.getHost(), listenerConfiguration.getPort());
@@ -201,8 +168,8 @@ public class ServerConnectorBootstrap {
     }
 
     public void addThreadPools(int parentSize, int childSize) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
-        EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+        EventLoopGroup bossGroup = new NioEventLoopGroup(parentSize);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(childSize);
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
 
@@ -226,9 +193,6 @@ public class ServerConnectorBootstrap {
 
         @Override
         public ServerConnectorFuture start() {
-            //            if (listenerConfiguration.isBindOnStartup()) { // Already bind at the startup, hence skipping
-            //                return null;
-            //            }
             channelFuture = serverConnectorBootstrap.bindInterface(this);
             return getServerConnectorFuture();
         }
@@ -243,54 +207,14 @@ public class ServerConnectorBootstrap {
             }
         }
 
-        //    @Override
-        //    public void beginMaintenance() {
-        //    }
-
-        //    @Override
-        //    public void endMaintenance() {
-        //    }
-
-        //    @Override
-        //    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        //        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
-        //    }
-
-        //    @Override
-        //    public void init() throws ServerConnectorException {
-        //        log.info("Initializing  HTTP Transport HTTPConnectorListener");
-        //    }
-
-        //    @Override
-        //    protected void destroy() throws ServerConnectorException {
-        //        log.info("Destroying  HTTP Transport HTTPConnectorListener");
-        //    }
-
-        public ChannelFuture getChannelFuture() {
+        private ChannelFuture getChannelFuture() {
             return channelFuture;
         }
-
-        //    public void setChannelFuture(ChannelFuture channelFuture) {
-        //        this.channelFuture = channelFuture;
-        //    }
 
         public ListenerConfiguration getListenerConfiguration() {
             return listenerConfiguration;
         }
 
-        //        public void setListenerConfiguration(ListenerConfiguration listenerConfiguration) {
-        //            this.listenerConfiguration = listenerConfiguration;
-        //        }
-
-        //    public void setServerConnectorBootstrap(
-        //            ServerConnectorBootstrap serverConnectorBootstrap) {
-        //        this.serverConnectorBootstrap = serverConnectorBootstrap;
-        //    }
-
-        //    public ServerConnectorBootstrap getServerConnectorBootstrap() {
-        //        return serverConnectorBootstrap;
-        //    }
-        //
         @Override
         public String toString() {
             return listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort();
