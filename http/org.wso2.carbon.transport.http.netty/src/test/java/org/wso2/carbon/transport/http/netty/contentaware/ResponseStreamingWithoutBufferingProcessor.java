@@ -37,7 +37,7 @@ import java.util.concurrent.Executors;
  */
 public class ResponseStreamingWithoutBufferingProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingProcessor.class);
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback callback) throws Exception {

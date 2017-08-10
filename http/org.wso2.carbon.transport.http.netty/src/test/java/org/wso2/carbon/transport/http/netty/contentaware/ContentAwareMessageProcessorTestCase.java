@@ -74,8 +74,6 @@ public class ContentAwareMessageProcessorTestCase {
             urlConn.disconnect();
         } catch (IOException e) {
             TestUtil.handleException("IOException occurred while running messageEchoingFromProcessorTestCase", e);
-        } finally {
-//            TestUtil.removeMessageProcessor(httpConnectorListener);
         }
     }
 
@@ -97,8 +95,6 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseTransformFromProcessorTestCase", e);
-        } finally {
-//            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
     }
 
@@ -119,10 +115,7 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseCreationFromProcessorTestCase", e);
-        } finally {
-//            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
-
     }
 
     @Test
@@ -140,15 +133,11 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseStreamingFromProcessorTestCase", e);
-        } finally {
-//            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
-
     }
 
     @Test
     public void requestResponseTransformStreamingFromProcessorTestCase() {
-
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             httpConnectorListener = new RequestResponseTransformStreamingListener(configuration);
@@ -162,17 +151,14 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseTransformStreamingFromProcessorTestCase", e);
-        } finally {
-//            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
     }
 
     @Test
     public void responseStreamingWithoutBufferingTestCase() {
-
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
-            httpConnectorListener = new ResponseStreamingWithoutBufferingListener(configuration);
+            httpConnectorListener = new ResponseStreamingWithoutBufferingListener();
             TestUtil.updateMessageProcessor(httpConnectorListener);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             urlConn.setChunkedStreamingMode(-1); // Enable Chunking
@@ -183,8 +169,6 @@ public class ContentAwareMessageProcessorTestCase {
             urlConn.disconnect();
         } catch (IOException e) {
             TestUtil.handleException("IOException occurred while running responseStreamingWithoutBufferingTestCase", e);
-        } finally {
-//            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
     }
 
