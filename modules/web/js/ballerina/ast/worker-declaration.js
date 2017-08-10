@@ -136,17 +136,9 @@ class WorkerDeclaration extends ASTNode {
 
         // TODO: check whether return types are allowed
         _.each(jsonNode.children, (childNode) => {
-            let child;
-            let childNodeTemp;
-            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = BallerinaASTFactory.createConnectorDeclaration();
-                childNodeTemp = childNode;
-            } else {
-                child = BallerinaASTFactory.createFromJson(childNode);
-                childNodeTemp = childNode;
-            }
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child, undefined, true, true);
-            child.initFromJson(childNodeTemp);
+            child.initFromJson(childNode);
         });
     }
 

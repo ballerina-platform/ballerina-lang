@@ -15,8 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { blockStatement, statement, actionBox } from '../configs/designer-defaults.js';
@@ -88,7 +86,8 @@ class BlockStatementDecorator extends React.Component {
      *
      */
     onJumpToCodeLine() {
-        document.getElementsByClassName('view-source-btn')[0].click();
+        const { editor } = this.context;
+        editor.goToSource(this.props.model);
     }
 
     /**
@@ -366,6 +365,7 @@ BlockStatementDecorator.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default breakpointHOC(BlockStatementDecorator);

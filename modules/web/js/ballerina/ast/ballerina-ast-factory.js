@@ -1775,9 +1775,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             node = BallerinaASTFactory.createBasicLiteralExpression();
             break;
         case 'lambda_function_expression' :
-        node = BallerinaASTFactory.createLambdaExpression();
-        break;
-    case 'null_literal_expression' :
+            node = BallerinaASTFactory.createLambdaExpression();
+            break;
+        case 'null_literal_expression' :
             node = BallerinaASTFactory.createNullLiteralExpression();
             break;
         case 'variable_reference_list':
@@ -1972,8 +1972,24 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);
     }
+    // handle special case of connector declaration
+    if (jsonNode.type === 'variable_definition_statement' &&
+                !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
+        node = BallerinaASTFactory.createConnectorDeclaration();
+    } 
 
     node.setLineNumber(jsonNode.line_number, { doSilently: true });
+
+    if (!_.isNil(jsonNode.position_info)) {
+        const { start_line, start_offset, stop_line, stop_offset } = jsonNode.position_info;
+        const position = {
+            startLine: start_line,
+            startOffset: start_offset,
+            stopLine: stop_line,
+            stopOffset: stop_offset
+        };
+        node.setPosition(position, { doSilently: true });
+    }
     if (jsonNode.is_identifier_literal) {
         node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, { doSilently: true });
     }

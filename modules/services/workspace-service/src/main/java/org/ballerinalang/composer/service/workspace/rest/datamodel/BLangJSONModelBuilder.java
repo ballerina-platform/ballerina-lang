@@ -2080,6 +2080,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     private void addPosition(JsonObject jsonObj, NodeLocation nodeLocation) {
         if (nodeLocation != null) {
             jsonObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(nodeLocation.getLineNumber()));
+
+            JsonObject position = new JsonObject();
+            position.addProperty(BLangJSONModelConstants.START_LINE, nodeLocation.startLineNumber);
+            position.addProperty(BLangJSONModelConstants.START_OFFSET, nodeLocation.startColumn);
+            position.addProperty(BLangJSONModelConstants.STOP_LINE, nodeLocation.stopLineNumber);
+            position.addProperty(BLangJSONModelConstants.STOP_OFFSET, nodeLocation.startColumn);
+
+            jsonObj.add(BLangJSONModelConstants.POSITION_INFO, position);
         }
     }
 
