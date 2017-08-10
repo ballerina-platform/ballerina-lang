@@ -64,7 +64,14 @@ class ConnectorDeclarationPositionCalcVisitor {
         } else {
             x = this.positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, parent);
         }
-        let y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+        let y;
+        if (ASTFactory.isStatement(parent)) {
+            y = parentViewState.components.statementContainer.y + DesignerDefaults.variablesPane.topBarHeight;
+        } else if (ASTFactory.isWorkerDeclaration(parent)) {
+            y = parentViewState.components.workerScopeContainer.y + DesignerDefaults.statement.gutter.v;
+        } else {
+            y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+        }
 
         if (parentViewState.components.variablesPane) {
             y += (parentViewState.components.variablesPane.h + DesignerDefaults.panel.body.padding.top);
@@ -180,20 +187,32 @@ class ConnectorDeclarationPositionCalcVisitor {
         let xPosition;
         if (connectorIndex === 0) {
             if (workers.length > 0) {
-                /**
-                 * Due to the model order in ast, at the moment, workers and the parent's statement positioning have not
-                 * calculated. Therefore we need to consider the widths of them to get the connector x position
-                 */
                 let totalWorkerStmtContainerWidth = 0;
-                _.forEach(workers, (worker) => {
-                    totalWorkerStmtContainerWidth += worker.getViewState().components.statementContainer.w;
-                });
-                xPosition = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
-                    parentViewState.components.statementContainer.w + totalWorkerStmtContainerWidth +
-                    (DesignerDefaults.lifeLine.gutter.h * (workers.length + 1));
+                let noOfWorkers = 0;
+                if (!ASTFactory.isFunctionDefinition(parentNode)) {
+                    /**
+                     * Due to the model order in ast, at the moment, workers and the parent's statement positioning
+                     * have not calculated. Therefore we need to consider the widths of them to get the connector
+                     * x position
+                     */
+                    _.forEach(workers, (worker) => {
+                        totalWorkerStmtContainerWidth += (worker.getViewState().components.statementContainer.w +
+                        worker.getViewState().components.statementContainer.expansionW);
+                    });
+                    noOfWorkers = workers.length;
+                }
+                if (ASTFactory.isResourceDefinition(parentNode) || ASTFactory.isConnectorAction(parentNode)) {
+                    xPosition = parentViewState.components.statementContainer.getRight() +
+                        DesignerDefaults.lifeLine.gutter.h + parentViewState.components.statementContainer.expansionW;
+                } else {
+                    xPosition = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
+                        parentViewState.components.statementContainer.w + totalWorkerStmtContainerWidth +
+                        parentViewState.components.statementContainer.expansionW +
+                        (DesignerDefaults.lifeLine.gutter.h * (noOfWorkers + 1));
+                }
             } else {
                 xPosition = parentViewState.components.statementContainer.getRight() +
-                    DesignerDefaults.lifeLine.gutter.h;
+                    DesignerDefaults.lifeLine.gutter.h + parentViewState.components.statementContainer.expansionW;
             }
         } else if (connectorIndex > 0) {
             const previousConnector = connectors[connectorIndex - 1];

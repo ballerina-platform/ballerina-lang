@@ -60,11 +60,10 @@ class TryStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-
         const addNewComponentsBtn = (
             <g onClick={this.onAddCatchClick}>
                 <rect
-                    x={bBox.x + bBox.w - 10}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
                     y={bBox.y + bBox.h - 25}
                     width={20}
                     height={20}
@@ -73,7 +72,7 @@ class TryStatement extends React.Component {
                     className="add-catch-button"
                 />
                 <text
-                    x={bBox.x + bBox.w - 4}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
                     y={bBox.y + bBox.h - 15}
                     width={20}
                     height={20}
