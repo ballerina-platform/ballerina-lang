@@ -1913,6 +1913,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 BLangJSONModelConstants.CONNECTOR_INIT_EXPR);
         connectorInitExprObj.add(BLangJSONModelConstants.CONNECTOR_NAME,
                 simpleTypeNameToJson(connectorInitExpr.getTypeName()));
+        if (connectorInitExpr.getParentConnectorInitExpr() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+            connectorInitExpr.getParentConnectorInitExpr().accept(this);
+            connectorInitExprObj.add(BLangJSONModelConstants.PARENT_CONNECTOR_INIT_EXPR,
+                    tempJsonArrayRef.peek().get(0));
+            tempJsonArrayRef.pop();
+        }
         tempJsonArrayRef.push(new JsonArray());
         if (connectorInitExpr.getArgExprs() != null) {
             for (Expression expression : connectorInitExpr.getArgExprs()) {

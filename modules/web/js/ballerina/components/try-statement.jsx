@@ -16,23 +16,84 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
+import BlockStatementDecorator from './block-statement-decorator';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import { getComponentForNodeArray } from './utils';
+import './try-catch-statement.css';
 
 class TryStatement extends React.Component {
 
+    /**
+     * Creates an instance of TryStatement.
+     * @param {Object} props React properties.
+     * @memberof TryStatement
+     */
     constructor(props) {
         super(props);
+        this.onAddCatchClick = this.onAddCatchClick.bind(this);
     }
 
+    /**
+     * Add a new catch clause
+     */
+    onAddCatchClick() {
+        const parent = this.props.model.parent;
+        const model = this.props.model;
+        if (parent.getCatchStatements()) {
+            const newStatement = BallerinaASTFactory.createCatchStatement();
+            const thisNodeIndex = parent.getIndexOfChild(model);
+            parent.addChild(newStatement, thisNodeIndex + 1);
+        } else {
+            const newStatement = BallerinaASTFactory.createCatchStatement();
+            parent.addChild(newStatement);
+        }
+    }
+
+    /**
+     * Renders the view for a try statement.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof TryStatement
+     */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Try'} model={model.parent}>
-            {children}
-        </BlockStatementDecorator>);
+
+        const addNewComponentsBtn = (
+            <g onClick={this.onAddCatchClick}>
+                <rect
+                    x={bBox.x + bBox.w - 10}
+                    y={bBox.y + bBox.h - 25}
+                    width={20}
+                    height={20}
+                    rx={10}
+                    ry={10}
+                    className="add-catch-button"
+                />
+                <text
+                    x={bBox.x + bBox.w - 4}
+                    y={bBox.y + bBox.h - 15}
+                    width={20}
+                    height={20}
+                    className="add-catch-button-label"
+                >
+                    +
+                </text>
+            </g>
+        );
+
+        return (
+            <BlockStatementDecorator
+                dropTarget={model}
+                bBox={bBox}
+                title={'Try'}
+                model={model.parent}
+                utilities={addNewComponentsBtn}
+            >
+                {children}
+            </BlockStatementDecorator>);
     }
 }
 

@@ -19,6 +19,8 @@ import _ from 'lodash';
 import { util } from './../sizing-utils';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Dimension visitor class for assignment statement.
@@ -51,7 +53,12 @@ class AssignmentStatementDimensionCalculatorVisitor {
      *
      * @memberOf AssignmentStatementDimensionCalculatorVisitor
      * */
-    visit() {
+    visit(node) {
+        const child = node.getRightExpression();
+        if (ASTFactory.isActionInvocationExpression(child) &&
+            ASTFactory.isLambdaExpression(child.getConnectorExpression())) {
+            child.getConnectorExpression().getLambdaFunction().accept(new DimensionCalculatorVisitor());
+        }
     }
 
     /**
@@ -62,9 +69,20 @@ class AssignmentStatementDimensionCalculatorVisitor {
      * @memberOf AssignmentStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
-        if (node.getFactory().isConnectorInitExpression(node.getChildren()[1])) {
+        const viewState = node.getViewState();
+        util.populateSimpleStatementBBox(node.getStatementString(), viewState);
+        const child = node.getRightExpression();
+        if (node.getFactory().isConnectorInitExpression(child)) {
             AssignmentStatementDimensionCalculatorVisitor.calculateConnectorDeclarationDimension(node);
+        }
+        if (ASTFactory.isActionInvocationExpression(child)) {
+            const connectorExpression = child.getConnectorExpression();
+            if (ASTFactory.isLambdaExpression(connectorExpression)) {
+                const lambdaFn = connectorExpression.getLambdaFunction();
+                const funcViewState = lambdaFn.getViewState();
+                viewState.bBox.h += funcViewState.bBox.h;
+                viewState.bBox.w = funcViewState.bBox.w;
+            }
         }
     }
 

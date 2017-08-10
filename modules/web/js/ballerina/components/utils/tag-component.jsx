@@ -379,7 +379,7 @@ class TagController extends React.Component {
         return (
             <g key={componentData.title}>
                 <rect
-                    x={componentData.components.openingBracket.x - 3}
+                    x={componentData.components.openingBracket.x}
                     y={componentData.components.openingBracket.y}
                     width={(componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3))
                     + componentData.components.closingBracket.w}
