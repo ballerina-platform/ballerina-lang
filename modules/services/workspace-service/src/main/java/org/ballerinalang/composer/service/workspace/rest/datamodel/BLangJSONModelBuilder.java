@@ -367,6 +367,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_LAMBDA_FUNCTION, function.isLambda());
+        jsonFunc.addProperty(BLangJSONModelConstants.HAS_RETURNS_KEYWORD, function.hasReturnsKeyword());
         this.addPosition(jsonFunc, function.getNodeLocation());
         this.addWhitespaceDescriptor(jsonFunc, function.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -2174,7 +2175,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             FunctionTypeName functionTypeName = (FunctionTypeName) typename;
 
             getParamList(sb, functionTypeName.getParamTypes(), functionTypeName.getParamFieldNames());
-            if (functionTypeName.isReturnWordAvailable()) {
+            if (functionTypeName.hasReturnsKeyword()) {
                 sb.append(" returns ");
             }
 

@@ -39,6 +39,7 @@ class FunctionDefinition extends CallableDefinition {
         this._annotations = _.get(args, 'annotations', []);
         this._isNative = _.get(args, 'isNative', false);
         this._isLambda = _.get(args, 'isLambda', false);
+        this._hasReturnsKeyword = _.get(args, 'hasReturnsKeyword', false);
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
@@ -363,14 +364,29 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     /**
+     * Is 'returns' keyword used in source.
+     *
+     * @param hasReturnsKeyword {boolean?} is 'returns' keyword used in source.
+     * @return {boolean} Is sss.
+     */
+    hasReturnsKeyword(hasReturnsKeyword) {
+        if (!_.isNil(hasReturnsKeyword)) {
+            this._hasReturnsKeyword = hasReturnsKeyword;
+        }
+        return this._hasReturnsKeyword;
+    }
+
+    /**
      * initialize FunctionDefinition from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.function_name] - Name of the function definition
      * @param {string} [jsonNode.annotations] - Annotations of the function definition
      * @param {boolean} [jsonNode.is_public_function] - Public or not of the function
+     * @param {boolean} [jsonNode.has_returns_keyword] - is 'retruns' keyword used in source
      */
     initFromJson(jsonNode) {
         this.isLambda(jsonNode.is_lambda_function);
+        this.hasReturnsKeyword(jsonNode.has_returns_keyword);
         this.setFunctionName(jsonNode.function_name, { doSilently: true });
         this.setIsPublic(jsonNode.is_public_function, { doSilently: true });
         this._annotations = jsonNode.annotations;
