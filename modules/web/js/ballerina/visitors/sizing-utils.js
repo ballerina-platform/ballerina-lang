@@ -264,10 +264,6 @@ class SizingUtil {
 
         components.statementContainer.h = statementHeight;
         components.statementContainer.w = statementWidth;
-
-        /* components.workerScopeContainer.h = statementHeight + DesignerDefaults.canvas.padding.top +
-            DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.height +
-            DesignerDefaults.statement.padding.top + DesignerDefaults.statement.padding.bottom;*/
         components.workerScopeContainer.w = statementWidth;
         components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
 
