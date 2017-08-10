@@ -46,7 +46,8 @@ public class BTypeValue implements BRefType<BType> {
 
     @Override
     public String stringValue() {
-        return typeValue.getName() + ".type";
+        return (typeValue.getPackagePath() == null || typeValue.getPackagePath().equals(".")) ?
+                typeValue.getName() : typeValue.getPackagePath() + ":" + typeValue.getName();
     }
 
     @Override
@@ -60,6 +61,11 @@ public class BTypeValue implements BRefType<BType> {
     }
 
     public boolean equals(Object obj) {
+        // if obj == 'null' or not instance of BTypeValue - return false
+        if (obj == null || !(obj instanceof BTypeValue)) {
+            return false;
+        }
+
         BTypeValue typeValue = (BTypeValue) obj;
         if ((typeValue.value() instanceof BArrayType) &&
                 (this.value() instanceof BArrayType)) {

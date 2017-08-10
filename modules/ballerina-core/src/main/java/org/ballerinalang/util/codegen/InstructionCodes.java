@@ -218,6 +218,8 @@ public interface InstructionCodes {
     int CHECKCAST = 180;
     int NULL2JSON = 181;
 
+    int ANY2TYPE = 182;
+
 
     // Transactions
     int TRBGN = 188;

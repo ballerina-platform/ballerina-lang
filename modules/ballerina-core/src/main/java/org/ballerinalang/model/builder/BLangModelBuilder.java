@@ -618,7 +618,8 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, typeName.getWhiteSpaceDescriptor(),
+                    null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
@@ -922,9 +923,9 @@ public class BLangModelBuilder {
 
     public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                                   SimpleTypeName typeName, boolean argsAvailable,
-                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
                                                   List<BLangModelBuilder.NameReference> filterNameReferenceList,
-                                                  List<Boolean> argExistenceList) {
+                                                  List<Boolean> argExistenceList,
+                                                  List<WhiteSpaceDescriptor> filterInitWSDescriptors) {
         List<List<Expression>> filterArgExprList = new ArrayList<>();
         for (int i = 0; i < argExistenceList.size(); i++) {
             List<Expression> filterArgExpr;
@@ -957,8 +958,9 @@ public class BLangModelBuilder {
                     filterNameReference.getPackageName(), null);
             List<Expression> argExpr = filterArgExprList.get(j);
             filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
-            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
-                    filterTypeName,
+            WhiteSpaceDescriptor wsDescriptor = (filterInitWSDescriptors.size() == 0 ?
+                    null : filterInitWSDescriptors.get(j));
+            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, wsDescriptor, filterTypeName,
                     argExpr.toArray(new Expression[argExpr.size()]));
             currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
             currentConnectorInitExpr = filterConnectorInitExpr;
@@ -1469,12 +1471,13 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addTryCatchBlockStmt() {
+    public void addTryCatchBlockStmt(NodeLocation location) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setBlockKind(StatementKind.TRY_BLOCK);
+        blockStmtBuilder.setLocation(location);
         BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
@@ -1803,11 +1806,12 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addTransactionBlockStmt() {
+    public void addTransactionBlockStmt(NodeLocation location) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setBlockKind(StatementKind.TRANSACTION_BLOCK);
+        blockStmtBuilder.setLocation(location);
         BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();

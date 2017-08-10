@@ -864,6 +864,22 @@ public class JSONUtils {
     }
 
     /**
+     * Remove a field from JSON. Has no effect if the JSON if not object types or if the given field doesn't exists.
+     * 
+     * @param json JSON object
+     * @param fieldName Name of the field to remove
+     */
+    public static void remove(BJSON json, String fieldName) {
+        JsonNode node = json.value();
+
+        if (node.getNodeType() != JsonNodeType.OBJECT) {
+            return;
+        }
+
+        ((ObjectNode) node).remove(fieldName);
+    }
+
+    /**
      * Convert a JSON node to an array.
      *
      * @param jsonNode JSON to convert

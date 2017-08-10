@@ -33,10 +33,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class SessionManager {
 
-    private static SessionManager instance = null;
-    private static Map<String, Session> sessionMap = new ConcurrentHashMap<>();
-    private static SessionIdGenerator sessionIdGenerator = new SessionIdGenerator();
-    private static ScheduledExecutorService sessionExpiryChecker;
+    private static SessionManager instance = new SessionManager();
+    private Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+    private SessionIdGenerator sessionIdGenerator = new SessionIdGenerator();
+    private ScheduledExecutorService sessionExpiryChecker;
 
     /**
      * Max number of sessions that can be active at a given time.
@@ -50,15 +50,7 @@ public class SessionManager {
      */
     private static final int SESSION_ID_LENGTH = 16;
 
-    public static SessionManager getInstance() {
-        if (instance == null) {
-            instance = new SessionManager();
-            init();
-        }
-        return instance;
-    }
-
-    public static void init() {
+    private SessionManager() {
         sessionIdGenerator.setSessionIdLength(SESSION_ID_LENGTH);
         // Session expiry scheduled task
         sessionExpiryChecker = Executors.newScheduledThreadPool(1);
@@ -67,9 +59,13 @@ public class SessionManager {
                                 .filter(session ->
                                         (session.getMaxInactiveInterval() >= 0 &&
                                                 System.currentTimeMillis() - session.getLastAccessedTime() >=
-                                                session.getMaxInactiveInterval() * 1000))
+                                                        session.getMaxInactiveInterval() * 1000))
                                 .forEach(Session::invalidate),
                 30, 30, TimeUnit.SECONDS);
+    }
+
+    public static SessionManager getInstance() {
+        return instance;
     }
 
     public Session getHTTPSession(String sessionId) {
