@@ -76,6 +76,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -1311,6 +1312,13 @@ public class CodeGenerator implements NodeVisitor {
         int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
         lambdaExpr.setTempOffset(nextIndex);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression concatExpr = stringTemplateLiteral.getConcatExpr();
+        concatExpr.accept(this);
+        stringTemplateLiteral.setTempOffset(concatExpr.getTempOffset());
     }
 
     @Override

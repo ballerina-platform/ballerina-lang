@@ -88,6 +88,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -2453,6 +2454,26 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(LambdaExpression lambdaExpr) {
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression[] items = stringTemplateLiteral.getArgExprs();
+        Expression concatExpr;
+        if (items.length == 1) {
+            concatExpr = items[0];
+        } else {
+            concatExpr = items[0];
+            for (int i = 1; i < items.length; i++) {
+                Expression currentItem = items[i];
+                concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                                               concatExpr, currentItem);
+            }
+        }
+        concatExpr.accept(this);
+        concatExpr.setType(BTypes.typeString);
+        stringTemplateLiteral.setConcatExpr(concatExpr);
+        stringTemplateLiteral.setType(BTypes.typeString);
     }
 
     @Override
