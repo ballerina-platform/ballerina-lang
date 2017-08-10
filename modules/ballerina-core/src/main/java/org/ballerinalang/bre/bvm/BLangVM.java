@@ -32,6 +32,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -81,10 +82,14 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructFieldDefaultValue;
+import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
@@ -2306,6 +2311,38 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
         BStruct bStruct = new BStruct(structInfo.getType());
+
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            DefaultValueAttributeInfo defaultValAttrInfo =
+                    (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+            if (defaultValAttrInfo == null) {
+                continue;
+            }
+
+            StructFieldDefaultValue defaultValue = defaultValAttrInfo.getDefaultValue();
+            switch (defaultValue.getTypeDesc()) {
+                case TypeSignature.SIG_STRING:
+                    bStruct.setStringField(++stringRegIndex, defaultValue.getStringValue());
+                    break;
+                case TypeSignature.SIG_INT:
+                    bStruct.setIntField(++longRegIndex, defaultValue.getIntValue());
+                    break;
+                case TypeSignature.SIG_FLOAT:
+                    bStruct.setFloatField(++doubleRegIndex, defaultValue.getFloatValue());
+                    break;
+                case TypeSignature.SIG_BOOLEAN:
+                    bStruct.setBooleanField(++booleanRegIndex, defaultValue.getBooleanValue() ? 1 : 0);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         sf.refRegs[i] = bStruct;
     }
 
@@ -3287,7 +3324,8 @@ public class BLangVM {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(), 
+                    sf.packageInfo);
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
@@ -3362,5 +3400,14 @@ public class BLangVM {
         if (session != null) {
             session.generateSessionHeader(message);
         }
+    }
+    
+    private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
+        for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {
+            if (attributeInfo.getKind() == attrInfoKind) {
+                return attributeInfo;
+            }
+        }
+        return null;
     }
 }

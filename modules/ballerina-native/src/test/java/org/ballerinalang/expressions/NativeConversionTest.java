@@ -248,9 +248,17 @@ public class NativeConversionTest {
     @Test(description = "Test converting a incompatible JSON to a struct", 
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*cannot convert 'json' to type 'Person': error while " +
-                    "mapping 'parent': no such field found.*")
+                    "mapping 'age': incompatible types: expected 'int', found 'string' in json.*")
     public void testIncompatibleJsonToStruct() {
         BLangFunctions.invokeNew(programFile, "testIncompatibleJsonToStruct");
+    }
+
+    @Test
+    public void testJsonToStructWithMissingFields() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToStructWithMissingFields");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\",age:25,parent:null,info:" + 
+                "{\"status\":\"single\"},address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72]," +
+                "a:null,score:0.0,alive:false}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
@@ -420,5 +428,54 @@ public class NativeConversionTest {
         String errorMsg = error.getStringField(0);
         Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'Person': error while mapping" +
             " 'parent': incompatible types: expected 'json-object', found 'string'");
+    }
+
+    @Test
+    public void testStructToMapWithRefTypeArray() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructToMapWithRefTypeArray");
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+
+        BValue name = map.get("title");
+        Assert.assertTrue(name instanceof BString);
+        Assert.assertEquals(name.stringValue(), "The Revenant");
+
+        BValue age = map.get("year");
+        Assert.assertTrue(age instanceof BInteger);
+        Assert.assertEquals(((BInteger) age).intValue(), 2015);
+
+        BValue marks = map.get("genre");
+        Assert.assertTrue(marks instanceof BStringArray);
+        BStringArray genreArray = (BStringArray) marks;
+        Assert.assertEquals(genreArray.get(0), "Adventure");
+        Assert.assertEquals(genreArray.get(1), "Drama");
+        Assert.assertEquals(genreArray.get(2), "Thriller");
+
+        BValue actors = map.get("actors");
+        Assert.assertTrue(actors instanceof BRefValueArray);
+        BRefValueArray actorsArray = (BRefValueArray) actors;
+        Assert.assertTrue(actorsArray.get(0) instanceof BStruct);
+        Assert.assertEquals(actorsArray.get(0).stringValue(), "{fname:\"Leonardo\",lname:\"DiCaprio\",age:35}");
+    }
+
+    @Test
+    public void testStructWithStringArrayToJSON() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructWithStringArrayToJSON");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\",\"Doe\"]}");
+    }
+
+    @Test
+    public void testEmptyJSONtoStructWithDefaults() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithDefaults");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null}");
+    }
+
+    @Test
+    public void testEmptyJSONtoStructWithoutDefaults() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithoutDefaults");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null}");
     }
 }

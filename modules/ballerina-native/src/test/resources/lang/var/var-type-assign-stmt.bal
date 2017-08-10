@@ -93,7 +93,7 @@ struct PersonA {
 }
 
 function testJsonToStructWithErrors() (PersonA, errors:TypeConversionError) {
-    json j = {name:"supun"};
+    json j = {name:"supun", age:"25"};
 
     var person, err = <PersonA> j;
 
