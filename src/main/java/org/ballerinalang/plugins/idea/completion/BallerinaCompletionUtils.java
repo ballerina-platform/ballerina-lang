@@ -457,20 +457,10 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, ATTACH);
     }
 
-    /**
-     * Adds function specific keywords like <b>return</b> as lookup elements.
-     *
-     * @param parameters parameters which contain details of completion invocation
-     * @param resultSet  result list which is used to add lookups
-     */
-    static void addFunctionSpecificKeywords(@NotNull CompletionParameters parameters,
-                                            @NotNull CompletionResultSet resultSet) {
-        PsiFile file = parameters.getOriginalFile();
-        PsiElement element = file.findElementAt(parameters.getOffset());
-        FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
-        if (functionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN);
-        }
+    static List<LookupElement> getFunctionSpecificKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(RETURN));
+        return lookupElements;
     }
 
     static List<LookupElement> getResourceSpecificKeywords() {

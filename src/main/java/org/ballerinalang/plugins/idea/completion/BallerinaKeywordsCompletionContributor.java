@@ -62,7 +62,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             }
         }
 
-        if (parent instanceof NameReferenceNode /*|| parent instanceof PsiErrorElement*/) {
+        if (parent instanceof NameReferenceNode) {
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
             if (prevVisibleSibling instanceof IdentifierPSINode) {
                 addAttachKeyword(result);
@@ -98,11 +98,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
         if (parent instanceof PsiErrorElement) {
 
-            PsiElement functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                    FunctionDefinitionNode.class, ServiceDefinitionNode.class, ConnectorDefinitionNode.class);
-            if (functionDefinitionNode != null) {
+            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
 
-                PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+            PsiElement definitionNode = PsiTreeUtil.getParentOfType(element,
+                    FunctionDefinitionNode.class, ServiceDefinitionNode.class, ConnectorDefinitionNode.class,
+                    ResourceDefinitionNode.class);
+            if (definitionNode != null) {
 
                 if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
                     addCreateKeyword(result);
@@ -117,8 +118,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     addReferenceTypesAsLookups(result);
 
                     addCommonKeywords(result);
-                    addFunctionSpecificKeywords(parameters, result);
-
+                    if (definitionNode instanceof FunctionDefinitionNode) {
+                        result.addAllElements(getFunctionSpecificKeywords());
+                    }
+                    if (definitionNode instanceof ResourceDefinitionNode) {
+                        result.addAllElements(getResourceSpecificKeywords());
+                    }
                     result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
                 }
                 if (prevVisibleSibling == null
@@ -159,35 +164,29 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                         addValueTypesAsLookups(result);
                         addReferenceTypesAsLookups(result);
 
-                        addFunctionSpecificKeywords(parameters, result);
+                        result.addAllElements(getFunctionSpecificKeywords());
 
                         result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
 
                         addValueKeywords(result);
                     }
 
-
                     ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
                     if (serviceBodyNode != null) {
                         result.addAllElements(createServiceSpecificKeywords());
                     }
 
-
                     ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
                     if (connectorBodyNode != null) {
                         addConnectorSpecificKeywords(result);
                     }
-
                 }
-
             }
         }
-
 
         if (parent instanceof ResourceDefinitionNode) {
             result.addAllElements(createServiceSpecificKeywords());
         }
-
 
         if (parent.getPrevSibling() == null) {
 
