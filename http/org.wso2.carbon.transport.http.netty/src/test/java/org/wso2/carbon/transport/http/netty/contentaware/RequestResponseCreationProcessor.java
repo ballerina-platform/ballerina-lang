@@ -41,7 +41,7 @@ import java.util.concurrent.Executors;
  */
 public class RequestResponseCreationProcessor implements CarbonMessageProcessor {
 
-    private Logger logger = LoggerFactory.getLogger(RequestMessageTransformProcessor.class);
+    private Logger logger = LoggerFactory.getLogger(RequestResponseCreationProcessor.class);
 
     private String responseValue;
 

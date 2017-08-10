@@ -123,7 +123,7 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
 
                     }
 
-                    SenderConfiguration senderConfiguration = getSenderConfiguration(configuration);
+                    SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
 
                     HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
                     HTTPClientConnector clientConnector =
@@ -132,7 +132,46 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                     HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
                     HTTPClientConnectorFuture clientConnectorFuture = clientConnector.send(httpCarbonMessage);
                     clientConnectorFuture
-                            .setHTTPConnectorListener(new ClientConnectorListener(requestValue, httpRequest));
+                            .setHTTPConnectorListener(new HTTPConnectorListener() {
+                                @Override
+                                public void onMessage(HTTPCarbonMessage httpResponse) {
+                                    int length = httpResponse.getFullMessageLength();
+                                    List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
+
+                                    ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                                    byteBufferList.forEach(buf -> byteBuffer.put(buf));
+                                    String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+                                    if (requestValue != null) {
+                                        byte[] array = new byte[0];
+                                        try {
+                                            array = responseValue.getBytes("UTF-8");
+                                        } catch (UnsupportedEncodingException e) {
+
+                                        }
+
+                                        ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+                                        byteBuff.put(array);
+                                        byteBuff.flip();
+                                        CarbonMessage carbonMessage = MessageUtil
+                                                .cloneCarbonMessageWithOutData(httpResponse);
+                                        if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                                            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                                                    String.valueOf(array.length));
+                                        }
+                                        carbonMessage.addMessageBody(byteBuff);
+                                        carbonMessage.setEndOfMsgAdded(true);
+
+                                        HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
+                                                .convertCarbonMessage(carbonMessage);
+                                        httpRequest.respond(httpCarbonMessage);
+                                    }
+                                }
+
+                                @Override
+                                public void onError(Throwable throwable) {
+
+                                }
+                            });
                 } catch (UnsupportedEncodingException e) {
                     logger.error("Encoding is not supported", e);
                 } catch (ClientConnectorException e) {
@@ -151,15 +190,6 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
     public void onError(Throwable throwable) {
 
     }
-
-    private SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
-        Map<String, SenderConfiguration> senderConfigurations =
-                transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
-                        .toMap(senderConf ->
-                                senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
-        return senderConfigurations.get("http");
-    }
-
 
     //    private class EngineCallBack implements CarbonCallback {
     //

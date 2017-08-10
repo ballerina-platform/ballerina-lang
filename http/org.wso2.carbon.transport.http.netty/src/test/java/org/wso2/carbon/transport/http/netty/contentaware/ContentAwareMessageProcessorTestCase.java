@@ -77,7 +77,6 @@ public class ContentAwareMessageProcessorTestCase {
         } finally {
 //            TestUtil.removeMessageProcessor(httpConnectorListener);
         }
-
     }
 
     @Test
