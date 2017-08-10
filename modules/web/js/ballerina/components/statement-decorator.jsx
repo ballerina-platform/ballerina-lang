@@ -22,7 +22,7 @@ import ASTNode from '../ast/node';
 import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import SimpleBBox from './../ast/simple-bounding-box';
-import { lifeLine, actionBox } from '../configs/designer-defaults.js';
+import { lifeLine, actionBox, statement } from '../configs/designer-defaults.js';
 import MessageManager from './../visitors/message-manager';
 import './statement-decorator.css';
 import ExpressionEditor from '../../expression-editor/expression-editor-utils';
@@ -240,7 +240,7 @@ class StatementDecorator extends React.Component {
 
         // calculate the bBox for the statement
         const textX = bBox.x + (bBox.w / 2);
-        const textY = this.state.statementBox.y + (this.state.statementBox.h / 2);
+        const textY = this.state.statementBox.y + (statement.height / 2);
         const dropZoneX = bBox.x + ((bBox.w - lifeLine.width) / 2);
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
