@@ -65,6 +65,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -802,6 +803,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
 
     }
 
