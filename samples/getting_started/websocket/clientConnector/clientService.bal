@@ -6,13 +6,13 @@ import ballerina.lang.messages;
 service<ws> clientService {
 
     @ws:OnTextMessage {}
-    resource ontext(message m) {
+    resource ontext (message m) {
         system:println("client service : " + messages:getStringPayload(m));
         ws:pushText("client service : " + messages:getStringPayload(m));
     }
 
     @ws:OnClose {}
-    resource onClose(message m) {
+    resource onClose (message m) {
         system:println("Closed client connection");
     }
 }

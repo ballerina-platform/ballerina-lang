@@ -23,7 +23,7 @@ service<http> productmgt {
     @http:Path {value:"/"}
     resource addProduct (message m) {
         json jsonReq = messages:getJsonPayload(m);
-        var productId,_ = (string) jsonReq.Product.ID;
+        var productId, _ = (string)jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
         message response = {};
