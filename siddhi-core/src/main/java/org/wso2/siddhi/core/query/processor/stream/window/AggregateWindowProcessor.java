@@ -70,7 +70,7 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner) {
         // Pass the event  to the post JoinProcessor
-        nextProcessor.process(streamEventChunk); // TODO: 7/21/17 check
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override

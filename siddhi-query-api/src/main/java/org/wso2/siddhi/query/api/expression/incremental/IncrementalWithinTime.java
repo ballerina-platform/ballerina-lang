@@ -46,9 +46,7 @@ public class IncrementalWithinTime extends Expression {
 
     @Override
     public String toString() {
-        return "IncrementalTime{" + "within=" + within + ", "
-                + "timeExpression=" +timeExpression + ", "
-                + "} ";
+        return "IncrementalTime{" + "within=" + within + ", " + "timeExpression=" + timeExpression + ", " + "} ";
     }
 
     @Override
@@ -75,7 +73,7 @@ public class IncrementalWithinTime extends Expression {
 
     @Override
     public int hashCode() {
-        int result =  within != null ? within.hashCode() : 0;
+        int result = within != null ? within.hashCode() : 0;
         result = 31 * result + (timeExpression != null ? timeExpression.hashCode() : 0);
         return result;
     }

@@ -30,6 +30,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.regex.Pattern;
 
+/**
+ * Executor class for converting string timestamp to unix time in incremental processing.
+ * Condition evaluation logic is implemented within executor.
+ */
 public class IncrementalUnixTimeExpressionExecutor implements ExpressionExecutor {
     private ExpressionExecutor expressionExecutor;
     private static Pattern nonGmtRegexPattern = Pattern

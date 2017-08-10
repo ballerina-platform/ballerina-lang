@@ -419,11 +419,12 @@ public class AggregationTestCase {
     }
 
     @Test
-    public void incrementalAggregationTest1() throws InterruptedException{
+    public void incrementalAggregationTest1() throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String app = "" +
-                " define stream cseEventStream (arrival long, symbol string, price float, volume int, timeStamp string); " +
+                " define stream cseEventStream (arrival long, symbol string, price float, " +
+                "volume int, timeStamp string); " +
                 " " +
                 " define aggregation cseEventAggregation " +
                 " from cseEventStream " +
@@ -431,7 +432,8 @@ public class AggregationTestCase {
                 " group by symbol " +
                 " aggregate by timeStamp every sec ... min; " +
 
-                "define stream barStream (symbol string, value int, startTime string, endTime string, perValue string); " +
+                "define stream barStream (symbol string, value int, startTime string, " +
+                "endTime string, perValue string); " +
                 "" +
                 "@info(name = 'query1') " +
                 "from barStream as b join cseEventAggregation as a " +
@@ -470,28 +472,29 @@ public class AggregationTestCase {
             siddhiAppRuntime.start();
 
             // Thursday, June 1, 2017 4:05:50 AM (add 5.30 to get corresponding IST time)
-            cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 50f, 6, "2017-06-01 04:05:50 +00:00"});
-            cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 70f, 10, "2017-06-01 04:05:50 +00:00"});
+            cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 50f, 6, "2017-06-01 04:05:50"});
+            cseEventStreamInputHandler.send(new Object[]{1496289950000L, "WSO2", 70f, 10, "2017-06-01 04:05:50"});
 
             // Thursday, June 1, 2017 4:05:51 AM
-            cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 26, "2017-06-01 04:05:51 +00:00"});
-            cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 96, "2017-06-01 04:05:51 +00:00"});
+            cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 26, "2017-06-01 04:05:51"});
+            cseEventStreamInputHandler.send(new Object[]{1496289951000L, "IBM", 100f, 96, "2017-06-01 04:05:51"});
 
             // Thursday, June 1, 2017 4:05:52 AM
-            cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 900f, 60, "2017-06-01 04:05:52 +00:00"});
-            cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 500f, 7, "2017-06-01 04:05:52 +00:00"});
+            cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 900f, 60, "2017-06-01 04:05:52"});
+            cseEventStreamInputHandler.send(new Object[]{1496289952000L, "IBM", 500f, 7, "2017-06-01 04:05:52"});
 
             // Thursday, June 1, 2017 4:05:53 AM
-            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 60f, 56, "2017-06-01 04:05:53 +00:00"});
-            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 100f, 16, "2017-06-01 04:05:53 +00:00"});
-            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "IBM", 400f, 9, "2017-06-01 04:05:53 +00:00"});
+            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 60f, 56, "2017-06-01 04:05:53"});
+            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "WSO2", 100f, 16, "2017-06-01 04:05:53"});
+            cseEventStreamInputHandler.send(new Object[]{1496289953000L, "IBM", 400f, 9, "2017-06-01 04:05:53"});
 
             // Thursday, June 1, 2017 4:05:54 AM
-            cseEventStreamInputHandler.send(new Object[]{1496289954000L, "IBM", 600f, 6, "2017-06-01 04:05:54 +00:00"});
+            cseEventStreamInputHandler.send(new Object[]{1496289954000L, "IBM", 600f, 6, "2017-06-01 04:05:54"});
 
             Thread.sleep(500);
 
-            barStreamInputHandler.send(new Object[]{"IBM", 1, "2017-06-01 09:35:51 +05:30", "2017-06-01 09:35:52 +05:30", "seconds"});
+            barStreamInputHandler.send(new Object[]{"IBM", 1, "2017-06-01 09:35:51 +05:30",
+                    "2017-06-01 09:35:52 +05:30", "seconds"});
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 6000);
             SiddhiTestHelper.waitForEvents(100, 1, removeEventCount, 6000);
             Assert.assertEquals(1, inEventCount.get());

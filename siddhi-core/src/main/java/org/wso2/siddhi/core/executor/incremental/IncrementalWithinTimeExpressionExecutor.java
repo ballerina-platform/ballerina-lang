@@ -32,6 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * Executor class for finding whether a given time is within given range in incremental processing.
+ * Condition evaluation logic is implemented within executor.
+ */
 public class IncrementalWithinTimeExpressionExecutor implements ExpressionExecutor {
     private ExpressionExecutor singleWithinExecutor = null;
     private ExpressionExecutor leftWithinExecutor;
