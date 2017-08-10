@@ -96,6 +96,8 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TYPE;
 
     // Other keywords
+    private static final LookupElementBuilder TYPE_OF;
+    private static final LookupElementBuilder LENGTH_OF;
     private static final LookupElementBuilder REPLY;
     private static final LookupElementBuilder RETURN;
     private static final LookupElementBuilder IF;
@@ -157,6 +159,8 @@ public class BallerinaCompletionUtils {
         ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
         TYPE = createTypeLookupElement("type", AddSpaceInsertHandler.INSTANCE);
 
+        TYPE_OF = createKeywordLookupElement("typeof");
+        LENGTH_OF = createKeywordLookupElement("lengthof");
         REPLY = createKeywordLookupElement("reply");
         RETURN = createKeywordLookupElement("return");
         IF = createKeywordLookupElement("if");
@@ -451,6 +455,14 @@ public class BallerinaCompletionUtils {
 
     static void addCreateKeyword(@NotNull CompletionResultSet resultSet) {
         addKeywordAsLookup(resultSet, CREATE);
+    }
+
+    static void addTypeOfKeyword(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, TYPE_OF);
+    }
+
+    static void addLengthOfKeyword(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, LENGTH_OF);
     }
 
     static void addAttachKeyword(@NotNull CompletionResultSet resultSet) {
