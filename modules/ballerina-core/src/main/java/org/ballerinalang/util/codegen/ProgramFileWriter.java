@@ -605,6 +605,11 @@ public class ProgramFileWriter {
     private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
                                                AnnAttributeValue attributeValue) throws IOException {
         dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
+        dataOutStream.writeBoolean(attributeValue.isRunTimeValue());
+        if (attributeValue.isRunTimeValue()) {
+            dataOutStream.writeInt(attributeValue.getMemoryOffset());
+            return;
+        }
         String typeDesc = attributeValue.getTypeDesc();
         if (TypeSignature.SIG_ANNOTATION.equals(typeDesc)) {
             writeAnnAttachmentInfo(dataOutStream, attributeValue.getAnnotationAttachmentValue());

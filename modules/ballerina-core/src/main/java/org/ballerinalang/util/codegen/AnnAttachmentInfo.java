@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.values.StructureType;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -56,6 +58,16 @@ public class AnnAttachmentInfo {
 
     public String getName() {
         return name;
+    }
+
+    public Map<String, AnnAttributeKeyValuePair> getAttributeValueMap() {
+        return attributeValueMap;
+    }
+
+    public void loadDynamicAttributes(StructureType globalMemoryBlock) {
+        attributeValueMap.forEach((k, v) -> {
+            v.loadDynamicAttributeValues(globalMemoryBlock);
+        });
     }
 
     public void addAttributeValue(int nameCPIndex, String name, AnnAttributeValue attributeValue) {

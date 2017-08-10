@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.values.StructureType;
+
 /**
  * {@code AnnAttributeKeyValuePair} represents a annotation attribute key value pair.
  *
@@ -44,5 +46,9 @@ public class AnnAttributeKeyValuePair {
 
     public AnnAttributeValue getAttributeValue() {
         return attributeValue;
+    }
+
+    public void loadDynamicAttributeValues(StructureType globalMemoryBlock) {
+        attributeValue.loadDynamicAttributeValues(globalMemoryBlock);
     }
 }

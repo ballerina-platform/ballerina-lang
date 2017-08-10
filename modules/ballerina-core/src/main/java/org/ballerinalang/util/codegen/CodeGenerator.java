@@ -2993,6 +2993,13 @@ public class CodeGenerator implements NodeVisitor {
             int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
             attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
 
+        } else if (attributeValue.getVarRefExpr() != null) {
+            String typeDesc = attributeValue.getType().getSig().toString();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
+            attribValue.setRunTimeValue(true);
+            attribValue.setMemoryOffset(attributeValue.getVarRefExpr().getVariableDef().getVarIndex());
         } else {
             org.ballerinalang.model.AnnotationAttributeValue[] attributeValues = attributeValue.getValueArray();
             AnnAttributeValue[] annotationAttribValues = new AnnAttributeValue[attributeValues.length];

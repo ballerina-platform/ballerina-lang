@@ -85,6 +85,7 @@ public class BLangProgramRunner {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
                         serviceInfo.getProtocolPkgPath());
             }
+            serviceInfo.loadDynamicAnnotations(programFile.getGlobalMemoryBlock());
             // Deploy service
             DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
                     .serviceRegistered(serviceInfo);
