@@ -82,8 +82,10 @@ class BallerinaFileEditor extends React.Component {
                         const newAST = state.model;
                         const currentAST = this.state.model;
                         this.syncASTs(currentAST, newAST);
-                        state.model = currentAST;
-                        this.setState(state);
+                        // remove new AST from new state to be set
+                        delete state.model;
+                        // update state without triggering a re-render
+                        Object.assign(this.state, state);
                         this.skipLoadingOverlay = false;
                     })
                     .catch(error => log.error(error));
