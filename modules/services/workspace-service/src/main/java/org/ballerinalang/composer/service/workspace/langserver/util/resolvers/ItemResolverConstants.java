@@ -54,9 +54,10 @@ public class ItemResolverConstants {
     public static final String TRIGGER_WORKER = "->";
     public static final String WORKER_REPLY = "<-";
     public static final String ATTACH = "attach";
+    public static final String RETRY = "retry";
     private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
             TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
-            BREAK, THROW};
+            BREAK, THROW, RETRY};
 
     public static final String FUNCTION = "function";
     public static final String SERVICE = "service";
@@ -91,10 +92,11 @@ public class ItemResolverConstants {
     public static final String TRIGGER_WORKER_TEMPLATE = "${1} -> ${2};";
     public static final String WORKER_REPLY_TEMPLATE = "${1} <- ${2};";
     public static final String TRANSFORM_TEMPLATE = "transform {\n\t${1}\n}";
-    public static final String TRANSACTION_TEMPLATE = "transaction {\n\t${1}\n} aborted {\n\t${2}\n} " +
-            "committed {\n\t${3}\n}";
+    public static final String TRANSACTION_TEMPLATE = "transaction {\n\t${1}\n} failed{\n\t${2}\n} " +
+            "aborted {\n\t${3}\n} committed {\n\t${4}\n}";
     public static final String NAMESPACE_DECLARATION_TEMPLATE = "xmlns \"${1}\" as ${2:ns};";
     public static final String XML_ATTRIBUTE_REFERENCE_TEMPLATE = "\"${1}\"@[\"${2}\"]";
+    public static final String RETRY_TEMPLATE = "retry ${1};";
 
     // End of Basic Constructs
 

@@ -110,6 +110,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
@@ -150,7 +151,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     private static final String BALLERINA_CAST_ERROR = "TypeCastError";
     private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
-    
+
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
     private Stack<CallableUnit> parentCallableUnit = new Stack<>();
@@ -975,6 +976,10 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(transactionStmt);
 
         transactionStmt.getTransactionBlock().accept(this);
+        TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
+        if (failedBlock != null) {
+            failedBlock.getFailedBlockStmt().accept(this);
+        }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {
             abortedBlock.getAbortedBlockStmt().accept(this);
@@ -988,6 +993,15 @@ public class CompletionItemAccumulator implements NodeVisitor {
     @Override
     public void visit(AbortStmt abortStmt) {
 
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+        checkAndSetClosestScope(retryStmt);
+
+        if (retryStmt.getRetryCountExpression() != null) {
+            retryStmt.getRetryCountExpression().accept(this);
+        }
     }
 
     @Override

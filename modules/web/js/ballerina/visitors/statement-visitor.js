@@ -114,6 +114,19 @@ class StatementVisitor extends ASTVisitor {
     endVisitTransactionStatement(statement) {
     }
 
+    canVisitFailedStatement(statement) {
+        return false;
+    }
+
+    beginVisitFailedStatement(statement) {
+    }
+
+    visitFailedStatement(statement) {
+    }
+
+    endVisitFailedStatement(statement) {
+    }
+
     canVisitAbortedStatement(statement) {
         return false;
     }
@@ -351,6 +364,19 @@ class StatementVisitor extends ASTVisitor {
     endVisitAbortStatement(statement) {
     }
 
+    canVisitRetryStatement(statement) {
+        return false;
+    }
+
+    beginVisitRetryStatement(statement) {
+    }
+
+    visitRetryStatement(statement) {
+    }
+
+    endVisitRetryStatement(statement) {
+    }
+
     canVisitVariableDefinitionStatement(statement) {
         return false;
     }
@@ -508,6 +534,10 @@ class StatementVisitor extends ASTVisitor {
             return this.visitCommittedStatement(node);
         } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
             return this.visitNamespaceDeclarationStatement(node);
+        } else if (ASTFactory.isFailedStatement(node)) {
+            return this.visitFailedStatement(node);
+        } else if (ASTFactory.isRetry(node)) {
+            return this.visitRetryStatement(node);
         }
     }
 
@@ -581,6 +611,10 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitCommittedStatement(node);
         } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
             return this.canVisitNamespaceDeclarationStatement(node);
+        } else if (ASTFactory.isFailedStatement(node)) {
+            return this.canVisitFailedStatement(node);
+        } else if (ASTFactory.isRetry(node)) {
+            return this.canVisitRetryStatement(node);
         }
     }
 
@@ -654,6 +688,10 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitCommittedStatement(node);
         } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
             return this.beginVisitNamespaceDeclarationStatement(node);
+        } else if (ASTFactory.isFailedStatement(node)) {
+            return this.beginVisitFailedStatement(node);
+        } else if (ASTFactory.isRetry(node)) {
+            return this.beginVisitRetryStatement(node);
         }
     }
 
@@ -725,8 +763,12 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitJoinStatement(node);
         } else if (ASTFactory.isCommittedStatement(node)) {
             return this.endVisitCommittedStatement(node);
-        } else if (ASTFactory.isNamespaceDeclarationStatement(node)){
+        } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
             return this.endVisitNamespaceDeclarationStatement(node);
+        } else if(ASTFactory.isFailedStatement(node)){
+            return this.endVisitFailedStatement(node);
+        } else if(ASTFactory.isRetry(node)){
+            return this.endVisitRetryStatement(node);
         }
     }
 }

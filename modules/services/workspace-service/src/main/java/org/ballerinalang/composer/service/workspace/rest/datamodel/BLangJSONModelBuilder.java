@@ -105,6 +105,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
@@ -949,6 +950,25 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tempJsonArrayRef.peek().addAll(transactionStatement);
         }
 
+        if (transactionStmt.getFailedBlock() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+
+            JsonObject failedBlockObj = new JsonObject();
+            failedBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                    BLangJSONModelConstants.FAILED_STATEMENT);
+            this.addPosition(failedBlockObj, transactionStmt.getFailedBlock().getFailedBlockStmt().getNodeLocation());
+            this.addWhitespaceDescriptor(failedBlockObj, transactionStmt.getWhiteSpaceDescriptor());
+            tempJsonArrayRef.push(new JsonArray());
+            transactionStmt.getFailedBlock().getFailedBlockStmt().accept(this);
+            failedBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(failedBlockObj);
+
+            JsonArray failedStatement = tempJsonArrayRef.peek();
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().addAll(failedStatement);
+        }
+
         if (transactionStmt.getAbortedBlock() != null) {
             tempJsonArrayRef.push(new JsonArray());
 
@@ -1003,6 +1023,21 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addPosition(abortStatementObj, abortStmt.getNodeLocation());
         this.addWhitespaceDescriptor(abortStatementObj, abortStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(abortStatementObj);
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+        JsonObject retryStmtObj = new JsonObject();
+        retryStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.RETRY_STATEMENT);
+        this.addPosition(retryStmtObj, retryStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(retryStmtObj, retryStmt.getWhiteSpaceDescriptor());
+        tempJsonArrayRef.push(new JsonArray());
+        if (retryStmt.getRetryCountExpression() != null) {
+            retryStmt.getRetryCountExpression().accept(this);
+        }
+        retryStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(retryStmtObj);
     }
 
     @Override

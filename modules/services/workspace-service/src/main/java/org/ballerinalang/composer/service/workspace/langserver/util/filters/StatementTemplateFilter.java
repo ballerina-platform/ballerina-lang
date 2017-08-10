@@ -151,6 +151,13 @@ public class StatementTemplateFilter implements SymbolFilter {
         abortItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItems.add(abortItem);
 
+        CompletionItem retryItem = new CompletionItem();
+        retryItem.setLabel(ItemResolverConstants.RETRY);
+        retryItem.setInsertText(ItemResolverConstants.RETRY_TEMPLATE);
+        retryItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        retryItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItems.add(retryItem);
+
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 
         return completionItems;

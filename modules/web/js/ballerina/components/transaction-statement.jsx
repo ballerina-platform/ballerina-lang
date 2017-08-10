@@ -16,8 +16,8 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
+import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './utils';
 
 class TransactionStatement extends React.Component {
@@ -31,7 +31,9 @@ class TransactionStatement extends React.Component {
      * */
     onAddAbortedCommittedClick() {
         const parent = this.props.model.parent;
-        if (!parent.getAbortedStatement()) {
+        if (!parent.getFailedStatement()) {
+            parent.createFailedStatement();
+        } else if (!parent.getAbortedStatement()) {
             parent.createAbortedStatement();
         } else if (!parent.getCommittedStatement()) {
             parent.createCommittedStatement();
@@ -46,11 +48,27 @@ class TransactionStatement extends React.Component {
         const model = this.props.model;
         const parent = model.parent;
         const bBox = model.viewState.bBox;
-        if (!parent.getCommittedStatement() || !parent.getAbortedStatement()) {
+        if (!parent.getCommittedStatement() || !parent.getAbortedStatement() || !parent.getFailedStatement()) {
             return (
                 <g onClick={this.onAddAbortedCommittedClick}>
-                    <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
-                    <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
+                    <rect
+                        x={bBox.x + bBox.w - 10}
+                        y={bBox.y + bBox.h - 25}
+                        width={20}
+                        height={20}
+                        rx={10}
+                        ry={10}
+                        className="add-else-button"
+                    />
+                    <text
+                        x={bBox.x + bBox.w - 4}
+                        y={bBox.y + bBox.h - 15}
+                        width={20}
+                        height={20}
+                        className="add-else-button-label"
+                    >
+                        +
+                    </text>
                 </g>
             );
         }
@@ -98,12 +116,10 @@ class TransactionStatement extends React.Component {
 }
 
 TransactionStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    model: PropTypes.shape({
+        getChildren: PropTypes.func,
+        parent: PropTypes.shape(),
+    }).isRequired,
 };
 
 export default TransactionStatement;

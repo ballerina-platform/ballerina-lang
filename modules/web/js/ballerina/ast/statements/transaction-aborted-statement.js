@@ -35,11 +35,19 @@ class TransactionAbortedStatement extends Statement {
     }
 
     /**
+     * Get the failed statement associated with the transaction.
+     * @return {FailedStatement} failed statement.
+     * */
+    getFailedStatement() {
+        return this.children.find(child => (BallerinaASTFactory.isFailedStatement(child)));
+    }
+
+    /**
      * Get Aborted Statement associated with transaction.
      * @return {AbortedStatement} aborted statement
      * */
     getAbortedStatement() {
-        return this.children.find(c => (BallerinaASTFactory.isAbortedStatement(c)));
+        return this.children.find(child => (BallerinaASTFactory.isAbortedStatement(child)));
     }
 
     /**
@@ -47,7 +55,18 @@ class TransactionAbortedStatement extends Statement {
      * @return {CommittedStatement} committed statement
      * */
     getCommittedStatement() {
-        return this.children.find(c => (BallerinaASTFactory.isCommittedStatement(c)));
+        return this.children.find(child => (BallerinaASTFactory.isCommittedStatement(child)));
+    }
+
+    /**
+     * Create Failed Statement.
+     * @param {object} args - failed statement arguments.
+     * @return {FailedStatement} new failed statement.
+     * */
+    createFailedStatement(args) {
+        const failedStatement = BallerinaASTFactory.createFailedStatement(args);
+        this.addChild(failedStatement, 1);
+        return failedStatement;
     }
 
     /**
@@ -111,10 +130,15 @@ class TransactionAbortedStatement extends Statement {
             });
 
             if (_.isFunction(callback)) {
-                callback({ isValid: true });
+                callback({
+                    isValid: true,
+                });
             }
         } else if (_.isFunction(callback)) {
-            callback({ isValid: false, response: parsedJson });
+            callback({
+                isValid: false,
+                response: parsedJson,
+            });
         }
     }
 }

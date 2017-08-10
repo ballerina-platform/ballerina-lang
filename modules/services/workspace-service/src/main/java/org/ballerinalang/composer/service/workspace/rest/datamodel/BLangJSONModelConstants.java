@@ -323,6 +323,8 @@ public class BLangJSONModelConstants {
 
     public static final String COMMITTED_STATEMENT = "committed_statement";
 
+    public static final String FAILED_STATEMENT = "failed_statement";
+
     public static final String JOIN_TYPE = "join_type";
 
     public static final String IS_IDENTIFIER_LITERAL = "is_identifier_literal";
@@ -374,4 +376,6 @@ public class BLangJSONModelConstants {
     public static final String XML_ATTRIBUTE_REF_EXPR = "xml_attribute_ref_expression";
 
     public static final String XML_ATTRIBUTE_REF_IS_LHS_EXPR = "is_lhs_expression";
+
+    public static final String RETRY_STATEMENT = "retry_statement";
 }

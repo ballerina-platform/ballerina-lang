@@ -90,6 +90,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for transaction failed statement.
+     *
+     *  @param {string} sourceString - source fragment input.
+     *  @return {object} fragment details to be sent to the fragment parser.
+     * */
+    static createTransactionFailedFragment(sourceString) {
+        return {
+            expectedNodeType: 'transaction_failed',
+            source: sourceString,
+        };
+    }
+
+    /**
      * parse fragment.
      *
      * @param {string} fragment - source fragment.
@@ -115,4 +128,5 @@ class FragmentUtils {
         return data;
     }
 }
+
 export default FragmentUtils;

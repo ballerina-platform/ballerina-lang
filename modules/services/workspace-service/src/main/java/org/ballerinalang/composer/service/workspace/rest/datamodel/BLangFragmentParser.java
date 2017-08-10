@@ -97,6 +97,11 @@ public class BLangFragmentParser {
                 fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.TRANSACTION_FAILED:
+                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
+                break;
             default:
                 fragmentNode = new JsonObject();
                 fragmentNode.addProperty(ERROR, "cannot find node for given fragment");
@@ -172,6 +177,10 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_RETURN_WRAPPER,
+                        sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.TRANSACTION_FAILED:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.TRANSACTION_FAILED_RETRY_WRAPPER,
                         sourceFragment.getSource());
                 break;
             default:

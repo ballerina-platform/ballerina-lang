@@ -58,6 +58,16 @@ class TransactionAbortedStatementVisitor extends AbstractStatementSourceGenVisit
     }
 
     /**
+     * Visit Failed Statement.
+     * @param {FailedStatement} statement - Failed statement ASTNode
+     * */
+    visitFailedStatement(statement) {
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+
+    /**
      * Visit Aborted Statement
      * @param {AbortedStatement} statement - Aborted Statement ASTNode
      */

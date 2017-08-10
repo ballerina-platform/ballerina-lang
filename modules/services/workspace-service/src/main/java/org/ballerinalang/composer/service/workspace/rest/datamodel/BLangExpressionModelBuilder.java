@@ -93,6 +93,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
@@ -769,6 +770,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(AbortStmt abortStmt) {
+
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
 
     }
 

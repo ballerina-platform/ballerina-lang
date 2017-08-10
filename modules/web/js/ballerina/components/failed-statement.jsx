@@ -17,22 +17,22 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import AbortedStatementAST from './../ast/statements/aborted-statement';
+import FailedStatementAST from './../ast/statements/failed-statement';
 import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './utils';
 
 /**
- * React component for Aborted Statement.
+ * React component for Failed Statement.
  *
- * @class AbortedStatement
+ * @class FailedStatement
  * @extends {React.Component}
  */
-class AbortedStatement extends React.Component {
+class FailedStatement extends React.Component {
     /**
-     * Creates an instance of AbortedStatement.
+     * Creates an instance of FailedStatement.
      * @param {Object} props React properties.
      *
-     * @memberof AbortedStatement
+     * @memberof FailedStatement
      */
     constructor(props) {
         super(props);
@@ -40,14 +40,14 @@ class AbortedStatement extends React.Component {
     }
 
     /**
-     * Event handler for click add committed and failed statement button.
+     * Event handler for click add committed button.
      * */
     onAddCommittedClick() {
         const parent = this.props.model.parent;
-        if (!parent.getCommittedStatement()) {
+        if (!parent.getAbortedStatement()) {
+            parent.createAbortedStatement();
+        } else if (!parent.getCommittedStatement()) {
             parent.createCommittedStatement();
-        } else if (!parent.getFailedStatement()) {
-            parent.createFailedStatement();
         }
     }
 
@@ -59,7 +59,7 @@ class AbortedStatement extends React.Component {
         const model = this.props.model;
         const parent = model.parent;
         const bBox = model.viewState.bBox;
-        if (!parent.getCommittedStatement() || !parent.getFailedStatement()) {
+        if (!parent.getCommittedStatement() || !parent.getAbortedStatement()) {
             return (<g onClick={this.onAddCommittedClick}>
                 <rect
                     x={bBox.x + bBox.w - 10}
@@ -83,7 +83,7 @@ class AbortedStatement extends React.Component {
     }
 
     /**
-     * Get block statement decorator for aborted statement.
+     * Get block statement decorator for failed statement.
      * @param {object} utilities utilities for BlockStatementDecorator.
      * @return {object} View of a BlockStatementDecorator.
      * */
@@ -98,7 +98,7 @@ class AbortedStatement extends React.Component {
                 dropTarget={model}
                 bBox={bBox}
                 titleWidth={titleWidth}
-                title={'Aborted'}
+                title={'Failed'}
                 utilities={utilities}
             >
                 {children}
@@ -109,26 +109,26 @@ class AbortedStatement extends React.Component {
             dropTarget={model}
             bBox={bBox}
             titleWidth={titleWidth}
-            title={'Aborted'}
+            title={'Failed'}
         >
             {children}
         </BlockStatementDecorator>);
     }
 
     /**
-     * Renders the view for a aborted statement.
+     * Renders the view for a failed statement.
      *
      * @returns {object} The view.
      *
-     * @memberof AbortedStatement
+     * @memberof FailedStatement
      */
     render() {
         return this.getBlockStatementDecorator(this.getAddCommittedStatementButton());
     }
 }
 
-AbortedStatement.propTypes = {
-    model: PropTypes.instanceOf(AbortedStatementAST).isRequired,
+FailedStatement.propTypes = {
+    model: PropTypes.instanceOf(FailedStatementAST).isRequired,
 };
 
-export default AbortedStatement;
+export default FailedStatement;

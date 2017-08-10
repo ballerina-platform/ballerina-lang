@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getComponentForNodeArray } from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
-import CommitedStatementAST from './../ast/statements/committed-statement';
+import CommittedStatementAST from './../ast/statements/committed-statement';
 
 /**
  * React component for committed statement.
@@ -29,16 +29,82 @@ import CommitedStatementAST from './../ast/statements/committed-statement';
  */
 class CommittedStatement extends React.Component {
     /**
-     * Renders view for a commit statement.
+     * Creates an instance of Committed statement.
+     * @param {Object} props - react properties.
      *
-     * @returns {object} The view.
-     * @memberof CommittedStatement
-     */
-    render() {
+     * @memberof committedStatement
+     * */
+    constructor(props) {
+        super(props);
+        this.onAddAbortedFailedClick = this.onAddAbortedFailedClick.bind(this);
+    }
+
+    /**
+     * Event handler for click add aborted and failed statement button.
+     * */
+    onAddAbortedFailedClick() {
+        const parent = this.props.model.getParent();
+        if (!parent.getAbortedStatement()) {
+            parent.createAbortedStatement();
+        } else if (!parent.getFailedStatement()) {
+            parent.createFailedStatement();
+        }
+    }
+
+    /**
+     * Get add aborted failed statement button
+     * @return {object} react element or null
+     * */
+    getAddAbortedFailedStatementButton() {
+        const model = this.props.model;
+        const parent = model.parent;
+        const bBox = model.viewState.bBox;
+        if (!parent.getAbortedStatement() || !parent.getFailedStatement()) {
+            return (<g onClick={this.onAddAbortedFailedClick}>
+                <rect
+                    x={bBox.x + bBox.w - 10}
+                    y={bBox.y + bBox.h - 25}
+                    width={20}
+                    height={20}
+                    rx={10}
+                    ry={10}
+                    className="add-else-button"
+                />
+                <text
+                    x={bBox.x + bBox.w - 4}
+                    y={bBox.y + bBox.h - 15}
+                    width={20}
+                    height={20}
+                    className="add-else-button-label"
+                >+
+                </text>
+            </g>);
+        }
+        return null;
+    }
+
+    /**
+     * Get block statement decorator for committed statement.
+     * @param {object} utilities utilities for BlockStatementDecorator.
+     * @return {object} View of a BlockStatementDecorator.
+     * */
+    getBlockStatementDecorator(utilities) {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
         const children = getComponentForNodeArray(model.getChildren());
+        if (utilities) {
+            return (<BlockStatementDecorator
+                model={model}
+                dropTarget={model}
+                bBox={bBox}
+                titleWidth={titleWidth}
+                title={'Committed'}
+                utilities={utilities}
+            >
+                {children}
+            </BlockStatementDecorator>);
+        }
         return (<BlockStatementDecorator
             model={model}
             dropTarget={model}
@@ -49,10 +115,20 @@ class CommittedStatement extends React.Component {
             {children}
         </BlockStatementDecorator>);
     }
+
+    /**
+     * Renders view for a commit statement.
+     *
+     * @returns {object} The view.
+     * @memberof CommittedStatement
+     */
+    render() {
+        return this.getBlockStatementDecorator(this.getAddAbortedFailedStatementButton());
+    }
 }
 
 CommittedStatement.propTypes = {
-    model: PropTypes.instanceOf(CommitedStatementAST).isRequired,
+    model: PropTypes.instanceOf(CommittedStatementAST).isRequired,
 };
 
 export default CommittedStatement;
