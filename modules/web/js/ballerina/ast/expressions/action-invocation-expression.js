@@ -184,7 +184,7 @@ class ActionInvocationExpression extends Expression {
                 factory.isTransactionStatement(parent) || factory.isAbortedStatement(parent) ||
                 factory.isCommittedStatement(parent) || factory.isTransactionAbortedStatement(parent) ||
                 factory.isForkJoinStatement(parent)) {
-                if (parent.getConnectorByName(connectorVariable)) {
+                if (parent.getConnectorsInImmediateScope(connectorVariable)) {
                     break;
                 }
             }
