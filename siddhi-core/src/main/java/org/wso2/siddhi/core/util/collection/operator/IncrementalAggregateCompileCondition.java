@@ -115,7 +115,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             // If the 'per' is for root executor, there would be no executors prior to that
             for (int i = perValue.ordinal() - 1; i >= 0
                     && incrementalDurations.contains(TimePeriod.Duration.values()[i]); i--) {
-                // if (matchFromInMemoryFound) {
                 TimePeriod.Duration duration = TimePeriod.Duration.values()[i];
                 findAndProcessInMemoryData(inMemoryStoreMap.get(duration), matchingEvent, perValue);
             }

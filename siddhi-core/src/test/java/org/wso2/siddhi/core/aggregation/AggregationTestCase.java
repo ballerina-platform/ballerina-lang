@@ -219,7 +219,6 @@ public class AggregationTestCase {
 
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
         siddhiAppRuntime.start();
-        // TODO: 6/29/17 Check with null later
 
         // Thursday, June 1, 2017 4:05:50 AM
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
@@ -419,18 +418,20 @@ public class AggregationTestCase {
     }
 
     @Test
-    public void incrementalAggregationTest1() throws InterruptedException {
+    public void incrementalAggregationRetrievalTest1() throws InterruptedException {
+        LOG.info("Incremental Processing: incrementalAggregationRetrievalTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String app = "" +
-                " define stream cseEventStream (arrival long, symbol string, price float, " +
+                "define stream cseEventStream (arrival long, symbol string, price float, " +
                 "volume int, timeStamp string); " +
                 " " +
-                " define aggregation cseEventAggregation " +
-                " from cseEventStream " +
-                " select symbol as s, sum(price) as total, avg(price) as avgPrice " +
-                " group by symbol " +
-                " aggregate by timeStamp every sec ... min; " +
+                "define aggregation cseEventAggregation " +
+                "from cseEventStream " +
+                "select symbol as s, sum(price) as total, avg(price) as avgPrice, " +
+                "max(volume) as maxVol, min(volume) as minVol " +
+                "group by symbol " +
+                "aggregate by timeStamp every sec ... min; " +
 
                 "define stream barStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -438,17 +439,9 @@ public class AggregationTestCase {
                 "@info(name = 'query1') " +
                 "from barStream as b join cseEventAggregation as a " +
                 "on a.s == b.symbol " +
-//                "within \"2017-06-01 04:05:51 +00:00\", \"2017-06-01 04:05:52 +00:00\" " +
-//                "within \"2017-06-01 09:35:51 +05:30\", \"2017-06-01 09:35:52 +05:30\" " +
-//                "within b.startTime,  b.endTime " +
-//                "within  1496289951000L, 1496289952000L" +
-//                "within b.startTime " +
-//                "within \"2017-06-01 04:05:51 +00:00\" " +
                 "within \"2017-06-01 09:35:51 +05:30\" " +
-//                "per \"minutes\" " +
-//                "per \"SECONDS\" " +
                 "per b.perValue " +
-                "select a.s, a.avgPrice, a.total as sumPrice, b.value " +
+                "select a.s, a.avgPrice, a.total as sumPrice, a.minVol, a.maxVol, b.value " +
                 "insert all events into fooBar; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(app);

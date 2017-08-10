@@ -66,8 +66,8 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-/*
- * This is the parer class of incremental aggregation definition.
+/**
+ * This is the parser class of incremental aggregation definition.
  */
 public class AggregationParser {
 
@@ -211,11 +211,10 @@ public class AggregationParser {
                 incomingExpressionExecutors, processedMetaStreamEvent));
 
         List<ExpressionExecutor> baseExecutors = cloneExpressionExecutors(processExpressionExecutors);
-        AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
+
+        return new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                 aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
                 siddhiAppContext, baseExecutors, processedMetaStreamEvent, outputExpressionExecutors);
-
-        return aggregationRuntime;
     }
 
     private static Map<TimePeriod.Duration, IncrementalExecutor> buildIncrementalExecutors(
@@ -571,9 +570,7 @@ public class AggregationParser {
             for (Attribute attribute : streamDefinition.getAttributeList()) {
                 tableDefinition.attribute(attribute.getName(), attribute.getType());
             }
-            for (Annotation annotation : annotations) {
-                tableDefinition.annotation(annotation);
-            }
+            annotations.forEach(tableDefinition::annotation);
             siddhiAppRuntimeBuilder.defineTable(tableDefinition);
             aggregationTableMap.put(duration, siddhiAppRuntimeBuilder.getTableMap().get(tableId));
         }
