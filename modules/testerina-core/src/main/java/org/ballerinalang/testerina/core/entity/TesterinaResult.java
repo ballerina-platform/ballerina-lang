@@ -18,12 +18,15 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+/**
+ * {@link TesterinaResult} represents the result of the Testerina test.
+ */
 public class TesterinaResult {
     private String testFunctionName;
     private boolean isPassed;
     private String assertFailureMessage;
 
-    public TesterinaResult(String testFunctionName, boolean isPassed, String assertFailureMessage){
+    public TesterinaResult(String testFunctionName, boolean isPassed, String assertFailureMessage) {
         this.testFunctionName = testFunctionName;
         this.isPassed = isPassed;
         this.assertFailureMessage = assertFailureMessage;

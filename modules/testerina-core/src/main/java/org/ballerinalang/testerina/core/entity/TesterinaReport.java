@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Util class for printing Testerina test report.
+ */
 public class TesterinaReport {
 
     private static PrintStream outStream = System.err;

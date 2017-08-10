@@ -161,7 +161,6 @@
     </build>
 
     <properties>
-        <checkstyle.skip>true</checkstyle.skip>
         <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>TesterinaNativeConstructsProvider</native.constructs.provider.class>
         <package.repository.provider.class>org.ballerinalang.testerina.core.TesterinaPackageRepository</package.repository.provider.class>
