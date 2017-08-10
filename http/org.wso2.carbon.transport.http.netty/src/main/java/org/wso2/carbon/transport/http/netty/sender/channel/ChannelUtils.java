@@ -60,7 +60,7 @@ public class ChannelUtils {
      * @param eventLoopGroup      Event loop group of inbound IO workers
      * @param eventLoopClass      Event loop class if Inbound IO Workers
      * @param httpRoute           Http Route which represents BE connections
-     * @param senderConfiguration sender configuration
+     * @param sslConfig           sender configuration
      * @return ChannelFuture
      */
     @SuppressWarnings("unchecked")

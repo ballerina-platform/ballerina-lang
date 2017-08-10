@@ -19,6 +19,7 @@
 package org.wso2.carbon.transport.http.netty.util;
 
 import com.google.common.io.ByteStreams;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
@@ -107,6 +108,9 @@ public class TestUtil {
         ServerBootstrapConfiguration serverBootstrapConfiguration = getServerBootstrapConfiguration(
                 configuration.getTransportProperties());
         Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
+
+        HTTPTransportContextHolder.getInstance().setWorkerGroup(new NioEventLoopGroup());
+        HTTPTransportContextHolder.getInstance().setBossGroup(new NioEventLoopGroup());
 
         connectors = new ArrayList<>();
         futures = new ArrayList<>();
