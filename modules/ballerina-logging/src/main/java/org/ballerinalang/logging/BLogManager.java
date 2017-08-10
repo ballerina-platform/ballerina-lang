@@ -57,23 +57,39 @@ public class BLogManager extends LogManager {
         });
 
         super.readConfiguration(propertiesToInputStream(properties));
-
-        // keep a reference to prevent this logger from being garbage collected
-        httpTraceLogger = Logger.getLogger("wirelog.http");
     }
 
     public void setWirelogHandler(String wirelogFlag) throws IOException {
-        String file;
+        File file;
         if ("--default".equals(wirelogFlag)) {
-            file = System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log";
+            file = new File(
+                    System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
         } else {
-            file = Paths.get(wirelogFlag).toFile().getAbsolutePath();
+            file = Paths.get(wirelogFlag).toFile();
         }
 
-        Handler handler = new HTTPTraceLogHandler(file);
+        if (!file.exists()) {
+            if (!file.getParentFile().exists()) {
+                if (file.getParentFile().mkdirs()) {
+                    if (!file.createNewFile()) {
+                        throw new IOException("error in creating the file: " + file.getAbsolutePath());
+                    }
+                } else {
+                    throw new IOException(
+                            "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
+                }
+            } else {
+                if (!file.createNewFile()) {
+                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
+                }
+            }
+        }
+
+        Handler handler = new HTTPTraceLogHandler(file.getAbsolutePath());
         handler.setLevel(Level.FINE);
 
         if (httpTraceLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
             httpTraceLogger = Logger.getLogger("wirelog.http");
         }
 
