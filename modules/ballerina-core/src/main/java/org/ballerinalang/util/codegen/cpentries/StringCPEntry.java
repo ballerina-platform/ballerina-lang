@@ -45,4 +45,29 @@ public class StringCPEntry implements ConstantPoolEntry {
     public EntryType getEntryType() {
         return EntryType.CP_ENTRY_STRING;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StringCPEntry that = (StringCPEntry) o;
+        if (stringCPIndex != that.stringCPIndex) {
+            return false;
+        }
+
+        return value != null ? value.equals(that.value) : that.value == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = stringCPIndex;
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
+    }
 }

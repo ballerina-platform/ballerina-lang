@@ -63,8 +63,12 @@ public class BDataTable implements BRefType<Object> {
         return BTypes.typeDatatable;
     }
 
-    public boolean next() {
-        return iterator.next();
+    public boolean hasNext(boolean isInTransaction) {
+        boolean hasNext = iterator.next();
+        if (!hasNext) {
+            close(isInTransaction);
+        }
+        return hasNext;
     }
 
     public void close(boolean isInTransaction) {
@@ -166,9 +170,6 @@ public class BDataTable implements BRefType<Object> {
     }
 
     private void generateStruct() {
-        BStructType structType = new BStructType("RS", null);
-        BStruct bStruct = new BStruct(structType);
-
         BType[] structTypes = new BType[columnDefs.size()];
         BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
         int typeIndex  = 0;
@@ -224,11 +225,13 @@ public class BDataTable implements BRefType<Object> {
             structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
             ++typeIndex;
         }
+
         int[] fieldCount = populateMaxSizes(structTypes);
-        bStruct.init(fieldCount);
-        bStruct.setFieldTypes(structTypes);
-        ((BStructType) bStruct.getType()).setStructFields(structFields);
-        this.bStruct = bStruct;
+        BStructType structType = new BStructType("RS", null);
+        structType.setStructFields(structFields);
+        structType.setFieldTypeCount(fieldCount);
+
+        this.bStruct = new BStruct(structType);
     }
 
     private static int[] populateMaxSizes(BType[] paramTypes) {

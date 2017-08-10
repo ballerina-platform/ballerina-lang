@@ -2,10 +2,9 @@ package restfulservice.samples;
 
 import ballerina.lang.messages;
 import ballerina.lang.system;
-import ballerina.lang.jsons;
 import ballerina.net.http;
 
-@http:config {basePath:"/productsservice"}
+@http:configuration {basePath:"/productsservice"}
 service<http> productmgt {
 
     map productsMap = populateSampleProducts();
@@ -24,7 +23,7 @@ service<http> productmgt {
     @http:Path {value:"/"}
     resource addProduct (message m) {
         json jsonReq = messages:getJsonPayload(m);
-        string productId = jsons:getString(jsonReq, "$.Product.ID");
+        var productId,_ = (string) jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
         message response = {};

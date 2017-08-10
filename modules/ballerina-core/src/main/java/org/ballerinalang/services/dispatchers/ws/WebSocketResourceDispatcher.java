@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
-import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -47,35 +46,6 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
     @Deprecated
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
-        try {
-            if (cMsg instanceof TextCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
-            } else if (cMsg instanceof BinaryCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
-            } else if (cMsg instanceof ControlCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
-            } else if (cMsg instanceof StatusCarbonMessage) {
-                StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
-                if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SESSION);
-                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
-                    return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
-                } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
-                    String connection = (String) cMsg.getProperty(Constants.CONNECTION);
-                    String upgrade = (String) cMsg.getProperty(Constants.UPGRADE);
-                    /* If the connection is WebSocket upgrade, this block will be executed */
-                    if (connection != null && upgrade != null &&
-                            Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
-                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
-                        WebSocketConnectionManager.getInstance().addConnectionToBroadcast(service.getName(), session);
-                        return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error occurred in WebSocket resource dispatchers : " + e.getMessage(),
-                                         balContext);
-        }
         return null;
     }
 
@@ -91,27 +61,23 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             if (cMsg instanceof TextCarbonMessage) {
                 return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
             } else if (cMsg instanceof BinaryCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
+                throw new BallerinaException("Binary messages are not supported!");
             } else if (cMsg instanceof ControlCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
+                throw new BallerinaException("Pong messages are not supported!");
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SESSION);
-                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
+                    Session serverSession = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                    WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
-                    String connection = (String) cMsg.getProperty(Constants.CONNECTION);
-                    String upgrade = (String) cMsg.getProperty(Constants.UPGRADE);
-                    /* If the connection is WebSocket upgrade, this block will be executed */
-                    if (connection != null && upgrade != null &&
-                            Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
-                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
-                        WebSocketConnectionManager.getInstance().addConnectionToBroadcast(service.getName(),
-                                session);
-                        return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-                    }
+                    Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                    WebSocketConnectionManager.getInstance().addServerSession(service, session, cMsg);
+                    callback.done(cMsg);
+                    return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                 }
+            } else {
+                throw new BallerinaException("Cannot identify the message type to dispatch!");
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred in WebSocket resource dispatchers : " + e.getMessage());
@@ -124,22 +90,13 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
         return Constants.PROTOCOL_WEBSOCKET;
     }
 
-    @Deprecated
-    private Resource getResource(Service service, String annotationName) {
-        for (Resource resource: service.getResources()) {
-            if (resource.getAnnotation(Constants.PROTOCOL_WEBSOCKET, annotationName) != null) {
-                return resource;
-            }
-        }
-        return null;
-    }
-
     private ResourceInfo getResource(ServiceInfo service, String annotationName) {
-        for (ResourceInfo resource : service.getResourceInfoList()) {
-            if (resource.getAnnotationAttachmentInfo(Constants.WS_PACKAGE_PATH, annotationName) != null) {
+        for (ResourceInfo resource : service.getResourceInfoEntries()) {
+            if (resource.getAnnotationAttachmentInfo(Constants.WEBSOCKET_PACKAGE_PATH, annotationName) != null) {
                 return resource;
             }
         }
-        return null;
+
+        throw new BallerinaException("Cannot find a resource for annotation: " + annotationName);
     }
 }

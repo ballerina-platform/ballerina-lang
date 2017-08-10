@@ -33,6 +33,7 @@ public class TypeConstants {
     public static final String MAP_TNAME = "map";
     public static final String XML_TNAME = "xml";
     public static final String JSON_TNAME = "json";
+    public static final String C_JSON_TNAME = "c-json";
     public static final String MESSAGE_TNAME = "message";
     public static final String CONNECTOR_TNAME = "connector";
     public static final String STRUCT_TNAME = "struct";
@@ -40,9 +41,10 @@ public class TypeConstants {
     static final String NATIVE_PACKAGE = "ballerina.model.typemappers";
     public static final String DATATABLE_TNAME = "datatable";
     public static final String ANY_TNAME = "any";
+    public static final String TYPE_TNAME = "type";
     public static final String NULL_TNAME = "null";
     public static final String VOID_TNAME = "void";
-    public static final String XML_ATTRIBUTES_TNAME = "xmlAttributes";
+    public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";
 
     public static final String INT_TSIG = "I";
     public static final String FLOAT_TSIG = "F";

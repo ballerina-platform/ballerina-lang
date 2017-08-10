@@ -66,63 +66,63 @@ public interface Session {
     Session setAccessed();
 
     /**
-     * Get last accessed time
+     * Get last accessed time.
      *
      * @return Time in milliseconds.
      */
     Long getLastAccessedTime();
 
     /**
-     * Get session creation time
+     * Get session creation time.
      *
      * @return Time in milliseconds.
      */
     Long getCreationTime();
 
     /**
-     * Get attribute name list
+     * Get attribute name list.
      *
      * @return name array.
      */
     String[]  getAttributeNames();
 
     /**
-     * Remove attribute from session
+     * Remove attribute from session.
      *
      * @param name which needs to delete
      */
     void removeAttribute(String name);
 
     /**
-     * Get max inactive time duration
+     * Get max inactive time duration.
      *
      * @return Time duration in seconds.
      */
     int getMaxInactiveInterval();
 
     /**
-     * Set max inactive time duration
+     * Set max inactive time duration.
      *
      * @param maxInactiveInterval is the session max inactive time in seconds
      */
     void setMaxInactiveInterval(int maxInactiveInterval);
 
     /**
-     * check validity
+     * check validity.
      *
      * @return boolean depend on validity
      */
     boolean isValid();
 
     /**
-     * Add header to response message
+     * Add header to response message.
      *
      * @param message which send to client
      */
     void generateSessionHeader(BMessage message);
 
     /**
-     * Update session stage whether new or already used
+     * Update session stage whether new or already used.
      *
      * @param isNew is the stage of session
      * @return  session
@@ -130,14 +130,14 @@ public interface Session {
     Session setNew(boolean isNew);
 
     /**
-     * Get path of session
+     * Get path of session.
      *
      * @return  session path
      */
     String getPath();
 
     /**
-     * Get session status
+     * Get session status.
      *
      * @return  session status
      */

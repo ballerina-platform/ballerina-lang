@@ -34,7 +34,7 @@ import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COO
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
- * HTTP session sub Methods Test Class
+ * HTTP session sub Methods Test Class.
  */
 public class HTTPSessionSubMethodsTest {
 
@@ -214,6 +214,31 @@ public class HTTPSessionSubMethodsTest {
         Assert.assertNotNull(stringDataSource);
         String error = stringDataSource.getValue().substring(38, 98);
         Assert.assertEquals(error, "failed to set max time interval: No such session in progress");
+    }
+
+    @Test(description = "Test for negative timeout setMaxInactiveInterval")
+    public void testSetMaxInactiveIntervalNegativeTimeoutFunction() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        long timeInterval = Long.parseLong(stringDataSource.getValue().toString());
+        Assert.assertEquals(timeInterval, 900);
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        long timeInterval2 = Long.parseLong(stringDataSource.getValue().toString());
+        Assert.assertEquals(timeInterval2, -1);
     }
 
     @AfterClass

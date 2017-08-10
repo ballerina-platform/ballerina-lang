@@ -13,10 +13,10 @@ float glbVarFloatChange = 99;
 float glbVarFloat1 = glbVarFloat;
 
 
-@http:BasePath {value:"/globalvar"}
-service GlobalVar {
+@http:configuration {basePath:"/globalvar"}
+service<http> GlobalVar {
 
-    string serviceVarFloat = glbVarFloat;
+    string serviceVarFloat = <string>glbVarFloat;
 
     @http:GET{}
     @http:Path {value:"/defined"}
@@ -61,8 +61,8 @@ service GlobalVar {
 }
 
 
-@http:BasePath {value:"/globalvar-second"}
-service GlobalVarSecond {
+@http:configuration {basePath:"/globalvar-second"}
+service<http> GlobalVarSecond {
 
     @http:GET{}
     @http:Path {value:"/get-changed-resource-level"}

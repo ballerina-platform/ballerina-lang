@@ -21,7 +21,7 @@ package org.ballerinalang.logging.util;
 import java.util.logging.Level;
 
 /**
- * A mapper class to map log levels from JDK logging to Ballerina log levels
+ * A mapper class to map log levels from JDK logging to Ballerina log levels.
  *
  * @since 0.89
  */

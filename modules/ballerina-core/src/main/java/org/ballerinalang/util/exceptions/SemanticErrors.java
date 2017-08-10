@@ -116,7 +116,21 @@ public enum SemanticErrors {
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
-    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "SEMANTIC_0095")
+    CANNOT_CONVERT_WITH_SUGGESTION("cannot.convert.with.suggestion", "SEMANTIC_0095"),
+    CANNOT_CAST_WITH_SUGGESTION("cannot.cast.with.suggestion", "SEMANTIC_0096"),
+    NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment", "SEMANTIC_0097"),
+    XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0098"),
+    XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0099"),
+    UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0100"),
+    INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix", "SEMANTIC_0101"),
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102"),
+    INCOMPATIBLE_TYPES_IN_XML_TEMPLATE("incompatible.types.in.xml.template", "SEMANTIC_0103"),
+    INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration", "SEMANTIC_0104"),
+    INCORRECT_FUNCTION_ARGUMENTS("incorrect.function.arguments", "SEMANTIC_105"),
+    CONNECTOR_TYPES_NOT_EQUIVALENT("connector.types.not.equivalent", "SEMANTIC_0106"),
+    FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0107"),
+    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
+    INVALID_ACTION_FIRST_PARAMETER("invalid.action.first.parameter", "SEMANTIC_0109"),
     ;
 
     private String errorMsgKey;

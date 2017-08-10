@@ -43,6 +43,7 @@ import java.io.OutputStream;
 public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private BType type = BTypes.typeJSON;
 
     static {
         OBJECT_MAPPER.configure(Feature.ALLOW_SINGLE_QUOTES, true);
@@ -110,7 +111,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 this.schema = OBJECT_MAPPER.readTree(schema);
             }
         } catch (Throwable t) {
-            handleJsonException("failed to create json: ", t);
+            handleJsonException(t);
         } 
     }
 
@@ -234,7 +235,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     @Override
     public BType getType() {
-        return BTypes.typeJSON;
+        return this.type;
+    }
+
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override
@@ -246,7 +251,15 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         }
         return null;
     }
-    
+
+    private static void handleJsonException(Throwable t) {
+        if (t.getCause() != null) {
+            throw new BallerinaException(t.getCause().getMessage());
+        } else {
+            throw new BallerinaException(t.getMessage());
+        }
+    }
+
     private static void handleJsonException(String message, Throwable t) {
         // Here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.

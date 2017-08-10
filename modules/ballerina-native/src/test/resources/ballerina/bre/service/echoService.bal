@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-@http:config{basePath:"/echo"}
+@http:configuration{basePath:"/echo"}
 service<http> echo {
 
     @http:POST {}

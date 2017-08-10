@@ -16,6 +16,8 @@
 
 package org.ballerinalang.model.values;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -23,6 +25,10 @@ import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.namespace.QName;
 
 /**
  * {@code BXML} represents a XML in Ballerina. An XML could be one of:
@@ -62,6 +68,8 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      */
     public static final String PI_END = "?>";
     
+    public static final String ZERO_STRING_VALUE = BTypes.typeString.getZeroValue().stringValue();
+    
     /**
      * Check whether the XML sequence is empty.
      * 
@@ -100,39 +108,47 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     /**
      * Get the value of a single attribute as a string.
      * 
-     * @param namespace Namespace of the attribute
      * @param localName Local name of the attribute
+     * @param namespace Namespace of the attribute
      * @return Value of the attribute
      */
-    public abstract BString getAttribute(String namespace, String localName);
+    public abstract String getAttribute(String localName, String namespace);
     
     /**
      * Get the value of a single attribute as a string.
      * 
+     * @param localName Local name of the attribute
      * @param namespace Namespace of the attribute
      * @param prefix    Prefix of the namespace
-     * @param localName Local name of the attribute
      * @return Value of the attribute
      */
-    public abstract BString getAttribute(String namespace, String prefix, String localName);
+    public abstract String getAttribute(String localName, String namespace, String prefix);
     
     /**
-     * Set the value of a single attribute as a {@link BString}.
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
      * 
      * @param namespace Namespace of the attribute
      * @param prefix Namespace prefix of the attribute
      * @param localName Local name of the attribute
      * @param value Value of the attribute
      */
-    public abstract void setAttribute(String namespace, String prefix, String localName, String value);
+    public abstract void setAttribute(String localName, String namespace, String prefix, String value);
 
-    
     /**
      * Get attributes as a {@link BMap}.
      * 
      * @return Attributes as a {@link BMap}
      */
-    public abstract BMap<?, ?> getAttributes();
+    public abstract BMap<?, ?> getAttributesMap();
+    
+
+    /**
+     * Set the attributes of the XML{@link BMap}.
+     * 
+     * @param attributes Attributes to be set.
+     */
+    public abstract void setAttributes(BMap<String, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.
@@ -174,39 +190,50 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public abstract void setChildren(BXML<?> seq);
     
     /**
-     * Set the attributes to the element.
-     * 
-     * @param attributes Attributes as a map
-     */
-    public abstract void setAttribute(BMap<BString, ?> attributes);
-    
-    /**
      * Strips any text items from the XML that are all whitespace.
      *
      * @return striped xml
      */
     public abstract BXML<?> strip();
-    
+
     /**
      * Get the type of the XML.
      * 
      * @return Type of the XML
      */
     public abstract XMLNodeType getNodeType();
-    
+
     /**
      * Returns a deep copy of the XML.
      */
     public abstract BXML<?> copy();
-    
+
+    /**
+     * Slice and return a subsequence of the given XML sequence.
+     * 
+     * @param startIndex To slice
+     * @param endIndex To slice
+     * @return sliced sequence
+     */
+    public abstract BValue slice(long startIndex, long endIndex);
+
+    /**
+     * Searches in children recursively for elements matching the name and returns a sequence containing them all.
+     * Does not search within a matched result.
+     * 
+     * @param qname Qualified name of the descendants to filter
+     * @return All the descendants that matches the given qualified name, as a sequence
+     */
+    public abstract BXML<?> descendants(BString qname);
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
         return stringValue();
-    } 
-    
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -252,11 +279,47 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     }
 
     /**
-     * Slice and return a subsequence of the given XML sequence.
-     * 
-     * @param startIndex    To slice
-     * @param endIndex      To slice
-     * @return sliced sequence
+     * Get the {@link QName} from {@link BString}.
+     *
+     * @param qname String representation of qname
+     * @return constructed {@link QName}
      */
-    public abstract BValue slice(long startIndex, long endIndex);
+    protected QName getQname(BString qname) {
+        String qNameStr = qname.stringValue();
+        String nsUri;
+        String localname;
+        int rParenIndex = qNameStr.indexOf('}');
+
+        if (qNameStr.startsWith("{") && rParenIndex > 0) {
+            localname = qNameStr.substring(rParenIndex + 1, qNameStr.length());
+            nsUri = qNameStr.substring(1, rParenIndex);
+        } else {
+            localname = qNameStr;
+            nsUri = "";
+        }
+
+        return new QName(nsUri, localname);
+    }
+
+    /**
+     * Recursively traverse and add the descendant with the given name to the descendants list.
+     * 
+     * @param descendants List to add descendants
+     * @param currentElement Current node
+     * @param qname Qualified name of the descendants to search
+     */
+    protected void addDescendants(List<BXML<?>> descendants, OMElement currentElement, String qname) {
+        Iterator<OMNode> childrenItr = currentElement.getChildren();
+        while (childrenItr.hasNext()) {
+            OMNode child = childrenItr.next();
+            if (child.getType() != OMNode.ELEMENT_NODE) {
+                continue;
+            }
+            if (qname.equals(((OMElement) child).getQName().toString())) {
+                descendants.add(new BXMLItem(child));
+                continue;
+            }
+            addDescendants(descendants, (OMElement) child, qname);
+        }
+    }
 }

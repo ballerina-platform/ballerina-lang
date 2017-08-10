@@ -27,6 +27,7 @@ import static org.ballerinalang.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.BOOLEAN_TSIG;
 import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.C_JSON_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.DATATABLE_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.FLOAT_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.FLOAT_TSIG;
@@ -58,6 +59,7 @@ public enum TypeEnum {
     MESSAGE(MESSAGE_TNAME, REFTYPE_TSIG),
     XML(XML_TNAME, REFTYPE_TSIG),
     JSON(JSON_TNAME, REFTYPE_TSIG),
+    CJSON(C_JSON_TNAME, REFTYPE_TSIG),
     MAP(MAP_TNAME, REFTYPE_TSIG),
     DATATABLE(DATATABLE_TNAME, REFTYPE_TSIG),
     VOID(VOID_TNAME, VOID_TSIG),
