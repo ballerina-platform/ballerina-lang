@@ -119,13 +119,6 @@ class TransformRender {
             contextMenuDiv.show();
             e.preventDefault();
         });
-
-
-        this.jsPlumbInstance.bind('connection', (info, ev) => {
-            self.reposition(self);
-    // TODO: for multiple type mappers
-    // self.processTypeMapperDropdown(info);
-        });
     }
 
 /**

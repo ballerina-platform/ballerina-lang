@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 
 /**
  * Source Generation for the Else Statement
@@ -102,6 +103,15 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
             const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
+    }
+
+    /**
+     * Visit connector declarations
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration AST node
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 }
 

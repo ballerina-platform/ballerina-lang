@@ -62,15 +62,34 @@ class IfStatement extends React.Component {
         const children = getComponentForNodeArray(this.props.model.getChildren());
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>
-                <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
-                <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
+                <rect
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
+                    y={bBox.y + bBox.h - 25}
+                    width={20}
+                    height={20}
+                    rx={10}
+                    ry={10}
+                    className="add-else-button"
+                />
+                <text
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
+                    y={bBox.y + bBox.h - 15}
+                    width={20}
+                    height={20}
+                    className="add-else-button-label"
+                >+</text>
             </g>
         );
 
         return (
             <BlockStatementDecorator
-                dropTarget={model} bBox={bBox} title={'If'} expression={expression}
-                editorOptions={this.editorOptions} model={model.parent} utilities={addElseBtn}
+                dropTarget={model}
+                bBox={bBox}
+                title={'If'}
+                expression={expression}
+                editorOptions={this.editorOptions}
+                model={model.parent}
+                utilities={addElseBtn}
             >
                 {children}
             </BlockStatementDecorator>

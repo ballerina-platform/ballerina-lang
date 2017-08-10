@@ -18,6 +18,7 @@
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 
 /**
  * Source generation for the IF Else Statement
@@ -85,6 +86,15 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource((statement.whiteSpace.useDefault)
           ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
+    }
+
+    /**
+     * Visit connector declarations
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration AST node
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 }
 
