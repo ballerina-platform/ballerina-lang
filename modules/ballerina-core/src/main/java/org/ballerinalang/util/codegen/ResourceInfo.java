@@ -30,7 +30,6 @@ public class ResourceInfo extends CallableUnitInfo {
 
     private int[] paramNameCPIndexes;
     private String[] paramNames;
-    private Map<String, List<String>> corsHeaders;
 
     private ServiceInfo serviceInfo;
 
@@ -38,6 +37,7 @@ public class ResourceInfo extends CallableUnitInfo {
     private String[] httpMethods;
     private String[] consumesList;
     private String[] producesList;
+    private Map<String, List<String>> corsHeaders;
 
     public ResourceInfo(int pkgCPIndex, String pkgPath, int resNameCPIndex, String actionName) {
         this.pkgPath = pkgPath;

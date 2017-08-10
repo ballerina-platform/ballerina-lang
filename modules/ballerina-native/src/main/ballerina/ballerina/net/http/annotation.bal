@@ -10,7 +10,7 @@ annotation configuration attach service<>, service<ws> {
     string keyStoreFile;
     string keyStorePass;
     string certPass;
-    string[] allowOrigin;
+    string[] allowOrigins;
     string allowCredentials;
     string[] allowMethods;
     string[] allowHeaders;
@@ -23,6 +23,12 @@ annotation resourceConfig attach resource {
     string path;
     string[] consumes;
     string[] produces;
+    string[] allowOrigins;
+    string allowCredentials;
+    string[] allowMethods;
+    string[] allowHeaders;
+    string maxAge;
+    string[] exposeHeaders;
 }
 
 annotation PathParam attach parameter {

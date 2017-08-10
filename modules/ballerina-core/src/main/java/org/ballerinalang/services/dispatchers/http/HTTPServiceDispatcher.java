@@ -97,10 +97,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);
-        Map<String, List<String>> serviceCorsMap = null;
-        if (HTTPCorsFilter.getInstance().isCorsHeadersAvailable(service)) {
-            serviceCorsMap = HTTPCorsFilter.getInstance().getServiceCoresHeaders();
-        }
+        Map<String, List<String>> serviceCorsMap = HTTPCorsFilter.getInstance().getServiceCors(service);
         for (ResourceInfo resource : service.getResourceInfoEntries()) {
             AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                     Constants.ANN_NAME_RESOURCE_CONFIG);
@@ -144,11 +141,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             } catch (URITemplateException e) {
                 throw new BallerinaException(e.getMessage());
             }
-            if (HTTPCorsFilter.getInstance().isResourceCorsDefined(resource)) {
-                resource.setCorsHeaders(HTTPCorsFilter.getInstance().getResourceCorsHeaders());
-            } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
-                resource.setCorsHeaders(serviceCorsMap);
-            }
+            HTTPCorsFilter.getInstance().processResourceCors(resource, serviceCorsMap);
         }
         String basePath = getServiceBasePath(service);
         sortedServiceURIs.add(basePath);

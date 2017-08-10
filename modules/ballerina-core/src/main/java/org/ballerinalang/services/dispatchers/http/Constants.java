@@ -101,7 +101,7 @@ public class Constants {
     public static final String AC_ALLOW_HEADERS = "Access-Control-Allow-Headers";
     public static final String AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 
-    public static final String ALLOW_ORIGIN = "allowOrigin";
+    public static final String ALLOW_ORIGIN = "allowOrigins";
     public static final String ALLOW_CREDENTIALS = "allowCredentials";
     public static final String ALLOW_METHODS = "allowMethods";
     public static final String MAX_AGE = "maxAge";

@@ -29,14 +29,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HTTPCorsFilter loads CORS headers in a server.
+ * HTTPCorsFilter loads CORS headers at service/resource level.
  */
 public class HTTPCorsFilter {
 
-    private ResourceInfo resource;
     private AnnAttributeValue attributeValue;
-    private AnnAttachmentInfo resCorsAnnotInfo;
-    private AnnAttachmentInfo serviceConfigAnnotInfo;
+    private AnnAttachmentInfo configAnnotInfo;
     private static final HTTPCorsFilter corsRegistry = new HTTPCorsFilter();
     private String[] corsHeaders = {Constants.ALLOW_ORIGIN, Constants.MAX_AGE
             , Constants.ALLOW_CREDENTIALS, Constants.ALLOW_METHODS
@@ -47,12 +45,29 @@ public class HTTPCorsFilter {
         return corsRegistry;
     }
 
-    public boolean isCorsHeadersAvailable(ServiceInfo service) {
-        serviceConfigAnnotInfo = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
-                , Constants.ANNOTATION_NAME_CONFIGURATION);
+    public Map<String, List<String>> getServiceCors(ServiceInfo service) {
+        if (isHeadersAvailable(service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
+                , Constants.ANN_NAME_CONFIG))) {
+            return populateServiceCoresMap();
+        } else {
+            return null;
+        }
+    }
+
+    public void processResourceCors(ResourceInfo resource, Map<String, List<String>> serviceCorsMap) {
+        if (isHeadersAvailable(resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
+                , Constants.ANN_NAME_RESOURCE_CONFIG))) {
+            resource.setCorsHeaders(populateResourceCors(resource));
+        } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
+            resource.setCorsHeaders(serviceCorsMap);
+        }
+    }
+
+    public boolean isHeadersAvailable(AnnAttachmentInfo configAnnotInfo) {
+        this.configAnnotInfo = configAnnotInfo;
         boolean hasCorsHeaders = false;
         for (String header : corsHeaders) {
-            attributeValue = serviceConfigAnnotInfo.getAttributeValue(header);
+            attributeValue = configAnnotInfo.getAttributeValue(header);
             if (attributeValue != null) {
                 hasCorsHeaders = true;
                 break;
@@ -61,13 +76,13 @@ public class HTTPCorsFilter {
         return hasCorsHeaders;
     }
 
-    public Map<String, List<String>> getServiceCoresHeaders() {
+    public Map<String, List<String>> populateServiceCoresMap() {
 
         Map<String, List<String>> serviceCorsMap = new HashMap<>();
         for (String header : corsHeaders) {
-            attributeValue = serviceConfigAnnotInfo.getAttributeValue(header);
+            attributeValue = configAnnotInfo.getAttributeValue(header);
             List<String> list = new ArrayList();
-            if (attributeValue != null ) {
+            if (attributeValue != null) {
                 if (attributeValue.getAttributeValueArray() != null) {
                     for (AnnAttributeValue att : attributeValue.getAttributeValueArray()) {
                         list.add(att.getStringValue().trim());
@@ -78,16 +93,14 @@ public class HTTPCorsFilter {
             } else {
                 switch (header) {
                     case Constants.ALLOW_ORIGIN:
+                    case Constants.ALLOW_METHODS:
                         list.add("*");
                         break;
                     case Constants.ALLOW_CREDENTIALS:
                         list.add("false");
                         break;
-                    case Constants.ALLOW_METHODS:
-                        list.add("*");
-                        break;
                     case Constants.MAX_AGE:
-                        list.add("100");
+                        list.add("-1");
                         break;
                     default:
                         break;
@@ -98,20 +111,30 @@ public class HTTPCorsFilter {
         return serviceCorsMap;
     }
 
-    public boolean isResourceCorsDefined(ResourceInfo resource) {
-        this.resource = resource;
-        resCorsAnnotInfo = resource
-                .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, "CORS");
-        if (resCorsAnnotInfo != null) {
-            return true;
-        }
-        return false;
-    }
+//    public boolean isResourceCorsDefined(AnnAttachmentInfo resource) {
+//        this.resource = resource;
+//        resourceConfigAnnotInfo = resource
+//                .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_RESOURCE_CONFIG);
+//        boolean hasCorsHeaders = false;
+//        for (String header : corsHeaders) {
+//            attributeValue = configAnnotInfo.getAttributeValue(header);
+//            if (attributeValue != null) {
+//                hasCorsHeaders = true;
+//                break;
+//            }
+//        }
+//
+//        if (resourceConfigAnnotInfo != null) {
+//            return true;
+//        }
+//        return hasCorsHeaders;
+//    }
 
-    public Map<String, List<String>> getResourceCorsHeaders() {
+    public Map<String, List<String>> populateResourceCors(ResourceInfo resource) {
+
         Map<String, List<String>> resourceCorsMap = new HashMap<>();
         for (String header : corsHeaders) {
-            attributeValue = resCorsAnnotInfo.getAttributeValue(header);
+            attributeValue = configAnnotInfo.getAttributeValue(header);
             List<String> list = new ArrayList();
             if (attributeValue != null) {
                 if (attributeValue.getAttributeValueArray() != null) {
@@ -133,7 +156,7 @@ public class HTTPCorsFilter {
                         list.add(getResourceMethod(resource));
                         break;
                     case Constants.MAX_AGE:
-                        list.add("100");
+                        list.add("-1");
                         break;
                     default:
                         break;
@@ -153,7 +176,4 @@ public class HTTPCorsFilter {
         }
         return "*";
     }
-
-
-
 }

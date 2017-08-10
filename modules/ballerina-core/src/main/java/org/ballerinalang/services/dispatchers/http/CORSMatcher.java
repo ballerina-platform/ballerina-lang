@@ -20,12 +20,15 @@ package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -40,20 +43,15 @@ public class CORSMatcher {
     private static final Pattern FIELD_COMMA_PATTERN = Pattern.compile(",");
     private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
 
-
-
     public static void process(Map<String, List<String>> resourceCorsHeaders, CarbonMessage cMsg) {
         resourceCors = resourceCorsHeaders;
         String origin = cMsg.getHeader(Constants.ORIGIN);
         if (origin != null && resourceCors != null) {
             String httpMethod = cMsg.getProperty(Constants.HTTP_METHOD).toString();
             if (Constants.HTTP_METHOD_OPTIONS.equals(httpMethod)) {
-                //pre-flight
-                validatePreflightRequest(origin, cMsg);
+                //validatePreflightRequest(origin, cMsg);
             } else {
-                //simple-request
                 if (validateSimpleRequest(origin)) {
-                    //set headers
                     isCorsResponseHeadersAvailable = true;
                 } else {
                     //do not set headers.
@@ -67,7 +65,7 @@ public class CORSMatcher {
         List<String> list = new ArrayList();
         List<String> resourceOrigins = resourceCors.get(Constants.ALLOW_ORIGIN);
         List<String> requestOrigins = getOriginValues(origin);
-        if(requestOrigins != null && requestOrigins.size() != 0) {
+        if (requestOrigins != null && requestOrigins.size() != 0) {
             if (resourceOrigins.size() == 1 && resourceOrigins.get(0).equals("*")) {
                 //origin allowed.
                 list = requestOrigins;
@@ -91,16 +89,13 @@ public class CORSMatcher {
 
     private static boolean validatePreflightRequest(String originValue, CarbonMessage cMsg) {
         List<String> requestOrigins = getOriginValues(originValue);
-        if(requestOrigins != null && requestOrigins.size() == 1) {
+        if (requestOrigins != null && requestOrigins.size() == 1) {
             String origin = requestOrigins.get(0);
             List<String> requestMethodValues = getHeaderValues(Constants.AC_REQUEST_HEADERS, cMsg);
             if (requestMethodValues != null && requestMethodValues.size() == 1) {
                 String requestMethod = requestMethodValues.get(0);
-
-
-
             } else {
-                //return createPreflightResponse(m, false);
+
             }
 
 
@@ -133,7 +128,7 @@ public class CORSMatcher {
         String allowCreds = resourceCors.get(Constants.ALLOW_CREDENTIALS).get(0);
         getResponseCors().put(Constants.AC_ALLOW_CREDENTIALS, allowCreds);
         String originResponse;
-        if (allowCreds.equals("false") && effectiveOrigins.size() !=0) {
+        if (allowCreds.equals("false") && effectiveOrigins.size() != 0) {
             originResponse = "*";
         } else {
             originResponse = concatValues(effectiveOrigins, true);
@@ -144,10 +139,10 @@ public class CORSMatcher {
     private static String concatValues(List<String> values, boolean spaceSeparated) {
         StringBuilder sb = new StringBuilder();
 
-        for(int x = 0; x < values.size(); ++x) {
+        for (int x = 0; x < values.size(); ++x) {
             sb.append(values.get(x));
-            if(x != values.size() - 1) {
-                if(spaceSeparated) {
+            if (x != values.size() - 1) {
+                if (spaceSeparated) {
                     sb.append(" ");
                 } else {
                     sb.append(", ");
@@ -157,7 +152,6 @@ public class CORSMatcher {
 
         return sb.toString();
     }
-
 
     private static List<String> getOriginValues(String originValue) {
         String[] origins = SPACE_PATTERN.split(originValue);
