@@ -178,9 +178,25 @@ function testMapWithIncompatibleStructToStruct() (Employee) {
     return e;
 }
 
-function testIncompatibleJsonToStruct() (Person) {
+function testJsonToStructWithMissingFields() (Person) {
     json j = { name:"Child", 
                age:25, 
+               address:{"city":"Colombo", "country":"SriLanka"}, 
+               info:{status:"single"},
+               marks:[87,94,72]
+             };
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
+    return p;
+}
+
+function testIncompatibleJsonToStruct() (Person) {
+    json j = { name:"Child", 
+               age:"25", 
                address:{"city":"Colombo", "country":"SriLanka"}, 
                info:{status:"single"},
                marks:[87,94,72]

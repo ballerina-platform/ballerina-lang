@@ -248,9 +248,17 @@ public class NativeConversionTest {
     @Test(description = "Test converting a incompatible JSON to a struct", 
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*cannot convert 'json' to type 'Person': error while " +
-                    "mapping 'parent': no such field found.*")
+                    "mapping 'age': incompatible types: expected 'int', found 'string' in json.*")
     public void testIncompatibleJsonToStruct() {
         BLangFunctions.invokeNew(programFile, "testIncompatibleJsonToStruct");
+    }
+
+    @Test
+    public void testJsonToStructWithMissingFields() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToStructWithMissingFields");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\",age:25,parent:null,info:" + 
+                "{\"status\":\"single\"},address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72]," +
+                "a:null,score:0.0,alive:0}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
