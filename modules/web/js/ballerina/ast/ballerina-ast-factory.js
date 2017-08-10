@@ -1974,7 +1974,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     }
     // handle special case of connector declaration
     if (jsonNode.type === 'variable_definition_statement' &&
-                !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr')) {
+                !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
         node = BallerinaASTFactory.createConnectorDeclaration();
     } 
 

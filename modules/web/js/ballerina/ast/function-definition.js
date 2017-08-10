@@ -21,7 +21,6 @@ import ASTNode from './node';
 import CallableDefinition from './callable-definition';
 import CommonUtils from '../utils/common-utils';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
-import { isConnectorDeclarationNode } from './utils';
 
 /**
  * Constructor for FunctionDefinition

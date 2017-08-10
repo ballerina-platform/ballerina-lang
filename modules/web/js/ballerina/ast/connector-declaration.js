@@ -132,7 +132,7 @@ class ConnectorDeclaration extends ASTNode {
             this.whiteSpace.useDefault = false;
         }
 
-        this._declarationStatement = self.getFactory().createFromJson(jsonNode);
+        this._declarationStatement = self.getFactory().createVariableDefinitionStatement();
         this._declarationStatement.initFromJson(jsonNode);
     }
 
