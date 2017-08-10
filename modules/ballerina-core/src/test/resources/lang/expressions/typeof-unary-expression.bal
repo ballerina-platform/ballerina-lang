@@ -295,3 +295,41 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
         return 2;
     }
 }
+
+function testTypeAccessExprValueType() (int) {
+    int intValue;
+    if((typeof intValue) == (typeof int)){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprValueTypeNegative() (int) {
+    int intValue;
+    type int_t = typeof intValue;
+    type string_t = typeof string;
+    if(int_t == string_t){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprValueTypeArray() (int) {
+    int[] intValue;
+    if((typeof intValue) == (typeof int[])){
+       return 1;
+    } else {
+       return 0;
+    }
+}
+
+function testTypeAccessExprValueTypeArrayNegative() (int) {
+    string[] intValue;
+    if((typeof intValue) == (typeof int[])){
+       return 1;
+    } else {
+       return 0;
+    }
+}

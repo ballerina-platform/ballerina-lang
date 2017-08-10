@@ -2913,4 +2913,49 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         // noOfArguments = childCount mod 2 + 1
         return childCountExprList / 2 + 1;
     }
+
+
+    public void enterTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) {
+    }
+
+    public void exitTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        SimpleTypeName typeName = typeNameStack.pop();
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTypeAccessExpWS(tokenStream, ctx);
+        }
+        modelBuilder.createTypeAccessExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName);
+    }
+
+
+    public void enterBuiltInTypeName(BallerinaParser.BuiltInTypeNameContext ctx) {
+    }
+
+    public void exitBuiltInTypeName(BallerinaParser.BuiltInTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.builtInTypeName() != null) {
+            SimpleTypeName typeName = typeNameStack.peek();
+            typeName.setArrayType((ctx.getChildCount() - 1) / 2);
+            return;
+        }
+
+        if (ctx.builtInReferenceTypeName() != null || ctx.valueTypeName() != null) {
+            return;
+        }
+
+        SimpleTypeName typeName = new SimpleTypeName(ctx.getChild(0).getText());
+        typeName.setNodeLocation(getCurrentLocation(ctx));
+        if (isVerboseMode) {
+            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInTypeNameWS(tokenStream, ctx);
+            typeName.setWhiteSpaceDescriptor(ws);
+        }
+        typeNameStack.push(typeName);
+    }
+
 }

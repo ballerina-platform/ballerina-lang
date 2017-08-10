@@ -374,6 +374,11 @@ public class WhiteSpaceRegions {
     public static final int UNARY_EXP_OPERATOR_TO_EXP = 1;
     public static final int UNARY_EXP_FOLLOWING_WHITESPACE = 2;
 
+    // white space regions in a type access expr
+    public static final int TYPE_ACCESS_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int TYPE_ACCESS_EXP_TYPE_NAME_TO_IDENTIFIER = 1;
+    public static final int TYPE_ACCESS_EXP_FOLLOWING_WHITESPACE = 2;
+
     // white space regions in a field def
     public static final int FILED_DEF_TYPE_NAME_TO_ID = 0;
     public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 1;

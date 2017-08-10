@@ -496,6 +496,16 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getBuiltInTypeNameWS(CommonTokenStream tokenStream,
+                                                            BallerinaParser.BuiltInTypeNameContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
     public static WhiteSpaceDescriptor getValueTypeNameWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.ValueTypeNameContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
@@ -1066,6 +1076,18 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_OPERATOR_TO_EXP,
                 getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getTypeAccessExpWS(CommonTokenStream tokenStream,
+                                                          BallerinaParser.TypeAccessExpressionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_ACCESS_EXP_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_ACCESS_EXP_TYPE_NAME_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.builtInTypeName().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_ACCESS_EXP_FOLLOWING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
