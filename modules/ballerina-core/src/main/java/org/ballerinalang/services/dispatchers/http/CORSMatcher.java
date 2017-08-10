@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 /**
  * CORSMatcher matches request CORS headers with service.
+ *
+ * @since 0.92
  */
 public class CORSMatcher {
     private static Map<String, List<String>> resourceCors;

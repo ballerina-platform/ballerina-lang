@@ -30,6 +30,8 @@ import java.util.Map;
 
 /**
  * HTTPCorsFilter loads CORS headers at service/resource level.
+ *
+ * @since 0.92
  */
 public class HTTPCorsFilter {
 
@@ -64,6 +66,9 @@ public class HTTPCorsFilter {
     }
 
     public boolean isHeadersAvailable(AnnAttachmentInfo configAnnotInfo) {
+        if (configAnnotInfo == null) {
+            return false;
+        }
         this.configAnnotInfo = configAnnotInfo;
         boolean hasCorsHeaders = false;
         for (String header : corsHeaders) {
