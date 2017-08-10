@@ -45,7 +45,6 @@ import java.io.PrintStream;
         value = "any value to be printed") })
 public class PrintAny extends AbstractNativeFunction {
 
-    //==
 
     public BValue[] execute(Context ctx) {
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
@@ -62,8 +61,7 @@ public class PrintAny extends AbstractNativeFunction {
 
     public BValue getRefArgument(Context context, int index) {
         if (index > -1 && index < getArgumentTypeNames().length) {
-            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
-            return result;
+            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
