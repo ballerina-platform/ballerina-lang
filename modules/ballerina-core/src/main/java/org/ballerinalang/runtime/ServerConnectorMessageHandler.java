@@ -191,22 +191,26 @@ public class ServerConnectorMessageHandler {
                     continue;
                 }
 
-                if (btype == BTypes.typeString) {
-                    stringLocalVars[stringParamCount++] = value;
-                } else if (btype == BTypes.typeBoolean) {
-                    if ("true".equalsIgnoreCase(value)) {
-                        intLocalVars[intParamCount++] = 1;
-                    } else if ("false".equalsIgnoreCase(value)) {
-                        intLocalVars[intParamCount++] = 0;
+                try {
+                    if (btype == BTypes.typeString) {
+                        stringLocalVars[stringParamCount++] = value;
+                    } else if (btype == BTypes.typeBoolean) {
+                        if ("true".equalsIgnoreCase(value)) {
+                            intLocalVars[intParamCount++] = 1;
+                        } else if ("false".equalsIgnoreCase(value)) {
+                            intLocalVars[intParamCount++] = 0;
+                        } else {
+                            throw new BallerinaException("Could not parse input: " + value + " to a boolean");
+                        }
+                    } else if (btype == BTypes.typeFloat) {
+                        doubleLocalVars[doubleParamCount++] = new Double(value);
+                    } else if (btype == BTypes.typeInt) {
+                        longLocalVars[longParamCount++] = Long.parseLong(value);
                     } else {
                         throw new BallerinaException("Unsupported parameter type for parameter " + value);
                     }
-                } else if (btype == BTypes.typeFloat) {
-                    doubleLocalVars[doubleParamCount++] = new Double(value);
-                } else if (btype == BTypes.typeInt) {
-                    longLocalVars[longParamCount++] = Long.parseLong(value);
-                } else {
-                    throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("Could not parse input: " + value + " to a number");
                 }
             }
         }

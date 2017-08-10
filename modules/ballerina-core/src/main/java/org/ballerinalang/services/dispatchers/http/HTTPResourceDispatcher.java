@@ -19,10 +19,13 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
-import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
+import org.ballerinalang.services.dispatchers.uri.ParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -42,6 +45,7 @@ import java.util.Map;
 public class HTTPResourceDispatcher implements ResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
+    private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
 
     @Override
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback)
@@ -54,11 +58,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         try {
             ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
             if (resource != null) {
-                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-                    QueryParamProcessor.processQueryParams
-                            ((String) cMsg.getProperty(Constants.QUERY_STR))
-                            .forEach((resourceArgumentValues::put));
-                }
+                populateQueryParams(cMsg, resourceArgumentValues);
+                populateFormParams(resource, cMsg, resourceArgumentValues);
+                populateHeaderParams(resource, cMsg, resourceArgumentValues);
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
             }
@@ -89,5 +91,55 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
         }
         return subPath;
+    }
+
+    private void populateQueryParams(CarbonMessage cMsg, Map<String, String> resourceArgValues)
+            throws UnsupportedEncodingException {
+        if (cMsg.getProperty(Constants.QUERY_STR) != null) {
+            ParamProcessor.processQueryParams
+                    ((String) cMsg.getProperty(Constants.QUERY_STR))
+                    .entrySet().forEach(entry -> {
+                        if (resourceArgValues.put(entry.getKey(), entry.getValue()) != null) {
+                            bLog.warn("parameter key \"" + entry.getKey() + "\" is redeclared.");
+                        }
+                    });
+        }
+    }
+
+    private void populateFormParams(ResourceInfo resource, CarbonMessage cMsg, Map<String, String> resourceArgValues)
+            throws UnsupportedEncodingException {
+        if (resource.getParamNames().length > 1) {
+            String contentType = cMsg.getHeader(Constants.CONTENT_TYPE_HEADER);
+            if (contentType != null && contentType.contains(Constants.APPLICATION_X_WWW_FORM_URLENCODED)) {
+                String payload;
+                if (cMsg.isAlreadyRead()) {
+                    payload = cMsg.getMessageDataSource().getMessageAsString();
+                } else {
+                    payload = MessageUtils.getStringFromInputStream(cMsg.getInputStream());
+                    StringDataSource stringDataSource = new StringDataSource(payload);
+                    cMsg.setMessageDataSource(stringDataSource);
+                    cMsg.setAlreadyRead(true);
+                }
+                if (!payload.isEmpty()) {
+                    ParamProcessor.processQueryParams(payload).entrySet().forEach(entry -> {
+                        if (resourceArgValues.put(entry.getKey(), entry.getValue()) != null) {
+                            bLog.warn("parameter key \"" + entry.getKey() + "\" is redeclared.");
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private void populateHeaderParams(ResourceInfo resource, CarbonMessage cMsg, Map<String, String> resourceArgValues)
+            throws UnsupportedEncodingException {
+        if (resource.getParamNames().length > 1) {
+            ParamProcessor.processHeaderParams(cMsg.getHeaders().getAll())
+                    .entrySet().forEach(entry -> {
+                        if (resourceArgValues.put(entry.getKey(), entry.getValue()) != null) {
+                            bLog.warn("parameter key \"" + entry.getKey() + "\" is redeclared.");
+                        }
+                    });
+        }
     }
 }

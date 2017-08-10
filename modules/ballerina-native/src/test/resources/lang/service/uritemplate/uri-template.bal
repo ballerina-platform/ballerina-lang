@@ -94,4 +94,71 @@ service<http> Ecommerce {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:POST{}
+    @http:Path {value:"/test"}
+    resource productsInfo7 (message m, @http:FormParam {value:"fname"} string firstName, string lname, int id, boolean status) {
+        message response = {};
+        json responseJson = {"FirstName":firstName, "LastName":lname, "Id":id, "Status":status};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:POST{}
+    @http:Path {value:"/test66/{abc}"}
+    resource productsInfo8 (message m, @http:PathParam {value:"abc"} string name, @http:FormParam {value:"team"} string myTeam, string area) {
+        message response = {};
+        json responseJson = {"path":name, "query":myTeam, "form":area};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"/test77"}
+    resource productsInfo9 (message m, @http:FormParam {value:"fname"} string firstName) {
+        message response = {};
+        json responseJson = {"FirstName":firstName};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:POST{}
+    @http:Path {value:"/test777"}
+    resource productsInfo99 (message m, string fname) {
+        message response = {};
+        json responseJson = {"FirstName":fname};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:POST{}
+    @http:Path {value:"/test88"}
+    resource productsInfo10 (message m, @http:HeaderParam {value:"Content-Type"} string cType, string Range) {
+        message response = {};
+        json responseJson = {"cType":cType, "Range": Range};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:POST{}
+    @http:Path {value:"/test99"}
+    resource productsInfo11 (message m, @http:HeaderParam {value:"Range"} int Range) {
+        message response = {};
+        string bar;
+        bar, _ = <string> Range;
+        json responseJson = {"Range": bar};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:POST{}
+    @http:Path {value:"/test991"}
+    resource productsInfo12 (message m, @http:HeaderParam {value:"Range"} boolean Range) {
+        message response = {};
+        boolean bar;
+        bar, _ = <boolean> Range;
+        json responseJson = {"Range": bar};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }

@@ -18,16 +18,20 @@
 
 package org.ballerinalang.services.dispatchers.uri;
 
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.Header;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Query parameter related operations.
+ * Parameter related operations.
  */
 
-public class QueryParamProcessor {
+public class ParamProcessor {
     public static final String ENCODING = "UTF-8";
 
     public static Map<String, String> processQueryParams(String queryStr) throws UnsupportedEncodingException {
@@ -36,12 +40,26 @@ public class QueryParamProcessor {
         for (String entry : entries) {
             int index = entry.indexOf('=');
             if (index != -1) {
-                String name = entry.substring(0, index);
-                String value = URLDecoder.decode(entry.substring(index + 1),
-                        ENCODING);
+                String name = entry.substring(0, index).trim();
+                String value = URLDecoder.decode(entry.substring(index + 1).trim(), ENCODING);
                 queryParams.put(name, value);
             }
         }
         return queryParams;
+    }
+
+    public static Map<String, String> processHeaderParams(List<Header> headers) {
+        Map<String, String> headerParams = new HashMap<>();
+        for (Header header : headers) {
+            String name = header.getName().trim();
+            String value = "";
+            try {
+                value = URLDecoder.decode(header.getValue().trim(), ENCODING);
+            } catch (UnsupportedEncodingException e) {
+                throw new BallerinaException("Unsupported encoding in value: " + value + "for " + name);
+            }
+            headerParams.put(name, value);
+        }
+        return headerParams;
     }
 }

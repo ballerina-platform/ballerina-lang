@@ -18,8 +18,10 @@
 
 package org.ballerinalang.service;
 
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
@@ -151,6 +153,45 @@ public class ServiceTest {
         Assert.assertNull(response.getHeader("header1"));
         Assert.assertNull(response.getHeader("header2"));
         Assert.assertNull(response.getHeader("header3"));
+    }
+
+    @Test(description = "Test GetFormParams Native Function")
+    public void testGetFormParamsNativeFunction() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2"
+                , "Name variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Team").asText(), "BalDance"
+                , "Team variable not set properly.");
+
+    }
+
+    @Test(description = "Test GetFormParams with undefined key and empty payloads")
+    public void testGetFormParamsForUndefinedKey() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Team").asText(), ""
+                , "Team variable not set properly.");
+
+        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, Constants.APPLICATION_X_WWW_FORM_URLENCODED);
+        response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue().substring(86, 107), "empty message payload");
+
     }
 
     @AfterClass

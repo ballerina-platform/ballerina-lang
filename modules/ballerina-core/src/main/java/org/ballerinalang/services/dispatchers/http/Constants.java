@@ -29,6 +29,8 @@ public class Constants {
     public static final String SUB_PATH = "SUB_PATH";
     public static final String QUERY_STR = "QUERY_STR";
     public static final String RAW_QUERY_STR = "RAW_QUERY_STR";
+    public static final String FORM_PARAM = "FormParam";
+    public static final String HEADER_PARAM = "HeaderParam";
 
     public static final String DEFAULT_INTERFACE = "default";
     public static final String DEFAULT_BASE_PATH = "/";
@@ -45,6 +47,7 @@ public class Constants {
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String ACCEPT_HEADER = "Accept";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
