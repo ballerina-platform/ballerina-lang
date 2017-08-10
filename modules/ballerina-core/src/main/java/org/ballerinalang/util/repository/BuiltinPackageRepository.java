@@ -187,6 +187,10 @@ public class BuiltinPackageRepository extends PackageRepository {
                         if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
                             return FileVisitResult.CONTINUE;
                         }
+                        if (filePath.getFileName() == null) {
+                            throw new IllegalStateException("Given regex matches file with bal extension. " +
+                                    "File name cannot be null.");
+                        }
                         // get only the file name
                         fileNames.add(filePath.getFileName().toString());
                     }

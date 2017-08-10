@@ -60,6 +60,11 @@ public class BTypeValue implements BRefType<BType> {
     }
 
     public boolean equals(Object obj) {
+        // if obj == 'null' or not instance of BTypeValue - return false
+        if (obj == null || !(obj instanceof BTypeValue)) {
+            return false;
+        }
+
         BTypeValue typeValue = (BTypeValue) obj;
         if ((typeValue.value() instanceof BArrayType) &&
                 (this.value() instanceof BArrayType)) {
