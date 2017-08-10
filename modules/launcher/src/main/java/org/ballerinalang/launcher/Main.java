@@ -5,12 +5,14 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -192,6 +194,9 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
+        @Parameter(names = "--wirelog", hidden = true, description = "enable wire logging")
+        private String wirelog;
+
         public void execute() {
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
@@ -201,6 +206,16 @@ public class Main {
 
             if (argList == null || argList.size() == 0) {
                 throw LauncherUtils.createUsageException("no ballerina program given");
+            }
+
+            if (wirelog != null) {
+                BLogManager logManager = (BLogManager) BLogManager.getLogManager();
+                try {
+                    logManager.setWirelogHandler(wirelog);
+                    System.setProperty("wirelog.enabled", Boolean.TRUE.toString());
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException("error in creating the log file: " + wirelog);
+                }
             }
 
             // Enable remote debugging

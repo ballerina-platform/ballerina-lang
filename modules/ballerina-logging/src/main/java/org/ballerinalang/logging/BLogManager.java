@@ -17,12 +17,19 @@
  */
 package org.ballerinalang.logging;
 
+import org.ballerinalang.logging.handlers.HTTPTraceLogHandler;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +45,8 @@ public class BLogManager extends LogManager {
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
+    private Logger httpTraceLogger;
+
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
         Properties properties = new Properties();
@@ -48,6 +57,36 @@ public class BLogManager extends LogManager {
         });
 
         super.readConfiguration(propertiesToInputStream(properties));
+
+        // keep a reference to prevent this logger from being garbage collected
+        httpTraceLogger = Logger.getLogger("wirelog.http");
+    }
+
+    public void setWirelogHandler(String wirelogFlag) throws IOException {
+        String file;
+        if ("--default".equals(wirelogFlag)) {
+            file = System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log";
+        } else {
+            file = Paths.get(wirelogFlag).toFile().getAbsolutePath();
+        }
+
+        Handler handler = new HTTPTraceLogHandler(file);
+        handler.setLevel(Level.FINE);
+
+        if (httpTraceLogger == null) {
+            httpTraceLogger = Logger.getLogger("wirelog.http");
+        }
+
+        removeHandlers(httpTraceLogger);
+        httpTraceLogger.addHandler(handler);
+        httpTraceLogger.setLevel(Level.FINE);
+    }
+
+    private static void removeHandlers(Logger logger) {
+        Handler[] handlers = logger.getHandlers();
+        for (Handler handler : handlers) {
+            logger.removeHandler(handler);
+        }
     }
 
     private String substituteVariables(String value) {
