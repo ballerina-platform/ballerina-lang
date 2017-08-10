@@ -16,11 +16,7 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
-<<<<<<< HEAD
-import ASTFactory from '../../ast/ballerina-ast-factory';
-=======
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
->>>>>>> Arrow conflict resolving.
 
 /**
  * Dimension visitor class for Variable Definition Statement.
@@ -67,7 +63,7 @@ class VariableDefinitionStatementDimensionCalculatorVisitor {
         const viewState = node.getViewState();
         util.populateSimpleStatementBBox(node.getStatementString(), viewState);
 
-        const lambdaChildren = node.filterChildren(child => ASTFactory.isLambdaExpression(child));
+        const lambdaChildren = node.filterChildren(child => BallerinaASTFactory.isLambdaExpression(child));
         if (lambdaChildren.length > 0) {
             const funcViewState = lambdaChildren[0].getLambdaFunction().getViewState();
             viewState.bBox.h += funcViewState.bBox.h;
