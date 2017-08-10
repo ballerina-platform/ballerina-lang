@@ -8,7 +8,7 @@ service<http> headerBasedRouting {
     
     @http:GET{}
     @http:Path {value:"/"}
-    resource cbrResource (message m) {
+    resource hbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
         string nyseString = "nyse";
