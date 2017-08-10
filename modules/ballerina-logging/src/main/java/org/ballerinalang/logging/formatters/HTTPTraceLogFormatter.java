@@ -28,7 +28,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom log formatter for formatting log files other than ballerina.log, error.log and bre.log.
+ * A custom log formatter for formatting HTTP trace log files.
  *
  * @since 0.92
  */

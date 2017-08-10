@@ -194,7 +194,9 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
-        @Parameter(names = "--wirelog", hidden = true, description = "enable wire logging")
+        @Parameter(names = "--wirelog",
+                   description = "path to the wire log file, use of --default sets " +
+                                                                "'<BALLERINA_HOME>/logs/http.log' as the log file")
         private String wirelog;
 
         public void execute() {
