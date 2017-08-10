@@ -35,9 +35,9 @@ After copying the above client libraries we can run the samples.
 
 1. Run the receiver
 
-bin$ ./ballerina run service ../samples/jms/jmsReceiver.bal
+bin$ ./ballerina run ../samples/jms/jmsReceiver.bal
 
 
 2. Run the sender
 
-bin$ ./ballerina run main ../samples/jms/jmsSender.bal
+bin$ ./ballerina run ../samples/jms/jmsSender.bal

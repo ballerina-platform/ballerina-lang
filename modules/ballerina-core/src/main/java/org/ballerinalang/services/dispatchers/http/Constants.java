@@ -49,9 +49,9 @@ public class Constants {
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
+    public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-    public static final String WS_PACKAGE_PATH = "ballerina.net.ws";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
@@ -63,11 +63,12 @@ public class Constants {
 
     /* Annotations */
     public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String ANNOTATION_NAME_CONFIG = "config";
+    public static final String ANNOTATION_NAME_CONFIGURATION = "configuration";
     public static final String ANNOTATION_NAME_CONSUMES = "Consumes";
     public static final String ANNOTATION_NAME_PRODUCES = "Produces";
     public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
     public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
+    public static final String ANNOTATION_ATTRIBUTE_HTTPS_PORT = "httpsPort";
     public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
     public static final String ANNOTATION_ATTRIBUTE_SCHEME = "scheme";
     public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";
@@ -80,23 +81,6 @@ public class Constants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
-
-    /* WebSocket Annotations */
-    public static final String PROTOCOL_WEBSOCKET = "ws";
-    public static final String PROTOCOL_PACKAGE_WEBSOCKET = "ballerina.net.ws";
-    public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
-    public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
-    public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
-    public static final String ANNOTATION_NAME_ON_BINARY_MESSAGE = "OnBinaryMessage";
-    public static final String ANNOTATION_NAME_ON_PONG_MESSAGE = "OnPongMessage";
-    public static final String ANNOTATION_NAME_ON_CLOSE = "OnClose";
-    public static final String ANNOTATION_NAME_ON_ERROR = "OnError";
-
-    public static final String CONNECTION = "Connection";
-    public static final String UPGRADE = "Upgrade";
-    public static final String WEBSOCKET_UPGRADE = "websocket";
-    public static final String CHANNEL_ID = "CHANNEL_ID";
-    public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";

@@ -1,7 +1,8 @@
 //The datatable type is used to hold tabular data, such as those returned from
 //an SQL database query and provides cursor based access to the data.
 //Use the following sql scripts to create table and
-// sample data in a mysql database.
+// sample data in a mysql database. Before run the sample copy the JDBC
+// driver to the BALLERINA_HOME/bre/lib folder.
 //
 //create table employees (
 //    id int,
@@ -10,7 +11,7 @@
 //    status boolean,
 //    birthdate date,
 //    birthtime time,
-//    updated times tamp
+//    updated timestamp
 //);
 //
 //insert into employees values(1, 'John', 1050.50, false,

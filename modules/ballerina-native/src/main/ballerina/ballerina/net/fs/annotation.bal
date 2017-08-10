@@ -18,7 +18,7 @@ import ballerina.doc;
 @doc:Description {value: "createMoveDir: [true | false]"}
 @doc:Description {value: "parallel: [true | false]"}
 @doc:Description {value: "threadPoolSize: A positive integer indicating the required size of the thread pool"}
-annotation config attach service {
+annotation configuration attach service<> {
     string dirURI;
     string fileNamePattern;
     string pollingInterval;

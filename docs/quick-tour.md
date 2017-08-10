@@ -28,7 +28,7 @@ The HelloWorld sample doesn't take any specific input, so simply running it will
 At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line:
 
 ```
-ballerina run main helloworld.bal
+ballerina run helloworld.bal
 ```
 
 You will see the following response:

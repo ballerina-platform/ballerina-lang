@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.ArrayList;
@@ -30,8 +34,9 @@ import java.util.Map;
  *
  * @since 0.87
  */
-public class PackageInfo {
+public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
+    private int pkgNameCPIndex;
     private String pkgPath;
     private FunctionInfo initFunctionInfo;
 
@@ -41,6 +46,10 @@ public class PackageInfo {
     private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
 
+    private Map<String, PackageVarInfo> constantInfoMap = new LinkedHashMap<>();
+
+    private Map<String, PackageVarInfo> globalVarInfoMap = new LinkedHashMap<>();
+
     private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
     private Map<String, ConnectorInfo> connectorInfoMap = new HashMap<>();
@@ -49,20 +58,24 @@ public class PackageInfo {
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
-    // TODO : Move this into CallableUnitInfo
-    private List<LineNumberInfo> lineNumberInfoList = new ArrayList<>();
+    private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
-    // TODO : Move this into CallableUnitInfo
-    private List<ErrorTableEntry> errorTableEntriesList = new ArrayList<>();
-
-    // Package level variable count
-    protected int[] plvCount;
+    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     // cache values.
     ProgramFile programFile;
 
-    public PackageInfo(String packageName) {
+    public PackageInfo(int packageNameCPIndex, String packageName) {
+        this.pkgNameCPIndex = packageNameCPIndex;
         this.pkgPath = packageName;
+    }
+
+    public int getPkgNameCPIndex() {
+        return pkgNameCPIndex;
+    }
+
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     // CP
@@ -84,20 +97,44 @@ public class PackageInfo {
         return constantPoolEntries.indexOf(cpEntry);
     }
 
-    public ConstantPoolEntry[] getConstPool() {
+    public ConstantPoolEntry[] getConstPoolEntries() {
         return constPool;
+    }
+
+    public PackageVarInfo getConstantInfo(String constantName) {
+        return constantInfoMap.get(constantName);
+    }
+
+    public void addConstantInfo(String constantName, PackageVarInfo constantInfo) {
+        constantInfoMap.put(constantName, constantInfo);
+    }
+
+    public PackageVarInfo[] getConstantInfoEntries() {
+        return constantInfoMap.values().toArray(new PackageVarInfo[0]);
+    }
+
+    public PackageVarInfo getPackageVarInfo(String globalVarName) {
+        return globalVarInfoMap.get(globalVarName);
+    }
+
+    public void addPackageVarInfo(String globalVarName, PackageVarInfo packageVarInfo) {
+        globalVarInfoMap.put(globalVarName, packageVarInfo);
+    }
+
+    public PackageVarInfo[] getPackageInfoEntries() {
+        return globalVarInfoMap.values().toArray(new PackageVarInfo[0]);
     }
 
     public FunctionInfo getFunctionInfo(String functionName) {
         return functionInfoMap.get(functionName);
     }
 
-    public FunctionInfo[] getFunctionInfoCollection() {
-        return functionInfoMap.values().toArray(new FunctionInfo[0]);
-    }
-
     public void addFunctionInfo(String functionName, FunctionInfo functionInfo) {
         functionInfoMap.put(functionName, functionInfo);
+    }
+
+    public FunctionInfo[] getFunctionInfoEntries() {
+        return functionInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
     public StructInfo getStructInfo(String structName) {
@@ -106,6 +143,11 @@ public class PackageInfo {
 
     public void addStructInfo(String structName, StructInfo structInfo) {
         structInfoMap.put(structName, structInfo);
+        structureTypeInfoMap.put(structName, structInfo);
+    }
+
+    public StructInfo[] getStructInfoEntries() {
+        return structInfoMap.values().toArray(new StructInfo[0]);
     }
 
     public ConnectorInfo getConnectorInfo(String connectorName) {
@@ -115,9 +157,14 @@ public class PackageInfo {
     public void addConnectorInfo(String connectorName, ConnectorInfo connectorInfo) {
         connectorInfo.setPackageInfo(this);
         connectorInfoMap.put(connectorName, connectorInfo);
+        structureTypeInfoMap.put(connectorName, connectorInfo);
     }
 
-    public ServiceInfo[] getServiceInfoList() {
+    public ConnectorInfo[] getConnectorInfoEntries() {
+        return connectorInfoMap.values().toArray(new ConnectorInfo[0]);
+    }
+
+    public ServiceInfo[] getServiceInfoEntries() {
         return serviceInfoMap.values().toArray(new ServiceInfo[0]);
     }
 
@@ -128,6 +175,11 @@ public class PackageInfo {
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
+        structureTypeInfoMap.put(serviceName, serviceInfo);
+    }
+
+    public StructureTypeInfo getStructureTypeInfo(String structureTypeName) {
+        return structureTypeInfoMap.get(structureTypeName);
     }
 
     public int addInstruction(Instruction instruction) {
@@ -143,27 +195,23 @@ public class PackageInfo {
         return instructionList.size();
     }
 
-    // LineNumberInfo
-
-    public List<LineNumberInfo> getLineNumberInfoList() {
-        return lineNumberInfoList;
-    }
-
-    public void addLineNumberInfo(LineNumberInfo lineNumberInfo) {
-        lineNumberInfoList.add(lineNumberInfo);
-    }
-
     public LineNumberInfo getLineNumberInfo(LineNumberInfo lineNumberInfo) {
-        int index = lineNumberInfoList.indexOf(lineNumberInfo);
+        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
+                .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
+        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
+        int index = lineNumberInfos.indexOf(lineNumberInfo);
         if (index >= 0) {
-            return lineNumberInfoList.get(index);
+            return lineNumberInfos.get(index);
         }
         return null;
     }
 
     public LineNumberInfo getLineNumberInfo(int currentIP) {
         LineNumberInfo old = null;
-        for (LineNumberInfo lineNumberInfo : lineNumberInfoList) {
+        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
+                .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
+        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
+        for (LineNumberInfo lineNumberInfo : lineNumberInfos) {
             if (currentIP == lineNumberInfo.getIp()) {
                 // best case.
                 return lineNumberInfo;
@@ -175,14 +223,6 @@ public class PackageInfo {
             old = lineNumberInfo;
         }
         return null;
-    }
-
-    public List<ErrorTableEntry> getErrorTableEntriesList() {
-        return errorTableEntriesList;
-    }
-
-    public void addErrorTableEntry(ErrorTableEntry errorTableEntry) {
-        errorTableEntriesList.add(errorTableEntry);
     }
 
     public ProgramFile getProgramFile() {
@@ -206,7 +246,18 @@ public class PackageInfo {
         this.instructions = instructionList.toArray(new Instruction[0]);
     }
 
-    public String getPkgPath() {
-        return pkgPath;
+    @Override
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
+    }
+
+    @Override
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
+    }
+
+    @Override
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 }

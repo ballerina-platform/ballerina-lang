@@ -148,7 +148,7 @@ public class HTTPSession implements Session, Serializable {
 
     private void checkValidity() {
         if (!isValid) {
-            throw new IllegalStateException("Failed to execute action: Session is invalid");
+            throw new IllegalStateException("Failed to execute action: Invalid session");
         }
     }
 

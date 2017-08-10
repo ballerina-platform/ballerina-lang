@@ -20,8 +20,7 @@ package org.ballerinalang.services.dispatchers.fs;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -29,10 +28,10 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+//import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
 
 /**
  * Service dispatcher for File System Server Connector.
@@ -69,36 +68,25 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        AnnotationAttachmentInfo configInfo =
+        AnnAttachmentInfo configInfo =
                 service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME, Constants.ANNOTATION_CONFIG);
-        AnnotationAttachmentInfo sortInfo =
-                service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME, Constants.ANNOTATION_SORT);
-        AnnotationAttachmentInfo postProcessInfo =
-                service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME,
-                                                    Constants.ANNOTATION_POST_PROCESS);
-        AnnotationAttachmentInfo concurrencyInfo =
-                service.getAnnotationAttachmentInfo(Constants.FILE_SYSTEM_PACKAGE_NAME,
-                                                    Constants.ANNOTATION_CONCURRENCY);
+
         if (configInfo != null) {
-            Map<String, String> elementsMap = getServerConnectorParamMap(configInfo);
-            if (sortInfo != null) {
-                addSortProperties(elementsMap, sortInfo);
-            }
-            if (postProcessInfo != null) {
-                addPostProcessProperties(elementsMap, postProcessInfo);
-            }
-            if (concurrencyInfo != null) {
-                addConcurrencyProperties(elementsMap, concurrencyInfo);
-            }
-            String dir = elementsMap.get(Constants.ANNOTATION_DIR_URI);
+            Map<String, String> paramMap = getServerConnectorParamMap(configInfo);
+
+            String dir = paramMap.get(Constants.ANNOTATION_DIR_URI);
             if (dir == null) {
                 throw new BallerinaException("Cannot create file system server without dirURI");
             }
+
             String serviceName = service.getName();
-            ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
-                    Constants.PROTOCOL_FILE_SYSTEM, serviceName, elementsMap);
+            ServerConnector fsServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
+                    Constants.PROTOCOL_FILE_SYSTEM, serviceName, paramMap);
+            fsServerConnector.setServerConnectorErrorHandler(BallerinaConnectorManager.getInstance()
+                                                                     .getServerConnectorErrorHandler(
+                                                                             Constants.PROTOCOL_FILE_SYSTEM).get());
             try {
-                fileServerConnector.start();
+                fsServerConnector.start();
                 serviceInfoMap.put(serviceName, service);
             } catch (ServerConnectorException e) {
                 throw new BallerinaException("Could not start File System Server Connector for service: " +
@@ -121,65 +109,37 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         }
     }
 
-    private Map<String, String> getServerConnectorParamMap(AnnotationAttachmentInfo info) {
-        Map<String, String> convertedMap = new HashMap<>();
-        List<String> annotations = new ArrayList<>();
-        annotations.add(Constants.ANNOTATION_DIR_URI);
-        annotations.add(Constants.ANNOTATION_FILE_PATTERN);
-        annotations.add(Constants.ANNOTATION_POLLING_INTERVAL);
-        annotations.add(Constants.ANNOTATION_CRON_EXPRESSION);
-        annotations.add(Constants.ANNOTATION_ACK_TIMEOUT);
-        annotations.add(Constants.ANNOTATION_FILE_COUNT);
+    private Map<String, String> getServerConnectorParamMap(AnnAttachmentInfo info) {
+        Map<String, String> params = new HashMap<>();
 
-        for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
-            if (value != null) {
-                convertedMap.put(data, value.getStringValue());
-            }
-        }
-        return convertedMap;
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_DIR_URI, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_FILE_PATTERN, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_POLLING_INTERVAL, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_CRON_EXPRESSION, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_ACK_TIMEOUT, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_FILE_COUNT, params);
+
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_SORT_ATTRIBUTE, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_SORT_ASCENDING, params);
+
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_ACTION_AFTER_PROCESS, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_ACTION_AFTER_FAILURE, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_MOVE_AFTER_PROCESS, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_MOVE_AFTER_FAILURE, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_CREATE_DIR, params);
+
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_PARALLEL, params);
+        addAnnotationAttributeValue(info, Constants.ANNOTATION_THREAD_POOL_SIZE, params);
+
+        return params;
     }
 
-    private void addSortProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
-        List<String> annotations = new ArrayList<>();
-        annotations.add(Constants.ANNOTATION_SORT_ATTRIBUTE);
-        annotations.add(Constants.ANNOTATION_SORT_ASCENDING);
-
-        for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
-            if (value != null) {
-                elements.put(data, value.getStringValue());
-            }
-        }
-    }
-
-    private void addPostProcessProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
-        List<String> annotations = new ArrayList<>();
-        annotations.add(Constants.ANNOTATION_ACTION_AFTER_PROCESS);
-        annotations.add(Constants.ANNOTATION_ACTION_AFTER_FAILURE);
-        annotations.add(Constants.ANNOTATION_MOVE_AFTER_PROCESS);
-        annotations.add(Constants.ANNOTATION_MOVE_AFTER_FAILURE);
-        annotations.add(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT);
-        annotations.add(Constants.ANNOTATION_CREATE_DIR);
-
-        for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
-            if (value != null) {
-                elements.put(data, value.getStringValue());
-            }
-        }
-    }
-
-    private void addConcurrencyProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
-        List<String> annotations = new ArrayList<>();
-        annotations.add(Constants.ANNOTATION_PARALLEL);
-        annotations.add(Constants.ANNOTATION_THREAD_POOL_SIZE);
-
-        for (String data : annotations) {
-            AnnotationAttributeValue value = info.getAnnotationAttributeValue(data);
-            if (value != null) {
-                elements.put(data, value.getStringValue());
-            }
+    private void addAnnotationAttributeValue(AnnAttachmentInfo info, String attribute,
+                                             Map<String, String> params) {
+        if (info.getAttributeValue(attribute) != null &&
+                !info.getAttributeValue(attribute).getStringValue().trim().isEmpty()) {
+            params.put(attribute, info.getAttributeValue(attribute).getStringValue());
         }
     }
 }

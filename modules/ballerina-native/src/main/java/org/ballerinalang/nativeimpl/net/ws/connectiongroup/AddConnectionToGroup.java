@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -59,7 +59,7 @@ public class AddConnectionToGroup extends AbstractNativeFunction {
         }
 
         CarbonMessage carbonMessage = context.getCarbonMessage();
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
         String connectionGroupName = getStringArgument(context, 0);
         WebSocketConnectionManager.getInstance().addConnectionToGroup(connectionGroupName, session);
         return VOID_RETURN;

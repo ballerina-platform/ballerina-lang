@@ -32,11 +32,11 @@ public final class BXMLQName implements BRefType {
     private String prefix;
 
     /**
-     * Create attribute map with an XML
+     * Create attribute map with an XML.
      * 
-     * @param localName
-     * @param uri
-     * @param prefix
+     * @param localName Local part of the qualified name
+     * @param uri Namespace URI
+     * @param prefix Namespace prefix
      */
     public BXMLQName(String localName, String uri, String prefix) {
         this.localName = localName;
@@ -46,7 +46,7 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public String stringValue() {
-        return uri == null ? localName : '{' + uri + '}' + localName;
+        return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 
     @Override
@@ -56,6 +56,9 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof BXMLQName)) {
+            return false;
+        }
         return ((BXMLQName) obj).stringValue().equals(localName);
     }
 
@@ -92,5 +95,10 @@ public final class BXMLQName implements BRefType {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    @Override
+    public String toString() {
+        return stringValue();
     }
 }

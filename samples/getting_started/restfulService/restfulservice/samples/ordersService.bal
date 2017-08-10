@@ -4,7 +4,7 @@ import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.net.http;
 
-@http:config {basePath:"/orderservice"}
+@http:configuration {basePath:"/orderservice"}
 service<http> OrderMgtService {
 
     @http:GET{}

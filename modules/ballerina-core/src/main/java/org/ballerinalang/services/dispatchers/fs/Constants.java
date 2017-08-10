@@ -22,7 +22,7 @@ package org.ballerinalang.services.dispatchers.fs;
  * Constants for File System Server connector.
  */
 public class Constants {
-    public static final String ANNOTATION_CONFIG = "config";
+    public static final String ANNOTATION_CONFIG = "configuration";
     public static final String ANNOTATION_SORT = "Sort";
     public static final String ANNOTATION_POST_PROCESS = "PostProcess";
     public static final String ANNOTATION_CONCURRENCY = "Concurrency";

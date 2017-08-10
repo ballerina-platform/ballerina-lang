@@ -4,7 +4,7 @@ function main (string[] args) {
 
     //Creates an empty JSON Object.
     json empty = {};
-    
+
     int age = 30;
     //Create a JSON object. Keys can be defined with or without quotes.
     //Values can be any expression.

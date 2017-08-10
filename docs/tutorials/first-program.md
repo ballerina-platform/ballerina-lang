@@ -7,7 +7,7 @@ Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little d
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `<ballerina_home>/samples/helloWorld` directory with a single command:
 
 ```
-ballerina run main helloWorld.bal
+ballerina run helloWorld.bal
 ```
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
@@ -15,7 +15,7 @@ After the HelloWorld program executed, Ballerina stopped. This approach is calle
 You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to your `<ballerina_home>/samples/helloWorldService` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
 
 ```
-ballerina run service helloWorldService.bal
+ballerina run helloWorldService.bal
 ```
 
 In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line window and use the [curl](https://curl.haxx.se) client to call the service as follows:
@@ -59,8 +59,12 @@ Let's rename the service and resource.
 
 The base path for a service is the context portion of the URL that clients will use to send requests to this service. For example, if we set the base path to `/myecho`, clients will be able to send requests to this service using the URL http://localhost:9090/myecho. Let's do this now.
 
-1. In the upper right corner of the myEcho**Service** box (not the resource box this time), click the Annotations (@) icon.
-1. Make sure `http:BasePath` is selected in the list, type `/myecho` in the text box, and then press Enter or click the + symbol to its right. 
+1. Click the add annotation textbox at the left top corner of service
+1. Select ballerina.net.http from the dropdown that appears.
+1. Select config. You can see a little + sign within curly braces. Click that and select basePath.
+1. Add the basePath and in front of it, edit the value. 
+
+> Make sure you add the base path with the /.
 
 The base path is now set, so that when you deploy this service, clients will be able to send requests to it using http://localhost:9090/myecho.
 
@@ -139,10 +143,10 @@ Your service is now deployed and running on the Ballerina server.
 
 ### Send the request
 
-In a new command prompt, use curl to send the following request to your program:
+In a new command prompt, use cURL to send the following request to your program:
 
 ```
-curl -v http://localhost:9090/myecho -d "Hello World......"
+curl -v http://localhost:9090/myecho/myEchoResource -d "Hello World......"
 ```
 
 The service receives the request, takes the text `Hello World......` from the incoming message, converts it into a response without the client headers, and sends it back to the command line where the request was sent.
@@ -156,5 +160,3 @@ Now that you're familiar with running Ballerina in standalone and server mode, u
 * Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the primary features you need to know about.
 * Read about the [Tools](../tools.md) that you can use with Ballerina, such as using an IDE instead of the Composer. 
 * Run through the rest of the [Tutorials](index.md) to get hands-on experience.  
-* Browse through the [Samples](../samples.md) and use them as templates for your own programs.
-* See the [Language Reference](../lang-ref/lang-overview.md) for complete information on using the Ballerina language. 

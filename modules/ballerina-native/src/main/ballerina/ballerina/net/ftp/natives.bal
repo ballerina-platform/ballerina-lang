@@ -38,8 +38,8 @@ connector ClientConnector () {
     @doc:Description { value:"Create a file or folder"}
     @doc:Param { value:"c: FTP connector" }
     @doc:Param { value:"file: Path of the file" }
-    @doc:Param { value:"type: Specification whether file or folder" }
-    native action createFile (ClientConnector c, files:File file, string type);
+    @doc:Param { value:"fileType: Specification whether file or folder" }
+    native action createFile (ClientConnector c, files:File file, string fileType);
 
     @doc:Description { value:"Checks the existence of a file"}
     @doc:Param { value:"c: FTP connector" }
