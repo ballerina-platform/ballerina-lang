@@ -690,17 +690,19 @@ StringTemplateExpressionStart
     :   StringTemplateText? ExpressionStart            -> pushMode(DEFAULT_MODE)
     ;
 
+// We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
+// can match an empty string.
 StringTemplateText
-    :   StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)+
-    |   StringTemplateBracesSequence (StringTemplateStringChar StringTemplateBracesSequence?)*
+    :   StringTemplateValidCharSequence? (StringTemplateStringChar StringTemplateValidCharSequence?)+
+    |   StringTemplateValidCharSequence (StringTemplateStringChar StringTemplateValidCharSequence?)*
     ;
 
 fragment
 StringTemplateStringChar
-    :    ~[`{}\\]
-    |    '\\' [`]
-    |    WS
-    |    StringLiteralEscapedSequence
+    :   ~[`{\\]
+    |   '\\' [`{]
+    |   WS
+    |   StringLiteralEscapedSequence
     ;
 
 fragment
@@ -710,10 +712,7 @@ StringLiteralEscapedSequence
     ;
 
 fragment
-StringTemplateBracesSequence
-    :   '{}'+
-    |   '}{'
-    |   ('{}')* '{'
-    |   '}' ('{}')*
-    |   '}}'
+StringTemplateValidCharSequence
+    :   '{'
+    |   '\\' ~'\\'
     ;
