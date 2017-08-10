@@ -32,6 +32,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -96,6 +97,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);
+        Map<String, List<String>> serviceCorsMap = null;
+        if (HTTPCorsFilter.getInstance().isCorsHeadersAvailable(service)) {
+            serviceCorsMap = HTTPCorsFilter.getInstance().getServiceCoresHeaders();
+        }
         for (ResourceInfo resource : service.getResourceInfoEntries()) {
             AnnAttachmentInfo pathAnnotationInfo = resource
                     .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
@@ -120,8 +125,12 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             } catch (URITemplateException e) {
                 throw new BallerinaException(e.getMessage());
             }
+            if (HTTPCorsFilter.getInstance().isResourceCorsDefined(resource)) {
+                resource.setCorsHeaders(HTTPCorsFilter.getInstance().getResourceCorsHeaders());
+            } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
+                resource.setCorsHeaders(serviceCorsMap);
+            }
         }
-
         String basePath = getServiceBasePath(service);
         sortedServiceURIs.add(basePath);
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());

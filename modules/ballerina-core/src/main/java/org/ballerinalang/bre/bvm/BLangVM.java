@@ -68,6 +68,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
+import org.ballerinalang.services.dispatchers.http.CORSMatcher;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -2281,7 +2282,7 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
-        handleSessionCookieHeaders(message);
+        generateSessionNCorsHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
@@ -3356,11 +3357,12 @@ public class BLangVM {
         logger.error("fatal error. incorrect error table entry.");
     }
 
-    private void handleSessionCookieHeaders(BMessage message) {
+    private void generateSessionNCorsHeaders(BMessage message) {
         //check session cookie header
         Session session = context.getCurrentSession();
         if (session != null) {
             session.generateSessionHeader(message);
         }
+        CORSMatcher.generateCORSHeaders(message);
     }
 }

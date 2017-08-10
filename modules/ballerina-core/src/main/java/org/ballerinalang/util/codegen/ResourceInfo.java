@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,6 +30,7 @@ public class ResourceInfo extends CallableUnitInfo {
 
     private int[] paramNameCPIndexes;
     private String[] paramNames;
+    private Map<String, List<String>> corsHeaders;
 
     private ServiceInfo serviceInfo;
 
@@ -72,5 +75,13 @@ public class ResourceInfo extends CallableUnitInfo {
 
     public void setParamNames(String[] paramNames) {
         this.paramNames = paramNames;
+    }
+
+    public void setCorsHeaders(Map<String, List<String>> corsHeaders) {
+        this.corsHeaders = corsHeaders;
+    }
+
+    public Map<String, List<String>> getCorsHeaders() {
+        return corsHeaders;
     }
 }
