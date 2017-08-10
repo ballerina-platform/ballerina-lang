@@ -2567,10 +2567,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(XMLCommentLiteral xmlComment) {
         Expression contentExpr = xmlComment.getContent();
-        if (contentExpr != null) {
-            contentExpr.accept(this);
+        if (contentExpr == null) {
+            return;
         }
 
+        contentExpr.accept(this);
         if (contentExpr.getType() != BTypes.typeString) {
             contentExpr = createImplicitStringConversionExpr(contentExpr, contentExpr.getType());
             xmlComment.setContent(contentExpr);
@@ -2580,9 +2581,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(XMLTextLiteral xmlText) {
         Expression contentExpr = xmlText.getContent();
-        if (contentExpr != null) {
-            contentExpr.accept(this);
+        if (contentExpr == null) {
+            return;
         }
+        contentExpr.accept(this);
     }
 
     @Override
@@ -2658,10 +2660,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         Expression data = xmlPI.getData();
-        if (data != null) {
-            data.accept(this);
+        if (data == null) {
+            return;
         }
 
+        data.accept(this);
         if (data.getType() != BTypes.typeString) {
             data = createImplicitStringConversionExpr(data, data.getType());
             xmlPI.setData(data);

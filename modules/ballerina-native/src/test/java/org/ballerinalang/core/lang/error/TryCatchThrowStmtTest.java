@@ -128,6 +128,18 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(value, 25);
     }
 
+    @Test(description = "Test try statement within while block")
+    public void testIssueWhenTryWithinWhile() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryWithinWhile", args);
+
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        long value = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(value, 3);
+    }
+
     @Test(description = "Test function call in finally block when error there is a error thrown.",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: test.*")

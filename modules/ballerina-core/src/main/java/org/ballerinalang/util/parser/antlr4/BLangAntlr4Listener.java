@@ -921,13 +921,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.nameReference() != null) {
             BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
             modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
-            if (nameReference != null) {
-                SimpleTypeName constraint =
-                        new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
-                                nameReference.getPackagePath());
-                simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
-                ((ConstraintTypeName) simpleTypeName).setConstraint(constraint);
-            }
+            SimpleTypeName constraint =
+                    new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
+                            nameReference.getPackagePath());
+            simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
+            ((ConstraintTypeName) simpleTypeName).setConstraint(constraint);
         }
 
         simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
@@ -1672,7 +1670,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTryCatchBlockStmt();
+        modelBuilder.addTryCatchBlockStmt(getCurrentLocation(ctx));
     }
 
     @Override
@@ -2065,7 +2063,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTransactionBlockStmt();
+        modelBuilder.addTransactionBlockStmt(getCurrentLocation(ctx));
     }
 
     @Override
