@@ -1,3 +1,5 @@
+[![Build Status](https://wso2.org/jenkins/job/ballerinalang/job/ballerina/badge/icon)](https://wso2.org/jenkins/job/ballerinalang/job/ballerina/)
+
 # Hello, I'm Ballerina.
 
 Ballerina is a general purpose, concurrent, and strongly typed programming language with both textual and graphical syntaxes. It is designed to make it easier to write programs that integrate with data sources, services, and network-connected APIs of all kinds. It is optimized primarily for such programs - while it can be use to program anything, it is not recommended to use Ballerina if a significant portion of the program is not related to integrating with data sources, services, or network-connected APIs.
