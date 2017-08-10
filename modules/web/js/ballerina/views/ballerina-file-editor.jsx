@@ -74,13 +74,25 @@ class BallerinaFileEditor extends React.Component {
                 // Change was done from design view
                 // do an immediate update to reflect tree changes
                 this.forceUpdate();
+                // since the source is changed, we need to sync
+                // current AST with new position info
+                this.skipLoadingOverlay = true;
+                this.validateAndParseFile()
+                    .then((state) => {
+                        const newAST = state.model;
+                        const currentAST = this.state.model;
+                        this.syncASTs(currentAST, newAST);
+                        state.model = currentAST;
+                        this.setState(state);
+                        this.skipLoadingOverlay = false;
+                    })
+                    .catch(error => log.error(error));
+            } else {
+                // Source was changed due to a source editor
+                // change or undo/redo
+                this.state.isASTInvalid = true;
+                this.update(true);
             }
-
-            // Now we consider that the current AST is invalid upon
-            // any user-action that leads to a source change.
-            // directly modifying state to avoid redundant updates.
-            this.state.isASTInvalid = true;
-            this.update(true);
         });
         this.environment = new PackageScopedEnvironment();
         // FIXME: ToolPalette doesn't consume full height if tab was
@@ -183,6 +195,15 @@ class BallerinaFileEditor extends React.Component {
 
     resetSwaggerView() {
         this.hideSwaggerAceEditor = false;
+    }
+
+    /**
+     * Sync updated information into current AST instance
+     * @param {ASTNode} currentAST Currently used AST instance
+     * @param {ASTNode} newAST A new AST with up-to-date position
+     */
+    syncASTs(currentAST, newAST) {
+        // TODO
     }
 
     /**
