@@ -482,7 +482,7 @@ public class LangServerManager {
         if (message instanceof RequestMessage) {
             JsonObject response = new JsonObject();
             // Load all the packages associated the runtime
-            if (null == builtInNativePackages) {
+            if (builtInNativePackages == null) {
                 builtInNativePackages = Utils.getAllPackages();
             }
             LangServerManager.this.setPackages(builtInNativePackages.entrySet());
