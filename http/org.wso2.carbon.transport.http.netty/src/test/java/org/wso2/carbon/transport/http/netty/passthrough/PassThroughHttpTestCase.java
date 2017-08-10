@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -46,53 +46,50 @@ public class PassThroughHttpTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
 
-//    private List<HTTPServerConnector> serverConnectors;
-//
-//    private static final String testValue = "Test Message";
-//
-//    private HTTPServer httpServer;
-//
-//    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
-//
-//    private CarbonMessageProcessor carbonMessageProcessor;
-//
-//    @BeforeClass
-//    public void setUp() {
-//        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
-//                .build("src/test/resources/simple-test-config/netty-transports.yml");
-//        carbonMessageProcessor = new PassthroughMessageProcessor();
-//        serverConnectors = TestUtil.startConnectors(configuration, carbonMessageProcessor);
-//        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
-//    }
-//
-//    @Test
-//    public void passthroughGetTest() {
-//        try {
-//            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
-//            String content = TestUtil.getContent(urlConn);
-//            assertEquals(testValue, content);
-//            urlConn.disconnect();
-//        } catch (IOException e) {
-//            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
-//        }
-//    }
-//
-//    @Test
-//    public void passthroughPostTest() {
-//        try {
-//            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-//            String content = TestUtil.getContent(urlConn);
-//            assertEquals(testValue, content);
-//            urlConn.disconnect();
-//        } catch (IOException e) {
-//            TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
-//        }
-//    }
-//
-//    @AfterClass
-//    public void cleanUp() throws ServerConnectorException {
-//        TestUtil.cleanUp(serverConnectors, httpServer);
-//        TestUtil.removeMessageProcessor(carbonMessageProcessor);
-//    }
+    private List<ServerConnector> serverConnectors;
+
+    private static final String testValue = "Test Message";
+
+    private HTTPServer httpServer;
+
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
+
+    @BeforeClass
+    public void setUp() {
+        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
+                .build("src/test/resources/simple-test-config/netty-transports.yml");
+        serverConnectors = TestUtil.startConnectors(
+                configuration, new PassthroughMessageProcessorListener(configuration));
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
+    }
+
+    @Test
+    public void passthroughGetTest() {
+        try {
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(testValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
+            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
+        }
+    }
+
+    @Test
+    public void passthroughPostTest() {
+        try {
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(testValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
+            TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        TestUtil.cleanUp(serverConnectors, httpServer);
+    }
 
 }

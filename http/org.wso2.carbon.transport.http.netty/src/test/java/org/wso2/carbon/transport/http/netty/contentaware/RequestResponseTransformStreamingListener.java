@@ -11,6 +11,7 @@ import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -80,7 +81,11 @@ public class RequestResponseTransformStreamingListener implements HTTPConnectorL
                             } catch (IOException e) {
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }
-                            httpRequestMessage.respond(httpResponse);
+                            try {
+                                httpRequestMessage.respond(httpResponse);
+                            } catch (ServerConnectorException e) {
+                                logger.error("Error occurred during message notification: " + e.getMessage());
+                            }
                         });
                     }
 

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.ExecutorService;
@@ -26,7 +27,13 @@ public class ResponseStreamingWithoutBufferingListener implements HTTPConnectorL
             cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
             cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-            executor.execute(() -> httpRequestMessage.respond(cMsg));
+            executor.execute(() -> {
+                try {
+                    httpRequestMessage.respond(cMsg);
+                } catch (ServerConnectorException e) {
+                    logger.error("Error occurred during message notification: " + e.getMessage());
+                }
+            });
             while (!(httpRequestMessage.isEmpty() && httpRequestMessage.isEndOfMsgAdded())) {
                 cMsg.addMessageBody(httpRequestMessage.getMessageBody());
             }

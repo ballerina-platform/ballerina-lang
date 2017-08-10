@@ -13,6 +13,7 @@ import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -79,7 +80,11 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                 carbonMessage.setEndOfMsgAdded(true);
 
                 HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(carbonMessage);
-                request.respond(httpCarbonMessage);
+                try {
+                    request.respond(httpCarbonMessage);
+                } catch (ServerConnectorException e) {
+                    logger.error("Error occurred during message notification: " + e.getMessage());
+                }
             }
         }
 
@@ -163,7 +168,12 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
 
                                             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
                                                     .convertCarbonMessage(carbonMessage);
-                                            httpRequest.respond(httpCarbonMessage);
+                                            try {
+                                                httpRequest.respond(httpCarbonMessage);
+                                            } catch (ServerConnectorException e) {
+                                                logger.error("Error occurred during message notification: "
+                                                                     + e.getMessage());
+                                            }
                                         }
                                     });
                                 }

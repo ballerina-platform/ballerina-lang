@@ -10,6 +10,7 @@ import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -60,7 +61,13 @@ public class PassthroughMessageProcessorListener implements HTTPConnectorListene
                 httpClientConnectorFuture.setHTTPConnectorListener(new HTTPConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
-                        executor.execute(() -> httpRequestMessage.respond(httpResponse));
+                        executor.execute(() -> {
+                            try {
+                                httpRequestMessage.respond(httpResponse);
+                            } catch (ServerConnectorException e) {
+                                logger.error("Error occurred during message notification: " + e.getMessage());
+                            }
+                        });
                     }
 
                     @Override
@@ -69,7 +76,7 @@ public class PassthroughMessageProcessorListener implements HTTPConnectorListene
                     }
                 });
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error occurred during message processing: " + e.getMessage());
             }
         });
     }
