@@ -63,18 +63,15 @@ import static org.testng.AssertJUnit.fail;
 public class TestUtil {
 
     private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
-//
+
     public static final int TEST_SERVER_PORT = 9000;
     public static final String TEST_HOST = "localhost";
-//
-    public static final int SERVERS_SETUP_TIME = 10000;
-    public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
+    private static final int SERVERS_SETUP_TIME = 10000;
+    private static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
-    public static List<ServerConnector> connectors;
-    public static List<ServerConnectorFuture> futures;
-    //
-    public static final String TRANSPORT_URI = "http://localhost:8490/";
+    private static List<ServerConnector> connectors;
+    private static List<ServerConnectorFuture> futures;
 
     public static void cleanUp(List<ServerConnector> serverConnectors, HTTPServer httpServer)
             throws ServerConnectorException {
@@ -91,12 +88,11 @@ public class TestUtil {
         if (ConnectionManager.getInstance() != null) {
             ConnectionManager.getInstance().getTargetChannelPool().clear();
         }
-        HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully();
-        HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully();
 
-        httpServer.shutdown();
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+            HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully().sync();
+            HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully().sync();
+            httpServer.shutdown();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
@@ -210,9 +206,8 @@ public class TestUtil {
     }
 
     public static void shutDownHttpServer(HTTPServer httpServer) {
-        httpServer.shutdown();
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+            httpServer.shutdown();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }

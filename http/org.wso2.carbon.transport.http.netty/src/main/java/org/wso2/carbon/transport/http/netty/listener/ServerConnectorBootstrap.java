@@ -127,7 +127,7 @@ public class ServerConnectorBootstrap {
         return null;
     }
 
-    public boolean unBindInterface(HTTPServerConnector serverConnector) {
+    public boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
 
         if (!initialized) {
             log.error("ServerConnectorBootstrap is not initialized");
@@ -136,12 +136,11 @@ public class ServerConnectorBootstrap {
 
         ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
 
-//        httpServerChannelInitializer.unRegisterListenerConfig(listenerConfiguration);
-
         //Remove cached channels and close them.
         ChannelFuture future = serverConnector.getChannelFuture();
         if (future != null) {
-            future.channel().close();
+            ChannelFuture channelFuture = future.channel().close();
+            channelFuture.sync();
             if (listenerConfiguration.getSslConfig() == null) {
                 log.info("HTTP HTTPConnectorListener stopped on listening interface " +
                          listenerConfiguration.getId() + " attached to host " +
@@ -214,7 +213,7 @@ public class ServerConnectorBootstrap {
 
     class HTTPServerConnector implements ServerConnector {
 
-        //        private static final Logger log = LoggerFactory.getLogger(HTTPServerConnector.class);
+       private final Logger log = LoggerFactory.getLogger(HTTPServerConnector.class);
 
         private ChannelFuture channelFuture;
         private ServerConnectorFuture serverConnectorFuture;
@@ -241,7 +240,12 @@ public class ServerConnectorBootstrap {
 
         @Override
         public boolean stop() {
-            return serverConnectorBootstrap.unBindInterface(this);
+            try {
+                return serverConnectorBootstrap.unBindInterface(this);
+            } catch (InterruptedException e) {
+                log.error("Couldn't close the port", e);
+                return false;
+            }
         }
 
         //    @Override
