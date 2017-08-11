@@ -51,8 +51,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
+import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -153,11 +153,10 @@ public class ServerConnectorMessageHandler {
         context.setCarbonMessage(resourceMessage);
         context.setBalCallback(new DefaultBalCallback(resourceCallback));
 
-        Map<String, Object> properties = null;
+        SourceHandler srcHandler = null;
         if (resourceMessage.getProperty(Constants.SRC_HANDLER) != null) {
-            Object srcHandler = resourceMessage.getProperty(Constants.SRC_HANDLER);
+            srcHandler = (SourceHandler) resourceMessage.getProperty(Constants.SRC_HANDLER);
             context.setProperty(Constants.SRC_HANDLER, srcHandler);
-            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
         }
         ControlStackNew controlStackNew = context.getControlStackNew();
 
@@ -233,7 +232,7 @@ public class ServerConnectorMessageHandler {
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
-        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs, properties);
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs, srcHandler);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
