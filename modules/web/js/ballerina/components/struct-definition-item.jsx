@@ -36,12 +36,11 @@ class StructDefinitionItem extends React.Component {
      * Creates an instance of StructDefinitionItem.
      * @memberof StructDefinitionItem
      */
-    constructor() {
+    constructor(props) {
         super();
         this.state = {
-            newType: '',
-            newIdentifier: '',
-            newDefaultValue: '',
+            newIdentifier: props.model.getIdentifier(),
+            newDefaultValue: props.model.getValue(),
             newIdentifierEditing: false,
             newDefaultValueEditing: false,
         };
@@ -139,7 +138,7 @@ class StructDefinitionItem extends React.Component {
                         }
                     }}
                 >
-                    {this.state.newIdentifierEditing ? (this.state.newIdentifier ? this.state.newIdentifier : identifier) : ''}
+                    {this.state.newIdentifierEditing ? this.state.newIdentifier : ''}
                 </EditableText>
                 <g
                     className="struct-variable-definition-value"
@@ -160,17 +159,25 @@ class StructDefinitionItem extends React.Component {
                         this.setState({
                             newDefaultValueEditing: false,
                         });
-                        model.setValue(this.state.newDefaultValue || value);
+                        validateDefaultValue(type, this.state.newDefaultValue);
+                        if (!this.state.newDefaultValue) {
+                            const valueArrayId = model.getChildren() && model.getChildren()[1] && model.getChildren()[1].id;
+                            if (valueArrayId) {
+                                model.removeChildById(valueArrayId);
+                            }
+                        } else {
+                            const newDefaultValue = this.props.addQuotesToString(type, this.state.newDefaultValue);
+                            model.setValue(newDefaultValue);
+                        }
                     }}
                     editing={this.state.newDefaultValueEditing}
-                    onChange={ (e) => {
-                        validateDefaultValue(type, e.target.value);
+                    onChange={(e) => {
                         this.setState({
                             newDefaultValue: e.target.value,
                         });
                     }}
                 >
-                    {this.state.newDefaultValueEditing ? (this.state.newDefaultValue ? this.state.newDefaultValue : value) : ''}
+                    {this.state.newDefaultValueEditing ? this.state.newDefaultValue : ''}
                 </EditableText>
                 <rect
                     x={x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
