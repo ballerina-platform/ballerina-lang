@@ -128,6 +128,24 @@ public class HTTPMessageUtil {
     }
 
     /**
+     * Extract transport properties from transport configurations.
+     *
+     * @param transportsConfiguration transportsConfiguration {@link TransportsConfiguration} which transport
+     *                                properties should be extracted.
+     * @return Map of transport properties.
+     */
+    public static Map<String, Object> getTransportProperties(TransportsConfiguration transportsConfiguration) {
+        Map<String, Object> transportProperties = new HashMap<>();
+        Set<TransportProperty> transportPropertiesSet = transportsConfiguration.getTransportProperties();
+        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+            transportProperties = transportPropertiesSet.stream().collect(
+                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+
+        }
+        return transportProperties;
+    }
+
+    /**
      * Create server bootstrap configuration from given transport property set.
      *
      * @param transportPropertiesSet Set of transport properties which should be converted
