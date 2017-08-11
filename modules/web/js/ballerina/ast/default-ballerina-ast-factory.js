@@ -263,6 +263,54 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
     return BallerinaASTFactory.createAssignmentStatement(args);
 };
 
+DefaultBallerinaASTFactory.createTransformAssignmentFunctionInvocationStatement = function (args) {
+    const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+    const opts = {
+        functionName: _.get(args, 'functionDef._name'),
+        packageName: _.get(args, 'packageName'),
+        fullPackageName: _.get(args, 'fullPackageName'),
+    };
+    const funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(opts);
+    if (!_.isNil(args) && _.has(args, 'functionDef')) {
+        let functionInvokeString = '';
+        if (!_.isNil(args.packageName)) {
+            functionInvokeString += args.packageName + ':';
+        }
+        functionInvokeString += args.functionDef.getName() + '(';
+        if (!_.isEmpty(args.functionDef.getParameters())) {
+            const paramNames = [];
+            args.functionDef.getParameters().forEach((param) => {
+                paramNames.push(param.name);
+                funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression());
+            });
+            functionInvokeString += _.join(paramNames, ', ');
+        }
+        functionInvokeString += ')';
+        funcInvocationExpression.setExpressionFromString(functionInvokeString);
+
+        // fragment parser does not have access to full package name. Hence, setting it here.
+        funcInvocationExpression.setFullPackageName(_.get(args, 'fullPackageName'));
+
+        let varRefListString = '';
+        if (!_.isEmpty(args.functionDef.getReturnParams())) {
+            const varRefNames = [];
+            args.functionDef.getReturnParams().forEach((param, index) => {
+                varRefNames.push(param.name || '_temp' + (index + 1));
+            });
+            if (varRefNames.length > 0) {
+                varRefListString = _.join(varRefNames, ', ') + ' ';
+                assignmentStmt.setIsDeclaredWithVar(true);
+            }
+        }
+
+        const variableRefList = BallerinaASTFactory.createVariableReferenceList(args);
+        variableRefList.setExpressionFromString(varRefListString);
+        assignmentStmt.addChild(variableRefList, 0);
+        assignmentStmt.addChild(funcInvocationExpression, 1);
+    }
+    return assignmentStmt;
+};
+
 DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement = function (args) {
     const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
     const opts = {

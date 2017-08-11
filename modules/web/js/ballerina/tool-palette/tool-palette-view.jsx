@@ -375,7 +375,7 @@ class ToolPaletteView extends React.Component {
                     if (functionDef.getReturnParams().length > 0) {
                         const functionTool = {};
                         functionTool.nodeFactoryMethod =
-                                               DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement;
+                                               DefaultBallerinaASTFactory.createTransformAssignmentFunctionInvocationStatement;
                         functionTool.meta = {
                             functionDef,
                             packageName,

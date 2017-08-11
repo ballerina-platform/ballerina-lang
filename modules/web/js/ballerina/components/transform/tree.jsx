@@ -42,7 +42,7 @@ export default class Tree extends React.Component {
     renderEndpoint(endpoint, kind, level) {
         const { endpoints, type, makeConnectPoint, viewId } = this.props;
         const paramNamePrefix = endpoint.paramName ? `${endpoint.paramName}:` : '';
-        const key = `${paramNamePrefix}${endpoint.fieldName || endpoint.name || endpoint.id}:${viewId}`;
+        const key = `${paramNamePrefix}${endpoint.fieldName || endpoint.name || endpoint.index}:${viewId}`;
 
         let endpointKind = kind;
         if (type === 'param' || type === 'return') {

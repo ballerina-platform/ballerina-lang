@@ -158,12 +158,12 @@ class TransformExpanded extends React.Component {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
+            assignmentStmtSource.setIsDeclaredWithVar(false);
 
-            const index = _.findIndex(this.getFunctionDefinition(connection.sourceFuncInv).getReturnParams(), param => {
-                return param.name == connection.sourceStruct;
-            });
-            assignmentStmtSource.getLeftExpression().addChild(targetExpression, index);
-            return assignmentStmtTarget.id;
+            const lexpr = assignmentStmtSource.getLeftExpression();
+            lexpr.removeChild(lexpr.getChildren()[connection.sourceIndex], true);
+            lexpr.addChild(targetExpression, connection.sourceIndex);
+            return assignmentStmtSource.id;
         }
 
         // Connection source and target are not structs
