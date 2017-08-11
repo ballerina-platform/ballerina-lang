@@ -8,11 +8,11 @@ import ballerina.lang.system;
 
 connector MyConnector (string url) {
 
-    http:ClientConnector myConnector = create http:ClientConnector(url);
+    http:ClientConnector clientConnector = create http:ClientConnector(url);
 
     action connect (string path) (message) {
         message request = {};
-        message response = http:ClientConnector.get(myConnector, path, request);
+        message response = clientConnector.get(path, request);
         return response;
     }
 }
