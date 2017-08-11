@@ -212,8 +212,7 @@ class TransformExpanded extends React.Component {
             // Connection source is a struct and target is a function.
             // get the function invocation expression for nested and single cases.
             const funcInvocationExpression = connection.targetFuncInv;
-
-            let expression = _.find(funcInvocationExpression.getChildren(), (child) => {
+            const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                 return (child.getExpressionString().trim() === (connection.sourceProperty || connection.sourceStruct));
             });
             let index = funcInvocationExpression.getIndexOfChild(expression);
