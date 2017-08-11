@@ -13,7 +13,7 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Param{value:"t: a string argument"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response1: response object"}
-    action testAction1(TestConnector t, string msg) (message response1) {
+    action testAction1(string msg) (message response1) {
         message request;
         message response;
         return response;
@@ -23,7 +23,7 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Param{value:"t: a string argument"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response2: response object"}
-    action testAction2(TestConnector t, string msg) (message response2) {
+    action testAction2(string msg) (message response2) {
         message request;
         message response;
         return response;
@@ -33,7 +33,7 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Param{value:"t: a string argument"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response3: response object"}
-    action testAction3(TestConnector t, string msg) (message response3) {
+    action testAction3(string msg) (message response3) {
         message request;
         message response;
         return response;
