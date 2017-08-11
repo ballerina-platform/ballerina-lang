@@ -543,8 +543,8 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   IntegerLiteral
-    |   FloatingPointLiteral
+    :   (ADD | SUB)? IntegerLiteral
+    |   (ADD | SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
