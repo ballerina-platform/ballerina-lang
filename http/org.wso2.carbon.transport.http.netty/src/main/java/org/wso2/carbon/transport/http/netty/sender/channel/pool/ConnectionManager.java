@@ -195,13 +195,12 @@ public class ConnectionManager {
                 pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
                                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                                                             TimeUnit.MILLISECONDS));
-                if (sourceHandler != null) {
+                if (sourceHandler != null && pipeline.get(Constants.HTTP_TRACE_LOGGING_HANDLER) != null) {
                     HTTPTraceLoggingHandler loggingHandler
                             = (HTTPTraceLoggingHandler) pipeline.get(Constants.HTTP_TRACE_LOGGING_HANDLER);
-                    if (loggingHandler != null) {
-                        loggingHandler.setCorrelatedSourceId(
+                    loggingHandler.setCorrelatedSourceId(
                                 sourceHandler.getInboundChannelContext().channel().id().asShortText());
-                    }
+
                 }
 
                 targetChannel.setRequestWritten(true);
