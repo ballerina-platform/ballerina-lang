@@ -7,7 +7,7 @@ function main (string[] args) {
     int arrayLength;
 
     //Print the created integer array length calculated by 'lengthof' unary operator.
-    arrayLength = (lengthof intArray);
+    arrayLength = lengthof intArray;
     system:println("Integer array size : " + arrayLength);
 
 
@@ -16,7 +16,7 @@ function main (string[] args) {
                       {"name":"Neal", "age":22}];
 
     //Print the created json array length calculated by 'lengthof' unary operator.
-    arrayLength = (lengthof jsonArray);
+    arrayLength = lengthof jsonArray;
     system:println("Json array size : " + arrayLength);
 }
 
