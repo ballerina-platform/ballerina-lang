@@ -1139,8 +1139,10 @@ public class BLangModelBuilder {
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty() && !parentCUBuilder.isEmpty()) {
             parentCUBuilder.peek().addWorker(worker);
-            //setting the current scope to resource block
-            currentScope = workerOuterBlockScope.pop();
+            //setting the current scope to resource block if there is a outerBlock
+            if (!workerOuterBlockScope.isEmpty()) {
+                currentScope = workerOuterBlockScope.pop();
+            }
         } else {
             workerStack.peek().add(worker);
             currentScope = forkJoinScope;
