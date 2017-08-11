@@ -45,7 +45,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
 
     /**
-     * Output stream to write message out to the socket
+     * Output stream to write message out to the socket.
      */
      private OutputStream outputStream;
 

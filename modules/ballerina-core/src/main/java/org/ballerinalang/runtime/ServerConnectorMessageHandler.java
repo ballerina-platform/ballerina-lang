@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
@@ -36,12 +37,12 @@ import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -108,7 +109,7 @@ public class ServerConnectorMessageHandler {
      * @param resourceInfo resource that has been invoked
      * @param serviceInfo  service that has been invoked
      */
-    public static void invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
+    public static void  invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         // engage Service interceptors.
         CarbonCallback resourceCallback = callback;
@@ -149,13 +150,13 @@ public class ServerConnectorMessageHandler {
         Context context = new Context(programFile);
         context.setServiceInfo(serviceInfo);
         context.setCarbonMessage(resourceMessage);
+        context.setProperty("SRC_HANDLER", resourceMessage.getProperty("SRC_HANDLER"));
         context.setBalCallback(new DefaultBalCallback(resourceCallback));
         ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
+        StackFrame calleeSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
@@ -182,18 +183,28 @@ public class ServerConnectorMessageHandler {
                 BType btype = bTypes[i];
                 String value = resourceArgumentValues.get(paramNameArray[i]);
 
-                if (value == null) {
+                // Set default values
+                if (value == null || "".equals(value)) {
+                    if (btype == BTypes.typeString) {
+                        stringLocalVars[stringParamCount++] = "";
+                    }
                     continue;
                 }
 
                 if (btype == BTypes.typeString) {
                     stringLocalVars[stringParamCount++] = value;
-                } else if (btype == BTypes.typeInt) {
-                    intLocalVars[intParamCount++] = Integer.getInteger(value);
+                } else if (btype == BTypes.typeBoolean) {
+                    if ("true".equalsIgnoreCase(value)) {
+                        intLocalVars[intParamCount++] = 1;
+                    } else if ("false".equalsIgnoreCase(value)) {
+                        intLocalVars[intParamCount++] = 0;
+                    } else {
+                        throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                    }
                 } else if (btype == BTypes.typeFloat) {
                     doubleLocalVars[doubleParamCount++] = new Double(value);
                 } else if (btype == BTypes.typeInt) {
-                    longLocalVars[longParamCount++] = Long.getLong(value);
+                    longLocalVars[longParamCount++] = Long.parseLong(value);
                 } else {
                     throw new BallerinaException("Unsupported parameter type for parameter " + value);
                 }
@@ -211,19 +222,19 @@ public class ServerConnectorMessageHandler {
         // Execute workers
         // Pass the incoming message variable into the worker invocations
         // Fix #2623
-        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(resourceInfo,
-                defaultWorkerInfo, -1, new int[0]);
+        StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
+        callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
         BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-        if (VMDebugManager.getInstance().isDebugEnagled()) {
+        if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setDebugInfoHolder(new DebugInfoHolder());
+            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
             context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
             context.setDebugEnabled(true);
-            debugManager.setDebuggerContext("main", context); //todo fix
+            debugManager.setDebuggerContext(context);
         }
         bLangVM.run(context);
     }

@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
@@ -48,6 +49,8 @@ public class BTypes {
     public static BType typeAny;
     public static BType typeConnector;
     public static BType typeNull;
+    public static BType typeXMLAttributes;
+    public static BType typeType;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -71,8 +74,8 @@ public class BTypes {
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
+        globalScope.define(typeType.getSymbolName(), typeType);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
-        globalScope.define(typeNull.getSymbolName(), typeNull);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.FLOAT_TNAME);
@@ -88,6 +91,7 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
         builtInTypeNames.add(TypeConstants.ANY_TNAME);
         builtInTypeNames.add(TypeConstants.NULL_TNAME);
+        builtInTypeNames.add(TypeConstants.TYPE_TNAME);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -95,7 +99,11 @@ public class BTypes {
 
     }
 
-    private static void createBuiltInTypes(GlobalScope globalScope) {
+    public static void createBuiltInTypes(GlobalScope globalScope) {
+        if (initialized) {
+            return;
+        }
+
         typeInt = new BIntegerType(TypeConstants.INT_TNAME, null, globalScope);
         typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null, globalScope);
         typeString = new BStringType(TypeConstants.STRING_TNAME, null, globalScope);
@@ -106,9 +114,11 @@ public class BTypes {
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
+        typeType = new BTypeType(TypeConstants.TYPE_TNAME, null, globalScope);
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
+        typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null, globalScope);
 
         initialized = true;
     }
@@ -123,6 +133,18 @@ public class BTypes {
         BType bType = null;
         if (symbol instanceof BType) {
             bType = (BType) symbol;
+            if ((bType instanceof BJSONType)) {
+                if (typeName instanceof ConstraintTypeName) {
+                    SimpleTypeName constraint = ((ConstraintTypeName) typeName).getConstraint();
+                    symbol = symbolScope.resolve(new SymbolName(constraint.getName(), constraint.getPackagePath()));
+                    if (symbol == null) {
+                        throw new SemanticException(getNodeLocationStr(location) + "undefined struct type '" +
+                                                    typeName + "' for constraining json");
+                    }
+                    bType = new BJSONConstraintType(bType.getName(), bType.getPackagePath(), bType.getSymbolScope());
+                    ((BJSONConstraintType) bType).setConstraint((StructDef) symbol);
+                }
+            }
         }
 
         if (bType != null) {
@@ -139,6 +161,32 @@ public class BTypes {
             if (symbol instanceof BType) {
                 bType = (BType) symbol;
             }
+        }
+
+        // If bType is null, check whether this is Function pointer type.
+        if (bType == null && typeName instanceof FunctionTypeName) {
+            FunctionTypeName functionTypeName = (FunctionTypeName) typeName;
+            BType[] paramTypes = new BType[0];
+            BType[] returnParamTypes = new BType[0];
+            if (functionTypeName.getParamTypes() != null) {
+                paramTypes = new BType[functionTypeName.getParamTypes().length];
+                int i = 0;
+                for (SimpleTypeName simpleTypeName : functionTypeName.getParamTypes()) {
+                    paramTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
+                }
+            }
+            if (functionTypeName.getReturnParamsTypes() != null) {
+                int i = 0;
+                returnParamTypes = new BType[functionTypeName.getReturnParamsTypes().length];
+                for (SimpleTypeName simpleTypeName : functionTypeName.getReturnParamsTypes()) {
+                    returnParamTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
+                }
+            }
+            BFunctionType functionType = new BFunctionType(symbolScope, paramTypes, returnParamTypes);
+            functionType.setParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnsParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnWordAvailable(functionTypeName.isReturnWordAvailable());
+            return functionType;
         }
 
         // If bType is not null, then element type of this arrays type is available.
@@ -200,4 +248,5 @@ public class BTypes {
                 throw new IllegalStateException("Unknown type name");
         }
     }
+
 }

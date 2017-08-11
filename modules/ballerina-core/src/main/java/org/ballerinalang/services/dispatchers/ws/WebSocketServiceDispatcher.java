@@ -19,21 +19,50 @@
 
 package org.ballerinalang.services.dispatchers.ws;
 
-import org.ballerinalang.services.dispatchers.http.Constants;
-import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
-import org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry;
-import org.ballerinalang.services.dispatchers.uri.URIUtil;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-
 /**
  * Service Dispatcher for WebSocket Endpoint.
+ *
+ * @since 0.8.0
  */
-public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
+public class WebSocketServiceDispatcher implements ServiceDispatcher {
+
+    private static final Logger log = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
+
+    @Override
+    public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
+        String interfaceId = getListenerInterface(cMsg);
+        boolean isServer = (boolean) cMsg.getProperty(Constants.IS_WEBSOCKET_SERVER);
+
+        if (isServer) {
+            String serviceUri = (String) cMsg.getProperty(Constants.TO);
+            serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
+            if (serviceUri == null) {
+                return null;
+            }
+            ServiceInfo service = WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
+
+            if (service == null) {
+                return null;
+            } else {
+                return service;
+            }
+
+        } else {
+            String clientServiceName = (String) cMsg.getProperty(Constants.TO);
+            ServiceInfo clientService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+            if (clientService == null) {
+                return null;
+            }
+            return clientService;
+        }
+    }
 
     @Override
     public String getProtocol() {
@@ -42,78 +71,29 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
 
     @Override
     public String getProtocolPackage() {
-        return Constants.PROTOCOL_PACKAGE_WEBSOCKET;
+        return Constants.WEBSOCKET_PACKAGE_PATH;
     }
-
 
     @Override
-    public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
-        String interfaceId = getInterface(cMsg);
-        String serviceUri = (String) cMsg.getProperty(Constants.TO);
-        serviceUri = refactorUri(serviceUri);
-        if (serviceUri == null) {
-            throw new BallerinaException("No service found to dispatch");
-        }
-        String basePath = "";
-        ServiceInfo service = null;
-        String[] basePathSegments = URIUtil.getPathSegments(serviceUri);
-        for (String pathSegments: basePathSegments) {
-            basePath = basePath + Constants.DEFAULT_BASE_PATH + pathSegments;
-            service = HTTPServicesRegistry.getInstance().getServiceInfo(interfaceId, basePath);
-            if (service != null) {
-                break;
+    public void serviceRegistered(ServiceInfo service) {
+        WebSocketServicesRegistry.getInstance().registerServiceEndpoint(service);
+    }
+
+    @Override
+    public void serviceUnregistered(ServiceInfo service) {
+        WebSocketServicesRegistry.getInstance().unregisterService(service);
+    }
+
+    private String getListenerInterface(CarbonMessage cMsg) {
+        String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
+        if (interfaceId == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Interface id not found on the message, hence using the default interface");
             }
+            interfaceId = Constants.DEFAULT_INTERFACE;
         }
-        if (service == null) {
-            return null;
-        }
-        String webSocketUpgradePath = findWebSocketUpgradePath(service);
-        if (webSocketUpgradePath == null) {
-            return null;
-        }
-        if (webSocketUpgradePath.equals(serviceUri)) {
-            return service;
-        }
-        return null;
+
+        return interfaceId;
     }
 
-    private String findWebSocketUpgradePath(ServiceInfo service) {
-        AnnotationAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
-                Constants.WS_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
-        AnnotationAttachmentInfo config = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANNOTATION_NAME_CONFIG);
-
-        if (websocketUpgradePathAnnotation != null &&
-                websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
-            String value = websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants
-                    .VALUE_ATTRIBUTE).getStringValue();
-            if (value != null && !value.trim().isEmpty()) {
-
-                if (config == null ||
-                        config.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH) == null ||
-                        config.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue()
-                                .trim().isEmpty()) {
-                    throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
-                }
-                String basePath = refactorUri(config.getAnnotationAttributeValue(Constants
-                        .ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue());
-                String websocketUpgradePath = refactorUri(value);
-                return refactorUri(basePath.concat(websocketUpgradePath));
-            }
-        }
-        return null;
-    }
-
-    private String refactorUri(String uri) {
-        if (uri.startsWith("\"")) {
-            uri = uri.substring(1, uri.length() - 1);
-        }
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
-        if (uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
-        return uri;
-    }
 }

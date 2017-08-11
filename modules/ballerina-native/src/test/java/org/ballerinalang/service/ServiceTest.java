@@ -122,6 +122,17 @@ public class ServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), "hello");
     }
 
+    @Test(description = "Test accessing service level variable in resource")
+    public void testGetServiceLevelString() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "sample value");
+    }
+
     @Test
     public void testGetStringAfterSetString() {
         CarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
@@ -139,6 +150,19 @@ public class ServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), stringPayload);
     }
 
+    @Test(description = "Test remove headers native function")
+    public void testRemoveHeadersNativeFunction() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
+        cMsg.setHeader("header1", "wso2");
+        cMsg.setHeader("header2", "ballerina");
+        cMsg.setHeader("header3", "hello");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        Assert.assertNull(response.getHeader("header1"));
+        Assert.assertNull(response.getHeader("header2"));
+        Assert.assertNull(response.getHeader("header3"));
+    }
 
     @AfterClass
     public void tearDown() {

@@ -16,7 +16,7 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.Connector;
+import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -27,10 +27,7 @@ import java.util.Arrays;
  *
  * @since 0.8.0
  */
-public final class BConnector implements BRefType<Connector>, StructureType {
-
-    private Connector connector;
-    private BValue[] connectorMemBlock;
+public final class BConnector implements BRefType, StructureType {
 
     private long[] longFields;
     private double[] doubleFields;
@@ -39,50 +36,38 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private byte[][] byteFields;
     private BRefType[] refFields;
 
-    private BType connectorType;
+    private BConnectorType connectorType;
+    private boolean isFilterConnector;
+    //private BType connectorType;
 
-    // TODO Remove this when old executor is removed
-    private BType[] fieldTypes;
 
-    public BConnector(BType connectorType) {
-        this(null, new BValue[0]);
+    public BConnector(BConnectorType connectorType) {
         this.connectorType = connectorType;
+        int[] fieldIndexes = this.connectorType.getFieldTypeCount();
+        longFields = new long[fieldIndexes[0]];
+        doubleFields = new double[fieldIndexes[1]];
+        stringFields = new String[fieldIndexes[2]];
+        Arrays.fill(stringFields, "");
+        intFields = new int[fieldIndexes[3]];
+        byteFields = new byte[fieldIndexes[4]][];
+        refFields = new BRefType[fieldIndexes[5]];
     }
 
-    public BConnector(Connector connector, BValue[] connectorMemBlock) {
-        this.connector = connector;
-        this.connectorMemBlock = connectorMemBlock;
+    public BType getConnectorType() {
+        return connectorType;
     }
 
-    public BValue getValue(int offset) {
-        return connectorMemBlock[offset];
+    public boolean isFilterConnector() {
+        return isFilterConnector;
     }
 
-    public void setValue(int offset, BValue bValue) {
-        this.connectorMemBlock[offset] = bValue;
-    }
-
-    public BType[] getFieldTypes() {
-        return fieldTypes;
-    }
-
-    public void setFieldTypes(BType[] fieldTypes) {
-        this.fieldTypes = fieldTypes;
-    }
-
-    @Override
-    public BValue[] getMemoryBlock() {
-        return connectorMemBlock;
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
     }
 
     @Override
-    public void setMemoryBlock(BValue[] connectorMemBlock) {
-        this.connectorMemBlock = connectorMemBlock;
-    }
-
-    @Override
-    public Connector value() {
-        return connector;
+    public BConnector value() {
+        return null;
     }
 
     @Override
@@ -93,17 +78,6 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     @Override
     public BType getType() {
         return BTypes.typeConnector;
-    }
-
-    @Override
-    public void init(int[] fieldIndexes) {
-        longFields = new long[fieldIndexes[0]];
-        doubleFields = new double[fieldIndexes[1]];
-        stringFields = new String[fieldIndexes[2]];
-        Arrays.fill(stringFields, "");
-        intFields = new int[fieldIndexes[3]];
-        byteFields = new byte[fieldIndexes[4]][];
-        refFields = new BRefType[fieldIndexes[5]];
     }
 
     @Override

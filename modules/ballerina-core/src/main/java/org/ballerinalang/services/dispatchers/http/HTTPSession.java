@@ -29,7 +29,7 @@ import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COO
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
- * HTTPSession represents a session
+ * HTTPSession represents a session.
  *
  * @since 0.89
  */
@@ -148,7 +148,7 @@ public class HTTPSession implements Session, Serializable {
 
     private void checkValidity() {
         if (!isValid) {
-            throw new IllegalStateException("Failed to execute action: Session is invalid");
+            throw new IllegalStateException("Failed to execute action: Invalid session");
         }
     }
 

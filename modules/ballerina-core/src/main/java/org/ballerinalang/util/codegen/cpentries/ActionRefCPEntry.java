@@ -30,31 +30,51 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
+    private String packagePath;
 
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
+    private String actionName;
 
     // Index to a valid connector ref index in the constant pool
     private int connectorRefCPIndex;
+    private StructureRefCPEntry connectorRefCPEntry;
 
     private ActionInfo actionInfo;
 
-    public ActionRefCPEntry(int packageCPIndex, int connectorRefCPIndex, int nameCPIndex) {
+    public ActionRefCPEntry(int packageCPIndex, String packagePath, int connectorRefCPIndex,
+                            StructureRefCPEntry connectorRefCPEntry,
+                            int nameCPIndex, String actionName) {
         this.packageCPIndex = packageCPIndex;
+        this.packagePath = packagePath;
         this.connectorRefCPIndex = connectorRefCPIndex;
+        this.connectorRefCPEntry = connectorRefCPEntry;
         this.nameCPIndex = nameCPIndex;
+        this.actionName = actionName;
     }
 
     public int getPackageCPIndex() {
         return packageCPIndex;
     }
 
+    public String getPackagePath() {
+        return packagePath;
+    }
+
     public int getNameCPIndex() {
         return nameCPIndex;
     }
 
+    public String getActionName() {
+        return actionName;
+    }
+
     public int getConnectorRefCPIndex() {
         return connectorRefCPIndex;
+    }
+
+    public StructureRefCPEntry getConnectorRefCPEntry() {
+        return connectorRefCPEntry;
     }
 
     public ActionInfo getActionInfo() {
@@ -66,7 +86,7 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     }
 
     public EntryType getEntryType() {
-        return EntryType.CP_ENTRY_FUNCTION_REF;
+        return EntryType.CP_ENTRY_ACTION_REF;
     }
 
     @Override
@@ -77,6 +97,7 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ActionRefCPEntry && packageCPIndex == (((ActionRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex;
+                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex &&
+                connectorRefCPIndex == ((ActionRefCPEntry) obj).connectorRefCPIndex;
     }
 }

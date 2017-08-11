@@ -21,14 +21,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -36,7 +35,6 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -45,6 +43,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -56,8 +55,11 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLAttributes;
+import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -65,24 +67,25 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
-import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
+import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.LocalVariableAttributeInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -92,10 +95,9 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -144,7 +146,6 @@ public class BLangVM {
         this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
-    // TODO Remove
     private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
@@ -155,7 +156,7 @@ public class BLangVM {
 
     public void run(Context context) {
         StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
-        this.constPool = currentFrame.packageInfo.getConstPool();
+        this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = context;
@@ -168,7 +169,7 @@ public class BLangVM {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
-            this.constPool = controlStack.currentFrame.packageInfo.getConstPool();
+            this.constPool = controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = controlStack.currentFrame.packageInfo.getInstructions();
             handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
                     calleeSF.returnValues, retTypes);
@@ -183,7 +184,8 @@ public class BLangVM {
         try {
             exec();
             if (context.isDebugEnabled()) {
-                VMDebugManager.getInstance().setDone(true);
+                context.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
+                VMDebugManager.getInstance().releaseExecutionLock();
             }
         } catch (Throwable e) {
             String message;
@@ -197,8 +199,15 @@ public class BLangVM {
         }
     }
 
-    public void execWorker(Context context, int startIP, int endIP) {
+    public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
+        if (VMDebugManager.getInstance().isDebugSessionActive()) {
+            VMDebugManager debugManager = VMDebugManager.getInstance();
+            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
+            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            context.setDebugEnabled(true);
+            debugManager.setDebuggerContext(context);
+        }
         run(context);
     }
 
@@ -212,6 +221,9 @@ public class BLangVM {
         int lvIndex; // Index of the local variable
         int cpIndex; // Index of the constant pool
         int fieldIndex;
+        int localNameIndex;
+        int uriIndex;
+        int prefixIndex;
 
         BIntArray bIntArray;
         BFloatArray bFloatArray;
@@ -222,18 +234,20 @@ public class BLangVM {
         StructureType structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
-
+        BXML<?> xmlVal;
+        BXMLAttributes xmlAttrs;
+        BXMLQName xmlQName;
+        
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
-        TypeCPEntry typeCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
         ActionRefCPEntry actionRefCPEntry;
 
         FunctionInfo functionInfo;
         ActionInfo actionInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
-        WorkerInvokeCPEntry workerInvokeCPEntry;
-        WorkerReplyCPEntry workerReplyCPEntry;
-        WorkerDataChannel workerDataChannel;
+        WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
+        WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
 
         boolean isDebugging = context.isDebugEnabled();
@@ -243,6 +257,9 @@ public class BLangVM {
 
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
+            if (isDebugging) {
+                debugging(ip);
+            }
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
@@ -881,7 +898,6 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-
                     JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
                     break;
 
@@ -994,6 +1010,47 @@ public class BLangVM {
                     j = operands[1];
                     sf.longRegs[j] = -sf.longRegs[i];
                     break;
+                case InstructionCodes.LENGTHOF:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    BNewArray newArray = (BNewArray) sf.refRegs[i];
+                    sf.longRegs[j] = newArray.size();
+                    break;
+                case InstructionCodes.LENGTHOFJSON:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
+                        sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+                    } else {
+                        sf.longRegs[j] = -1;
+                        break;
+                    }
+                    break;
+
+                case InstructionCodes.TYPELOAD:
+                    cpIndex = operands[0];
+                    j = operands[1];
+                    TypeRefCPEntry typeEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[j] = new BTypeValue(typeEntry.getType());
+                    break;
+                case InstructionCodes.TYPEOF:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    sf.refRegs[j] = new BTypeValue(sf.refRegs[i].getType());
+                    break;
+
                 case InstructionCodes.FNEG:
                     i = operands[0];
                     j = operands[1];
@@ -1035,6 +1092,15 @@ public class BLangVM {
                     k = operands[2];
                     sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                     break;
+                case InstructionCodes.TEQ:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                        handleNullRefError();
+                    }
+                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                    break;
 
                 case InstructionCodes.INE:
                     i = operands[0];
@@ -1065,6 +1131,15 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
                     sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.TNE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                        handleNullRefError();
+                    }
+                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                     break;
 
                 case InstructionCodes.IGT:
@@ -1174,25 +1249,24 @@ public class BLangVM {
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
-                    BType[] types = workerRefCPEntry.getTypes();
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
 
                     cpIndex = operands[1];
-                    workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
-                    invokeWorker(workerDataChannel, workerInvokeCPEntry, types);
+                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
+                    invokeWorker(workerDataChannel, wrkrIntRefCPEntry);
                     break;
                 case InstructionCodes.WRKREPLY:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
-                    types = workerRefCPEntry.getTypes();
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
 
                     cpIndex = operands[1];
-                    workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
-                    replyWorker(workerDataChannel, workerReplyCPEntry, types);
+                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
+                    replyWorker(workerDataChannel, wrkrIntRefCPEntry);
                     break;
                 case InstructionCodes.FORKJOIN:
                     cpIndex = operands[0];
+
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
                     break;
@@ -1212,7 +1286,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -1243,6 +1317,28 @@ public class BLangVM {
                     // clear error.
                     context.setError(null);
                     break;
+                case InstructionCodes.FPCALL:
+                    i = operands[0];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[((BFunctionPointer) sf.refRegs[i]).value()];
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
+                    if (functionInfo.isNative()) {
+                        invokeNativeFunction(functionInfo, funcCallCPEntry);
+                    } else {
+                        invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    }
+                    break;
+                case InstructionCodes.FPLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BFunctionPointer(i);
+                    break;
 
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
@@ -1258,6 +1354,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2MSG:
+                case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
@@ -1293,6 +1390,7 @@ public class BLangVM {
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
+                case InstructionCodes.XMLATTRS2MAP:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -1304,12 +1402,19 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
 
-                    BNewArray array = (BNewArray) sf.refRegs[i];
-                    if (array == null) {
+                    BValue value = sf.refRegs[i];
+
+                    if (value == null) {
                         handleNullRefError();
                         break;
                     }
-                    sf.longRegs[j] = array.size();
+
+                    if (value.getType().getTag() == TypeTags.JSON_TAG) {
+                        sf.longRegs[j] = ((BJSON) value).value().size();
+                        break;
+                    }
+
+                    sf.longRegs[j] = ((BNewArray) value).size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
@@ -1323,15 +1428,15 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BBooleanArray();
                     break;
-                case InstructionCodes.RNEWARRAY:
-                    i = operands[0];
-                    cpIndex = operands[1];
-                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
-                    sf.refRegs[i] = new BRefValueArray(typeCPEntry.getType());
-                    break;
                 case InstructionCodes.LNEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BBlobArray();
+                    break;
+                case InstructionCodes.RNEWARRAY:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.JSONNEWARRAY:
                     i = operands[0];
@@ -1420,11 +1525,98 @@ public class BLangVM {
                 case InstructionCodes.RET:
                     handleReturn();
                     break;
+                case InstructionCodes.XMLATTRSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    xmlVal = (BXML) sf.refRegs[i];
+                    if (xmlVal == null) {
+                        handleNullRefError();
+                        break;
+                    }
+
+                    xmlQName = (BXMLQName) sf.refRegs[j];
+                    if (xmlQName == null) {
+                        handleNullRefError();
+                        break;
+                    }
+
+                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
+                            sf.stringRegs[k]);
+                    break;
+                case InstructionCodes.XMLATTRLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    xmlVal = (BXML) sf.refRegs[i];
+                    if (xmlVal == null) {
+                        handleNullRefError();
+                        break;
+                    }
+
+                    xmlQName = (BXMLQName) sf.refRegs[j];
+                    if (xmlQName == null) {
+                        handleNullRefError();
+                        break;
+                    }
+
+                    sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(),
+                            xmlQName.getPrefix());
+                    break;
+                case InstructionCodes.XML2XMLATTRS:
+                    i = operands[0];
+                    j = operands[1];
+
+                    xmlVal = (BXML) sf.refRegs[i];
+                    if (xmlVal == null) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+
+                    sf.refRegs[j] = new BXMLAttributes(xmlVal);
+                    break;
+                case InstructionCodes.S2QNAME:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    String qNameStr = sf.stringRegs[i];
+                    int parenEndIndex = qNameStr.indexOf('}');
+
+                    if (qNameStr.startsWith("{") && parenEndIndex > 0) {
+                        sf.stringRegs[j] = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+                        sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
+                    } else {
+                        sf.stringRegs[j] = qNameStr;
+                        sf.stringRegs[k] = "";
+                    }
+
+                    break;
+                case InstructionCodes.NEWQNAME:
+                    localNameIndex = operands[0];
+                    uriIndex = operands[1];
+                    prefixIndex = operands[2];
+                    i = operands[3];
+
+                    String localname = sf.stringRegs[localNameIndex];
+                    localname = StringEscapeUtils.escapeXml11(localname);
+
+                    String prefix = sf.stringRegs[prefixIndex];
+                    prefix = StringEscapeUtils.escapeXml11(prefix);
+
+                    sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
+                    break;
+                case InstructionCodes.NEWXMLELEMENT:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.NEWXMLPI:
+                case InstructionCodes.XMLSTORE:
+                    execXMLCreationOpcodes(sf, opcode, operands);
+                    break;
                 default:
                     throw new UnsupportedOperationException();
-            }
-            if (isDebugging) {
-                debugging(ip);
             }
         }
     }
@@ -1436,7 +1628,7 @@ public class BLangVM {
         int cpIndex; // Index of the constant pool
 
         BRefType bRefType;
-        TypeCPEntry typeCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
             case InstructionCodes.I2ANY:
@@ -1556,6 +1748,9 @@ public class BLangVM {
             case InstructionCodes.ANY2MSG:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
                 break;
+            case InstructionCodes.ANY2TYPE:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
+                break;
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
                 break;
@@ -1566,16 +1761,18 @@ public class BLangVM {
                 cpIndex = operands[1];
                 j = operands[2];
                 k = operands[3];
-                typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
 
                 bRefType = sf.refRegs[i];
+
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
-                } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
+                } else if (checkCast(bRefType, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
+                    sf.refRegs[k] = null;
                 } else {
                     sf.refRegs[j] = null;
-                    handleTypeCastError(sf, k, bRefType.getType(), typeCPEntry.getType());
+                    handleTypeCastError(sf, k, bRefType.getType(), typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.NULL2JSON:
@@ -1585,6 +1782,24 @@ public class BLangVM {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private boolean checkConstraintJSONEquivalency(BJSON json, BStructType targetType) {
+        BStructType.StructField[] tFields = targetType.getStructFields();
+        for (int i = 0; i < tFields.length; i++) {
+            if (JSONUtils.hasElement(json, tFields[i].getFieldName())) {
+                if (tFields[i].getFieldType() instanceof BStructType) {
+                    if (checkConstraintJSONEquivalency(JSONUtils.getElement(json, tFields[i].getFieldName()),
+                            (BStructType) tFields[i].getFieldType())) {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     private void execTypeConversionOpcodes(StackFrame sf, int opcode, int[] operands) {
@@ -1786,133 +2001,235 @@ public class BLangVM {
                     handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
                 }
                 break;
+            case InstructionCodes.XMLATTRS2MAP:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.refRegs[j] = null;
+                    break;
+                }
+
+                try {
+                    sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
+                }
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
+    private void execXMLCreationOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int l;
+        BXML<?> xmlVal;
+
+        switch (opcode) {
+            case InstructionCodes.NEWXMLELEMENT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                l = operands[3];
+
+                BXMLQName startTagName = (BXMLQName) sf.refRegs[j];
+                BXMLQName endTagName = (BXMLQName) sf.refRegs[k];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.NEWXMLCOMMENT:
+                i = operands[0];
+                j = operands[1];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLComment(sf.stringRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.NEWXMLTEXT:
+                i = operands[0];
+                j = operands[1];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLText(sf.stringRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.NEWXMLPI:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                try {
+                    sf.refRegs[i] = XMLUtils.createXMLProcessingInstruction(sf.stringRegs[j], sf.stringRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.XMLSTORE:
+                i = operands[0];
+                j = operands[1];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                BXML<?> child = (BXML<?>) sf.refRegs[j];
+                xmlVal.setChildren(child);
+                break;
+        }
+    }
+
+    /**
+     * Method to calculate and detect debug points when the instruction point is given.
+     *
+     * @param cp        Current instruction point.
+     */
     public void debugging(int cp) {
-        if (cp < 0) {
+        DebugInfoHolder holder = context.getDebugInfoHolder();
+        LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
             return;
         }
-        String lineNum;
-        NodeLocation location;
-        LineNumberInfo currentExecLine = controlStack.currentFrame.packageInfo.getLineNumberInfo(cp);
 
-        DebugInfoHolder holder = context.getDebugInfoHolder();
-        if (code[cp].getOpcode() == InstructionCodes.CALL && holder.getCurrentCommand() != DebugInfoHolder
-                .DebugCommand.STEP_OUT) {
-            holder.pushFunctionCallNextIp(cp + 1);
-        } else if (code[cp].getOpcode() == InstructionCodes.RET && holder.getCurrentCommand() != DebugInfoHolder
-                .DebugCommand.STEP_OUT) {
-            holder.popFunctionCallNextIp();
-        }
         switch (holder.getCurrentCommand()) {
             case RESUME:
-                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
-                        .equals(holder.getCurrentLineStack().peek())) {
-                    return;
-                }
-                lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber(); //todo add package
-                location = holder.getDebugPoint(lineNum);
-                if (location == null) {
-                    return;
-                }
-                if (!holder.getCurrentLineStack().isEmpty()) {
-                    holder.getCurrentLineStack().pop();
-                    if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
-                            .equals(holder.getCurrentLineStack().peek())) {
-                        return;
-                    }
-                }
-                holder.setPreviousIp(cp);
-                holder.getCurrentLineStack().push(currentExecLine);
-                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-                holder.waitTillDebuggeeResponds();
                 break;
             case STEP_IN:
-                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
-                        .equals(holder.getCurrentLineStack().peek())) {
-                    return;
-                }
-
-                holder.setPreviousIp(cp);
-                holder.getCurrentLineStack().push(currentExecLine);
-                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-                holder.waitTillDebuggeeResponds();
+                debugHit(currentExecLine, holder);
                 break;
             case STEP_OVER:
-                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
-                    holder.setNextIp(holder.getPreviousIp() + 1);
-                    if (cp == holder.getNextIp()) {
-                        holder.setNextIp(-1);
-                        holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
-                        return;
-                    }
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.NEXT_LINE);
-                } else {
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                if (controlStack.fp == holder.getFp()) {
+                    debugHit(currentExecLine, holder);
+                    return;
                 }
+                if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.fp == holder.getFp() - 1) {
+                    debugHit(currentExecLine, holder);
+                    return;
+                }
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+                break;
+            case STEP_OVER_INTMDT:
+                if (controlStack.fp != holder.getFp()) {
+                    return;
+                }
+                debugHit(currentExecLine, holder);
                 break;
             case STEP_OUT:
-                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
-                    holder.setPreviousIp(cp);
-                    holder.popFunctionCallNextIp();
-                }
-                if (holder.peekFunctionCallNextIp() != cp) {
-                    return;
-                }
-                holder.popFunctionCallNextIp();
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
+                holder.setFp(holder.getFp() - 1);
+                interMediateDebugCheck(currentExecLine, holder);
                 break;
-            case NEXT_LINE:
-                if (cp == holder.getNextIp()) {
-                    holder.setNextIp(-1);
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
-                    return;
-                }
+            case STEP_OUT_INTMDT:
+                interMediateDebugCheck(currentExecLine, holder);
                 break;
         }
+    }
 
+    /**
+     * Inter mediate debug check to avoid switch case falling through.
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     */
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        if (controlStack.fp != holder.getFp()) {
+            return;
+        }
+        debugHit(currentExecLine, holder);
+    }
+
+    /**
+     * Helper method to check whether given point is a debug point or not.
+     * If it's a debug point, then notify the debugger.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     * @return                  Boolean true if it's a debug point, false otherwise.
+     */
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        if (!currentExecLine.isDebugPoint()) {
+            return false;
+        }
+        debugHit(currentExecLine, holder);
+        return true;
+    }
+
+    /**
+     * Helper method to set required details when a debug point hits.
+     * And also to notify the debugger.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     */
+    private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        holder.setLastLine(currentExecLine);
+        holder.setFp(controlStack.fp);
+        holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+        holder.waitTillDebuggeeResponds();
     }
 
     public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
-
         NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
                 current.getFileName(), current.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
+        breakPointInfo.setThreadId(context.getThreadId());
 
-        String pck = controlStack.currentFrame.packageInfo.getPkgPath();
-        String functionName = controlStack.currentFrame.callableUnitInfo.getName();
-        //todo below line number is a dummy line number - remove later
-        FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
-                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
-        if (localVarAttrInfo != null) {
-            for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
+        int callingIp = current.getIp();
+        for (int i = controlStack.fp; i >= 0; i--) {
+            StackFrame frame = controlStack.getStack()[i];
+            if (frame == null) {
+                continue;
+            }
+
+            String pck = frame.packageInfo.getPkgPath();
+            String functionName = frame.callableUnitInfo.getName();
+            LineNumberInfo callingLine = context.getDebugInfoHolder()
+                    .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+            FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
+                    callingLine.getLineNumber());
+            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
+                    .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+            if (localVarAttrInfo == null) {
+                continue;
+            }
+            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
                 VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(controlStack.currentFrame
-                            .longLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(controlStack.currentFrame
-                            .doubleLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BFloat(frame.doubleLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(controlStack.currentFrame
-                            .stringLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BString(frame.stringLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(controlStack.currentFrame
-                            .intLocalVars[localVarInfo.getVariableIndex()] == 1 ? true : false));
+                    variableInfo.setBValue(new BBoolean(frame.intLocalVars[localVarInfo
+                            .getVariableIndex()] == 1 ? true : false));
                 } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(controlStack.currentFrame
-                            .byteLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BBlob(frame.byteLocalVars[localVarInfo.getVariableIndex()]));
                 } else {
-                    variableInfo.setBValue(controlStack.currentFrame.refLocalVars[localVarInfo.getVariableIndex()]);
+                    variableInfo.setBValue(frame.refLocalVars[localVarInfo.getVariableIndex()]);
                 }
                 frameInfo.addVariableInfo(variableInfo);
+            });
+            callingIp = frame.retAddrs - 1;
+            if (callingIp < 0) {
+                callingIp = 0;
             }
+            breakPointInfo.addFrameInfo(frameInfo);
         }
-        breakPointInfo.addFrameInfo(frameInfo);
         return breakPointInfo;
     }
 
@@ -1980,36 +2297,21 @@ public class BLangVM {
     }
 
     private void createNewConnector(int[] operands, StackFrame sf) {
-        int cpIndex;
-        int i;
-        StructureRefCPEntry structureRefCPEntry;
-        StructureTypeInfo structureTypeInfo;
-        int[] fieldCount;
-        cpIndex = operands[0];
-        i = operands[1];
-        structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-        structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
-        fieldCount = structureTypeInfo.getFieldCount();
-        BConnector bConnector = new BConnector(structureTypeInfo.getType());
-        bConnector.setFieldTypes(structureTypeInfo.getFieldTypes());
-        bConnector.init(fieldCount);
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+        ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
+        BConnector bConnector = new BConnector(connectorInfo.getType());
+        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
     }
 
     private void createNewStruct(int[] operands, StackFrame sf) {
-        int cpIndex;
-        int i;
-        StructureRefCPEntry structureRefCPEntry;
-        StructureTypeInfo structureTypeInfo;
-        int[] fieldCount;
-        cpIndex = operands[0];
-        i = operands[1];
-        structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-        structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
-        fieldCount = structureTypeInfo.getFieldCount();
-        BStruct bStruct = new BStruct(structureTypeInfo.getType());
-        bStruct.setFieldTypes(structureTypeInfo.getFieldTypes());
-        bStruct.init(fieldCount);
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+        StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
+        BStruct bStruct = new BStruct(structInfo.getType());
         sf.refRegs[i] = bStruct;
     }
 
@@ -2040,6 +2342,53 @@ public class BLangVM {
         ballerinaTransactionManager.beginTransactionBlock();
     }
 
+    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        BType[] paramTypes = callableUnitInfo.getParamTypes();
+        StackFrame callerSF = controlStack.getCurrentFrame();
+        //BType connectorType = paramTypes[0];
+        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
+        ActionInfo newActionInfo = null;
+        ConnectorInfo connectorInfoIncoming;
+        if (connector != null && connector.getConnectorType() != null &&
+                !(callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
+            connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
+            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
+                    (BConnectorType) connector.getConnectorType());
+            if (connectorInfoFilter != null) {
+                newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
+            } else {
+                String errorMsg = BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
+                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                handleError();
+                return;
+            }
+        }
+
+        WorkerInfo defaultWorkerInfo;
+        if (newActionInfo != null) {
+            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
+        } else {
+            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
+        }
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+        controlStack.pushFrame(calleeSF);
+
+        // Copy arg values from the current StackFrame to the new StackFrame
+        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+        // TODO Improve following two lines
+        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
+        this.code = calleeSF.packageInfo.getInstructions();
+        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+
+        // Invoke other workers
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+
+    }
+
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
@@ -2053,7 +2402,7 @@ public class BLangVM {
         copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
         // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool();
+        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
@@ -2062,54 +2411,44 @@ public class BLangVM {
 
     }
 
-    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry,
-                             BType[] types) {
+    public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
+                             WrkrInteractionArgsCPEntry wrkrIntRefCPEntry) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
-        copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
-                types, arguments);
+        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
+        copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
+                wrkrIntRefCPEntry.getbTypes(), arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
-        if (workerDataChannel != null) {
-            workerDataChannel.setTypes(types);
-            workerDataChannel.putData(arguments);
-        } else {
-            BArray<BValue> bArray = new BArray<>(BValue.class);
-            for (int j = 0; j < arguments.length; j++) {
-                BValue returnVal = arguments[j];
-                bArray.add(j, returnVal);
-            }
-            controlStack.getCurrentFrame().returnValues[0] = bArray;
-        }
+        workerDataChannel.setTypes(wrkrIntRefCPEntry.getbTypes());
+        workerDataChannel.putData(arguments);
     }
 
     public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
-        ForkJoinStmt forkJoinStmt = forkJoinCPEntry.getForkJoinStmt();
+        ForkjoinInfo forkjoinInfo = forkJoinCPEntry.getForkjoinInfo();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
         List<WorkerResult> resultMsgs = new ArrayList<>();
         //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
         //BRefValueArray resultInvokeAny = null;
         long timeout = 60; // Default timeout value is 60 seconds
-        if (forkJoinCPEntry.isTimeoutAvailable()) {
+        if (forkjoinInfo.isTimeoutAvailable()) {
             timeout = controlStack.getCurrentFrame().getLongRegs()[0];
         }
 
-        Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
-        for (Worker worker : workers) {
-            Context workerContext = new Context();
+        for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
+            Context workerContext = new Context(programFile);
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
 
             StackFrame callerSF = controlStack.getCurrentFrame();
-            int[] argRegs = forkJoinCPEntry.getArgRegs();
+            int[] argRegs = forkjoinInfo.getArgRegs();
 
-            ControlStackNew controlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(forkJoinCPEntry.getParentCallableUnitInfo(),
-                    forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
-            controlStack.pushFrame(calleeSF);
+            ControlStackNew workerControlStack = workerContext.getControlStackNew();
+            StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
+                    workerInfo, -1, new int[1]);
+            workerControlStack.pushFrame(calleeSF);
 
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
 
@@ -2121,13 +2460,13 @@ public class BLangVM {
             BLangVM bLangVM = new BLangVM(programFile);
             //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                    workerContext, forkJoinCPEntry.getWorkerInfo(worker.getName()));
+                    workerContext, workerInfo);
             workerRunnerList.add(workerRunner);
-            triggeredWorkers.put(worker.getName(), workerRunner);
+            triggeredWorkers.put(workerInfo.getWorkerName(), workerRunner);
         }
 
-        if (forkJoinStmt.getJoin().getJoinType().equalsIgnoreCase("any")) {
-            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+        if (forkjoinInfo.getJoinType().equalsIgnoreCase("some")) {
+            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
                 resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
@@ -2141,7 +2480,7 @@ public class BLangVM {
                 //resultMsgs.add(res);
             }
         } else {
-            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for all of all the workers
                 resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
@@ -2155,11 +2494,9 @@ public class BLangVM {
         }
 
         if (isForkJoinTimedOut) {
-            ip = forkJoinStmt.getTimeout().getIp();
+            ip = forkjoinInfo.getTimeoutIp();
             // Execute the timeout block
-
-            int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
-                    getStackFrameOffset();
+            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
@@ -2169,10 +2506,9 @@ public class BLangVM {
             isForkJoinTimedOut = false;
 
         } else {
-            ip = forkJoinStmt.getJoin().getIp();
+            ip = forkjoinInfo.getJoinIp();
             // Assign values to join block message arrays
-            int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
-                    getStackFrameOffset();
+            int offsetJoin = forkjoinInfo.getJoinMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
@@ -2220,12 +2556,13 @@ public class BLangVM {
         return result;
     }
 
-    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry, BType[] types) {
+    public void replyWorker(WorkerDataChannelInfo workerDataChannel,
+                            WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
-        copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
-                types, passedInValues);
+        copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
+                wrkrIntCPEntry.getbTypes(), passedInValues);
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
@@ -2398,7 +2735,7 @@ public class BLangVM {
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
             // TODO Improve
-            this.constPool = callersSF.packageInfo.getConstPool();
+            this.constPool = callersSF.packageInfo.getConstPoolEntries();
             this.code = callersSF.packageInfo.getInstructions();
         }
         ip = currentSF.retAddrs;
@@ -2452,46 +2789,80 @@ public class BLangVM {
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
 
-        // TODO : Remove once we handle this properly for return values
-        BType[] retTypes = actionInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
+        BConnector connector = (BConnector) callerSF.refRegs[funcCallCPEntry.getArgRegs()[0]];
+        ActionInfo newActionInfo = null;
+        ConnectorInfo connectorInfoIncoming;
+        if (connector != null && connector.getConnectorType() != null &&
+                !(actionInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
+            connectorInfoIncoming = actionInfo.getConnectorInfo();
+            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
+                    (BConnectorType) connector.getConnectorType());
+            if (connectorInfoFilter != null) {
+                newActionInfo = connectorInfoFilter.getActionInfo(actionInfo.getName());
+            } else {
+                String errorMsg = BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
+                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                handleError();
+                return;
+            }
+        }
 
-        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
-        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                actionInfo.getParamTypes());
-
-
-        controlStack.pushFrame(caleeSF);
+        WorkerInfo defaultWorkerInfo;
+        if (newActionInfo != null) {
+            actionInfo = newActionInfo;
+            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
+        } else {
+            defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
+        }
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-        try {
-            if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
-                // Enable non-blocking.
-                context.setStartIP(ip);
-                // TODO : Temporary solution to make non-blocking working.
-                if (caleeSF.packageInfo == null) {
-                    caleeSF.packageInfo = actionInfo.getPackageInfo();
-                }
-                context.programFile = programFile;
-                context.funcCallCPEntry = funcCallCPEntry;
-                context.actionInfo = actionInfo;
-                BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
-                connectorCallback.setNativeAction(nativeAction);
-                nativeAction.execute(context, connectorCallback);
-                ip = -1;
-                return;
-                // release thread.
-            } else {
-                nativeAction.execute(context);
-                // Copy return values to the callers stack
-                controlStack.popFrame();
-                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
 
+        if (nativeAction != null) {
+            // TODO : Remove once we handle this properly for return values
+            BType[] retTypes = actionInfo.getRetParamTypes();
+            BValue[] returnValues = new BValue[retTypes.length];
+
+            StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
+            copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                    actionInfo.getParamTypes());
+
+
+            controlStack.pushFrame(caleeSF);
+
+            try {
+                if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+                    // Enable non-blocking.
+                    context.setStartIP(ip);
+                    // TODO : Temporary solution to make non-blocking working.
+                    if (caleeSF.packageInfo == null) {
+                        caleeSF.packageInfo = actionInfo.getPackageInfo();
+                    }
+                    context.programFile = programFile;
+                    context.funcCallCPEntry = funcCallCPEntry;
+                    context.actionInfo = actionInfo;
+                    BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
+                    connectorCallback.setNativeAction(nativeAction);
+                    nativeAction.execute(context, connectorCallback);
+                    ip = -1;
+                    return;
+                    // release thread.
+                } else {
+                    nativeAction.execute(context);
+                    // Copy return values to the callers stack
+                    controlStack.popFrame();
+                    handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
+                }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            handleError();
-            return;
+        } else {
+            // Ballerina Action in case of ballerina based filter connector
+            invokeActionCallableUnit(actionInfo, funcCallCPEntry);
         }
     }
 
@@ -2542,7 +2913,17 @@ public class BLangVM {
         }
     }
 
-    private boolean checkCast(BType sourceType, BType targetType) {
+    private boolean checkConstraintJSONCast(BType targetType, BRefType value) {
+        if (checkConstraintJSONEquivalency((BJSON) value,
+                (BStructType) ((BJSONConstraintType) targetType).getConstraint())) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkCast(BValue sourceValue, BType targetType) {
+        BType sourceType = sourceValue.getType();
+
         if (sourceType.equals(targetType)) {
             return true;
         }
@@ -2554,6 +2935,16 @@ public class BLangVM {
 
         if (targetType.getTag() == TypeTags.ANY_TAG) {
             return true;
+        }
+
+        if (targetType.getTag() == TypeTags.C_JSON_TAG &&
+                sourceValue.getType().getTag() == TypeTags.JSON_TAG) {
+            return checkConstraintJSONCast(targetType, (BRefType) sourceValue);
+        }
+
+        // Check JSON casting
+        if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
+            return JSONUtils.checkJSONCast(((BJSON) sourceValue).value(), targetType);
         }
 
         // Array casting
@@ -2578,6 +2969,14 @@ public class BLangVM {
         }
 
         return sourceType.equals(targetType);
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 
     public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
@@ -2673,15 +3072,25 @@ public class BLangVM {
             return;
         }
 
+        JsonNode jsonNode;
         try {
-            sf.stringRegs[j] = jsonValue.stringValue();
+            jsonNode = jsonValue.value();
         } catch (BallerinaException e) {
             sf.stringRegs[j] = "";
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             context.setError(BLangVMErrors.createError(context, ip, errorMsg));
             handleError();
+            return;
         }
+
+        if (jsonNode.isTextual()) {
+            sf.stringRegs[j] = jsonNode.textValue();
+            return;
+        }
+
+        sf.stringRegs[j] = "";
+        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private void convertJSONToBoolean(int[] operands, StackFrame sf) {
@@ -2790,7 +3199,7 @@ public class BLangVM {
         int j = operands[2];
         int k = operands[3];
 
-        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
             sf.refRegs[j] = null;
@@ -2803,9 +3212,8 @@ public class BLangVM {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        BStructType structType = (BStructType) typeCPEntry.getType();
+        BStructType structType = (BStructType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
-        bStruct.init(structType.getFieldCount());
 
         Set<String> keys = bMap.keySet();
         for (BStructType.StructField structField : structType.getStructFields()) {
@@ -2823,7 +3231,7 @@ public class BLangVM {
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
                 }
 
-                if (mapVal != null && !checkCast(mapVal.getType(), fieldType)) {
+                if (mapVal != null && !checkCast(mapVal, fieldType)) {
                     throw BLangExceptionHelper.getRuntimeException(
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
                 }
@@ -2877,7 +3285,7 @@ public class BLangVM {
         int j = operands[2];
         int k = operands[3];
 
-        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
             sf.refRegs[j] = null;
@@ -2885,12 +3293,12 @@ public class BLangVM {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeCPEntry.getType());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
-                    typeCPEntry.getType() + "': " + e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeCPEntry.getType().toString());
+                    typeRefCPEntry.getType() + "': " + e.getMessage();
+            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeRefCPEntry.getType().toString());
         }
     }
 
@@ -2944,7 +3352,7 @@ public class BLangVM {
         // match should be not null at this point.
         if (match != null) {
             PackageInfo packageInfo = currentFrame.packageInfo;
-            this.constPool = packageInfo.getConstPool();
+            this.constPool = packageInfo.getConstPoolEntries();
             this.code = packageInfo.getInstructions();
             ip = match.getIpTarget();
             return;

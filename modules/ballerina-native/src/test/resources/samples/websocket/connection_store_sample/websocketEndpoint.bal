@@ -3,7 +3,7 @@ import ballerina.net.ws;
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/chat-store"}
+@http:configuration {basePath:"/chat-store"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> websocketEndpoint {
 

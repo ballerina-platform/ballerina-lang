@@ -36,9 +36,12 @@ public class TypeTags {
     public static final int DATATABLE_TAG = 11;
     public static final int VOID_TAG = 12;
     public static final int CONNECTOR_TAG = 13;
-    public static final int EXCEPTION_TAG = 14;
+    public static final int FUNCTION_POINTER_TAG = 14;
     public static final int STRUCT_TAG = 15;
     public static final int ARRAY_TAG = 16;
     public static final int ANNOTATION_TAG = 17;
     public static final int NULL_TAG = 18;
+    public static final int XML_ATTRIBUTES_TAG = 19;
+    public static final int TYPE_TAG = 20;
+    public static final int C_JSON_TAG = 21;
 }

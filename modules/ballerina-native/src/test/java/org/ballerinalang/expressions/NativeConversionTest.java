@@ -47,7 +47,7 @@ public class NativeConversionTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/expressions/type/conversion/native-conversion.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/btype/conversion/native-conversion.bal");
     }
 
     @Test
@@ -207,7 +207,7 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = "struct-to-struct-conversion.bal:26: incompatible types: 'Person' " +
             "cannot be converted to 'Student', try casting")
     public void testStructToStruct() {
-        BTestUtils.getProgramFile("lang/expressions/type/conversion/struct-to-struct-conversion.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/conversion/struct-to-struct-conversion.bal");
     }
 
     @Test(description = "Test converting a map to json",
@@ -215,7 +215,7 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = "map-to-json-conversion-error.bal:7: incompatible types: 'map' " +
                     "cannot be converted to 'json'")
     public void testMapToJsonConversionError() {
-        BTestUtils.getProgramFile("lang/expressions/type/conversion/map-to-json-conversion-error.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/conversion/map-to-json-conversion-error.bal");
     }
     
     @Test(description = "Test converting a map with missing field to a struct", 

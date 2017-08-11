@@ -1,10 +1,12 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/echo"}
+@http:configuration {basePath:"/echo"}
 service<http> echo {
 
     string serviceLevelStr;
+
+    string serviceLevelStringVar = "sample value";
 
     @http:GET {}
     @http:Path {value : "/message"}
@@ -27,6 +29,22 @@ service<http> echo {
         // TODO : Fix bellow line
         // messages:setStringPayload(response, serviceLevelStr);
         messages:setStringPayload(response, "hello");
+        reply response;
+    }
+
+    @http:GET {}
+    resource removeHeaders (message m) {
+        messages:removeAllHeaders(m);
+        reply m;
+    }
+
+    @http:GET {}
+    @http:Path {value:"/getServiceLevelString"}
+    resource getServiceLevelString (message m) {
+        message response = {};
+        // TODO : Fix bellow line
+        // messages:setStringPayload(response, serviceLevelStr);
+        messages:setStringPayload(response, serviceLevelStringVar);
         reply response;
     }
 }

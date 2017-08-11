@@ -1,0 +1,1 @@
+$ ballerina run jms-durable-topic-subscription.bal

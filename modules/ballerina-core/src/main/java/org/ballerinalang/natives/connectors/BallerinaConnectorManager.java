@@ -23,12 +23,14 @@ import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.connector.framework.ConnectorManager;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,8 +49,9 @@ public class BallerinaConnectorManager {
 
     private boolean connectorsInitialized = false;
     
-    /* ServerConnectors which startup is delayed at the service deployment time */
-    private List<ServerConnector> startupDelayedServerConnectors = new ArrayList<>();
+    private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
+
+    CarbonMessageProcessor messageProcessor;
 
     private BallerinaConnectorManager() {
     }
@@ -92,6 +95,7 @@ public class BallerinaConnectorManager {
         ServerConnector serverConnector;
         try {
             serverConnector = connectorManager.createServerConnector(protocol, id, parameters);
+            //TODO: Look at the possibility of moving the error handler assignment code from dispatcher to here
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while creating a server connector for protocol : '" +
                     protocol + "' with the given id : '" + id + "'", e);
@@ -164,7 +168,7 @@ public class BallerinaConnectorManager {
      * @param serverConnector ServerConnector
      */
     public void addStartupDelayedServerConnector(ServerConnector serverConnector) {
-        startupDelayedServerConnectors.add(serverConnector);
+        startupDelayedServerConnectors.put(serverConnector.getId(), serverConnector);
     }
 
     /**
@@ -175,7 +179,8 @@ public class BallerinaConnectorManager {
      */
     public List<ServerConnector> startPendingConnectors() throws ServerConnectorException {
         List<ServerConnector> startedConnectors = new ArrayList<>();
-        for (ServerConnector serverConnector: startupDelayedServerConnectors) {
+        for (Map.Entry<String, ServerConnector> serverConnectorEntry: startupDelayedServerConnectors.entrySet()) {
+            ServerConnector serverConnector = serverConnectorEntry.getValue();
             serverConnector.start();
             startedConnectors.add(serverConnector);
         }
@@ -194,4 +199,15 @@ public class BallerinaConnectorManager {
                 DispatcherRegistry.getInstance().registerServiceDispatcher(serviceDispatcher));
     }
 
+    public void setMessageProcessor(CarbonMessageProcessor messageProcessor) {
+        this.messageProcessor = messageProcessor;
+    }
+
+    public CarbonMessageProcessor getMessageProcessor() {
+        return this.messageProcessor;
+    }
+
+    public void registerClientConnector(ClientConnector clientConnector) {
+        this.connectorManager.registerClientConnector(clientConnector);
+    }
 }

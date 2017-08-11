@@ -27,4 +27,8 @@ public class BLangRuntimeException extends RuntimeException {
     public BLangRuntimeException(String message) {
         super(message);
     }
+
+    public BLangRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

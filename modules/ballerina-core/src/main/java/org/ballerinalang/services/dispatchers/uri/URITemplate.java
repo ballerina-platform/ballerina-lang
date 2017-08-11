@@ -53,13 +53,15 @@ public class URITemplate {
         parser.parse(uriTemplate, resource);
     }
 
-    public String removeTheFirstAndLastBackSlash(String template) {
+    public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {
         String uri = template;
         if (!uri.equals("/")) {
+            if (uri.startsWith("*")) {
+                throw new URITemplateException("Invalid path literal");
+            }
             if (!"/".equals(uri) && uri.endsWith("/")) {
                 uri = uri.substring(0, uri.length() - 1);
             }
-
             if (uri.startsWith("/")) {
                 uri = uri.substring(1);
             }

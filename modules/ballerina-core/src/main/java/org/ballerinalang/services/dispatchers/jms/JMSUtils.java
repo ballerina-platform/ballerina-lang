@@ -18,8 +18,8 @@ package org.ballerinalang.services.dispatchers.jms;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.kernel.utils.StringUtils;
 
@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Utility class for JMS related common operations
+ * Utility class for JMS related common operations.
  */
 public class JMSUtils {
 
@@ -41,10 +41,10 @@ public class JMSUtils {
     /**
      * Creates the JMS connector friendly properties Map. Converting properties as required
      *
-     * @param jmsConfig {@link AnnotationAttachmentInfo}
+     * @param jmsConfig {@link AnnAttachmentInfo}
      * @return Map of String key value properties
      */
-    public static Map<String, String> preProcessJmsConfig(AnnotationAttachmentInfo jmsConfig) {
+    public static Map<String, String> preProcessJmsConfig(AnnAttachmentInfo jmsConfig) {
         Map<String, String> configParams = new HashMap<>();
         addStringParamIfPresent(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, jmsConfig, configParams);
         addStringParamIfPresent(Constants.ALIAS_PROVIDER_URL, jmsConfig, configParams);
@@ -82,12 +82,12 @@ public class JMSUtils {
         }
     }
 
-    private static void processPropertiesArray(AnnotationAttachmentInfo jmsConfig, Map<String, String> configParams) {
-        AnnotationAttributeValue attributeValue = jmsConfig.getAnnotationAttributeValue(Constants.PROPERTIES_ARRAY);
+    private static void processPropertiesArray(AnnAttachmentInfo jmsConfig, Map<String, String> configParams) {
+        AnnAttributeValue attributeValue = jmsConfig.getAttributeValue(Constants.PROPERTIES_ARRAY);
         if (attributeValue != null) {
-            AnnotationAttributeValue[] attributeValueArray = attributeValue.getAttributeValueArray();
-            for (AnnotationAttributeValue annotationAttributeValue : attributeValueArray) {
-                String stringValue = annotationAttributeValue.getStringValue();
+            AnnAttributeValue[] attributeValueArray = attributeValue.getAttributeValueArray();
+            for (AnnAttributeValue annAttributeValue : attributeValueArray) {
+                String stringValue = annAttributeValue.getStringValue();
                 int index = stringValue.indexOf("=");
                 if (index != -1) {
                     String key = stringValue.substring(0, index).trim();
@@ -115,9 +115,9 @@ public class JMSUtils {
         configParams.putAll(tempMap);
     }
 
-    private static void addStringParamIfPresent(String paramName, AnnotationAttachmentInfo jmsConfig,
+    private static void addStringParamIfPresent(String paramName, AnnAttachmentInfo jmsConfig,
                                                Map<String, String> paramsMap) {
-        AnnotationAttributeValue value = jmsConfig.getAnnotationAttributeValue(paramName);
+        AnnAttributeValue value = jmsConfig.getAttributeValue(paramName);
         if (value != null && value.getStringValue() != null) {
             paramsMap.put(paramName, value.getStringValue());
         }
