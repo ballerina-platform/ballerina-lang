@@ -54,7 +54,7 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         const rightExpression = assignmentStatement.getRightExpression();
         const leftExpression = assignmentStatement.getLeftExpression();
 
-        const varStr = assignmentStatement.getIsDeclaredWithVar() ? 'var' + assignmentStatement.getWSRegion(1) : '';
+        const varStr = assignmentStatement.getIsDeclaredWithVar() ? 'var ' : '';
         const leftStr = !_.isNil(leftExpression) ? leftExpression.getExpressionString() : '';
         const spaceStr = ((!_.isNil(leftExpression) && !_.isEmpty(leftExpression.getChildren()) &&
         _.last(leftExpression.getChildren()).whiteSpace.useDefault) ? ' ' : '');
