@@ -953,7 +953,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         SimpleTypeName[] returnParamTypes = new SimpleTypeName[0];
         String[] paramArgNames = new String[0];
         String[] returnParamArgNames = new String[0];
-        boolean isReturnWordAvailable = false;
+        boolean hasReturnsKeyword = false;
         if (ctx.parameterList() != null) {
             paramTypes = new SimpleTypeName[ctx.parameterList().parameter().size()];
             paramArgNames = new String[ctx.parameterList().parameter().size()];
@@ -977,7 +977,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             } else if (returnCtx.typeList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.typeList().typeName().size()];
             }
-            isReturnWordAvailable = "returns".equals(returnCtx.getChild(0).getText());
+            hasReturnsKeyword = "returns".equals(returnCtx.getChild(0).getText());
         }
 
         for (int i = returnParamTypes.length - 1; i >= 0; i--) {
@@ -990,7 +990,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         functionTypeName.setNodeLocation(getCurrentLocation(ctx));
         functionTypeName.setParamFieldNames(paramArgNames);
         functionTypeName.setReturnParamFieldNames(returnParamArgNames);
-        functionTypeName.setReturnWordAvailable(isReturnWordAvailable);
+        functionTypeName.setHasReturnsKeyword(hasReturnsKeyword);
         // TODO : Fix WhiteSpaces.
 //        if (isVerboseMode) {
 //            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);

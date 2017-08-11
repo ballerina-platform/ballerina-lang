@@ -185,7 +185,7 @@ public class BTypes {
             BFunctionType functionType = new BFunctionType(symbolScope, paramTypes, returnParamTypes);
             functionType.setParametersFieldsNames(functionTypeName.getParamFieldNames());
             functionType.setReturnsParametersFieldsNames(functionTypeName.getParamFieldNames());
-            functionType.setReturnWordAvailable(functionTypeName.isReturnWordAvailable());
+            functionType.setHasReturnsKeyword(functionTypeName.hasReturnsKeyword());
             return functionType;
         }
 
