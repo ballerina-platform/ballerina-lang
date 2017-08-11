@@ -171,8 +171,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
         }
     });
 
-    const rightOperandExpression = ((args.actionPackageName === 'Current Package') ? '' : args.actionPackageName + ':') +
-        args.actionConnectorName + '.' + args.action + '()';
+    const rightOperandExpression = 'clientConnector.' + args.action + '()';
 
     let statement;
     if (leftOperandExpression !== '') {
