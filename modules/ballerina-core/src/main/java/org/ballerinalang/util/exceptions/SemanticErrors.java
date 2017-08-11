@@ -134,6 +134,7 @@ public enum SemanticErrors {
     RETRY_STMT_NOT_ALLOWED_HERE("retry.stmt.not.allowed.here", "SEMANTIC_0109"),
     INVALID_RETRY_COUNT("invalid.retry.count", "SEMANTIC_0110"),
     INVALID_RETRY_STMT_LOCATION("invalid.retry.stmt.location", "SEMANTIC_0111"),
+    ARGUMENTS_COUNT_MISMATCH("arguments.count.mismatch", "SEMANTIC_0109")
     ;
 
     private String errorMsgKey;
