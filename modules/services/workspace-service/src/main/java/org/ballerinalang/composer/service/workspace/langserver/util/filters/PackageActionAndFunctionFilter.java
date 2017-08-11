@@ -49,20 +49,15 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         int currentTokenIndex = dataModel.getTokenIndex();
         TokenStream tokenStream = dataModel.getTokenStream();
         String searchTokenString = tokenStream.get(currentTokenIndex).getText();
+        int delimiterIndex = currentTokenIndex + 1;
+        String delimiter = tokenStream.get(delimiterIndex).getText();
         int colonTokenIndex;
-        // This is for the case where we have the code segment such as http:, xmls:, etc.. current token is http or xmls
-        // in such cases we assume that the next token is for either : or .
-        // TODO: Refactor after integrating the semantic analyzer
-        if (!searchTokenString.equals(":") || !searchTokenString.equals(".")) {
-            searchTokenString = tokenStream.get(currentTokenIndex + 1).getText();
-            currentTokenIndex += 1;
-        }
-        if (searchTokenString.equals(":")) {
-            // this is the case where package's native functions are being called such as http:getStatusCode()
-            colonTokenIndex = currentTokenIndex;
+
+        if (delimiter.equals(":")) {
+            colonTokenIndex = delimiterIndex;
         } else {
             int initTokenIndex = this.getIndexOfTokenString(searchTokenString, 0, dataModel);
-            int equalTokenIndex = this.getIndexOfTokenString("=", initTokenIndex, dataModel);
+            int equalTokenIndex = this.getIndexOfTokenString("create", initTokenIndex, dataModel);
             colonTokenIndex = this.getIndexOfTokenString(":", equalTokenIndex, dataModel);
         }
 
