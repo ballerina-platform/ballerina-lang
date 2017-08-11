@@ -54,6 +54,11 @@ class FunctionDefinitionPositionCalcVisitor {
         const viewState = node.getViewState();
         const statementContainer = viewState.components.statementContainer;
         const workerScopeContainer = viewState.components.workerScopeContainer;
+        // If more than one worker is present, then draw the worker scope container boundary around the workers
+        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+            workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+            workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
+        }
         if (node.isLambda()) {
             const parentViewState = node.getParent().getParent().getViewState();
             viewState.bBox.y = parentViewState.bBox.getBottom() - viewState.bBox.h;
@@ -66,12 +71,10 @@ class FunctionDefinitionPositionCalcVisitor {
                 statementContainer.x = viewState.bBox.x + (viewState.bBox.w - statementContainer.w) / 2;
             }
         } else {
-            statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+            statementContainer.x = workerScopeContainer.x + DesignerDefaults.innerPanel.body.padding.left;
         }
-        statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
+        statementContainer.y = workerScopeContainer.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
-        workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
-        workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
         // populate panel heading positioning.
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }

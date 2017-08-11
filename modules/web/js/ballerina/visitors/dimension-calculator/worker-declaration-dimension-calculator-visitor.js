@@ -115,11 +115,14 @@ class WorkerDeclarationDimensionCalculatorVisitor {
         components.statementContainer.w = statementWidth;
         viewState.bBox.expansionW = widthExpansion;
         components.statementContainer.expansionW = statementContainerWidthExpansion;
-        components.workerScopeContainer.h = statementHeight  + DesignerDefaults.canvas.padding.top +
-        DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.height + DesignerDefaults.statement.padding.top
-        + DesignerDefaults.statement.padding.bottom;
-        components.workerScopeContainer.w = statementWidth;
-        components.workerScopeContainer.expansionW = widthExpansion;
+        // If more than one worker is present, then draw the worker scope container boundary around the workers
+        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 0) {
+            components.workerScopeContainer.h = statementHeight + DesignerDefaults.canvas.padding.top +
+                DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.height +
+                DesignerDefaults.statement.padding.top + DesignerDefaults.statement.padding.bottom;
+            components.workerScopeContainer.w = statementWidth;
+            components.workerScopeContainer.expansionW = widthExpansion;
+        }
     }
 }
 

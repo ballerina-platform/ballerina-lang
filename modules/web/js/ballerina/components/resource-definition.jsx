@@ -23,7 +23,7 @@ import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine} from './../configs/designer-defaults';
+import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
 
 class ResourceDefinition extends React.Component {
@@ -63,12 +63,6 @@ class ResourceDefinition extends React.Component {
         // Check for connector declaration children
         const connectorChildren = _.filter(this.props.model.getChildren(),
             child => nodeFactory.isConnectorDeclaration(child));
-        let workerScopeContainerVisibility = 'hidden';
-        // If more than one worker is present, then draw the worker scope container boundary around the workers
-        if ((_.filter(this.props.model.getChildren(), child => nodeFactory.isWorkerDeclaration(child)).length) >= 1) {
-            workerScopeContainerVisibility = 'visible';
-        }
-
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
@@ -103,21 +97,21 @@ class ResourceDefinition extends React.Component {
                             iconColor='#025482'
                         />
                         { connectorChildren.length > 0 &&
-                        <g style={{ visibility: workerScopeContainerVisibility }}>
-                        <rect
-                            x={workerScopeContainerBBox.x}
-                            y={workerScopeContainerBBox.y}
-                            width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                            height={workerScopeContainerBBox.h}
-                            style={{ fill: 'none',
-                                stroke: '#67696d',
-                                strokeWidth: 2,
-                                strokeLinecap: 'round',
-                                strokeLinejoin: 'miter',
-                                strokeMiterlimit: 4,
-                                strokeOpacity: 1,
-                                strokeDasharray: 5 }}
-                        /> </g>}
+                        <g>
+                            <rect
+                                x={workerScopeContainerBBox.x}
+                                y={workerScopeContainerBBox.y}
+                                width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                                height={workerScopeContainerBBox.h}
+                                style={{ fill: 'none',
+                                    stroke: '#67696d',
+                                    strokeWidth: 2,
+                                    strokeLinecap: 'round',
+                                    strokeLinejoin: 'miter',
+                                    strokeMiterlimit: 4,
+                                    strokeOpacity: 1,
+                                    strokeDasharray: 5 }}
+                            /> </g> }
                         <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBoxClone}>
                             {children}
                         </StatementContainer>

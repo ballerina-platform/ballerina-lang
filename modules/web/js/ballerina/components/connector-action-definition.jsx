@@ -78,12 +78,6 @@ class ConnectorAction extends React.Component {
         // Check for connector declaration children
         const connectorChildren = _.filter(this.props.model.getChildren(),
             child => nodeFactory.isConnectorDeclaration(child));
-        let workerScopeContainerVisibility = 'hidden';
-        // If more than one worker is present, then draw the worker scope container boundary around the workers
-        if ((_.filter(this.props.model.getChildren(), child => nodeFactory.isWorkerDeclaration(child)).length) >= 1) {
-            workerScopeContainerVisibility = 'visible';
-        }
-
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
@@ -110,7 +104,7 @@ class ConnectorAction extends React.Component {
                     iconColor='#025482'
                 />
                 { connectorChildren.length > 0 &&
-                <g style={{ visibility: workerScopeContainerVisibility }}>
+                <g>
                 <rect
                     x={workerScopeContainerBBox.x}
                     y={workerScopeContainerBBox.y}
@@ -124,7 +118,7 @@ class ConnectorAction extends React.Component {
                         strokeMiterlimit: 4,
                         strokeOpacity: 1,
                         strokeDasharray: 5 }}
-                /> </g>}
+                /> </g> }
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>
