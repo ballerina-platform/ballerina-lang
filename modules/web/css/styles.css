@@ -190,7 +190,7 @@ ol#breadcrumbList {
 
 .statement-rect {
     fill: #ffffff;
-    stroke: #444;
+    stroke: #adadad;
     stroke-width: 1;
 }
 
@@ -1637,10 +1637,6 @@ span.fw-stack.fw-lg {
 
 .swaggerEditor .SplitPane {
     height: 100% !important;
-}
-
-.try-out {
-    display: none;
 }
 
 .swagger-service-selector-wrapper {

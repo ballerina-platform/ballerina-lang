@@ -42,6 +42,10 @@ class DebugManager extends EventChannel {
 
         this.on('breakpoint-added', () => { this.publishBreakpoints(); });
         this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
+        this.on('session-started', () => {
+            this.launchManager.showConsole();
+            this.launchManager.console.println({ message: 'Debugging started...' });
+        });
     }
 
     /**
@@ -50,7 +54,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stepIn() {
-        const message = { command: 'STEP_IN' };
+        const message = { command: 'STEP_IN', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -60,7 +64,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stepOut() {
-        const message = { command: 'STEP_OUT' };
+        const message = { command: 'STEP_OUT', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -70,7 +74,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stop() {
-        const message = { command: 'STOP' };
+        const message = { command: 'STOP', threadId: this.currentThreadId };
         if (this.launchManager.active) {
             this.launchManager.stopProgram();
             this.trigger('resume-execution');
@@ -78,6 +82,8 @@ class DebugManager extends EventChannel {
         } else {
             this.channel.sendMessage(message);
             this.trigger('resume-execution');
+            this.trigger('session-ended');
+            this.channel.close();
         }
     }
     /**
@@ -86,7 +92,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stepOver() {
-        const message = { command: 'STEP_OVER' };
+        const message = { command: 'STEP_OVER', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -96,7 +102,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     resume() {
-        const message = { command: 'RESUME' };
+        const message = { command: 'RESUME', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -118,7 +124,25 @@ class DebugManager extends EventChannel {
     processMesssage(message) {
         if (message.code === 'DEBUG_HIT') {
             this.active = true;
+            const { debugFile } = this.launchManager;
+            // open file if not file is open already
+            if (this.launchManager.debugFile) {
+                const debugStartedFilePath = debugFile.getPath();
+                let packagePath = debugFile.getPackageName() || '';
+
+                if (packagePath.length > 0) {
+                    packagePath = packagePath.replace(/\./g, '/');
+                    const programDir = debugStartedFilePath.split(`/${packagePath}`)[0];
+                    const filePath = `${programDir}/${message.location.fileName}`;
+                    this.application.commandManager.dispatch('open-file', filePath);
+                    const { tabController } = this.application;
+                    this.listenTo(tabController, 'active-tab-changed', () => {
+                        this.trigger('debug-hit', message);
+                    });
+                }
+            }
             this.trigger('debug-hit', message);
+            this.currentThreadId = message.threadId;
         }
         if (message.code === 'EXIT') {
             this.active = false;
@@ -136,6 +160,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     connect(url) {
+        this.trigger('connecting');
         if (url !== undefined || url !== '') {
             this.channel = new Channel({ endpoint: url, debugger: this });
             this.channel.connect();
@@ -158,8 +183,18 @@ class DebugManager extends EventChannel {
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
+        this.application = options.application;
         this.launchManager.on('debug-active', (url) => {
             this.startDebugger(url);
+        });
+        this.launchManager.on('execution-ended', () => {
+            this.trigger('session-ended');
+        });
+        this.launchManager.on('session-ended', () => {
+            this.trigger('session-ended');
+        });
+        this.launchManager.on('session-terminated', () => {
+            this.trigger('session-ended');
         });
     }
     /**
@@ -169,9 +204,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    addBreakPoint(lineNumber, fileName) {
-        log.debug('debug point added', lineNumber, fileName);
-        const point = new DebugPoint({ fileName, lineNumber });
+    addBreakPoint(lineNumber, fileName, packagePath) {
+        log.debug('debug point added', lineNumber, fileName, packagePath);
+        const point = new DebugPoint({ fileName, lineNumber, packagePath });
         this.debugPoints.push(point);
         this.trigger('breakpoint-added', point);
     }
@@ -182,9 +217,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    removeBreakPoint(lineNumber, fileName) {
+    removeBreakPoint(lineNumber, fileName, packagePath) {
         log.debug('debug point removed', lineNumber, fileName);
-        const point = new DebugPoint({ fileName, lineNumber });
+        const point = new DebugPoint({ fileName, lineNumber, packagePath });
         _.remove(this.debugPoints, item => item.fileName === point.fileName && item.lineNumber === point.lineNumber);
         this.trigger('breakpoint-removed', point);
     }

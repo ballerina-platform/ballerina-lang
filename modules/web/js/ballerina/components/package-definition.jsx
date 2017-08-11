@@ -142,10 +142,17 @@ class PackageDefinition extends React.Component {
      * @param {string} value - name of the package newly imported
      */
     handleAddImport(value) {
-        const newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
-        newImportDeclaration.setPackageName(value);
-        newImportDeclaration.setParent(this.props.model.parent, { doSilently: true });
-        this.props.model.parent.addImport(newImportDeclaration);
+        if (!value) {
+            return;
+        }
+        value = 'import ' + value + ';\n';
+        parseContent(value)
+            .then((jsonTree) => {
+                if (jsonTree.root[1]) {
+                    this.props.model.parent.addImportFromJson(jsonTree.root[1]);
+                }
+            })
+            .catch(log.error);
     }
 
     /**
@@ -340,7 +347,7 @@ class PackageDefinition extends React.Component {
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
                             addText={'+ Add Global'}
-                            onAddNewValue={this.handleAddGlobal18}
+                            onAddNewValue={this.handleAddGlobal}
                             newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}
                             getValue={PackageDefinition.getDisplayValue}

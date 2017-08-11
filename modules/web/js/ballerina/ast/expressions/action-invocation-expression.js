@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import Expression from './expression';
 import FragmentUtils from '../../utils/fragment-utils';
 
@@ -34,6 +33,7 @@ class ActionInvocationExpression extends Expression {
         this._arguments = _.get(args, 'arguments', []);
         this._connector = _.get(args, 'connector');
         this._connectorExpr = _.get(args, 'connectorExpr');
+        this._connectorName = _.get(args, 'connectorName');
         this._fullPackageName = _.get(args, 'fullPackageName', undefined);
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
@@ -137,25 +137,18 @@ class ActionInvocationExpression extends Expression {
         this.setActionName(jsonNode.action_name, { doSilently: true });
         this.setActionPackageName(jsonNode.action_pkg_name, { doSilently: true });
         this.setActionConnectorName(jsonNode.action_connector_name, { doSilently: true });
+        const connector = this.getInvocationConnector(this.getActionConnectorName());
+        this.setConnector(connector, { doSilently: true });
 
-        if (jsonNode.children.length > 0) {
-            this._connectorExpr = this.getFactory().createFromJson(jsonNode.children[0]);
-            this._connectorExpr.initFromJson(jsonNode.children[0]);
-            const connector = this.getInvocationConnector(this._connectorExpr.getExpressionString());
-            this.setConnector(connector, { doSilently: true });
-
-            const self = this;
-
-            // get params apart from first param which is the connector variable
-            _.each(_.slice(jsonNode.children, 1), (argNode) => {
-                const arg = self.getFactory().createFromJson(argNode);
-                arg.initFromJson(argNode);
-                self.addArgument(arg);
-            });
-        }
+        _.each(jsonNode.children, (argNode) => {
+            const arg = this.getFactory().createFromJson(argNode);
+            arg.initFromJson(argNode);
+            this.addArgument(arg);
+        });
     }
 
     addArgument(argument) {
+        argument.setParent(this);
         this._arguments.push(argument);
     }
 
@@ -167,6 +160,9 @@ class ActionInvocationExpression extends Expression {
         let parent = this.getParent();
         const factory = this.getFactory();
 
+        if (_.isNil(parent.getParent())) {
+            return undefined;
+        }
         // Iteratively we find the most atomic parent node which can hold a connector
         // ATM those are [FunctionDefinition, ResourceDefinition, ConnectorAction]
         while (!factory.isBallerinaAstRoot(parent)) {
@@ -177,8 +173,7 @@ class ActionInvocationExpression extends Expression {
             parent = parent.getParent();
         }
 
-        const connector = parent.getConnectorByName(connectorVariable);
-        return connector;
+        return parent.getConnectorByName(connectorVariable);
     }
 
     /**
@@ -203,31 +198,8 @@ class ActionInvocationExpression extends Expression {
             }
         }
 
-        let connectorRef = '';
-
-        // Get the Connector expression reference name
-        if (!_.isNil(this.getConnector())) {
-            connectorRef = this.getConnector().getConnectorVariable();
-        } else if (!_.isNil(this._connectorExpr)) {
-            connectorRef = this._connectorExpr.getExpressionString();
-        }
-
-        // Append the connector reference expression name to the arguments string
-        if (!_.isEmpty(argsString)) {
-            argsString = connectorRef + ', ' + argsString;
-        } else {
-            argsString = connectorRef;
-        }
-
-        let expression = this.getActionConnectorName() + this.getWSRegion(1)
-            + '.' + this.getWSRegion(2) + this.getActionName() + this.getWSRegion(3)
-            + '(' + this.getWSRegion(4) + argsString + ')' + this.getWSRegion(5);
-        if (!_.isUndefined(this.getActionPackageName()) && !_.isNil(this.getActionPackageName())
-            && !_.isEqual(this.getActionPackageName(), 'Current Package')) {
-            expression = this.getActionPackageName() + this.getChildWSRegion('nameRef', 1) + ':'
-                + this.getChildWSRegion('nameRef', 2) + expression;
-        }
-        return expression;
+        return this.getActionConnectorName() + this.getWSRegion(1) + '.' + this.getWSRegion(2) + this.getActionName()
+            + this.getWSRegion(3) + '(' + this.getWSRegion(4) + argsString + ')' + this.getWSRegion(5);
     }
 
     /**
@@ -264,7 +236,15 @@ class ActionInvocationExpression extends Expression {
     }
 
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isConnectorDeclaration(target);
+        // TODO this needs to be refactord.
+        return (this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
+            this.getFactory().isConnectorInitExpression(target.getChildren()[1]))) &&
+            (
+                // check if target parent is a service.
+                this.getFactory().isServiceDefinition(target.getParent()) ||
+                // if the target has a top level parent we will check if the id's are equal.
+                this.getTopLevelParent().getID() === target.getTopLevelParent().getID()
+            );
     }
 }
 

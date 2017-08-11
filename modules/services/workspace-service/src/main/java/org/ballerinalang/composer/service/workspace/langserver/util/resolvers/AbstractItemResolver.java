@@ -22,8 +22,10 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemData;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
@@ -72,6 +74,8 @@ public abstract class AbstractItemResolver {
                 this.populateStructDefCompletionItem(completionItem, symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof BType) {
                 this.populateBTypeCompletionItem(completionItem, symbolInfo);
+            } else if (symbolInfo.getSymbol() instanceof NamespaceDeclaration) {
+                this.populateNamespaceDeclarationCompletionItem(completionItem, symbolInfo);
             }
             completionItems.add(completionItem);
         });
@@ -85,6 +89,7 @@ public abstract class AbstractItemResolver {
     void populateClientConnectorCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
+        completionItem.setKind(ItemResolverConstants.ACTION_KIND);
     }
 
     /**
@@ -109,6 +114,7 @@ public abstract class AbstractItemResolver {
         completionItem.setInsertText(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItem.setKind(ItemResolverConstants.FUNCTION_KIND);
     }
 
     /**
@@ -119,6 +125,7 @@ public abstract class AbstractItemResolver {
     void populateNativePackageProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
+        completionItem.setKind(ItemResolverConstants.PACKAGE_KIND);
     }
 
     /**
@@ -127,9 +134,19 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      */
     void populateVariableDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
+        String typeName = "";
+        SimpleTypeName type = ((VariableDef) symbolInfo.getSymbol()).getTypeName();
+        if (type != null) {
+            typeName = type.getName();
+        }
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
+
+        CompletionItemData data = new CompletionItemData();
+        data.addData("type", type);
+        completionItem.setData(data);
+
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
+        completionItem.setKind(ItemResolverConstants.VAR_DEF_KIND);
     }
 
     /**
@@ -141,6 +158,7 @@ public abstract class AbstractItemResolver {
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItem.setKind(ItemResolverConstants.STRUCT_KIND);
     }
 
     /**
@@ -150,8 +168,17 @@ public abstract class AbstractItemResolver {
      */
     void populateBTypeCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.B_TYPE);
+        completionItem.setKind(ItemResolverConstants.B_TYPE_KIND);
     }
 
+    /**
+     * Populate the Namespace declaration Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
+    void populateNamespaceDeclarationCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        completionItem.setDetail(ItemResolverConstants.XMLNS);
+    }
 
     /**
      * Get the function signature for the native unit
@@ -225,28 +252,9 @@ public abstract class AbstractItemResolver {
     public boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
         TokenStream tokenStream = dataModel.getTokenStream();
         int currentTokenIndex = dataModel.getTokenIndex();
-        boolean continueSearch = true;
-        int searchIndex = currentTokenIndex + 1;
 
-        while (continueSearch) {
-            if (tokenStream != null && searchIndex < tokenStream.size()) {
-                Token token = tokenStream.get(searchIndex);
-                String tokenStr = token.getText();
-
-                // return 'false' once we found the first token which is not in default channel
-                if (token.getChannel() != Token.DEFAULT_CHANNEL) {
-                    return false;
-                }
-                if (tokenStr.equals(":") || tokenStr.equals(".")) {
-                    return true;
-                }
-                searchIndex++;
-            } else {
-                continueSearch = false;
-            }
-        }
-
-        return false;
+        return tokenStream.get(currentTokenIndex + 1).getText().equals(".") ||
+                tokenStream.get(currentTokenIndex + 1).getText().equals(":");
     }
 
     /**
@@ -357,5 +365,22 @@ public abstract class AbstractItemResolver {
                 completionItem.setSortText(itemPriorityMap.get(completionItem.getDetail()));
             }
         });
+    }
+
+    /**
+     * Populate a completion item with the given data and return it
+     * @param insertText insert text
+     * @param type type of the completion item
+     * @param priority completion item priority
+     * @param label completion item label
+     * @return {@link CompletionItem}
+     */
+    protected CompletionItem populateCompletionItem(String insertText, String type, int priority, String label) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setInsertText(insertText);
+        completionItem.setDetail(type);
+        completionItem.setSortText(priority);
+        completionItem.setLabel(label);
+        return completionItem;
     }
 }

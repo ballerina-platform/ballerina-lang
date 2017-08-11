@@ -123,9 +123,9 @@ public class Command {
         }
 
         if (type == LauncherConstants.ProgramType.RUN) {
-            programType = "main ";
+            programType = "";
         } else {
-            programType = "service ";
+            programType = "-s ";
         }
 
         scriptLocation = getScript();

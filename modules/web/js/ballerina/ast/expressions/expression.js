@@ -18,8 +18,8 @@
 import ASTNode from '../node';
 
 class Expression extends ASTNode {
-    constructor(args) {
-        super('Expression');
+    constructor(type){
+        super(type || 'Expression');
     }
 
     /**

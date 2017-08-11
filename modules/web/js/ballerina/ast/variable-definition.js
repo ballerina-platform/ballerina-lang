@@ -28,6 +28,7 @@ class VariableDefinition extends ASTNode {
         this._isPublic = _.get(args, 'isPublic', false);
         this._isArray = _.get(args, 'isArray', false);
         this._dimensions = _.get(args, 'dimensions', 0);
+        this._typeConstraint = _.get(args, 'typeConstraint');
     }
 
     /**
@@ -124,16 +125,22 @@ class VariableDefinition extends ASTNode {
     }
 
     initFromJson(jsonNode) {
-        const self = this;
         this.setName(jsonNode.variable_name, { doSilently: true });
         this.setTypeName(jsonNode.variable_type, { doSilently: true });
         this.setPkgName(jsonNode.package_name, { doSilently: true });
-        this._isArray = jsonNode.is_array_type;
-        this._dimensions = jsonNode.dimensions;
+        this.setIsArray(jsonNode.is_array_type, { doSilently: true });
+        this.setDimensions(jsonNode.dimensions, { doSilently: true });
+
+        if (jsonNode.type_constraint) {
+            const typeConstraint = {};
+            typeConstraint.pkgName = jsonNode.type_constraint.package_name;
+            typeConstraint.type = jsonNode.type_constraint.type_constraint;
+            this.setTypeConstraint(typeConstraint, { doSilently: true });
+        }
 
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            const child = this.getFactory().createFromJson(childNode);
+            this.addChild(child);
             child.initFromJson(childNode);
         });
     }
@@ -147,11 +154,45 @@ class VariableDefinition extends ASTNode {
     }
 
     /**
+     * Set the dimensions
+     * @param {number} - number of dimensions
+     */
+    setDimensions(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    /**
      * Get is array
      * @return {boolean} - whether is array or not
      */
     isArray() {
         return this._isArray;
+    }
+
+    /**
+     * Set is array
+     * @param {boolean} - whether is array or not
+     */
+    setIsArray(isArray) {
+        this._isArray = isArray;
+    }
+
+    /**
+     * Sets type constraint
+     * @param {string} typeConstraint type constraint
+     * @memberof VariableDefinition
+     */
+    setTypeConstraint(typeConstraint) {
+        this._typeConstraint = typeConstraint;
+    }
+
+    /**
+     * Gets type constraint
+     * @returns {string} type constraint
+     * @memberof VariableDefinition
+     */
+    getTypeConstraint() {
+        return this._typeConstraint;
     }
 }
 

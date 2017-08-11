@@ -167,17 +167,22 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
     actionDefinition.getReturnParams().forEach((param, index) => {
         if (index === 0) {
             leftOperandExpression = param.type + ' ' + (param.identifier
-                    ? param.identifier : param.type.substr(0, 1));
+                ? param.identifier : param.type.substr(0, 1));
         }
     });
 
-    const rightOperandExpression = ((args.actionPackageName === 'Current Package') ? '' : args.actionPackageName + ':') +
-        args.actionConnectorName + '.' + args.action + '()';
+    const rightOperandExpression = 'clientConnector.' + args.action + '()';
 
-    const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
-    variableDefinitionStatement.setStatementFromString(leftOperandExpression + ' = ' + rightOperandExpression);
-    variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
-    return variableDefinitionStatement;
+    let statement;
+    if (leftOperandExpression !== '') {
+        statement = BallerinaASTFactory.createVariableDefinitionStatement();
+        statement.setStatementFromString(`${leftOperandExpression} = ${rightOperandExpression}`, null);
+    } else {
+        statement = BallerinaASTFactory.createActionInvocationStatement();
+        statement.setStatementFromString(rightOperandExpression);
+    }
+    statement.accept(new EnableDefaultWSVisitor());
+    return statement;
 };
 
 /**
@@ -187,7 +192,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
  */
 DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
     const tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
-    tryCatchStatement.setStatementFromString('try{}catch(exception e){}');
+    tryCatchStatement.setStatementFromString('try{}catch(errors:Error err){}');
     tryCatchStatement.accept(new EnableDefaultWSVisitor());
     return tryCatchStatement;
 };
@@ -255,6 +260,54 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
         return node;
     }
     return BallerinaASTFactory.createAssignmentStatement(args);
+};
+
+DefaultBallerinaASTFactory.createTransformAssignmentFunctionInvocationStatement = function (args) {
+    const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+    const opts = {
+        functionName: _.get(args, 'functionDef._name'),
+        packageName: _.get(args, 'packageName'),
+        fullPackageName: _.get(args, 'fullPackageName'),
+    };
+    const funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(opts);
+    if (!_.isNil(args) && _.has(args, 'functionDef')) {
+        let functionInvokeString = '';
+        if (!_.isNil(args.packageName)) {
+            functionInvokeString += args.packageName + ':';
+        }
+        functionInvokeString += args.functionDef.getName() + '(';
+        if (!_.isEmpty(args.functionDef.getParameters())) {
+            const paramNames = [];
+            args.functionDef.getParameters().forEach((param) => {
+                paramNames.push(param.name);
+                funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression());
+            });
+            functionInvokeString += _.join(paramNames, ', ');
+        }
+        functionInvokeString += ')';
+        funcInvocationExpression.setExpressionFromString(functionInvokeString);
+
+        // fragment parser does not have access to full package name. Hence, setting it here.
+        funcInvocationExpression.setFullPackageName(_.get(args, 'fullPackageName'));
+
+        let varRefListString = '';
+        if (!_.isEmpty(args.functionDef.getReturnParams())) {
+            const varRefNames = [];
+            args.functionDef.getReturnParams().forEach((param, index) => {
+                varRefNames.push(param.name || '_temp' + (index + 1));
+            });
+            if (varRefNames.length > 0) {
+                varRefListString = _.join(varRefNames, ', ') + ' ';
+                assignmentStmt.setIsDeclaredWithVar(true);
+            }
+        }
+
+        const variableRefList = BallerinaASTFactory.createVariableReferenceList(args);
+        variableRefList.setExpressionFromString(varRefListString);
+        assignmentStmt.addChild(variableRefList, 0);
+        assignmentStmt.addChild(funcInvocationExpression, 1);
+    }
+    return assignmentStmt;
 };
 
 DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement = function (args) {
@@ -398,6 +451,18 @@ DefaultBallerinaASTFactory.createConnectorDeclaration = function (args) {
     connectorDeclaration.setFullPackageName(args.fullPackageName);
     connectorDeclaration.accept(new EnableDefaultWSVisitor());
     return connectorDeclaration;
+};
+
+/**
+ * create namespace declaration statement.
+ * @param {object} args - argument for creating namespace declaration statement.
+ * @return {ASTNode} namespaceDeclarationStatement
+ * */
+DefaultBallerinaASTFactory.createNamespaceDeclarationStatement = function (args) {
+    const namespaceDeclarationStatement = BallerinaASTFactory.createNamespaceDeclarationStatement(args);
+    namespaceDeclarationStatement.setStatementFromString('xmlns "http://sample.org/test" as ns');
+    namespaceDeclarationStatement.accept(new EnableDefaultWSVisitor());
+    return namespaceDeclarationStatement;
 };
 
 export default DefaultBallerinaASTFactory;

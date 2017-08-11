@@ -76,10 +76,10 @@
     fill: #f1f1f1;
     stroke: #f1f1f1;
     stroke-width: 0.5;
+    text-anchor: start;
 }
 
 .import-definition-decorator {
-    width: 3px;
     fill: $brand-primary;
 }
 
@@ -92,7 +92,6 @@
 }
 
 .global-definition-decorator {
-    width: 3px;
     fill: #9b59b6;
 }
 
@@ -233,11 +232,6 @@
     fill: #8ebadd;
     shape-rendering: crispEdges;
     padding: 13px;
-}
-
-.parameter-delete-icon-wrapper:hover {
-    opacity: 1;
-    fill:#dcdcdc;
 }
 
 .struct-delete-icon-wrapper {

@@ -316,17 +316,9 @@ class ConnectorDefinition extends ASTNode {
         this.setConnectorName(jsonNode.connector_name, { doSilently: true });
 
         _.each(jsonNode.children, (childNode) => {
-            let child;
-            let childNodeTemp;
-            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.getFactory().createConnectorDeclaration();
-                childNodeTemp = childNode;
-            } else {
-                child = self.getFactory().createFromJson(childNode);
-                childNodeTemp = childNode;
-            }
-            self.addChild(child);
-            child.initFromJson(childNodeTemp);
+            const child = self.getFactory().createFromJson(childNode);
+            self.addChild(child, undefined, true, true);
+            child.initFromJson(childNode);
         });
     }
 

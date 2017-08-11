@@ -3,8 +3,11 @@
 }
 
 .btn-remove {
-    color: #3d3d3d;
+    color: #bababb;
     float: right;
+    background: #666769;
+    height: 30px;
+    padding: 4px 16px;
 }
 
 .selector {
@@ -33,70 +36,52 @@
     padding: 10px;
 }
 
-.leftType {
-    border: 1px solid #c9c9c9;
+.leftType, .rightType {
     width: 300px;
-    height: calc(100% - 200px);
-    margin-top: 105px;
-    margin-left: 20px;
     background: #fefefe;
     color: #3d3d3d;
     float: left;
     position: relative;
     overflow: auto;
+    padding-top: 30px;
+}
+
+.leftType {
+    float: left;
+}
+
+.rightType {
+    float: right;
 }
 
 .middle-content {
     width: calc(100% - 680px);
-    height: calc(100% - 160px);
-    background: #ffffff;
+    height: calc(100% - 130px);
+    background: #fff;
     color: #3d3d3d;
     float: left;
     position: relative;
     overflow: auto;
     border: 1px dashed #ccc;
-    margin: 60px 20px;
+    margin-top: 30px;
+    padding-top: 30px
 }
 
-.rightType {
-    border: 1px solid #c9c9c9;
-    width: 300px;
-    height: calc(100% - 203px);
-    margin-top: -2px;
-    margin-right: 20px;
-    background: #fefefe;
-    color: #3d3d3d;
-    position: relative;
-    float: right;
-    overflow: auto;
-}
-
-.struct {
-    height: auto;
+.struct {;
     color: #3d3d3d;
     position: absolute;
     border-top: 1px;
-    border-style: dotted none none none;
     width: 100%;
+    background-color: #dcdcdc;
 }
 
 .variable {
     display: block;
-    height: auto;
     width: 100%;
     color: #3d3d3d;
     position: absolute;
     border-top: 1px;
-    border-style: dotted none none none;
-}
-
-.variable-content:hover,
-.variable-content:hover > span {
-    color: #f17b31 !important;
-}
-
-.variable-content {
-    cursor: pointer;
+    background-color: #dcdcdc;
 }
 
 .property {
@@ -123,11 +108,10 @@ svg.plumbConnect path {
 }
 
 .func {
-    border: 1px solid gray;
     width: 300px;
     height: auto;
-    background: #ffffff;
-    color: #ffffff;
+    background: #f6f6f6;;
+    color: #fff;
     position: absolute;
     font-size: 0.94em;
 }
@@ -135,7 +119,7 @@ svg.plumbConnect path {
 .func-property {
     padding: 5;
     font-size: 16px;
-    background-color: #ffffff;
+    background-color: #fff;
     border: 2px;
     color: #666769;
 }
@@ -143,7 +127,7 @@ svg.plumbConnect path {
 .func-in-property {
     padding: 5;
     font-size: 16px;
-    background-color: #ffffff;
+    background-color: #fff;
     border: 2px;
     color: #666769;
     cursor: pointer;
@@ -152,7 +136,7 @@ svg.plumbConnect path {
 .func-out-property {
     padding: 2;
     font-size: 16px;
-    background-color: #ffffff;
+    background-color: #fff;
     border: 2px;
     color: #666769;
     cursor: pointer;
@@ -179,15 +163,24 @@ svg.plumbConnect path {
 .func-output {
     width: 150px;
     height: calc(100% - 33px);
-    border: 0.5px solid gray;
     border-top: none;
     border-right: none;
     border-bottom: none;
     background-color: transparent;
     color: #446191;
     position: relative;
-    right: 0;
-    float: right;
+}
+
+.func-input {
+    width: 150px;
+    height: calc(100% - 33px);
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    background-color: transparent;
+    color: #446191;
+    position: relative;
+    float: left;
 }
 
 .source-view {
@@ -195,7 +188,6 @@ svg.plumbConnect path {
     height: 50px;
     margin-top: 60px;
     margin-left: 20px;
-    background: #eeeeee;
     color: #3d3d3d;
     float: left;
     position: absolute;
@@ -207,7 +199,6 @@ svg.plumbConnect path {
     height: 50px;
     margin-top: 60px;
     margin-right: 20px;
-    background: #eeeeee;
     color: #3d3d3d;
     float: right;
     position: relative;
@@ -222,69 +213,30 @@ svg.plumbConnect path {
     height: 30px
 }
 
-.transformOverlay-content .react-autosuggest__input {
-    padding-left: 10px;
-    height: 28px;
-    width: 250px;
-}
-
-.transformOverlay-content .react-autosuggest__container {
-    padding-left: 10px;
-    padding-top: 10px;
-}
-
-.transformOverlay-content .react-autosuggest__suggestion {
-    padding-left: 10px;
-}
-
-.transformOverlay-content .react-autosuggest__suggestions-list {
-    top: 40px;
-    width: 250px;
-    margin: 0;
-    list-style-type: none;
-}
-
-.transformOverlay-content .react-autosuggest__suggestions-container {
-    width: 250px;
-}
-
 .type-select-header {
     padding-top: 15px;
     padding-left: 10px;
 }
 
 .transformOverlay {
-    position: fixed;
-    padding-left: 280px;
-    padding-top: 83px;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-.transformOverlay-content {
+    position: absolute;;
+    padding-left: 244px;
     background-color: #fefefe;
-    margin: auto;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    min-width: 1020px;
-    z-index: 30;
-    pointer-events: auto;
-
 }
 
 /* The Close Button */
 .close-transform {
+    float: left;
     color: #fff;
-    left: 4px;
-    top: 0px;
-    position: absolute;
+    top: 0;
     z-index: 41;
     cursor: pointer;
-    padding: 8px;
-    background-color: #a8a8a8;
+    padding: 8px 10px;
+    background-color: #f17b31;
 }
 
 .close-transform:hover,
@@ -296,32 +248,28 @@ svg.plumbConnect path {
 .transform-header {
     width: 100%;
     height: 30px;
-    background-color: #ededed;
+    line-height: 30px;
+    background-color: #f3f3f3;
     z-index: 40;
-    position: absolute;
-}
-
-.transform-header-padding {
-    width: 100%;
-    height: 60px;
-    background-color: #ffffff;
-    z-index: 38;
-    position: absolute;
+    color: #f3f3f3;
+    border-bottom: 1px solid #dedede;
 }
 
 .transform-footer {
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
+    background-color: #fff;
     position: absolute;
-    top: calc(100% - 95px);
+    top: calc(100% - 35px);
     z-index: 7
 }
 
 .transform-header-text {
     color: #343434;
-    padding: 5px 5px 5px 35px;
+    float: left;
     font-size: 14px;
+    margin: 0;
+    padding-left: 3px;
 }
 
 .transform-action {
@@ -332,8 +280,28 @@ svg.plumbConnect path {
     max-width: 250px;
 }
 
+.transform-action-button {
+    width: 28px;
+    height: 30px;
+    fill: #666769;
+}
+
 .transform-action-icon {
     cursor: pointer;
+    opacity: 0.5;
+}
+
+.transform-button:hover .transform-action-icon {
+    opacity: 1;
+}
+
+.transform-button:hover .transform-action-button {
+    fill: #292a2b;
+    cursor: pointer;
+}
+
+.property-pane-action-button-delete:hover {
+    opacity: 0.5;
 }
 
 .transform-header-icon {
@@ -349,12 +317,13 @@ svg.plumbConnect path {
 
 .btn-add-type {
     background-color: #666769;
-    top: 10px;
-    left: 259px;
+    top: 0;
+    left: 269px;
     position: absolute;
-    border: 1px solid #aaaaaa;
     color: #fff;
-    opacity: 0.6;
+    height: 30px;
+    width: 30px;
+    padding-top: 7px;
 }
 
 .btn-remove-type {
@@ -365,9 +334,43 @@ svg.plumbConnect path {
 }
 
 .function-header{
-    background-color: #2980b9;
+    background-color: #3397db;
+    height: 30px;
 }
 
 .btn-add-type i{
     margin-top: -2px;
+}
+.type-mapper-header-wrapper{
+    background-color:#dbdbdb;
+    height: 30px;
+}
+.middle-content-title{
+    color: #d8d8d8;
+    text-align: center;
+    width: 100%;
+    font-weight: 400;
+    font-size: 20px;
+    padding-left: 30%;
+}
+
+.transform-button:hover{
+    fill:green;
+    cursor: pointer;
+}
+.function-header-label{
+    margin-top: -2px;
+}
+
+.tree-container{
+    background-color: #ffffff;
+}
+
+.jtk-droppable {
+  font-size: 8px;
+}
+
+.jtk-droppable:hover {
+  font-size: 12px;
+  color: #f17b31;
 }

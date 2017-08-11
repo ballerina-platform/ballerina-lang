@@ -261,6 +261,15 @@ const createAbortStatementTool = {
     definition: 'Can be executed after the transaction is rolled back due to any conditions',
 };
 
+const createNamespaceDeclarationStatementTool = {
+    id: 'Namespace',
+    name: 'Namespace',
+    cssClass: 'icon fw fw-namespace',
+    title: 'Namespace',
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createNamespaceDeclarationStatement,
+    definition: 'Can be used for xml qualified names',
+};
+
 const createTransactionAbortedStatementTool = {
     id: 'Transaction',
     name: 'Transaction',
@@ -270,12 +279,12 @@ const createTransactionAbortedStatementTool = {
     definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
-const statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-    createVariableDefinitionStatementTool, createFunctionInvocationTool, createReturnStatementTool,
-    createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool,
-    createThrowStatementTool, createWorkerInvocationStatementTool, createWorkerReplyStatementTool,
-    createTransformStatementTool, createJoinStatementTool, createAbortStatementTool,
-    createTransactionAbortedStatementTool, createContinueStatementTool];
+const statementToolDefArray = [createAbortStatementTool, createAssignmentExpressionTool, createBreakStatementTool,
+    createContinueStatementTool, createJoinStatementTool, createFunctionInvocationTool, createIfStatementTool,
+    createNamespaceDeclarationStatementTool, createWorkerReplyStatementTool, createReplyStatementTool,
+    createReturnStatementTool, createWorkerInvocationStatementTool, createThrowStatementTool,
+    createTransactionAbortedStatementTool, createTransformStatementTool, createTryCatchStatementTool,
+    createVariableDefinitionStatementTool, createWhileStatementTool];
 
 const seperator = {
     id: 'constructs_seperator',

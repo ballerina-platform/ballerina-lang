@@ -71,6 +71,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
         const noOfImportsBGHeight = 18;
         const importLabelWidth = 48.37;
         const noOfImportsTextPadding = 10;
+        const importDecDecoratorWidth = 3;
 
         const imports = node.children.filter(c => c.constructor.name === 'ImportDeclaration');
         const noOfImports = imports.length;
@@ -94,6 +95,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
             noOfImportsTextWidth,
             noOfImportsBGWidth,
             badgeWidth,
+            importDecDecoratorWidth,
         };
     }
 

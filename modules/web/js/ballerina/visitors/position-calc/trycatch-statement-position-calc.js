@@ -53,7 +53,7 @@ class TryCatchStatementPositionCalcVisitor {
         const parentViewState = parent.getViewState();
         const parentStatementContainer = parentViewState.components.statementContainer;
         const parentStatements = parent.filterChildren(child =>
-        ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
+        ASTFactory.isStatement(child) || ASTFactory.isExpression(child) || ASTFactory.isConnectorDeclaration(child));
         const currentIndex = _.findIndex(parentStatements, node);
         let y;
 
@@ -72,7 +72,12 @@ class TryCatchStatementPositionCalcVisitor {
         if (currentIndex === 0) {
             y = parentStatementContainer.y;
         } else if (currentIndex > 0) {
-            y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
+            const previousChild = parentStatements[currentIndex - 1];
+            if (ASTFactory.isConnectorDeclaration(previousChild)) {
+                y = previousChild.getViewState().components.statementViewState.bBox.getBottom();
+            } else {
+                y = previousChild.getViewState().bBox.getBottom();
+            }
         } else {
             const exception = {
                 message: `Invalid Index found for ${node.getType()}`,
@@ -82,6 +87,7 @@ class TryCatchStatementPositionCalcVisitor {
 
         bBox.x = x;
         bBox.y = y;
+        viewState.components['block-header'].y = y + viewState.components['drop-zone'].h;
     }
 
     /**

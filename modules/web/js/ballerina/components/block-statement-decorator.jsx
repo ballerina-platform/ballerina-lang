@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { blockStatement, statement, actionBox } from '../configs/designer-defaults.js';
@@ -29,6 +28,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
 import breakpointHOC from './../../debugger/breakpoint-hoc';
+
 
 const CLASS_MAP = {
     hidden: 'hide-action',
@@ -86,7 +86,8 @@ class BlockStatementDecorator extends React.Component {
      *
      */
     onJumpToCodeLine() {
-        document.getElementsByClassName('view-source-btn')[0].click();
+        const { editor } = this.context;
+        editor.goToSource(this.props.model);
     }
 
     /**
@@ -192,9 +193,8 @@ class BlockStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit} = this.props;
         const model = this.props.model;
-
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
 
@@ -232,12 +232,13 @@ class BlockStatementDecorator extends React.Component {
             actionBox.width,
             actionBox.height);
         const utilClassName = CLASS_MAP[this.state.active];
-        
+
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         const separatorGapV = titleH / 3;
+        const maxWidth = bBox.w + bBox.expansionW;
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -246,11 +247,11 @@ class BlockStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect" />
+                <rect x={bBox.x} y={bBox.y} width={maxWidth} height={bBox.h} className="background-empty-rect" />
                 <rect
                     x={bBox.x}
                     y={bBox.y}
-                    width={bBox.w}
+                    width={maxWidth}
                     height={titleH}
                     rx="0"
                     ry="0"
@@ -364,6 +365,7 @@ BlockStatementDecorator.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default breakpointHOC(BlockStatementDecorator);

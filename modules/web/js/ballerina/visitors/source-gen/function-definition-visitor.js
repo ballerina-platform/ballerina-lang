@@ -53,7 +53,8 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         if (!_.isEmpty(functionDefinition.getReturnTypes())) {
             const prependSpace = _.first(functionDefinition.getReturnTypes()).whiteSpace.useDefault;
             // if there were no return types before, return type wrapper shold be prepended with a space
-            functionReturnTypesSource = (prependSpace ? ' ' : functionDefinition.getWSRegion(4));
+            functionReturnTypesSource = (prependSpace ? ' ' : functionDefinition.getWSRegion(4)) +
+                (functionDefinition.hasReturnsKeyword() ? 'returns ' : '');
             functionReturnTypesSource += '(' + functionDefinition.getWSRegion(5)
                                             + functionDefinition.getReturnTypesAsString() + ')';
         }
@@ -74,7 +75,8 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         constructedSourceSegment += ((functionDefinition.isNative()
                     ? 'native' + functionDefinition.getWSRegion(0) : ''));
         constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
-                    + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2)
+                    + (functionDefinition.isLambda() ? '' : functionDefinition.getFunctionName())
+                    + functionDefinition.getWSRegion(2)
                     + '(' + functionDefinition.getWSRegion(3)
                     + functionDefinition.getArgumentsAsString() + ')';
         constructedSourceSegment += (!_.isNil(functionReturnTypesSource) ? functionReturnTypesSource : '');
@@ -106,7 +108,9 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
         this.appendSource(constructedSourceSegment);
-        this.getParent().appendSource(this.getGeneratedSource());
+        const generatedSource = this.getGeneratedSource();
+        functionDefinition.getViewState().source = generatedSource;
+        this.getParent().appendSource(generatedSource);
     }
 
     /**

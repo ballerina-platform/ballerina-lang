@@ -5,11 +5,11 @@
     <parent>
         <artifactId>integration-tests</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.87-SNAPSHOT</version>
+        <version>0.91.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ui-integration-tests</artifactId>
-    <version>0.87-SNAPSHOT</version>
+    <version>0.91.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -45,10 +45,6 @@
             <artifactId>gson</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>
@@ -60,10 +56,10 @@
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
-            <artifactId>tapestry-json</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.orbit.org.apache.tapestry</groupId>-->
+            <!--<artifactId>tapestry-json</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
@@ -239,6 +235,23 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <!--<execution>-->
+                        <!--<id>copy-resources-tests</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>-->
+                                <!--copy-resources-->
+                            <!--</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<outputDirectory>${basedir}/target/tests</outputDirectory>-->
+                            <!--<resources>-->
+                                <!--<resource>-->
+                                    <!--<directory>${basedir}/../../modules/web/js/tests</directory>-->
+                                <!--</resource>-->
+                            <!--</resources>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                 </executions>
             </plugin>
             <plugin>
@@ -366,39 +379,55 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>test</phase>
+                        <phase>integration-test</phase>
                         <configuration>
                             <executable>npm</executable>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>test</argument>
-                                <argument></argument>
                                 <argument>skipTests=${maven.test.skip}</argument>
                             </arguments>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>npm run ui test (test)</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>ui-test</argument>
-                                <argument>--</argument>
-                                <argument>--skipTests=${maven.test.skip}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>npm run ui test (test)</id>-->
+                        <!--<goals>-->
+                            <!--<goal>exec</goal>-->
+                        <!--</goals>-->
+                        <!--<phase>test</phase>-->
+                        <!--<configuration>-->
+                            <!--<executable>npm</executable>-->
+                            <!--<arguments>-->
+                                <!--<argument>run</argument>-->
+                                <!--<argument>ui-test</argument>-->
+                                <!--<argument>&#45;&#45;</argument>-->
+                                <!--<argument>&#45;&#45;skipTests=${maven.test.skip}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>npm run terminate</id>-->
+                        <!--<goals>-->
+                            <!--<goal>exec</goal>-->
+                        <!--</goals>-->
+                        <!--<phase>test</phase>-->
+                        <!--<configuration>-->
+                            <!--<executable>npm</executable>-->
+                            <!--<arguments>-->
+                                <!--<argument>run</argument>-->
+                                <!--<argument>terminate</argument>-->
+                                <!--<argument>&#45;&#45;</argument>-->
+                                <!--<argument>&#45;&#45;skipTests=${maven.test.skip}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                     <execution>
                         <id>npm run terminate</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>test</phase>
+                        <phase>post-integration-test</phase>
                         <configuration>
                             <executable>npm</executable>
                             <arguments>

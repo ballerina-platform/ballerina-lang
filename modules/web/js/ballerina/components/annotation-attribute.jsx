@@ -25,6 +25,7 @@ import { addAttribute, deleteNode, getArrayValue } from './utils/annotation-butt
 import AnnotationHelper from '../env/helpers/annotation-helper';
 import EnvAnnotationDefinition from './../env/annotation-definition';
 import PopoutButton from './popout-button';
+import { util } from './../visitors/sizing-utils';
 
 /**
  * React component for an annoation attribute.
@@ -70,6 +71,7 @@ class AnnotationAttribute extends React.Component {
         this.onBValueChange = this.onBValueChange.bind(this);
         this.onBValueEdit = this.onBValueEdit.bind(this);
         this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
+        this.onBValueKeyPress = this.onBValueKeyPress.bind(this);
     }
 
     /**
@@ -124,6 +126,19 @@ class AnnotationAttribute extends React.Component {
         });
 
         this.props.model.getViewState().isInEdit = true;
+    }
+
+    onBValueKeyPress(event) {
+        if (event.keyCode === 13 || event.which === 13) {
+            this.setState({
+                isBValueEdit: false,
+                focusBValueInput: false,
+            });
+            this.props.model.getViewState().isInEdit = false;
+            const attributeValue = this.props.model.getValue();
+            const bValue = attributeValue.getChildren()[0];
+            bValue.setStringValue(event.target.value);
+        }
     }
 
     /**
@@ -238,6 +253,7 @@ class AnnotationAttribute extends React.Component {
 
             const bValue = attributeValue.getChildren()[0];
             if (this.state.isBValueEdit) {
+                const width = util.getTextWidth(this.state.bValueText, 150, 1000);
                 return (
                     <ul
                         className="attribute-value-bvalue"
@@ -251,6 +267,8 @@ class AnnotationAttribute extends React.Component {
                                     value={this.state.bValueText}
                                     onChange={this.onBValueChange}
                                     onBlur={this.onBValueEditFinished}
+                                    onKeyPress={this.onBValueKeyPress}
+                                    style={{ width: parseInt(width.w + 20, 10) }}
                                 />
                             </span>
                             <PopoutButton buttons={buttons} />
@@ -291,7 +309,8 @@ class AnnotationAttribute extends React.Component {
             const annotationAttachment = attributeValue.getChildren()[0];
             const packageName = (<span>{annotationAttachment.getPackageName()}</span>);
             const name = (<span>{annotationAttachment.getName()}</span>);
-            const buttons = [];
+            const addPopButton = [];
+            const deletePopButton = [];
             const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
                                                 this.context.environment, annotationAttachment.getFullPackageName(),
                                                 annotationAttachment.getName());
@@ -304,7 +323,7 @@ class AnnotationAttribute extends React.Component {
                         addAttribute(annotationAttachment);
                     },
                 };
-                buttons.push(addAttributeButton);
+                addPopButton.push(addAttributeButton);
             }
             // Delete button.
             const deleteButton = {
@@ -314,7 +333,7 @@ class AnnotationAttribute extends React.Component {
                     deleteNode(this.props.model);
                 },
             };
-            buttons.push(deleteButton);
+            deletePopButton.push(deleteButton);
             if (annotationAttachment.getChildren().length > 0) {
                 const attributes = this.renderAnnotationAttributes(annotationAttachment);
                 return (
@@ -328,7 +347,8 @@ class AnnotationAttribute extends React.Component {
                             </span>
                             :{name}
                             <span className="annotations-open-bracket">{'{'}</span>
-                            <PopoutButton buttons={buttons} />
+                            <PopoutButton buttons={addPopButton} />
+                            <PopoutButton buttons={deletePopButton} />
                         </li>
                         {attributes}
                         <li>
@@ -349,13 +369,15 @@ class AnnotationAttribute extends React.Component {
                         </span>
                         :{name}
                         <span className="annotations-open-bracket">{'{'}</span>
+                        <PopoutButton buttons={addPopButton} />
                         <span className="annotations-close-bracket">{'}'}</span>
-                        <PopoutButton buttons={buttons} />
+                        <PopoutButton buttons={deletePopButton} />
                     </li>
                 </ul>
             );
         } else if (attributeValue.isArray()) {
-            const buttons = [];
+            const addPopButton = [];
+            const deletePopButton = [];
             // Delete button.
             const deleteButton = {
                 icon: 'fw-cancel',
@@ -372,8 +394,8 @@ class AnnotationAttribute extends React.Component {
                         this.context.environment, this.props.model.getKey(), this.props.annotationDefinitionModel));
                 },
             };
-            buttons.push(addNewToArray);
-            buttons.push(deleteButton);
+            addPopButton.push(addNewToArray);
+            deletePopButton.push(deleteButton);
             if (attributeValue.getChildren().length > 0) {
                 const arrayValues = [];
                 attributeValue.getChildren().forEach((annotationAttributeValue) => {
@@ -390,7 +412,8 @@ class AnnotationAttribute extends React.Component {
                             >
                                 [
                             </span>
-                            <PopoutButton buttons={buttons} />
+                            <PopoutButton buttons={addPopButton} />
+                            <PopoutButton buttons={deletePopButton} />
                         </li>
                         {arrayValues}
                         <li>
@@ -411,8 +434,9 @@ class AnnotationAttribute extends React.Component {
                         >
                             [
                         </span>
+                        <PopoutButton buttons={addPopButton} />
                         <span className="annotations-attribute-close-square-bracket">]</span>
-                        <PopoutButton buttons={buttons} />
+                        <PopoutButton buttons={deletePopButton} />
                     </li>
                 </ul>
             );

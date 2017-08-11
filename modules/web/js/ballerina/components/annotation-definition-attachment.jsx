@@ -17,7 +17,6 @@
  */
 import React from 'react';
 import ImageUtil from './image-util';
-import { panel } from '../configs/designer-defaults.js';
 
 class AnnotationDefinitionAttachment extends React.Component {
 
@@ -32,28 +31,52 @@ class AnnotationDefinitionAttachment extends React.Component {
         return (<g>
 
             <rect
-                x={viewState.bBox.x + 7} y={viewState.bBox.y + 5} width={viewState.w + 5} height={viewState.h + 2} rx="0" ry="0"
+                x={viewState.bBox.x + 7}
+                y={viewState.bBox.y + 5}
+                width={viewState.w + 5}
+                height={viewState.h + 2}
+                rx="0"
+                ry="0"
                 className="parameter-wrapper"
             />
             <text
-                x={viewState.bBox.x + 10} y={viewState.bBox.y + 6}
+                x={viewState.bBox.x + 10}
+                y={viewState.bBox.y + 6}
                 className="parameter-text"
-            >{this.state.value}</text>
-            <rect
-                x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 5}
-                width={viewState.components.deleteIcon.w + 2} height={viewState.components.deleteIcon.h + 2} rx="0" ry="0"
-                className="parameter-delete-icon-wrapper"
-            />
-            <text
-                x={viewState.components.deleteIcon.x + 5} y={viewState.components.deleteIcon.y + 18} width="14"
-                height="14" className="parameter-delete-icon" onClick={() => this.props.onDelete(this.state.value)}
-            >x</text>
-            <rect
-                x={viewState.components.deleteIcon.x + viewState.components.deleteIcon.w + 4}
-                y={viewState.components.deleteIcon.y + 4} width={1} height={viewState.h - 2} rx="0" ry="0"
-                className="parameter-space"
-            />
-
+            >
+                {this.state.value}
+            </text>
+            <g onClick={() => this.props.onDelete(this.state.value)}>
+                <rect
+                    x={viewState.components.deleteIcon.x}
+                    y={viewState.components.deleteIcon.y + 5}
+                    width={viewState.components.deleteIcon.w + 2}
+                    height={viewState.components.deleteIcon.h + 2}
+                    rx="0"
+                    ry="0"
+                    className="parameter-delete-icon-wrapper"
+                />
+                <image
+                    x={viewState.components.deleteIcon.x + 5}
+                    y={viewState.components.deleteIcon.y + 10}
+                    width={10}
+                    height={10}
+                    className="parameter-delete-icon"
+                    xlinkHref={ImageUtil.getSVGIconString('cancel')}
+                    onClick={() => this.props.onDelete(this.state.value)}
+                >
+                    <title>Remove</title>
+                </image>
+                <rect
+                    x={viewState.components.deleteIcon.x + viewState.components.deleteIcon.w + 4}
+                    y={viewState.components.deleteIcon.y + 4}
+                    width={1}
+                    height={viewState.h - 2}
+                    rx="0"
+                    ry="0"
+                    className="parameter-space"
+                />
+            </g>
 
         </g>);
     }

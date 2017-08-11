@@ -57,6 +57,8 @@ class EnableDefaultWSVisitor {
             node.getExpressionList().forEach((expr) => {
                 expr.accept(this);
             });
+        } else if (node.getFactory().isConnectorDeclaration(node)) {
+            node.getDeclarationStatement().accept(this);
         }
     }
 

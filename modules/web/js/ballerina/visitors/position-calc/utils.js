@@ -66,6 +66,14 @@ function getSimpleStatementPosition(node) {
         throw exception;
     }
 
+    // calculate the positions of sub components.
+    viewState.components['drop-zone'].x = x;
+    viewState.components['drop-zone'].y = y;
+    if (viewState.components['statement-box']) {
+        viewState.components['statement-box'].x = x;
+        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
+    }
+
     bBox.x = x;
     bBox.y = y;
 }
@@ -99,6 +107,7 @@ function getCompoundStatementChildPosition(node) {
     bBox.y = y;
     viewState.components.statementContainer.x = statementContainerX;
     viewState.components.statementContainer.y = statementContainerY;
+    viewState.components['block-header'].y = y;
 }
 
 /**
@@ -113,6 +122,7 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     const parentBBox = parentViewState.bBox;
     const bBox = viewSate.bBox;
     const statementContainerBBox = viewSate.components.statementContainer;
+    const workerScopeContainer = viewSate.components.workerScopeContainer;
     const headerBBox = viewSate.components.heading;
     const bodyBBox = viewSate.components.body;
     const annotation = viewSate.components.annotation;
@@ -133,12 +143,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
          */
         const parentLevelConnectors = node.getParent().filterChildren(child =>
             ASTFactory.isConnectorDeclaration(child));
-        if (parentLevelConnectors.length > 0) {
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
-                DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
-        } else {
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
-        }
+        headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+        
 
         headerY += serviceVariablesHeightGap;
     } else if (currentResourceIndex > 0) {
@@ -159,7 +165,11 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
     statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
         DesignerDefaults.lifeLine.head.height;
-
+    // If more than one worker is present, then draw the worker scope container boundary around the workers
+    if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+        workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
+        workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
+    }
     bBox.x = x;
     bBox.y = y;
     headerBBox.x = headerX;
@@ -252,10 +262,10 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
     const viewState = node.getViewState();
 
     if (node.getArguments) {
-        viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
-            + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding;
+        const isLambda = node.isLambda && node.isLambda();
+        viewState.components.openingParameter.x = viewState.bBox.x + (isLambda ? 0 : (
+        viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
+        + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding));
         viewState.components.openingParameter.y = viewState.bBox.y
             + viewState.components.annotation.h;
 

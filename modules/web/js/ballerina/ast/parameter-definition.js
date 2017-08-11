@@ -16,7 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
+import Alerts from 'alerts';
 import VariableDefinition from './variable-definition';
+import FragmentUtils from './../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
+import ArgumentParameterDefinitionHolder from './argument-parameter-definition-holder';
 
 class ParameterDefinition extends VariableDefinition {
     /**
@@ -34,11 +39,38 @@ class ParameterDefinition extends VariableDefinition {
         // since there are ParameterDefinitions without names (return types) we set this to undefined
         this._name = _.get(args, 'name', undefined);
         this.type = 'ParameterDefinition';
+        this._isArray = _.get(args, 'isArray', false);
+        this._dimensions = _.get(args, 'dimensions', 0);
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
             2: '',
         };
+    }
+
+
+    /**
+     * Get the dimensions
+     * @return {number} - number of dimensions
+     */
+    getDimensions() {
+        return this._dimensions;
+    }
+
+    /**
+     * Set the dimensions
+     * @param {number} - number of dimensions
+     */
+    setDimensions(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    /**
+     * Get is array
+     * @return {boolean} - whether is array or not
+     */
+    isArray() {
+        return this._isArray;
     }
 
     /**
@@ -76,8 +108,21 @@ class ParameterDefinition extends VariableDefinition {
 
                 argAsString += '} ';
             });
+
+        argAsString += (this.getPkgName()) ? this.getPkgName() + ':' : '';
         argAsString += this.getTypeName();
-        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : '';
+        if (this.getTypeConstraint()) {
+            const constraint = this.getTypeConstraint();
+            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
+                                  + constraint.type + '>');
+            argAsString += constraintStr;
+        }
+        if (this.isArray()) {
+            for (let itr = 0; itr < this.getDimensions(); itr++) {
+                argAsString += '[]';
+            }
+        }
+        argAsString += !_.isNil(this.getName()) ? /* FIXME*/ (this.getWSRegion(1) || ' ') + this.getName() : '';
         argAsString += this.getWSRegion(2);
         return argAsString;
     }
@@ -86,9 +131,75 @@ class ParameterDefinition extends VariableDefinition {
         this.addChild(annotation);
     }
 
+    setParameterFromString(stmtString, callback) {
+        let fragment = "";
+        if (this.getParent() instanceof ArgumentParameterDefinitionHolder) {
+            fragment = FragmentUtils.createArgumentParameterFragment(stmtString);
+        } else {
+            fragment = FragmentUtils.createReturnParameterFragment(stmtString);
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'parameter_definition')) {
+                const newNode = this.getFactory().createFromJson(parsedJson);
+                const parent = this.getParent();
+                const index = parent.getIndexOfChild(this);
+                if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
+                    parent.removeChild(this, true);
+                    newNode.initFromJson(parsedJson);
+                    parent.addChild(newNode, index, true, true);
+                    nodeToFireEvent = newNode;
+                } else {
+                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
+                    Alerts.error(errorString);
+                    return false;
+                }
+            } else {
+                log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({ isValid: true });
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Modify Parameter Definition',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
+    }
+
+    /**
+     * Set is array
+     * @param {boolean} - whether is array or not
+     */
+    setIsArray(isArray) {
+        this._isArray = isArray;
+    }
+
     initFromJson(jsonNode) {
         this.setTypeName(jsonNode.parameter_type, { doSilently: true });
         this.setName(jsonNode.parameter_name, { doSilently: true });
+        this.setPkgName(jsonNode.package_name, { doSilently: true });
+        this.setIsArray(jsonNode.is_array_type, { doSilently: true });
+        this.setDimensions(jsonNode.dimensions, { doSilently: true });
+
+        if (jsonNode.type_constraint) {
+            const typeConstraint = {};
+            typeConstraint.pkgName = jsonNode.type_constraint.package_name;
+            typeConstraint.type = jsonNode.type_constraint.type_constraint;
+            this.setTypeConstraint(typeConstraint, { doSilently: true });
+        }
 
         // As of now we only support one annotation.
         if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation_attachment')) {
@@ -97,6 +208,20 @@ class ParameterDefinition extends VariableDefinition {
             this.addChild(child);
             child.initFromJson(annotationJson);
         }
+    }
+
+    checkWhetherIdentifierAlreadyExist(identifier) {
+        let isExist = false;
+        if (this.getParent().getChildren().length > 0) {
+            for (let i = 0; i < this.getParent().getChildren().length; i++) {
+                if (this.getParent().getChildren()[i].getName() === identifier
+                    && !_.isMatch(this.getParent().getChildren()[i], this)) {
+                    isExist = true;
+                    break;
+                }
+            }
+        }
+        return isExist;
     }
 }
 

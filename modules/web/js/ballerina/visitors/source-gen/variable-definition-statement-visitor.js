@@ -16,8 +16,12 @@
  * under the License.
  */
 
+import ASTFactory from '../../ast/ballerina-ast-factory';
+import FunctionDefinitionVisitor from './function-definition-visitor';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
+import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor'
 
 /**
  * Source Generation visitor for Variable definition statement
@@ -47,12 +51,47 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         variableDefinitionStatement.setLineNumber(lineNumber, { doSilently: true });
 
-        const constructedSource = variableDefinitionStatement.getStatementString();
-        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSource);
+        let variableDefinitionStatementString =
+            !_.isNil(((variableDefinitionStatement.getChildren()[0]).getChildren()[0]).getPkgName()) ?
+                (((variableDefinitionStatement.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
+        variableDefinitionStatementString += variableDefinitionStatement.getBType();
+        if (((variableDefinitionStatement.getChildren()[0]).getChildren()[0]).isArray()) {
+            const dimensions = ((variableDefinitionStatement.getChildren()[0]).getChildren()[0]).getDimensions();
+            for (let itr = 0; itr < dimensions; itr++) {
+                variableDefinitionStatementString += '[]';
+            }
+        }
+        variableDefinitionStatementString += variableDefinitionStatement.getWSRegion(0) +
+            variableDefinitionStatement.getIdentifier();
+        const child = variableDefinitionStatement.children[1];
+        if (!_.isNil(child)) {
+            variableDefinitionStatementString +=
+                variableDefinitionStatement.getWSRegion(1) + '=' + variableDefinitionStatement.getWSRegion(2);
+            this.appendSource(variableDefinitionStatementString);
+            if (ASTFactory.isLambdaExpression(child)) {
+                child.getLambdaFunction().accept(new FunctionDefinitionVisitor(this));
+            } else if (ASTFactory.isActionInvocationExpression(child)) {
+                child.accept(new ActionInvocationStatementVisitor(this));
+            } else if (ASTFactory.isFunctionInvocationExpression(child)) {
+                // TODO: remove this by moving all visitors to functions.
+            } else {
+                const expressionStr = child.getExpressionString();
+                this.appendSource(expressionStr);
+                variableDefinitionStatementString += expressionStr;
+            }
+        } else {
+            variableDefinitionStatementString += variableDefinitionStatement.getWSRegion(3);
+            this.appendSource(variableDefinitionStatementString);
+        }
+        // const constructedSource = variableDefinitionStatement.getStatementString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(variableDefinitionStatementString);
 
         // Increase total number of lines
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-        this.appendSource(constructedSource);
+    }
+
+    visitFuncInvocationExpression(node) {
+        node.accept(new FunctionInvocationExpressionVisitor(this));
     }
 
     /**
@@ -68,7 +107,9 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
 
         this.appendSource(constructedSourceSegment);
-        this.getParent().appendSource(this.getGeneratedSource());
+        const generatedSource = this.getGeneratedSource();
+        this.getParent().appendSource(generatedSource);
+        variableDefinitionStatement.viewState.source = generatedSource;
     }
 }
 

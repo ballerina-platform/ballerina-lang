@@ -24,6 +24,7 @@ import LifeLineDecorator from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ConnectorActionAST from './../ast/connector-action';
+import ImageUtil from './image-util';
 
 /**
  * React component for a connector action.
@@ -59,7 +60,7 @@ class ConnectorAction extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getActionName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
-
+        const workerScopeContainerBBox = this.props.model.getViewState().components.workerScopeContainer;
         // lets calculate function worker lifeline bounding box.
         const resourceWorkerBBox = {};
         resourceWorkerBBox.x = statementContainerBBox.x + ((statementContainerBBox.w - lifeLine.width) / 2);
@@ -71,9 +72,10 @@ class ConnectorAction extends React.Component {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
         };
-
         const children = getComponentForNodeArray(this.props.model.getChildren());
-
+        const nodeFactory = this.props.model.getFactory();
+        // Check for connector declaration children
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
@@ -92,7 +94,29 @@ class ConnectorAction extends React.Component {
             titleComponentData={titleComponentData}
         >
             <g>
-                <LifeLineDecorator title="default" bBox={resourceWorkerBBox} classes={classes} />
+                <LifeLineDecorator
+                    title="default"
+                    bBox={resourceWorkerBBox}
+                    classes={classes}
+                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                    iconColor='#025482'
+                />
+                { connectorChildren.length > 0 &&
+                <g>
+                    <rect
+                        x={workerScopeContainerBBox.x}
+                        y={workerScopeContainerBBox.y}
+                        width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                        height={workerScopeContainerBBox.h}
+                        style={{ fill: 'none',
+                            stroke: '#67696d',
+                            strokeWidth: 2,
+                            strokeLinecap: 'round',
+                            strokeLinejoin: 'miter',
+                            strokeMiterlimit: 4,
+                            strokeOpacity: 1,
+                            strokeDasharray: 5 }}
+                    /> </g> }
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>

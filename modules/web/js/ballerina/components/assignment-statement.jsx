@@ -26,6 +26,12 @@ import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import BallerinaASTFactory from './../../ballerina/ast/ballerina-ast-factory';
 import StatementDecorator from './statement-decorator';
+import * as DesignerDefaults from './../configs/designer-defaults';
+import ConnectorActivationContainer from './connector-activation-container';
+import LifeLine from './lifeline.jsx';
+import ImageUtil from './image-util';
+import { util } from './../visitors/sizing-utils';
+import FunctionDefinition from './function-definition';
 
 /**
  * Assignment statement decorator.
@@ -92,6 +98,7 @@ class AssignmentStatement extends React.Component {
                                                                 actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
+            source.setActionConnectorName(destination.getConnectorVariable());
             source.setConnector(destination);
             model.getStatementString();
             model.trigger('tree-modified', { type: 'custom', title: 'action set' });
@@ -123,6 +130,46 @@ class AssignmentStatement extends React.Component {
     }
 
     /**
+     * Render the connector declaration if the assignment statement has a connector init expression
+     * @param {object} connectorViewState - connector view state
+     * @return {XML} - Generated rendering react component
+     */
+    renderConnectorDeclaration(connectorViewState) {
+        const statementContainerBBox = connectorViewState.components.statementContainer;
+        const connectorBBox = {};
+        const model = this.props.model;
+        const connectorName = connectorViewState.variableTextTrimmed;
+        connectorBBox.x = statementContainerBBox.x + ((statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2);
+        connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
+        connectorBBox.w = DesignerDefaults.lifeLine.width;
+        connectorBBox.h = statementContainerBBox.h + (DesignerDefaults.lifeLine.head.height * 2);
+        const connectorInitializeStartY = model.getViewState().bBox.y +
+            ((model.getViewState().bBox.h
+            + model.getViewState().components['drop-zone'].h) / 2);
+
+        const classes = {
+            lineClass: 'connector-life-line',
+            polygonClass: 'connector-life-line-polygon',
+        };
+
+        return (
+            <g>
+                <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
+                <LifeLine
+                    title={util.getTextWidth(connectorName, 0, DesignerDefaults.lifeLine.width - 30).text}
+                    bBox={connectorBBox}
+                    onDelete={this.onDelete}
+                    classes={classes}
+                    editorOptions={this.editorOptions}
+                    startSolidLineFrom={connectorInitializeStartY}
+                    icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
+                    iconColor='#1a8278'
+                />
+            </g>
+        );
+    }
+
+    /**
      * Renders the view for an assignment statement.
      * @returns {ReactElement} The view.
      * @memberof AssignmentStatement
@@ -144,13 +191,18 @@ class AssignmentStatement extends React.Component {
         const arrowStartPointX = bBox.getRight();
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
+        const rightExpression = model.getRightExpression();
         const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(
-                        model.getRightExpression()) ? model.getRightExpression() : undefined;
+            rightExpression) ? rightExpression : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
         const backArrowStart = { x: 0, y: 0 };
         const backArrowEnd = { x: 0, y: 0 };
+        let connectorDeclaration;
+        if (BallerinaASTFactory.isConnectorInitExpression(rightExpression)) {
+            connectorDeclaration = this.renderConnectorDeclaration(model.getViewState().connectorDeclViewState);
+        }
 
         if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation.getConnector())) {
             connector = actionInvocation.getConnector();
@@ -176,31 +228,38 @@ class AssignmentStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
+        const lambdaFunc = model.getLambdaChildren().map(f =>
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
 
-        return (<StatementDecorator
-            viewState={model.viewState}
-            expression={expression}
-            editorOptions={this.editorOptions}
-            model={model}
-        >
-            {!_.isNil(actionInvocation) &&
+        return (
             <g>
-                <circle
-                    cx={arrowStartPointX}
-                    cy={arrowStartPointY}
-                    r={radius}
-                    fill="#444"
-                    fillOpacity={0}
-                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-                    onMouseDown={e => this.onMouseDown(e)}
-                    onMouseUp={e => this.onMouseUp(e)}
-                />
-                {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
-                {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
-            </g>
-            }
-        </StatementDecorator>);
+                <StatementDecorator
+                    viewState={model.viewState}
+                    expression={expression}
+                    editorOptions={this.editorOptions}
+                    model={model}
+                >
+                    {!_.isNil(actionInvocation) &&
+                    <g>
+                        <circle
+                            cx={arrowStartPointX}
+                            cy={arrowStartPointY}
+                            r={radius}
+                            fill="#444"
+                            fillOpacity={0}
+                            onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                            onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                            onMouseDown={e => this.onMouseDown(e)}
+                            onMouseUp={e => this.onMouseUp(e)}
+                        />
+                        {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
+                        {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
+                    </g>
+                    }
+                </StatementDecorator>
+                {lambdaFunc}
+                {connectorDeclaration}
+            </g>);
     }
 }
 

@@ -19,9 +19,8 @@ import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
-import EnvironmentContent from './environment-content';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import { getPackages }  from './../../api-client/api-client';
+import { getBuiltInPackages } from './../../api-client/api-client';
 
 /**
  * @class BallerinaEnvironment
@@ -70,7 +69,7 @@ class BallerinaEnvironment extends EventChannel {
             } else {
                 resolve();
             }
-        }); 
+        });
     }
 
     /**
@@ -128,14 +127,19 @@ class BallerinaEnvironment extends EventChannel {
      */
     initializePackages() {
         return new Promise((resolve, reject) => {
-            getPackages()
+            getBuiltInPackages()
                 .then((packagesJson) => {
-                    packagesJson.forEach((packageNode) => {
-                        const pckg = BallerinaEnvFactory.createPackage();
-                        pckg.initFromJson(packageNode);
-                        this._packages.push(pckg);
-                     });
-                     resolve();
+                    if (_.isArray(packagesJson)) {
+                        packagesJson.forEach((packageNode) => {
+                            const pckg = BallerinaEnvFactory.createPackage();
+                            pckg.initFromJson(packageNode);
+                            this._packages.push(pckg);
+                        });
+                        resolve();
+                    } else {
+                        log.error('Error while fetching packages');
+                        resolve();
+                    }
                 })
                 .catch(reject);
         });

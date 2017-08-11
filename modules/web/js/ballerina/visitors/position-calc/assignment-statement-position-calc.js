@@ -17,7 +17,11 @@
  */
 
 import log from 'log';
+import _ from 'lodash';
 import * as PositioningUtils from './utils';
+import ASTFactory from './../../ast/ballerina-ast-factory';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import PositionCalculatorVisitor from '../position-calculator-visitor';
 
 /**
  * Position visitor class for Assignment Statement.
@@ -48,15 +52,21 @@ class AssignmentStatementPositionCalcVisitor {
     beginVisit(node) {
         log.debug('visit AssignmentStatementPositionCalc');
         PositioningUtils.getSimpleStatementPosition(node);
+        if (ASTFactory.isConnectorInitExpression(node.getChildren()[1])) {
+            this.calculateConnectorDeclarationPosition(node);
+        }
     }
 
     /**
+     * @param {AssignmentStatement} node
      * visit the visitor.
      *
      * @memberOf AssignmentStatementPositionCalcVisitor
      * */
-    visit() {
+    visit(node) {
         log.debug('visit AssignmentStatementPositionCalc');
+        // TODO: this visit can be removed making all lambdas children of the node.
+        node.getLambdaChildren().forEach(f => f.accept(new PositionCalculatorVisitor()));
     }
 
     /**
@@ -66,6 +76,58 @@ class AssignmentStatementPositionCalcVisitor {
      * */
     endVisit() {
         log.debug('end visit AssignmentStatementPositionCalc');
+    }
+
+    /**
+     * Calculate the connector declaration position
+     * @param {AssignmentStatement} node - assignment statement node
+     */
+    calculateConnectorDeclarationPosition(node) {
+        const connectorDeclViewState = node.getViewState().connectorDeclViewState;
+        const bBox = connectorDeclViewState.bBox;
+        const parent = node.getParent();
+        const parentViewState = parent.getViewState();
+        const workers = _.filter(parent.getChildren(), child => ASTFactory.isWorkerDeclaration(child));
+        const connectors = _.filter(parent.getChildren(), child => ASTFactory.isConnectorDeclaration(child)
+        || (ASTFactory.isAssignmentStatement(child) && ASTFactory.isConnectorInitExpression(child.getChildren()[1])));
+        const connectorIndex = _.findIndex(connectors, node);
+        let x = -1;
+
+        if (connectorIndex === 0) {
+            if (workers.length > 0) {
+                /**
+                 * Due to the model order in ast, at the moment, workers and the parent's statement positioning have not
+                 * calculated. Therefore we need to consider the widths of them to get the connector x position
+                 */
+                let totalWorkerStmtContainerWidth = 0;
+                _.forEach(workers, (worker) => {
+                    totalWorkerStmtContainerWidth += worker.getViewState().components.statementContainer.w;
+                });
+                x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
+                    parentViewState.components.statementContainer.w + totalWorkerStmtContainerWidth +
+                    (DesignerDefaults.lifeLine.gutter.h * (workers.length + 1));
+            } else {
+                x = parentViewState.components.statementContainer.getRight() + DesignerDefaults.lifeLine.gutter.h;
+            }
+        } else if (connectorIndex > 0) {
+            const previousConnector = connectors[connectorIndex - 1];
+            const previousConViewState = ASTFactory.isAssignmentStatement(previousConnector)
+                ? previousConnector.getViewState().connectorDeclViewState : previousConnector.getViewState();
+            const previousStatementContainer = previousConViewState.components.statementContainer;
+            x = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
+        }
+
+        let y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+
+        if (parentViewState.components.variablesPane) {
+            y += (parentViewState.components.variablesPane.h + DesignerDefaults.panel.body.padding.top);
+        }
+
+        bBox.x = x;
+        bBox.y = y;
+
+        connectorDeclViewState.components.statementContainer.x = x;
+        connectorDeclViewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
     }
 }
 

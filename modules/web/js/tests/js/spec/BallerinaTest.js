@@ -17,25 +17,27 @@
  */
 /* eslint-env es6 */
 
-import Backend from 'ballerina/views/backend';
+import {fetchConfigs, parseContent} from 'api-client/api-client';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import BallerinaASTRootVisitor from 'ballerina/visitors/source-gen/ballerina-ast-root-visitor';
-import log from 'log';
 import fs from 'fs';
-import { expect } from 'chai';
+import {expect} from 'chai';
 import path from 'path';
 
-const getModelBackend = 'http://localhost:8289/ballerina/model/content';
+const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
 // Ballerina AST Deserializer
 function ballerinaASTDeserializer(fileContent) {
-    const backend = new Backend({ url: getModelBackend });
-    const response = backend.parse({ name: 'test.bal', path: '/temp', content: fileContent, package: 'test' });
-    const ASTModel = BallerinaASTDeserializer.getASTModel(response);
-    const sourceGenVisitor = new BallerinaASTRootVisitor();
-    ASTModel.accept(sourceGenVisitor);
-    const source = sourceGenVisitor.getGeneratedSource();
-    return source;
+    return new Promise((resolve, reject) => {
+        parseContent(fileContent)
+            .then((parsedJson) => {
+                const ASTModel = BallerinaASTDeserializer.getASTModel(parsedJson);
+                const sourceGenVisitor = new BallerinaASTRootVisitor();
+                ASTModel.accept(sourceGenVisitor);
+                resolve(sourceGenVisitor.getGeneratedSource());
+            })
+            .catch(reject);
+    });
 }
 
 function readFile(filePath) {
@@ -59,17 +61,24 @@ function findBalFilesInDirSync(dir, filelist) {
 /* global describe*/
 // Reference : https://stackoverflow.com/a/39158329/1403246
 describe('Ballerina Composer Test Suite', () => {
-    const testResDir = path.resolve(path.join('js', 'tests', 'resources'));
+    // fetch configs before proceeding
+    /* global before*/
+    before((beforeAllDone) => {
+        fetchConfigs()
+            .then(() => beforeAllDone())
+            .catch(beforeAllDone);
+    });
+    const testResDir = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'parser'));
     const testFiles = findBalFilesInDirSync(testResDir);
     testFiles.forEach((testFile) => {
         /* global it */
         it(`${testFile.replace(testResDir, '')} file serialize/deserialize test`, () => {
             const expectedSource = readFile(testFile);
-            const generatedSource = ballerinaASTDeserializer(expectedSource);
-            if (generatedSource !== expectedSource) {
-                log.error('error');
-            }
-            expect(generatedSource).to.equal(expectedSource);
+            return ballerinaASTDeserializer(expectedSource)
+                .then((generatedSource) => {
+                    expect(generatedSource).to.equal(expectedSource);
+                });
         });
     });
 });
+

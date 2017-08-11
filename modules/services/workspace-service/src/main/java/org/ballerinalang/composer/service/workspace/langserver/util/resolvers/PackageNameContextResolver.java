@@ -96,6 +96,7 @@ class PackageNameContextResolver extends AbstractItemResolver {
                 completionItem.setInsertText(symbolInfo);
                 completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
+                completionItem.setKind(ItemResolverConstants.PACKAGE_KIND);
                 completionItems.add(completionItem);
             }));
         }

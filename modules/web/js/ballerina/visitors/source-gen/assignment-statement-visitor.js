@@ -18,6 +18,10 @@
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AssignmentStatement from '../../ast/statements/assignment-statement';
+import ASTFactory from '../../ast/ballerina-ast-factory';
+import FunctionDefinitionVisitor from './function-definition-visitor';
+import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor'
 
 /**
  * Assignment statement source generation visitor
@@ -47,12 +51,34 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         assignmentStatement.setLineNumber(lineNumber, { doSilently: true });
-        const constructedSourceSegment = assignmentStatement.getStatementString();
-        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        const rightExpression = assignmentStatement.getRightExpression();
+        const leftExpression = assignmentStatement.getLeftExpression();
 
-        // Increase the total number of lines
+        const varStr = assignmentStatement.getIsDeclaredWithVar() ? 'var' + assignmentStatement.getWSRegion(1) : '';
+        const leftStr = !_.isNil(leftExpression) ? leftExpression.getExpressionString() : '';
+        const spaceStr = ((!_.isNil(leftExpression) && !_.isEmpty(leftExpression.getChildren()) &&
+        _.last(leftExpression.getChildren()).whiteSpace.useDefault) ? ' ' : '');
+        const prefix = (varStr + leftStr + spaceStr) + '=' + assignmentStatement.getWSRegion(3);
+        this.appendSource(prefix);
+        let constructedSourceSegment = prefix;
+        if (ASTFactory.isLambdaExpression(rightExpression)) {
+            const child = rightExpression.children[0];
+            child.accept(new FunctionDefinitionVisitor(this));
+        } else if (ASTFactory.isActionInvocationExpression(rightExpression)) {
+            rightExpression.accept(new ActionInvocationStatementVisitor(this));
+        } else if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
+            // TODO: remove this by moving all visitors to functions.
+        } else if (!_.isNil(rightExpression)) {
+            const expressionStr = rightExpression.getExpressionString();
+            constructedSourceSegment += expressionStr;
+            this.appendSource(expressionStr);
+        }
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-        this.appendSource(constructedSourceSegment);
+    }
+
+    visitFuncInvocationExpression(node) {
+        node.accept(new FunctionInvocationExpressionVisitor(this));
     }
 
     /**
@@ -68,7 +94,10 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
 
         this.appendSource(constructedSourceSegment);
-        this.getParent().appendSource(this.getGeneratedSource());
+        const generatedSource = this.getGeneratedSource();
+        this.getParent().appendSource(generatedSource);
+
+        assignmentStatement.getViewState().source = generatedSource;
     }
 }
 

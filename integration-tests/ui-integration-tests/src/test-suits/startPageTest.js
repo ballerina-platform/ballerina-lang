@@ -41,7 +41,7 @@ describe("Ballerina UI Tests", function () {
     it('Create Service', function (done) {
         // navigate to the web page.
         driver.url(utils.getComposerBaseUrl())// navigate to the web page
-            .click('.new-welcome-button')
+            .click('#btn-welcome-new')
             .pause(3000)
             .then(function () {
                 var argument = models.getArgumentDeclarationModel(3, "m", "message");

@@ -15,6 +15,7 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
+import log from 'log';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -37,8 +38,10 @@ const langTools = ace.acequire('ace/ext/language_tools');
 class ExpressionEditor {
 
     constructor(bBox, callback, props, packageScope) {
+        this.destroy();
         this.props = props;
-        const expression = _.isNil(props.getterMethod.call(props.model)) ? '' : props.getterMethod.call(props.model);
+        const expression = _.isNil(props.getterMethod.call(props.model)) ? '' :
+            props.getterMethod.call(props.model).replace(/(?:\r\n|\r|\n)/g, ' ');
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
         this.removed = false;
 
@@ -46,14 +49,18 @@ class ExpressionEditor {
         this.expressionEditor.width(bBox.w + 2);
         this.expressionEditor.height(bBox.h + 2);
         this.expressionEditor.offset({ top: bBox.y - 1, left: bBox.x - 1 });
-        this.expressionEditor.css('border', '2px solid #333333');
+        this.expressionEditor.css('border', '1px solid rgb(220, 220, 220)');
         this.expressionEditor.css('padding-top', '6px');
         this.expressionEditor.css('background', 'white');
         this.expressionEditor.css('position', 'absolute');
         this.expressionEditor.css('min-width', bBox.w + 2);
 
         const editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
-        $(editorContainer).css('height', '22px');
+        if(this.props.isCustomHeight) {
+            $(editorContainer).css('height', bBox.h + 2);
+        }else{
+            $(editorContainer).css('height', '22px');
+        }
         $(editorContainer).text(expression);
         this._editor = ace.edit(editorContainer[0]);
 
@@ -67,11 +74,20 @@ class ExpressionEditor {
 
         // set OS specific font size to prevent Mac fonts getting oversized.
         if (this.isRunningOnMacOS()) {
-            this._editor.setFontSize('10pt');
+            if(this.props.fontSize){
+                this._editor.setFontSize(this.props.fontSize+'pt');
+            }else {
+                this._editor.setFontSize('10pt');
+            }
         } else {
-            this._editor.setFontSize('12pt');
+            if(this.props.fontSize){
+                this._editor.setFontSize(this.props.fontSize+'pt');
+            }else {
+                this._editor.setFontSize('12pt');
+            }
         }
 
+        langTools.setCompleters([]);
         const completers = completerFactory.getCompleters(props.key, packageScope);
         if (completers) {
             langTools.setCompleters(completers);
@@ -118,7 +134,7 @@ class ExpressionEditor {
             // props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text, props.key);
             props.model.trigger('focus-out');
-            this.distroy();
+            this.destroy();
             if (_.isFunction(callback)) {
                 callback(text);
             }
@@ -132,15 +148,20 @@ class ExpressionEditor {
         });
 
         this._editor.on('blur', (event) => {
+            try {
             const text = this._editor.getSession().getValue();
             props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text, props.key);
+                if (_.isFunction(callback)) {
+                    callback(text);
+                }
+            } catch (e) {
+                log.error('Error while updating the model from the input.', e);
+            } finally {
             props.model.trigger('focus-out');
             if (!this.removed) {
-                this.distroy();
+                this.destroy();
             }
-            if (_.isFunction(callback)) {
-                callback(text);
             }
         });
 
@@ -156,7 +177,7 @@ class ExpressionEditor {
                 if (this.end_check.exec(textWithSemicolon)) {
                     props.model.trigger('update-property-text', text, props.key);
                     props.model.trigger('focus-out');
-                    this.distroy();
+                    this.destroy();
                     if (_.isFunction(callback)) {
                         callback(text);
                     }
@@ -172,15 +193,19 @@ class ExpressionEditor {
         $(container).append(this.expressionEditor);
     }
 
-    distroy() {
+    destroy() {
         if (!this.removed) {
             this.removed = true;
             // commit if there are any changes
             // let text = this._editor.getSession().getValue();
             // this.props.model.trigger('update-property-text', text , this.props.key);
-            // distroy the editor
-            // this._editor.distroy();
+            //destroy the editor
+            if (this.expressionEditor) {
+                this._editor.destroy();
             this.expressionEditor.remove();
+            } else {
+                $('.expression_editor_container').remove();
+            }
         }
     }
 

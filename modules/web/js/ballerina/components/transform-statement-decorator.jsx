@@ -33,6 +33,8 @@ class TransformStatementDecorator extends React.Component {
         super(props, context);
         this.startDropZones = this.startDropZones.bind(this);
         this.stopDragZones = this.stopDragZones.bind(this);
+        this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
+        this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.state = {
             innerDropZoneActivated: false,
             innerDropZoneDropNotAllowed: false,
@@ -43,7 +45,6 @@ class TransformStatementDecorator extends React.Component {
 
     componentWillMount() {
         const { designView } = this.context;
-
         if (designView.getTransformActive()) {
             designView.setTransformActive(true, this.props.model);
         }
@@ -68,6 +69,56 @@ class TransformStatementDecorator extends React.Component {
     stopDragZones() {
         this.setState({ innerDropZoneExist: false });
     }
+
+    /**
+     * Called when a tool from tool pallet is dragged into the inner drop zone above this transform statement
+     * @param {Object} e - The drag event
+     */
+    onDropZoneActivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        const model = this.props.model;
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget,
+                (nodeBeingDragged) => {
+                    // IMPORTANT: override node's default validation logic
+                    // This drop zone is for statements only.
+                    // Statements should only be allowed here.
+                    return model.getFactory().isStatement(nodeBeingDragged);
+                },
+                () => {
+                    return dropTarget.getIndexOfChild(model);
+                });
+            this.setState({
+                innerDropZoneActivated: true,
+                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+            });
+            dragDropManager.once('drop-target-changed', function () {
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }, this);
+        }
+        e.stopPropagation();
+    }
+
+    /**
+     * Called when a tool from tool pallet is dragged out of the inner drop zone above this transform statement
+     * @param {Object} e - The drag event
+     */
+    onDropZoneDeactivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }
+        }
+        e.stopPropagation();
+    }
+
 
     onDelete() {
         this.props.model.remove();
@@ -102,6 +153,7 @@ class TransformStatementDecorator extends React.Component {
             />
         );
     }
+
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
      *
@@ -141,7 +193,7 @@ class TransformStatementDecorator extends React.Component {
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-                                            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
 
         const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
@@ -168,8 +220,8 @@ class TransformStatementDecorator extends React.Component {
                     height={innerZoneHeight}
                     className={dropZoneClassName}
                     {...fill}
-                    onMouseOver={e => this.onDropZoneActivate(e)}
-                    onMouseOut={e => this.onDropZoneDeactivate(e)}
+                    onMouseOver={this.onDropZoneActivate}
+                    onMouseOut={this.onDropZoneDeactivate}
                 />
                 <rect
                     x={bBox.x}
@@ -180,8 +232,22 @@ class TransformStatementDecorator extends React.Component {
                     onClick={e => this.onExpand()}
                 />
                 <g className="statement-body">
-                    <text x={text_x} y={text_y} className="transform-action" onClick={e => this.onExpand()}>{expression}</text>
-                    <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={iconSize} height={iconSize} onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
+                    <text x={text_x - 10} y={text_y} className="transform-action"
+                          onClick={e => this.onExpand()}>{expression}</text>
+                    <g className="transform-button" onClick={e => this.onExpand()}>
+                        <rect x={expand_button_x - 8}
+                              y={expand_button_y - 8}
+                              width={iconSize}
+                              height={iconSize}
+                              className="transform-action-button"/>
+                        <image className="transform-action-icon"
+                               x={expand_button_x} y={expand_button_y}
+                               width={iconSize}
+                               height={iconSize}
+                               xlinkHref={ImageUtil.getSVGIconString('expand')}>
+                            <title>Expand</title>
+                        </image>
+                    </g>
                 </g>
                 <ActionBox
                     bBox={actionBbox}

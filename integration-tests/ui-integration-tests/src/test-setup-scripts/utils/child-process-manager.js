@@ -53,5 +53,10 @@ module.exports = {
             stdio: 'ignore',
             detached: true
         }).unref();
+        
+        // spawn('node', ['src/test-setup-scripts/stop-selenium.js'], {
+        //     stdio: 'ignore',
+        //     detached: true
+        // }).unref();
     }
 };

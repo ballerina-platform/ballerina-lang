@@ -100,7 +100,7 @@ class AnnotationHelper {
      * @memberof AnnotationHelper
      */
     static getNames(environment, astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
-        const annotationIdentifiers = [];
+        const annotationIdentifiers = new Set();
         const factory = astNode.getFactory();
         let attachmentType = '';
         if (factory.isServiceDefinition(astNode)) {
@@ -118,22 +118,36 @@ class AnnotationHelper {
         } else if (factory.isStructDefinition(astNode)) {
             attachmentType = 'struct';
         }
-        for (const packageDefintion of environment.getPackages()) {
-            if (packageDefintion.getName() === fullPackageName) {
-                for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                    if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
-                        annotationIdentifiers.push(annotationDefinition.getName());
-                    }
 
-                    if (allowAnnotationWithNoAttachmentType &&
+        if (fullPackageName !== 'Current Package') {
+            for (const packageDefintion of environment.getPackages()) {
+                if (packageDefintion.getName() === fullPackageName) {
+                    for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+                        if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                            annotationIdentifiers.add(annotationDefinition.getName());
+                        }
+
+                        if (allowAnnotationWithNoAttachmentType &&
                                                             annotationDefinition.getAttachmentPoints().length === 0) {
-                        annotationIdentifiers.push(annotationDefinition.getName());
+                            annotationIdentifiers.add(annotationDefinition.getName());
+                        }
                     }
+                }
+            }
+        } else {
+            for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+                if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                    annotationIdentifiers.add(annotationDefinition.getName());
+                }
+
+                if (allowAnnotationWithNoAttachmentType &&
+                    annotationDefinition.getAttachmentPoints().length === 0) {
+                    annotationIdentifiers.add(annotationDefinition.getName());
                 }
             }
         }
 
-        return annotationIdentifiers;
+        return Array.from(annotationIdentifiers);
     }
 
     /**
@@ -174,6 +188,17 @@ class AnnotationHelper {
                 if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
                     packageNames.add(packageDefintion.getName());
                 }
+            }
+        }
+
+
+        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+            if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                packageNames.add(environment.getCurrentPackage().getName());
+            }
+
+            if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
+                packageNames.add(environment.getCurrentPackage().getName());
             }
         }
 

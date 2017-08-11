@@ -47,8 +47,8 @@ class LifeLine extends React.Component {
      *
      */
     onJumptoCodeLine() {
-        editor.switchToView(SOURCE_VIEW);
-        editor.jumpToLine({});
+        const { editor } = this.context;
+        editor.goToSource(this.props.model);
     }
 
     onUpdate(text) {
@@ -88,6 +88,7 @@ class LifeLine extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
+        const iconSize = 13;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
@@ -99,44 +100,122 @@ class LifeLine extends React.Component {
         const dashedY2 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : -1;
         const solidY1 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : bBox.y + (titleBoxH / 2);
         const solidY2 = y2 - (titleBoxH / 2);
-        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w , titleBoxH);
+        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleBoxH);
 
         const actionBbox = new SimpleBBox();
         actionBbox.w = (3 * DesignerDefaults.actionBox.width - 14) / 4;
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
         actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
-
+        let tooltip = this.props.title;
+        if (this.props.tooltip) {
+            tooltip = this.props.tooltip;
+        }
+        let modifiedCenterValueForTop = centerX;
+        const imageX = bBox.x + (DesignerDefaults.iconForTool.width / 4);
+        const imageYTop = bBox.y + (DesignerDefaults.iconForTool.height / 4);
+        const imageYBottom = y2 - titleBoxH + (DesignerDefaults.iconForTool.height / 4);
+        if (this.props.icon) {
+            modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width + DesignerDefaults.iconForTool.padding.left;
+        }
         return (<g
             className="life-line-group"
             onMouseOut={this.setActionVisibility.bind(this, false)}
             onMouseOver={this.setActionVisibility.bind(this, true)}
         >
+
+            <title> {tooltip} </title>
+
             {!_.isNil(startSolidLineFrom) && <line
-                x1={centerX} y1={dashedY1} x2={centerX} y2={dashedY2}
+                x1={centerX}
+                y1={dashedY1}
+                x2={centerX}
+                y2={dashedY2}
                 className={lineClass}
                 strokeDasharray='5, 5'
             />}
             <line
-                x1={centerX} y1={solidY1} x2={centerX} y2={solidY2}
+                x1={centerX}
+                y1={solidY1}
+                x2={centerX}
+                y2={solidY2}
                 className={lineClass}
             />
             <rect
-                x={bBox.x} y={bBox.y} width={bBox.w} height={titleBoxH} rx="0" ry="0"
-                className={polygonClassTop} onClick={e => this.openExpressionEditor(e)}
+                x={bBox.x}
+                y={bBox.y}
+                width={bBox.w}
+                height={titleBoxH}
+                rx="0"
+                ry="0"
+                className={polygonClassTop}
+                onClick={e => this.openExpressionEditor(e)}
             />
+
+            {this.props.icon &&
+            <g>
+                <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={DesignerDefaults.iconForTool.width}
+                    height={DesignerDefaults.iconForTool.height}
+                    rx="0"
+                    ry="0"
+                    fill={this.props.iconColor}
+                />
+                <image
+                    x={imageX}
+                    y={imageYTop}
+                    width={iconSize}
+                    height={iconSize}
+                    xlinkHref={this.props.icon}
+                />
+            </g>
+            }
             <rect
-                x={bBox.x} y={y2 - titleBoxH} width={bBox.w} height={titleBoxH} rx="0" ry="0"
+                x={bBox.x}
+                y={y2 - titleBoxH}
+                width={bBox.w}
+                height={titleBoxH}
+                rx="0"
+                ry="0"
                 className={polygonClassBottom}
             />
+            {this.props.icon &&
+            <g>
+                <rect
+                    x={bBox.x}
+                    y={y2 - titleBoxH}
+                    width={DesignerDefaults.iconForTool.width}
+                    height={DesignerDefaults.iconForTool.height}
+                    rx="0"
+                    ry="0"
+                    fill={this.props.iconColor}
+                />
+                <image
+                    x={imageX}
+                    y={imageYBottom}
+                    width={iconSize}
+                    height={iconSize}
+                    xlinkHref={this.props.icon}
+                />
+            </g>
+            }
             <text
-                x={centerX} y={bBox.y + titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
-                dominantBaseline="central" className="life-line-text genericT"
+                x={modifiedCenterValueForTop}
+                y={bBox.y + titleBoxH / 2}
+                alignmentBaseline="central"
+                dominantBaseline="central"
+                className="life-line-text genericT"
                 onClick={e => this.openExpressionEditor(e)}
             >{this.props.title}</text>
             <text
-                x={centerX} y={y2 - titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
-                dominantBaseline="central" className="life-line-text genericT unhoverable"
+                x={modifiedCenterValueForTop}
+                y={y2 - titleBoxH / 2}
+                textAnchor="middle"
+                alignmentBaseline="central"
+                dominantBaseline="central"
+                className="life-line-text genericT unhoverable"
             >{this.props.title}</text>
             {this.props.onDelete &&
                 <ActionBox
@@ -151,6 +230,7 @@ class LifeLine extends React.Component {
 }
 
 LifeLine.contextTypes = {
+    model: PropTypes.instanceOf(Object),
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,

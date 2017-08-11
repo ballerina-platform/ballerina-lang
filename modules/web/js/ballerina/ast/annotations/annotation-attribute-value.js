@@ -32,10 +32,7 @@ class AnnotationAttributeValue extends ASTNode {
     constructor() {
         super('AnnotationAttributeValue');
         this.whiteSpace.defaultDescriptor.regions = {
-            0: '',      // ignore
-            1: '',      // ignore
-            2: ' ',     // ignore
-            3: '',     // space before value
+            3: ' ',     // space before value
             4: '\n',    // space after value
         };
     }

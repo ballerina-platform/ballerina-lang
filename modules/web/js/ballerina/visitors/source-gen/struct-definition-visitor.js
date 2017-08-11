@@ -84,9 +84,11 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitStructDefinition(structDefinition) {
         this.outdent();
-        this.appendSource('}' + structDefinition.getWSRegion(3));
-        this.appendSource((structDefinition.whiteSpace.useDefault) ?
-                      this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = '}' + structDefinition.getWSRegion(3) +
+            ((structDefinition.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+        this.appendSource(constructedSourceSegment);
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

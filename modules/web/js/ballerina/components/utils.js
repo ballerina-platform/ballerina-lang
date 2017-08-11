@@ -20,7 +20,7 @@ function getComponentForNodeArray(nodeArray) {
         if (components[compName]) {
             return true;
         }
-        log.error(`Unknown element type :${child.constructor.name}`);
+        log.debug(`Unknown element type :${child.constructor.name}`);
         return false;
     }).map((child) => {
         const compName = child.constructor.name;

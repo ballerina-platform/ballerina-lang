@@ -114,9 +114,13 @@ public class SwaggerServiceMapper {
                     List<Scheme> schemes = new LinkedList<>();
                     for (AnnotationAttributeValue schemeValue : swaggerConfigAnnotation.get()
                             .getAttribute("schemes").getValueArray()) {
-                        schemes.add(Scheme.forValue(schemeValue.getLiteralValue().stringValue()));
+                        if (null != Scheme.forValue(schemeValue.getLiteralValue().stringValue())) {
+                            schemes.add(Scheme.forValue(schemeValue.getLiteralValue().stringValue()));
+                        }
                     }
-                    swagger.setSchemes(schemes);
+                    if (schemes.size() > 0) {
+                        swagger.setSchemes(schemes);
+                    }
                 }
             }
             this.createSecurityDefinitionsModel(swaggerConfigAnnotation.get().getAttributeNameValuePairs()
@@ -135,9 +139,9 @@ public class SwaggerServiceMapper {
             for (AnnotationAttributeValue authorizationValues : annotationAttributeValue.getValueArray()) {
                 AnnotationAttachment authAnnotationAttachment = authorizationValues.getAnnotationValue();
                 if (null != authAnnotationAttachment.getAttribute("name") &&
-                    null != authAnnotationAttachment.getAttribute("type")) {
+                    null != authAnnotationAttachment.getAttribute("authType")) {
                     String name = authAnnotationAttachment.getAttribute("name").getLiteralValue().stringValue();
-                    String type = authAnnotationAttachment.getAttribute("type").getLiteralValue().stringValue();
+                    String type = authAnnotationAttachment.getAttribute("authType").getLiteralValue().stringValue();
                     String description = "";
                     if (null != authAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
                         description = authAnnotationAttachment.getAttributeNameValuePairs().get("description")
@@ -391,12 +395,24 @@ public class SwaggerServiceMapper {
      */
     private void parseConfigAnnotationAttachment(Service service, Swagger swagger) {
         Optional<AnnotationAttachment> httpConfigAnnotationAttachment = Arrays.stream(service.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "config".equals(a.getName()))
+                .filter(a -> this.checkIfHttpAnnotation(a) && "configuration".equals(a.getName()))
                 .findFirst();
         if (httpConfigAnnotationAttachment.isPresent()) {
             if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("basePath")) {
                 swagger.setBasePath(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("basePath")
                         .getLiteralValue().stringValue());
+            }
+            if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("host") &&
+                null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("port")) {
+                swagger.setHost(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("host")
+                        .getLiteralValue().stringValue() + ":" +
+                                httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("port")
+                        .getLiteralValue().stringValue());
+            }
+            if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("version") &&
+                                                                                        null != swagger.getInfo()) {
+                swagger.getInfo().setVersion(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs()
+                        .get("version").getLiteralValue().stringValue());
             }
         }
     

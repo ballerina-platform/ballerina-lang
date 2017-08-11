@@ -202,9 +202,14 @@ table.debug-frames {
 
 .closeConsole{
     color: #AAA;
-    font-size: 12px;
-    margin-top: 5px;
-    margin-left:10px;
+    font-size: 14px;
+    position: absolute;
+    margin-top: 4px;
+    margin-left: 2px;
+}
+
+.closeConsole > .i.fw-cancel{
+    position: relative;
 }
 .btn-debug-activate {
     padding-left: 30px;

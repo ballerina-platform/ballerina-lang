@@ -31,6 +31,7 @@ export default class importDeclarationExpanded extends React.Component {
 
         this.handleAddImportClick = this.handleAddImportClick.bind(this);
         this.handleAddImportBlur = this.handleAddImportBlur.bind(this);
+        this.onImportSelect = this.onImportSelect.bind(this);
     }
 
     handleAddImportBlur() {
@@ -41,8 +42,12 @@ export default class importDeclarationExpanded extends React.Component {
         this.setState({ showSuggestions: true });
     }
 
+    onImportSelect(e, { suggestionValue }) {
+        this.props.onAddImport(suggestionValue);
+    }
+
     render() {
-        const bBox = this.props.bBox;
+        const { bBox, imports } = this.props;
         const importDeclarationHeight = 30;
         const importInputHeight = 40;
         const importDeclarationWidth = 310;
@@ -51,6 +56,7 @@ export default class importDeclarationExpanded extends React.Component {
         const topBarHeight = 25;
         const iconSize = 20;
         const importElements = [];
+        const importDecDecoratorWidth = 3;
 
         const topBarBbox = {
             x: bBox.x,
@@ -59,7 +65,7 @@ export default class importDeclarationExpanded extends React.Component {
 
         let lastImportElementY = topBarBbox.y + topBarHeight;
 
-        this.props.imports.forEach((importDec, count) => {
+        imports.forEach((importDec, count) => {
             const itemBBox = {
                 x: bBox.x,
                 y: lastImportElementY,
@@ -69,7 +75,9 @@ export default class importDeclarationExpanded extends React.Component {
 
             importElements.push(<ImportDeclarationItem
                 key={importDec.id}
-                bBox={itemBBox} importDec={importDec} onDeleteClick={this.props.onDeleteImport}
+                bBox={itemBBox}
+                importDec={importDec}
+                onDeleteClick={this.props.onDeleteImport}
             />);
             lastImportElementY += importDeclarationHeight;
         });
@@ -87,31 +95,45 @@ export default class importDeclarationExpanded extends React.Component {
             initialValue: '',
         };
 
+        const totalHeight = topBarHeight + (imports.length*importDeclarationHeight) + importInputHeight
+
         return (
             <g className="import-declarations-collection">
                 <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} width={importDeclarationWidth} style={{ fill: '#ddd' }} />
-                <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} className="import-definition-decorator" />
                 <text x={topBarBbox.x + leftPadding} y={topBarBbox.y + topBarHeight / 2} className="import-declaration-topbar-label">Imports</text>
                 <image
-                    width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-                    onClick={this.props.onCollapse} xlinkHref={ImageUtil.getSVGIconString('hide')}
-                    x={bBox.x + importDeclarationWidth - iconSize - 6} y={topBarBbox.y + (topBarHeight - iconSize) / 2}
+                    width={iconSize}
+                    height={iconSize}
+                    className="property-pane-action-button-delete"
+                    onClick={this.props.onCollapse}
+                    xlinkHref={ImageUtil.getSVGIconString('hide')}
+                    x={bBox.x + importDeclarationWidth - iconSize - 6}
+                    y={topBarBbox.y + (topBarHeight - iconSize) / 2}
                 />
                 {importElements}
                 <rect x={bBox.x} y={lastImportElementY} height={importInputHeight} width={importDeclarationWidth} className="add-import-button-background" />
                 <g onClick={this.handleAddImportClick}>
                     <rect
-                        x={bBox.x + 7} y={lastImportElementY + 7} height={importInputHeight - 14} width={importDeclarationWidth - 14}
+                        x={bBox.x + 7}
+                        y={lastImportElementY + 7}
+                        height={importInputHeight - 14}
+                        width={importDeclarationWidth - 14}
                         className="add-import-button"
                     />
                     <text x={bBox.x + 14} y={lastImportElementY + importInputHeight / 2} className="add-import-button-text" >{'+ Add Import'}</text>
                 </g>
-                <rect x={bBox.x} y={lastImportElementY} height={importInputHeight} className="import-definition-decorator" />
                 <SuggestionsText
-                    x={bBox.x + 5} y={lastImportElementY + 5} height={importInputHeight - 10}
-                    width={importDeclarationWidth - 10} suggestionsPool={this.props.packageSuggestions} show={this.state.showSuggestions}
-                    onBlur={this.handleAddImportBlur} onEnter={this.props.onAddImport}
+                    x={bBox.x + 5}
+                    y={lastImportElementY + 5}
+                    height={importInputHeight - 10}
+                    width={importDeclarationWidth - 10}
+                    suggestionsPool={this.props.packageSuggestions}
+                    show={this.state.showSuggestions}
+                    onBlur={this.handleAddImportBlur}
+                    onEnter={this.props.onAddImport}
+                    onSuggestionSelected={this.onImportSelect}
                 />
+                <rect x={topBarBbox.x} y={topBarBbox.y} height={totalHeight} width={importDecDecoratorWidth} className="import-definition-decorator" />
             </g>
         );
     }

@@ -20,6 +20,7 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import Console from 'console';
 import LaunchChannel from './launch-channel';
+import Tools from './../debugger/tools';
 /**
  * Launch Manager
  * @class LaunchManager
@@ -36,6 +37,9 @@ class LaunchManager extends EventChannel {
         this.enable = false;
         this.channel = undefined;
         this.active = false;
+        this.tryItUrl = undefined;
+        this.console = Console;
+        this.debugFile = null;
     }
     /**
      *
@@ -124,6 +128,7 @@ class LaunchManager extends EventChannel {
             commandArgs: this.getApplicationConfigs(file),
         };
         this.channel.sendMessage(message);
+        this.debugFile = file;
     }
     /**
      * Send message to debugging ballerina service
@@ -137,6 +142,7 @@ class LaunchManager extends EventChannel {
             fileName: file.getName(),
             filePath: file.getPath(),
         };
+        this.debugFile = file;
         this.channel.sendMessage(message);
     }
     /**
@@ -170,6 +176,7 @@ class LaunchManager extends EventChannel {
             this.trigger('session-ended');
             // close the current channel.
             this.channel.close();
+            this.tryItUrl = undefined;
         }
         if (message.code === 'PONG') {
             // if a pong message is received we will ignore.
@@ -177,6 +184,12 @@ class LaunchManager extends EventChannel {
         }
         if (message.code === 'INVALID_CMD') {
             // ignore and return.
+            return;
+        }
+        if (message.code === 'TRY_IT_URL') {
+            this.tryItUrl = message.message;
+            this.trigger('try-it-url-received', message.message);
+            this.application.commandManager.dispatch('try-it-url-received', message.message);
             return;
         }
         // optimization to handle too many messages
@@ -191,6 +204,13 @@ class LaunchManager extends EventChannel {
      */
     openConsole() {
         Console.clear();
+        Console.show();
+    }
+    /**
+     * Open console view
+     * @memberof LaunchManager
+     */
+    showConsole() {
         Console.show();
     }
     /**
@@ -225,7 +245,8 @@ class LaunchManager extends EventChannel {
      * @memberof LaunchManager
      */
     getApplicationConfigs(file) {
-        const args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
+        const fileUniqueId = Tools.getFileUniqueId(file);
+        const args = this.application.browserStorage.get(`launcher-app-configs-${fileUniqueId}`);
         return args || '';
     }
 }

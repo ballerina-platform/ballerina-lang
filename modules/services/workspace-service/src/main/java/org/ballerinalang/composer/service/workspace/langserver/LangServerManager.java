@@ -25,7 +25,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
@@ -70,6 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 /**
  * Language server Manager which manage langServer requests from the clients.
  */
@@ -96,6 +97,11 @@ public class LangServerManager {
     private Set<Map.Entry<String, ModelPackage>> packages;
     private Map<Path, Map<String, ModelPackage>> programPackagesMap;
     private Map<Path, BLangProgram> programMap;
+    
+    /**
+     * Caching the built in packages.
+     */
+    private Map<String, ModelPackage> builtInNativePackages;
 
     /**
      * Private constructor
@@ -136,8 +142,9 @@ public class LangServerManager {
     void processFrame(String json) {
         Gson gson = new Gson();
         RequestMessage message = gson.fromJson(json, RequestMessage.class);
-
-        if (message.getId() != null) {
+        if (LangServerConstants.PING.equals(message.getMethod())) {
+            sendPong();
+        } else if (message.getId() != null) {
             // Request Message Received
             processRequest(message);
         } else {
@@ -168,6 +175,9 @@ public class LangServerManager {
                 case LangServerConstants.PROGRAM_DIRECTORY_PACKAGES:
                     this.getProgramPackages(message);
                     break;
+                case LangServerConstants.BUILT_IN_PACKAGES:
+                    this.getBuiltInPackages(message);
+                    break;
                 default:
                     // Valid Method could not be found
                     this.invalidMethodFound(message);
@@ -178,6 +188,15 @@ public class LangServerManager {
             this.sendErrorResponse(LangServerConstants.SERVER_NOT_INITIALIZED_LINE,
                     LangServerConstants.SERVER_NOT_INITIALIZED, message, null);
         }
+    }
+
+    /**
+     * Send Ping Reply
+     */
+    private void sendPong() {
+        ResponseMessage responseMessage = new ResponseMessage();
+        responseMessage.setId(LangServerConstants.PONG);
+        this.pushMessageToClient(langServerSession, responseMessage);
     }
 
     /**
@@ -198,6 +217,9 @@ public class LangServerManager {
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
                     this.documentDidSave(message);
+                    break;
+                case LangServerConstants.PING:
+                    this.sendPong();
                     break;
                 default:
                     // Valid Method could not be found
@@ -410,9 +432,8 @@ public class LangServerManager {
 
 
     /**
-     * Get all the packages in the program directory. If the given file is not saved in the file-system, this will
-     * return only the native/built-in packages. And also calling this method will update the "programPackagesMap"
-     * which is used to keep program packages against a file path
+     * Get all the packages in the program directory. Calling this method will update the "programPackagesMap"
+     * which is used to keep program packages against a file path.
      *
      * @param message Request Message
      */
@@ -426,19 +447,49 @@ public class LangServerManager {
             String fileName = textDocumentPositionParams.getFileName();
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
-
-            // Load all the packages associated the runtime
-            packages = Utils.getAllPackages();
-            if (!("temp".equals(filePath) || "".equals(packageName))) {
-                Path file = Paths.get(filePath + File.separator + fileName);
-                packages.putAll(resolveProgramPackages(Paths.get(filePath), packageName));
-                programPackagesMap.put(file, packages);
+            if ("temp".equals(filePath) || ".".equals(packageName)) {
+                // No need to resolve packages if the package is not defined or if the file is not saved
+                return;
             }
+            Path file = Paths.get(filePath + File.separator + fileName);
+            packages = resolveProgramPackages(Paths.get(filePath), packageName);
+            programPackagesMap.put(file, packages);
             LangServerManager.this.setPackages(packages.entrySet());
 
             // add package info into response
             Gson gson = new Gson();
             String json = gson.toJson(packages.values());
+            JsonParser parser = new JsonParser();
+            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+            response.add("packages", packagesArray);
+
+            ResponseMessage responseMessage = new ResponseMessage();
+            responseMessage.setId(((RequestMessage) message).getId());
+            responseMessage.setResult(response);
+            pushMessageToClient(langServerSession, responseMessage);
+
+        } else {
+            logger.warn("Invalid Message type found");
+        }
+    }
+
+    /**
+     * Get all the built-in packages.
+     *
+     * @param message Request Message
+     */
+    private void getBuiltInPackages(Message message) {
+        if (message instanceof RequestMessage) {
+            JsonObject response = new JsonObject();
+            // Load all the packages associated the runtime
+            if (builtInNativePackages == null) {
+                builtInNativePackages = Utils.getAllPackages();
+            }
+            LangServerManager.this.setPackages(builtInNativePackages.entrySet());
+
+            // add package info into response
+            Gson gson = new Gson();
+            String json = gson.toJson(builtInNativePackages.values());
             JsonParser parser = new JsonParser();
             JsonArray packagesArray = parser.parse(json).getAsJsonArray();
             response.add("packages", packagesArray);
@@ -507,6 +558,7 @@ public class LangServerManager {
 
     /**
      * Get packages
+     *
      * @return a map contains package details
      */
     private Set<Map.Entry<String, ModelPackage>> getPackages() {
@@ -515,6 +567,7 @@ public class LangServerManager {
 
     /**
      * Set packages
+     *
      * @param packages - packages set
      */
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
@@ -574,14 +627,14 @@ public class LangServerManager {
             String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
                     filePath.toString().length());
             try {
-                BLangProgram bLangProgram = new BLangProgramLoader()
-                        .loadMain(programDirPath, Paths.get(sourcePath));
+                BLangProgram bLangProgram = new BLangASTBuilder()
+                        .build(programDirPath, Paths.get(sourcePath));
 
                 //
                 java.nio.file.Path path = programDirPath.resolve(sourcePath);
                 programMap.put(path, bLangProgram);
 
-                String[] packageNames = {bLangProgram.getMainPackage().getName()};
+                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
                 modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
             } catch (BallerinaException e) {
                 logger.warn(e.getMessage());

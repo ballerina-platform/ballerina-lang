@@ -107,11 +107,7 @@ class Application {
     }
 
     reRender() {
-        this.tabController.forEach((tab) => {
-            if (typeof tab.reRender === 'function') {
-                tab.reRender();
-            }
-        });
+        this.commandManager.dispatch('resize');
     }
 
     validateConfig(config) {
@@ -133,7 +129,6 @@ class Application {
     }
 
     render() {
-        
         log.debug('start: rendering menu_bar control');
         this.menuBar.render();
         log.debug('end: rendering menu_bar control');

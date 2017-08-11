@@ -45,7 +45,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
             ArrayList<CompletionItem> completionItems = actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null), dataModel);
 
             prioritiesMap.put(ItemResolverConstants.FUNCTION_TYPE, ItemResolverConstants.PRIORITY_7);
             prioritiesMap.put(ItemResolverConstants.ACTION_TYPE, ItemResolverConstants.PRIORITY_6);
@@ -58,6 +58,27 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+
+            CompletionItem xmlns = new CompletionItem();
+            xmlns.setLabel(ItemResolverConstants.XMLNS);
+            xmlns.setInsertText(ItemResolverConstants.NAMESPACE_DECLARATION_TEMPLATE);
+            xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            xmlns.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(xmlns);
+
+            CompletionItem workerItem = new CompletionItem();
+            workerItem.setLabel(ItemResolverConstants.WORKER);
+            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
+            completionItems.add(workerItem);
+
+            CompletionItem xmlAttribute = new CompletionItem();
+            xmlAttribute.setInsertText(ItemResolverConstants.XML_ATTRIBUTE_REFERENCE_TEMPLATE);
+            xmlAttribute.setLabel("@");
+            xmlAttribute.setDetail("xmlAttribute");
+            xmlAttribute.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(xmlAttribute);
 
             prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_6);
             prioritiesMap.put(ItemResolverConstants.STATEMENT_TYPE, ItemResolverConstants.PRIORITY_5);

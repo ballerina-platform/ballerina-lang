@@ -35,8 +35,26 @@ class Tools extends EventChannel {
      */
     constructor() {
         super();
-        this.compiled = _.template(
-            `<% if (!active) { %>
+        this.compiled = _.template(`
+            <% if (waiting && !reConnecting) { %>
+                <div class="debug-panel-header">
+                    <span class="tool-group-header-title">Waiting for debugger to connect ...</span>
+                </div>
+            <% } %>
+            <% if (reConnecting && !waiting) { %>
+                <div class="debug-panel-header">
+                    <span class="tool-group-header-title">Could not connect to debugger</span>
+                </div>
+                <div class="btn-group col-xs-12">
+                    <div type="button" 
+                        class="btn btn-default text-left btn-debug-activate col-xs-12"
+                        id="reconnect-debugger"
+                        title="Reconnect">
+                        <span class="launch-label"><i class="fw fw-refresh"></i> Retry</span>
+                    </div>
+                </div>
+            <% } %>
+            <% if (!reConnecting && !active && !waiting) { %>
                 <div class="debug-panel-header">
                     <span class="tool-group-header-title">Debug</span>
                 </div>
@@ -107,11 +125,34 @@ class Tools extends EventChannel {
         this.navigation = false;
 
         $('.debug-connect-button').on('click', () => { this.connect(); });
+        DebugManager.on('connecting', () => { this.showWaiting(); });
         DebugManager.on('session-terminated', () => { this.connectionError(); });
         DebugManager.on('session-started', () => { this.connectionStarted(); });
-        DebugManager.on('session-ended', () => { this.render(); });
+        DebugManager.on('session-ended', () => { this.endSession(); });
         DebugManager.on('debug-hit', () => { this.enableNavigation(); });
         DebugManager.on('resume-execution', () => { this.disableNavigation(); });
+        DebugManager.on('session-error', (endpoint) => { this.showReconnectButton(endpoint); });
+    }
+    endSession() {
+        this.waiting = false;
+        this.reConnecting = false;
+        this.active = false;
+        this.navigation = true;
+        this.render();
+    }
+    showWaiting() {
+        this.waiting = true;
+        this.render();
+    }
+    showReconnectButton(endpoint) {
+        this.waiting = false;
+        this.reConnecting = true;
+        this.render();
+        this.container.on('click', '#reconnect-debugger', () => {
+            this.waiting = true;
+            this.reConnecting = false;
+            DebugManager.connect(endpoint);
+        });
     }
     /**
      *
@@ -210,6 +251,8 @@ class Tools extends EventChannel {
         const context = {};
         context.active = DebugManager.active;
         context.navigation = this.navigation;
+        context.reConnecting = this.reConnecting;
+        context.waiting = this.waiting || false;
         this.container.html(this.compiled(context));
         $('.btn-debug-activate').tooltip();
     }
@@ -295,6 +338,7 @@ class Tools extends EventChannel {
      * @memberof Tools
      */
     connectionStarted() {
+        this.waiting = false;
         this.render();
 
         _.each(this.toolbarShortcuts, (commandInfo) => {
@@ -314,6 +358,7 @@ class Tools extends EventChannel {
     debugApplication() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
+            this.showWaiting();
             const file = activeTab.getFile();
             this.launchManager.debugApplication(file);
         } else {
@@ -328,6 +373,7 @@ class Tools extends EventChannel {
     debugService() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
+            this.showWaiting();
             const file = activeTab.getFile();
             this.launchManager.debugService(file);
         } else {

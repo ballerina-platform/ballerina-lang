@@ -22,6 +22,8 @@ import CommonUtils from '../../utils/common-utils';
 import VariableDeclaration from './../variable-declaration';
 import FragmentUtils from '../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import LambdaExpression from '../expressions/lambda-expression';
 
 /**
  * Class to represent an Variable Definition statement.
@@ -47,18 +49,27 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - Variable definition expression string
      */
     getStatementString() {
-        let variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
-            (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
+        let variableDefinitionStatementString = !_.isNil(this.getVariableDef().getPkgName()) ?
+            (this.getVariableDef().getPkgName() + ':') : '';
+        const isIdentifierLiteral = this.getChildren()[0].isIdentifierLiteral;
         variableDefinitionStatementString += this.getBType();
-        if (((this.getChildren()[0]).getChildren()[0]).isArray()) {
-            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0]).getDimensions(); itr++) {
+        if (this.getVariableDef().isArray()) {
+            for (let itr = 0; itr < this.getVariableDef().getDimensions(); itr++) {
                 variableDefinitionStatementString += '[]';
             }
         }
-        variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
-        if (!_.isNil(this.children[1])) {
+        if (this.getVariableDef().getTypeConstraint()) {
+            const constraint = this.getVariableDef().getTypeConstraint();
+            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
+                                  + constraint.type + '>');
+            variableDefinitionStatementString += constraintStr;
+        }
+        variableDefinitionStatementString += this.getWSRegion(0)
+                + (isIdentifierLiteral ? '|' : '') + this.getIdentifier()
+                + (isIdentifierLiteral ? '|' : '');
+        if (!_.isNil(this.getRightExpression())) {
             variableDefinitionStatementString +=
-              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();
+              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.getRightExpression().getExpressionString();
         } else {
             variableDefinitionStatementString += this.getWSRegion(3);
         }
@@ -70,7 +81,21 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The ballerina type.
      */
     getBType() {
-        return !_.isNil(this.children[0]) ? this.children[0].getVariableType() : undefined;
+        return !_.isNil(this.getLeftExpression()) ? this.getLeftExpression().getVariableType() : undefined;
+    }
+
+    /**
+     * Gets the variable type of the variable definition statement inclusive of dimensions and constraints.
+     * @return {string} - The variable type.
+     */
+    getVariableType() {
+        let variableType = this.getBType();
+        if (this.getVariableDef().isArray()) {
+            for (let itr = 0; itr < this.getVariableDef().getDimensions(); itr++) {
+                variableType += '[]';
+            }
+        }
+        return variableType;
     }
 
     /**
@@ -78,7 +103,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The identifier.
      */
     getIdentifier() {
-        return !_.isNil(this.children[0]) ? this.children[0].getVariableName() : undefined;
+        return !_.isNil(this.getLeftExpression()) ? this.getLeftExpression().getVariableName() : undefined;
     }
 
     /**
@@ -87,7 +112,16 @@ class VariableDefinitionStatement extends Statement {
      * @memberof VariableDefinitionStatement
      */
     getBTypePkgName() {
-        return this.getChildren()[0].getChildren()[0].getPkgName();
+        return this.getVariableDef().getPkgName();
+    }
+
+    /**
+     * Get variable definition
+     * @returns {VariableDefinition} variable definition
+     * @memberof VariableDefinitionStatement
+     */
+    getVariableDef() {
+        return this.getLeftExpression().getChildren()[0];
     }
 
     /**
@@ -95,7 +129,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The identifier.
      */
     getValue() {
-        return !_.isNil(this.children[1]) ? this.children[1].getExpressionString()
+        return !_.isNil(this.getRightExpression()) ? this.getRightExpression().getExpressionString()
                   : undefined;
     }
 
@@ -105,7 +139,7 @@ class VariableDefinitionStatement extends Statement {
      * @returns {void}
      */
     setIdentifier(identifier, opts) {
-        this.children[0].setVariableName(identifier, opts);
+        this.getLeftExpression().setVariableName(identifier, opts);
     }
 
     /**
@@ -114,7 +148,7 @@ class VariableDefinitionStatement extends Statement {
      * @returns {void}
      */
     setBType(bType, opts) {
-        this.children[0].setVariableType(bType, opts);
+        this.getLeftExpression().setVariableType(bType, opts);
     }
 
     /**
@@ -164,22 +198,25 @@ class VariableDefinitionStatement extends Statement {
      * @override
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const replaced = LambdaExpression.replaceSymbol(stmtString, this.getLambdaChildren());
+        const fragment = FragmentUtils.createStatementFragment(replaced + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {
+            this.viewState.source = null;
             if (parsedJson.children.length !== 1) {
                 // Only checks for the simple literals
                 if (parsedJson.children[1].type === 'basic_literal_expression') {
                     const variableType = parsedJson.children[0].children[0].variable_type;
                     const defaultValueType = parsedJson.children[1].basic_literal_type;
-
-                    if (variableType !== defaultValueType &&
-                        !(variableType === 'float' && defaultValueType === 'int')) {
-                        state = false;
-                        log.warn('Variable type and the default value type are not the same');
-                        if (_.isFunction(callback)) {
-                            callback({ isValid: false, response: parsedJson });
+                    if (variableType !== undefined) {
+                        if (variableType !== defaultValueType &&
+                            !(variableType === 'float' && defaultValueType === 'int')) {
+                            state = false;
+                            log.warn('Variable type and the default value type are not the same');
+                            if (_.isFunction(callback)) {
+                                callback({ isValid: false, response: parsedJson });
+                            }
                         }
                     }
                 }
@@ -233,12 +270,16 @@ class VariableDefinitionStatement extends Statement {
      * @override
      */
     generateUniqueIdentifiers() {
+        let defaultValueName = 'i';
+        if (this.getBType() === 'message') {
+            defaultValueName = 'm';
+        }
         if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
                 attributes: [{
                     checkEvenIfDefined: true,
-                    defaultValue: 'i',
+                    defaultValue: defaultValueName,
                     setter: this.setIdentifier,
                     getter: this.getIdentifier,
                     parents: [{
@@ -259,7 +300,44 @@ class VariableDefinitionStatement extends Statement {
                     }],
                 }],
             });
+        } else if (this.getFactory().isFunctionDefinition(this.parent)) {
+            CommonUtils.generateUniqueIdentifier({
+                node: this,
+                attributes: [{
+                    checkEvenIfDefined: true,
+                    defaultValue: defaultValueName,
+                    setter: this.setIdentifier,
+                    getter: this.getIdentifier,
+                    parents: [{
+                        // variable definitions
+                        node: this.parent,
+                        getChildrenFunc: this.parent.getVariableDefinitionStatements,
+                        getter: this.getIdentifier,
+                    }, {
+                        // ballerina-ast-root definition
+                        node: this.parent.parent,
+                        getChildrenFunc: this.parent.parent.getConstantDefinitions,
+                        getter: VariableDeclaration.prototype.getIdentifier,
+                    }],
+                }],
+            });
         }
+    }
+
+    /**
+     * @returns {[FunctionDefinition]} lambda
+     */
+    getLambdaChildren() {
+        // TODO: remove after making connector expression a child of RHS
+        const rightExpression = this.getRightExpression();
+        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)) {
+            return rightExpression.getArguments().filter(BallerinaASTFactory.isLambdaExpression)
+                .map(l => l.getLambdaFunction());
+        }
+
+        const deepFilterChildren = x =>
+            (BallerinaASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
+        return _.flatMapDeep(deepFilterChildren(this)).map(l => l.getLambdaFunction());
     }
 
 

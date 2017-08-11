@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from 'react';
+import log from 'log';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import * as d3 from 'd3';
@@ -65,20 +66,25 @@ class ToolView extends React.Component {
      */
     createHandleDragStopEvent() {
         return () => {
-            if (this.context.dragDropManager.isAtValidDropTarget()) {
-                const indexForNewNode = this.context.dragDropManager.getDroppedNodeIndex();
-                const nodeBeingDragged = this.context.dragDropManager.getNodeBeingDragged();
-                if (indexForNewNode >= 0) {
-                    this.context.dragDropManager.getActivatedDropTarget()
-                        .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
-                } else {
-                    this.context.dragDropManager.getActivatedDropTarget()
-                        .addChild(nodeBeingDragged, undefined, false, false, true);
+            try {
+                if (this.context.dragDropManager.isAtValidDropTarget()) {
+                    const indexForNewNode = this.context.dragDropManager.getDroppedNodeIndex();
+                    const nodeBeingDragged = this.context.dragDropManager.getNodeBeingDragged();
+                    if (indexForNewNode >= 0) {
+                        this.context.dragDropManager.getActivatedDropTarget()
+                            .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
+                    } else {
+                        this.context.dragDropManager.getActivatedDropTarget()
+                            .addChild(nodeBeingDragged, undefined, false, false, true);
+                    }
                 }
+            } catch (e) {
+                log.error('Error while completing the drop event.', e);
+            } finally {
+                this.context.dragDropManager.reset();
+                this._$disabledIcon = undefined;
+                this._$draggedToolIcon = undefined;
             }
-            this.context.dragDropManager.reset();
-            this._$disabledIcon = undefined;
-            this._$draggedToolIcon = undefined;
         };
     }
 
@@ -229,7 +235,7 @@ class ToolView extends React.Component {
                 <div
                     className="tool-container-vertical-icon"
                     data-placement="bottom"
-                    data-toggle="popover"
+                    data-toggle="tooltip"
                     title={toolTip + '\n' + toolDef}
                 >
                     <i className={tool.get('cssClass')} />
@@ -237,7 +243,7 @@ class ToolView extends React.Component {
                 <div
                     className="tool-container-vertical-title"
                     data-placement="bottom"
-                    data-toggle="popover"
+                    data-toggle="tooltip"
                     title={toolTip + '\n' + toolDef}
                 >
                     {tool.get('title')}

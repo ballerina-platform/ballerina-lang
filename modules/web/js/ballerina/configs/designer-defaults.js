@@ -146,6 +146,8 @@ export const fork = {
     padding: {
         top: statement.gutter.v,
         bottom: statement.gutter.v,
+        left: 15,
+        right: 15,
     },
     lifeLineGutterH: 6,
 };
@@ -194,6 +196,9 @@ export const structDefinition = {
     body: {
         height: 100,
     },
+    submitButtonWidth: 40,
+    columnPadding: 5,
+    panelPadding: 10,
 };
 
 export const annotationAttributeDefinition = {
@@ -273,6 +278,21 @@ export const timeout = {
     },
 };
 
+export const iconForTool = {
+    height: 30,
+    width: 30,
+    padding: {
+        left: 5,
+    },
+};
+
+export const connectorDeclaration = {
+    gutter: {
+        v: 40,
+        h: 40,
+    },
+};
+
 export const variablesPane = {
     headerHeight: 35,
     topBarHeight: 25,
@@ -287,4 +307,5 @@ export const variablesPane = {
     noOfGlobalsLeftPadding: 12,
     noOfGlobalsTextPadding: 10,
     globalDeclarationWidth: 310,
+    globalDefDecorationWidth: 3,
 };

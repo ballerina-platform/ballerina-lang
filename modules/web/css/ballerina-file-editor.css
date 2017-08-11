@@ -16,6 +16,93 @@
     height: 100%;
 }
 
+#syntax-errors-list-popover.popover.top .arrow:after {
+    border-top-color: #565656;
+}
+
+#syntax-errors-list-popover {
+    background-color: #565656;
+    color: #ccc;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    max-width: 350px;
+    min-width: 250px;
+}
+
+#syntax-errors-list-popover .popover-title {
+    min-height: 20px;
+    vertical-align: middle;
+}
+
+#syntax-errors-list-popover .popover-title i {
+    color: #fff;
+    margin-right: 10px;
+}
+
+#syntax-errors-list-popover .popover-content {
+    padding: 0;
+}
+
+#syntax-errors-list-popover .list-group-item:first-child {
+    border-top: none;
+}
+
+#syntax-errors-list-popover .list-group-item {
+    background-color: #565656;
+    border-color: rgb(51, 51, 51);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+
+#syntax-errors-list-popover .list-group-item .line{
+    color: #e74e52;
+    font-weight: bolder;
+}
+
+#syntax-errors-list-popover .list-group-item:hover {
+    background-color: rgb(51, 51, 51);
+    border-color: #565656;
+    cursor: pointer;
+}
+
+#syntax-errors-list-popover .popover-title {
+    border-bottom: none;
+    background-color: #e74e52;
+    color: #fff;
+}
+
+.syntax-errors-counter-container {
+    top: -15px;
+    right: -10px;
+    position: absolute;
+    cursor: pointer;
+}
+
+.syntax-errors-counter-container > .badge {
+    background-color: #ff0033;
+}
+
+.error-count-badge-enter {
+  opacity: 0.01;
+}
+
+.error-count-badge-enter.error-count-badge-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.error-count-badge-leave {
+  opacity: 1;
+}
+
+.error-count-badge-leave.error-count-badge-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
 .canvas-container {
     float: left;
     height: auto;
@@ -24,18 +111,12 @@
 }
 
 .outerCanvasDiv{
-    overflow-x: scroll;
-    overflow-y:scroll;
-    height:100%;
+    height: 100%;
+    overflow: scroll;
 }
 
 .outerSourceDiv{
     height:100%;
-}
-
-.wrapperDiv{
-    height: 100vh;
-    padding-bottom: 121px;
 }
 
 .canvas-top-controls-container{
@@ -103,6 +184,10 @@
 
 .panel-collapse .collapse {
     border: 1px solid;
+}
+
+.tab-pane {
+    height: 100%;
 }
 
 .tab-pane .panel {
@@ -1013,7 +1098,7 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 }
 
 .popout-button-wrapper i {
-    padding-left: 9px;
+    padding-top: 4px;
     font-size: 9px;
     color: #a9a9a9;
     cursor: pointer;
@@ -1025,6 +1110,10 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 
 .annotation-attribute-value-wrapper, .annotation-attachment-name {
     padding-left: 5px;
+}
+
+.annotations-attribute-close-square-bracket {
+    padding-left: 3px;
 }
 
 .bal-file-editor-loading-container {
@@ -1052,29 +1141,34 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     position:absolute;
 	width:234px;
     height:28px;
-    font-size: 16px;
+    font-size: 30px;
     margin:auto;
+    color: #fff;
+    font-weight: 500;
 }
 
 #parse-pending-loader:after {
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026";
-  width: 0px;
+    overflow: hidden;
+    vertical-align: bottom;
+    -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+    animation: ellipsis steps(4,end) 900ms infinite;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0px;
+    display: block;
+    margin-top: -40px;
+    margin-left: 93px;
+    font-size: 50px;
 }
 
 @keyframes ellipsis {
   to {
-    width: 20px;    
+    width: 1.25em;
   }
 }
 
 @-webkit-keyframes ellipsis {
   to {
-    width: 20px;    
+    width: 1.25em;
   }
 }
 
@@ -1095,4 +1189,8 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 .loading-overlay-leave.loading-overlay-leave-active {
   opacity: 0.01;
   transition: opacity 300ms ease-in;
+}
+
+.bal-file-editor {
+    height: 100%;
 }

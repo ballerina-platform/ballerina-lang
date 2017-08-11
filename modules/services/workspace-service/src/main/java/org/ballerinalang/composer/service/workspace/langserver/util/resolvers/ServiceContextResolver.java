@@ -21,9 +21,12 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * ServiceContextResolver
@@ -35,26 +38,35 @@ public class ServiceContextResolver extends AbstractItemResolver {
                                            HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (!this.isAnnotationContext(dataModel)) {
-            // Add resource
-            CompletionItem resource = new CompletionItem();
-            resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-            resource.setInsertText(ItemResolverConstants.RESOURCE_TEMPLATE);
-            resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            resource.setSortText(ItemResolverConstants.PRIORITY_7);
-            completionItems.add(resource);
+        if (dataModel.getParserRuleContext() == null) {
+            addResourceCompletionItem(completionItems);
+            // Add annotations
+            completionItems
+                    .addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+            // Add global symbols such as variable types(int, string etc.)
+            completionItems.addAll(resolvers.get(GlobalScope.class).resolveItems(dataModel, symbols, resolvers));
+        } else if (this.isAnnotationContext(dataModel)) {
+            // Add annotations
+            completionItems
+                    .addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+        } else if (dataModel.getParserRuleContext() instanceof BallerinaParser.VariableDefinitionStatementContext) {
+            completionItems.addAll(resolvers.
+                    get(dataModel.getParserRuleContext().getClass()).resolveItems(dataModel, symbols, resolvers));
+        } else {
+            addResourceCompletionItem(completionItems);
+            completionItems.addAll(resolvers.
+                    get(dataModel.getParserRuleContext().getClass()).resolveItems(dataModel, symbols, resolvers));
         }
 
-        // Add annotations
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
-
-        HashMap<String, Integer> prioritiesMap = new HashMap<>();
-        prioritiesMap.put(ItemResolverConstants.RESOURCE_TYPE, ItemResolverConstants.PRIORITY_7);
-        prioritiesMap.put(ItemResolverConstants.ANNOTATION_TYPE, ItemResolverConstants.PRIORITY_6);
-        prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_5);
-        prioritiesMap.put(ItemResolverConstants.B_TYPE, ItemResolverConstants.PRIORITY_4);
-        this.assignItemPriorities(prioritiesMap, completionItems);
-
         return completionItems;
+    }
+
+    private void addResourceCompletionItem(List<CompletionItem> completionItems) {
+        CompletionItem resource = new CompletionItem();
+        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
+        resource.setInsertText(ItemResolverConstants.RESOURCE_TEMPLATE);
+        resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        resource.setSortText(ItemResolverConstants.PRIORITY_7);
+        completionItems.add(resource);
     }
 }

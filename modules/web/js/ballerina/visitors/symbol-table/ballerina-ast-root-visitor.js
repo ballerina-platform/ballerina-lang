@@ -106,12 +106,19 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             const oldValue = modifiedData.data.oldValue;
             let newValue = modifiedData.data.newValue;
             if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin)) {
+                if (modifiedData.origin.isLambda()) {
+                    return;
+                }
                 if (!_.isEqual(attributeName, '_functionName')) {
                     newValue = undefined;
                 }
                 self.updateFunctionDefinition(modifiedData.origin, oldValue, newValue, modifiedData.data.child);
             } else if (BallerinaASTFactory.isReturnParameterDefinitionHolder(modifiedData.origin)) {
-                self.updateFunctionDefinition(modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
+                if (modifiedData.origin.parent.isLambda()) {
+                    return;
+                }
+                self.updateFunctionDefinition(
+                    modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
             }
         });
     }
@@ -127,7 +134,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         const structFields = structDefinition.getVariableDefinitionStatements().map((varDefStmt) => {
             const structField = BallerinaEnvFactory.createStructField();
             structField.setName(varDefStmt.getIdentifier());
-            structField.setType(varDefStmt.getBType());
+            structField.setType(varDefStmt.getVariableType());
             structField.setDefaultValue(varDefStmt.getValue());
             structField.setPackageName(varDefStmt.getBTypePkgName());
             return structField;
@@ -217,6 +224,14 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         annotationDefinitionEnv.setPackagePath(this.getPackage().getName());
         annotationDefinitionEnv.setName(annotationDefinitionAST.getAnnotationName());
         annotationDefinitionEnv.setAttachmentPoints(annotationDefinitionAST.getAttachmentPoints());
+
+        annotationDefinitionAST.on('tree-modified', (modifiedData) => {
+            if (BallerinaASTFactory.isAnnotationDefinition(modifiedData.origin)) {
+                this.updateAnnotationDefinition(annotationDefinitionEnv, modifiedData);
+            }
+        });
+
+
         annotationDefinitionAST.getChildren().forEach((annotationAttrDefAST) => {
             if (BallerinaASTFactory.isAnnotationAttributeDefinition(annotationAttrDefAST)) {
                 const annotationAttributeDefEnv = BallerinaEnvFactory.createAnnotationAttributeDefinition();
@@ -225,10 +240,91 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                 annotationAttributeDefEnv.setBType(_.trim(annotationAttrDefAST.getAttributeType(), '[] '));
                 annotationAttributeDefEnv.setArrayType(annotationAttrDefAST.getAttributeType().replace(/\s/g, '').includes('[]'));
                 annotationDefinitionEnv.addAnnotationAttributeDefinition(annotationAttributeDefEnv);
+
+                annotationAttrDefAST.on('tree-modified', (modifiedData) => {
+                    if (_.isNil(modifiedData.data)) {
+                        return;
+                    }
+                    const attributeName = modifiedData.data.attributeName;
+                    const newValue = modifiedData.data.newValue;
+                    const oldValue = modifiedData.data.oldValue;
+                    if (BallerinaASTFactory.isAnnotationAttributeDefinition(modifiedData.origin)) {
+                        this.updateAnnotationAttributeDefinition(annotationAttrDefAST.getParent().getAnnotationName(), attributeName, modifiedData.origin.getAttributeName(), oldValue, newValue);
+                    }
+                });
             }
         });
 
+        annotationDefinitionAST.on('child-added', (child) => {
+            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+                const annotationAttributeDefEnv = BallerinaEnvFactory.createAnnotationAttributeDefinition();
+                annotationAttributeDefEnv.setPackagePath(this.getPackage().getName());
+                annotationAttributeDefEnv.setIdentifier(child.getAttributeName());
+                annotationAttributeDefEnv.setBType(_.trim(child.getAttributeType(), '[] '));
+                annotationAttributeDefEnv.setArrayType(child.getAttributeType().replace(/\s/g, '').includes('[]'));
+                annotationDefinitionEnv.addAnnotationAttributeDefinition(annotationAttributeDefEnv);
+
+                child.on('tree-modified', (modifiedData) => {
+                    const attributeName = modifiedData.data.attributeName;
+                    const newValue = modifiedData.data.newValue;
+                    const oldValue = modifiedData.data.oldValue;
+                    if (BallerinaASTFactory.isAnnotationAttributeDefinition(modifiedData.origin)) {
+                        this.updateAnnotationAttributeDefinition(child.getParent().getAnnotationName(), attributeName, modifiedData.origin.getAttributeName(), oldValue, newValue);
+                    }
+                });
+            }
+        }, this);
+
+        annotationDefinitionAST.on('child-removed', (child) => {
+            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+                this.removeAnnotationAttributeDefinition(annotationDefinitionAST, child);
+            }
+        }, this);
+
         this.getPackage().addAnnotationDefinitions(annotationDefinitionEnv);
+    }
+
+    updateAnnotationDefinition(annotationDefinition, modifiedData) {
+        const attributeName = modifiedData.data.attributeName;
+        const newValue = modifiedData.data.newValue;
+        switch (attributeName) {
+        case '_annotationName':
+            annotationDefinition.setName(newValue);
+            break;
+        case '_attachmentPoints':
+            annotationDefinition.setAttachmentPoints(newValue);
+            break;
+        default:
+            break;
+        }
+    }
+
+    /**
+     * updates connector definition with new value
+     * @param {Object} connector - connector for the action
+     * @param {Object} annotationAttributeName - old value
+     * @param {Object} newValue - new value
+     */
+    updateAnnotationAttributeDefinition(annotationDefinitionName, attributeName, annotationAttributeName, oldValue, newValue) {
+        if (attributeName === '_attributeName') {
+            const annotationAttributeDefEnv = this.getPackage().getAnnotationDefinitionByName(annotationDefinitionName)
+                    .getAttributeDefinitionByName(oldValue);
+            annotationAttributeDefEnv.setIdentifier(newValue);
+        } else if (attributeName === '_attributeType') {
+            const annotationAttributeDefEnv = this.getPackage().getAnnotationDefinitionByName(annotationDefinitionName)
+                .getAttributeDefinitionByName(annotationAttributeName);
+            annotationAttributeDefEnv.setBType(_.trim(newValue, '[] '));
+            annotationAttributeDefEnv.setArrayType(newValue.replace(/\s/g, '').includes('[]'));
+        }
+    }
+
+    /**
+     * remove given connector action definition from the package object
+     * @param {Object} annotationDef - connector definition
+     * @param annotationAttrDef - connector action definition to be removed
+     */
+    removeAnnotationAttributeDefinition(annotationDef, annotationAttrDef) {
+        this.getPackage().getAnnotationDefinitionByName(annotationDef.getAnnotationName()).removeAnnotationAttributeDefinition(annotationAttrDef);
     }
 
     /**

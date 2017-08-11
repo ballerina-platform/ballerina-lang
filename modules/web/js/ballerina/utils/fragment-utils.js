@@ -38,6 +38,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for variable reference list.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createVariableReferenceListFragment(sourceString) {
+        return {
+            expectedNodeType: 'variable_reference_list',
+            source: sourceString,
+        };
+    }
+
+    /**
      * Create fragment for statement.
      *
      * @param {string} sourceString - source fragment input.

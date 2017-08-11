@@ -84,6 +84,14 @@ class SwaggerView extends React.Component {
         this.swaggerAce = undefined;
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
+        this.tryItUrl = undefined;
+        props.commandManager.registerHandler('try-it-url-received', (url) => {
+            this.tryItUrl = url;
+        }, this);
+
+        props.commandManager.registerHandler('save', () => {
+            this.updateService();
+        }, this);
     }
 
     /**
@@ -129,12 +137,41 @@ class SwaggerView extends React.Component {
         }
     }
 
+    /**
+     * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
+     * All the commands registered app's command manager will be bound to source view upon render.
+     *
+     * @param {Object} command A command of the command manager.
+     * @param {string} command.id Id of the command to dispatch
+     * @param {Object} command.shortcuts Shortcuts
+     * @param {Object} command.shortcuts.mac Max Shortcuts
+     * @param {string} command.shortcuts.mac.key key combination for mac platform eg. 'Command+N'
+     * @param {Object} command.shortcuts.other Other os shortcuts
+     * @param {string} command.shortcuts.other.key key combination for other platforms eg. 'Ctrl+N'
+     */
+    bindCommand(command) {
+        const id = command.id;
+        const hasShortcut = _.has(command, 'shortcuts');
+        const self = this;
+        if (hasShortcut && (id !== 'undo' && id !== 'redo' && id !== 'format')) {
+            const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
+            const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
+            this.swaggerAce.commands.addCommand({
+                name: id,
+                bindKey: { win: winShortcut, mac: macShortcut },
+                exec() {
+                    self.props.commandManager.dispatch(id);
+                },
+            });
+        }
+    }
+
      /**
      * Merge the updated YAMLs to the service definition
      */
     updateService() {
         // we do not update the dom if swagger is not edited.
-        if (!this.swaggerAce.getSession().getUndoManager().isClean()) {
+        if (this.swaggerAce && !this.swaggerAce.getSession().getUndoManager().isClean()) {
             // Add swagger import
             const importToBeAdded = ASTFactory.createImportDeclaration({
                 packageName: 'ballerina.net.http.swagger',
@@ -158,6 +195,13 @@ class SwaggerView extends React.Component {
             const formattedContent = sourceGenVisitor.getGeneratedSource();
             getSwaggerDefinition(formattedContent, this.props.targetService.getServiceName())
                 .then((swaggerDefinition) => {
+                    // Update host url if try it url is available.
+                    const swaggerJson = JSON.parse(swaggerDefinition);
+                    if (_.isNil(swaggerJson.host) && this.tryItUrl && _.split(this.tryItUrl, '//', 2).length === 2) {
+                        
+                        swaggerJson.host = _.split(this.tryItUrl, '//', 2)[1];
+                        swaggerDefinition = JSON.stringify(swaggerJson);
+                    }
                     this.swagger = swaggerDefinition;
                     this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
                     this.renderSwaggerEditor();
@@ -199,6 +243,11 @@ class SwaggerView extends React.Component {
             const $container = $(this.container);
             $container.empty();
             $container.attr('id', this.swaggerEditorID);
+
+            if (this.props.hideSwaggerAceEditor) {
+                $container.hide();
+            }
+
             this.swaggerEditor = SwaggerEditorBundle({
                 dom_id: `#${this.swaggerEditorID}`,
             });
@@ -213,6 +262,18 @@ class SwaggerView extends React.Component {
             swaggerAce.setFontSize(fontSize);
             this.swaggerAce = swaggerAce;
             this.syncSpec();
+
+            if (this.props.hideSwaggerAceEditor) {
+                const editorPanel = $swaggerAceContainer.parent().parent();
+                editorPanel.hide();
+                editorPanel.next().next().css('width', '100%');
+                $container.show();
+            }
+
+            // bind app keyboard shortcuts to ace editor
+            this.props.commandManager.getCommands().forEach((command) => {
+                this.bindCommand(command);
+            });
         }
     }
 
@@ -240,10 +301,14 @@ class SwaggerView extends React.Component {
                             className="bottom-view-label"
                             onClick={
                                     () => {
-                                        if (!this.hasSwaggerErrors()) {
+                                        if (this.props.hideSwaggerAceEditor ||
+                                                            this.swaggerAce.getSession().getUndoManager().isClean()) {
+                                            this.context.editor.setActiveView(DESIGN_VIEW);
+                                        } else if (!this.hasSwaggerErrors()) {
                                             this.updateService();
                                             this.context.editor.setActiveView(DESIGN_VIEW);
                                         }
+                                        this.props.resetSwaggerViewFun();
                                     }
                                 }
                         >
@@ -258,10 +323,14 @@ class SwaggerView extends React.Component {
                             className="bottom-view-label"
                             onClick={
                                     () => {
-                                        if (!this.hasSwaggerErrors()) {
+                                        if (this.props.hideSwaggerAceEditor ||
+                                                            this.swaggerAce.getSession().getUndoManager().isClean()) {
+                                            this.context.editor.setActiveView(SOURCE_VIEW);
+                                        } else if (!this.hasSwaggerErrors()) {
                                             this.updateService();
                                             this.context.editor.setActiveView(SOURCE_VIEW);
                                         }
+                                        this.props.resetSwaggerViewFun();
                                     }
                                 }
                         >
@@ -276,10 +345,14 @@ class SwaggerView extends React.Component {
 
 SwaggerView.propTypes = {
     targetService: PropTypes.instanceOf(ServiceDefinition),
+    commandManager: PropTypes.instanceOf(Object).isRequired,
+    hideSwaggerAceEditor: PropTypes.bool,
+    resetSwaggerViewFun: PropTypes.func.isRequired,
 };
 
 SwaggerView.defaultProps = {
     targetService: undefined,
+    hideSwaggerAceEditor: false,
 };
 
 SwaggerView.contextTypes = {

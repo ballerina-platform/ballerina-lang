@@ -80,6 +80,7 @@ function breakpointHOC(WrappedComponent) {
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
             this.endListner = DebugManager.on('session-ended', this.end.bind(this));
             this.cmpListner = DebugManager.on('session-completed', this.end.bind(this));
+            this.continueListner = DebugManager.on('resume-execution', this.end.bind(this));
         }
         /**
          * hook for componentWillUnmount
@@ -90,6 +91,7 @@ function breakpointHOC(WrappedComponent) {
             DebugManager.off('debug-hit', this.hitListner, this);
             DebugManager.off('session-ended', this.endListner, this);
             DebugManager.off('session-completed', this.cmpListner, this);
+            DebugManager.off('resume-execution', this.continueListner, this);
         }
         /**
          * indicate a debug hit
@@ -98,7 +100,23 @@ function breakpointHOC(WrappedComponent) {
             const { editor } = this.context;
             const fileName = editor.getFile().getName();
             const lineNumber = this.props.model._lineNumber;
-            if (message.location.lineNumber === lineNumber && fileName === message.location.fileName) {
+            const position = message.location;
+            const { astRoot } = this.context;
+            const packagePath = astRoot.getPackageDefinition().getPackageName() || '.';
+
+            // remove package path from file name
+            let fileIdentifier;
+            if (position.fileName.includes('/')) {
+                const fileArray = position.fileName.split('/');
+                fileIdentifier = fileArray[fileArray.length - 1];
+            } else {
+                fileIdentifier = position.fileName;
+            }
+
+            if (message.location.lineNumber === lineNumber
+                    && fileName === fileIdentifier
+                    && packagePath === position.packagePath) {
+
                 this.setState({
                     isDebugHit: true,
                 });

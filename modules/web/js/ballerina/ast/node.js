@@ -74,7 +74,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Get the node's view state
-     * @return {{bBox: BBox}} node's view state
+     * @return {{bBox: SimpleBBox}} node's view state
      */
     getViewState() {
         return this.viewState;
@@ -293,27 +293,6 @@ class ASTNode extends EventChannel {
     }
 
     /**
-     * Filter matching children belonging to current scope from the predicate function
-     * @param {func} predicateFunction a function returning a boolean to match filter condition from children
-     * @return {[ASTNode]} array of matching AST nodes
-     */
-    filterChildrenInScope(predicateFunction) {
-        let children = [];
-        let scope = this;
-        let scopeIndex = this.getParent().getIndexOfChild(this);
-        // Traverse through current scopes parents
-        while (!_.isUndefined(scope.getParent())) {
-            // Get children declared before the current scope with the index
-            children = children.concat(
-                            _.filter(scope.getChildren(),
-                                    (curNode) => { return curNode.getParent().getIndexOfChild(curNode) < scopeIndex; }));
-            scopeIndex = scope.getParent().getIndexOfChild(scope);
-            scope = scope.getParent();
-        }
-        return _.filter(children, predicateFunction);
-    }
-
-    /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
@@ -440,7 +419,7 @@ class ASTNode extends EventChannel {
     static isValidIdentifier(identifier) {
         if (_.isUndefined(identifier)) {
             return false;
-        } else if (/^[a-zA-Z0-9_]*$/.test(identifier)) {
+        } else if (/^[a-zA-Z_$][a-zA-Z0-9_]*$/.test(identifier)) {
             return true;
         }
         return false;
@@ -454,7 +433,7 @@ class ASTNode extends EventChannel {
     static isValidType(type) {
         if (_.isUndefined(type)) {
             return false;
-        } else if (/^[a-zA-Z0-9_:]*$/.test(type)) {
+        } else if (/^[a-zA-Z0-9:_]*\s*[[*\s\]<*\s*>a-zA-Z0-9_]*$/.test(type)) {
             return true;
         }
         return false;
@@ -498,6 +477,7 @@ class ASTNode extends EventChannel {
     removeDebugHit() {
         this.isDebugHit = false;
     }
+
     /**
      * Set lineNumber atribute to node
      * @param {number} lineNumber
@@ -506,6 +486,25 @@ class ASTNode extends EventChannel {
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     }
+
+    /**
+     * Set position info attribute to node
+     * @param {object} position
+     * @param {object} options
+     */
+    setPosition(position, options) {
+        this.setAttribute('position', position, options);
+    }
+
+    /**
+     * Get position info attribute of the node
+     * @returns {object} position
+     * @memberof ASTNode
+     */
+    getPosition() {
+        return this.getAttribute('position');
+    }
+
     /**
      * Set isLiteral atribute to node
      * @param {boolean} isLiteral

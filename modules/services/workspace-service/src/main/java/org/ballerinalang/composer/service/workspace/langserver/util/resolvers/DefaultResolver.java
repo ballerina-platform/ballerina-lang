@@ -34,6 +34,13 @@ class DefaultResolver extends AbstractItemResolver {
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
+        CompletionItem workerItem = new CompletionItem();
+        workerItem.setLabel(ItemResolverConstants.WORKER);
+        workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+        workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+        workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItems.add(workerItem);
+
         populateCompletionItemList(symbols, completionItems);
 
         // Add the basic constructs

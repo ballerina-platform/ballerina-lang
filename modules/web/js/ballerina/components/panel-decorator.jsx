@@ -298,18 +298,36 @@ class PanelDecorator extends React.Component {
     }
 
     onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.dropTarget,
-            dropSourceValidateCB = this.props.dropSourceValidateCB;
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.dropTarget;
+        const dropSourceValidateCB = this.props.dropSourceValidateCB;
+        const droppedNodeIndexCallBack = function () {
+            if (BallerinaASTFactory.isConnectorDeclaration(dragDropManager.getNodeBeingDragged())) {
+                const nodes = _.filter(dropTarget.getChildren(), (child) => {
+                    return BallerinaASTFactory.isConnectorDeclaration(child)
+                       || BallerinaASTFactory.isStatement(child) || BallerinaASTFactory.isWorkerDeclaration(child);
+                });
+
+                if (nodes.length > 0) {
+                    return _.indexOf(dropTarget.getChildren(), nodes[0]);
+                } else {
+                    return undefined;
+                }
+            } else {
+                return undefined;
+            }
+        };
+
         if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 return;
             }
             if (_.isNil(dropSourceValidateCB)) {
-                dragDropManager.setActivatedDropTarget(dropTarget);
+                dragDropManager.setActivatedDropTarget(dropTarget, droppedNodeIndexCallBack);
             } else if (_.isFunction(dropSourceValidateCB)) {
-                dragDropManager.setActivatedDropTarget(dropTarget, dropSourceValidateCB);
+                dragDropManager.setActivatedDropTarget(dropTarget, dropSourceValidateCB, droppedNodeIndexCallBack);
             }
+
             this.setState({
                 dropZoneActivated: true,
                 dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
@@ -391,6 +409,7 @@ PanelDecorator.propTypes = {
     model: PropTypes.instanceOf(ASTNode).isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode),
     dropSourceValidateCB: PropTypes.func,
+    droppedNodeIndexCallBack: PropTypes.func,
     rightComponents: PropTypes.arrayOf(PropTypes.shape({
         component: PropTypes.func.isRequired,
         props: PropTypes.object.isRequired,

@@ -38,6 +38,8 @@ class FunctionDefinition extends CallableDefinition {
         this._isPublic = _.get(args, 'isPublic') || false;
         this._annotations = _.get(args, 'annotations', []);
         this._isNative = _.get(args, 'isNative', false);
+        this._isLambda = _.get(args, 'isLambda', false);
+        this._hasReturnsKeyword = _.get(args, 'hasReturnsKeyword', false);
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
@@ -52,7 +54,7 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     setFunctionName(name, options) {
-        if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
+        if (this.isLambda() || (!_.isNil(name) && ASTNode.isValidIdentifier(name))) {
             this.setAttribute('_functionName', name, options);
         } else {
             const errorString = 'Invalid function name: ' + name;
@@ -81,6 +83,14 @@ class FunctionDefinition extends CallableDefinition {
 
     getVariableDefinitionStatements() {
         return this.filterChildren(this.getFactory().isVariableDefinitionStatement).slice(0);
+    }
+
+    /**
+     * Get the namespace declaration statements.
+     * @return {ASTNode[]} namespace declaration statements
+     * */
+    getNamespaceDeclarationStatements() {
+        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
     }
 
     /**
@@ -113,7 +123,7 @@ class FunctionDefinition extends CallableDefinition {
     getArgumentsAsString() {
         let argsString = '';
         this.getArguments().forEach((arg, index) => {
-            if (index !=0 ) {
+            if (index != 0) {
                 argsString += ',';
                 argsString += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
             }
@@ -165,10 +175,10 @@ class FunctionDefinition extends CallableDefinition {
     getReturnTypesAsString() {
         let returnTypesString = '';
         this.getReturnTypes().forEach((returnType, index) => {
-            if (index != 0) {
+            if (index !== 0) {
                 returnTypesString += ',';
                 returnTypesString += (returnType.whiteSpace.useDefault ? ' '
-                                : returnType.getWSRegion(0));
+                    : returnType.getWSRegion(0));
             }
             returnTypesString += returnType.getParameterDefinitionAsString();
         });
@@ -213,7 +223,7 @@ class FunctionDefinition extends CallableDefinition {
             }
         } else if (this.hasNamedReturnTypes() && this.hasReturnTypes()) {
             const errorStringWithIdentifiers = 'Return types with identifiers already exists. Remove them to add ' +
-                    'return types without identifiers.';
+                'return types without identifiers.';
             log.error(errorStringWithIdentifiers);
             throw errorStringWithIdentifiers;
         }
@@ -230,7 +240,7 @@ class FunctionDefinition extends CallableDefinition {
             // if there are no return types in the return type model
             return false;
         }
-            // check if any of the return types have identifiers
+        // check if any of the return types have identifiers
         const indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), (child) => {
             return _.isUndefined(child.getName());
         });
@@ -292,21 +302,23 @@ class FunctionDefinition extends CallableDefinition {
      * Override the super call to addChild
      * @param {object} child
      * @param {number} index
+     * @param ignoreTreeModifiedEvent {boolean}
+     * @param ignoreChildAddedEvent {boolean}
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
-              .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
+                .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), (child) => {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
             });
 
-            if (firstWorkerIndex > -1 && _.isNil(index)) {
+            if (firstWorkerIndex > -1 && (_.isNil(index) || index < 0)) {
                 index = firstWorkerIndex;
             }
             Object.getPrototypeOf(this.constructor.prototype)
-              .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
+                .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         }
     }
 
@@ -344,14 +356,37 @@ class FunctionDefinition extends CallableDefinition {
         this._isNative = isNative;
     }
 
+    isLambda(isLambda) {
+        if (!_.isNil(isLambda)) {
+            this._isLambda = isLambda;
+        }
+        return this._isLambda;
+    }
+
+    /**
+     * Is 'returns' keyword used in source.
+     *
+     * @param hasReturnsKeyword {boolean?} is 'returns' keyword used in source.
+     * @return {boolean} Is sss.
+     */
+    hasReturnsKeyword(hasReturnsKeyword) {
+        if (!_.isNil(hasReturnsKeyword)) {
+            this._hasReturnsKeyword = hasReturnsKeyword;
+        }
+        return this._hasReturnsKeyword;
+    }
+
     /**
      * initialize FunctionDefinition from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.function_name] - Name of the function definition
      * @param {string} [jsonNode.annotations] - Annotations of the function definition
      * @param {boolean} [jsonNode.is_public_function] - Public or not of the function
+     * @param {boolean} [jsonNode.has_returns_keyword] - is 'retruns' keyword used in source
      */
     initFromJson(jsonNode) {
+        this.isLambda(jsonNode.is_lambda_function);
+        this.hasReturnsKeyword(jsonNode.has_returns_keyword);
         this.setFunctionName(jsonNode.function_name, { doSilently: true });
         this.setIsPublic(jsonNode.is_public_function, { doSilently: true });
         this._annotations = jsonNode.annotations;
@@ -360,18 +395,9 @@ class FunctionDefinition extends CallableDefinition {
         const self = this;
 
         _.each(jsonNode.children, (childNode) => {
-            let child;
-            let childNodeTemp;
-            // TODO : generalize this logic
-            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.getFactory().createConnectorDeclaration();
-                childNodeTemp = childNode;
-            } else {
-                child = self.getFactory().createFromJson(childNode);
-                childNodeTemp = childNode;
-            }
-            self.addChild(child);
-            child.initFromJson(childNodeTemp);
+            const child = self.getFactory().createFromJson(childNode);
+            self.addChild(child, undefined, true, true);
+            child.initFromJson(childNode);
         });
     }
 
@@ -403,9 +429,24 @@ class FunctionDefinition extends CallableDefinition {
      */
     getConnectorByName(connectorName) {
         const factory = this.getFactory();
-        return _.find(this.getChildren(), (child) => {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        const connectorReference = _.find(this.getChildren(), (child) => {
+            let connectorVariableName;
+            if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
+                const variableReferenceList = [];
+
+                _.forEach(child.getChildren()[0].getChildren(), (variableRef) => {
+                    variableReferenceList.push(variableRef.getExpressionString());
+                });
+
+                connectorVariableName = (_.join(variableReferenceList, ',')).trim();
+            } else if (factory.isConnectorDeclaration(child)) {
+                connectorVariableName = child.getConnectorVariable();
+            }
+
+            return connectorVariableName === connectorName;
         });
+
+        return connectorReference;
     }
 
     /**

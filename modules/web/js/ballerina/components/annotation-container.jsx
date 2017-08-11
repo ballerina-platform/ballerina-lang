@@ -65,6 +65,7 @@ class AnnotationContainer extends React.Component {
         this.onAnnotationIdentifierSuggestionsClearRequested =
                                                         this.onAnnotationIdentifierSuggestionsClearRequested.bind(this);
         this.onAnnotationIdentifierSelected = this.onAnnotationIdentifierSelected.bind(this);
+        this.renderAnnotationPackageNameSuggestion = this.renderAnnotationPackageNameSuggestion.bind(this);
 
         this.storeCurrentInputReference = (autosuggest) => {
             if (autosuggest !== null) {
@@ -130,22 +131,29 @@ class AnnotationContainer extends React.Component {
 
         const packagePrefix = match && match[1];
 
+        let newAnnotationAttachment;
+        if (this.state.selectedPackageNameValue !== 'Current Package') {
+            // Add import if not imported to AST-Root.
+            const importToBeAdded = ASTFactory.createImportDeclaration({
+                packageName: this.state.selectedPackageNameValue,
+            });
 
-        // Add import if not imported to AST-Root.
-        const importToBeAdded = ASTFactory.createImportDeclaration({
-            packageName: this.state.selectedPackageNameValue,
-        });
+            importToBeAdded.setParent(this.context.astRoot);
 
-        importToBeAdded.setParent(this.context.astRoot);
+            this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
 
-        this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
-
-
-        const newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
-            fullPackageName: this.state.selectedPackageNameValue,
-            packageName: packagePrefix,
-            name: suggestionValue,
-        });
+            newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
+                fullPackageName: this.state.selectedPackageNameValue,
+                packageName: packagePrefix,
+                name: suggestionValue,
+            });
+        } else {
+            newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
+                fullPackageName: '.',
+                packageName: undefined,
+                name: suggestionValue,
+            });
+        }
 
         this.props.model.parentNode.addChild(newAnnotationAttachment);
 
@@ -303,8 +311,6 @@ class AnnotationContainer extends React.Component {
     getAnnotationPackageNameSuggestions(value) {
         const escapedValue = this.escapeRegexCharacters(value.trim());
 
-        const regex = new RegExp(`^${escapedValue}`, 'i');
-
         let packageNameSuggestions = AnnotationHelper.getPackageNames(
                                                                 this.context.environment, this.props.model.parentNode);
 
@@ -314,7 +320,7 @@ class AnnotationContainer extends React.Component {
             };
         });
 
-        return packageNameSuggestions.filter(packageNameObject => regex.test(packageNameObject.name));
+        return packageNameSuggestions.filter((sug) => { return sug.name.includes(escapedValue); });
     }
 
     /**
@@ -367,8 +373,22 @@ class AnnotationContainer extends React.Component {
      * @returns {ReactElement} The view.
      */
     renderAnnotationPackageNameSuggestion(suggestion) {
+        const value = this.state.selectedPackageNameValue;
+        const sugName = suggestion.name;
+        const parts = sugName.split(value);
+        const highlightedString = [];
+
+        parts.forEach((p, i) => {
+            highlightedString.push(<span key={i}>{p}</span>);
+            if (i < parts.length - 1) {
+                highlightedString.push(<span key={i + 100}><b>{value}</b></span>);
+            }
+        });
+
         return (
-            <span>{suggestion.name}</span>
+            <span>
+                {highlightedString}
+            </span>
         );
     }
 

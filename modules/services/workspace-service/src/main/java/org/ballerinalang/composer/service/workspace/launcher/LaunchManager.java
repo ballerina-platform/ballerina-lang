@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.service.workspace.launcher.dto.CommandDTO;
 import org.ballerinalang.composer.service.workspace.launcher.dto.MessageDTO;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
@@ -30,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 
 /**
@@ -147,9 +149,19 @@ public class LaunchManager {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 // improve "server connector started" log message to have the service URL in it.
-                if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.equals(line)
+                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)
                         && startedServiceURL != null) {
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
+                }
+                
+                if (startedServiceURL != null) {
+                    pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
+                            startedServiceURL);
+                } else if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)) {
+                    InetAddress localInetAddress = InetAddress.getLocalHost();
+                    pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, localInetAddress.getHostName(),
+                                    this.getPort(line)));
                 }
                 pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
             }
@@ -287,5 +299,21 @@ public class LaunchManager {
         message.setType(type);
         message.setMessage(text);
         pushMessageToClient(session, message);
+    }
+    
+    /**
+     * Gets the port of the from console log that starts with
+     * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG
+     * @param line The log line.
+     * @return The port. 
+     */
+    private String getPort(String line) {
+        String port = StringUtils.substringAfterLast(line,
+                                                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG);
+        if (StringUtils.isNotBlank(port)) {
+            return port;
+        } else {
+            return "9090";
+        }
     }
 }

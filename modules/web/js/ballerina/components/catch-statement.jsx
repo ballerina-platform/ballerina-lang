@@ -17,9 +17,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { getComponentForNodeArray } from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
 import CatchStatementAST from './../ast/statements/catch-statement';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import './try-catch-statement.css';
 
 /**
  * React component for a catch statement.
@@ -43,6 +46,16 @@ class CatchStatement extends React.Component {
             getterMethod: props.model.getParameterDefString,
             setterMethod: props.model.setParameterDefString,
         };
+        this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
+    }
+
+    /**
+     * Add a new finally clause
+     */
+    onAddFinallyClick() {
+        const parent = this.props.model.parent;
+        const newStatement = BallerinaASTFactory.createFinallyStatement();
+        parent.addChild(newStatement);
     }
 
     /**
@@ -56,12 +69,46 @@ class CatchStatement extends React.Component {
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const children = getComponentForNodeArray(this.props.model.getChildren());
+        const addFinallyBtn = (
+            <g onClick={this.onAddFinallyClick}>
+                <rect
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
+                    y={bBox.y + bBox.h - 25}
+                    width={20}
+                    height={20}
+                    rx={10}
+                    ry={10}
+                    className="add-finally-button"
+                />
+                <text
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
+                    y={bBox.y + bBox.h - 15}
+                    width={20}
+                    height={20}
+                    className="add-finally-button-label"
+                >
+                    +
+                </text>
+            </g>
+        );
+        const catchStatements = _.filter(model.getParent().getChildren(), (child) => {
+            return BallerinaASTFactory.isCatchStatement(child);
+        });
+        const nodeIndex = _.findIndex(catchStatements, (child) => {
+            return child.getID() === model.getID();
+        });
+
+        const addFinally = (catchStatements.length - 1 === nodeIndex)
+            && _.isNil(model.getParent().getFinallyStatement());
+
         return (<BlockStatementDecorator
             dropTarget={model}
+            model={model}
             bBox={bBox}
             title={'Catch'}
             expression={expression}
             editorOptions={this.editorOptions}
+            utilities={addFinally ? addFinallyBtn : undefined}
         >
             {children}
         </BlockStatementDecorator>);

@@ -16,6 +16,8 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
 
 /**
  * Dimension visitor class for Variable Definition Statement.
@@ -48,18 +50,38 @@ class VariableDefinitionStatementDimensionCalculatorVisitor {
      *
      * @memberOf VariableDefinitionStatementDimensionCalculatorVisitor
      * */
-    visit() {
+    visit(node) {
+        // TODO: this visit can be removed making all lambdas children of the node.
+        node.getLambdaChildren().forEach(f => f.accept(new DimensionCalculatorVisitor()));
     }
 
     /**
      * visit the visitor at the end.
      *
-     * @param {ASTNode} node - Variable Definition Statement node.
+     * @param {VariableDefinitionStatement} node - Variable Definition Statement node.
      *
      * @memberOf VariableDefinitionStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
+        const viewState = node.getViewState();
+        util.populateSimpleStatementBBox(node.getStatementString(), viewState);
+
+        node.getLambdaChildren().forEach((f) => {
+            const funcViewState = f.getViewState();
+            viewState.bBox.h += funcViewState.bBox.h;
+            viewState.bBox.w = Math.max(funcViewState.bBox.w, viewState.bBox.w);
+        });
+
+        // check if it is an action invocation statement if so initialize it as an arrow.
+        const statementChildren = node.filterChildren(BallerinaASTFactory.isActionInvocationExpression);
+        if (statementChildren instanceof Array && statementChildren.length > 0) {
+            const action = statementChildren[0];
+            // if the arrow is drawn to a connector in service level we will mark it as a conflict.
+            if (action.getConnector() !== undefined && 
+               BallerinaASTFactory.isServiceDefinition(action.getConnector().getParent())) {
+                viewState.components['statement-box'].arrow = true;
+            }
+        }
     }
 }
 

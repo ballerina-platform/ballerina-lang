@@ -20,6 +20,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
+import { util } from './../visitors/sizing-utils';
+import * as DesignerDefaults from './../configs/designer-defaults';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.
@@ -90,9 +92,12 @@ export default class GlobalDefinitionItem extends React.Component {
         if (this.state.highlighted) {
             className = 'global-definition-item-hightlighted';
         }
-
         return (
+
+
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+
+                <title> {this.props.getValue(this.props.globalDec)} </title>
                 <rect
                     x={x}
                     y={y}
@@ -107,15 +112,8 @@ export default class GlobalDefinitionItem extends React.Component {
                     ry="0"
                     className="global-definition-text"
                 >
-                    {this.props.getValue(this.props.globalDec)}
+                    {util.getTextWidth(this.props.getValue(this.props.globalDec), 0, DesignerDefaults.globalDeclarationWidth).text}
                 </text>
-                <rect
-                    x={x}
-                    y={y}
-                    height={h}
-                    width={w}
-                    className="global-definition-decorator"
-                />
                 <rect
                     x={x + w - 30}
                     y={y}

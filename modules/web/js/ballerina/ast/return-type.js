@@ -44,7 +44,7 @@ class ReturnType extends Argument {
 
         _.each(jsonNode.children, (childNode) => {
             const child = BallerinaASTFactory.createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }

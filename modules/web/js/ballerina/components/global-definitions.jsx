@@ -32,6 +32,7 @@ const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
     const iconLeftPadding = variablesPaneDefaults.iconLeftPadding;
     const noOfGlobalsLeftPadding = variablesPaneDefaults.noOfGlobalsLeftPadding;
     const noOfGlobalsTextPadding = variablesPaneDefaults.noOfGlobalsTextPadding;
+    const globalDefDecorationWidth = variablesPaneDefaults.globalDefDecorationWidth;
     const globalsLabelWidth = SizingUtils.getOnlyTextWidth(title);
 
     const noOfGlobalsTextWidth = SizingUtils.getOnlyTextWidth(numberOfItems, { fontSize: globalsNoFontSize });
@@ -70,6 +71,7 @@ const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
                 x={bBox.x}
                 y={bBox.y}
                 height={headerHeight}
+                width={globalDefDecorationWidth}
                 className="global-definition-decorator"
             />
             <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">

@@ -17,14 +17,8 @@
 */
 package org.ballerinalang.composer.service.workspace.langserver;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
@@ -52,6 +46,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
@@ -76,6 +71,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -85,12 +81,19 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -148,12 +151,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     private static final String BALLERINA_CAST_ERROR = "TypeCastError";
     private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
-
-    private int stackFrameOffset = -1;
-    private int staticMemAddrOffset = -1;
-    private int connectorMemAddrOffset = -1;
-    private int structMemAddrOffset = -1;
-    private int workerMemAddrOffset = -1;
+    
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
     private Stack<CallableUnit> parentCallableUnit = new Stack<>();
@@ -162,6 +160,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     private SymbolScope currentScope;
     private SymbolScope nativeScope;
+    private SymbolScope globalScope;
 
     private BlockStmt.BlockStmtBuilder pkgInitFuncStmtBuilder;
 
@@ -172,7 +171,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     public CompletionItemAccumulator(List completionItems,
                                      org.ballerinalang.composer.service.workspace.langserver.dto.Position position) {
-        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        this.globalScope = BLangPrograms.populateGlobalScope();
         currentScope = globalScope;
         this.nativeScope = BLangPrograms.populateNativeScope();
         this.completionItems = completionItems;
@@ -181,26 +180,15 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(BLangProgram bLangProgram) {
-        BLangPackage mainPkg = bLangProgram.getMainPackage();
-
-        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
-            mainPkg.accept(this);
-
-        } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
-            BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-            for (BLangPackage servicePkg : servicePackages) {
-                servicePkg.accept(this);
-            }
+        BLangPackage entryPkg = bLangProgram.getEntryPackage();
+        if (entryPkg != null) {
+            entryPkg.accept(this);
         } else {
-            BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
-            for (BLangPackage libraryPkg : libraryPackages) {
-                libraryPkg.accept(this);
+            BLangPackage[] blangPackages = bLangProgram.getLibraryPackages();
+            for (BLangPackage bLangPackage : blangPackages) {
+                bLangPackage.accept(this);
             }
         }
-
-        int setSizeOfStaticMem = staticMemAddrOffset + 1;
-        bLangProgram.setSizeOfStaticMem(setSizeOfStaticMem);
-        staticMemAddrOffset = -1;
     }
 
     @Override
@@ -267,10 +255,16 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
+        BLangPackage bLangPackage = new BLangPackage((GlobalScope) this.globalScope);
+        currentScope = bLangPackage;
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
-        getSymbolMap(closestScope, completionItems);
+        if (closestScope != null) {
+            getSymbolMap(closestScope, completionItems);
+        } else {
+            getSymbolMap(this.globalScope, completionItems);
+        }
         getSymbolMap(this.nativeScope, completionItems);
     }
 
@@ -295,13 +289,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         constDef.getVariableDefStmt().accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONSTANT, null));
             annotationAttachment.accept(this);
         }
 
-        // Set memory location
-        ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
-        constDef.setMemoryLocation(memLocation);
+        constDef.getVariableDefStmt().getVariableDef().setKind(VariableDef.Kind.CONSTANT);
 
         // Insert constant initialization stmt to the package init function
         SimpleVarRefExpr varRefExpr = new SimpleVarRefExpr(constDef.getNodeLocation(),
@@ -309,7 +301,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
         varRefExpr.setVariableDef(constDef);
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
                 new Expression[]{varRefExpr}, constDef.getVariableDefStmt().getRExpr());
-        pkgInitFuncStmtBuilder.addStmt(assignStmt);
+        if (pkgInitFuncStmtBuilder != null) {
+            pkgInitFuncStmtBuilder.addStmt(assignStmt);
+        }
 
         addToCompletionItems(constDef);
     }
@@ -347,9 +341,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(service);
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.SERVICE,
+                    service.getProtocolPkgPath()));
             annotationAttachment.accept(this);
         }
+
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
@@ -374,12 +370,12 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(connectorDef);
 
         for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONNECTOR, null));
             annotationAttachment.accept(this);
         }
 
         for (ParameterDef parameterDef : connectorDef.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+            parameterDef.setKind(VariableDef.Kind.CONNECTOR_VAR);
             parameterDef.accept(this);
         }
 
@@ -393,11 +389,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             action.accept(this);
         }
 
-        int sizeOfConnectorMem = connectorMemAddrOffset + 1;
-        connectorDef.setSizeOfConnectorMem(sizeOfConnectorMem);
-
         // Close the symbol scope
-        connectorMemAddrOffset = -1;
         addToCompletionItems(connectorDef);
         closeScope();
     }
@@ -415,12 +407,12 @@ public class CompletionItemAccumulator implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.RESOURCE, null));
             annotationAttachment.accept(this);
         }
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -432,12 +424,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
 
-
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        resource.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
@@ -468,19 +455,14 @@ public class CompletionItemAccumulator implements NodeVisitor {
         currentCallableUnit = function;
 
         checkAndSetClosestScope(function);
-        //resolveWorkerInteractions(function.gerWorkerInteractions());
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
             annotationAttachment.accept(this);
         }
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -488,7 +470,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+                parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             }
 
             parameterDef.accept(this);
@@ -507,19 +489,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             //checkAndAddReturnStmt(function.getReturnParamTypes().length, blockStmt);
         }
 
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        function.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
 
         addToCompletionItems(function);
@@ -528,64 +498,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(BTypeMapper typeMapper) {
-        // Open a new symbol scope
-        openScope(typeMapper);
-        currentCallableUnit = typeMapper;
-
-        checkAndSetClosestScope(typeMapper);
-
-        for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
-            annotationAttachment.accept(this);
-        }
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
-        for (ParameterDef parameterDef : typeMapper.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            parameterDef.accept(this);
-        }
-
-//        for (VariableDef variableDef : typeMapper.getVariableDefs()) {
-//            stackFrameOffset++;
-//            visit(variableDef);
-//        }
-
-        for (ParameterDef parameterDef : typeMapper.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            }
-
-            parameterDef.accept(this);
-        }
-
-        if (!typeMapper.isNative()) {
-            BlockStmt blockStmt = typeMapper.getCallableUnitBody();
-            currentScope = blockStmt;
-            blockStmt.accept(this);
-            currentScope = blockStmt.getEnclosingScope();
-        }
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        typeMapper.setStackFrameSize(sizeOfStackFrame);
-
-        // Close the symbol scope
-        stackFrameOffset = -1;
-        currentCallableUnit = null;
-
-        addToCompletionItems(typeMapper);
-        closeScope();
     }
 
     @Override
@@ -597,12 +509,12 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(action);
 
         for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ACTION, null));
             annotationAttachment.accept(this);
         }
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -611,7 +523,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+                parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             }
 
             parameterDef.accept(this);
@@ -630,18 +542,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             checkAndAddReturnStmt(action.getReturnParameters().length, blockStmt);
         }
 
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = stackFrameOffset + 1;
-        action.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
     }
@@ -655,24 +556,13 @@ public class CompletionItemAccumulator implements NodeVisitor {
         currentCallableUnit = worker;
         checkAndSetClosestScope(worker);
 
-        //resolveWorkerInteractions(worker.gerWorkerInteractions());
-
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(function, "missing return statement at end of function");
-
         for (ParameterDef parameterDef : worker.getParameterDefs()) {
-            parameterDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
         for (ParameterDef parameterDef : worker.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                parameterDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
-            }
-
+            parameterDef.setKind(VariableDef.Kind.LOCAL_VAR);
             parameterDef.accept(this);
         }
 
@@ -688,20 +578,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BlockStmt blockStmt = worker.getCallableUnitBody();
         blockStmt.accept(this);
 
-        //resolveWorkerInteractions(worker);
-
-        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
-        // Values in the stack frame are stored in the following order.
-        // -- Parameter values --
-        // -- Local var values --
-        // -- Temp values      --
-        // -- Return values    --
-        // These temp values are results of intermediate expression evaluations.
-        int sizeOfStackFrame = workerMemAddrOffset + 1;
-        worker.setStackFrameSize(sizeOfStackFrame);
-
         // Close the symbol scope
-        workerMemAddrOffset = -1;
         currentCallableUnit = parentCallableUnit.pop();
         // Close symbol scope. This is done manually to avoid falling back to package scope
         currentScope = parentScope.pop();
@@ -716,7 +593,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     public void visit(StructDef structDef) {
         checkAndSetClosestScope(structDef);
         for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.STRUCT, null));
             annotationAttachment.accept(this);
         }
         addToCompletionItems(structDef);
@@ -768,7 +645,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ANNOTATION, null));
             annotationAttachment.accept(this);
         }
         addToCompletionItems(annotationDef);
@@ -783,15 +660,15 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.PARAMETER, null));
             annotationAttachment.accept(this);
         }
     }
 
     @Override
-    public void visit(VariableDef varDef) {
-    }
+    public void visit(SimpleVariableDef simpleVariableDef) {
 
+    }
 
     // Visit statements
 
@@ -801,6 +678,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Resolves the type of the variable
         VariableDef varDef = varDefStmt.getVariableDef();
 
+        // Set the Variable kind if it is not set.
+        if (varDef.getKind() == null) {
+            // Here we assume that this is a local variable
+            varDef.setKind(VariableDef.Kind.LOCAL_VAR);
+        }
 
         // Mark the this variable references as LHS expressions
         ((VariableReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
@@ -809,9 +691,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         SymbolName symbolName = new SymbolName(varDef.getName(), currentPkg);
 
         currentScope.define(symbolName, varDef);
-
-        // Set memory location
-        setMemoryLocation(varDef);
 
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
@@ -864,7 +743,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
                 }
             }
         } else if (position.getLine() == startLineNumber) {
-            if (position.getCharacter() >= startColumn) {
+            if (position.getCharacter() > startColumn) {
                 if (stop.lineNumber != -1 && stop.column != -1) {
                     if (position.getLine() < stop.lineNumber) {
                         closestScope = currentScope;
@@ -986,7 +865,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         tryCatchStmt.getTryBlock().accept(this);
 
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
-            catchBlock.getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            catchBlock.getParameterDef().setKind(VariableDef.Kind.LOCAL_VAR);
             catchBlock.getParameterDef().accept(this);
             catchBlock.getCatchBlockStmt().accept(this);
         }
@@ -1035,14 +914,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         // Visit workers
         for (Worker worker : forkJoinStmt.getWorkers()) {
-            /* Here we are setting the current stack frame size of the parent component (function, resource, action)
-            as the accessible stack frame size for fork-join internal workers. */
-            worker.setAccessibleStackFrameSize(stackFrameOffset + 1);
-
-            /* Actual worker memory segment starts after the current in-scope variables within the control stack.
-            Hence, we are adding the stackFrameOffset + 1 to begin with */
-            workerMemAddrOffset += stackFrameOffset + 1;
-
             worker.accept(this);
         }
 
@@ -1051,16 +922,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
         openScope(join);
         ParameterDef parameter = join.getJoinResult();
         if (parameter != null) {
-            parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameter.setKind(VariableDef.Kind.LOCAL_VAR);
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
-
-            if (!(parameter.getType() instanceof BMapType)) {
-                throw new SemanticException("Incompatible types: expected map in " +
-                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().
-                        getLineNumber());
-            }
-
         }
 
         // Visit join body
@@ -1081,7 +945,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         ParameterDef timeoutParam = timeout.getTimeoutResult();
         if (timeoutParam != null) {
-            timeoutParam.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             timeoutParam.accept(this);
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
@@ -1130,12 +993,16 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
+        checkAndSetClosestScope(namespaceDeclarationStmt);
 
+        NamespaceDeclaration namespaceDeclaration = namespaceDeclarationStmt.getNamespaceDclr();
+
+        SymbolName symbolName = new SymbolName(namespaceDeclaration.getName(), currentPkg);
+        currentScope.define(symbolName, namespaceDeclaration);
     }
 
     @Override
     public void visit(NamespaceDeclaration namespaceDclr) {
-
     }
 
     @Override
@@ -1440,7 +1307,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
+        Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
+        indexExpr.accept(this);
 
+        VariableReferenceExpr variableReferenceExpr = xmlAttributesRefExpr.getVarRefExpr();
+        variableReferenceExpr.accept(this);
     }
 
     @Override
@@ -1468,6 +1339,46 @@ public class CompletionItemAccumulator implements NodeVisitor {
     public void visit(NullLiteral nullLiteral) {
         checkAndSetClosestScope(nullLiteral);
         nullLiteral.setType(BTypes.typeNull);
+    }
+
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLCommentLiteral xmlCommentLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLTextLiteral xmlTextLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLPILiteral xmlpiLiteral) {
+
+    }
+
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
+
+    }
+
+    @Override
+    public void visit(LambdaExpression lambdaExpression) {
+
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+
     }
 
 
@@ -1521,15 +1432,14 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
                 Identifier identifier = new Identifier(varName);
                 SymbolName symbolName = new SymbolName(identifier.getName());
-                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                SimpleVariableDef variableDef = new SimpleVariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         null, symbolName, currentScope);
+                variableDef.setKind(VariableDef.Kind.LOCAL_VAR);
 
                 // Check whether this variable is already defined, if not define it.
                 SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
                 currentScope.define(varDefSymName, variableDef);
-                // Set memory location
-                setMemoryLocation(variableDef);
             }
         }
 
@@ -1561,24 +1471,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             typeCastExpr.setOpcode(typeEdge.getOpcode());
         }
         return typeCastExpr;
-    }
-
-    private void setMemoryLocation(VariableDef variableDef) {
-        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            if (currentScope.getEnclosingScope().getScopeName() == SymbolScope.ScopeName.WORKER) {
-                variableDef.setMemoryLocation(new WorkerVarLocation(++workerMemAddrOffset));
-            } else {
-                variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-            }
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
-            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
-            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
-            variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.PACKAGE) {
-            variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
-        }
     }
 
     private void defineFunctions(Function[] functions) {
@@ -1725,11 +1617,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
             SymbolScope tmpScope = currentScope;
             currentScope = structDef;
             for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+                fieldDefStmt.getVariableDef().setKind(VariableDef.Kind.STRUCT_FIELD);
                 fieldDefStmt.accept(this);
             }
-            structDef.setStructMemorySize(structMemAddrOffset + 1);
-
-            structMemAddrOffset = -1;
             currentScope = tmpScope;
         }
 

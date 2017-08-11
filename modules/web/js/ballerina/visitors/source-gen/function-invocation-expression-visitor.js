@@ -16,7 +16,8 @@
  * under the License.
  */
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import FunctionInvocationExpression from '../../ast/expressions/function-invocation-expression';
+import ASTFactory from '../../ast/ballerina-ast-factory';
+import FunctionDefinitionVisitor from './function-definition-visitor';
 
 /**
  * Constructor for Function invocation expression visitor
@@ -25,23 +26,58 @@ import FunctionInvocationExpression from '../../ast/expressions/function-invocat
  */
 class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisitor {
 
-    canVisitFuncInvocationExpression() {
-        return true;
+    canVisitFuncInvocationExpression(functionInvocation) {
+        return functionInvocation.getParent() !== this.visiting;
     }
 
+    /**
+     *
+     * @param {FunctionInvocationExpression} functionInvocation
+     */
     beginVisitFuncInvocationExpression(functionInvocation) {
-        const source = functionInvocation.getFunctionalExpression();
-        this.appendSource(source);
+        this.visiting = functionInvocation;
+        let constructedSourceSegment = '';
+        const packageName = functionInvocation.getPackageName();
+        if (!_.isNil(packageName) && !_.isEmpty(packageName) && !_.isEqual(packageName, 'Current Package')) {
+            constructedSourceSegment += packageName + functionInvocation.getChildWSRegion('nameRef', 1) + ':';
+        }
+        constructedSourceSegment += functionInvocation.getChildWSRegion('nameRef', 2)
+            + functionInvocation.getFunctionName() + functionInvocation.getWSRegion(1);
+        constructedSourceSegment += '(' + functionInvocation.getWSRegion(2);
+
+        this.appendSource(constructedSourceSegment);
+        functionInvocation.children.forEach((child, index) => {
+            if (index !== 0) {
+                const paramSource = ',' + (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
+                this.appendSource(paramSource);
+                constructedSourceSegment += paramSource;
+            }
+            if (ASTFactory.isFunctionInvocationExpression(child)) {
+                child.accept(new FunctionInvocationExpressionVisitor(this));
+            } else if (ASTFactory.isLambdaExpression(child)) {
+                child.getLambdaFunction().accept(new FunctionDefinitionVisitor(this));
+            } else {
+                const childSource = child.getExpressionString();
+                this.appendSource(childSource);
+                constructedSourceSegment += childSource;
+            }
+        });
+        const endingSource = ')' + functionInvocation.getWSRegion(3);
+        this.appendSource(endingSource);
+        constructedSourceSegment += endingSource;
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
     }
 
-    visitFuncInvocationExpression() {
+    visitFuncInvocationExpression(functionInvocation) {
     }
 
     endVisitFuncInvocationExpression() {
+        this.visiting = null;
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }
-
-FunctionInvocationExpressionVisitor.prototype.constructor = FunctionInvocationExpression;
 
 export default FunctionInvocationExpressionVisitor;

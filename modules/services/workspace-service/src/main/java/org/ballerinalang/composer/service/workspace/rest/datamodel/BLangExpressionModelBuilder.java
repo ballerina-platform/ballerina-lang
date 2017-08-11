@@ -36,8 +36,8 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
@@ -55,6 +55,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -64,12 +65,19 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -195,7 +203,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     //    }
     
     @Override
-    public void visit(VariableDef variableDef) {
+    public void visit(SimpleVariableDef variableDef) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         buffer.append(variableDef.getType().toString()).append(SPACE_CHAR).append(variableDef.getName()).append(";");
@@ -589,6 +597,41 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(NullLiteral nullLiteral) {
 
     }
+
+    @Override
+    public void visit(LambdaExpression lambdaExpr) {
+
+    }
+
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLCommentLiteral xmlCommentLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLTextLiteral xmlTextLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLPILiteral xmlpiLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
+        
+    }
     
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
@@ -657,7 +700,20 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
-
+        StringBuffer buffer = new StringBuffer();
+        bufferStack.push(buffer);
+        if (indexBasedVarRefExpr.getVarRefExpr() != null) {
+            indexBasedVarRefExpr.getVarRefExpr().accept(this);
+            buffer.append(bufferStack.peek());
+            bufferStack.pop();
+            buffer.append("[");
+        }
+        if (indexBasedVarRefExpr.getIndexExpr() != null) {
+            indexBasedVarRefExpr.getIndexExpr().accept(this);
+            buffer.append(bufferStack.peek());
+            bufferStack.pop();
+            buffer.append("]");
+        }
     }
 
     @Override
@@ -747,6 +803,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
 
     }
 

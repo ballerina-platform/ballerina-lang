@@ -375,7 +375,7 @@ class ToolPaletteView extends React.Component {
                     if (functionDef.getReturnParams().length > 0) {
                         const functionTool = {};
                         functionTool.nodeFactoryMethod =
-                                               DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement;
+                                               DefaultBallerinaASTFactory.createTransformAssignmentFunctionInvocationStatement;
                         functionTool.meta = {
                             functionDef,
                             packageName,
@@ -514,7 +514,7 @@ class ToolPaletteView extends React.Component {
         // calculate the height of the tool.
         // this is a hack need to find a better approch.
         // let scrollHeight = window.innerHeight - 176;
-        const scrollHeight = $(this.props.getContainer()).height() - 50;
+        const scrollHeight = $(this.props.getContainer()).height() - 30;
 
         constructs.collapsed = true;
         constructs = this.searchTools(this.state.search, constructs);

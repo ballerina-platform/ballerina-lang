@@ -127,7 +127,7 @@ class StructDefinition extends ASTNode {
 
         _.each(jsonNode.children, (childNode) => {
             const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }
@@ -167,7 +167,7 @@ class StructDefinition extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'newStruct',
+                defaultValue: 'Struct',
                 setter: this.setStructName,
                 getter: this.getStructName,
                 parents: [{

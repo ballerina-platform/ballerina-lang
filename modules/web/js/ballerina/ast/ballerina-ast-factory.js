@@ -58,6 +58,7 @@ import typeName from './type-name';
 import argument from './argument';
 import backTickExpression from './expressions/back-tick-expression';
 import basicLiteralExpression from './expressions/basic-literal-expression';
+import lambdaFunctionExpression from './expressions/lambda-expression';
 import nullLiteralExpression from './expressions/null-literal-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
 import thenBody from './then-body';
@@ -104,6 +105,10 @@ import connectorInitExpression from './expressions/connector-init-expression';
 import simpleTypeName from './simple-type-name';
 import VariableReferenceList from './variable-reference-list';
 import BValue from './b-value';
+import NamespaceDeclarationStatement from './statements/namespace-declaration-statement';
+import NamespaceDeclaration from './namespace-declaration';
+import XMLQNameExpression from './expressions/xml-qname-expression';
+import XMLAttributeReferenceExpression from './expressions/xml-attribute-reference-expression';
 
 /**
  * @class BallerinaASTFactory
@@ -542,7 +547,7 @@ BallerinaASTFactory.createResourceParameter = function (args) {
  * @param args
  * @returns {StructType}
  */
-BallerinaASTFactory.createStructType = function (args) {
+BallerinaASTFactory.createStructType= function (args) {
     return new structType(args);
 };
 
@@ -591,6 +596,15 @@ BallerinaASTFactory.createBackTickExpression = function (args) {
  */
 BallerinaASTFactory.createBasicLiteralExpression = function (args) {
     return new basicLiteralExpression(args);
+};
+
+/**
+ * creates BasicLiteralExpression
+ * @param args
+ * @returns {LambdaExpression}
+ */
+BallerinaASTFactory.createLambdaExpression = function (args) {
+    return new lambdaFunctionExpression(args);
 };
 
 /**
@@ -819,6 +833,41 @@ BallerinaASTFactory.createBValue = (args) => {
 };
 
 /**
+ * Create new {@link NamespaceDeclarationStatement}
+ * @param {object} args - arguments for creating a namespace declaration object.
+ * @return {NamespaceDeclarationStatement} new NamespaceDeclarationStatement.
+ * */
+BallerinaASTFactory.createNamespaceDeclarationStatement = (args) => {
+    return new NamespaceDeclarationStatement(args);
+};
+
+/**
+ * Create new {@link NamespaceDeclaration}
+ * @param {object} args - arguments for creating a namespace declaration.
+ * @return {NamespaceDeclaration} new NamespaceDeclaration.
+ * */
+BallerinaASTFactory.createNamespaceDeclaration = (args) => {
+    return new NamespaceDeclaration(args);
+};
+
+/**
+ * Create new {@link XMLQNameExpression}
+ * @param {object} args - arguments for the creating a XML QName expression.
+ * @return {XMLQNameExpression} new XMLQNameExpression.
+ * */
+BallerinaASTFactory.createXMLQNameExpression = (args) => {
+    return new XMLQNameExpression(args);
+};
+
+/**
+ * Create new {@link XMLAttributeReferenceExpression}
+ * @return {XMLAttributeReferenceExpression} new XMLAttributeReferenceExpression.
+ * */
+BallerinaASTFactory.createXMLAttributeReferenceExpression = () => {
+    return new XMLAttributeReferenceExpression();
+};
+
+/**
  * instanceof check for BallerinaAstRoot
  * @param {Object} child
  * @returns {boolean}
@@ -1033,6 +1082,24 @@ BallerinaASTFactory.isConnectorDeclaration = function (child) {
  */
 BallerinaASTFactory.isExpression = function (child) {
     return child instanceof expression;
+};
+
+/**
+ * instanceof check for KeyValueExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isKeyValueExpression= function (child) {
+    return child instanceof keyValueExpression;
+};
+
+/**
+ * instanceof check for ReferenceTypeInitExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isReferenceTypeInitExpression = function (child) {
+    return child instanceof referenceTypeInitExpression;
 };
 
 /**
@@ -1286,6 +1353,15 @@ BallerinaASTFactory.isTransformStatement = function (child) {
  */
 BallerinaASTFactory.isBasicLiteralExpression = function (child) {
     return child instanceof basicLiteralExpression;
+};
+
+/**
+ * instanceof check for LambdaExpression
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isLambdaExpression = function (child) {
+    return child instanceof lambdaFunctionExpression;
 };
 
 /**
@@ -1567,294 +1643,361 @@ BallerinaASTFactory.isBValue = (child) => {
     return child instanceof BValue;
 };
 
+/**
+ * instanceof check for the NamespaceDeclarationStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isNamespaceDeclarationStatement = (child) => {
+    return child instanceof NamespaceDeclarationStatement;
+};
+
+/**
+ * instanceof check for the NamespaceDeclaration.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if the same type, else false.
+ * */
+BallerinaASTFactory.isNamespaceDeclaration = (child) => {
+    return child instanceof NamespaceDeclaration;
+};
+
+/**
+ * instanceof check for the XMLQNameExpression.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if the same type, else false.
+ * */
+BallerinaASTFactory.isXMLQNameExpression = (child) => {
+    return child instanceof XMLQNameExpression;
+};
+
+/**
+ * instanceof check for the XMLAttributeReferenceExpression.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if the same typ, else false
+ * */
+BallerinaASTFactory.isXMLAttributeReferenceExpression = (child) => {
+    return child instanceof XMLAttributeReferenceExpression;
+};
+
 BallerinaASTFactory.createFromJson = function (jsonNode) {
     let node;
     const nodeType = jsonNode.type;
 
     switch (nodeType) {
-    case 'simple_type_name':
-        node = BallerinaASTFactory.createSimpleTypeName();
-        break;
-    case 'package':
-        node = BallerinaASTFactory.createPackageDefinition();
-        break;
-    case 'import':
-        node = BallerinaASTFactory.createImportDeclaration();
-        break;
-    case 'annotation_attachment':
-        node = BallerinaASTFactory.createAnnotationAttachment();
-        break;
-    case 'annotation_attribute':
-        node = BallerinaASTFactory.createAnnotationAttribute();
-        break;
-    case 'annotation_attribute_value':
-        node = BallerinaASTFactory.createAnnotationAttributeValue();
-        break;
-    case 'service_definition':
-        node = BallerinaASTFactory.createServiceDefinition();
-        break;
-    case 'annotation_definition':
-        node = BallerinaASTFactory.createAnnotationDefinition();
-        break;
-    case 'function_definition':
-        node = BallerinaASTFactory.createFunctionDefinition();
-        break;
-    case 'connector_definition':
-        node = BallerinaASTFactory.createConnectorDefinition();
-        break;
-    case 'type_definition':
-        node = BallerinaASTFactory.createTypeDefinition();
-        break;
-    case 'resource_definition':
-        node = BallerinaASTFactory.createResourceDefinition();
-        break;
-    case 'connector_declaration':
-        node = BallerinaASTFactory.createConnectorDeclaration();
-        break;
-    case 'variable_definition':
-        node = BallerinaASTFactory.createVariableDefinition();
-        break;
-    case 'variable_definition_statement':
-        node = BallerinaASTFactory.createVariableDefinitionStatement();
-        break;
-    case 'argument_declaration':
-        node = BallerinaASTFactory.createResourceParameter();
-        break;
-    case 'reply_statement':
-        node = BallerinaASTFactory.createReplyStatement();
-        break;
-    case 'return_statement':
-        node = BallerinaASTFactory.createReturnStatement();
-        break;
-    case 'return_type':
-        node = BallerinaASTFactory.createReturnType();
-        break;
-    case 'return_argument':
-        node = BallerinaASTFactory.createArgument();
-        break;
-    case 'type_name':
-        node = BallerinaASTFactory.createTypeName();
-        break;
-    case 'function_invocation_statement':
-        node = BallerinaASTFactory.createFunctionInvocationStatement();
-        break;
-    case 'function_invocation_expression':
-        node = BallerinaASTFactory.createFunctionInvocationExpression();
-        break;
-    case 'simple_variable_reference_expression':
-        node = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-        break;
-    case 'action_invocation_expression':
-        node = BallerinaASTFactory.createActionInvocationExpression();
-        break;
-    case 'assignment_statement':
-        node = BallerinaASTFactory.createAssignmentStatement();
-        break;
-    case 'back_tick_expression':
-        node = BallerinaASTFactory.createBackTickExpression();
-        break;
-    case 'while_statement' :
-        node = BallerinaASTFactory.createWhileStatement();
-        break;
-    case 'break_statement' :
-        node = BallerinaASTFactory.createBreakStatement();
-        break;
-    case 'basic_literal_expression' :
-        node = BallerinaASTFactory.createBasicLiteralExpression();
-        break;
-    case 'null_literal_expression' :
-        node = BallerinaASTFactory.createNullLiteralExpression();
-        break;
-    case 'variable_reference_list':
-        node = BallerinaASTFactory.createVariableReferenceList();
-        break;
-    case 'if_else_statement' :
-        node = BallerinaASTFactory.createIfElseStatement();
-        break;
-    case 'if_statement' :
-        node = BallerinaASTFactory.createIfStatement();
-        break;
-    case 'else_if_statement' :
-        node = BallerinaASTFactory.createElseIfStatement();
-        break;
-    case 'else_statement' :
-        node = BallerinaASTFactory.createElseStatement();
-        break;
-    case 'instance_creation_expression':
-        node = BallerinaASTFactory.createInstanceCreationExpression();
-        break;
-    case 'then_body':
-        node = BallerinaASTFactory.createThenBody();
-        break;
-    case 'equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '==' });
-        break;
-    case 'greater_than_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '>' });
-        break;
-    case 'add_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '+' });
-        break;
-    case 'multiplication_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '*' });
-        break;
-    case 'division_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '/' });
-        break;
-    case 'mod_expression' :
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '%' });
-        break;
-    case 'and_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '&&' });
-        break;
-    case 'subtract_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '-' });
-        break;
-    case 'or_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '||' });
-        break;
-    case 'greater_equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '>=' });
-        break;
-    case 'less_than_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '<' });
-        break;
-    case 'less_equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '<=' });
-        break;
-    case 'not_equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({ operator: '!=' });
-        break;
-    case 'unary_expression':
-        node = BallerinaASTFactory.createUnaryExpression({ operator: jsonNode.operator });
-        break;
-    case 'connector_init_expr':
-        node = BallerinaASTFactory.createConnectorInitExpression();
-        break;
-    case 'index_based_variable_reference_expression':
-        node = BallerinaASTFactory.createIndexBasedVarRefExpression();
-        break;
-    case 'connector':
-        node = BallerinaASTFactory.createConnectorDefinition();
-        break;
-    case 'action_definition':
-        node = BallerinaASTFactory.createConnectorAction();
-        break;
-    case 'constant_definition':
-        node = BallerinaASTFactory.createConstantDefinition();
-        break;
-    case 'global_variable_definition':
-        node = BallerinaASTFactory.createGlobalVariableDefinition();
-        break;
-    case 'struct_definition':
-        node = BallerinaASTFactory.createStructDefinition();
-        break;
-    case 'key_value_expression':
-        node = BallerinaASTFactory.createKeyValueExpression();
-        break;
-    case 'type_cast_expression':
-        node = BallerinaASTFactory.createTypeCastExpression();
-        break;
-    case 'type_conversion_expression':
-        node = BallerinaASTFactory.createTypeConversionExpression();
-        break;
-    case 'field_based_variable_reference_expression':
-        node = BallerinaASTFactory.createFieldBasedVarRefExpression();
-        break;
-    case 'reference_type_init_expression':
-        node = BallerinaASTFactory.createReferenceTypeInitExpression();
-        break;
-    case 'array_init_expression':
-        node = BallerinaASTFactory.createArrayInitExpression();
-        break;
-    case 'action_invocation_statement':
-        node = BallerinaASTFactory.createActionInvocationStatement();
-        break;
-    case 'worker':
-        node = BallerinaASTFactory.createWorkerDeclaration();
-        break;
-    case 'worker_invocation_statement':
-        node = BallerinaASTFactory.createWorkerInvocationStatement();
-        break;
-    case 'worker_reply_statement':
-        node = BallerinaASTFactory.createWorkerReplyStatement();
-        break;
-    case 'try_catch_statement':
-        node = BallerinaASTFactory.createTryCatchStatement();
-        break;
-    case 'try_block':
-        node = BallerinaASTFactory.createTryStatement();
-        break;
-    case 'catch_block':
-        node = BallerinaASTFactory.createCatchStatement();
-        break;
-    case 'finally_block':
-        node = BallerinaASTFactory.createFinallyStatement();
-        break;
-    case 'throw_statement':
-        node = BallerinaASTFactory.createThrowStatement();
-        break;
-    case 'comment_statement':
-        node = BallerinaASTFactory.createCommentStatement();
-        break;
-    case 'annotation_attribute_definition':
-        node = BallerinaASTFactory.createAnnotationAttributeDefinition();
-        break;
-    case 'parameter_definition':
-        node = BallerinaASTFactory.createParameterDefinition();
-        break;
-    case 'argument_parameter_definitions':
-        node = BallerinaASTFactory.createArgumentParameterDefinitionHolder();
-        break;
-    case 'return_parameter_definitions':
-        node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
-        break;
-    case 'transform_statement':
-        node = BallerinaASTFactory.createTransformStatement();
-        break;
-    case 'fork_join_statement':
-        node = BallerinaASTFactory.createForkJoinStatement();
-        break;
-    case 'join_statement':
-        node = BallerinaASTFactory.createJoinStatement();
-        break;
-    case 'timeout_statement':
-        node = BallerinaASTFactory.createTimeoutStatement();
-        break;
-    case 'transaction_aborted_statement':
-        node = BallerinaASTFactory.createTransactionAbortedStatement();
-        break;
-    case 'transaction_statement':
-        node = BallerinaASTFactory.createTransactionStatement();
-        break;
-    case 'aborted_statement':
-        node = BallerinaASTFactory.createAbortedStatement();
-        break;
-    case 'abort_statement':
-        node = BallerinaASTFactory.createAbortStatement();
-        break;
-    case 'committed_statement':
-        node = BallerinaASTFactory.createCommittedStatement();
-        break;
-    case 'continue_statement':
-        node = BallerinaASTFactory.createContinueStatement();
-        break;
-    case 'bvalue':
-        node = BallerinaASTFactory.createBValue();
-        break;
-    default:
-        throw new Error('Unknown node definition for ' + jsonNode.type);
+        case 'simple_type_name':
+            node = BallerinaASTFactory.createSimpleTypeName();
+            break;
+        case 'package':
+            node = BallerinaASTFactory.createPackageDefinition();
+            break;
+        case 'import':
+            node = BallerinaASTFactory.createImportDeclaration();
+            break;
+        case 'annotation_attachment':
+            node = BallerinaASTFactory.createAnnotationAttachment();
+            break;
+        case 'annotation_attribute':
+            node = BallerinaASTFactory.createAnnotationAttribute();
+            break;
+        case 'annotation_attribute_value':
+            node = BallerinaASTFactory.createAnnotationAttributeValue();
+            break;
+        case 'service_definition':
+            node = BallerinaASTFactory.createServiceDefinition();
+            break;
+        case 'annotation_definition':
+            node = BallerinaASTFactory.createAnnotationDefinition();
+            break;
+        case 'function_definition':
+            node = BallerinaASTFactory.createFunctionDefinition();
+            break;
+        case 'connector_definition':
+            node = BallerinaASTFactory.createConnectorDefinition();
+            break;
+        case 'type_definition':
+            node = BallerinaASTFactory.createTypeDefinition();
+            break;
+        case 'resource_definition':
+            node = BallerinaASTFactory.createResourceDefinition();
+            break;
+        case 'connector_declaration':
+            node = BallerinaASTFactory.createConnectorDeclaration();
+            break;
+        case 'variable_definition':
+            node = BallerinaASTFactory.createVariableDefinition();
+            break;
+        case 'variable_definition_statement':
+            node = BallerinaASTFactory.createVariableDefinitionStatement();
+            break;
+        case 'argument_declaration':
+            node = BallerinaASTFactory.createResourceParameter();
+            break;
+        case 'reply_statement':
+            node = BallerinaASTFactory.createReplyStatement();
+            break;
+        case 'return_statement':
+            node = BallerinaASTFactory.createReturnStatement();
+            break;
+        case 'return_type':
+            node = BallerinaASTFactory.createReturnType();
+            break;
+        case 'return_argument':
+            node = BallerinaASTFactory.createArgument();
+            break;
+        case 'type_name':
+            node = BallerinaASTFactory.createTypeName();
+            break;
+        case 'function_invocation_statement':
+            node = BallerinaASTFactory.createFunctionInvocationStatement();
+            break;
+        case 'function_invocation_expression':
+            node = BallerinaASTFactory.createFunctionInvocationExpression();
+            break;
+        case 'simple_variable_reference_expression':
+            node = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            break;
+        case 'action_invocation_expression':
+            node = BallerinaASTFactory.createActionInvocationExpression();
+            break;
+        case 'assignment_statement':
+            node = BallerinaASTFactory.createAssignmentStatement();
+            break;
+        case 'back_tick_expression':
+            node = BallerinaASTFactory.createBackTickExpression();
+            break;
+        case 'while_statement' :
+            node = BallerinaASTFactory.createWhileStatement();
+            break;
+        case 'break_statement' :
+            node = BallerinaASTFactory.createBreakStatement();
+            break;
+        case 'basic_literal_expression' :
+            node = BallerinaASTFactory.createBasicLiteralExpression();
+            break;
+        case 'lambda_function_expression' :
+            node = BallerinaASTFactory.createLambdaExpression();
+            break;
+        case 'null_literal_expression' :
+            node = BallerinaASTFactory.createNullLiteralExpression();
+            break;
+        case 'variable_reference_list':
+            node = BallerinaASTFactory.createVariableReferenceList();
+            break;
+        case 'if_else_statement' :
+            node = BallerinaASTFactory.createIfElseStatement();
+            break;
+        case 'if_statement' :
+            node = BallerinaASTFactory.createIfStatement();
+            break;
+        case 'else_if_statement' :
+            node = BallerinaASTFactory.createElseIfStatement();
+            break;
+        case 'else_statement' :
+            node = BallerinaASTFactory.createElseStatement();
+            break;
+        case 'instance_creation_expression':
+            node = BallerinaASTFactory.createInstanceCreationExpression();
+            break;
+        case 'then_body':
+            node = BallerinaASTFactory.createThenBody();
+            break;
+        case 'equal_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '==' });
+            break;
+        case 'greater_than_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '>' });
+            break;
+        case 'add_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '+' });
+            break;
+        case 'multiplication_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '*' });
+            break;
+        case 'division_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '/' });
+            break;
+        case 'mod_expression' :
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '%' });
+            break;
+        case 'and_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '&&' });
+            break;
+        case 'subtract_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '-' });
+            break;
+        case 'or_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '||' });
+            break;
+        case 'greater_equal_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '>=' });
+            break;
+        case 'less_than_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '<' });
+            break;
+        case 'less_equal_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '<=' });
+            break;
+        case 'not_equal_expression':
+            node = BallerinaASTFactory.createBinaryExpression({ operator: '!=' });
+            break;
+        case 'unary_expression':
+            node = BallerinaASTFactory.createUnaryExpression({ operator: jsonNode.operator });
+            break;
+        case 'connector_init_expr':
+            node = BallerinaASTFactory.createConnectorInitExpression();
+            break;
+        case 'index_based_variable_reference_expression':
+            node = BallerinaASTFactory.createIndexBasedVarRefExpression();
+            break;
+        case 'connector':
+            node = BallerinaASTFactory.createConnectorDefinition();
+            break;
+        case 'action_definition':
+            node = BallerinaASTFactory.createConnectorAction();
+            break;
+        case 'constant_definition':
+            node = BallerinaASTFactory.createConstantDefinition();
+            break;
+        case 'global_variable_definition':
+            node = BallerinaASTFactory.createGlobalVariableDefinition();
+            break;
+        case 'struct_definition':
+            node = BallerinaASTFactory.createStructDefinition();
+            break;
+        case 'key_value_expression':
+            node = BallerinaASTFactory.createKeyValueExpression();
+            break;
+        case 'type_cast_expression':
+            node = BallerinaASTFactory.createTypeCastExpression();
+            break;
+        case 'type_conversion_expression':
+            node = BallerinaASTFactory.createTypeConversionExpression();
+            break;
+        case 'field_based_variable_reference_expression':
+            node = BallerinaASTFactory.createFieldBasedVarRefExpression();
+            break;
+        case 'reference_type_init_expression':
+            node = BallerinaASTFactory.createReferenceTypeInitExpression();
+            break;
+        case 'array_init_expression':
+            node = BallerinaASTFactory.createArrayInitExpression();
+            break;
+        case 'action_invocation_statement':
+            node = BallerinaASTFactory.createActionInvocationStatement();
+            break;
+        case 'worker':
+            node = BallerinaASTFactory.createWorkerDeclaration();
+            break;
+        case 'worker_invocation_statement':
+            node = BallerinaASTFactory.createWorkerInvocationStatement();
+            break;
+        case 'worker_reply_statement':
+            node = BallerinaASTFactory.createWorkerReplyStatement();
+            break;
+        case 'try_catch_statement':
+            node = BallerinaASTFactory.createTryCatchStatement();
+            break;
+        case 'try_block':
+            node = BallerinaASTFactory.createTryStatement();
+            break;
+        case 'catch_block':
+            node = BallerinaASTFactory.createCatchStatement();
+            break;
+        case 'finally_block':
+            node = BallerinaASTFactory.createFinallyStatement();
+            break;
+        case 'throw_statement':
+            node = BallerinaASTFactory.createThrowStatement();
+            break;
+        case 'comment_statement':
+            node = BallerinaASTFactory.createCommentStatement();
+            break;
+        case 'annotation_attribute_definition':
+            node = BallerinaASTFactory.createAnnotationAttributeDefinition();
+            break;
+        case 'parameter_definition':
+            node = BallerinaASTFactory.createParameterDefinition();
+            break;
+        case 'argument_parameter_definitions':
+            node = BallerinaASTFactory.createArgumentParameterDefinitionHolder();
+            break;
+        case 'return_parameter_definitions':
+            node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
+            break;
+        case 'transform_statement':
+            node = BallerinaASTFactory.createTransformStatement();
+            break;
+        case 'fork_join_statement':
+            node = BallerinaASTFactory.createForkJoinStatement();
+            break;
+        case 'join_statement':
+            node = BallerinaASTFactory.createJoinStatement();
+            break;
+        case 'timeout_statement':
+            node = BallerinaASTFactory.createTimeoutStatement();
+            break;
+        case 'transaction_aborted_statement':
+            node = BallerinaASTFactory.createTransactionAbortedStatement();
+            break;
+        case 'transaction_statement':
+            node = BallerinaASTFactory.createTransactionStatement();
+            break;
+        case 'aborted_statement':
+            node = BallerinaASTFactory.createAbortedStatement();
+            break;
+        case 'abort_statement':
+            node = BallerinaASTFactory.createAbortStatement();
+            break;
+        case 'committed_statement':
+            node = BallerinaASTFactory.createCommittedStatement();
+            break;
+        case 'continue_statement':
+            node = BallerinaASTFactory.createContinueStatement();
+            break;
+        case 'bvalue':
+            node = BallerinaASTFactory.createBValue();
+            break;
+        case 'namespace_declaration_statement':
+            node = BallerinaASTFactory.createNamespaceDeclarationStatement();
+            break;
+        case 'namespace_declaration':
+            node = BallerinaASTFactory.createNamespaceDeclaration();
+            break;
+        case 'xml_qname_expression':
+            node = BallerinaASTFactory.createXMLQNameExpression();
+            break;
+        case 'xml_attribute_ref_expression':
+            node = BallerinaASTFactory.createXMLAttributeReferenceExpression();
+            break;
+        default:
+            throw new Error('Unknown node definition for ' + jsonNode.type);
     }
+    // handle special case of connector declaration
+    if (jsonNode.type === 'variable_definition_statement' &&
+                !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
+        node = BallerinaASTFactory.createConnectorDeclaration();
+    } 
 
     node.setLineNumber(jsonNode.line_number, { doSilently: true });
+
+    if (!_.isNil(jsonNode.position_info)) {
+        const { start_line, start_offset, stop_line, stop_offset } = jsonNode.position_info;
+        const position = {
+            startLine: start_line,
+            startOffset: start_offset,
+            stopLine: stop_line,
+            stopOffset: stop_offset
+        };
+        node.setPosition(position, { doSilently: true });
+    }
     if (jsonNode.is_identifier_literal) {
         node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, { doSilently: true });
     }
 
     if (!_.isNil(jsonNode.whitespace_descriptor)) {
         node.setWhiteSpaceDescriptor(jsonNode.whitespace_descriptor);
-        node.whiteSpace.useDefault = false;
     }
+    node.whiteSpace.useDefault = false;
     return node;
 };
 

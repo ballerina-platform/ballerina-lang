@@ -20,6 +20,8 @@ import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import LambdaExpression from '../expressions/lambda-expression';
 
 /**
  * Class to represent an Assignment statement.
@@ -93,6 +95,23 @@ class AssignmentStatement extends Statement {
         return this.getChildren()[1];
     }
 
+
+    /**
+     * @returns {[FunctionDefinition]} lambda
+     */
+    getLambdaChildren() {
+        // TODO: remove after making connector expression a child of RHS
+        const rightExpression = this.getRightExpression();
+        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)) {
+            return rightExpression.getArguments().filter(BallerinaASTFactory.isLambdaExpression)
+                .map(l => l.getLambdaFunction());
+        }
+
+        const deepFilterChildren = x =>
+            (BallerinaASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
+        return _.flatMapDeep(deepFilterChildren(this)).map(l => l.getLambdaFunction());
+    }
+
     /**
      * Set the statement from the statement string
      * @param {string} stmtString statement string
@@ -100,22 +119,25 @@ class AssignmentStatement extends Statement {
      * @returns {void}
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const replaced = LambdaExpression.replaceSymbol(stmtString, this.getLambdaChildren());
+        const fragment = FragmentUtils.createStatementFragment(replaced + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {
+            this.viewState.source = null;
             if (parsedJson.children.length !== 1) {
                 // Only checks for the simple literals
                 if (parsedJson.children[1].type === 'basic_literal_expression') {
                     const variableType = parsedJson.children[0].children[0].variable_type;
-                    const defaultValueType = parsedJson.children[1].basic_literal_type;
-
-                    if (variableType !== defaultValueType &&
-                        !(variableType === 'float' && defaultValueType === 'int')) {
-                        state = false;
-                        log.warn('Variable type and the default value type are not the same');
-                        if (_.isFunction(callback)) {
-                            callback({ isValid: false, response: parsedJson });
+                    if (variableType !== undefined) {
+                        const defaultValueType = parsedJson.children[1].basic_literal_type;
+                        if (variableType !== defaultValueType &&
+                            !(variableType === 'float' && defaultValueType === 'int')) {
+                            state = false;
+                            log.warn('Variable type and the default value type are not the same');
+                            if (_.isFunction(callback)) {
+                                callback({isValid: false, response: parsedJson});
+                            }
                         }
                     }
                 }

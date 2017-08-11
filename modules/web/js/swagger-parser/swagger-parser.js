@@ -64,8 +64,8 @@ class SwaggerParser {
             this.createSwaggerAnnotation(serviceDefinition);
             // Creating ServiceConfig annotation.
             this.createServiceConfigAnnotation(serviceDefinition);
-            // Creating @http:config#basePath attribute.
-            this.createHttpConfigBasePathAttribute(serviceDefinition);
+            // Creating @http:config annotation.
+            this.createHttpConfigAnnotation(serviceDefinition);
             // Creating @http:Consumes annotation.
             // this.createConsumesAnnotation(serviceDefinition, this._swaggerJson.consumes);
             // Creating @http:Produces annotation.
@@ -95,8 +95,8 @@ class SwaggerParser {
                                 _.isEqual(httpMethodAsString, httpMethodAnnotation.getName().toLowerCase());
                         });
                         // if operationId exists set it as resource name.
-                        if (existingResource && operation.operationId) {
-                            existingResource.setResourceName(operation.operationId);
+                        if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
+                            existingResource.setResourceName(operation.operationId.replace(/\s/g, ''));
                         }
                     }
 
@@ -114,17 +114,32 @@ class SwaggerParser {
     }
 
     /**
-     * Creates the basePath attribute in @http:config annotation.
+     * Creates/Updates the @http:config annotation.
      *
      * @param {ServiceDefinition} serviceDefinition The service definition which has the annotation attachment.
      * @memberof SwaggerParser
      */
-    createHttpConfigBasePathAttribute(serviceDefinition) {
+    createHttpConfigAnnotation(serviceDefinition) {
+        const configAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
+            HTTP_PACKAGE, 'configuration');
         if (!_.isNil(this._swaggerJson.basePath)) {
-            const configAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
-                HTTP_PACKAGE, 'config');
             const basePathBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.basePath });
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathBValue);
+        }
+
+        if (!_.isNil(this._swaggerJson.info.version)) {
+            const versionBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.version });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'version', versionBValue);
+        }
+
+        if (!_.isNil(this._swaggerJson.host)) {
+            const hostAndPort = this._swaggerJson.host.split(':');
+
+            const hostBValue = ASTFactory.createBValue({ stringValue: hostAndPort[0] });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'host', hostBValue);
+
+            const portBValue = ASTFactory.createBValue({ type: 'int', stringValue: hostAndPort[1] });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'port', portBValue);
         }
     }
 
@@ -384,7 +399,14 @@ class SwaggerParser {
         });
 
         if (!_.isNil(this._swaggerJson.host)) {
-            const hostBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.host });
+            let hostBValue;
+            if (!_.isNil(this._swaggerJson.schemes) && this._swaggerJson.schemes.length > 0) {
+                hostBValue = ASTFactory.createBValue({
+                    stringValue: `${this._swaggerJson.schemes[0]}://${this._swaggerJson.host}`,
+                });
+            } else {
+                hostBValue = ASTFactory.createBValue({ stringValue: `http://:${this._swaggerJson.host}` });
+            }
             SwaggerParser.setAnnotationAttribute(serviceConfigAnnotation, 'host', hostBValue);
         }
 
@@ -523,31 +545,34 @@ class SwaggerParser {
             resourceDefinition.getArgumentParameterDefinitionHolder().getChildren().splice(1);
 
             swaggerParameters.forEach((swaggerParameter) => {
-                const newParameterDefinition = ASTFactory.createParameterDefinition();
-                if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
-                    newParameterDefinition.setTypeName('int');
-                } else {
-                    newParameterDefinition.setTypeName(swaggerParameter.type);
+                if ((swaggerParameter.in === 'query' || swaggerParameter.in === 'path') &&
+                                                                                    !_.isNil(swaggerParameter.type)) {
+                    const newParameterDefinition = ASTFactory.createParameterDefinition();
+                    if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
+                        newParameterDefinition.setTypeName('int');
+                    } else {
+                        newParameterDefinition.setTypeName(swaggerParameter.type);
+                    }
+                    newParameterDefinition.setName(swaggerParameter.name);
+
+                    // Creating parameter annotation.
+                    const paramAnnotation = ASTFactory.createAnnotationAttachment({
+                        fullPackageName: HTTP_FULL_PACKAGE,
+                        packageName: HTTP_PACKAGE,
+                    });
+
+                    const nameBValue = ASTFactory.createBValue({ stringValue: swaggerParameter.name });
+                    SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameBValue);
+
+                    if (swaggerParameter.in === 'query') {
+                        paramAnnotation.setName('QueryParam');
+                    } else if (swaggerParameter.in === 'path') {
+                        paramAnnotation.setName('PathParam');
+                    }
+
+                    newParameterDefinition.addChild(paramAnnotation);
+                    resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
                 }
-                newParameterDefinition.setName(swaggerParameter.name);
-
-                // Creating parameter annotation.
-                const paramAnnotation = ASTFactory.createAnnotationAttachment({
-                    fullPackageName: HTTP_FULL_PACKAGE,
-                    packageName: HTTP_PACKAGE,
-                });
-
-                const nameBValue = ASTFactory.createBValue({ stringValue: swaggerParameter.name });
-                SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameBValue);
-
-                if (swaggerParameter.in === 'query') {
-                    paramAnnotation.setName('QueryParam');
-                } else if (swaggerParameter.in === 'path') {
-                    paramAnnotation.setName('PathParam');
-                }
-
-                newParameterDefinition.addChild(paramAnnotation);
-                resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
             });
         }
     }
@@ -606,7 +631,7 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.type)) {
                     const typeBValue = ASTFactory.createBValue({ stringValue: parameter.type });
-                    SwaggerParser.setAnnotationAttribute(responseAnnotation, 'type', typeBValue);
+                    SwaggerParser.setAnnotationAttribute(responseAnnotation, 'parameterType', typeBValue);
                 }
 
                 if (!_.isNil(parameter.format)) {
@@ -755,8 +780,8 @@ class SwaggerParser {
         const newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
 
         // if an operation id is defined set it as resource name.
-        if (httpMethodJsonObject.operationId) {
-            newResourceDefinition.setResourceName(httpMethodJsonObject.operationId);
+        if (httpMethodJsonObject.operationId && httpMethodJsonObject.operationId.trim() !== '') {
+            newResourceDefinition.setResourceName(httpMethodJsonObject.operationId.replace(/\s/g, ''));
         } else {
             newResourceDefinition.setResourceName(pathString.replace(/\W/g, '') + httpMethodAsString.toUpperCase());
         }

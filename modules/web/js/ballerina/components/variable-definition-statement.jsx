@@ -16,15 +16,17 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import StatementDecorator from './statement-decorator';
 import MessageManager from './../visitors/message-manager';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ASTFactory from './../ast/ballerina-ast-factory';
+import FunctionDefinition from './function-definition';
+import { statement } from './../configs/designer-defaults';
 
 /**
  * Variable Definition Statement Decorator.
@@ -58,18 +60,18 @@ class VariableDefinitionStatement extends React.Component {
         const messageManager = this.context.messageManager;
         const model = this.props.model;
         const bBox = model.getViewState().bBox;
-        const statement_h = this.statementBox.h;
+        const statementH = this.statementBox.h;
         const messageStartX = bBox.x + bBox.w;
-        const messageStartY = this.statementBox.y + statement_h / 2;
-        let actionInvocation;
-        actionInvocation = model.getRightExpression();
+        const messageStartY = this.statementBox.y + (statementH / 2);
+        const actionInvocation = model.getRightExpression();
         messageManager.setSource(actionInvocation);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
-
-        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
+        messageManager.setTargetValidationCallback(destination =>
+            actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
+            source.setActionConnectorName(destination.getConnectorVariable());
             source.setConnector(destination);
             model.getStatementString();
             model.trigger('tree-modified', { type: 'custom', title: 'action set' });
@@ -103,7 +105,7 @@ class VariableDefinitionStatement extends React.Component {
 
         // calculate the bBox for the statement
         this.statementBox = {};
-        this.statementBox.h = bBox.h - innerZoneHeight;
+        this.statementBox.h = statement.height;
         this.statementBox.y = bBox.y + innerZoneHeight;
         this.statementBox.w = bBox.w;
         this.statementBox.x = bBox.x;
@@ -112,27 +114,31 @@ class VariableDefinitionStatement extends React.Component {
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
         const actionInvocation = (!_.isNil(model.getRightExpression())
-            && ASTFactory.isActionInvocationExpression(model.getRightExpression())) ? model.getRightExpression() : undefined;
+        && ASTFactory.isActionInvocationExpression(model.getRightExpression())) ?
+            model.getRightExpression() : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
         const backArrowStart = { x: 0, y: 0 };
         const backArrowEnd = { x: 0, y: 0 };
 
-        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation._connector)) {
-            connector = actionInvocation._connector;
+        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation.getConnector())) {
+            connector = actionInvocation.getConnector();
 
             // TODO: need a proper way to do this
-            const isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(child => child.id === connector.id));
+            const isConnectorAvailable = !_.isEmpty(connector.getParent()
+                .filterChildren(child => child.id === connector.id));
 
             arrowStart.x = this.statementBox.x + this.statementBox.w;
-            arrowStart.y = this.statementBox.y + this.statementBox.h / 3;
+            arrowStart.y = this.statementBox.y + (this.statementBox.h / 3);
 
             if (!isConnectorAvailable) {
                 connector = undefined;
                 actionInvocation._connector = undefined;
             } else {
-                arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w / 2;
+                const connectorViewState = ASTFactory.isAssignmentStatement(connector) ?
+                    connector.getViewState().connectorDeclViewState : connector.getViewState();
+                arrowEnd.x = connectorViewState.bBox.x + (connectorViewState.bBox.w / 2);
             }
 
             arrowEnd.y = arrowStart.y;
@@ -142,25 +148,35 @@ class VariableDefinitionStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions}>
-            {!_.isNil(actionInvocation) &&
-            <g>
-                <circle
-                    cx={arrowStartPointX}
-                    cy={arrowStartPointY}
-                    r={radius}
-                    fill="#444"
-                    fillOpacity={0}
-                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-                    onMouseDown={e => this.onMouseDown(e)}
-                    onMouseUp={e => this.onMouseUp(e)}
-                />
-                {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
-                {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
-            </g>
-            }
-        </StatementDecorator>);
+        const lambdaFunc = model.getLambdaChildren().map(f =>
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
+
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                editorOptions={this.editorOptions}
+            >
+                {!_.isNil(actionInvocation) &&
+                <g>
+                    <circle
+                        cx={arrowStartPointX}
+                        cy={arrowStartPointY}
+                        r={radius}
+                        fill="#444"
+                        fillOpacity={0}
+                        onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                        onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                        onMouseDown={e => this.onMouseDown(e)}
+                        onMouseUp={e => this.onMouseUp(e)}
+                    />
+                    {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
+                    {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
+                </g>
+                }
+                {lambdaFunc}
+            </StatementDecorator>);
     }
 }
 

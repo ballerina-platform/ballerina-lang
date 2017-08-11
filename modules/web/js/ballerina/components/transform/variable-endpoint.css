@@ -1,0 +1,60 @@
+.transform-endpoint .btn {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+}
+
+.transform-endpoint .variable-icon {
+    width: 20px;
+}
+
+.transform-endpoint .tree-view-icon {
+    width: 20px;
+    display: inline-block;
+}
+
+.transform-endpoint .connect-point {
+    position: absolute;
+    background-color: #dedede;
+    z-index: 0;
+}
+
+.transform-source .connect-point {
+    right: 0px;
+}
+
+.transform-target .connect-point {
+    left: 0px;
+}
+
+.transform-return .connect-point {
+    right: 0px;
+}
+
+.transform-param  .connect-point {
+    left: 0px;
+}
+
+.transform-target .transform-endpoint {
+    margin-left: 30px;
+    width: calc(100% - 30px);
+}
+
+.transform-param .transform-endpoint{
+    margin-left: 30px;
+    width: calc(100% - 30px);
+}
+
+.transform-endpoint {
+    position: relative;
+    height: 30px;
+    white-space: nowrap;
+}
+
+.tree-view-icon {
+    width: 10px;
+    text-align: center;
+    margin: 0;
+    line-height: 30px;
+}

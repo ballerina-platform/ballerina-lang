@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
-
+import ASTFactory from './../../ast/ballerina-ast-factory';
 /**
  * Position visitor class for Function Definition.
  *
@@ -40,6 +40,22 @@ class FunctionDefinitionPositionCalcVisitor {
     }
 
     /**
+     *
+     * @param {ASTNode} node
+     * @private
+     */
+    static findParent(node) {
+        const p = node.getParent();
+        if (!p) {
+            return null;
+        }
+        if (ASTFactory.isAssignmentStatement(p) || ASTFactory.isVariableDefinitionStatement(p)) {
+            return p;
+        }
+        return this.findParent(p);
+    }
+
+    /**
      * begin visiting the visitor.
      *
      * @param {ASTNode} node - Function Definition node.
@@ -53,10 +69,42 @@ class FunctionDefinitionPositionCalcVisitor {
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
         const viewState = node.getViewState();
         const statementContainer = viewState.components.statementContainer;
-        statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        const workerScopeContainer = viewState.components.workerScopeContainer;
+        // If more than one worker is present, then draw the worker scope container boundary around the workers
+        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+            workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+            workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
+        }
+        if (node.isLambda()) {
+            const parent = this.constructor.findParent(node);
+            if (parent) {
+                const lambdaChildren = parent.getLambdaChildren();
+                const i = lambdaChildren.indexOf(node);
+                const parentViewState = parent.getViewState();
+
+                if (i > 0) {
+                    viewState.bBox.y = lambdaChildren[i - 1].getViewState().bBox.getBottom();
+                } else {
+                    viewState.bBox.y = parentViewState.bBox.getTop() + DesignerDefaults.statement.height
+                        + DesignerDefaults.statement.gutter.v;
+                }
+
+                viewState.bBox.x = parentViewState.bBox.x;
+                viewState.components.body.y = viewState.bBox.y;
+                viewState.components.body.x = viewState.bBox.x;
+                if (node.filterChildren(node.getFactory().isConnectorDeclaration).length > 0) {
+                    statementContainer.x = viewState.bBox.x + DesignerDefaults.innerPanel.body.padding.left;
+                } else {
+                    statementContainer.x = viewState.bBox.x + (viewState.bBox.w - statementContainer.w) / 2;
+                }
+            } else {
+                log.error(node, 'lambda has unknown parent chain');
+            }
+        } else {
+            statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
+        }
         statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
-
         // populate panel heading positioning.
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }
