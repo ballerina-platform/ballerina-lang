@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
@@ -61,7 +62,11 @@ class WorkerDeclaration extends React.Component {
         // Check for connector declaration children
         const connectorChildren = _.filter(this.props.model.getChildren(),
             child => nodeFactory.isConnectorDeclaration(child));
-
+        let workerScopeContainerVisibility = 'hidden';
+        // If more than one worker is present, then draw the worker scope container boundary around the workers
+        if ((_.filter(this.props.model.getChildren(), child => nodeFactory.isWorkerDeclaration(child)).length) >= 0) {
+            workerScopeContainerVisibility = 'visible';
+        }
         const classes = {
             lineClass: 'worker-life-line',
             polygonClass: 'worker-life-line-polygon',
@@ -82,6 +87,7 @@ class WorkerDeclaration extends React.Component {
                 iconColor='#0380c6'
             />
             { connectorChildren.length > 0 &&
+            <g style={{ visibility: workerScopeContainerVisibility }}>
                 <rect
                     x={workerScopeContainerBBox.x}
                     y={workerScopeContainerBBox.y}
@@ -95,7 +101,7 @@ class WorkerDeclaration extends React.Component {
                         strokeMiterlimit: 4,
                         strokeOpacity: 1,
                         strokeDasharray: 5 }}
-                /> }
+                /> </g>}
             {children}
         </g>
         );

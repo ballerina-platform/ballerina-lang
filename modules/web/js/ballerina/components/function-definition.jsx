@@ -22,7 +22,7 @@ import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine} from './../configs/designer-defaults';
+import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
 
 class FunctionDefinition extends React.Component {
@@ -64,10 +64,15 @@ class FunctionDefinition extends React.Component {
 
         // filter children nodes and create components
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        // Check for connector declaration children
         const nodeFactory = this.props.model.getFactory();
-        const connectorChildren = _.filter(this.props.model.getChildren(),
-            child => nodeFactory.isConnectorDeclaration(child));
+        // Check for connector declaration children
+        const connectorChildren = _.filter(this.props.model.getChildren(), child =>
+            nodeFactory.isConnectorDeclaration(child));
+        let workerScopeContainerVisibility = 'hidden';
+        // If more than one worker is present, then draw the worker scope container boundary around the workers
+        if ((_.filter(this.props.model.getChildren(), child => nodeFactory.isWorkerDeclaration(child)).length) >= 1) {
+            workerScopeContainerVisibility = 'visible';
+        }
         // change icon for main function
         let icons = 'tool-icons/function';
         if (name === 'main') {
@@ -123,20 +128,21 @@ class FunctionDefinition extends React.Component {
                         iconColor='#025482'
                     />
                     { connectorChildren.length > 0 &&
-                    <rect
-                        x={workerScopeContainerBBox.x}
-                        y={workerScopeContainerBBox.y}
-                        width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                        height={workerScopeContainerBBox.h}
-                        style={{ fill: 'none',
-                            stroke: '#67696d',
-                            strokeWidth: 2,
-                            strokeLinecap: 'round',
-                            strokeLinejoin: 'miter',
-                            strokeMiterlimit: 4,
-                            strokeOpacity: 1,
-                            strokeDasharray: 5 }}
-                    />}
+                    <g style={{ visibility: workerScopeContainerVisibility }}>
+                        <rect
+                            x={workerScopeContainerBBox.x}
+                            y={workerScopeContainerBBox.y}
+                            width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                            height={workerScopeContainerBBox.h}
+                            style={{ fill: 'none',
+                                stroke: '#67696d',
+                                strokeWidth: 2,
+                                strokeLinecap: 'round',
+                                strokeLinejoin: 'miter',
+                                strokeMiterlimit: 4,
+                                strokeOpacity: 1,
+                                strokeDasharray: 5 }}
+                        /> </g>}
                     <StatementContainer
                         dropTarget={this.props.model}
                         title="StatementContainer"
