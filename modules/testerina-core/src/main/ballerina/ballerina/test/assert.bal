@@ -55,10 +55,11 @@ function assertFalse(boolean condition, string errorMessage) {
 @doc:Param{value:"errorMessage: Assertion error message"}
 function assertStringEquals(string actual, string expected, string errorMessage) {
     if (actual != expected) {
-        if (errorMessage == "") {
-            errorMessage = "String not equal: expected: " + expected + " and actual: "+ actual;
+        if(errorMessage != ""){
+            errorMessage = errorMessage + " ";
         }
-        throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+        string msg = string `{{errorMessage}}expected [{{expected}}] but found [{{actual}}]`;
+        throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -69,10 +70,11 @@ function assertStringEquals(string actual, string expected, string errorMessage)
 @doc:Param{value:"errorMessage: Assertion error message"}
 function assertIntEquals(int actual, int expected, string errorMessage) {
     if (actual != expected) {
-        if (errorMessage == "") {
-            errorMessage = "Integer not equal: expected: " + expected + " and actual: "+ actual;
+        if(errorMessage != ""){
+            errorMessage = errorMessage + " ";
         }
-        throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+        string msg = string `{{errorMessage}}expected [{{expected}}] but found [{{actual}}]`;
+        throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -83,10 +85,11 @@ function assertIntEquals(int actual, int expected, string errorMessage) {
 @doc:Param{value:"errorMessage: Assertion error message"}
 function assertFloatEquals(float actual, float expected, string errorMessage) {
     if (actual != expected) {
-        if (errorMessage == "") {
-            errorMessage = "Float not equal: expected: " + expected + " and actual: "+ actual;
+        if(errorMessage != ""){
+            errorMessage = errorMessage + " ";
         }
-        throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+        string msg = string `{{errorMessage}}expected [{{expected}}] but found [{{actual}}]`;
+        throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -97,10 +100,11 @@ function assertFloatEquals(float actual, float expected, string errorMessage) {
 @doc:Param{value:"errorMessage: Assertion error message"}
 function assertBooleanEquals(boolean actual, boolean expected, string errorMessage) {
     if (actual != expected) {
-        if (errorMessage == "") {
-            errorMessage = "Boolean not equal: expected: " + expected + " and actual: "+ actual;
+        if(errorMessage != ""){
+            errorMessage = errorMessage + " ";
         }
-        throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+        string msg = string `{{errorMessage}}expected [{{expected}}] but found [{{actual}}]`;
+        throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 

@@ -49,7 +49,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                value = "Mock value to set (e.g.: endpoint URL)") })
 public class SetValue extends AbstractNativeFunction {
 
-//    private static final String COULD_NOT_FIND_MATCHING_CONNECTOR = "Could not find a matching connector for the name ";
+//   private static final String COULD_NOT_FIND_MATCHING_CONNECTOR =
+//                                                      "Could not find a matching connector for the name ";
 //
 //    private static final String MSG_PREFIX = "mock:setValue: ";
 //    private static final String MOCK_PATH_SYNTAX = "<ServiceName>[.]<ConnectorVariableName(s)>[.]parameterX";

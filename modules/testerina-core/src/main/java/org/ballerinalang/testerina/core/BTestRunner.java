@@ -52,7 +52,7 @@ public class BTestRunner {
             TesterinaRegistry.getInstance().addProgramFile(programFile);
         });
 
-	// TODO Implement debugging for Testerina
+    // TODO Implement debugging for Testerina
 
         executeTestFunctions(programFiles);
         tReport.printTestSummary();

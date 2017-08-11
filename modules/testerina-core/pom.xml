@@ -43,6 +43,12 @@
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
+
+        <!-- Dependencies for unit tests -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -156,12 +162,23 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
+                            /BallerinaNativeConstructsProvider.class</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
+                            /repository/BallerinaBuiltinPackageRepository.class</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
-        <checkstyle.skip>true</checkstyle.skip>
         <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>TesterinaNativeConstructsProvider</native.constructs.provider.class>
         <package.repository.provider.class>org.ballerinalang.testerina.core.TesterinaPackageRepository</package.repository.provider.class>
