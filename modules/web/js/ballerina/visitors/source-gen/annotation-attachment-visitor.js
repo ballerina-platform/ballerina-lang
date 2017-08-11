@@ -91,7 +91,6 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
                 const annotationAttributeVisitor = new AnnotationAttributeVisitor(mockParent, index === 0);
                 attribute.accept(annotationAttributeVisitor);
                 const genSource = annotationAttributeVisitor.getGeneratedSource();
-                console.log(genSource);
                 if (index !== 0 && !_.isEmpty(genSource)) {
                     this.appendSource(',');
                     if (annotationAttachment.whiteSpace.useDefault) {
