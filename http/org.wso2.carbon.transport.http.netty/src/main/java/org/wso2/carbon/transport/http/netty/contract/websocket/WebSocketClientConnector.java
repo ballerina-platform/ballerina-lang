@@ -29,15 +29,42 @@ import javax.websocket.Session;
  */
 public interface WebSocketClientConnector {
 
+    /**
+     * Creates the connection to the back-end.
+     * @param listener gets events of this connection.
+     * @return session of for the connection
+     * @throws ClientConnectorException throws when something goes wrong.
+     */
     Session connect(WebSocketConnectorListener listener) throws ClientConnectorException;
 
+    /**
+     * Creates the connection to the back-end.
+     * @param listener gets events of this connection.
+     * @param customHeaders add custom headers to the outbound messages.
+     * @return session of for the connection
+     * @throws ClientConnectorException throws when something goes wrong.
+     */
     Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
             throws ClientConnectorException;
 
+    /**
+     * Creates the connection to the back-end.
+     * @param listener gets events of this connection.
+     * @param channelContext context of the channel
+     * @return session of for the connection
+     * @throws ClientConnectorException throws when something goes wrong.
+     */
     Session connect(WebSocketConnectorListener listener, WebSocketMessageContext channelContext)
             throws ClientConnectorException;
 
-
+    /**
+     * Creates the connection to the back-end.
+     * @param listener gets events of this connection.
+     * @param channelContext  context of the channel
+     * @param customHeaders add custom headers to the outbound messages.
+     * @return session of for the connection
+     * @throws ClientConnectorException throws when something goes wrong.
+     */
     Session connect(WebSocketConnectorListener listener, WebSocketMessageContext channelContext,
                     Map<String, String> customHeaders) throws ClientConnectorException;
 }
