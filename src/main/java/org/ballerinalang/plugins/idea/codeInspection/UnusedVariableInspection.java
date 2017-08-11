@@ -76,7 +76,7 @@ public class UnusedVariableInspection extends LocalInspectionTool {
                 for (IdentifierPSINode identifier : identifiers) {
                     Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
                     PsiReference firstReference = psiReferences.findFirst();
-                    if (firstReference == null) {
+                    if (firstReference == null && !"_".equals(identifier.getText())) {
                         ProblemDescriptor problemDescriptor = getProblemDescriptor(manager, isOnTheFly, identifier,
                                 availableFixes);
                         problemDescriptors.add(problemDescriptor);
