@@ -6,8 +6,10 @@ import ballerina.lang.system;
 
 @http:configuration {basePath:"/ABCBank"}
 service<http> ATMLocator {
-    
-    @http:POST{}
+
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource locator (message m) {
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo/product");
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator/product");

@@ -5,8 +5,10 @@ import ballerina.doc;
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {
     @doc:Description {value:"http:POST{} annotation declares the HTTP method."}
-    @http:POST {}
-    @http:Path {value:"/route"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/route"
+    }
     resource cbrResource (message m) {
 
         //Create service endpoint using HTTP client-connector.

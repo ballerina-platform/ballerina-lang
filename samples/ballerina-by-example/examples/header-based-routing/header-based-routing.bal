@@ -6,8 +6,10 @@ import ballerina.doc;
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
     @doc:Description {value:"http:GET{} annotation declares the HTTP method."}
-    @http:GET {}
-    @http:Path {value:"/route"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/route"
+    }
     resource hbrResource (message m) {
         //Create two service endpoints using HTTP client-connector with different hosts.
         http:ClientConnector locationEP = create http:ClientConnector(

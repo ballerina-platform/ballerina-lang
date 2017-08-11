@@ -3,8 +3,10 @@ import ballerina.net.http;
 @http:configuration{basePath:"/echo"}
 service<http> echo {
 
-    @http:POST {}
-    @http:Path {value : "/message"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/message"
+    }
     resource echo (message m) {
         reply m;
     }

@@ -97,24 +97,28 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);
         for (ResourceInfo resource : service.getResourceInfoEntries()) {
-            AnnAttachmentInfo pathAnnotationInfo = resource
-                    .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
+            AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                    Constants.ANN_NAME_RESOURCE_CONFIG);
             String subPathAnnotationVal;
-            if (pathAnnotationInfo != null
-                    && pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
-                if (pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue()
-                        .trim().isEmpty()) {
-                    subPathAnnotationVal = Constants.DEFAULT_BASE_PATH;
-                } else {
-                    subPathAnnotationVal = pathAnnotationInfo.getAttributeValue(Constants.VALUE_ATTRIBUTE)
-                            .getStringValue();
-                }
-            } else {
+            if (rConfigAnnAtchmnt == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Path not specified in the Resource, using default sub path");
+                    log.debug("resourceConfig not specified in the Resource, using default sub path");
                 }
                 subPathAnnotationVal = resource.getName();
+            } else {
+                AnnAttributeValue pathAttrVal = rConfigAnnAtchmnt.getAttributeValue(Constants.ANN_RESOURCE_ATTR_PATH);
+                if (pathAttrVal == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Path not specified in the Resource, using default sub path");
+                    }
+                    subPathAnnotationVal = resource.getName();
+                } else if (pathAttrVal.getStringValue().trim().isEmpty()) {
+                    subPathAnnotationVal = Constants.DEFAULT_BASE_PATH;
+                } else {
+                    subPathAnnotationVal = pathAttrVal.getStringValue();
+                }
             }
+
             try {
                 service.getUriTemplate().parse(subPathAnnotationVal, resource);
             } catch (URITemplateException e) {
@@ -162,11 +166,11 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private String getServiceBasePath(ServiceInfo service) {
         String basePath = service.getName();
         AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIGURATION);
+                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
         if (annotationInfo != null) {
             AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
+                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
                     !annAttributeValue.getStringValue().trim().isEmpty()) {
                 basePath = annAttributeValue.getStringValue();

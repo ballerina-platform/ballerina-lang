@@ -33,9 +33,9 @@ struct Employee {
 }
 service<http> PeopleManagementService {
 
-    @http:GET {}
-    @http:Path {
-        value: "/employee/"
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/employee/"
     }
     @doc:Description {
         value: "Resource to get employee for the person by index which can be invoked with /people/employee?index={index}"
@@ -63,9 +63,9 @@ service<http> PeopleManagementService {
         reply m;
     }
 
-    @http:POST {}
-    @http:Path {
-        value: "/update"
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/update"
     }
     @doc:Description {
         value: "Resource to update person by index which can be invoked with /people/update?index={index}"
@@ -93,10 +93,9 @@ service<http> PeopleManagementService {
         reply m;
     }
 
-
-    @http:GET {}
-    @http:Path {
-        value: "/"
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/"
     }
     @doc:Description {
         value: "Get all people which can be invoked as /people/"

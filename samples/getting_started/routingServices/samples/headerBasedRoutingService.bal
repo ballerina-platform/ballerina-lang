@@ -5,9 +5,11 @@ import ballerina.lang.messages;
 
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
-    
-    @http:GET{}
-    @http:Path {value:"/"}
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/"
+    }
     resource hbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");

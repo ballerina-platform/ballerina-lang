@@ -5,9 +5,11 @@ import ballerina.lang.messages;
 
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {
-    
-    @http:POST{}
-    @http:Path {value:"/"}
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     resource cbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
