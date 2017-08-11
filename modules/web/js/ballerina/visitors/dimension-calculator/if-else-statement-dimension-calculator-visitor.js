@@ -65,7 +65,8 @@ class IfElseStatementDimensionCalculatorVisitor {
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
-        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(), child => child.getViewState().bBox.expansionW);
+        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(),
+            child => child.getViewState().bBox.expansionW);
         if (sortedChildren.length <= 0) {
             const exception = {
                 message: 'Invalid number of children for if-else statement',
@@ -77,6 +78,7 @@ class IfElseStatementDimensionCalculatorVisitor {
         const childWithMaxConnectorWidth = sortedChildrenfromConnectors[sortedChildrenfromConnectors.length - 1];
         const maxConnectorWidth = childWithMaxConnectorWidth.getViewState().bBox.expansionW;
 
+        let previous;
         _.forEach(node.getChildren(), (child) => {
             /**
              * Re adjust the width of all the other children
@@ -86,16 +88,25 @@ class IfElseStatementDimensionCalculatorVisitor {
                     childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
             }
-
             if (child.getViewState().bBox.expansionW < maxConnectorWidth) {
                 child.getViewState().bBox.expansionW = maxConnectorWidth;
             }
-            statementHeight += child.getViewState().bBox.h;
+            statementHeight += child.getViewState().bBox.h + child.viewState.offSet;
+
+            // Here instead of adding offSet to drop zone we will assign it to previous block statement -
+            // since else and if-else do not have a drop zone above.
+            if (previous) {
+                previous.viewState.bBox.h += child.viewState.offSet;
+            }
+            previous = child;
         });
 
-        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v + node.viewState.offSet;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
+        viewState.components['block-header'] = new SimpleBBox();
+        viewState.components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
+        viewState.components['block-header'].setOpaque(true);
 
         viewState.bBox.h = statementHeight + dropZoneHeight;
         viewState.bBox.w = statementWidth;

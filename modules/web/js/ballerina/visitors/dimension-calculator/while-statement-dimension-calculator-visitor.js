@@ -117,9 +117,12 @@ class WhileStatementDimensionCalculatorVisitor {
         DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
         statementContainerWidth = this.getStatementContainerWidth(statementContainerWidth);
 
-        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v + node.getViewState().offSet;
         components['drop-zone'] = new SimpleBBox();
         components['drop-zone'].h = dropZoneHeight;
+        components['block-header'] = new SimpleBBox();
+        components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
+        components['block-header'].setOpaque(true);
 
         bBox.w = statementContainerWidth;
         bBox.h = statementContainerHeight +

@@ -91,9 +91,13 @@ class TryCatchStatementDimensionCalculatorVisitor {
             statementHeight += child.getViewState().bBox.h;
         });
 
-        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v + node.viewState.offSet;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
+        // Add the block header as an opaque element to prevent conflicts.
+        viewState.components['block-header'] = new SimpleBBox();
+        viewState.components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
+        viewState.components['block-header'].setOpaque(true);
 
         viewState.bBox.h = statementHeight + dropZoneHeight;
         viewState.bBox.w = statementWidth;
