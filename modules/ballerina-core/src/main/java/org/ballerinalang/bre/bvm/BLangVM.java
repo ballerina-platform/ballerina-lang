@@ -1667,6 +1667,7 @@ public class BLangVM {
                     sf.longRegs[j] = 0;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeInt);
                 } else if (bRefType.getType() == BTypes.typeInt) {
+                    sf.refRegs[k] = null;
                     sf.longRegs[j] = ((BInteger) bRefType).intValue();
                 } else {
                     sf.longRegs[j] = 0;
@@ -1683,6 +1684,7 @@ public class BLangVM {
                     sf.doubleRegs[j] = 0;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeFloat);
                 } else if (bRefType.getType() == BTypes.typeFloat) {
+                    sf.refRegs[k] = null;
                     sf.doubleRegs[j] = ((BFloat) bRefType).floatValue();
                 } else {
                     sf.doubleRegs[j] = 0;
@@ -1716,6 +1718,7 @@ public class BLangVM {
                     sf.intRegs[j] = 0;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBoolean);
                 } else if (bRefType.getType() == BTypes.typeBoolean) {
+                    sf.refRegs[k] = null;
                     sf.intRegs[j] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
                 } else {
                     sf.intRegs[j] = 0;
