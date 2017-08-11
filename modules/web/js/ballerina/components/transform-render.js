@@ -352,6 +352,10 @@ class TransformRender {
         this.reposition(this);
     }
 
+    remove(elementId) {
+        this.jsPlumbInstance.remove(elementId);
+    }
+
 // /**
 //  * Add a connection arrow in the mapper UI
 //  * @param {object} connection connection object which specified source and target

@@ -16,7 +16,7 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Dimension visitor class for Variable Definition Statement.
@@ -63,11 +63,17 @@ class VariableDefinitionStatementDimensionCalculatorVisitor {
         const viewState = node.getViewState();
         util.populateSimpleStatementBBox(node.getStatementString(), viewState);
 
-        const lambdaChildren = node.filterChildren(child => ASTFactory.isLambdaExpression(child));
+        const lambdaChildren = node.filterChildren(child => BallerinaASTFactory.isLambdaExpression(child));
         if (lambdaChildren.length > 0) {
             const funcViewState = lambdaChildren[0].getLambdaFunction().getViewState();
             viewState.bBox.h += funcViewState.bBox.h;
             viewState.bBox.w = funcViewState.bBox.w;
+        }
+
+        // check if it is an action invocation statement if so initialize it as an arrow.
+        const statementChildren = node.filterChildren(BallerinaASTFactory.isActionInvocationExpression);
+        if (statementChildren instanceof Array && statementChildren.length > 0) {
+            viewState.components['statement-box'].arrow = true;
         }
     }
 }

@@ -50,7 +50,9 @@ class WhileStatementPositionCalcVisitor {
         Utils.getSimpleStatementPosition(node);
         node.getViewState().components.statementContainer.x = node.getViewState().bBox.x;
         node.getViewState().components.statementContainer.y = node.getViewState().bBox.y +
-            DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.gutter.v;
+            DesignerDefaults.blockStatement.heading.height + node.getViewState().components['drop-zone'].h;
+        node.getViewState().components['block-header'].y = node.getViewState().bBox.y + 
+            node.getViewState().components['drop-zone'].h;
     }
 
     /**

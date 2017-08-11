@@ -160,12 +160,19 @@ class TransformExpanded extends React.Component {
         if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtTarget = this.findEnclosingAssignmentStatement(connection.sourceReference.id);
-            const index = _.findIndex(this.getFunctionDefinition(
-                                                    connection.sourceReference.getRightExpression()).getReturnParams(),
-                                                            (param) => {
-                                                                return param.name == connection.sourceStruct;
-                                                            });
+            let sourceExpression;
+
+            if(BallerinaASTFactory.isFunctionInvocationExpression(connection.sourceReference)) {
+                sourceExpression = connection.sourceReference;
+            } else {
+                sourceExpression = connection.sourceReference.getRightExpression();
+            }
+
+            const assignmentStmtTarget = connection.sourceFuncInv.getParent();
+
+            const index = _.findIndex(this.getFunctionDefinition(sourceExpression).getReturnParams(), param => {
+                return param.name == connection.sourceStruct;
+            });
             assignmentStmtTarget.getLeftExpression().addChild(targetExpression, index);
             return assignmentStmtTarget.id;
         }
@@ -177,19 +184,19 @@ class TransformExpanded extends React.Component {
         // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
         // will be different from removing a param from a function and then drawing the connection
         // to the parent function invocation.
-        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetReference);
+        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetFuncInv);
+        const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
 
-        const assignmentStmtSource = connection.sourceReference;
         const funcNode = assignmentStmtTarget.getRightExpression();
 
         const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), (param) => {
             const paramName = param.name || param.fieldName;
             return param.name === (connection.targetProperty || connection.targetStruct);
         });
-        funcNode.children[index] = assignmentStmtSource.getRightExpression();
 
         // remove the source assignment statement since it is now included in the target assignment statement.
-        this.props.model.removeChild(assignmentStmtSource);
+        this.props.model.removeChild(assignmentStmtSource, true);
+        funcNode.addChild(assignmentStmtSource.getRightExpression(), index);
 
         return assignmentStmtTarget.id;
     }
@@ -241,20 +248,20 @@ class TransformExpanded extends React.Component {
         const targetFuncInvocationExpression = connection.targetFuncInv;
         const sourceFuncInvocationExpression = connection.sourceFuncInv;
 
-        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
+        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression, true);
+
+        const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+        const varRefList = BallerinaASTFactory.createVariableReferenceList();
+        assignmentStmt.addChild(varRefList, 0);
+        assignmentStmt.addChild(sourceFuncInvocationExpression, 1);
+        this.props.model.addChild(assignmentStmt, this.props.model.getIndexOfChild(connection.targetReference));
     }
 
     recordSourceElement(element, id, input) {
-        if (!element || element.isSource) {
-            return;
-        }
         this.sourceElements[id] = { element, input };
     }
 
     recordTargetElement(element, id, output) {
-        if (!element || element.isTarget) {
-            return;
-        }
         this.targetElements[id] = { element, output };
     }
 
@@ -390,7 +397,6 @@ class TransformExpanded extends React.Component {
         }
 
         const sourceId = `${functionInvID}:${funcName}:${returnParams[0].name || 0}:${viewId}`;
-        this.mapper.addConnection(sourceId, targetId);
 
         const parentParams = parentFunctionDefinition.getParameters();
         const parentFuncInvID = parentFunctionInvocationExpression.getID();
@@ -671,15 +677,25 @@ class TransformExpanded extends React.Component {
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
             const { element, input } = this.sourceElements[key];
-            input.id = key;
-            this.mapper.addSource(element, null, null, input);
+            if(element) {
+                input.id = key;
+                this.mapper.addSource(element, null, null, input);
+            } else {
+                // this source connect point is unmounted
+                this.mapper.remove(key);
+            }
         });
 
         const targetKeys = Object.keys(this.targetElements);
         targetKeys.forEach((key) => {
             const { element, output } = this.targetElements[key];
-            output.id = key;
-            this.mapper.addTarget(element, null, output);
+            if(element) {
+                output.id = key;
+                this.mapper.addTarget(element, null, output);
+            } else {
+                // this target connect point is unmounted
+                this.mapper.remove(key);
+            }
         });
 
         this.mapper.disconnectAll();

@@ -60,6 +60,9 @@ class ActionInvocationStatementDimensionCalculatorVisitor {
      * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
+        // set the statement box arrow state to true.
+        const viewState = node.getViewState();
+        viewState.components['statement-box'].arrow = true;
     }
 }
 

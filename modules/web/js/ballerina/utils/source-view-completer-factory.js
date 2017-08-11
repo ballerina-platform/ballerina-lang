@@ -36,36 +36,50 @@ class CompleterFactory {
     getSourceViewCompleter(langserverController, fileData) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
-                const completions = [];
                 const cursorPosition = editor.getCursorPosition();
-                const options = {
-                    textDocument: editor.getValue(),
-                    position: {
-                        line: cursorPosition.row + 1,
-                        character: cursorPosition.column,
-                    },
-                    fileName: fileData.fileName,
-                    filePath: fileData.filePath,
-                    packageName: fileData.packageName,
-                };
-                langserverController.getCompletions(options, (response) => {
-                    const sortedArr = _.orderBy(response.result, ['sortText'], ['desc']);
-                    let score = sortedArr.length;
-                    sortedArr.map((completionItem) => {
-                        completions.push(
-                            {
-                                caption: completionItem.label,
-                                snippet: completionItem.insertText,
-                                meta: completionItem.detail,
-                                score: 100 + (score || 0),
-                            });
-                        score--;
-                    });
-                    callback(null, completions);
-                });
+                const content = editor.getValue();
+                this.getCompletions(cursorPosition, content, fileData, langserverController, callback);
             },
         }];
     }
+
+    /**
+     * Get the completions and call the given callback function with the completions
+     * @param {object} cursorPosition 
+     * @param {string} content 
+     * @param {object} fileData 
+     * @param {object} langserverController 
+     * @param {function} callback 
+     */
+    getCompletions(cursorPosition, content, fileData, langserverController, callback) {
+        const completions = [];
+        const options = {
+            textDocument: content,
+            position: {
+                line: cursorPosition.row + 1,
+                character: cursorPosition.column,
+            },
+            fileName: fileData.fileName,
+            filePath: fileData.filePath,
+            packageName: fileData.packageName,
+        };
+        langserverController.getCompletions(options, (response) => {
+            const sortedArr = _.orderBy(response.result, ['sortText'], ['desc']);
+            let score = sortedArr.length;
+            sortedArr.map((completionItem) => {
+                completions.push(
+                    {
+                        caption: completionItem.label,
+                        snippet: completionItem.insertText,
+                        meta: completionItem.detail,
+                        score: 100 + (score || 0),
+                    });
+                score--;
+            });
+            callback(null, completions);
+        });
+    }
+
 }
 
 export default CompleterFactory;
