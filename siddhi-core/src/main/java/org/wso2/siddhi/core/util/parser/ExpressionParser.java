@@ -328,10 +328,10 @@ public class ExpressionParser {
                 return new IncrementalWithinTimeExpressionExecutor(leftWithinExecutor, rightWithinExecutor,
                         timeExpressionExecutor);
             }
-        } else if(expression instanceof IncrementalUnixTime) {
-            return new IncrementalUnixTimeExpressionExecutor(parseExpression(((IncrementalUnixTime)expression).
-                    getTimeExpression(), metaEvent, currentState, tableMap,
-                    executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
+        } else if (expression instanceof IncrementalUnixTime) {
+            return new IncrementalUnixTimeExpressionExecutor(
+                    parseExpression(((IncrementalUnixTime) expression).getTimeExpression(), metaEvent, currentState,
+                            tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
         } else if (expression instanceof Multiply) {
             ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), metaEvent, currentState,
                     tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
