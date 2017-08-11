@@ -695,13 +695,10 @@ class TransformExpanded extends React.Component {
         _.forEach(this.props.model.getChildren(), (statement) => {
             this.createConnection(statement);
         });
-
+        this.mapper.reposition(this.props.model.getID());
         if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
             return;
         }
-
-        this.mapper.reposition(this.props.model.getID());
-
         this.loadVertices();
     }
 
