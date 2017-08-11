@@ -122,6 +122,7 @@ public enum SemanticErrors {
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0098"),
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0099"),
     UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0100"),
+    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant", "SEMANTIC_0101"),
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix", "SEMANTIC_0101"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102"),
     INCOMPATIBLE_TYPES_IN_XML_TEMPLATE("incompatible.types.in.xml.template", "SEMANTIC_0103"),

@@ -543,6 +543,21 @@ public class BLangModelBuilder {
     }
 
     /**
+     * Create a variable reference type attribute value.
+     *
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param nameReference     Name Reference value
+     */
+    public void createNameReferenceTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                      NameReference nameReference) {
+        validateAndSetPackagePath(location, nameReference);
+        SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
+        annotationAttributeValues.push(new AnnotationAttributeValue(simpleVarRefExpr, location, whiteSpaceDescriptor));
+    }
+
+    /**
      * Create an annotation type attribute value.
      *
      * @param location Location of the value in the source file

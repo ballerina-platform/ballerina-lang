@@ -55,4 +55,5 @@ public class AnnotationAttributeInfo implements AttributeInfo {
     public int getAttributeNameIndex() {
         return attributeNameIndex;
     }
+
 }
