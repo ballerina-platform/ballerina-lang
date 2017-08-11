@@ -82,9 +82,9 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
     endVisitAnnotationAttributeValue(annotationAttributeValue) {
         if (annotationAttributeValue.isArray()) {
             this.appendSource(']');
-            this.appendSource(annotationAttributeValue.whiteSpace.useDefault
-                                    ? '' : annotationAttributeValue.getWSRegion(4));
         }
+        this.appendSource(annotationAttributeValue.whiteSpace.useDefault
+                                ? '' : annotationAttributeValue.getWSRegion(4));
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
