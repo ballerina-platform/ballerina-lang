@@ -228,7 +228,11 @@ class TransformExpanded extends React.Component {
             const expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
                 return (child.getExpressionString().trim() === (connection.targetProperty || connection.targetStruct));
             });
-            assignmentStmtTarget.getLeftExpression().removeChild(expression);
+            assignmentStmtTarget.getLeftExpression().removeChild(expression, true);
+            assignmentStmtTarget.setIsDeclaredWithVar(true);
+            const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            simpleVarRefExpression.setExpressionFromString('_temp' + (connection.sourceIndex + 1));
+            assignmentStmtTarget.getLeftExpression().addChild(simpleVarRefExpression, connection.sourceIndex + 1);
             return;
         }
 
