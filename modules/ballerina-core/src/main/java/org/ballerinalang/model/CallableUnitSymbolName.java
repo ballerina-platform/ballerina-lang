@@ -41,6 +41,7 @@ public abstract class CallableUnitSymbolName extends SymbolName {
     }
 
     public boolean isNameAndParamCountMatch(CallableUnitSymbolName funcSymName) {
-        return this.name.equals(funcSymName.getName()) && (this.getNoOfParameters() == funcSymName.getNoOfParameters());
+        return this.name.equals(funcSymName.getName())
+                && (this.getNoOfParameters() == funcSymName.getNoOfParameters());
     }
 }

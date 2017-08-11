@@ -167,7 +167,6 @@ import java.util.Stack;
 
 import javax.xml.XMLConstants;
 
-import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TNAME;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 
 /**
@@ -3382,9 +3381,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         //ConnectorDef is a reserved first parameter in any action
         ParameterDef[] updatedParamDefs = new ParameterDef[action.getParameterDefs().length + 1];
         ParameterDef connectorParamDef = new ParameterDef(connectorDef.getNodeLocation(), null,
-                new Identifier(CONNECTOR_TNAME),
+                new Identifier(TypeConstants.CONNECTOR_TNAME),
                 new SimpleTypeName(connectorDef.getName(), null, connectorDef.getPackagePath()),
-                new SymbolName(CONNECTOR_TNAME, connectorDef.getPackagePath()),
+                new SymbolName(TypeConstants.CONNECTOR_TNAME, connectorDef.getPackagePath()),
                 action.getSymbolScope());
         connectorParamDef.setType(connectorDef);
         updatedParamDefs[0] = connectorParamDef;
