@@ -158,12 +158,12 @@ class TransformExpanded extends React.Component {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
+            assignmentStmtSource.setIsDeclaredWithVar(false);
 
-            const index = _.findIndex(this.getFunctionDefinition(connection.sourceFuncInv).getReturnParams(), param => {
-                return param.name == connection.sourceStruct;
-            });
-            assignmentStmtSource.getLeftExpression().addChild(targetExpression, index);
-            return assignmentStmtTarget.id;
+            const lexpr = assignmentStmtSource.getLeftExpression();
+            lexpr.removeChild(lexpr.getChildren()[connection.sourceIndex], true);
+            lexpr.addChild(targetExpression, connection.sourceIndex);
+            return assignmentStmtSource.id;
         }
 
         // Connection source and target are not structs
@@ -296,6 +296,7 @@ class TransformExpanded extends React.Component {
         if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
+        this.mapper.reposition(this.props.model.getID());
     }
 
     drawFunctionDefinitionNodes(functionInvocationExpression, statement) {
@@ -394,6 +395,7 @@ class TransformExpanded extends React.Component {
         const targetId = `${parentFuncInvID}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
 
         this.mapper.addConnection(sourceId, targetId);
+        this.mapper.reposition(this.props.model.getID());
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
@@ -449,6 +451,7 @@ class TransformExpanded extends React.Component {
             const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             this.mapper.addConnection(sourceId, targetId);
         });
+        this.mapper.reposition(this.props.model.getID());
     }
 
     getConnectionProperties(type, expression) {
@@ -692,13 +695,10 @@ class TransformExpanded extends React.Component {
         _.forEach(this.props.model.getChildren(), (statement) => {
             this.createConnection(statement);
         });
-
+        this.mapper.reposition(this.props.model.getID());
         if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
             return;
         }
-
-        this.mapper.reposition(this.mapper);
-
         this.loadVertices();
     }
 
@@ -724,12 +724,7 @@ class TransformExpanded extends React.Component {
                 this.createConnection(statement);
             });
         }
-
-        this.mapper.reposition(this.mapper);
-
-        $(this.transformOverlayContentDiv).find('.leftType, .rightType, .middle-content').on('scroll', () => {
-            this.mapper.reposition(this.mapper);
-        });
+        this.mapper.reposition(this.props.model.getID());
     }
 
     onTransformDropZoneActivate(e) {

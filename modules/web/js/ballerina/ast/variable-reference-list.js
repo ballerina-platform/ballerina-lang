@@ -55,7 +55,7 @@ class VariableReferenceList extends ASTNode {
      */
     setExpressionFromString(expression, callback) {
         if (!_.isNil(expression)) {
-            const fragment = FragmentUtils.createExpressionFragment(expression);
+            const fragment = FragmentUtils.createVariableReferenceListFragment(expression);
             const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                    || !_.has(parsedJson, 'syntax_errors'))

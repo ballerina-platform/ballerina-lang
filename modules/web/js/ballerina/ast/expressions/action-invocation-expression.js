@@ -148,6 +148,7 @@ class ActionInvocationExpression extends Expression {
     }
 
     addArgument(argument) {
+        argument.setParent(this);
         this._arguments.push(argument);
     }
 

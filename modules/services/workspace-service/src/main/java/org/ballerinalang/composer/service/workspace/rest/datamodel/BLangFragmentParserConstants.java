@@ -28,6 +28,7 @@ public class BLangFragmentParserConstants {
     public static final String ARGUMENT_PARAMETER = "argument_parameter_definitions";
     public static final String RETURN_PARAMETER = "return_parameter_definitions";
     public static final String TRANSACTION_FAILED = "transaction_failed";
+    public static final String VARIABLE_REFERENCE_LIST = "variable_reference_list";
 
     // wrapper templates
     protected static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT\n}";
@@ -39,4 +40,6 @@ public class BLangFragmentParserConstants {
     protected static final String FUNCTION_SIGNATURE_RETURN_WRAPPER = "function testFunction()($FRAGMENT){\n}";
     protected static final String TRANSACTION_FAILED_RETRY_WRAPPER =
             "function testFunction(){transaction{}failed{$FRAGMENT}aborted{}committed{}}";
+    protected static final String VAR_REFERENCE_LIST_WRAPPER =
+            "function testFunction(){\n$FRAGMENT=testFunction();\n}";
 }
