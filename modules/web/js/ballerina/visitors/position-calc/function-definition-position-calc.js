@@ -71,9 +71,9 @@ class FunctionDefinitionPositionCalcVisitor {
                 statementContainer.x = viewState.bBox.x + (viewState.bBox.w - statementContainer.w) / 2;
             }
         } else {
-            statementContainer.x = workerScopeContainer.x + DesignerDefaults.innerPanel.body.padding.left;
+            statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
         }
-        statementContainer.y = workerScopeContainer.y + DesignerDefaults.innerPanel.body.padding.top
+        statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
         // populate panel heading positioning.
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
