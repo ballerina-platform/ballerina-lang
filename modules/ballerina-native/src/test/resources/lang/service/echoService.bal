@@ -6,6 +6,8 @@ service<http> echo {
 
     string serviceLevelStr;
 
+    string serviceLevelStringVar = "sample value";
+
     @http:GET {}
     @http:Path {value : "/message"}
     resource echo (message m) {
@@ -34,5 +36,15 @@ service<http> echo {
     resource removeHeaders (message m) {
         messages:removeAllHeaders(m);
         reply m;
+    }
+
+    @http:GET {}
+    @http:Path {value:"/getServiceLevelString"}
+    resource getServiceLevelString (message m) {
+        message response = {};
+        // TODO : Fix bellow line
+        // messages:setStringPayload(response, serviceLevelStr);
+        messages:setStringPayload(response, serviceLevelStringVar);
+        reply response;
     }
 }

@@ -295,3 +295,34 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
         return 2;
     }
 }
+
+function typeToAnyImplicitCast() (any, type) {
+    int i = 5;
+    type t = (typeof i);
+    any typeOfInt = t;
+    return typeOfInt, t;
+}
+
+function typeToAnyExplicitCast() (any, type, any) {
+    int i = 5;
+    type t = (typeof i);
+    return (any)t, t, t;
+}
+
+function anyToTypeExplicitCast() (type, any) {
+    int i = 5;
+    any typeOfInt = (typeof i);
+    var t, _ = (type)typeOfInt;
+    return t, typeOfInt;
+}
+
+function getTypeStringValue()(type){
+    int value = 4;
+    return (typeof value);
+}
+
+function getStructTypeStringValue()(type){
+    Person jack;
+    jack = {name:"Jack", age:25};
+    return (typeof jack);
+}

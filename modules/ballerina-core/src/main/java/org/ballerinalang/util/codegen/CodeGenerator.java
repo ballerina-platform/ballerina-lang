@@ -76,6 +76,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -311,6 +312,7 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+        bLangPackage.setSymbolsDefined(true);
     }
 
     private void visitConstants(ConstDef[] constDefs) {
@@ -1320,6 +1322,13 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression concatExpr = stringTemplateLiteral.getConcatExpr();
+        concatExpr.accept(this);
+        stringTemplateLiteral.setTempOffset(concatExpr.getTempOffset());
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpr) {
         Expression rExpr = unaryExpr.getRExpr();
         rExpr.accept(this);
@@ -2047,7 +2056,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT) {
+        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT
+                || variableKind == VariableDef.Kind.SERVICE_VAR) {
             int gvIndex = variableDef.getVarIndex();
 
             if (variableStore) {
@@ -2291,7 +2301,9 @@ public class CodeGenerator implements NodeVisitor {
         // Else, treat it as QName
 
         Expression namespaceUriLiteral = xmlQNameRefExpr.getNamepsaceUri();
-        namespaceUriLiteral.accept(this);
+        if (!namespaceUriLiteral.hasTemporaryValues()) {
+            namespaceUriLiteral.accept(this);
+        }
 
         BasicLiteral localNameLiteral =
                 new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getLocalname()));
@@ -2317,6 +2329,9 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(XMLElementLiteral xmlElementLiteral) {
         int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
         xmlElementLiteral.setTempOffset(xmlVarRegIndex);
+
+        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
+        defaultNamespaceUri.accept(this);
 
         Expression startTagName = xmlElementLiteral.getStartTagName();
         startTagName.accept(this);
@@ -2352,9 +2367,6 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             endTagNameRegIndex = startTagNameRegIndex;
         }
-
-        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
-        defaultNamespaceUri.accept(this);
 
         // Create an empty xml with the given QName
         emit(InstructionCodes.NEWXMLELEMENT, xmlVarRegIndex, startTagNameRegIndex, endTagNameRegIndex,
