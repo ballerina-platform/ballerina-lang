@@ -209,15 +209,16 @@ class TransformExpanded extends React.Component {
         }
 
         if (!_.isUndefined(sourceStruct) && connection.isTargetFunction) {
-            // Connection source is not a struct and target is a struct.
-            // Source is a function node.
+            // Connection source is a struct and target is a function.
             // get the function invocation expression for nested and single cases.
             const funcInvocationExpression = connection.targetFuncInv;
 
-            const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
+            let expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                 return (child.getExpressionString().trim() === (connection.sourceProperty || connection.sourceStruct));
             });
+            let index = funcInvocationExpression.getIndexOfChild(expression);
             funcInvocationExpression.removeChild(expression);
+            funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression(), index);
             return;
         }
 
