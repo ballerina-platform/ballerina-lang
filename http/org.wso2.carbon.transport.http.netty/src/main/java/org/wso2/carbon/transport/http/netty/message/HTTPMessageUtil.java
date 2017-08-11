@@ -105,7 +105,7 @@ public class HTTPMessageUtil {
         cMsg.setProperty(Constants.LOCAL_NAME, messageContext.getProperty(Constants.LOCAL_NAME));
         cMsg.setProperty(Constants.CHANNEL_ID, messageContext.getProperty(Constants.CHANNEL_ID));
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
-        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
+        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, messageContext.isServerMessage());
         cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, messageContext.getServerSession());
         cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, messageContext.getClientSessions());
         cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, messageContext.getChannelSession());
