@@ -4115,8 +4115,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void checkAndAddReplyStmt(BlockStmt blockStmt) {
         Statement[] statements = blockStmt.getStatements();
         int length = statements.length;
-        Statement lastStatement = statements[length - 1];
-        if (!(lastStatement instanceof ReplyStmt)) {
+        if ((statements.length > 0 && !(statements[length - 1] instanceof ReplyStmt)) || statements.length == 0) {
             NodeLocation blockLocation = blockStmt.getNodeLocation();
             NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
                     blockLocation.getFileName(), blockLocation.stopLineNumber);
