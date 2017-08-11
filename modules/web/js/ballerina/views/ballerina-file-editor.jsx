@@ -16,6 +16,7 @@
  * under the License.
  */
 import log from 'log';
+import alerts from 'alerts';
 import _ from 'lodash';
 import commandManager from 'command';
 import React from 'react';
@@ -60,6 +61,7 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            initialParsePending: true,
             isASTInvalid: false,
             validatePending: false,
             parsePending: false,
@@ -87,9 +89,8 @@ class BallerinaFileEditor extends React.Component {
                         this.syncASTs(currentAST, newAST);
                         // remove new AST from new state to be set
                         delete state.model;
-                        // update state without triggering a re-render
-                        Object.assign(this.state, state);
                         this.skipLoadingOverlay = false;
+                        this.setState(state);
                     })
                     .catch(error => log.error(error));
             } else {
@@ -151,12 +152,14 @@ class BallerinaFileEditor extends React.Component {
         // then init the env with parsed symbols
         this.validateAndParseFile()
             .then((state) => {
+                state.initialParsePending = false;
                 this.setState(state);
             })
             .catch((error) => {
                 log.error(error);
                 // log the error & stop loading overlay
                 this.setState({
+                    initialParsePending: false,
                     parsePending: false,
                 });
             });
@@ -288,9 +291,9 @@ class BallerinaFileEditor extends React.Component {
         if (this.state.isASTInvalid && this.state.activeView !== SOURCE_VIEW) {
             this.validateAndParseFile()
                 .then((state) => {
+                    this.skipLoadingOverlay = false;
                     this.setState(state);
                     this.forceUpdate();
-                    this.skipLoadingOverlay = false;
                 })
                 .catch(error => log.error(error));
         } else {
@@ -330,6 +333,7 @@ class BallerinaFileEditor extends React.Component {
                         // Cannot proceed due to syntax errors.
                         // Hence resolve now.
                         resolve(newState);
+                        return;
                     } else {
                         // we need to fire a update for this state as soon as we
                         // receive the validate response to prevent additional
@@ -356,7 +360,12 @@ class BallerinaFileEditor extends React.Component {
                                 // cannot be in a view which depends on AST
                                 // hence forward to source view
                                 newState.activeView = SOURCE_VIEW;
+                                newState.parseFailed = true;
+                                newState.isASTInvalid = true;
+                                newState.model = new BallerinaASTRoot();
                                 resolve(newState);
+                                alerts.error(jsonTree.errorMessage);
+                                return;
                             }
                             // get ast from json
                             const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
@@ -445,7 +454,8 @@ class BallerinaFileEditor extends React.Component {
         // if we are automatically switching to source view due to syntax errors in file,
         // popup error list in source view so that the user is aware of the cause
         const popupErrorListInSourceView = this.state.activeView === DESIGN_VIEW
-                    && !_.isEmpty(this.state.syntaxErrors);
+                    && (!_.isEmpty(this.state.syntaxErrors)
+                         || (this.state.parseFailed && !this.state.parsePending));
 
         // If there are syntax errors, forward editor to source view & update state
         // to make that decision reflect in state. This is to prevent automatic
@@ -455,9 +465,10 @@ class BallerinaFileEditor extends React.Component {
             this.state.activeView = SOURCE_VIEW;
         }
 
-        const showDesignView = (!this.state.parseFailed || this.state.parsePending)
-                                    && _.isEmpty(this.state.syntaxErrors)
-                                        && this.state.activeView === DESIGN_VIEW;
+        const showDesignView = this.state.initialParsePending
+                                    || (!this.state.parseFailed
+                                            && _.isEmpty(this.state.syntaxErrors)
+                                                && this.state.activeView === DESIGN_VIEW);
         const showSourceView = this.state.parseFailed
                                     || !_.isEmpty(this.state.syntaxErrors)
                                         || this.state.activeView === SOURCE_VIEW;
