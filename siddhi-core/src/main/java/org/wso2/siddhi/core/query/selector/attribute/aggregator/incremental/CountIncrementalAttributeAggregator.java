@@ -19,19 +19,27 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
- * Count incremental aggregation
+ * {@link IncrementalAttributeAggregator} to calculate count based on an event attribute.
  */
 @Extension(
         name = "count",
         namespace = "incrementalAggregator",
-        description = "TBD",
+        description = "Returns the count of all events, in incremental event processing",
+        parameters = {},
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the event count as a long.",
+                type = {DataType.LONG}),
         examples = @Example(
-                syntax = "TBD",
-                description = "TBD"
+                syntax = " define aggregation cseEventAggregation\n from cseEventStream\n" +
+                        " select count() as countEvents,\n aggregate by timeStamp every sec ... hour;",
+                description = "count() returns the count of all the events based on their " +
+                        "arrival and expiry. The count is calculated for sec, min and hour durations."
         )
 )
 public class CountIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
@@ -48,7 +56,7 @@ public class CountIncrementalAttributeAggregator extends IncrementalAttributeAgg
         // However, since count is summed internally (in avg incremental calculation),
         // ensure that either double or long is used here (since return value of sum is long or
         // double. Long is chosen here)
-        count = new Attribute("_COUNT_".concat(attributeName), Attribute.Type.LONG);
+        count = new Attribute("_COUNT", Attribute.Type.LONG);
         countInitialValue = Expression.value(1L);
 
         this.baseAttributes = new Attribute[]{count};

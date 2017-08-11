@@ -20,20 +20,35 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
- * Sum incremental aggregation
+ * {@link IncrementalAttributeAggregator} to calculate sum based on an event attribute.
  */
 @Extension(
         name = "sum",
         namespace = "incrementalAggregator",
-        description = "TBD",
+        description = "Returns the sum for all the events, in incremental event processing",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that needs to be summed.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns long if the input parameter type is int or long, and returns double if the " +
+                        "input parameter type is float or double.",
+                type = {DataType.LONG, DataType.DOUBLE}),
         examples = @Example(
-                syntax = "TBD",
-                description = "TBD"
+                syntax = " define aggregation cseEventAggregation\n from cseEventStream\n" +
+                        " select sum(price) as totalPrice,\n aggregate by timeStamp every sec ... hour;",
+                description = "sum(price) returns the total price value for all the events based on their " +
+                        "arrival and expiry. The total is calculated for sec, min and hour durations."
         )
 )
 public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
@@ -46,6 +61,11 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
     public void init(String attributeName, Attribute.Type attributeType) {
         Attribute sum;
         Expression sumInitialValue;
+
+        if (attributeName == null) {
+            throw new SiddhiAppCreationException("Sum incremental attribute aggregation cannot be executed " +
+                    "when no parameters are given");
+        }
 
         if (attributeType.equals(Attribute.Type.FLOAT) || attributeType.equals(Attribute.Type.DOUBLE)) {
             sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.DOUBLE);

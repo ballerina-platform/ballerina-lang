@@ -51,6 +51,7 @@ import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -326,19 +327,14 @@ public class AggregationParser {
         for (OutputAttribute outputAttribute : aggregationDefinition.getSelector().getSelectionList()) {
             Expression expression = outputAttribute.getExpression();
             if (expression instanceof AttributeFunction) {
+                IncrementalAttributeAggregator incrementalAggregator = null;
                 try {
-                    IncrementalAttributeAggregator incrementalAggregator = (IncrementalAttributeAggregator)
+                    incrementalAggregator = (IncrementalAttributeAggregator)
                             SiddhiClassLoader.loadExtensionImplementation(
                                     new AttributeFunction("incrementalAggregator",
                                             ((AttributeFunction) expression).getName(),
                                             ((AttributeFunction) expression).getParameters()),
                                     IncrementalAttributeAggregatorExtensionHolder.getInstance(siddhiAppContext));
-                    initIncrementalAttributeAggregator(incomingLastInputStreamDefinition,
-                            (AttributeFunction) expression, incrementalAggregator);
-                    incrementalAttributeAggregators.add(incrementalAggregator);
-                    aggregationDefinition.getAttributeList().add(
-                            new Attribute(outputAttribute.getRename(), incrementalAggregator.getReturnType()));
-                    aggregationDefinition.setOutputAttributeExpressions(incrementalAggregator.aggregate());
                 } catch (SiddhiAppCreationException ex) {
                     try {
                         SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
@@ -358,6 +354,14 @@ public class AggregationParser {
                                 "' is neither a incremental attribute aggregator extension or a function" +
                                 " extension");
                     }
+                }
+                if (incrementalAggregator != null) {
+                    initIncrementalAttributeAggregator(incomingLastInputStreamDefinition,
+                            (AttributeFunction) expression, incrementalAggregator);
+                    incrementalAttributeAggregators.add(incrementalAggregator);
+                    aggregationDefinition.getAttributeList().add(
+                            new Attribute(outputAttribute.getRename(), incrementalAggregator.getReturnType()));
+                    aggregationDefinition.setOutputAttributeExpressions(incrementalAggregator.aggregate());
                 }
             } else {
                 if (expression instanceof Variable && groupByVariableList.contains(expression)) {
@@ -438,22 +442,23 @@ public class AggregationParser {
     private static void initIncrementalAttributeAggregator(
             AbstractDefinition lastInputStreamDefinition, AttributeFunction attributeFunction,
             IncrementalAttributeAggregator incrementalAttributeAggregator) {
-        if (attributeFunction.getParameters() == null || attributeFunction.getParameters()[0] == null) {
-            throw new SiddhiAppCreationException("Attribute function " + attributeFunction.getName()
-                    + " cannot be executed when no parameters are given");
+        String attributeName = null;
+        Attribute.Type attributeType = null;
+        if (attributeFunction.getParameters() != null && attributeFunction.getParameters()[0] != null) {
+            if (attributeFunction.getParameters().length != 1) {
+                throw new SiddhiAppCreationException("Incremental aggregator requires only on one parameter. "
+                        + "Found " + attributeFunction.getParameters().length);
+            }
+            if (!(attributeFunction.getParameters()[0] instanceof Variable)) {
+                throw new SiddhiAppCreationException("Incremental aggregator expected a variable. " +
+                        "However a parameter of type " + attributeFunction.getParameters()[0].getClass().getTypeName() +
+                        " was found");
+            }
+            attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
+            attributeType = lastInputStreamDefinition.getAttributeType(attributeName);
         }
-        if (attributeFunction.getParameters().length != 1) {
-            throw new SiddhiAppCreationException("Aggregation requires only on one parameter. "
-                    + "Found " + attributeFunction.getParameters().length);
-        }
-        if (!(attributeFunction.getParameters()[0] instanceof Variable)) {
-            throw new SiddhiAppCreationException("Expected a variable. However a parameter of type "
-                    + attributeFunction.getParameters()[0].getClass().getTypeName() + " was found");
-        }
-        String attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
 
-        incrementalAttributeAggregator.init(attributeName,
-                lastInputStreamDefinition.getAttributeType(attributeName));
+        incrementalAttributeAggregator.init(attributeName, attributeType);
 
         Attribute[] baseAttributes = incrementalAttributeAggregator.getBaseAttributes();
         Expression[] baseAttributeInitialValues = incrementalAttributeAggregator

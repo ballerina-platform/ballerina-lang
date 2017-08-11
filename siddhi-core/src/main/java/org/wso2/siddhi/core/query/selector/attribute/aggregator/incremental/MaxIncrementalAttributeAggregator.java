@@ -20,20 +20,34 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
- * Max incremental aggregation
+ * {@link IncrementalAttributeAggregator} to calculate maximum value based on an event attribute.
  */
 @Extension(
         name = "max",
         namespace = "incrementalAggregator",
-        description = "TBD",
+        description = "Returns the maximum value for all the events, in incremental event processing",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that needs to be compared to find the maximum value.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the maximum value in the same data type as the input.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
         examples = @Example(
-                syntax = "TBD",
-                description = "TBD"
+                syntax = " define aggregation cseEventAggregation\n from cseEventStream\n" +
+                        " select max(price) as maxPrice,\n aggregate by timeStamp every sec ... hour;",
+                description = "max(price) returns the maximum price value for all the events based on their " +
+                        "arrival and expiry. The maximum value is calculated for sec, min and hour durations."
         )
 )
 public class MaxIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
@@ -44,6 +58,11 @@ public class MaxIncrementalAttributeAggregator extends IncrementalAttributeAggre
 
     @Override
     public void init(String attributeName, Attribute.Type attributeType) {
+
+        if (attributeName == null) {
+            throw new SiddhiAppCreationException("Max incremental attribute aggregation cannot be executed " +
+                    "when no parameters are given");
+        }
 
         if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG) ||
                 attributeType.equals(Attribute.Type.DOUBLE) || attributeType.equals(Attribute.Type.FLOAT)) {

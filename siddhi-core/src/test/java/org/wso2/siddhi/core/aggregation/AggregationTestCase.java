@@ -493,7 +493,7 @@ public class AggregationTestCase {
                 " " +
                 "define aggregation cseEventAggregation " +
                 "from cseEventStream " +
-                "select symbol as s, sum(price) as total, avg(price) as avgPrice, " +
+                "select symbol as s, sum(price) as total, avg(price) as avgPrice, count() as countPrice, " +
                 "max(volume) as maxVol, min(volume) as minVol " +
                 "group by symbol " +
                 "aggregate by timeStamp every sec ... min; " +
@@ -506,7 +506,7 @@ public class AggregationTestCase {
                 "on a.s == b.symbol " +
                 "within \"2017-06-01 09:35:51 +05:30\" " +
                 "per b.perValue " +
-                "select a.s, a.avgPrice, a.total as sumPrice, a.minVol, a.maxVol, b.value " +
+                "select a.s, a.avgPrice, a.total as sumPrice, a.minVol, a.maxVol, b.value, a.countPrice " +
                 "insert all events into fooBar; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(app);
