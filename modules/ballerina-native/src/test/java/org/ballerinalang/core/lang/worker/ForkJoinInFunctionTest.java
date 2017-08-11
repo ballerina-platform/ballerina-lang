@@ -97,4 +97,13 @@ public class ForkJoinInFunctionTest {
         Assert.assertTrue(returns[1] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.23);
     }
+
+    @Test(description = "Test Fork Join With Workers in same function")
+    public void testForkJoinWithWorkersInSameFuntion() {
+        try {
+            BTestUtils.getProgramFile("samples/fork-join-and workers-under-same-funtion.bal");
+        } catch (Exception retEx) {
+            Assert.fail("Parsing bal file should not throw exception at BLangModelBuilder.", retEx);
+        }
+    }
 }
