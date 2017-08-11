@@ -229,7 +229,6 @@ public class WhiteSpaceUtil {
                     getWhitespaceToRight(tokenStream,
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
-        Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
@@ -459,8 +458,6 @@ public class WhiteSpaceUtil {
                     getWhitespaceToLeft(tokenStream,
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
-
-        Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
@@ -952,6 +949,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_NAME_REF_TO_EXP_LIST_WRAPPER,
                 getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_LIST_WRAPPER_TO_WITH_KEYWORD,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FOLLOWING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -960,6 +959,19 @@ public class WhiteSpaceUtil {
     public static WhiteSpaceDescriptor getConnectorInitWithFilterExpWS(CommonTokenStream tokenStream,
                                                              BallerinaParser.ConnectorInitExpressionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        int searchToken = ctx.start.getTokenIndex();
+        int withKeywordIndex;
+
+        // Iterate from the create keywords until we find the with keyword
+        while (true) {
+            if (tokenStream.get(searchToken).getText().equals("with")) {
+                withKeywordIndex = searchToken;
+                break;
+            } else {
+                searchToken++;
+            }
+        }
+
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_CREATE_KEYWORD_TO_NAME_REF,
@@ -967,7 +979,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_NAME_REF_TO_EXP_LIST_WRAPPER,
                 getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_EXP_LIST_WRAPPER_TO_WITH_KEYWORD,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToLeft(tokenStream, withKeywordIndex));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_WITH_KEYWORD_TO_FILTER_EXPRESSION_LIST_START,
                 getWhitespaceToLeft(tokenStream, ctx.filterInitExpressionList().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.
@@ -975,6 +987,18 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.filterInitExpressionList().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_FOLLOWING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getFilterInitExpressionWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.FilterInitExpressionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_INIT_EXP_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.getStart().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_INIT_EXP_NAME_REF_TO_ARG_START,
+                getWhitespaceToRight(tokenStream, ctx.getStart().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_INIT_EXP_ARG_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.getStop().getTokenIndex()));
         return ws;
     }
 
@@ -1196,6 +1220,18 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_ABORT_KEYWORD_TO_END,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getRetryStmtWS(CommonTokenStream tokenStream,
+            BallerinaParser.RetryStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETRY_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETRY_STMT_RETRY_KEYWORD_TO_LITERAL,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETRY_STMT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

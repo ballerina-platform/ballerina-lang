@@ -44,52 +44,45 @@ native function setReasonPhrase (message m, string reasonPhrase);
 connector ClientConnector (string serviceUri) {
 
 	@doc:Description { value:"The POST action implementation of the HTTP Connector."}
-	@doc:Param { value:"c: A connector object" }
 	@doc:Param { value:"path: Resource path " }
 	@doc:Param { value:"m: A message object" }
 	@doc:Return { value:"message: The response message object" }
-	native action post (ClientConnector c, string path, message m) (message);
+	native action post (string path, message m) (message);
 
 	@doc:Description { value:"The HEAD action implementation of the HTTP Connector."}
-	@doc:Param { value:"c: A connector object" }
 	@doc:Param { value:"path: Resource path " }
 	@doc:Param { value:"m: A message object" }
 	@doc:Return { value:"message: The response message object" }
-	native action head (ClientConnector c, string path, message m) (message);
+	native action head (string path, message m) (message);
 
 	@doc:Description { value:"The PUT action implementation of the HTTP Connector."}
-	@doc:Param { value:"c: A connector object" }
 	@doc:Param { value:"path: Resource path " }
 	@doc:Param { value:"m: A message object" }
 	@doc:Return { value:"message: The response message object" }
-	native action put (ClientConnector c, string path, message m) (message);
+	native action put (string path, message m) (message);
 
 	@doc:Description { value:"Invokes an HTTP call with the specified HTTP verb."}
-	@doc:Param { value:"c: A connector object" }
 	@doc:Param { value:"httpVerb: HTTP verb value" }
 	@doc:Param { value:"path: Resource path " }
 	@doc:Param { value:"m: A message object" }
 	@doc:Return { value:"message: The response message object" }
-	native action execute (ClientConnector c, string httpVerb, string path, message m) (message);
+	native action execute (string httpVerb, string path, message m) (message);
 
 	@doc:Description { value:"The PATCH action implementation of the HTTP Connector."}
-	@doc:Param { value:"c: A connector object" }
 	@doc:Param { value:"path: Resource path " }
 	@doc:Param { value:"m: A message object" }
 	@doc:Return { value:"message: The response message object" }
-	native action patch (ClientConnector c, string path, message m) (message);
+	native action patch (string path, message m) (message);
 
 	@doc:Description { value:"The DELETE action implementation of the HTTP connector"}
-	@doc:Param { value:"c: A connector object" }
 	@doc:Param { value:"path: Resource path " }
 	@doc:Param { value:"m: A message object" }
 	@doc:Return { value:"message: The response message object" }
-	native action delete (ClientConnector c, string path, message m) (message);
+	native action delete (string path, message m) (message);
 
 	@doc:Description { value:"GET action implementation of the HTTP Connector"}
-	@doc:Param { value:"c: Connector" }
 	@doc:Param { value:"path: Request path" }
 	@doc:Param { value:"m: message" }
-	native action get (ClientConnector c, string path, message m) (message);
+	native action get (string path, message m) (message);
 
 }

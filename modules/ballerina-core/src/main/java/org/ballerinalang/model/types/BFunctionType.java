@@ -33,7 +33,7 @@ public class BFunctionType extends BType {
     private BType[] parameterType;
     private BType[] returnParameterType;
 
-    private boolean isReturnWordAvailable;
+    private boolean hasReturnsKeyword;
     private String[] parametersFieldsNames = new String[0];
     private String[] returnsParametersFieldsNames = new String[0];
 
@@ -138,12 +138,12 @@ public class BFunctionType extends BType {
 
     /* Utility methods for Composer. */
 
-    public boolean isReturnWordAvailable() {
-        return isReturnWordAvailable;
+    public boolean hasReturnsKeyword() {
+        return hasReturnsKeyword;
     }
 
-    public void setReturnWordAvailable(boolean returnWordAvailable) {
-        isReturnWordAvailable = returnWordAvailable;
+    public void setHasReturnsKeyword(boolean hasReturnsKeyword) {
+        this.hasReturnsKeyword = hasReturnsKeyword;
     }
 
     public String[] getParametersFieldsNames() {

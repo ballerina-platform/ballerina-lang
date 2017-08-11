@@ -46,7 +46,7 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public String stringValue() {
-        return (uri == null | uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
+        return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 
     @Override
@@ -56,6 +56,9 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof BXMLQName)) {
+            return false;
+        }
         return ((BXMLQName) obj).stringValue().equals(localName);
     }
 

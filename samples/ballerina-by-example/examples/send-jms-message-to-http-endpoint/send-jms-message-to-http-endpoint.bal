@@ -30,7 +30,6 @@ service<jms> jmsService {
         // send the JSON payload to the HTTP endpoint
         http:ClientConnector nyseEP2 = 
                         create http:ClientConnector("http://localhost:8080");
-        message response = 
-                      http:ClientConnector.post(nyseEP2, "/my-webapp/echo", m);
+        message response = nyseEP2.post("/my-webapp/echo", m);
     }
 }

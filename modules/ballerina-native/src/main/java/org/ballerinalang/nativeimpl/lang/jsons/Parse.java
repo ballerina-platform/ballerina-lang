@@ -23,9 +23,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
@@ -44,13 +43,7 @@ import org.slf4j.LoggerFactory;
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Parses and gets a JSON from a string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonStr",
-        value = "String representation of JSON") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
-        value = "Parsed JSON") })
-public class Parse extends AbstractJSONFunction {
+public class Parse extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Parse.class);
 

@@ -22,6 +22,7 @@ import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -531,6 +532,10 @@ public class ProgramFileWriter {
                     writeLineNumberInfo(dataOutStream, lineNumberInfo);
                 }
                 break;
+            case DEFAULT_VALUE_ATTRIBUTE:
+                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) attributeInfo;
+                writeDefaultValue(dataOutStream, defaultValAttrInfo.getDefaultValue());
+                break;
         }
 
         // TODO Support other types of attributes
@@ -554,8 +559,8 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(structFieldInfo.getNameCPIndex());
         dataOutStream.writeInt(structFieldInfo.getSignatureCPIndex());
 
-        // TODO Write attribute info
-//        writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
     }
 
     private static void writeAnnAttachmentInfo(DataOutputStream dataOutStream,
@@ -605,6 +610,12 @@ public class ProgramFileWriter {
     private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
                                                AnnAttributeValue attributeValue) throws IOException {
         dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
+        dataOutStream.writeBoolean(attributeValue.isConstVarExpr());
+        if (attributeValue.isConstVarExpr()) {
+            dataOutStream.writeInt(attributeValue.getConstPkgCPIndex());
+            dataOutStream.writeInt(attributeValue.getConstNameCPIndex());
+            return;
+        }
         String typeDesc = attributeValue.getTypeDesc();
         if (TypeSignature.SIG_ANNOTATION.equals(typeDesc)) {
             writeAnnAttachmentInfo(dataOutStream, attributeValue.getAnnotationAttachmentValue());
@@ -626,5 +637,16 @@ public class ProgramFileWriter {
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
         dataOutStream.writeUTF(value);
         return byteAOS.toByteArray();
+    }
+
+    private static void writeDefaultValue(DataOutputStream dataOutStream, StructFieldDefaultValue defaultValueInfo)
+            throws IOException {
+        dataOutStream.writeInt(defaultValueInfo.getTypeDescCPIndex());
+        String typeDesc = defaultValueInfo.getTypeDesc();
+        if (TypeSignature.SIG_BOOLEAN.equals(typeDesc)) {
+            dataOutStream.writeBoolean(defaultValueInfo.getBooleanValue());
+        } else {
+            dataOutStream.writeInt(defaultValueInfo.getValueCPIndex());
+        }
     }
 }

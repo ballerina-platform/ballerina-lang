@@ -19,9 +19,6 @@
 
 package org.ballerinalang.services.dispatchers.ws;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -41,13 +38,6 @@ import javax.websocket.Session;
  * Resource Dispatcher for WebSocket Endpoint.
  */
 public class WebSocketResourceDispatcher implements ResourceDispatcher {
-
-    @Override
-    @Deprecated
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
-        return null;
-    }
 
     @Override
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws

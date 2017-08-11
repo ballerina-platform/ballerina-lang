@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -63,6 +62,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     protected SymbolName symbolName;
     protected boolean isNative;
     protected boolean isLambda = false;
+    private boolean hasReturnsKeyword;
 
     private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
@@ -326,12 +326,21 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     }
 
     @Override
-    public MemoryLocation getMemoryLocation() {
+    public Kind getKind() {
         return null;
     }
 
     @Override
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
+    public void setKind(Kind kind) {
+    }
+
+    @Override
+    public int getVarIndex() {
+        return 0;
+    }
+
+    @Override
+    public void setVarIndex(int index) {
     }
 
     @Override
@@ -345,6 +354,14 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     public void setLambda(boolean lambda) {
         isLambda = lambda;
+    }
+
+    public boolean hasReturnsKeyword() {
+        return hasReturnsKeyword;
+    }
+
+    public void setHasReturnsKeyword(boolean hasReturnsKeyword) {
+        this.hasReturnsKeyword = hasReturnsKeyword;
     }
 
     /**

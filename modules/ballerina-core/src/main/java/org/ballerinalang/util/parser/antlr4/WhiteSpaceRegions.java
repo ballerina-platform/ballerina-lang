@@ -329,7 +329,8 @@ public class WhiteSpaceRegions {
     public static final int CONNECTOR_INIT_EXP_PRECEDING_WHITESPACE = 0;
     public static final int CONNECTOR_INIT_EXP_CREATE_KEYWORD_TO_NAME_REF = 1;
     public static final int CONNECTOR_INIT_EXP_NAME_REF_TO_EXP_LIST_WRAPPER = 2;
-    public static final int CONNECTOR_INIT_EXP_FOLLOWING_WHITESPACE = 3;
+    public static final int CONNECTOR_INIT_EXP_LIST_WRAPPER_TO_WITH_KEYWORD = 3;
+    public static final int CONNECTOR_INIT_EXP_FOLLOWING_WHITESPACE = 4;
 
     public static final int CONNECTOR_INIT_EXP_FILTER_PRECEDING_WHITESPACE = 0;
     public static final int CONNECTOR_INIT_EXP_FILTER_CREATE_KEYWORD_TO_NAME_REF = 1;
@@ -338,6 +339,10 @@ public class WhiteSpaceRegions {
     public static final int CONNECTOR_INIT_EXP_FILTER_WITH_KEYWORD_TO_FILTER_EXPRESSION_LIST_START = 4;
     public static final int CONNECTOR_INIT_EXP_FILTER_FILTER_EXPRESSION_LIST_START_TO_FILTER_EXPRESSION_LIST_END = 5;
     public static final int CONNECTOR_INIT_EXP_FILTER_FOLLOWING_WHITESPACE = 6;
+
+    public static final int FILTER_INIT_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int FILTER_INIT_EXP_NAME_REF_TO_ARG_START = 1;
+    public static final int FILTER_INIT_EXP_ARG_END_TO_NEXT_TOKEN = 2;
 
     // whitespace regions in a struct field identifier
     public static final int STRUCT_FIELD_IDENTIFIER_PRECEDING_WHITESPACE = 0;
@@ -404,6 +409,11 @@ public class WhiteSpaceRegions {
     public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
     public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
     public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
+
+    // whitespace regions in retry statement
+    public static final int RETRY_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int RETRY_STMT_RETRY_KEYWORD_TO_LITERAL = 1;
+    public static final int RETRY_STMT_END_TO_NEXT_TOKEN = 2;
     
     // whitespace regions in a import declaration
     public static final int NAMESPACE_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START = 0;

@@ -34,7 +34,7 @@ public class BBlob extends BValueType implements BRefType<byte[]> {
 
     @Override
     public String stringValue() {
-        return null;
+        return new String(value);
     }
 
     @Override
