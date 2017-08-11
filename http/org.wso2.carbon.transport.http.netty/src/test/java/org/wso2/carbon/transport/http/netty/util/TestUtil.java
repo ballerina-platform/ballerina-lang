@@ -109,40 +109,8 @@ public class TestUtil {
         connectors = new ArrayList<>();
         futures = new ArrayList<>();
 
-//        ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(transportsConfiguration);
-
-//        Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
-
-//        HTTPClientConnector httpClientConnector =
-//                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
-//                        transportsConfiguration.getTransportProperties());
-//
-//        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
-
-//        carbonMessageProcessor.setClientConnector(httpClientConnector);
-
-//        Thread transportRunner = new Thread(() -> {
-//            try {
-//                serverConnectorBootstrap.initialize();
-//            } catch (Exception e) {
-//                log.error("Unable to initialize Server Connector Controller ", e);
-//            }
-//        });
-//        transportRunner.start();
-//
-//        try {
-//            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-//        } catch (InterruptedException e) {
-//            log.error("Thread Interrupted while sleeping ", e);
-//        }
-
         HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
         listenerConfigurationSet.forEach(config -> {
-//            HTTPServerConnector connector = new HTTPServerConnector(config.getId());
-//            connector.setListenerConfiguration(config);
-//            connector.setServerConnectorBootstrap(serverConnectorBootstrap);
-//            serverConnectorBootstrap.bindInterface(connector);
-//            connector.setMessageProcessor(carbonMessageProcessor);
             ServerConnector serverConnector = httpConnectorFactory.getServerConnector(serverBootstrapConfiguration,
                     config);
             ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -236,15 +204,8 @@ public class TestUtil {
     public static void setHeader(HttpURLConnection urlConnection, String key, String value) {
         urlConnection.setRequestProperty(key, value);
     }
-    public static void removeMessageProcessor(HTTPConnectorListener httpConnectorListener) {
-//        HTTPTransportContextHolder.getInstance().removeMessageProcessor(httpConnectorListener);
-    }
+
     public static void updateMessageProcessor(HTTPConnectorListener httpConnectorListener) {
-//        HTTPClientConnector httpClientConnector =
-//                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
-//                        transportsConfiguration.getTransportProperties());
-//        carbonMessageProcessor.setClientConnector(httpClientConnector);
-//        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
         futures.forEach(future -> future.setHTTPConnectorListener(httpConnectorListener));
     }
 

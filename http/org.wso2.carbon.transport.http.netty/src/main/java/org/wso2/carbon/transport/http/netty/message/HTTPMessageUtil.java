@@ -21,6 +21,12 @@ import java.util.stream.Collectors;
  */
 public class HTTPMessageUtil {
 
+    /**
+     * Convert {@link CarbonMessage} to a {@link HTTPCarbonMessage}.
+     *
+     * @param carbonMessage {@link CarbonMessage} which should be converted to a {@link HTTPCarbonMessage}.
+     * @return converted {@link HTTPCarbonMessage}.
+     */
     public static HTTPCarbonMessage convertCarbonMessage(CarbonMessage carbonMessage) {
         HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
 
@@ -40,6 +46,12 @@ public class HTTPMessageUtil {
         return httpCarbonMessage;
     }
 
+    /**
+     * Extract sender configuration from transport configuration.
+     *
+     * @param transportsConfiguration {@link TransportsConfiguration} which sender configurations should be extracted.
+     * @return extracted {@link SenderConfiguration}.
+     */
     public static SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
         Map<String, SenderConfiguration> senderConfigurations =
                 transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
@@ -48,6 +60,13 @@ public class HTTPMessageUtil {
         return senderConfigurations.get("http");
     }
 
+    /**
+     * Create server bootstrap configuration from given transport property set.
+     *
+     * @param transportPropertiesSet Set of transport properties which should be converted
+     *                               to {@link ServerBootstrapConfiguration}.
+     * @return ServerBootstrapConfiguration which is created from given Set of transport properties.
+     */
     public static ServerBootstrapConfiguration getServerBootstrapConfiguration(Set<TransportProperty>
             transportPropertiesSet) {
         Map<String, Object> transportProperties = new HashMap<>();
@@ -68,7 +87,7 @@ public class HTTPMessageUtil {
      * @param properties    Property map
      * @return              listener config
      */
-    public ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
+    public static ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
         String host = properties.get(Constants.HTTP_HOST) != null ?
                 properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
         int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
