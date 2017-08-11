@@ -99,7 +99,7 @@ public class ForkJoinInFunctionTest {
     }
 
     @Test(description = "Test Fork Join With Workers in same function")
-    public void testForkJoinWithWorkersInSameFuntion() {
+    public void testForkJoinWithWorkersInSameFunction() {
         try {
             BTestUtils.getProgramFile("samples/fork-join-and workers-under-same-funtion.bal");
         } catch (Exception retEx) {
