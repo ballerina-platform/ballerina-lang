@@ -6,9 +6,11 @@ import ballerina.lang.messages;
     port:9094
 }
 service<http> echo {
-    
-    @http:POST{}
-    @http:Path {value:"/"}
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     resource echo (message m) {
         message resp = {};
         messages:setStringPayload(resp, "hello world");
@@ -24,8 +26,10 @@ service<http> echo {
 }
 service<http> echoOne {
 
-    @http:POST{}
-    @http:Path {value:"/abc"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/abc"
+    }
     resource echoAbc (message m) {
         message resp = {};
         messages:setStringPayload(resp, "hello world");
@@ -39,8 +43,10 @@ service<http> echoOne {
 }
 service<http> echoDummy {
 
-    @http:POST{}
-    @http:Path {value:"/"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     resource echoDummy (message m) {
         message resp = {};
         messages:setStringPayload(resp, "hello world");
