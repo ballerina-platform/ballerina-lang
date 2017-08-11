@@ -386,4 +386,6 @@ public class BLangJSONModelConstants {
     public static final String XML_ATTRIBUTE_REF_EXPR = "xml_attribute_ref_expression";
 
     public static final String XML_ATTRIBUTE_REF_IS_LHS_EXPR = "is_lhs_expression";
+
+    public static final String HAS_RETURNS_KEYWORD = "has_returns_keyword";
 }
