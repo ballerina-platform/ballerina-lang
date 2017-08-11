@@ -14,10 +14,12 @@ Var
 Any Type
 Type Casting
 Type Conversion
+Typeof
 Structs
 Maps
 Arrays
 Array of Arrays
+Lengthof
 Identifier Literals
 JSON
 JSON Literals
@@ -62,3 +64,4 @@ WebSocket Basic Functions
 WebSocket Connection Store
 WebSocket Connection Groups
 WebSocket Client Connector
+Passthrough
