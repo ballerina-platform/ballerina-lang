@@ -113,17 +113,13 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public String stringValue() {
-//        Iterator<Map.Entry<K, V>> i = map.entrySet().iterator();
-//        if (!i.hasNext()) {
-//            return "{}";
-//        }
-
         StringJoiner sj = new StringJoiner(", ", "{", "}");
 
-        String key;
-        String stringValue;
-
         for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
+
+            String key;
+            String stringValue;
+
             Map.Entry<K, V> e = i.next();
             key = "\"" + (String) e.getKey() + "\"";
             V value = e.getValue();
@@ -137,13 +133,9 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
             }
 
             sj.add(key + ":" + stringValue);
-//            if (!i.hasNext()) {
-//                return sj.toString();
-//            }
         }
         return sj.toString();
 
-//        return sj.toString();
     }
 
     @Override
