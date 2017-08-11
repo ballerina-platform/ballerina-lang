@@ -364,19 +364,19 @@ class SwaggerServiceMapper {
      */
     private void parseConfigAnnotationAttachment(ServiceInfo service, Swagger swagger) {
         AnnAttachmentInfo httpConfigAnnotationAttachment = service.getAnnotationAttachmentInfo(
-                Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIGURATION);
+                Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
         if (null != httpConfigAnnotationAttachment) {
             Map<String, AnnAttributeValue> httpConfigAnnAttributeValueMap = SwaggerUtils.convertToAttributeMap
                     (httpConfigAnnotationAttachment);
-            if (null != httpConfigAnnAttributeValueMap.get(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH)) {
-                swagger.setBasePath(httpConfigAnnAttributeValueMap.get(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH)
+            if (null != httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_BASE_PATH)) {
+                swagger.setBasePath(httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_BASE_PATH)
                         .getStringValue());
             }
-            if (null != httpConfigAnnAttributeValueMap.get(Constants.ANNOTATION_ATTRIBUTE_HOST) &&
-                null != httpConfigAnnAttributeValueMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT)) {
-                swagger.setHost(httpConfigAnnAttributeValueMap.get(Constants.ANNOTATION_ATTRIBUTE_HOST)
+            if (null != httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_HOST) &&
+                null != httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_PORT)) {
+                swagger.setHost(httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_HOST)
                                         .getStringValue() + ":" +
-                                httpConfigAnnAttributeValueMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT).getIntValue());
+                                httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_PORT).getIntValue());
             }
         }
     }

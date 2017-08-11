@@ -419,19 +419,26 @@ class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseProducesAnnotationAttachment(ResourceInfo resource, Operation operation) {
-        AnnAttachmentInfo producesAnnotationAttachment = resource.getAnnotationAttachmentInfo(
-                Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PRODUCES);
-        if (null != producesAnnotationAttachment) {
-            Map<String, AnnAttributeValue> producesAnnAttributeValueMap = SwaggerUtils.convertToAttributeMap
-                    (producesAnnotationAttachment);
-            List<String> produces = new LinkedList<>();
-            AnnAttributeValue[] producesValues = producesAnnAttributeValueMap.get("value").getAttributeValueArray();
-            for (AnnAttributeValue consumesValue : producesValues) {
-                produces.add(consumesValue.getStringValue());
-            }
-    
-            operation.setProduces(produces);
+        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANN_NAME_RESOURCE_CONFIG);
+        if (rConfigAnnAtchmnt == null) {
+            return;
         }
+        AnnAttributeValue producesAttrVal = rConfigAnnAtchmnt
+                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
+        if (producesAttrVal == null) {
+            return ;
+        }
+        List<String> produces = getStringList(producesAttrVal.getAttributeValueArray());
+        operation.setProduces(produces);
+    }
+
+    public static List<String> getStringList(AnnAttributeValue[] annAttributeValues) {
+        List<String> produces = new LinkedList<>();
+        for (int i = 0; i < annAttributeValues.length; i++) {
+            produces.add(annAttributeValues[i].getStringValue());
+        }
+        return produces;
     }
     
     /**
@@ -440,19 +447,18 @@ class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseConsumesAnnotationAttachment(ResourceInfo resource, Operation operation) {
-        AnnAttachmentInfo consumesAnnotationAttachment = resource.getAnnotationAttachmentInfo(
-                Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONSUMES);
-        if (null != consumesAnnotationAttachment) {
-            Map<String, AnnAttributeValue> consumesAnnAttributeValueMap = SwaggerUtils.convertToAttributeMap
-                    (consumesAnnotationAttachment);
-            List<String> consumes = new LinkedList<>();
-            AnnAttributeValue[] consumesValues = consumesAnnAttributeValueMap.get("value").getAttributeValueArray();
-            for (AnnAttributeValue consumesValue : consumesValues) {
-                consumes.add(consumesValue.getStringValue());
-            }
-    
-            operation.setConsumes(consumes);
+        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANN_NAME_RESOURCE_CONFIG);
+        if (rConfigAnnAtchmnt == null) {
+            return;
         }
+        AnnAttributeValue consumesAttrVal = rConfigAnnAtchmnt
+                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
+        if (consumesAttrVal == null) {
+            return ;
+        }
+        List<String> consumes = getStringList(consumesAttrVal.getAttributeValueArray());
+        operation.setConsumes(consumes);
     }
     
     /**
@@ -461,14 +467,16 @@ class SwaggerResourceMapper {
      * @param operationAdaptor The operation adaptor.
      */
     private void parsePathAnnotationAttachment(ResourceInfo resource, OperationAdaptor operationAdaptor) {
-        AnnAttachmentInfo pathAnnotation = resource.getAnnotationAttachmentInfo(
-                Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
-        if (null != pathAnnotation) {
-            Map<String, AnnAttributeValue> pathAnnAttributeValueMap =
-                    SwaggerUtils.convertToAttributeMap(pathAnnotation);
-            if (null != pathAnnAttributeValueMap.get("value")) {
-                operationAdaptor.setPath((pathAnnAttributeValueMap.get("value").getStringValue()));
-            }
+        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANN_NAME_RESOURCE_CONFIG);
+        if (rConfigAnnAtchmnt == null) {
+            return;
+        }
+        AnnAttributeValue pathAttrVal = rConfigAnnAtchmnt
+                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PATH);
+
+        if (null != pathAttrVal && pathAttrVal.getStringValue() != null) {
+            operationAdaptor.setPath(pathAttrVal.getStringValue());
         }
     }
     

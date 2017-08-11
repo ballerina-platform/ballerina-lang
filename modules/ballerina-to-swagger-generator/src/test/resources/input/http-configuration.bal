@@ -18,9 +18,11 @@ import ballerina.net.http.swagger;
 }
 service<http> Service5 {
 
-    @http:POST{}
-    @http:Path{value: "/pets/{id}"}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/pets/{id}",
+        produces:["application/json"]
+    }
     resource Resource1 (message m, @http:PathParam{value: "id"} string id) {
         reply m;
     }
