@@ -69,6 +69,8 @@ class ConnectorDeclarationPositionCalcVisitor {
             y = parentViewState.components.statementContainer.y + DesignerDefaults.variablesPane.topBarHeight;
         } else if (ASTFactory.isWorkerDeclaration(parent)) {
             y = parentViewState.components.workerScopeContainer.y + DesignerDefaults.statement.gutter.v;
+        } else if (ASTFactory.isServiceDefinition(parent) || ASTFactory.isConnectorDefinition(parent)) {
+            y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top - DesignerDefaults.lifeLine.head.height;
         } else {
             y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
         }

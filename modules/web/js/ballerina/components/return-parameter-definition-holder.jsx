@@ -91,7 +91,8 @@ class ReturnParameterDefinitionHolder extends React.Component {
         let isExist = false;
         if (this.props.model.getChildren().length > 0) {
             for (let i = 0; i < this.props.model.getChildren().length; i++) {
-                if (this.props.model.getChildren()[i].getName() === identifier) {
+                if (!_.isNil(this.props.model.getChildren()[i].getName()) && 
+                    this.props.model.getChildren()[i].getName() === identifier) {
                     isExist = true;
                     break;
                 }
