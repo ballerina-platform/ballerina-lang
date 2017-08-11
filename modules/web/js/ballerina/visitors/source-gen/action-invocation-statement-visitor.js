@@ -60,24 +60,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         actionInvocationExpr.setLineNumber(lineNumber, { doSilently: true });
 
-        let argsString = '';
         const args = actionInvocationExpr.getArguments();
-
-        for (let itr = 0; itr < args.length; itr++) {
-            // TODO: we need to refactor actionInvocationExpr along with the action invocation argument types as well
-            if (ASTFactory.isExpression(args[itr])) {
-                argsString += args[itr].getExpressionString();
-            } else if (ASTFactory.isResourceParameter(args[itr])) {
-                argsString += args[itr].getParameterAsString();
-            } else if (ASTFactory.isLambdaExpression(args[itr])) {
-                const lambdaFn = args[itr].getLambdaFunction();
-                lambdaFn.accept(new FunctionDefinitionVisitor(this));
-            }
-
-            if (itr !== args.length - 1) {
-                argsString += ', ';
-            }
-        }
 
         let constructedSourceSegment = '';
         if (!_.isUndefined(actionInvocationExpr.getActionPackageName()) &&
@@ -93,7 +76,23 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
             actionInvocationExpr.getActionName() + actionInvocationExpr.getWSRegion(3)
             + '(' + actionInvocationExpr.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
-        constructedSourceSegment = argsString + ')' + actionInvocationExpr.getWSRegion(5);
+
+        for (let itr = 0; itr < args.length; itr++) {
+            // TODO: we need to refactor actionInvocationExpr along with the action invocation argument types as well
+            if (ASTFactory.isLambdaExpression(args[itr])) {
+                const lambdaFn = args[itr].getLambdaFunction();
+                lambdaFn.accept(new FunctionDefinitionVisitor(this));
+            } else if (ASTFactory.isResourceParameter(args[itr])) {
+                this.appendSource(args[itr].getParameterAsString());
+            } else if (ASTFactory.isExpression(args[itr])) {
+                this.appendSource(args[itr].getExpressionString());
+            }
+            if (itr !== args.length - 1) {
+                this.appendSource(', ');
+            }
+        }
+
+        constructedSourceSegment = ')' + actionInvocationExpr.getWSRegion(5);
         this.appendSource(constructedSourceSegment);
     }
 

@@ -98,7 +98,7 @@ class SizingUtil {
         viewState.components['drop-zone'] = new SimpleBBox();
         // Set statement box as an opaque element to prevent conflicts with arrows.
         viewState.components['statement-box'] = new SimpleBBox();
-        viewState.components['drop-zone'].h = dropZoneHeight + viewState.offSet;
+        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = textViewState.w;
         viewState.components['statement-box'].h = statement.height;
         viewState.components['statement-box'].w = textViewState.w;
