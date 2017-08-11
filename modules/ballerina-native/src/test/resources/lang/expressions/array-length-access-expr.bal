@@ -1,5 +1,4 @@
 
-
 function arrayLengthAccessNullArrayCase(int x, int y) (int) {
     int z = x + y;
     int[] arr;

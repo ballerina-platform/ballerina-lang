@@ -198,8 +198,8 @@ public class BLangModelBuilder {
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     protected SymbolScope packageScope = null;
 
-    // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
-    protected SymbolScope forkJoinScope = null;
+    // This variable stack keeps the fork-join scope when adding workers and resolve back to current scope once done
+    protected Stack<SymbolScope> forkJoinScopeStack = new Stack<>();
 
     // This variable keeps the current scope when adding workers and resolve back to current scope once done
     protected Stack<SymbolScope> workerOuterBlockScope = new Stack<>();
@@ -1055,7 +1055,7 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(currentScope.getEnclosingScope());
         //setting workerOuterBlockScope if it is not a fork join statement
-        if (forkJoinScope == null) {
+        if (forkJoinScopeStack.empty()) {
             workerOuterBlockScope.push(currentScope);
         }
         currentScope = currentCUBuilder.getCurrentScope();
@@ -1143,7 +1143,7 @@ public class BLangModelBuilder {
             currentScope = workerOuterBlockScope.pop();
         } else {
             workerStack.peek().add(worker);
-            currentScope = forkJoinScope;
+            currentScope = forkJoinScopeStack.peek();
         }
 
         currentCUBuilder = parentCUBuilder.pop();
@@ -1601,7 +1601,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
-        forkJoinScope = currentScope;
+        forkJoinScopeStack.push(currentScope);
         workerStack.push(new ArrayList<>());
     }
 
@@ -1768,6 +1768,7 @@ public class BLangModelBuilder {
         }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
+        forkJoinScopeStack.pop();
 
     }
 
