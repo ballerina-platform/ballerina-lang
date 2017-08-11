@@ -25,7 +25,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static org.testng.Assert.assertEquals;
 
@@ -174,5 +176,37 @@ public class BMapValueTest   {
         map.put(new String("key3"), new BXMLItem("<bar>hello</bar>"));
         
         Assert.assertEquals(map.stringValue(), "{\"key1\":1, \"key2\":\"foo\", \"key3\":<bar>hello</bar>}");
+    }
+
+    @Test
+    public  void testBMapOrder(){
+        BMap<String,BRefType> map = new BMap<>();
+        map.put(new String("Entry1"),new BString("foo"));
+        map.put(new String("Entry2"),new BString("bar"));
+        map.put(new String("Entry3"),new BString("foobar"));
+
+        Set set = map.keySet();
+        String[] ar = new String[3];
+        Iterator itr = set.iterator();
+        for (int i=0;i<set.size();i++)
+        {
+         ar[i] = itr.next().toString();
+        }
+        Assert.assertEquals(map.get(ar[0]).stringValue(),"foo");
+        Assert.assertEquals(map.get(ar[1]).stringValue(),"bar");
+        Assert.assertEquals(map.get(ar[2]).stringValue(),"foobar");
+
+
+
+//        for (int i = 0; i < 2; i++) {
+//            Set set = map.
+////            set.
+//            Assert.assertEquals(map.get("Entry1"),"foo");
+//            Assert.assertEquals(map.get("Entry2"),"bar");
+//            Assert.assertEquals(map.get("Entry3"),"foobar");
+//        }
+
+//        Assert.assertEquals(map.stringValue(), "{\"Entry1\":1, \"key2\":\"foo\", \"key3\":<bar>hello</bar>}");
+
     }
 }

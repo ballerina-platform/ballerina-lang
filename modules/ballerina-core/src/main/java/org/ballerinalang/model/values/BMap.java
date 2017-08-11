@@ -41,14 +41,14 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
 
     @SuppressWarnings("unchecked")
-    private LinkedHashMap<K, V> vals;
+    private LinkedHashMap<K, V> map;
 
     public BMap() {
-        vals =  new LinkedHashMap<>();
+        map =  new LinkedHashMap<>();
     }
 
     public BMap(LinkedHashMap newMap) {
-        vals = newMap;
+        map = newMap;
     }
 
     /**
@@ -62,7 +62,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return value
      */
     public V get(K key) {
-        return vals.get(key);
+        return map.get(key);
     }
 
     /**
@@ -71,7 +71,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @param value value related to the key
      */
     public void put(K key, V value) {
-        vals.put(key, value);
+        map.put(key, value);
     }
 
     /**
@@ -79,7 +79,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the size of the map
      */
     public int size() {
-        return vals.size();
+        return map.size();
     }
 
     /**
@@ -87,7 +87,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @param key key of the item to be removed
      */
     public void remove(K key) {
-        vals.remove(key);
+        map.remove(key);
     }
 
     /**
@@ -95,7 +95,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the set of keys
      */
     public Set<K> keySet() {
-        return vals.keySet();
+        return map.keySet();
     }
 
     /**Return true if this map is empty.
@@ -103,7 +103,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return Flag indicating whether the map is empty or not
      */
     public boolean isEmpty() {
-        return vals.size() == 0;
+        return map.size() == 0;
     }
 
     @Override
@@ -113,17 +113,17 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public String stringValue() {
-        Iterator<Map.Entry<K, V>> i = vals.entrySet().iterator();
-        if (!i.hasNext()) {
-            return "{}";
-        }
+//        Iterator<Map.Entry<K, V>> i = map.entrySet().iterator();
+//        if (!i.hasNext()) {
+//            return "{}";
+//        }
 
         StringJoiner sj = new StringJoiner(", ", "{", "}");
 
         String key;
         String stringValue;
 
-        for (;;) {
+        for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
             Map.Entry<K, V> e = i.next();
             key = "\"" + (String) e.getKey() + "\"";
             V value = e.getValue();
@@ -137,10 +137,13 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
             }
 
             sj.add(key + ":" + stringValue);
-            if (!i.hasNext()) {
-                return sj.toString();
-            }
+//            if (!i.hasNext()) {
+//                return sj.toString();
+//            }
         }
+        return sj.toString();
+
+//        return sj.toString();
     }
 
     @Override
@@ -150,7 +153,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BValue copy() {
-        return new BMap<>(new LinkedHashMap(vals));
+        return new BMap<>(new LinkedHashMap(map));
     }
 
     @Override
