@@ -97,6 +97,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 }
             }
 
+            AnnotationAttachmentNode attachmentNode = PsiTreeUtil.getParentOfType(parent,
+                    AnnotationAttachmentNode.class);
+            if (attachmentNode != null) {
+                result.addAllElements(getValueKeywords());
+            }
+
             TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(parent, TypeNameNode.class);
             if (typeNameNode != null && prevVisibleLeaf != null && !prevVisibleLeaf.getText().matches("[:.=]")) {
                 AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(typeNameNode,

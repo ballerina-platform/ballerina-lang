@@ -28,6 +28,8 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -146,7 +148,13 @@ public class NameReference extends BallerinaElementReference {
         PsiFile originalFile = containingFile.getOriginalFile();
         PsiDirectory containingPackage = originalFile.getParent();
 
-        if (containingPackage != null) {
+        AnnotationAttachmentNode attachmentNode = PsiTreeUtil.getParentOfType(identifier,
+                AnnotationAttachmentNode.class);
+        if (attachmentNode != null && containingFile instanceof BallerinaFile) {
+            ScopeNode scope = (BallerinaFile) containingFile;
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+            results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+        } else if (containingPackage != null) {
 
             List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
                     PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
@@ -210,24 +218,30 @@ public class NameReference extends BallerinaElementReference {
 
         PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
 
-        // Todo - use a util method
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-        results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+        AnnotationAttachmentNode attachmentNode = PsiTreeUtil.getParentOfType(packageNameNode,
+                AnnotationAttachmentNode.class);
+        if (attachmentNode != null) {
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+        } else {
+            // Todo - use a util method
+            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
-        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
-        results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
-                AddSpaceInsertHandler.INSTANCE));
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
+                    AddSpaceInsertHandler.INSTANCE));
 
-        List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
-        results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
+            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
-        List<PsiElement> globalVariables =
-                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage);
-        results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
+            List<PsiElement> globalVariables =
+                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage);
-        results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
-
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+        }
         return results;
     }
 }
