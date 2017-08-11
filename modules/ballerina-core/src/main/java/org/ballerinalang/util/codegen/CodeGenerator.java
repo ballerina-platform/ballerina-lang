@@ -1925,7 +1925,7 @@ public class CodeGenerator implements NodeVisitor {
             emit(opcode, structRegIndex, fieldIndex, valueExpr.getTempOffset());
             initializedFieldNameList.add(varRefExpr.getVarName());
         }
-        
+
         // Initialize default values in a struct definition
         for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
             SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) fieldDefStmt.getLExpr();

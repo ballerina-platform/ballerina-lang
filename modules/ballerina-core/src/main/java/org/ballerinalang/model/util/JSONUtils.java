@@ -717,8 +717,7 @@ public class JSONUtils {
                         longRegIndex++;
                         if (containsField) {
                             bStruct.setIntField(longRegIndex, jsonNodeToInt(jsonValue));
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
                         }
                         break;
@@ -726,8 +725,7 @@ public class JSONUtils {
                         doubleRegIndex++;
                         if (containsField) {
                             bStruct.setFloatField(doubleRegIndex, jsonNodeToFloat(jsonValue));
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
                         }
                         break;
@@ -741,8 +739,7 @@ public class JSONUtils {
                                 stringVal = jsonValue.toString();
                             }
                             bStruct.setStringField(stringRegIndex, stringVal);
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setStringField(stringRegIndex,
                                     defaultValAttrInfo.getDefaultValue().getStringValue());
                         }
@@ -751,8 +748,7 @@ public class JSONUtils {
                         booleanRegIndex++;
                         if (containsField) {
                             bStruct.setBooleanField(booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setBooleanField(booleanRegIndex,
                                     defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
                         }

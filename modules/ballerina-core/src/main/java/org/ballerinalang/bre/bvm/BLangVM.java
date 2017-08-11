@@ -3249,9 +3249,7 @@ public class BLangVM {
                         longRegIndex++;
                         if (containsField) {
                             bStruct.setIntField(longRegIndex, ((BInteger) mapVal).intValue());
-                            break;
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
                         }
                         break;
@@ -3259,9 +3257,7 @@ public class BLangVM {
                         doubleRegIndex++;
                         if (containsField) {
                             bStruct.setFloatField(doubleRegIndex, ((BFloat) mapVal).floatValue());
-                            break;
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
                         }
                         break;
@@ -3269,9 +3265,7 @@ public class BLangVM {
                         stringRegIndex++;
                         if (containsField) {
                             bStruct.setStringField(stringRegIndex, ((BString) mapVal).stringValue());
-                            break;
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setStringField(stringRegIndex,
                                     defaultValAttrInfo.getDefaultValue().getStringValue());
                         }
@@ -3280,8 +3274,7 @@ public class BLangVM {
                         booleanRegIndex++;
                         if (containsField) {
                             bStruct.setBooleanField(booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
-                        }
-                        if (defaultValAttrInfo != null) {
+                        } else if (defaultValAttrInfo != null) {
                             bStruct.setBooleanField(booleanRegIndex,
                                     defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
                         }
