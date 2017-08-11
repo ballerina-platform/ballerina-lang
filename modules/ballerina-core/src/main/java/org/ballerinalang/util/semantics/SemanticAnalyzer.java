@@ -4152,7 +4152,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression retryCountExpr = stmt.getRetryCountExpression();
         boolean error = true;
         if (retryCountExpr instanceof BasicLiteral) {
-            if (TypeConstants.INT_TNAME.equals(((BasicLiteral) retryCountExpr).getTypeName().getName())) {
+            if (retryCountExpr.getType().getTag() == TypeTags.INT_TAG) {
                 if (((BasicLiteral) retryCountExpr).getBValue().intValue() >= 0) {
                     error = false;
                 }
@@ -4160,7 +4160,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (retryCountExpr instanceof VariableReferenceExpr) {
             VariableDef variableDef = ((SimpleVarRefExpr) retryCountExpr).getVariableDef();
             if (variableDef.getKind() == VariableDef.Kind.CONSTANT) {
-                if (TypeConstants.INT_TNAME.equals(variableDef.getTypeName().getName())) {
+                if (variableDef.getType().getTag() == TypeTags.INT_TAG) {
                     error = false;
                 }
             }

@@ -54,10 +54,6 @@ public class BallerinaTransactionManager {
         return transactionContextStore.get(id);
     }
 
-    public boolean isTransactionError() {
-        return this.transactionError;
-    }
-
     public void setTransactionError(boolean transactionError) {
         this.transactionError = transactionError;
     }
@@ -69,19 +65,11 @@ public class BallerinaTransactionManager {
     }
 
     public int getAllowedRetryCount(int transactionId) {
-        Integer allowedRetryCount =  allowedTransactionRetryCounts.get(transactionId);
-        if (allowedRetryCount == null) {
-            throw new BallerinaException("transaction not found to retrieve allowed retry count");
-        }
-        return allowedRetryCount;
+        return allowedTransactionRetryCounts.get(transactionId);
     }
 
     public int getCurrentRetryCount(int transactionId) {
-        Integer currentRetryCount =  currentTransactionRetryCounts.get(transactionId);
-        if (currentRetryCount == null) {
-            throw new BallerinaException("transaction not found to retrieve current retry count");
-        }
-        return currentRetryCount;
+        return currentTransactionRetryCounts.get(transactionId);
     }
 
     public void incrementCurrentRetryCount(int transactionId) {
