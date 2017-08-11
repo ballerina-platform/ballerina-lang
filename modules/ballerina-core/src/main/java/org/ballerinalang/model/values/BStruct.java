@@ -81,7 +81,7 @@ public final class BStruct implements BRefType, StructureType {
                 byteIndex = 0,
                 refValIndex = 0;
 
-        StringJoiner sj = new StringJoiner(",", "{", "}");
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
         for (StructField field : structType.getStructFields()) {
             String fieldName = field.getFieldName();
             Object fieldVal;
