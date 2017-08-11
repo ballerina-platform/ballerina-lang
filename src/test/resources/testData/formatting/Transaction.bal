@@ -11,10 +11,13 @@ function test () {
           if      (i      ==        0      )       {
                   abort       ;//transaction can be aborted based on a condition
         }
-    }        aborted        {
-         system.println         (       "The transaction is aborted"       )  ;
+    }  failed{
+      system:println         (       "The transaction is failed"       )  ;
+      retry   4  ;
+        }      aborted        {
+         system:println         (       "The transaction is aborted"       )  ;
          }       committed        {
-      system.println         (       "The transaction is committed"       )  ;
+      system:println         (       "The transaction is committed"       )  ;
         }
         sql :    ClientConnector .        close       (      testDB      )       ;
 }

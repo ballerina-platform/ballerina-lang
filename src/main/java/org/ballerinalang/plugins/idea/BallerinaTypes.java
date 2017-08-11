@@ -83,6 +83,7 @@ public class BallerinaTypes {
     public static final RuleIElementType TIMEOUT_CLAUSE = ruleIElementTypes.get(RULE_timeoutClause);
     public static final RuleIElementType JOIN_CONDITIONS = ruleIElementTypes.get(RULE_joinConditions);
     public static final RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(RULE_transactionStatement);
+    public static final RuleIElementType FAILED_CLAUSE = ruleIElementTypes.get(RULE_failedClause);
     public static final RuleIElementType ABORTED_CLAUSE = ruleIElementTypes.get(RULE_abortedClause);
     public static final RuleIElementType COMMITTED_CLAUSE = ruleIElementTypes.get(RULE_committedClause);
     public static final RuleIElementType TRANSFORM_STATEMENT = ruleIElementTypes.get(RULE_transformStatement);
@@ -133,6 +134,7 @@ public class BallerinaTypes {
     public static final TokenIElementType CONST = tokenIElementTypes.get(BallerinaLexer.CONST);
     public static final TokenIElementType CREATE = tokenIElementTypes.get(BallerinaLexer.CREATE);
     public static final TokenIElementType ELSE = tokenIElementTypes.get(BallerinaLexer.ELSE);
+    public static final TokenIElementType FAILED = tokenIElementTypes.get(BallerinaLexer.FAILED);
     public static final TokenIElementType FINALLY = tokenIElementTypes.get(BallerinaLexer.FINALLY);
     public static final TokenIElementType FORK = tokenIElementTypes.get(BallerinaLexer.FORK);
     public static final TokenIElementType FUNCTION = tokenIElementTypes.get(BallerinaLexer.FUNCTION);
@@ -147,6 +149,7 @@ public class BallerinaTypes {
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
+    public static final TokenIElementType RETRY = tokenIElementTypes.get(BallerinaLexer.RETRY);
     public static final TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);
     public static final TokenIElementType RETURN = tokenIElementTypes.get(BallerinaLexer.RETURN);
     public static final TokenIElementType RETURNS = tokenIElementTypes.get(BallerinaLexer.RETURNS);
