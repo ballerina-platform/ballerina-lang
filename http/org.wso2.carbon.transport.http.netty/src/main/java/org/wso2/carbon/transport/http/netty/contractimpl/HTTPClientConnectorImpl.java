@@ -13,7 +13,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 /**
- * HTTPClientConnectorImpl
+ * Implementation of the client connector.
  */
 public class HTTPClientConnectorImpl implements HTTPClientConnector {
 
