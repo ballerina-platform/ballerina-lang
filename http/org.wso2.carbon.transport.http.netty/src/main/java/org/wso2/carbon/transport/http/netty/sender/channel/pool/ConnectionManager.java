@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -33,7 +32,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.CarbonLoggingHandler;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -191,16 +190,16 @@ public class ConnectionManager {
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
                 int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-                ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
 
+                ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
                 pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
                                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                                                             TimeUnit.MILLISECONDS));
-
                 if (sourceHandler != null) {
-                    ChannelHandler loggingHandler = pipeline.get(Constants.LOGGING_HANDLER);
-                    if (loggingHandler instanceof CarbonLoggingHandler) {
-                        ((CarbonLoggingHandler) loggingHandler).setCorrelatedSourceId(
+                    HTTPTraceLoggingHandler loggingHandler
+                            = (HTTPTraceLoggingHandler) pipeline.get(Constants.HTTP_TRACE_LOGGING_HANDLER);
+                    if (loggingHandler != null) {
+                        loggingHandler.setCorrelatedSourceId(
                                 sourceHandler.getInboundChannelContext().channel().id().asShortText());
                     }
                 }

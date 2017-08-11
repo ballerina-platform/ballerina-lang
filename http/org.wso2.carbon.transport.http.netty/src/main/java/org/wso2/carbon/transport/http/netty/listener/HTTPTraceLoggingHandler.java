@@ -33,7 +33,7 @@ import static io.netty.util.internal.StringUtil.NEWLINE;
 /**
  * A custom LoggingHandler for the HTTP wire logs
  */
-public class CarbonLoggingHandler extends LoggingHandler {
+public class HTTPTraceLoggingHandler extends LoggingHandler {
     private static final String EVENT_REGISTERED = "REGISTERED";
     private static final String EVENT_CONNECT = "CONNECT";
     private static final String EVENT_INBOUND = "INBOUND";
@@ -41,32 +41,32 @@ public class CarbonLoggingHandler extends LoggingHandler {
 
     private String correlatedSourceId;
 
-    public CarbonLoggingHandler(LogLevel level) {
+    public HTTPTraceLoggingHandler(LogLevel level) {
         super(level);
         correlatedSourceId = "n/a";
     }
 
-    public CarbonLoggingHandler(Class<?> clazz) {
+    public HTTPTraceLoggingHandler(Class<?> clazz) {
         super(clazz);
         correlatedSourceId = "n/a";
     }
 
-    public CarbonLoggingHandler(Class<?> clazz, LogLevel level) {
+    public HTTPTraceLoggingHandler(Class<?> clazz, LogLevel level) {
         super(clazz, level);
         correlatedSourceId = "n/a";
     }
 
-    public CarbonLoggingHandler(String name) {
+    public HTTPTraceLoggingHandler(String name) {
         super(name);
         correlatedSourceId = "n/a";
     }
 
-    public CarbonLoggingHandler(String name, LogLevel level, String correlatedSourceId) {
+    public HTTPTraceLoggingHandler(String name, LogLevel level, String correlatedSourceId) {
         super(name, level);
         this.correlatedSourceId = "0x" + correlatedSourceId;
     }
 
-    public CarbonLoggingHandler(String name, LogLevel level) {
+    public HTTPTraceLoggingHandler(String name, LogLevel level) {
         super(name, level);
         correlatedSourceId = "n/a";
     }

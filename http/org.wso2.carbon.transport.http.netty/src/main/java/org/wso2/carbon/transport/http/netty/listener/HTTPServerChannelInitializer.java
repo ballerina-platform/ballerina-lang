@@ -186,7 +186,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         p.addLast("chunkWriter", new ChunkedWriteHandler());
 
         if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))) {
-            p.addLast(Constants.LOGGING_HANDLER, new CarbonLoggingHandler("wirelog.http.downstream", LogLevel.DEBUG));
+
+            p.addLast(Constants.HTTP_TRACE_LOGGING_HANDLER,
+                      new HTTPTraceLoggingHandler("wirelog.http.downstream", LogLevel.DEBUG));
         }
 
         try {
