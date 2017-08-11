@@ -145,6 +145,7 @@ class TransformRender {
  * This does not remove the associated children from the model
  */
     disconnectAll(connection) {
+        this.midpoint = 0.1;
         this.jsPlumbInstance.detachEveryConnection();
     }
 
@@ -352,6 +353,10 @@ class TransformRender {
         this.reposition(this);
     }
 
+    remove(elementId) {
+        this.jsPlumbInstance.remove(elementId);
+    }
+
 // /**
 //  * Add a connection arrow in the mapper UI
 //  * @param {object} connection connection object which specified source and target
@@ -425,6 +430,8 @@ class TransformRender {
 
 
     addConnection(sourceId, targetId) {
+        this.midpoint += this.midpointVariance;
+        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.connect({
             source: sourceId,
             target: targetId,
@@ -803,11 +810,8 @@ class TransformRender {
 
                 const connection = this.getConnectionObject(params.id, input, output);
                 if (isValidTypes) {
-                    this.midpoint += this.midpointVariance;
                     this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
                     connection.id = this.onConnection(connection);
-                    params.connection.setParameter('id', connection.id);
-                    params.connection.setParameter('output', output);
                 }
                 return isValidTypes;
             },
@@ -1005,7 +1009,7 @@ class TransformRender {
     getConnectorConfig(midPoint) {
         return ['Flowchart', {
             midpoint: midPoint,
-            stub: [0, 0],
+            stub: [30, 40],
             cornerRadius: 5,
             alwaysRespectStubs: true,
         }];

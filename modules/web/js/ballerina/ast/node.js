@@ -488,7 +488,7 @@ class ASTNode extends EventChannel {
     }
 
     /**
-     * Set position info atribute to node
+     * Set position info attribute to node
      * @param {object} position
      * @param {object} options
      */
@@ -496,6 +496,14 @@ class ASTNode extends EventChannel {
         this.setAttribute('position', position, options);
     }
 
+    /**
+     * Get position info attribute of the node
+     * @returns {object} position
+     * @memberof ASTNode
+     */
+    getPosition() {
+        return this.getAttribute('position');
+    }
 
     /**
      * Set isLiteral atribute to node

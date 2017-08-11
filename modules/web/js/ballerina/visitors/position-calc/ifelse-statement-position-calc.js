@@ -87,6 +87,7 @@ class IfElseStatementPositionCalcVisitor {
 
         bBox.x = x;
         bBox.y = y;
+        viewState.components['block-header'].y = y + viewState.components['drop-zone'].h;
     }
 
     /**

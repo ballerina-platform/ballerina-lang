@@ -83,7 +83,10 @@ class TransformExpanded extends React.Component {
         const funPackage = this.context.environment.getPackageByName(functionInvocationExpression.getFullPackageName());
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
         _.forEach(funcDef.getParameters(), (param) => {
-            param.innerType = _.find(this.state.vertices, { typeName: param.type });
+            const structDef = this.getStructDefinition(param.packageName, param.type);
+            if (structDef) {
+                param.typeDef = this.getStructType(param.name, param.type, structDef);
+            }
         });
         return funcDef;
     }
@@ -120,15 +123,12 @@ class TransformExpanded extends React.Component {
         if (!_.isUndefined(sourceStruct) && connection.isTargetFunction) {
             // Connection source is a struct and target is not a struct.
             // Target could be a function node.
-            const assignmentStmtSource = connection.targetReference;
-            let funcNode;
-            if (BallerinaASTFactory.isFunctionInvocationExpression(connection.targetReference)) {
-                funcNode = connection.targetReference;
-            } else {
-                funcNode = connection.targetReference.getRightExpression();
-            }
-            const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(),
-                                    (param) => { return param.name == connection.targetStruct; });
+            const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetFuncInv);
+            const funcNode = connection.targetFuncInv;
+            const index = _.findIndex(this.getFunctionDefinition(connection.targetFuncInv).getParameters(), param => {
+                return param.name == connection.targetStruct;
+            });
+
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
             if (connection.targetProperty && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
@@ -151,19 +151,18 @@ class TransformExpanded extends React.Component {
             } else {
                 funcNode.addChild(sourceExpression, index);
             }
-            return assignmentStmtSource.id;
+            return assignmentStmtTarget.id;
         }
 
         if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtTarget = this.findEnclosingAssignmentStatement(connection.sourceReference.id);
-            const index = _.findIndex(this.getFunctionDefinition(
-                                                    connection.sourceReference.getRightExpression()).getReturnParams(),
-                                                            (param) => {
-                                                                return param.name == connection.sourceStruct;
-                                                            });
-            assignmentStmtTarget.getLeftExpression().addChild(targetExpression, index);
+            const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
+
+            const index = _.findIndex(this.getFunctionDefinition(connection.sourceFuncInv).getReturnParams(), param => {
+                return param.name == connection.sourceStruct;
+            });
+            assignmentStmtSource.getLeftExpression().addChild(targetExpression, index);
             return assignmentStmtTarget.id;
         }
 
@@ -174,19 +173,19 @@ class TransformExpanded extends React.Component {
         // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
         // will be different from removing a param from a function and then drawing the connection
         // to the parent function invocation.
-        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetReference);
+        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetFuncInv);
+        const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
 
-        const assignmentStmtSource = connection.sourceReference;
         const funcNode = assignmentStmtTarget.getRightExpression();
 
         const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), (param) => {
             const paramName = param.name || param.fieldName;
             return param.name === (connection.targetProperty || connection.targetStruct);
         });
-        funcNode.children[index] = assignmentStmtSource.getRightExpression();
 
         // remove the source assignment statement since it is now included in the target assignment statement.
-        this.props.model.removeChild(assignmentStmtSource);
+        this.props.model.removeChild(assignmentStmtSource, true);
+        funcNode.addChild(assignmentStmtSource.getRightExpression(), index);
 
         return assignmentStmtTarget.id;
     }
@@ -238,25 +237,25 @@ class TransformExpanded extends React.Component {
         const targetFuncInvocationExpression = connection.targetFuncInv;
         const sourceFuncInvocationExpression = connection.sourceFuncInv;
 
-        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
+        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression, true);
+
+        const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+        const varRefList = BallerinaASTFactory.createVariableReferenceList();
+        assignmentStmt.addChild(varRefList, 0);
+        assignmentStmt.addChild(sourceFuncInvocationExpression, 1);
+        this.props.model.addChild(assignmentStmt, this.props.model.getIndexOfChild(connection.targetReference));
     }
 
     recordSourceElement(element, id, input) {
-        if (!element || element.isSource) {
-            return;
-        }
         this.sourceElements[id] = { element, input };
     }
 
     recordTargetElement(element, id, output) {
-        if (!element || element.isTarget) {
-            return;
-        }
         this.targetElements[id] = { element, output };
     }
 
     getStructAccessNode(name, property, isStruct) {
-        if (!isStruct) {
+        if (!isStruct || !property) {
             const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString(name);
             return simpleVarRefExpression;
@@ -308,7 +307,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression) => {
@@ -334,7 +333,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression) => {
@@ -363,7 +362,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         const params = func.getParameters();
@@ -387,7 +386,6 @@ class TransformExpanded extends React.Component {
         }
 
         const sourceId = `${functionInvID}:${funcName}:${returnParams[0].name || 0}:${viewId}`;
-        this.mapper.addConnection(sourceId, targetId);
 
         const parentParams = parentFunctionDefinition.getParameters();
         const parentFuncInvID = parentFunctionInvocationExpression.getID();
@@ -407,7 +405,7 @@ class TransformExpanded extends React.Component {
             return;
         }
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         const params = func.getParameters();
@@ -443,7 +441,7 @@ class TransformExpanded extends React.Component {
         });
 
         if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
@@ -668,15 +666,25 @@ class TransformExpanded extends React.Component {
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
             const { element, input } = this.sourceElements[key];
-            input.id = key;
-            this.mapper.addSource(element, null, null, input);
+            if(element) {
+                input.id = key;
+                this.mapper.addSource(element, null, null, input);
+            } else {
+                // this source connect point is unmounted
+                this.mapper.remove(key);
+            }
         });
 
         const targetKeys = Object.keys(this.targetElements);
         targetKeys.forEach((key) => {
             const { element, output } = this.targetElements[key];
-            output.id = key;
-            this.mapper.addTarget(element, null, output);
+            if(element) {
+                output.id = key;
+                this.mapper.addTarget(element, null, output);
+            } else {
+                // this target connect point is unmounted
+                this.mapper.remove(key);
+            }
         });
 
         this.mapper.disconnectAll();
@@ -692,7 +700,6 @@ class TransformExpanded extends React.Component {
         this.mapper.reposition(this.mapper);
 
         this.loadVertices();
-
     }
 
     componentDidMount() {
@@ -848,14 +855,13 @@ class TransformExpanded extends React.Component {
             const vertices = [];
 
             const fileData = this.context.designView.context.editor.props.file.attributes;
-            const lineNo = this.props.model.getLineNumber();
+            const position = this.props.model.getPosition();
 
             const options = {
                 textDocument: fileData.content,
                 position: {
-                    line: lineNo,
-                    // TODO replace with column number once implemented in AST node
-                    character: 0,
+                    line: position.startLine,
+                    character: position.startOffset,
                 },
                 fileName: fileData.name,
                 filePath: fileData.path,
@@ -919,7 +925,9 @@ class TransformExpanded extends React.Component {
                     }
                 });
                 // set state with new vertices
-                this.setState({ vertices });
+                if (!_.isEqual(vertices, this.state.vertices)) {
+                    this.setState({ vertices });
+                }
             });
         }).catch(error => alerts.error('Could not initialize transform statement view ' + error));
     }
@@ -944,7 +952,7 @@ class TransformExpanded extends React.Component {
     setSource(currentSelection) {
         const sourceSelection = _.find(this.state.vertices, { name: currentSelection });
         if (_.isUndefined(sourceSelection)) {
-            alerts.error('Mapping source "' + currentSelection + '" cannot be found');
+            // alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
         }
         return true;
@@ -953,7 +961,7 @@ class TransformExpanded extends React.Component {
     setTarget(currentSelection) {
         const targetSelection = _.find(this.state.vertices, { name: currentSelection });
         if (_.isUndefined(targetSelection)) {
-            alerts.error('Mapping target "' + currentSelection + '" cannot be found');
+            // alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
         }
         return true;
@@ -1034,23 +1042,22 @@ class TransformExpanded extends React.Component {
             inputNodes.forEach((inputNode) => {
                 const name = inputNode.getVariableName();
                 const sourceSelection = _.find(vertices, { name });
-                _.remove(vertices, (vertex)=> { return vertex.name == sourceSelection.name})
                 if (_.isUndefined(sourceSelection)) {
-                    alerts.error('Mapping source "' + name + '" cannot be found');
+                    // alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
                 }
+                _.remove(vertices, (vertex)=> { return vertex.name == sourceSelection.name})
                 inputs.push(sourceSelection);
             });
 
             outputNodes.forEach((outputNode) => {
                 const name = outputNode.getVariableName();
                 const targetSelection = _.find(vertices, { name });
-                _.remove(vertices, (vertex)=> { return vertex.name == targetSelection.name})
                 if (_.isUndefined(targetSelection)) {
-                    alerts.error('Mapping target "' + name + '" cannot be found');
+                    // alerts.error('Mapping target "' + name + '" cannot be found');
                     return;
                 }
-
+                _.remove(vertices, (vertex)=> { return vertex.name == targetSelection.name})
                 outputs.push(targetSelection);
             });
 

@@ -33,7 +33,7 @@ class SimpleBBox {
         this.h = h || 0;
         this.expansionW = expansionW || 0;
         this.expansionH = expansionH || 0;
-
+        this.opaque = false;
     }
 
     /**
@@ -104,6 +104,26 @@ class SimpleBBox {
      */
     getCenterY() {
         return this.y + (this.h / 2);
+    }
+
+    /**
+     * Set if the bounding box opaque.
+     *
+     * @param {boolean} opaque set if bounding box opaque or not.
+     * @memberof SimpleBBox
+     */
+    setOpaque(opaque) {
+        this.opaque = opaque;
+    }
+
+    /**
+     * Get bounding box opaqueness.
+     *
+     * @returns {boolean} return if the bounding box opaque or not.
+     * @memberof SimpleBBox
+     */
+    getOpaque() {
+        return this.opaque;
     }
 }
 

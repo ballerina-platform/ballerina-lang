@@ -52,7 +52,8 @@
     "temp": "^0.8.1",
     "looks-same": "^3.2.0",
     "pngjs": "^3.0.0",
-    "pixelmatch":"^4.0.2"
+    "pixelmatch":"^4.0.2",
+    "ws":"^3.1.0"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",

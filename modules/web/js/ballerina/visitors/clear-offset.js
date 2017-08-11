@@ -15,22 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
+import Visitors from './dimension-calculator/components';
 
-// Sets up environment for tests to run on node.js by providing a mock browser
-// environment using jsdom.
-const jsdom = require('jsdom').jsdom;
+/**
+ * This will vist the tree to clear any offsets.
+ *
+ * @class ArrowConflictResolver
+ */
+class ClearOffset {
 
-global.WebSocket = require('ws');
-global.document = jsdom('');
-global.window = document.defaultView;
-Object.keys(document.defaultView).forEach((property) => {
-    if (typeof global[property] === 'undefined') {
-        global[property] = document.defaultView[property];
+
+    canVisit() {
+        return true;
     }
-});
 
-global.navigator = {
-    userAgent: 'node.js',
-    platform: 'node.js',
-    appName: 'Node JS',
-};
+    visit(node) {
+        return undefined;
+    }
+
+    beginVisit(node) {
+        node.viewState.offSet = 0;
+    }
+
+    endVisit(node) {
+        return undefined;
+    }
+}
+
+export default ClearOffset;

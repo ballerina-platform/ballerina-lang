@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import Statement from './statement';
 
 /**
@@ -40,7 +41,13 @@ class AbortStatement extends Statement {
      * @return {boolean} true|false.
      * */
     canBeAChildOf(node) {
-        return this.getFactory().isTransactionStatement(node);
+        let canBeChildOf = this.getFactory().isTransactionStatement(node);
+        let nodeToBeParent = node;
+        while (!canBeChildOf && !_.isEmpty(nodeToBeParent.getParent())) {
+            canBeChildOf = this.getFactory().isTransactionStatement(nodeToBeParent);
+            nodeToBeParent = nodeToBeParent.getParent();
+        }
+        return canBeChildOf;
     }
 
     /**

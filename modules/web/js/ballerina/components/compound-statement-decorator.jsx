@@ -131,19 +131,21 @@ class CompoundStatementDecorator extends React.Component {
     render() {
         const { bBox } = this.props;
         const dropZoneX = bBox.x + ((bBox.w - lifeLine.width) / 2);
+        // if a drop-zone is defined make sure we use the height of that.
+        const dropZoneHeight = (this.props.model.viewState.components['drop-zone']) ?
+            this.props.model.viewState.components['drop-zone'].h : statement.gutter.v;
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
                                   + ((innerDropZoneDropNotAllowed) ? ' block' : '');
 
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
-
         return (<g className="compound-statement">
             <rect
                 x={dropZoneX}
                 y={bBox.y}
                 width={lifeLine.width}
-                height={statement.gutter.v}
+                height={dropZoneHeight}
                 className={dropZoneClassName}
                 {...fill}
                 onMouseOver={this.onDropZoneActivate}
