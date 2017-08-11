@@ -10,32 +10,38 @@ import ballerina.net.http.swagger;
 }
 service<http> Service9 {
 
-    @http:GET{}
-    @http:Path{value: "/pets/{id}"}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/pets/{id}",
+        produces:["application/json"]
+    }
     resource Resource1 (message m, @http:PathParam{value: "id"} string id) {
         reply m;
     }
 
-    @http:POST{}
-    @http:Path{value: "/pets/{id}"}
-    @http:Produces {value: ["application/json"]}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/pets/{id}",
+        produces:["application/json"]
+    }
     resource Resource2 (message m, @http:PathParam{value: "id"} string id) {
         reply m;
     }
 
-    @http:PUT{}
-    @http:Path{value: "/pets"}
-    @http:Produces {value: ["application/json"]}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig {
+        methods:["PUT"],
+        path:"/pets",
+        produces:["application/json"]
+    }
     resource Resource3 (message m) {
         reply m;
     }
 
-    @http:DELETE{}
-    @http:Path{value: "/pets/{id}"}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig {
+        methods:["DELETE"],
+        path:"/pets/{id}",
+        produces:["application/json"]
+    }
     resource Resource4 (message m) {
         reply m;
     }
