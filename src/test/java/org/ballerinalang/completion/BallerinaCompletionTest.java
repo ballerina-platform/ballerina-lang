@@ -639,7 +639,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testVariable2() {
-        doTest("function main(string[] args){ int a = <caret> }", "args", "main", "create", "false", "null", "true");
+        doTest("function main(string[] args){ int a = <caret> }", "args", "main", "create", "false", "null", "true",
+                "lengthof", "typeof");
     }
 
     public void testCreateKeywordAutoCompletion() {
@@ -865,7 +866,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVarDefinition() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> }",
-                "args", "main", "test", "create", "false", "null", "true");
+                "args", "main", "test", "create", "false", "null", "true", "lengthof", "typeof");
     }
 
     public void testVarDefinitionWithTraileringCode() {
@@ -877,7 +878,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test", "create");
+                "args", "main", "test", "create", "lengthof", "typeof");
     }
 
     public void testConnectorInit() {
@@ -894,7 +895,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorInitCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
         doTest("import org.test; function A(){ test:TestConnector c = <caret> }", "create", "test", "A", "false",
-                "null", "true");
+                "null", "true", "lengthof", "typeof");
     }
 
     public void testConnectorInitCreateKeywordAutoCompletion() {
@@ -917,7 +918,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorCreationCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
         doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
-                "create", "A", "test");
+                "create", "A", "test", "lengthof", "typeof");
     }
 
     public void testVariablesInitializationAfterDeclaration() {
@@ -951,12 +952,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testVariablesNoVarsAvailable() {
-        doTest("function A(){ string s1 = <caret> }", "A", "create", "false", "null", "true");
+        doTest("function A(){ string s1 = <caret> }", "A", "create", "false", "null", "true", "lengthof", "typeof");
     }
 
     public void testVariablesWhenSingleVariableAvailable() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }", "s1", "A", "create", "false", "null",
-                "true");
+                "true", "lengthof", "typeof");
     }
 
     public void testVariablesWhenSingleVariableAvailableWithPartialIdentifier() {
@@ -966,7 +967,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testVariablesWhenMultipleVariablesAvailable() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> }",
-                "s1", "s2", "A", "create", "false", "null", "true");
+                "s1", "s2", "A", "create", "false", "null", "true", "lengthof", "typeof");
     }
 
     public void testVariablesWhenMultipleVariablesAvailableAfterLeafElement() {
@@ -976,7 +977,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A", "create");
+                "s1", "s2", "A", "create", "lengthof", "typeof");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
@@ -1495,7 +1496,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorBodyVariableInitialization() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test");
+        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test", "lengthof", "typeof");
     }
 
     public void testConnectorBodyVariableInitializationCreateKeyword() {
@@ -1790,7 +1791,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testWorkerKeyword() {
-        doCheckResult("test.bal", "function test(){ worker<caret> }", "function test(){ worker {\n    \n} }", null);
+        doCheckResult("test.bal", "function test(){ worker<caret> }", "function test(){ worker  {\n    \n} }",
+                null);
     }
 
     public void testTransformKeyword() {

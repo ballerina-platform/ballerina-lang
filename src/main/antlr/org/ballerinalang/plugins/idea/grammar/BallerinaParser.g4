@@ -486,6 +486,7 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   mapStructLiteral                                                    # mapStructLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
@@ -550,8 +551,8 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   IntegerLiteral
-    |   FloatingPointLiteral
+    :   (ADD | SUB)? IntegerLiteral
+    |   (ADD | SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
@@ -561,4 +562,21 @@ simpleLiteral
 
 xmlLiteral
     :   TYPE_XML BacktickStringLiteral
+    ;
+
+stringTemplateLiteral
+    :   StringTemplateLiteralStart stringTemplateContent? StringTemplateLiteralEnd
+    ;
+
+literalType
+    :   TYPE_STRING
+    ;
+
+stringTemplateContent
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
+    |   stringTemplateText
+    ;
+
+stringTemplateText
+    :   StringTemplateText
     ;

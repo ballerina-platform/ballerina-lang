@@ -88,7 +88,8 @@
     </template>
 
     <template description='Worker Statement' id='ballerina_lang_worker' name='ballerina_lang_worker'
-              toReformat='false' toShortenFQNames='true' value='worker {&#10;    $END$&#10;}'>
+              toReformat='false' toShortenFQNames='true' value='worker $NAME$ {&#10;    $END$&#10;}'>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
@@ -212,6 +213,18 @@
               toReformat='false' toShortenFQNames='true' value='throw $EXPRESSION$;'>
         <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
+    <template description='XML Namespace Declaration Statement' id='ballerina_lang_xmlns' name='ballerina_lang_xmlns'
+              toReformat='false' toShortenFQNames='true' value='xmlns "$NAMESPACE$" as $ALIAS$;'>
+        <variable name="NAMESPACE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ALIAS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
             <option name="BALLERINA_ACTION" value="true"/>
