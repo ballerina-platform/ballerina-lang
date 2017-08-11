@@ -38,7 +38,7 @@ import javax.websocket.Session;
 /**
  * Ballerina Connector listener for WebSocket.
  */
-public class BallerinaWSServerConnectorListener implements WebSocketConnectorListener {
+public class BallerinaWebSocketConnectorListener implements WebSocketConnectorListener {
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
@@ -94,23 +94,33 @@ public class BallerinaWSServerConnectorListener implements WebSocketConnectorLis
     }
 
     private ServiceInfo findService(CarbonMessage message, WebSocketMessageContext messageContext) {
-        try {
-            String interfaceId = messageContext.getListenerInterface();
-            String serviceUri = messageContext.getTarget();
-            serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
-            if (serviceUri == null) {
-                throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
-            }
-            ServiceInfo service = WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
+        if (messageContext.isServerMessage()) {
+            try {
+                String interfaceId = messageContext.getListenerInterface();
+                String serviceUri = messageContext.getTarget();
+                serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
+                if (serviceUri == null) {
+                    throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
+                }
+                ServiceInfo service = WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
 
-            if (service == null) {
-                throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
+                if (service == null) {
+                    throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
+                }
+                return service;
+            } catch (Throwable throwable) {
+                ServerConnectorMessageHandler.handleError(message, null, throwable);
+                throw new BallerinaException("no Service found to handle the service request");
             }
-            return service;
-        } catch (Throwable throwable) {
-            ServerConnectorMessageHandler.handleError(message, null, throwable);
-            throw new BallerinaException("no Service found to handle the service request");
+        } else {
+            String clientServiceName = messageContext.getTarget();
+            ServiceInfo clientService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+            if (clientService == null) {
+                throw new BallerinaException("no client service found to handle the service request");
+            }
+            return clientService;
         }
+
     }
 
     private ResourceInfo getResource(ServiceInfo service, String annotationName) {
