@@ -448,6 +448,42 @@ function testAnyToStringWithErrors()(string, errors:TypeCastError) {
     return s, err;
 }
 
+function testAnyToStringWithoutErrors()(string, errors:TypeCastError) {
+    any a = "value";
+    string s;
+    errors:TypeCastError err;
+    s, err = (string) a;
+
+    return s, err;
+}
+
+function testAnyToIntWithoutErrors()(int, errors:TypeCastError) {
+    any a = 6;
+    int s;
+    errors:TypeCastError err;
+    s, err = (int) a;
+
+    return s, err;
+}
+
+function testAnyToFloatWithoutErrors()(float, errors:TypeCastError) {
+    any a = 6.99;
+    float s;
+    errors:TypeCastError err;
+    s, err = (float) a;
+
+    return s, err;
+}
+
+function testAnyToBooleanWithoutErrors()(boolean, errors:TypeCastError) {
+    any a = true;
+    boolean s;
+    errors:TypeCastError err;
+    s, err = (boolean) a;
+
+    return s, err;
+}
+
 function testAnyNullToStringWithErrors()(string, errors:TypeCastError) {
     any a = null; 
     string s;

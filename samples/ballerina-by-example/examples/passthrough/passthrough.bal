@@ -11,8 +11,7 @@ service<http> passthrough {
         //Extract request method from message.
         string method = http:getMethod(m);
         //Action execute() returns the response from backend service. It includes endPoint, HTTP method, resource path and message as parameters.
-        message response = http:ClientConnector
-                            .execute(endPoint, method, "/", m);
+        message response = endPoint.execute(method, "/", m);
         reply response;
     }
 }

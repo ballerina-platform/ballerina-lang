@@ -2,7 +2,7 @@ connector TestConnector(string param1) {
 
     boolean b1;
 
-    action testReplyAction(TestConnector testConnector) (boolean){
+    action testReplyAction() (boolean){
         reply b1;
     }
 }

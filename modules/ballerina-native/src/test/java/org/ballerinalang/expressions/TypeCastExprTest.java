@@ -678,6 +678,54 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'int' cannot be cast to 'string'");
     }
 
+    @Test (description = "Test any to string casting happens without errors, error struct should be null")
+    public void testAnyToStringWithoutErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToStringWithoutErrors", new BValue[]{});
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "value");
+
+        // check the error
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test (description = "Test any to int casting happens without errors, error struct should be null")
+    public void testAnyToIntWithoutErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToIntWithoutErrors", new BValue[]{});
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+
+        // check the error
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test (description = "Test any to float casting happens without errors, error struct should be null")
+    public void testAnyToFloatWithoutErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToFloatWithoutErrors", new BValue[]{});
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 6.99);
+
+        // check the error
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test (description = "Test any to boolean casting happens without errors, error struct should be null")
+    public void testAnyToBooleanWithoutErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToBooleanWithoutErrors", new BValue[]{});
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+
+        // check the error
+        Assert.assertNull(returns[1]);
+    }
+
     @Test
     public void testAnyNullToStringWithErrors() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
