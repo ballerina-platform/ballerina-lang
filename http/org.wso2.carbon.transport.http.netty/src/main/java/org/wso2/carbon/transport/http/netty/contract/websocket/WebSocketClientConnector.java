@@ -29,15 +29,47 @@ import javax.websocket.Session;
  */
 public interface WebSocketClientConnector {
 
+    /**
+     * Connect to the remote server.
+     *
+     * @param listener {@link WebSocketConnectorListener} to listen incoming messages.
+     * @return Session for the newly created connection.
+     * @throws ClientConnectorException if any error occurred during the handshake.
+     */
     Session connect(WebSocketConnectorListener listener) throws ClientConnectorException;
 
+    /**
+     * Connect to the remote server.
+     *
+     * @param listener {@link WebSocketConnectorListener} to listen incoming messages.
+     * @param customHeaders Custom headers for WebSocket.
+     * @return Session for the newly created connection.
+     * @throws ClientConnectorException if any error occurred during the handshake.
+     */
     Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
             throws ClientConnectorException;
 
+    /**
+     * Connect to the remote server.
+     *
+     * @param listener {@link WebSocketConnectorListener} to listen incoming messages.
+     * @param channelContext {@link WebSocketMessageContext} basically WebSocket message can be passed to this.
+     * @return Session for the newly created connection.
+     * @throws ClientConnectorException if any error occurred during the handshake.
+     */
     Session connect(WebSocketConnectorListener listener, WebSocketMessageContext channelContext)
             throws ClientConnectorException;
 
 
+    /**
+     * Connect to the remote server.
+     *
+     * @param listener {@link WebSocketConnectorListener} to listen incoming messages.
+     * @param channelContext {@link WebSocketMessageContext} basically WebSocket message can be passed to this.
+     * @param customHeaders Custom headers for WebSocket.
+     * @return Session for the newly created connection.
+     * @throws ClientConnectorException if any error occurred during the handshake.
+     */
     Session connect(WebSocketConnectorListener listener, WebSocketMessageContext channelContext,
                     Map<String, String> customHeaders) throws ClientConnectorException;
 }
