@@ -30,7 +30,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "json", "datatable");
     private static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
-    private static final List<String> OTHER_TYPES = Arrays.asList("any", "type");
+    private static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
             "worker", "transform", "transaction", "abort", "aborted", "committed", "try", "catch", "finally", "iterate",
             "while", "continue", "break", "throw");
@@ -620,7 +620,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
         doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
-                "abort", "aborted", "try", "true", "break", "iterate", "throw");
+                "abort", "aborted", "try", "true", "break", "iterate", "throw", "var");
     }
 
     public void testInvokingFunctionInDifferentFile1() {

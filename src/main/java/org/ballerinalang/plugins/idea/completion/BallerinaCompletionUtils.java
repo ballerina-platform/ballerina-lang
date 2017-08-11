@@ -91,6 +91,7 @@ public class BallerinaCompletionUtils {
 
     // Other types
     private static final LookupElementBuilder ANY;
+    private static final LookupElementBuilder VAR;
     private static final LookupElementBuilder TYPE;
 
     // Other keywords
@@ -153,6 +154,7 @@ public class BallerinaCompletionUtils {
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
         ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
+        VAR = createTypeLookupElement("var", AddSpaceInsertHandler.INSTANCE);
         TYPE = createTypeLookupElement("type", AddSpaceInsertHandler.INSTANCE);
 
         REPLY = createKeywordLookupElement("reply");
@@ -276,6 +278,7 @@ public class BallerinaCompletionUtils {
      */
     static void addOtherTypeAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(VAR, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, VALUE_TYPES_PRIORITY));
     }
 
