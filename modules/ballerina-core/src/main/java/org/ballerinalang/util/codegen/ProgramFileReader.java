@@ -1179,6 +1179,20 @@ public class ProgramFileReader {
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
         String typeDesc = typeDescCPEntry.getValue();
 
+        boolean isConstVarExpr = dataInStream.readBoolean();
+        if (isConstVarExpr) {
+            int constPkgCPIndex = dataInStream.readInt();
+            int constNameCPIndex = dataInStream.readInt();
+
+            UTF8CPEntry constPkgCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constPkgCPIndex);
+            UTF8CPEntry constNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constNameCPIndex);
+            attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkgCPEntry.getValue(), constNameCPIndex, constNameCPEntry.getValue());
+            attributeValue.setConstVarExpr(isConstVarExpr);
+            programFile.addUnresolvedAnnAttrValue(attributeValue);
+            return attributeValue;
+        }
+
         int valueCPIndex;
         switch (typeDesc) {
             case TypeSignature.SIG_ANNOTATION:

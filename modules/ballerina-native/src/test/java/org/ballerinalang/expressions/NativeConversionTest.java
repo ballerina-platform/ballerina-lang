@@ -231,9 +231,9 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct personStruct = (BStruct) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\",age:25,parent:null,info:null," + 
-                "address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72],a:null,score:0.0," + 
-                "alive:false,children:null}");
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:null, info:null, " + 
+                "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, marks:[87, 94, 72], a:null, score:0.0, " + 
+                "alive:false, children:null}");
     }
 
     @Test(description = "Test converting a map with incompatible inner array to a struct", 
@@ -266,9 +266,9 @@ public class NativeConversionTest {
     @Test
     public void testJsonToStructWithMissingFields() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToStructWithMissingFields");
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\",age:25,parent:null,info:" + 
-                "{\"status\":\"single\"},address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72]," +
-                "a:null,score:0.0,alive:false,children:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", age:25, parent:null, info:" + 
+                "{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
+                "marks:[87, 94, 72], a:null, score:0.0, alive:false, children:null}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
@@ -465,7 +465,7 @@ public class NativeConversionTest {
         Assert.assertTrue(actors instanceof BRefValueArray);
         BRefValueArray actorsArray = (BRefValueArray) actors;
         Assert.assertTrue(actorsArray.get(0) instanceof BStruct);
-        Assert.assertEquals(actorsArray.get(0).stringValue(), "{fname:\"Leonardo\",lname:\"DiCaprio\",age:35}");
+        Assert.assertEquals(actorsArray.get(0).stringValue(), "{fname:\"Leonardo\", lname:\"DiCaprio\", age:35}");
     }
 
     @Test
@@ -479,27 +479,27 @@ public class NativeConversionTest {
     public void testEmptyJSONtoStructWithDefaults() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null,blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:null}");
     }
 
     @Test
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null,blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
     }
     
     @Test
     public void testEmptyMaptoStructWithDefaults() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyMaptoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null,blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:null}");
     }
 
     @Test
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null,blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
     }
 }

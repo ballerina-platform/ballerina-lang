@@ -610,6 +610,12 @@ public class ProgramFileWriter {
     private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
                                                AnnAttributeValue attributeValue) throws IOException {
         dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
+        dataOutStream.writeBoolean(attributeValue.isConstVarExpr());
+        if (attributeValue.isConstVarExpr()) {
+            dataOutStream.writeInt(attributeValue.getConstPkgCPIndex());
+            dataOutStream.writeInt(attributeValue.getConstNameCPIndex());
+            return;
+        }
         String typeDesc = attributeValue.getTypeDesc();
         if (TypeSignature.SIG_ANNOTATION.equals(typeDesc)) {
             writeAnnAttachmentInfo(dataOutStream, attributeValue.getAnnotationAttachmentValue());

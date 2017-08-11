@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -29,16 +31,25 @@ import java.util.Arrays;
  */
 public class AnnotationAttributeValue  implements Node {
     BValue bValue;
+    SimpleVarRefExpr varRefExpr;
     AnnotationAttachment annotationValue;
     AnnotationAttributeValue[] valueArray;
     NodeLocation location;
     WhiteSpaceDescriptor whiteSpaceDescriptor;
-    SimpleTypeName type;
+    SimpleTypeName typeName;
+    BType type;
     
     public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType, NodeLocation location,
                                     WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.bValue = bValue;
-        this.type = valueType;
+        this.typeName = valueType;
+        this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    public AnnotationAttributeValue(SimpleVarRefExpr varRefExpr, NodeLocation location,
+                                    WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.varRefExpr = varRefExpr;
         this.location = location;
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
@@ -46,7 +57,7 @@ public class AnnotationAttributeValue  implements Node {
     public AnnotationAttributeValue(AnnotationAttachment annotationValue, SimpleTypeName valueType,
             NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.annotationValue = annotationValue;
-        this.type = valueType;
+        this.typeName = valueType;
         this.location = location;
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
@@ -54,7 +65,7 @@ public class AnnotationAttributeValue  implements Node {
     public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray, SimpleTypeName valueType, 
             NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.valueArray = valueArray;
-        this.type = valueType;
+        this.typeName = valueType;
         this.location = location;
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
@@ -66,7 +77,11 @@ public class AnnotationAttributeValue  implements Node {
     public BValue getLiteralValue() {
         return bValue;
     }
-    
+
+    public SimpleVarRefExpr getVarRefExpr() {
+        return varRefExpr;
+    }
+
     public AnnotationAttributeValue[] getValueArray() {
         return valueArray;
     }
@@ -88,10 +103,18 @@ public class AnnotationAttributeValue  implements Node {
         return whiteSpaceDescriptor;
     }
 
-    public SimpleTypeName getType() {
+    public SimpleTypeName getTypeName() {
+        return typeName;
+    }
+
+    public BType getType() {
         return type;
     }
-    
+
+    public void setType(BType type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         if (bValue != null) {

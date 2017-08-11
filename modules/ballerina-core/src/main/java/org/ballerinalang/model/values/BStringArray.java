@@ -71,7 +71,7 @@ public class BStringArray extends BNewArray {
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(",", "[", "]");
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
         for (int i = 0; i < size; i++) {
             sj.add("\"" + values[i] + "\"");
         }

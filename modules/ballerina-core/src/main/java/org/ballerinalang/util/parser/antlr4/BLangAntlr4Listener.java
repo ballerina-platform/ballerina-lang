@@ -1096,6 +1096,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
         if (childContext instanceof SimpleLiteralContext) {
             modelBuilder.createLiteralTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        } else if (childContext instanceof NameReferenceContext) {
+            modelBuilder.createNameReferenceTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    nameReferenceStack.pop());
         } else if (childContext instanceof AnnotationAttachmentContext) {
             modelBuilder.createAnnotationTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
         } else if (childContext instanceof AnnotationAttributeArrayContext) {

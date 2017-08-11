@@ -31,6 +31,11 @@ public class AnnAttributeValue {
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
+    private boolean constVarExpr = false;
+    private int constPkgCPIndex;
+    private String constPkg;
+    private int constNameCPIndex;
+    private String constName;
 
     private AnnAttachmentInfo annotationAttachmentValue;
 
@@ -51,6 +56,16 @@ public class AnnAttributeValue {
         this.typeDescCPIndex = typeDescCPIndex;
         this.typeDesc = typeDesc;
         this.attributeValueArray = attributeValueArray;
+    }
+
+    public AnnAttributeValue(int typeDescCPIndex, String typeDesc, int constPkgCPIndex, String constPkg,
+                             int constNameCPIndex, String constName) {
+        this.typeDescCPIndex = typeDescCPIndex;
+        this.typeDesc = typeDesc;
+        this.constPkgCPIndex = constPkgCPIndex;
+        this.constPkg = constPkg;
+        this.constNameCPIndex = constNameCPIndex;
+        this.constName = constName;
     }
 
     public int getTypeDescCPIndex() {
@@ -101,6 +116,30 @@ public class AnnAttributeValue {
         this.booleanValue = booleanValue;
     }
 
+    public boolean isConstVarExpr() {
+        return constVarExpr;
+    }
+
+    public void setConstVarExpr(boolean constVarExpr) {
+        this.constVarExpr = constVarExpr;
+    }
+
+    public int getConstPkgCPIndex() {
+        return constPkgCPIndex;
+    }
+
+    public String getConstPkg() {
+        return constPkg;
+    }
+
+    public int getConstNameCPIndex() {
+        return constNameCPIndex;
+    }
+
+    public String getConstName() {
+        return constName;
+    }
+
     public AnnAttachmentInfo getAnnotationAttachmentValue() {
         return annotationAttachmentValue;
     }
@@ -108,4 +147,5 @@ public class AnnAttributeValue {
     public AnnAttributeValue[] getAttributeValueArray() {
         return attributeValueArray;
     }
+
 }
