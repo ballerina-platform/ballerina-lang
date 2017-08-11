@@ -20,6 +20,6 @@ function main (string[] args) {
     int[] a = [9];
     aa[0] = a;
 
-    // Print the first value of three dimensional array.
+    // Print the first value of two dimensional array.
     system:println(xx[0][0]);
 }
