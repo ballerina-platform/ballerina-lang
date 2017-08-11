@@ -145,6 +145,7 @@ class TransformRender {
  * This does not remove the associated children from the model
  */
     disconnectAll(connection) {
+        this.midpoint = 0.1;
         this.jsPlumbInstance.detachEveryConnection();
     }
 
@@ -429,6 +430,8 @@ class TransformRender {
 
 
     addConnection(sourceId, targetId) {
+        this.midpoint += this.midpointVariance;
+        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.connect({
             source: sourceId,
             target: targetId,
