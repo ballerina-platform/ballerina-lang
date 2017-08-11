@@ -21,6 +21,7 @@ package org.ballerinalang.services.dispatchers.http;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -58,12 +60,10 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
+            } else {
+                handleOptionsRequest(cMsg, service, callback);
+                return null;
             }
-            processImplicitHeaders(service, method, cMsg);
-            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-            throw new BallerinaException("no matching resource found for path : "
-                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
-
         } catch (UnsupportedEncodingException | URITemplateException e) {
             throw new BallerinaException(e.getMessage());
         }
@@ -84,9 +84,29 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         return subPath;
     }
 
-    private void processImplicitHeaders(ServiceInfo service, String method, CarbonMessage cMsg) {
+    private static void handleOptionsRequest(CarbonMessage cMsg, ServiceInfo service, CarbonCallback callback)
+            throws URITemplateException {
+        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            service.getResourceInfoEntries();
+            DefaultCarbonMessage response = new DefaultCarbonMessage();
+            if (cMsg.getHeader(Constants.ALLOW) != null) {
+                response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
+            } else if (URIUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
+                if (!service.getCachedMethods().isEmpty()) {
+                    response.setHeader(Constants.ALLOW, URIUtil.concatValues(service.getCachedMethods()));
+                }
+            } else {
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                throw new BallerinaException("no matching resource found");
+            }
+            response.setProperty(Constants.HTTP_STATUS_CODE, 200);
+            response.setEndOfMsgAdded(true);
+            callback.done(response);
+            return;
+        } else {
+            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+            throw new BallerinaException("no matching resource found for path : "
+                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
         }
     }
 }

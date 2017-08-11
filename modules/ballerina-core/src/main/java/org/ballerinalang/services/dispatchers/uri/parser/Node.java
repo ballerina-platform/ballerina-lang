@@ -19,6 +19,7 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -113,6 +114,9 @@ public abstract class Node {
             return null;
         }
         ResourceInfo resource = validateHTTPMethod(this.resource, carbonMessage);
+        if (resource == null) {
+            return null;
+        }
         validateConsumes(resource, carbonMessage);
         validateProduces(resource, carbonMessage);
         return resource;
@@ -120,6 +124,7 @@ public abstract class Node {
 
     private ResourceInfo validateHTTPMethod(List<ResourceInfo> resources, CarbonMessage carbonMessage) {
         ResourceInfo resource = null;
+        boolean isOptionsRequest = false;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : resources) {
             if (resourceInfo.isMatchingMethodExist(httpMethod)) {
@@ -130,11 +135,17 @@ public abstract class Node {
         if (resource == null) {
             resource = tryMatchingToDefaultVerb(httpMethod);
         }
-        if (resource == null && !httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
-            throw new BallerinaException();
-        } else if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            return null;
+        if (resource == null) {
+            isOptionsRequest = tryMatchingWithOPTIONS(httpMethod, carbonMessage);
+        }
+        if (resource == null) {
+            if (!isOptionsRequest) {
+                carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
+                carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+                throw new BallerinaException();
+            } else {
+                return null;
+            }
         }
         return resource;
     }
@@ -239,10 +250,24 @@ public abstract class Node {
         return null;
     }
 
-    public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
-        if (this.resource == null) {
-            return null;
+    private boolean tryMatchingWithOPTIONS(String httpMethod, CarbonMessage carbonMessage) {
+        if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
+            carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+            return true;
         }
+        return false;
+    }
+
+    private String getAllowHeaderValues() {
+        List<String> methods = new ArrayList<>();
+        for (ResourceInfo resourceInfo : this.resource) {
+            methods.addAll(Arrays.stream(resourceInfo.getHttpMethods()).collect(Collectors.toList()));
+        }
+        URIUtil.validateAllowMethods(methods);
+        return URIUtil.concatValues(methods);
+    }
+
+    public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
         String[] consumesList  = resource.getConsumesList();
@@ -276,9 +301,6 @@ public abstract class Node {
     }
 
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
-        if (this.resource == null) {
-            return null;
-        }
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
         String[] producesList = resource.getProducesList();

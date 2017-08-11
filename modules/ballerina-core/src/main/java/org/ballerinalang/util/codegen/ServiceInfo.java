@@ -19,11 +19,15 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.services.dispatchers.uri.URITemplate;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.services.dispatchers.uri.parser.Literal;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,6 +42,7 @@ public class ServiceInfo extends StructureTypeInfo {
     private String protocolPkgPath;
 
     private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    private List<String> cachedMethods = new ArrayList();
 
     private FunctionInfo initFuncInfo;
     private URITemplate uriTemplate;
@@ -112,4 +117,20 @@ public class ServiceInfo extends StructureTypeInfo {
         return uriTemplate;
     }
 
+    public void setCachedMethods() {
+        for (Map.Entry entry : resourceInfoMap.entrySet()) {
+            ResourceInfo resource = (ResourceInfo) entry.getValue();
+            if (resource.getHttpMethods() == null) {
+                cachedMethods = URIUtil.addAllMethods();
+                break;
+            } else {
+                cachedMethods.addAll(Arrays.asList(resource.getHttpMethods()));
+            }
+        }
+        cachedMethods = URIUtil.validateAllowMethods(cachedMethods);
+    }
+
+    public List<String> getCachedMethods() {
+        return cachedMethods;
+    }
 }

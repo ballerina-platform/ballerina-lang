@@ -140,10 +140,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 throw new BallerinaException(e.getMessage());
             }
         }
-
-        String basePath = getServiceBasePath(service);
+        String basePath = URIUtil.getServiceBasePath(service);
         sortedServiceURIs.add(basePath);
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+        service.setCachedMethods();
     }
 
     private String[] getStringArray(AnnAttributeValue[] annAttributeValues) {
@@ -158,7 +158,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceUnregistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().unregisterService(service);
 
-        String basePath = getServiceBasePath(service);
+        String basePath = URIUtil.getServiceBasePath(service);
         sortedServiceURIs.remove(basePath);
     }
 
@@ -184,25 +184,5 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             return Constants.DEFAULT_BASE_PATH;
         }
         return null;
-    }
-
-    private String getServiceBasePath(ServiceInfo service) {
-        String basePath = service.getName();
-        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
-
-        if (annotationInfo != null) {
-            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
-                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
-            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
-                    !annAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annAttributeValue.getStringValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-        return basePath;
     }
 }
