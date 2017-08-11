@@ -87,12 +87,12 @@ class SwaggerParser {
                     // methods.
                     if (_.isNil(existingResource)) {
                         existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
-                            const httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+                            const httpMethods = resourceDefinition.getHttpMethodValues();
                             const pathValue = resourceDefinition.getPathAnnotationValue();
-                            return !_.isNil(httpMethodAnnotation) && !_.isNil(pathValue) &&
+                            return httpMethods.length > 0 && !_.isNil(pathValue) &&
                                 _.isEqual(pathString, pathValue.replace(/"/g, ''))
                                  &&
-                                _.isEqual(httpMethodAsString, httpMethodAnnotation.getName().toLowerCase());
+                                _.isEqual(httpMethodAsString, httpMethods[0].toLowerCase());
                         });
                         // if operationId exists set it as resource name.
                         if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
@@ -362,7 +362,7 @@ class SwaggerParser {
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const serviceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
             SWAGGER_PACKAGE, 'ServiceInfo');
-        serviceDefinition.addChild(serviceInfoAnnotation, serviceInfoAnnotationIndex);
+        serviceDefinition.addChild(serviceInfoAnnotation, serviceInfoAnnotationIndex, true, true);
     }
 
     /**
@@ -423,7 +423,7 @@ class SwaggerParser {
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const serviceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
             SWAGGER_PACKAGE, 'ServiceConfig');
-        serviceDefinition.addChild(serviceConfigAnnotation, serviceConfigAnnotationIndex);
+        serviceDefinition.addChild(serviceConfigAnnotation, serviceConfigAnnotationIndex, true, true);
     }
 
     /**
@@ -434,14 +434,9 @@ class SwaggerParser {
      * @param {object} httpMethodJsonObject The http method object of the swagger json.
      */
     mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
-        // Creating @Path annotation.
-        this.createPathAnnotation(resourceDefinition, pathString);
-        // Creating the http method annotation.
-        this.createHttpMethodAnnotation(resourceDefinition, httpMethodAsString);
-        // Creating @Consumes annotation.
-        this.createConsumesAnnotation(resourceDefinition, httpMethodJsonObject.consumes);
-        // Creating @Produces annotation.
-        this.createProducesAnnotation(resourceDefinition, httpMethodJsonObject.produces);
+        // Creating @http:resourceConfig annotation.
+        this.createHttpResourceConfigAnnotation(resourceDefinition, pathString, httpMethodAsString,
+            httpMethodJsonObject);
         // Creating @ResourceConfig annotation.
         this.createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
         // Creating parameter definitions for the resource definition.
@@ -461,43 +456,42 @@ class SwaggerParser {
      * @param {stringany} pathString The path value.
      * @memberof SwaggerParser
      */
-    createPathAnnotation(resourceDefinition, pathString) {
-        const pathAnnotation = ASTFactory.createAnnotationAttachment({
+    createHttpResourceConfigAnnotation(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
+        const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
             fullPackageName: HTTP_FULL_PACKAGE,
             packageName: HTTP_PACKAGE,
-            name: 'Path',
+            name: 'resourceConfig',
         });
+
+        const httpMethodsBValues = [];
+        httpMethodsBValues.push(ASTFactory.createBValue({ stringValue: httpMethodAsString.toUpperCase() }));
+        SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'methods', httpMethodsBValues);
 
         if (!_.isNil(pathString)) {
             const pathBValue = ASTFactory.createBValue({ stringValue: pathString });
-            SwaggerParser.setAnnotationAttribute(pathAnnotation, 'value', pathBValue);
+            SwaggerParser.setAnnotationAttribute(resourceConfigAnnotation, 'path', pathBValue);
+        }
+
+        if (!_.isNil(httpMethodJsonObject.produces)) {
+            const producesBValues = [];
+            httpMethodJsonObject.produces.forEach((produceEntry) => {
+                producesBValues.push(ASTFactory.createBValue({ stringValue: produceEntry }));
+            });
+            SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'produces', producesBValues);
+        }
+
+        if (!_.isNil(httpMethodJsonObject.consumes)) {
+            const consumeBValues = [];
+            httpMethodJsonObject.consumes.forEach((consumeEntry) => {
+                consumeBValues.push(ASTFactory.createBValue({ stringValue: consumeEntry }));
+            });
+            SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'consumes', consumeBValues);
         }
 
         const resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
-        const pathAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
-            HTTP_PACKAGE, 'Path');
-        resourceDefinition.addChild(pathAnnotation, pathAnnotationIndex);
-    }
-
-    /**
-     * Creates or updates the http method for the resource definition.
-     *
-     * @param {ResourceDefinition} resourceDefinition The resource defintion to be updated.
-     * @param {string} httpMethodAsString The http method.
-     * @memberof SwaggerParser
-     */
-    createHttpMethodAnnotation(resourceDefinition, httpMethodAsString) {
-        const methodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-        if (!_.isNil(methodAnnotation)) {
-            methodAnnotation.setName(httpMethodAsString.toUpperCase());
-        } else {
-            const httpMethodAnnotation = ASTFactory.createAnnotationAttachment({
-                fullPackageName: HTTP_FULL_PACKAGE,
-                packageName: HTTP_PACKAGE,
-                name: httpMethodAsString,
-            });
-            resourceDefinition.addChild(httpMethodAnnotation);
-        }
+        const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+            HTTP_PACKAGE, 'resourceConfig');
+        resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex, true, true);
     }
 
     /**
@@ -570,8 +564,9 @@ class SwaggerParser {
                         paramAnnotation.setName('PathParam');
                     }
 
-                    newParameterDefinition.addChild(paramAnnotation);
-                    resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
+                    newParameterDefinition.addChild(paramAnnotation, undefined, true, true);
+                    resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition,
+                        undefined, true, true);
                 }
             });
         }
@@ -656,7 +651,7 @@ class SwaggerParser {
                 resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
             const parametersInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
                 SWAGGER_PACKAGE, 'ParametersInfo');
-            resourceDefinition.addChild(parametersInfoAnnotation, parametersInfoAnnotationIndex);
+            resourceDefinition.addChild(parametersInfoAnnotation, parametersInfoAnnotationIndex, true, true);
         }
     }
 
@@ -719,7 +714,7 @@ class SwaggerParser {
             resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const resourceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
             SWAGGER_PACKAGE, 'ResourceInfo');
-        resourceDefinition.addChild(resourceInfoAnnotation, resourceInfoAnnotationIndex);
+        resourceDefinition.addChild(resourceInfoAnnotation, resourceInfoAnnotationIndex, true, true);
     }
 
     /**
@@ -764,7 +759,7 @@ class SwaggerParser {
                 resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
             const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
                                                                                         SWAGGER_PACKAGE, 'Responses');
-            resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex);
+            resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex, true, true);
         }
     }
 
@@ -804,7 +799,7 @@ class SwaggerParser {
             if (_.isEqual(existingAnnotation.getPackageName(), annotationPackage) &&
                 _.isEqual(existingAnnotation.getName(), annotationIdentifier)) {
                 removedChildIndex = existingAnnotation.getParent().getIndexOfChild(existingAnnotation);
-                existingAnnotation.getParent().removeChild(existingAnnotation);
+                existingAnnotation.getParent().removeChild(existingAnnotation, true);
                 return false;
             }
 
@@ -833,7 +828,7 @@ class SwaggerParser {
         });
 
         if (matchingAttachments.length > 0) {
-            matchingAttachments[0].removeAllChildren();
+            matchingAttachments[0].removeAllChildren(true);
             return matchingAttachments[0];
         } else {
             const newAnnotation = ASTFactory.createAnnotationAttachment({
@@ -841,7 +836,7 @@ class SwaggerParser {
                 packageName,
                 name,
             });
-            astNode.addChild(newAnnotation);
+            astNode.addChild(newAnnotation, undefined, true, true);
             return newAnnotation;
         }
     }
@@ -863,14 +858,14 @@ class SwaggerParser {
 
         if (matchingAttributes.length > 0) {
             const attributeValue = matchingAttributes[0].getValue();
-            attributeValue.removeAllChildren();
-            attributeValue.addChild(valueAST);
+            attributeValue.removeAllChildren(true);
+            attributeValue.addChild(valueAST, undefined, true, true);
         } else {
             const value = ASTFactory.createAnnotationAttributeValue();
-            value.addChild(valueAST);
+            value.addChild(valueAST, undefined, true, true);
             const attribute = ASTFactory.createAnnotationAttribute({ key });
-            attribute.addChild(value);
-            annotationAttachment.addChild(attribute);
+            attribute.addChild(value, undefined, true, true);
+            annotationAttachment.addChild(attribute, undefined, true, true);
         }
     }
 
@@ -893,24 +888,24 @@ class SwaggerParser {
         if (matchingAttributes.length > 0) {
             const attributeValue = matchingAttributes[0].getValue();
             // Removing existing array elements.
-            attributeValue.removeAllChildren();
+            attributeValue.removeAllChildren(true);
 
             astNodes.forEach((ast) => {
                 const arrayItem = ASTFactory.createAnnotationAttributeValue();
-                arrayItem.addChild(ast);
-                attributeValue.addChild(arrayItem);
+                arrayItem.addChild(ast, undefined, true, true);
+                attributeValue.addChild(arrayItem, undefined, true, true);
             });
         } else {
             const value = ASTFactory.createAnnotationAttributeValue();
             astNodes.forEach((ast) => {
                 const arrayItem = ASTFactory.createAnnotationAttributeValue();
-                arrayItem.addChild(ast);
-                value.addChild(arrayItem);
+                arrayItem.addChild(ast, undefined, true, true);
+                value.addChild(arrayItem, undefined, true, true);
             });
 
             const attribute = ASTFactory.createAnnotationAttribute({ key });
-            attribute.addChild(value);
-            annotationAttachment.addChild(attribute);
+            attribute.addChild(value, undefined, true, true);
+            annotationAttachment.addChild(attribute, undefined, true, true);
         }
     }
 }

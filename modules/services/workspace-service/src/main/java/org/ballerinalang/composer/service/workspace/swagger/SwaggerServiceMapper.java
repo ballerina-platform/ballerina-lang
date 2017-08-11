@@ -91,7 +91,7 @@ public class SwaggerServiceMapper {
         this.parseServiceConfigAnnotationAttachment(service, swagger);
         this.parseConfigAnnotationAttachment(service, swagger);
         
-        SwaggerResourceMapper resourceMapper = new SwaggerResourceMapper();
+        SwaggerResourceMapper resourceMapper = new SwaggerResourceMapper(swagger);
         swagger.setPaths(resourceMapper.convertResourceToPath(service.getResources()));
         return swagger;
     }
@@ -231,8 +231,8 @@ public class SwaggerServiceMapper {
             this.createContactModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("contact"), info);
             this.createLicenseModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("license"), info);
     
-            this.createExternalDocsModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs()
-                    .get("externalDocs"), swagger);
+            this.createExternalDocModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs()
+                    .get("externalDoc"), swagger);
             this.createTagModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("tags"), swagger);
             this.createOrganizationModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("organization"),
                     info);
@@ -322,7 +322,7 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The ballerina annotation attribute value for external docs.
      * @param swagger The swagger definition which the external docs needs to be build on.
      */
-    private void createExternalDocsModel(AnnotationAttributeValue annotationAttributeValue, Swagger swagger) {
+    private void createExternalDocModel(AnnotationAttributeValue annotationAttributeValue, Swagger swagger) {
         if (null != annotationAttributeValue) {
             AnnotationAttachment externalDocAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
             ExternalDocs externalDocs = new ExternalDocs();
@@ -408,11 +408,6 @@ public class SwaggerServiceMapper {
                         .getLiteralValue().stringValue() + ":" +
                                 httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("port")
                         .getLiteralValue().stringValue());
-            }
-            if (null != httpConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("version") &&
-                                                                                        null != swagger.getInfo()) {
-                swagger.getInfo().setVersion(httpConfigAnnotationAttachment.get().getAttributeNameValuePairs()
-                        .get("version").getLiteralValue().stringValue());
             }
         }
     

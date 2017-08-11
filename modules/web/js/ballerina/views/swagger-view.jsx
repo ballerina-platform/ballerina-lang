@@ -309,6 +309,12 @@ class SwaggerView extends React.Component {
                                             this.context.editor.setActiveView(DESIGN_VIEW);
                                         }
                                         this.props.resetSwaggerViewFun();
+                                        this.context.astRoot.trigger('tree-modified', {
+                                            origin: this.context.astRoot,
+                                            type: 'swagger',
+                                            title: 'Modify Swagger Definition',
+                                            context: this.context.astRoot,
+                                        });
                                     }
                                 }
                         >
@@ -331,6 +337,12 @@ class SwaggerView extends React.Component {
                                             this.context.editor.setActiveView(SOURCE_VIEW);
                                         }
                                         this.props.resetSwaggerViewFun();
+                                        this.context.astRoot.trigger('tree-modified', {
+                                            origin: this.context.astRoot,
+                                            type: 'swagger',
+                                            title: 'Modify Swagger Definition',
+                                            context: this.context.astRoot,
+                                        });
                                     }
                                 }
                         >
