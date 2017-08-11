@@ -139,6 +139,7 @@ import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -452,14 +453,11 @@ public class CodeGenerator implements NodeVisitor {
 
             BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
             structInfo.setType(structType);
-
         }
 
         for (StructDef structDef : structDefs) {
             StructInfo structInfo = currentPkgInfo.getStructInfo(structDef.getName());
-
             VariableDefStmt[] fieldDefStmts = structDef.getFieldDefStmts();
-
             BStructType.StructField[] structFields = new BStructType.StructField[fieldDefStmts.length];
             for (int i = 0; i < fieldDefStmts.length; i++) {
                 VariableDefStmt fieldDefStmt = fieldDefStmts[i];
@@ -474,9 +472,18 @@ public class CodeGenerator implements NodeVisitor {
                 String fieldTypeSig = fieldDef.getType().getSig().toString();
                 UTF8CPEntry sigUTF8Entry = new UTF8CPEntry(fieldTypeSig);
                 int sigCPIndex = currentPkgInfo.addCPEntry(sigUTF8Entry);
+
                 StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldDef.getName(),
                         sigCPIndex, fieldTypeSig);
                 structFieldInfo.setFieldType(fieldType);
+
+                // Populate default values
+                Expression defaultValExpr = fieldDefStmt.getRExpr();
+                if (defaultValExpr != null) {
+                    DefaultValueAttributeInfo defaultVal = getStructFieldDefaultValue(defaultValExpr);
+                    structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+                }
+
                 structInfo.addFieldInfo(structFieldInfo);
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
@@ -1203,8 +1210,8 @@ public class CodeGenerator implements NodeVisitor {
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
 
         //retry transaction
-        Instruction ifInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
-        emit(ifInstruction);
+        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
+        emit(retryInstruction);
 
         //process transaction statements
         transactionStmt.getTransactionBlock().accept(this);
@@ -1240,7 +1247,7 @@ public class CodeGenerator implements NodeVisitor {
         }
         emit(gotoInstruction);
         int ifIP = nextIP();
-        ifInstruction.setOperand(1, ifIP);
+        retryInstruction.setOperand(1, ifIP);
         if (transactionStmt.getAbortedBlock() != null) {
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
         }
@@ -3437,6 +3444,47 @@ public class CodeGenerator implements NodeVisitor {
                     prefixLiteral.getTempOffset(), qnameRegIndex);
             emit(InstructionCodes.XMLATTRSTORE, xmlVarRegIndex, qnameRegIndex, valueLiteral.getTempOffset());
         }
+    }
+
+    private DefaultValueAttributeInfo getStructFieldDefaultValue(Expression defaultValueExpr) {
+        BasicLiteral defaultValLiteral = (BasicLiteral) defaultValueExpr;
+        String typeDesc = defaultValueExpr.getType().getSig().toString();
+        UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+        int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+        StructFieldDefaultValue defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+
+        int valueCPIndex;
+        int typeTag = defaultValueExpr.getType().getTag();
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                long intValue = defaultValLiteral.getBValue().intValue();
+                defaultValue.setIntValue(intValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(intValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.FLOAT_TAG:
+                double floatValue = defaultValLiteral.getBValue().floatValue();
+                defaultValue.setFloatValue(floatValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(floatValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.STRING_TAG:
+                String stringValue = defaultValLiteral.getBValue().stringValue();
+                defaultValue.setStringValue(stringValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(stringValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                boolean boolValue = defaultValLiteral.getBValue().booleanValue();
+                defaultValue.setBooleanValue(boolValue);
+                break;
+        }
+
+        UTF8CPEntry defaultValueAttribUTF8CPEntry =
+                new UTF8CPEntry(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE.toString());
+        int defaultValueAttribNameIndex = currentPkgInfo.addCPEntry(defaultValueAttribUTF8CPEntry);
+
+        return new DefaultValueAttributeInfo(defaultValueAttribNameIndex, defaultValue);
     }
 
     /**

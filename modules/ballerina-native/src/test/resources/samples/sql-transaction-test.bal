@@ -7,9 +7,9 @@ struct ResultCount {
 }
 
 function testLocalTransacton () (int returnVal, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -36,9 +36,9 @@ function testLocalTransacton () (int returnVal, int count) {
 }
 
 function testTransactonRollback () (int returnVal, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     try {
@@ -67,9 +67,9 @@ function testTransactonRollback () (int returnVal, int count) {
 }
 
 function testTransactonAbort () (int returnVal, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -101,9 +101,9 @@ function testTransactonAbort () (int returnVal, int count) {
 }
 
 function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal = 0;
     catchValue = 0;
     sql:Parameter[] parameters = [];
@@ -135,9 +135,9 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
 }
 
 function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal = 0;
     catchValue = 0;
     sql:Parameter[] parameters = [];
@@ -171,9 +171,9 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
 }
 
 function testTransactonCommitted () (int returnVal, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -198,9 +198,9 @@ function testTransactonCommitted () (int returnVal, int count) {
 }
 
 function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     returnVal1 = 0;
     returnVal2 = 0;
     sql:Parameter[] parameters = [];
@@ -242,9 +242,9 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
 }
 
 function testTransactonWithoutHandlers () (int count) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     sql:Parameter[] parameters = [];
     transaction {
         testDB.update("Insert into Customers
@@ -268,9 +268,9 @@ function testTransactonWithoutHandlers () (int count) {
 }
 
 function testLocalTransactionFailed () (string, int) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
     sql:Parameter[] parameters = [];
     string a = "beforetx";
     int count = -1;
@@ -308,9 +308,9 @@ function testLocalTransactionFailed () (string, int) {
 }
 
 function testLocalTransactonSuccessWithFailed () (string, int) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                        "TEST_SQL_CONNECTOR", "SA", "", properties);
     sql:Parameter[] parameters = [];
     string a = "beforetx";
     int count = -1;
@@ -343,8 +343,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
-                        registrationID = 222", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:next(dt);

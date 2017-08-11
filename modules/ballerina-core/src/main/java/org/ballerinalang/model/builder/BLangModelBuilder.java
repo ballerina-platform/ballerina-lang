@@ -199,8 +199,8 @@ public class BLangModelBuilder {
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     protected SymbolScope packageScope = null;
 
-    // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
-    protected SymbolScope forkJoinScope = null;
+    // This variable stack keeps the fork-join scope when adding workers and resolve back to current scope once done
+    protected Stack<SymbolScope> forkJoinScopeStack = new Stack<>();
 
     // This variable keeps the current scope when adding workers and resolve back to current scope once done
     protected Stack<SymbolScope> workerOuterBlockScope = new Stack<>();
@@ -1056,7 +1056,7 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(currentScope.getEnclosingScope());
         //setting workerOuterBlockScope if it is not a fork join statement
-        if (forkJoinScope == null) {
+        if (forkJoinScopeStack.empty()) {
             workerOuterBlockScope.push(currentScope);
         }
         currentScope = currentCUBuilder.getCurrentScope();
@@ -1144,7 +1144,7 @@ public class BLangModelBuilder {
             currentScope = workerOuterBlockScope.pop();
         } else {
             workerStack.peek().add(worker);
-            currentScope = forkJoinScope;
+            currentScope = forkJoinScopeStack.peek();
         }
 
         currentCUBuilder = parentCUBuilder.pop();
@@ -1602,7 +1602,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
-        forkJoinScope = currentScope;
+        forkJoinScopeStack.push(currentScope);
         workerStack.push(new ArrayList<>());
     }
 
@@ -1769,6 +1769,7 @@ public class BLangModelBuilder {
         }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
+        forkJoinScopeStack.pop();
 
     }
 
@@ -2166,25 +2167,31 @@ public class BLangModelBuilder {
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof AssignStmt) {
-                for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
+                AssignStmt assignStmt = (AssignStmt) statement;
+                for (Expression lExpr : assignStmt.getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (Expression exp : varRefExpressions) {
                         String varName = ((SimpleVarRefExpr) exp).getVarName();
-                        if (inputs.get(varName) == null) {
-                            //if variable has not been used as an input before
-                            if (outputs.get(varName) == null) {
-                                List<Statement> stmtList = new ArrayList<>();
-                                stmtList.add(statement);
-                                outputs.put(varName, exp);
+                        if (!assignStmt.isDeclaredWithVar()) {
+                            // if lhs is declared with var, they not considered as output variables since they are
+                            // only available in transform statement scope
+                            if (inputs.get(varName) == null) {
+                                //if variable has not been used as an input before
+                                if (outputs.get(varName) == null) {
+                                    List<Statement> stmtList = new ArrayList<>();
+                                    stmtList.add(statement);
+                                    outputs.put(varName, exp);
+                                }
+                            } else {
+                                String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                     SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT,
+                                                                                            statement);
+                                errorMsgs.add(errMsg);
                             }
-                        } else {
-                            String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                  SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
-                            errorMsgs.add(errMsg);
                         }
                     }
                 }
-                Expression rExpr = ((AssignStmt) statement).getRExpr();
+                Expression rExpr = assignStmt.getRExpr();
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
                     String varName = ((SimpleVarRefExpr) exp).getVarName();

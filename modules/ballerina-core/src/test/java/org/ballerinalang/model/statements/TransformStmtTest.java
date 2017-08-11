@@ -71,4 +71,20 @@ public class TransformStmtTest {
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
+
+    @Test(description = "Test one to one simple transformation with var for temporary variables")
+    public void testVarInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "varInTransform");
+
+        Assert.assertEquals(returns.length, 3);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Mr.John");
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "London");
+    }
 }

@@ -243,7 +243,7 @@ transformStatementBody
     ;
 
 expressionAssignmentStatement
-    :   variableReferenceList ASSIGN expression SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
     ;
 
 expressionVariableDefinitionStatement
