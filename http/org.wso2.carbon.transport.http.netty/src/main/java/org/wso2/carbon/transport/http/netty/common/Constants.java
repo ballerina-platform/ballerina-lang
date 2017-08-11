@@ -224,6 +224,7 @@ public final class Constants {
     public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
     public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
     public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
+    public static final String WEBSOCKET_MESSAGE_CONTEXT = "WEBSOCKET_MESSAGE_CONTEXT";
     public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
 
 
