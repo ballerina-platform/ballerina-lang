@@ -22,8 +22,8 @@ under the License.
 <suite name="ballerina-launcher-test-suite">
     <!-- Parser Level Test Cases -->
     <test name="ballerina-launcher-test-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.launcher.LauncherTest"/>
-        </classes>
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.launcher.LauncherTest"/>-->
+        <!--</classes>-->
     </test>
 </suite>

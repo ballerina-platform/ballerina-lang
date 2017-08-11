@@ -1,7 +1,7 @@
 package sample.message_transformation.data_mapping;
 
-import ballerina.lang.message;
-import ballerina.lang.json;
+import ballerina.lang.messages;
+import ballerina.lang.jsons;
 
 @Path ("/transform")
 @Source (interface = "default_http_listener")
@@ -13,7 +13,7 @@ service transformService {
 	    json<Person> in;
 	    json<Driver> out;
 	    in = m:getPayload(m);
-	    //here type converter kicks in
+	    //here type mapper kicks in
 	    out  = (json<Driver>)in;
 	    m:setPayload(out);
 	    reply m;

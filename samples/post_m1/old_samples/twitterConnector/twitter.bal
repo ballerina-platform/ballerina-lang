@@ -14,9 +14,9 @@ function init(TwitterConnector t) throws exception {
     }
 
     loginMessage = new message;
-    message:setPayload(loginMessage, loginReq);
+    messages:setPayload(loginMessage, loginReq);
     response = http:post(twitterEP, "/token", loginMessage);
-    t.oAuthToken = json:get(message:getPayload(response), "$.oAuthToken");
+    t.oAuthToken = jsons:get(messages:getPayload(response), "$.oAuthToken");
 }
 
 connector Twitter(string username, string password,
@@ -35,8 +35,8 @@ connector Twitter(string username, string password,
         }
         tweetJson = `{"message" : "$tweet"}`;
         tweetMsg = new message;
-        message:setPayload(tweetMsg, tweetJson);
-        message:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
+        messages:setPayload(tweetMsg, tweetJson);
+        messages:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
         http:ClientConnector.post(h, "/tweet", tweetMsg);
     }
 

@@ -1,9 +1,9 @@
 function testMultiReturn() (int, string, int) {
-    int a;
-    string name;
-    int b;
+    //int a;
+    //string name;
+    //int b;
 
-    a, name, name = testMultiReturnInternal();
+    var a, name, name = testMultiReturnInternal();
     return a, name, b;
 }
 

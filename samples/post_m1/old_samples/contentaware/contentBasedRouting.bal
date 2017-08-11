@@ -1,8 +1,8 @@
 package samples.contentaware;
 
 import ballerina.net.http;
-import ballerina.lang.json;
-import ballerina.lang.message;
+import ballerina.lang.jsons;
+import ballerina.lang.messages;
 
 @BasePath ("/stock")
 @Service(title = "Content Based Routing Service", description = "Routing a message based on the content")
@@ -19,17 +19,17 @@ service ContentBasedRouteService {
       message response;
       json jsonMsg;
       json errorMsg;
-      jsonMsg = json:getPayload(m);
+      jsonMsg = jsons:getPayload(m);
       try {
-          if (json:get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
+          if (jsons:get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
               response = http:sendPost(nyseEP, m);
           } else {
               response = http:sendPost(nasdaqEP, m);
           }
       } catch (exception e) {
          errorMsg = `{"error" : "Error while sending to backend"}`;
-         message:setPayload(response, errorMsg);
-         message:setHeader(response, "Status", 500);
+         messages:setPayload(response, errorMsg);
+         messages:setHeader(response, "Status", 500);
       }
       reply response;
   }

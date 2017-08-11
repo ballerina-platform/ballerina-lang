@@ -16,13 +16,12 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.ballerina</groupId>
-        <artifactId>ballerina</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-parent</artifactId>
+        <version>0.91.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -30,8 +29,8 @@
     <artifactId>ballerina-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>WSO2 Ballerina - Core</name>
-    <url>http://wso2.org</url>
+    <name>Ballerina - Core</name>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>
@@ -41,6 +40,10 @@
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.jms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
@@ -61,6 +64,14 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
@@ -69,12 +80,8 @@
             <artifactId>Saxon-HE</artifactId>
           </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
@@ -85,16 +92,16 @@
             <artifactId>axiom-impl</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-dom</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
-            <artifactId>tapestry-json</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -115,6 +122,18 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.atomikos.wso2</groupId>
+            <artifactId>atomikos</artifactId>
         </dependency>
     </dependencies>
 
@@ -154,7 +173,7 @@
                             <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
                             <haltOnFailure>true</haltOnFailure>
                             <rules>
-                                <rule >
+                                <rule>
                                     <element>BUNDLE</element>
                                     <!-- <limits>
                                         <limit >
@@ -170,13 +189,13 @@
                                     </limits> -->
                                     <excludes>
                                         <exclude>*Test</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaBaseListener*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaLexer*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaListener*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaParser*</exclude>
                                     </excludes>
                                 </rule>
@@ -221,47 +240,47 @@
                         <packageBranchRate>50</packageBranchRate>
                         <regexes>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.exception.*</pattern>
+                                <pattern>org.ballerinalang.core.exception.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.interpreter.*</pattern>
+                                <pattern>org.ballerinalang.core.interpreter.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.message.*</pattern>
+                                <pattern>org.ballerinalang.runtime.message.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.model.*</pattern>
+                                <pattern>org.ballerinalang.core.model.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.nativeimpl.*</pattern>
+                                <pattern>org.ballerinalang.core.nativeimpl.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener</pattern>
+                                <pattern>org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.runtime.*</pattern>
+                                <pattern>org.ballerinalang.runtime.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.semantics.*</pattern>
+                                <pattern>org.ballerinalang.core.semantics.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.utils.*</pattern>
+                                <pattern>org.ballerinalang.core.utils.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>

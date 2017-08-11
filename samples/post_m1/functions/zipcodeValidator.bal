@@ -1,6 +1,6 @@
 package samples.functions;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 public function validateZipCode (string country, string zipCode) (boolean) {
 

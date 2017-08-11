@@ -1,8 +1,8 @@
 package samples.message_routing.content_based_routing;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
-import ballerina.lang.json;
+import ballerina.lang.jsons;
 
 
 @BasePath ("/travelmgr")
@@ -19,17 +19,17 @@ service TravelManagerService {
         message response;
         json jsonMsg;
         json errorMsg;
-        jsonMsg = message:getJsonPayload(m);
+        jsonMsg = messages:getJsonPayload(m);
         try {
-          if (json:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
+          if (jsons:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
               response = http:ClientConnector.sendPost(hotelEP, m);
           } else {
               response = http:ClientConnector.sendPost(carRentalEP, m);
           }
         } catch (exception e) {
             errorMsg = `{"error" : "Error while sending to backend"}`;
-            message:setJsonPayload(response, errorMsg);
-            message:setHeader(response, "Status", string:valueOf(500));
+            messages:setJsonPayload(response, errorMsg);
+            messages:setHeader(response, "Status", strings:valueOf(500));
         }
         reply response;
     }

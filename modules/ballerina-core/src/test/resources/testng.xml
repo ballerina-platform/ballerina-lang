@@ -24,50 +24,82 @@ under the License.
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.lang.values"/>
-            <package name="org.wso2.ballerina.lang.expressions"/>
-            <package name="org.wso2.ballerina.lang.statements"/>
-            <package name="org.wso2.ballerina.lang.structs"/>
-            <package name="org.wso2.ballerina.lang.connectors"/>
+            <package name="org.ballerinalang.model.values"/>
+            <package name="org.ballerinalang.model.expressions"/>
+            <package name="org.ballerinalang.model.statements"/>
+            <package name="org.ballerinalang.model.structs"/>
+            <package name="org.ballerinalang.model.connectors"/>
+            <package name="org.ballerinalang.model.annotations"/>
+            <package name="org.ballerinalang.model.arraysofarrays"/>
         </packages>
     </test>
 
     <!-- Parser Level Test Cases -->
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <!-- Statements -->
-            <class name="org.wso2.ballerina.core.parser.statements.WhileStatementParserTest"/>
-            <class name="org.wso2.ballerina.core.parser.statements.IfElseParserTest"/>
-
             <!-- Negative Test cases -->
-            <class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>
+            <class name="org.ballerinalang.core.parser.negative.InvalidSyntaxParserTest"/>
+            <!-- whitespace capture test cases -->
+            <class name="org.ballerinalang.core.parser.whitespace.WhiteSpaceCaptureTest"/>
         </classes>
     </test>
 
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.core.nativeimpl.functions"/>
+            <package name="org.ballerinalang.core.nativeimpl.functions"/>
         </packages>
     </test>
 
-    <!-- Native Connectors Related Test Cases -->
-    <!--<test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">-->
-    <!--<packages>-->
-    <!--<package name="org.wso2.ballerina.core.nativeimpl.connectors"/>-->
-    <!--</packages>-->
-    <!--</test>-->
 
-    <!-- Runtime Test Cases -->
-    <!--<test name="ballerina-runtime-unit-tests" preserve-order="true" parallel="false">-->
-    <!--<packages>-->
-    <!--<package name="org.wso2.ballerina.core.runtime"/>-->
-    <!--</packages>-->
-    <!--</test>-->
+    <!-- Debugger TestCases -->
 
-    <test name="ballrina-service-test">
+    <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+            <class name="org.ballerinalang.core.interpreter.VMDebuggerTest"/>
+        </classes>
+    </test>
+
+
+    <test name="ballerina-any-type-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
+            <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-global-var-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionTest" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionWithPkgTest" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarErrorTest" />
+        </classes>
+    </test>
+
+    <test name="ballerina-constant-access-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
+            <class name="org.ballerinalang.model.constant.ConstantAssignmentTest" />
+        </classes>
+    </test>
+
+    <test name="ballerina-identifier-literal-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
+        </classes>
+    </test>
+
+    <test name="ballerina-lambda-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.functions.FunctionPointersTest" />
+            <class name="org.ballerinalang.model.functions.FunctionPointersNegativeTest" />
+        </classes>
+    </test>
+
+    <test name="ballerina-constraint-json-test">
+        <classes>
+            <class name="org.ballerinalang.model.json.JSONStructConstraintTest"/>
         </classes>
     </test>
 </suite>

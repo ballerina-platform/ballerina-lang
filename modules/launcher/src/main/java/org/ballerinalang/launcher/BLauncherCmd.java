@@ -15,14 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterDescription;
+
+import java.util.Arrays;
+import java.util.List;
+
 /**
- * {@code BLauncherCmd} represents a Ballerina command.
+ * {@code BLauncherCmd} represents a Ballerina launcher command.
  *
- * @see Main.RunCmd
- * @see Main.ServiceCmd
  * @since 0.8.0
  */
 public interface BLauncherCmd {
@@ -31,5 +34,95 @@ public interface BLauncherCmd {
 
     String getName();
 
+    void printLongDesc(StringBuilder out);
+
     void printUsage(StringBuilder out);
+
+    void setParentCmdParser(JCommander parentCmdParser);
+
+    void setSelfCmdParser(JCommander selfCmdParser);
+
+    static String getCommandUsageInfo(JCommander cmdParser, String commandName) {
+        StringBuilder out = new StringBuilder();
+        JCommander jCommander = cmdParser.getCommands().get(commandName);
+        BLauncherCmd bLauncherCmd = (BLauncherCmd) jCommander.getObjects().get(0);
+
+        bLauncherCmd.printLongDesc(out);
+        out.append("\n");
+        out.append("Usage:\n");
+        bLauncherCmd.printUsage(out);
+        out.append("\n");
+
+        if (jCommander.getCommands().values().size() != 0) {
+            out.append("Available Commands:\n");
+            printCommandList(jCommander, out);
+            out.append("\n");
+        }
+
+        printFlags(jCommander.getParameters(), out);
+        return out.toString();
+    }
+
+    static void printCommandList(JCommander cmdParser, StringBuilder out) {
+        int longestNameLen = 0;
+        for (JCommander commander : cmdParser.getCommands().values()) {
+            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
+            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
+                continue;
+            }
+
+            int length = cmd.getName().length() + 2;
+            if (length > longestNameLen) {
+                longestNameLen = length;
+            }
+        }
+
+        for (JCommander commander : cmdParser.getCommands().values()) {
+            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
+            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
+                continue;
+            }
+
+            String cmdName = cmd.getName();
+            String cmdDesc = cmdParser.getCommandDescription(cmdName);
+
+            int noOfSpaces = longestNameLen - (cmd.getName().length() + 2);
+            char[] charArray = new char[noOfSpaces + 4];
+            Arrays.fill(charArray, ' ');
+            out.append("  ").append(cmdName).append(new String(charArray)).append(cmdDesc).append("\n");
+        }
+    }
+
+    static void printFlags(List<ParameterDescription> paramDescs, StringBuilder out) {
+        int longestNameLen = 0;
+        int count = 0;
+        for (ParameterDescription parameterDesc : paramDescs) {
+            if (parameterDesc.getParameter().hidden()) {
+                continue;
+            }
+
+            String names = parameterDesc.getNames();
+            int length = names.length() + 2;
+            if (length > longestNameLen) {
+                longestNameLen = length;
+            }
+            count++;
+        }
+
+        if (count == 0) {
+            return;
+        }
+        out.append("Flags:\n");
+        for (ParameterDescription parameterDesc : paramDescs) {
+            if (parameterDesc.getParameter().hidden()) {
+                continue;
+            }
+            String names = parameterDesc.getNames();
+            String desc = parameterDesc.getDescription();
+            int noOfSpaces = longestNameLen - (names.length() + 2);
+            char[] charArray = new char[noOfSpaces + 4];
+            Arrays.fill(charArray, ' ');
+            out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
+        }
+    }
 }

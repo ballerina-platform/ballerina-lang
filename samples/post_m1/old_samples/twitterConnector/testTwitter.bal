@@ -7,6 +7,6 @@ service TestTwitterService {
   @POST
   @Path ("/tweet")
   resource tweet (message m) {
-      twitterConnector:tweet(twitter, (string) message:getPayload(m));
+      twitterConnector:tweet(twitter, (string) messages:getPayload(m));
   }
 }

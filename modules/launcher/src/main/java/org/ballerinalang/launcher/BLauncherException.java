@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Thrown to indicate that an exception occurred in Ballerina program launcher
+ * Thrown to indicate that an exception occurred in Ballerina program launcher.
  *
  * @since 0.8.0
  */
-class BLauncherException extends RuntimeException {
+public class BLauncherException extends RuntimeException {
     private List<String> detailedMessages = new ArrayList<>();
 
     void addMessage(String message) {

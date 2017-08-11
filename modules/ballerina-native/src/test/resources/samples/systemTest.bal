@@ -1,17 +1,9 @@
-package samples.nativeimpl;
-
 import ballerina.lang.system;
 
 function testPrintAndPrintlnString(string s1, string s2){
     system:println(s1);
     system:print(s2);
     // output is equal to s1\ns2
-}
-
-function testPrintAndPrintlnLong(long v1, long v2){
-    system:println(v1);
-    system:print(v2);
-    // output is equal to v1\nv2
 }
 
 function testPrintAndPrintlnInt(int v1, int v2){
@@ -26,19 +18,13 @@ function testPrintAndPrintlnFloat(float v1, float v2){
     // output is equal to v1\nv2
 }
 
-function testPrintAndPrintlnBoolean(double v1, double v2){
+function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     system:println(v1);
     system:print(v2);
     // output is equal to v1\nv2
 }
 
-function testPrintAndPrintlnDouble(boolean v1, boolean v2){
-    system:println(v1);
-    system:print(v2);
-    // output is equal to v1\nv2
-}
-
-function testLog(long l, double d) {
+function testLog(int l, float d) {
     int i;
     //long l; // Related to issue #679
     float f;
@@ -54,26 +40,32 @@ function testLog(long l, double d) {
     b = false;
 
     system:log(1, i);
-    system:log(2, l);
+    //system:log(2, l);
     system:log(3, f);
-    system:log(4, d);
+    //system:log(4, d);
     system:log(5, s);
     // should not log.
     system:log(6, b);
 }
 
-function testTimeFunctions() {
+function testTimeFunctions()(int, int, int) {
 
-    long currentTime;
-    long epochTime;
-    long nanoTime;
+    int currentTime;
+    int epochTime;
+    int nanoTime;
 
     currentTime = system:currentTimeMillis();
-    system:log(3, currentTime);
     epochTime = system:epochTime();
-    system:log(3, epochTime);
     nanoTime = system:nanoTime();
-    system:log(3, nanoTime);
+    return currentTime, epochTime, nanoTime;
+}
+
+function testDateFunction()(string) {
+
+    string shortDate;
+
+    shortDate = system:getDateFormat("yyyyMMdd");
+    return shortDate;
 
 }
 
@@ -83,4 +75,9 @@ function printNewline() {
 
 function testSleep(int timeoutv) {
     system:sleep(timeoutv);
+}
+
+function getEnvVar(string varName) {
+    string pathValue = system:getEnv(varName);
+    system:print(pathValue);
 }

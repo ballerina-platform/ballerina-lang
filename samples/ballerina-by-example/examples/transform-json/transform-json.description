@@ -1,0 +1,6 @@
+// Transform statement is used to transform any chosen variable(s) or argument(s),
+// using data from other variable(s) or argument(s). The variable(s) or argument(s)
+// getting changed are known as output and variable(s) or argument(s) that supply values
+// for output is known as input. Transform statements is a set of assignments which
+// make up the transformation from input to output. This sample is about transforming
+// an input struct variable to an output json variable which is constraint by a struct type

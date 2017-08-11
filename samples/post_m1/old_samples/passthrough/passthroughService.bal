@@ -1,8 +1,8 @@
 package samples.passthrough;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
-import ballerina.lang.json;
+import ballerina.lang.jsons;
 
 
 @BasePath ("/stock")

@@ -1,6 +1,6 @@
 package samples.message_routing.header_based_routing;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
 
 
@@ -17,8 +17,8 @@ service StockExchangeRouterService {
     resource passthrough (message m) {
         message response;
         string routingId;
-        routingId = message:getHeader(m, "X-STOCK-EX-ID");
-        if (string:equals(routingId, "NYSE")) {
+        routingId = messages:getHeader(m, "X-STOCK-EX-ID");
+        if (strings:equals(routingId, "NYSE")) {
             response = http:ClientConnector.sendPost (nyseEP, "/us", m);
         } else {
             response = http:ClientConnector.sendPost (nasdaqEP, "/us/en", m);

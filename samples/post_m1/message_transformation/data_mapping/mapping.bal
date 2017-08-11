@@ -1,14 +1,14 @@
 package sample.message_transformation.data_mapping;
 
 function foo (message m) {
-  // following examples assume that type convertors are regsitered, and please see typeconverter.bal for an example.
+  // following examples assume that type mappers are regsitered, and please see typemapper.bal for an example.
   // suppose I know that the message payload is XML and its schema type:
    xml<{"http://example.com/xsd/SalesForce"}Account> inXML;
    xml<{"http://example.com/xsd/SalesForce"}EnterpriseAccount> outXML;
    json<{"Accounts"}account> outJson;
 
 
-    inXML = message:getPayload(m);
+    inXML = messages:getPayload(m);
 // UC 1
   // what I want to end up is with an XML Element who's schema type is
   // EnterpriseAccount.

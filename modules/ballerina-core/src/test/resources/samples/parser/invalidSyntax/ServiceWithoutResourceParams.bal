@@ -1,8 +1,10 @@
 package samples.parser;
 
-service HelloService {
+import ballerina.net.http;
 
-  @Path ("/tweet")
+service<http> HelloService {
+
+  @Path {value:"/tweet"}
   resource tweet {
       int b;
       reply m;

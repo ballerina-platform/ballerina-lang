@@ -1,134 +1,58 @@
-import ballerina.lang.json;
-function getString(json msg, string jsonPath) (string){
-    return json:getString(msg, jsonPath);
-}
+import ballerina.lang.jsons;
+import ballerina.lang.xmls;
 
-function getInt(json msg, string jsonPath) (int){
-    return json:getInt(msg, jsonPath);
-}
-
-function getJson(json msg, string jsonPath) (json){
-    return json:getJson(msg, jsonPath);
-}
-
-function getFloat(json msg, string jsonPath) (float){
-    return json:getFloat(msg, jsonPath);
-}
-
-function getDouble(json msg, string jsonPath) (double){
-    return json:getDouble(msg, jsonPath);
-}
-
-function getBoolean(json msg, string jsonPath) (boolean){
-    return json:getBoolean(msg, jsonPath);
-}
-
-
-function setString(json msg, string jsonPath, string value) (string) {
-    json:set(msg, jsonPath, value);
-    return json:getString(msg, jsonPath);
-}
-
-function setInt(json msg, string jsonPath, int value) (int) {
-    json:set(msg, jsonPath, value);
-    return json:getInt(msg, jsonPath);
-}
-
-function setDouble(json msg, string jsonPath, double value) (double) {
-    json:set(msg, jsonPath, value);
-    return json:getDouble(msg, jsonPath);
-}
-
-function setFloat(json msg, string jsonPath, float value) (float) {
-    json:set(msg, jsonPath, value);
-    return json:getFloat(msg, jsonPath);
-}
-
-function setBoolean(json msg, string jsonPath, boolean value) (boolean) {
-    json:set(msg , jsonPath , value);
-    return json:getBoolean(msg, jsonPath);
-}
-
-function setJson(json msg, string jsonPath, json value) (json) {
-    json:set(msg, jsonPath, value);
-    return json:getJson(msg, jsonPath);
-}
-
-
-function addStringToObject(json msg, string jsonPath, string key, string value) (json) {
-    json:add(msg, jsonPath, key, value);
-    return msg;
-}
-
-function addIntToObject(json msg, string jsonPath, string key, int value) (json) {
-    json:add(msg, jsonPath, key, value);
-    return msg;
-}
-
-function addDoubleToObject(json msg, string jsonPath, string key, double value) (json) {
-    json:add(msg, jsonPath, key, value);
-    return msg;
-}
-
-function addFloatToObject(json msg, string jsonPath, string key, float value) (json) {
-    json:add(msg, jsonPath, key, value);
-    return msg;
-}
-
-function addBooleanToObject(json msg, string jsonPath, string key, boolean value) (json) {
-    json:add(msg, jsonPath, key, value);
-    return msg;
-}
-
-function addElementToObject(json msg, string jsonPath, string key, json value) (json) {
-    json:add(msg, jsonPath, key, value);
-    return msg;
-}
-
-
-function addStringToArray(json msg, string jsonPath, string value) (json){
-    json:add(msg, jsonPath, value);
-    return msg;
-}
-
-function addIntToArray(json msg, string jsonPath, int value) (json){
-    json:add(msg, jsonPath, value);
-    return msg;
-}
-
-function addDoubleToArray(json msg, string jsonPath, double value) (json){
-    json:add(msg, jsonPath, value);
-    return msg;
-}
-
-function addFloatToArray(json msg, string jsonPath, float value) (json){
-    json:add(msg, jsonPath, value);
-    return msg;
-}
-
-function addBooleanToArray(json msg, string jsonPath, boolean value) (json){
-    json:add(msg, jsonPath, value);
-    return msg;
-}
-
-function addElementToArray(json msg, string jsonPath, json value) (json){
-    json:add(msg, jsonPath, value);
-    return msg;
-}
-
-
-
-function remove(json msg, string jsonPath) (json){
-    json:remove(msg, jsonPath);
-    return msg;
-}
-
-function rename(json msg, string jsonPath, string oldKey, string newKey) (string){
-    json:rename(msg, jsonPath, oldKey, newKey);
-    jsonPath = "$.name.firstName";
-    return json:getString(msg, jsonPath);
+function remove() (json){
+    json j = {"name":{"fname":"Jack","lname":"Taylor"}, "state":"CA", "age":20};
+    jsons:remove(j, "name");
+    return j;
 }
 
 function toString(json msg) (string){
-    return json:toString(msg);
+    return jsons:toString(msg);
+}
+
+function testParse(string jsonStr) (json){
+    return jsons:parse(jsonStr);
+}
+
+function testGetKeys() (string[], string[], string[], string[]){
+    json j1 = {fname:"Jhon", lname:"Doe", age:40};
+    json j2 = ["cat", "dog", "horse"];
+    json j3 = "Hello";
+    json j4 = 5;
+    return jsons:getKeys(j1), jsons:getKeys(j2), jsons:getKeys(j3), jsons:getKeys(j4) ;
+}
+
+function testToXML(json msg) (xml){
+    jsons:Options options = {};
+    return jsons:toXML(msg, options);
+}
+
+function testToXMLStringValue() (xml){
+    jsons:Options options = {};
+    json j = "value";
+    return jsons:toXML(j, options);
+}
+
+function testToXMLBooleanValue() (xml){
+    jsons:Options options = {};
+    json j = true;
+    return jsons:toXML(j, options);
+}
+
+function testToXMLString(json msg) (string){
+    jsons:Options options = {};
+    xml xmlData = jsons:toXML(msg, options);
+    return xmls:toString(xmlData);
+}
+
+function testToXMLWithXMLSequence(json msg) (string){
+    jsons:Options options = {};
+    xml xmlSequence = jsons:toXML(msg, options);
+    return xmls:toString(xmlSequence);
+}
+
+function testToXMLWithOptions(json msg) (xml){
+    jsons:Options options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
+    return jsons:toXML(msg, options);
 }

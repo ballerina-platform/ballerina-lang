@@ -1,12 +1,16 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
+import ballerina.net.http;
 
-@BasePath ("/hello")
-service helloWorld {
+@http:configuration {basePath:"/hello"}
+service<http> helloWorld {
 
-    @GET
-    resource sayHello(message m) {
+    @http:GET{}
+    @http:Path {value:"/"}
+    resource sayHello (message m) {
         message response = {};
-        message:setStringPayload(response, "Hello, World!");
+        messages:setStringPayload(response, "Hello, World!");
         reply response;
+    
     }
+    
 }

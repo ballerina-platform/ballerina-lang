@@ -1,0 +1,3 @@
+org.ballerinalang.packerina.cmd.BuildCommand
+org.ballerinalang.packerina.cmd.InstallCommand
+org.ballerinalang.packerina.cmd.UninstallCommand

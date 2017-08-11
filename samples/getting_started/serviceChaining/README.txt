@@ -9,7 +9,7 @@ This sample will illustrate a composite service : ATMLocatorService, which calls
 
 How to run this sample
 ======================
-bin$ ./ballerina service ../samples/serviceChaining/ATMLocatorService.bal
+bin$ ./ballerina run ../samples/serviceChaining/ATMLocatorService.balx
 
 This starts the ATMLocatorService as well as the two backend services required to run the sample.
 

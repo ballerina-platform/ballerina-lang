@@ -1,8 +1,8 @@
 package samples.error_handling;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
-import ballerina.lang.json;
+import ballerina.lang.jsons;
 
 
 @BasePath ("/stock")
@@ -22,9 +22,9 @@ service PassthroughWithExceptionHandlingService {
     try {
         response = http:ClientConnector.sendPost (nyse_ep, m);
     } catch (exception e) {
-        message:setHeader(m, HTTP.StatusCode, string:valueOf(500));// need to discuss
+        messages:setHeader(m, HTTP.StatusCode, strings:valueOf(500));// need to discuss
         error = `{"error":"backend failed", "causedby":e.message}`;
-        message:setJsonPayload(m, error);
+        messages:setJsonPayload(m, error);
     }
     reply response;
   }

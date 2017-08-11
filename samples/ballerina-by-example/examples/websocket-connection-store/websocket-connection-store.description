@@ -1,0 +1,1 @@
+// This program explains the WebSocket connection store concept. In here single connections can be stored under given connection name and can be retrieved globally from any service.
