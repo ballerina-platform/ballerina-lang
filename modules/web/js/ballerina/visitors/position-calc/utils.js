@@ -66,6 +66,14 @@ function getSimpleStatementPosition(node) {
         throw exception;
     }
 
+    // calculate the positions of sub components.
+    viewState.components['drop-zone'].x = x;
+    viewState.components['drop-zone'].y = y;
+    if (viewState.components['statement-box']) {
+        viewState.components['statement-box'].x = x;
+        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
+    }
+
     bBox.x = x;
     bBox.y = y;
 }
@@ -99,6 +107,7 @@ function getCompoundStatementChildPosition(node) {
     bBox.y = y;
     viewState.components.statementContainer.x = statementContainerX;
     viewState.components.statementContainer.y = statementContainerY;
+    viewState.components['block-header'].y = y;
 }
 
 /**

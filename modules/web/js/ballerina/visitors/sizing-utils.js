@@ -96,7 +96,15 @@ class SizingUtil {
         const textViewState = util.getTextWidth(expression);
         const dropZoneHeight = statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
-        viewState.components['drop-zone'].h = dropZoneHeight;
+        // Set statement box as an opaque element to prevent conflicts with arrows.
+        viewState.components['statement-box'] = new SimpleBBox();
+        viewState.components['drop-zone'].h = dropZoneHeight + viewState.offSet;
+        viewState.components['drop-zone'].w = textViewState.w;
+        viewState.components['statement-box'].h = statement.height;
+        viewState.components['statement-box'].w = textViewState.w;
+        // set the component as a vertical block.
+        // the following value will be used by arrow conflict resolver.
+        viewState.components['statement-box'].setOpaque(true);
 
         viewState.bBox.w = textViewState.w;
         viewState.bBox.h = statement.height + viewState.components['drop-zone'].h;
@@ -180,6 +188,11 @@ class SizingUtil {
         viewState.bBox.h = statementContainerHeight + blockStatement.heading.height + DesignerDefaults.statement.height;
         viewState.bBox.expansionW = widthExpansion;
         viewState.bBox.expansionH = statementContainerHeight + DesignerDefaults.statement.height;
+        // Set the block headder as an opaque box to prevent conflicts with arrows.
+        components['block-header'] = new SimpleBBox();
+        components['block-header'].setOpaque(true);
+        components['block-header'].h = blockStatement.heading.height;
+
         viewState.bBox.w = statementContainerWidth;
         components.statementContainer.expansionW = statementContainerWidthExpansion;
     }
