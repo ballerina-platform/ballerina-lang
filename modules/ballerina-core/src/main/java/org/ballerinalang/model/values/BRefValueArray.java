@@ -74,7 +74,7 @@ public class BRefValueArray extends BNewArray {
     
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(",", "[", "]");
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
         for (int i = 0; i < size; i++) {
             sj.add(values[i] == null ? "null" : values[i].stringValue());
         }
