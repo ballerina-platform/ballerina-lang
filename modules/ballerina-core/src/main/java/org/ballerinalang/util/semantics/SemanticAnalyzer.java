@@ -1539,10 +1539,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (committedBlock != null) {
             committedBlock.getCommittedBlockStmt().accept(this);
         }
-        Expression retryCountExpression = transactionStmt.getRetryCountExpression();
-        if (retryCountExpression != null) {
-            retryCountExpression.accept(this);
-        }
     }
 
     @Override

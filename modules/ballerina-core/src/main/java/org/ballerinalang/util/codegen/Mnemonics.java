@@ -148,7 +148,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.GOTO] = "goto";
         mnemonics[InstructionCodes.HALT] = "halt";
-        mnemonics[InstructionCodes.TR_FALSE] = "tr_false";
+        mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
@@ -207,8 +207,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
 
         // Transactions
-        mnemonics[InstructionCodes.TRBGN] = "trbgn";
-        mnemonics[InstructionCodes.TREND] = "trend";
+        mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
+        mnemonics[InstructionCodes.TR_END] = "tr_end";
 
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";

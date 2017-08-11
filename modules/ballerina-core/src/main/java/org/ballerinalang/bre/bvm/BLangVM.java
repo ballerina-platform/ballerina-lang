@@ -1231,7 +1231,7 @@ public class BLangVM {
                 case InstructionCodes.HALT:
                     ip = -1;
                     break;
-                case InstructionCodes.TR_FALSE:
+                case InstructionCodes.TR_RETRY:
                     i = operands[0];
                     j = operands[1];
                     retryTransaction(i, j);
@@ -1245,12 +1245,12 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.TRBGN:
+                case InstructionCodes.TR_BEGIN:
                     i = operands[0];
                     j = operands[1];
                     beginTransaction(i, j);
                     break;
-                case InstructionCodes.TREND:
+                case InstructionCodes.TR_END:
                     i = operands[0];
                     endTransaction(i);
                     break;

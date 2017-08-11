@@ -1198,12 +1198,12 @@ public class CodeGenerator implements NodeVisitor {
         abortInstructions.push(gotoStartOfAbortedBlock);
 
         //start transaction
-        emit(new Instruction(InstructionCodes.TRBGN, transactionIndex, retryCountAvailable));
+        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
         int startIP = nextIP();
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
 
         //retry transaction
-        Instruction ifInstruction = new Instruction(InstructionCodes.TR_FALSE, transactionIndex, -1);
+        Instruction ifInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
         emit(ifInstruction);
 
         //process transaction statements
@@ -1211,7 +1211,7 @@ public class CodeGenerator implements NodeVisitor {
 
         //end the transaction
         int endIP = nextIP();
-        emit(new Instruction(InstructionCodes.TREND, 0));
+        emit(new Instruction(InstructionCodes.TR_END, 0));
 
         //process committed block
         if (transactionStmt.getCommittedBlock() != null) {
@@ -1223,7 +1223,7 @@ public class CodeGenerator implements NodeVisitor {
         abortInstructions.pop();
         int startOfAbortedIP = nextIP();
         gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
-        emit(new Instruction(InstructionCodes.TREND, -1));
+        emit(new Instruction(InstructionCodes.TR_END, -1));
 
         //process aborted block
         if (transactionStmt.getAbortedBlock() != null) {
@@ -1233,7 +1233,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(new Instruction(InstructionCodes.TREND, -1));
+        emit(new Instruction(InstructionCodes.TR_END, -1));
         if (transactionStmt.getFailedBlock() != null) {
             transactionStmt.getFailedBlock().getFailedBlockStmt().accept(this);
 
@@ -1250,7 +1250,7 @@ public class CodeGenerator implements NodeVisitor {
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
-        emit(new Instruction(InstructionCodes.TREND, 1));
+        emit(new Instruction(InstructionCodes.TR_END, 1));
     }
 
     @Override

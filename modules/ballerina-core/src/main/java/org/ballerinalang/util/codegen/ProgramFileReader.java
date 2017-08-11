@@ -1266,7 +1266,7 @@ public class ProgramFileReader {
                 case InstructionCodes.FORKJOIN:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
-                case InstructionCodes.TREND:
+                case InstructionCodes.TR_END:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWMESSAGE:
@@ -1310,8 +1310,8 @@ public class ProgramFileReader {
                 case InstructionCodes.RNE_NULL:
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
-                case InstructionCodes.TR_FALSE:
-                case InstructionCodes.TRBGN:
+                case InstructionCodes.TR_RETRY:
+                case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.CALL:
                 case InstructionCodes.WRKINVOKE:
                 case InstructionCodes.WRKREPLY:
