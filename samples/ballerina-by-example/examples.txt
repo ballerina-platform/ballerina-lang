@@ -23,6 +23,7 @@ JSON
 JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
+Constrained JSON
 XML
 XML Namespaces
 XML Literal
@@ -37,6 +38,8 @@ Fork/Join Condition Some
 Datatables
 SQL Connector
 Transactions
+Transform Structs
+Transform JSON
 Strings
 Blob Type
 Date Time
