@@ -48,16 +48,20 @@ service<http> echo {
         reply m;
     }
 
-    @http:GET {}
-    @http:Path {value:"/getServiceLevelString"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/getServiceLevelString"
+    }
     resource getServiceLevelString (message m) {
         message response = {};
         messages:setStringPayload(response, serviceLevelStringVar);
         reply response;
     }
 
-    @http:GET {}
-    @http:Path {value:constPath}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:constPath
+    }
     resource constValueAsAttributeValue (message m) {
         message response = {};
         messages:setStringPayload(response, "constant path test");

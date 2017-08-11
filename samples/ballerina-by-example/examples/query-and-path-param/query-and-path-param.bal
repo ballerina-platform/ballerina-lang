@@ -4,8 +4,10 @@ import ballerina.doc;
 
 service<http> sample {
 
-    @http:GET {}
-    @http:Path {value:"/path/{foo}"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/path/{foo}"
+    }
     @doc:Description {value:"PathParam and QueryParam extract values from the request URI."}
     resource params (message m, @http:PathParam {value:"foo"} string foo,
                                 @http:QueryParam {value:"bar"} string bar) {

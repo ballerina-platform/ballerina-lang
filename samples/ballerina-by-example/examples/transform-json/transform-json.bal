@@ -21,8 +21,10 @@ struct Person {
 }
 service<http> PersonService {
 
-    @http:POST {}
-    @http:Path { value: "/"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     @doc:Description {
         value: "Defining POST resource for the service to get person details"
     }
