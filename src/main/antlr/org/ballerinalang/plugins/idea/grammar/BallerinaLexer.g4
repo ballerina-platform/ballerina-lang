@@ -339,7 +339,9 @@ BacktickStringLiteral
  
  fragment
  ValidBackTickStringCharacter
-    :   ~[`\n\r]
+    :   ~[`\\]
+    |   ('\\' '\\')+
+    |   ('\\' .)
     ;
 
 // §3.10.6 Escape Sequences for Character and String Literals
