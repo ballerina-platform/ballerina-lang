@@ -317,7 +317,6 @@ const statementToolDefArray = [
     createJoinStatementTool,
     createNamespaceDeclarationStatementTool,
 ];
->>>>>>> sort the tools menu
 
 const seperator = {
     id: 'constructs_seperator',
