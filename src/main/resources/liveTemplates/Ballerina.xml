@@ -119,4 +119,13 @@
         </context>
     </template>
 
+    <template name="sout" value="system:println($END$);"
+              description="system:println" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
 </templateSet>
