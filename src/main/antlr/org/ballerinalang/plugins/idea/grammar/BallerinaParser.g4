@@ -199,6 +199,7 @@ xmlLocalName
 
  annotationAttributeValue
      :   simpleLiteral
+     |   nameReference
      |   annotationAttachment
      |   annotationAttributeArray
      ;
@@ -246,7 +247,7 @@ transformStatementBody
     ;
 
 expressionAssignmentStatement
-    :   variableReferenceList ASSIGN expression SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
     ;
 
 expressionVariableDefinitionStatement
@@ -349,8 +350,8 @@ joinClause
     ;
 
 joinConditions
-    :   SOME IntegerLiteral (Identifier (COMMA Identifier)*)? 	# anyJoinCondition
-    |   ALL (Identifier (COMMA Identifier)*)? 		            # allJoinCondition
+    :   SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -566,10 +567,6 @@ xmlLiteral
 
 stringTemplateLiteral
     :   StringTemplateLiteralStart stringTemplateContent? StringTemplateLiteralEnd
-    ;
-
-literalType
-    :   TYPE_STRING
     ;
 
 stringTemplateContent
