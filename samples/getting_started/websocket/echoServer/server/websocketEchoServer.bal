@@ -8,12 +8,12 @@ import ballerina.net.ws;
 service<ws> websocketEchoServer {
 
     @ws:OnOpen {}
-    resource onOpen(message m) {
+    resource onOpen (message m) {
         system:println("New client connected to the server.");
     }
 
     @ws:OnTextMessage {}
-    resource onTextMessage(message m) {
+    resource onTextMessage (message m) {
         string stringPayload = messages:getStringPayload(m);
         if ("closeMe" == stringPayload) {
             ws:closeConnection(); // Close connection from server side
@@ -24,7 +24,7 @@ service<ws> websocketEchoServer {
     }
 
     @ws:OnClose {}
-    resource onClose(message m) {
+    resource onClose (message m) {
         system:println("client left the server.");
     }
 }

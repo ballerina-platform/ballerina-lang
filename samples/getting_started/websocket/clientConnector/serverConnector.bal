@@ -10,7 +10,7 @@ service<ws> serverConnector {
     ws:ClientConnector c = create ws:ClientConnector("ws://localhost:15500/websocket", "clientService");
 
     @ws:OnTextMessage {}
-    resource onText(message m) {
+    resource onText (message m) {
         string textReceived = messages:getStringPayload(m);
 
         if ("closeMe" == textReceived) {
