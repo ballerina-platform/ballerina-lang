@@ -312,7 +312,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
-                "no matching resource found");
+                "no matching service found for path : /optionss");
     }
 
     @Test(description = "Test dispatching with OPTIONS request when no resources available")
@@ -331,7 +331,7 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test dispatching with OPTIONS request with wildcard")
     public void testOPTIONSWithWildCards() {
-        String path = "/options/*";
+        String path = "/options/un";
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
         CarbonMessage response = Services.invoke(cMsg);
 
@@ -339,7 +339,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
-                "no matching resource found");
+                "no matching resource found for path : /options/un , method : OPTIONS");
     }
 
     @AfterClass

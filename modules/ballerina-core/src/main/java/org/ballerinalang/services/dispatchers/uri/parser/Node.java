@@ -136,7 +136,7 @@ public abstract class Node {
             resource = tryMatchingToDefaultVerb(httpMethod);
         }
         if (resource == null) {
-            isOptionsRequest = tryMatchingWithOPTIONS(httpMethod, carbonMessage);
+            isOptionsRequest = setAllowHeadersIfOPTIONS(httpMethod, carbonMessage);
         }
         if (resource == null) {
             if (!isOptionsRequest) {
@@ -250,7 +250,7 @@ public abstract class Node {
         return null;
     }
 
-    private boolean tryMatchingWithOPTIONS(String httpMethod, CarbonMessage carbonMessage) {
+    private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage carbonMessage) {
         if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
             carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
             return true;

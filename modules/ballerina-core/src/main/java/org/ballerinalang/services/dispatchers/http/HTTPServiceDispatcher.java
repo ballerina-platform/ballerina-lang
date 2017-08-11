@@ -154,7 +154,13 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private String findTheMostSpecificBasePath(String requestURIPath, Map<String, ServiceInfo> services) {
         for (Object key : sortedServiceURIs) {
             if (requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
-                return key.toString();
+                if (requestURIPath.length() > key.toString().length()) {
+                    if (requestURIPath.charAt(key.toString().length()) == '/') {
+                        return key.toString();
+                    }
+                } else {
+                    return key.toString();
+                }
             }
         }
         if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {

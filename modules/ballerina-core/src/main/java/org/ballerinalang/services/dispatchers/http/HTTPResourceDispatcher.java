@@ -64,7 +64,13 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
             } else {
-                handleOptionsRequest(cMsg, service, callback);
+                if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
+                    handleOptionsRequest(cMsg, service, callback);
+                } else {
+                    cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                    throw new BallerinaException("no matching resource found for path : "
+                            + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
+                }
                 return null;
             }
         } catch (UnsupportedEncodingException | URITemplateException e) {
@@ -89,28 +95,23 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
     private static void handleOptionsRequest(CarbonMessage cMsg, ServiceInfo service, CarbonCallback callback)
             throws URITemplateException {
-        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-        if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            DefaultCarbonMessage response = new DefaultCarbonMessage();
-            if (cMsg.getHeader(Constants.ALLOW) != null) {
-                response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
-            } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
-                if (!getAllResourceMethods(service).isEmpty()) {
-                    response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service)));
-                }
-            } else {
-                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-                throw new BallerinaException("no matching resource found");
+        DefaultCarbonMessage response = new DefaultCarbonMessage();
+        if (cMsg.getHeader(Constants.ALLOW) != null) {
+            response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
+        } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
+            if (!getAllResourceMethods(service).isEmpty()) {
+                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service)));
             }
-            response.setProperty(Constants.HTTP_STATUS_CODE, 200);
-            response.setEndOfMsgAdded(true);
-            callback.done(response);
-            return;
         } else {
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("no matching resource found for path : "
-                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
+                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + "OPTIONS");
         }
+        response.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        response.setAlreadyRead(true);
+        response.setEndOfMsgAdded(true);
+        callback.done(response);
+        return;
     }
 
     private static List<String> getAllResourceMethods(ServiceInfo service) {
