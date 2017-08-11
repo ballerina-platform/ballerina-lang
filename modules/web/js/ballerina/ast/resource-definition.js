@@ -413,7 +413,7 @@ class ResourceDefinition extends ASTNode {
                     if (annotationAttribute.getKey() === 'methods') {
                         const httpMethodsArray = annotationAttribute.getValue();
                         httpMethodsArray.getChildren().forEach((httpMethod) => {
-                            httpMethods.push(httpMethod.getStringValue());
+                            httpMethods.push(httpMethod.getChildren()[0].getStringValue());
                         });
                     }
                 });
