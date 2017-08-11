@@ -4,10 +4,9 @@ import ballerina.data.sql;
 function main (string[] args) {
     //Create a SQL connector by providing the required database connection
     //pool properties.
-    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
-                    "username":"root", "password":"root"};
-    sql:ClientConnector testDB = create
-                                 sql:ClientConnector(props);
+    sql:ConnectionProperties Properties = {maximumPoolSize:5};
+    sql:ClientConnector testDB = create sql:ClientConnector(
+      sql:MYSQL, "localhost", 3306, "db", "sa", "root", Properties);
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0
     sql:Parameter[] params = [];
