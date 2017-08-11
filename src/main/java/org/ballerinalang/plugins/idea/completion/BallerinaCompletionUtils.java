@@ -17,7 +17,6 @@
 package org.ballerinalang.plugins.idea.completion;
 
 import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
-import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
@@ -36,7 +35,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
@@ -93,6 +91,7 @@ public class BallerinaCompletionUtils {
 
     // Other types
     private static final LookupElementBuilder ANY;
+    private static final LookupElementBuilder VAR;
     private static final LookupElementBuilder TYPE;
 
     // Other keywords
@@ -158,6 +157,7 @@ public class BallerinaCompletionUtils {
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
         ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
+        VAR = createTypeLookupElement("var", AddSpaceInsertHandler.INSTANCE);
         TYPE = createTypeLookupElement("type", AddSpaceInsertHandler.INSTANCE);
 
         TYPE_OF = createKeywordLookupElement("typeof");
@@ -184,13 +184,13 @@ public class BallerinaCompletionUtils {
         FINALLY = createKeywordLookupElement("finally");
         ITERATE = createKeywordLookupElement("iterate");
         WHILE = createKeywordLookupElement("while");
-        CONTINUE = createKeywordLookupElement("continue");
-        BREAK = createKeywordLookupElement("break");
+        CONTINUE = createKeywordLookupElement("continue", ";");
+        BREAK = createKeywordLookupElement("break", ";");
         THROW = createKeywordLookupElement("throw");
 
-        TRUE = createKeywordLookupElement("true");
-        FALSE = createKeywordLookupElement("false");
-        NULL = createKeywordLookupElement("null");
+        TRUE = createKeywordLookupElement("true", null);
+        FALSE = createKeywordLookupElement("false", null);
+        NULL = createKeywordLookupElement("null", null);
     }
 
     private BallerinaCompletionUtils() {
@@ -218,12 +218,20 @@ public class BallerinaCompletionUtils {
      */
     @NotNull
     private static LookupElementBuilder createKeywordLookupElement(@NotNull String name) {
-        return createLookupElement(name, createTemplateBasedInsertHandler("ballerina_lang_" + name));
+        return createKeywordLookupElement(name, " ");
     }
 
+    @NotNull
+    private static LookupElementBuilder createKeywordLookupElement(@NotNull String name,
+                                                                   @Nullable String traileringString) {
+
+        return createLookupElement(name, createTemplateBasedInsertHandler("ballerina_lang_" + name,
+                traileringString));
+    }
 
     @NotNull
-    private static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId) {
+    private static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId,
+                                                                                 @Nullable String traileringString) {
         return (context, item) -> {
             Template template = TemplateSettings.getInstance().getTemplateById(templateId);
             Editor editor = context.getEditor();
@@ -234,7 +242,9 @@ public class BallerinaCompletionUtils {
                 int currentOffset = editor.getCaretModel().getOffset();
                 CharSequence documentText = editor.getDocument().getImmutableCharSequence();
                 if (documentText.length() <= currentOffset || documentText.charAt(currentOffset) != ' ') {
-                    EditorModificationUtil.insertStringAtCaret(editor, " ");
+                    if (traileringString != null) {
+                        EditorModificationUtil.insertStringAtCaret(editor, traileringString);
+                    }
                 } else {
                     EditorModificationUtil.moveCaretRelatively(editor, 1);
                 }
@@ -274,6 +284,7 @@ public class BallerinaCompletionUtils {
      */
     static void addOtherTypeAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(VAR, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, VALUE_TYPES_PRIORITY));
     }
 
@@ -402,14 +413,8 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    static void addValueKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, TRUE);
-        addKeywordAsLookup(resultSet, FALSE);
-        addKeywordAsLookup(resultSet, NULL);
-    }
-
     @NotNull
-    public static List<LookupElement> createValueKeywords() {
+    public static List<LookupElement> getValueKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(TRUE));
         lookupElements.add(createKeywordAsLookup(FALSE));
@@ -445,20 +450,10 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, ATTACH);
     }
 
-    /**
-     * Adds function specific keywords like <b>return</b> as lookup elements.
-     *
-     * @param parameters parameters which contain details of completion invocation
-     * @param resultSet  result list which is used to add lookups
-     */
-    static void addFunctionSpecificKeywords(@NotNull CompletionParameters parameters,
-                                            @NotNull CompletionResultSet resultSet) {
-        PsiFile file = parameters.getOriginalFile();
-        PsiElement element = file.findElementAt(parameters.getOffset());
-        FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
-        if (functionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN);
-        }
+    static List<LookupElement> getFunctionSpecificKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(RETURN));
+        return lookupElements;
     }
 
     static List<LookupElement> getResourceSpecificKeywords() {

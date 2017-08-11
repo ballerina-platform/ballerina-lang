@@ -30,7 +30,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "json", "datatable");
     private static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
-    private static final List<String> OTHER_TYPES = Arrays.asList("any", "type");
+    private static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
             "worker", "transform", "transaction", "failed", "aborted", "committed", "abort", "try", "catch", "finally",
             "iterate", "while", "continue", "break", "throw");
@@ -274,7 +274,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConstValues() {
-        doTest("const string NAME = <caret>");
+        doTest("const string NAME = <caret>", "true", "false", "null");
     }
 
     public void testConstantAnnotation() {
@@ -412,12 +412,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testGlobalVariablePackageValue() {
         myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
-        doTest("import org.test; string s = <caret> ", "test");
+        doTest("import org.test; string s = <caret> ", "test", "true", "false", "null");
     }
 
     public void testGlobalVariablePackageValueCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
-        doCheckResult("test.bal", "import org.test; string s = t<caret> ", "import org.test; string s = test: ", null);
+        doCheckResult("test.bal", "import org.test; string s = te<caret> ", "import org.test; string s = test: ",
+                null);
     }
 
     public void testGlobalVariablePackageValueDifferentPackage() {
@@ -433,7 +434,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testGlobalVariablePackageValueDifferentFile() {
         myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
-        doTest("string s = <caret> ", "getValue");
+        doTest("string s = <caret> ", "getValue", "true", "false", "null");
     }
 
     public void testGlobalVariablePackageValueDifferentFileCompletion() {
@@ -620,7 +621,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
         doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
-                "abort", "aborted", "try", "true", "break", "iterate", "throw");
+                "abort", "aborted", "try", "true", "break", "iterate", "throw", "var");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
@@ -844,7 +845,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionFromPackageInvocation23() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
-                "args", "main", "test");
+                "args", "main", "test", "true", "false", "null");
     }
 
     public void testFunctionFromPackageInvocation24() {
@@ -872,13 +873,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVarDefinitionWithTraileringCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = \"TEST\" + <caret> }",
-                "args", "main", "test");
+                "args", "main", "test", "true", "false", "null");
     }
 
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test", "create", "lengthof", "typeof");
+                "args", "main", "test", "create", "lengthof", "typeof", "true", "false", "null");
     }
 
     public void testConnectorInit() {
@@ -918,7 +919,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorCreationCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
         doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
-                "create", "A", "test", "lengthof", "typeof");
+                "create", "A", "test", "lengthof", "typeof", "true", "false", "null");
     }
 
     public void testVariablesInitializationAfterDeclaration() {
@@ -972,12 +973,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testVariablesWhenMultipleVariablesAvailableAfterLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = s1 + <caret> }",
-                "s1", "s2", "A");
+                "s1", "s2", "A", "true", "false", "null");
     }
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A", "create", "lengthof", "typeof");
+                "s1", "s2", "A", "create", "lengthof", "typeof", "true", "false", "null");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
@@ -1496,7 +1497,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorBodyVariableInitialization() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test", "lengthof", "typeof");
+        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test", "lengthof",
+                "typeof", "true", "false", "null");
     }
 
     public void testConnectorBodyVariableInitializationCreateKeyword() {
