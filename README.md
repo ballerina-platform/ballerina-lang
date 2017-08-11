@@ -39,6 +39,8 @@ IntelliJ Platfom.
 
 Please refer the [Getting Started](getting-started) section.
 
+**Note:** Please note that all of the `transaction`, `failed`, `committed`, `aborted` clauses are mandatory for the **transaction statement** due to a limitation in the grammar.
+
 ## How to contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.
 

@@ -111,9 +111,10 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder WORKER;
     private static final LookupElementBuilder TRANSFORM;
     private static final LookupElementBuilder TRANSACTION;
-    private static final LookupElementBuilder ABORT;
+    private static final LookupElementBuilder FAILED;
     private static final LookupElementBuilder ABORTED;
     private static final LookupElementBuilder COMMITTED;
+    private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
@@ -174,9 +175,10 @@ public class BallerinaCompletionUtils {
         WORKER = createKeywordLookupElement("worker");
         TRANSFORM = createKeywordLookupElement("transform");
         TRANSACTION = createKeywordLookupElement("transaction");
-        ABORT = createKeywordLookupElement("abort");
+        FAILED = createKeywordLookupElement("failed");
         ABORTED = createKeywordLookupElement("aborted");
         COMMITTED = createKeywordLookupElement("committed");
+        ABORT = createKeywordLookupElement("abort");
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
@@ -374,35 +376,8 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY);
     }
 
-    /**
-     * Adds common keywords like if, else as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     */
-    static void addCommonKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, IF);
-        addKeywordAsLookup(resultSet, ELSE);
-        addKeywordAsLookup(resultSet, FORK);
-        addKeywordAsLookup(resultSet, JOIN);
-        addKeywordAsLookup(resultSet, TIMEOUT);
-        addKeywordAsLookup(resultSet, WORKER);
-        addKeywordAsLookup(resultSet, TRANSFORM);
-        addKeywordAsLookup(resultSet, TRANSACTION);
-        addKeywordAsLookup(resultSet, ABORT);
-        addKeywordAsLookup(resultSet, ABORTED);
-        addKeywordAsLookup(resultSet, COMMITTED);
-        addKeywordAsLookup(resultSet, TRY);
-        addKeywordAsLookup(resultSet, CATCH);
-        addKeywordAsLookup(resultSet, FINALLY);
-        addKeywordAsLookup(resultSet, ITERATE);
-        addKeywordAsLookup(resultSet, WHILE);
-        addKeywordAsLookup(resultSet, CONTINUE);
-        addKeywordAsLookup(resultSet, BREAK);
-        addKeywordAsLookup(resultSet, THROW);
-    }
-
     @NotNull
-    public static List<LookupElement> createCommonKeywords() {
+    public static List<LookupElement> getCommonKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(IF));
         lookupElements.add(createKeywordAsLookup(ELSE));
@@ -412,9 +387,10 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(WORKER));
         lookupElements.add(createKeywordAsLookup(TRANSFORM));
         lookupElements.add(createKeywordAsLookup(TRANSACTION));
-        lookupElements.add(createKeywordAsLookup(ABORT));
+        lookupElements.add(createKeywordAsLookup(FAILED));
         lookupElements.add(createKeywordAsLookup(ABORTED));
         lookupElements.add(createKeywordAsLookup(COMMITTED));
+        lookupElements.add(createKeywordAsLookup(ABORT));
         lookupElements.add(createKeywordAsLookup(TRY));
         lookupElements.add(createKeywordAsLookup(CATCH));
         lookupElements.add(createKeywordAsLookup(FINALLY));
