@@ -38,12 +38,13 @@
 
 .leftType, .rightType {
     width: 300px;
+    height: 100%;
     background: #fefefe;
     color: #3d3d3d;
     float: left;
     position: relative;
     overflow: auto;
-    padding-top: 30px;
+    margin-top: 30px;
 }
 
 .leftType {

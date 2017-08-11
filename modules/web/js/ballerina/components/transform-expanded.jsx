@@ -724,6 +724,11 @@ class TransformExpanded extends React.Component {
                 this.createConnection(statement);
             });
         }
+
+        $('.middle-content, .leftType, .rightType').scroll(e => {
+            this.mapper.reposition(this.props.model.getID());
+        })
+
         this.mapper.reposition(this.props.model.getID());
     }
 
