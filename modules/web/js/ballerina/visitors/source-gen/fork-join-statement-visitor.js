@@ -39,6 +39,7 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
      * @param {ForkJoinStatement} forkJoinStatement - forkJoin Statement statementASTNode
      */
     beginVisitForkJoinStatement(forkJoinStatement) {
+        this.forkClosed = false;
         this.node = forkJoinStatement;
         if (forkJoinStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
@@ -89,20 +90,23 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
      */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            const forkJoinStatement = statement.getParent();
-            this.outdent();
+            if (!this.forkClosed) {
+                const forkJoinStatement = statement.getParent();
+                this.outdent();
 
-            let constructedSourceSegment = '';
-            if (forkJoinStatement.whiteSpace.useDefault) {
-                constructedSourceSegment += this.getIndentation();
+                let constructedSourceSegment = '';
+                if (forkJoinStatement.whiteSpace.useDefault) {
+                    constructedSourceSegment += this.getIndentation();
+                }
+                constructedSourceSegment += '}' + statement.getWSRegion(0);
+
+                // Add the increased number of lines
+                const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+                this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+                this.appendSource(constructedSourceSegment);
+                this.forkClosed = true;
             }
-            constructedSourceSegment += '}' + statement.getWSRegion(0);
-
-            // Add the increased number of lines
-            const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
-            this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-
-            this.appendSource(constructedSourceSegment);
             const statementVisitorFactory = new StatementVisitorFactory();
             const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
