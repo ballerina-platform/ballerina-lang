@@ -148,12 +148,8 @@ class VariableDefinitionStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
-        const lambdaChildren = this.props.model.filterChildren(child => ASTFactory.isLambdaExpression(child));
-        let lambdaFunc = null;
-        if (lambdaChildren.length > 0) {
-            lambdaFunc = lambdaChildren[0].getLambdaFunction();
-        }
-
+        const lambdaFunc = model.getLambdaChildren().map(f =>
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
 
         return (
             <StatementDecorator
@@ -178,10 +174,8 @@ class VariableDefinitionStatement extends React.Component {
                     {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
                     {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
                 </g>
-            }
-                { lambdaFunc &&
-                <FunctionDefinition model={lambdaFunc}/>
                 }
+                {lambdaFunc}
             </StatementDecorator>);
     }
 }

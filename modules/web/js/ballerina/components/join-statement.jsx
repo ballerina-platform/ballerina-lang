@@ -90,7 +90,7 @@ class JoinStatement extends React.Component {
         let lifeLineY2;
         if (model.children.length > 0) {
             const firstChild = model.children[0].viewState;
-            lifeLineY1 = firstChild.bBox.y + firstChild.components['drop-zone'].h;
+            lifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
             const lastChild = model.children[model.children.length - 1].viewState;
             lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
         }
@@ -121,13 +121,14 @@ class JoinStatement extends React.Component {
         }
 
         if (model.children.length > 0) {
-            children.push(
+            children.unshift(
                 <line
                     x1={bBox.getCenterX()}
                     y1={lifeLineY1}
                     x2={bBox.getCenterX()}
                     y2={lifeLineY2}
                     className="join-lifeline"
+                    key="join-life-line"
                 />);
         }
         return (

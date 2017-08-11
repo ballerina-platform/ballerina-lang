@@ -20,8 +20,6 @@ import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
-import ParameterView from './parameter-view';
-import ReturnTypeView from './return-type-view';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
@@ -45,6 +43,11 @@ class FunctionDefinition extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
+        const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState()
+            .components.statementContainer);
+        const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
+        statementContainerBBoxClone.w += connectorOffset;
+        const workerScopeContainerBBox = this.props.model.getViewState().components.workerScopeContainer;
 
         // lets calculate function worker lifeline bounding box.
         const function_worker_bBox = {};
@@ -58,10 +61,11 @@ class FunctionDefinition extends React.Component {
             polygonClass: 'default-worker-life-line-polygon',
         };
 
-
         // filter children nodes and create components
         const children = getComponentForNodeArray(this.props.model.getChildren());
-
+        const nodeFactory = this.props.model.getFactory();
+        // Check for connector declaration children
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         // change icon for main function
         let icons = 'tool-icons/function';
         if (name === 'main') {
@@ -109,13 +113,40 @@ class FunctionDefinition extends React.Component {
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     titleComponentData={titleComponentData}
                 >
-                    {lifeline}
-                    {statemnts}
+                    <LifeLine
+                        title="default"
+                        bBox={function_worker_bBox}
+                        classes={classes}
+                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                        iconColor='#025482'
+                    />
+                    { connectorChildren.length > 0 &&
+                    <g>
+                        <rect
+                            x={workerScopeContainerBBox.x}
+                            y={workerScopeContainerBBox.y}
+                            width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                            height={workerScopeContainerBBox.h}
+                            style={{ fill: 'none',
+                                stroke: '#67696d',
+                                strokeWidth: 2,
+                                strokeLinecap: 'round',
+                                strokeLinejoin: 'miter',
+                                strokeMiterlimit: 4,
+                                strokeOpacity: 1,
+                                strokeDasharray: 5 }}
+                        /> </g>
+                    }
+                    <StatementContainer
+                        dropTarget={this.props.model}
+                        title="StatementContainer"
+                        bBox={statementContainerBBoxClone}
+                    >
+                        {children}
+                    </StatementContainer>
                 </PanelDecorator>);
         }
     }
-
-
 }
 
 export default FunctionDefinition;

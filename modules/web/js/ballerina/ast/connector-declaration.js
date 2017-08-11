@@ -21,6 +21,7 @@ import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
 import FragmentUtils from '../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
+import ASTFactory from './ballerina-ast-factory';
 
 /**
  * Defines a connector declaration AST node.
@@ -132,7 +133,7 @@ class ConnectorDeclaration extends ASTNode {
             this.whiteSpace.useDefault = false;
         }
 
-        this._declarationStatement = self.getFactory().createFromJson(jsonNode);
+        this._declarationStatement = self.getFactory().createVariableDefinitionStatement();
         this._declarationStatement.initFromJson(jsonNode);
     }
 
@@ -204,6 +205,18 @@ class ConnectorDeclaration extends ASTNode {
         }
 
         CommonUtils.generateUniqueIdentifier(uniqueIDGenObject);
+    }
+
+    /**
+     * Return the identifire of the connector
+     *
+     * @returns {String} identifire.
+     * @memberof ConnectorDeclaration
+     */
+    getIdentifire() {
+        const variable = _.find(this._declarationStatement.children,
+            ASTFactory.isSimpleVariableReferenceExpression);
+        return variable.getVariableName();
     }
 }
 

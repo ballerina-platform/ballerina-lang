@@ -74,7 +74,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Get the node's view state
-     * @return {{bBox: BBox}} node's view state
+     * @return {{bBox: SimpleBBox}} node's view state
      */
     getViewState() {
         return this.viewState;
@@ -419,7 +419,7 @@ class ASTNode extends EventChannel {
     static isValidIdentifier(identifier) {
         if (_.isUndefined(identifier)) {
             return false;
-        } else if (/^[a-zA-Z0-9_]*$/.test(identifier)) {
+        } else if (/^[a-zA-Z_$][a-zA-Z0-9_]*$/.test(identifier)) {
             return true;
         }
         return false;
@@ -477,6 +477,7 @@ class ASTNode extends EventChannel {
     removeDebugHit() {
         this.isDebugHit = false;
     }
+
     /**
      * Set lineNumber atribute to node
      * @param {number} lineNumber
@@ -485,6 +486,25 @@ class ASTNode extends EventChannel {
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     }
+
+    /**
+     * Set position info attribute to node
+     * @param {object} position
+     * @param {object} options
+     */
+    setPosition(position, options) {
+        this.setAttribute('position', position, options);
+    }
+
+    /**
+     * Get position info attribute of the node
+     * @returns {object} position
+     * @memberof ASTNode
+     */
+    getPosition() {
+        return this.getAttribute('position');
+    }
+
     /**
      * Set isLiteral atribute to node
      * @param {boolean} isLiteral

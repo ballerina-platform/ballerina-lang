@@ -265,6 +265,16 @@ public class BLangJSONModelConstants {
 
     public static final String LINE_NUMBER = "line_number";
 
+    public static final String POSITION_INFO = "position_info";
+
+    public static final String START_LINE = "start_line";
+
+    public static final String START_OFFSET = "start_offset";
+
+    public static final String STOP_LINE = "stop_line";
+
+    public static final String STOP_OFFSET = "stop_offset";
+
     public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";
 
     public static final String EXPRESSION_OPERATOR = "operator";
@@ -324,8 +334,8 @@ public class BLangJSONModelConstants {
     public static final String COMMITTED_CLAUSE = "CommittedClause";
 
     public static final String COMMITTED_STATEMENT = "committed_statement";
-
-    public static final String FAILED_STATEMENT = "failed_statement";
+    
+	public static final String FAILED_STATEMENT = "failed_statement";
 
     public static final String JOIN_TYPE = "join_type";
 
@@ -378,6 +388,8 @@ public class BLangJSONModelConstants {
     public static final String XML_ATTRIBUTE_REF_EXPR = "xml_attribute_ref_expression";
 
     public static final String XML_ATTRIBUTE_REF_IS_LHS_EXPR = "is_lhs_expression";
+    
+	public static final String RETRY_STATEMENT = "retry_statement";
 
-    public static final String RETRY_STATEMENT = "retry_statement";
+	public static final String HAS_RETURNS_KEYWORD = "has_returns_keyword";
 }

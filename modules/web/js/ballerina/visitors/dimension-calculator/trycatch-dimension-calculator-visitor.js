@@ -65,7 +65,7 @@ class TryCatchStatementDimensionCalculatorVisitor {
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
-
+        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(), child => child.getViewState().bBox.expansionW);
         if (sortedChildren.length <= 0) {
             const exception = {
                 message: 'Invalid number of children for try-catch statement',
@@ -74,7 +74,8 @@ class TryCatchStatementDimensionCalculatorVisitor {
         }
         const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;
-
+        const childWithMaxConnectorWidth = sortedChildrenfromConnectors[sortedChildrenfromConnectors.length - 1];
+        const maxConnectorWidth = childWithMaxConnectorWidth.getViewState().bBox.expansionW;
         _.forEach(node.getChildren(), (child) => {
             /**
              * Re adjust the width of all the other children
@@ -84,15 +85,23 @@ class TryCatchStatementDimensionCalculatorVisitor {
                     childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
             }
+            if (child.getViewState().bBox.expansionW < maxConnectorWidth) {
+                child.getViewState().bBox.expansionW = maxConnectorWidth;
+            }
             statementHeight += child.getViewState().bBox.h;
         });
 
-        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v + node.viewState.offSet;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
+        // Add the block header as an opaque element to prevent conflicts.
+        viewState.components['block-header'] = new SimpleBBox();
+        viewState.components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
+        viewState.components['block-header'].setOpaque(true);
 
         viewState.bBox.h = statementHeight + dropZoneHeight;
         viewState.bBox.w = statementWidth;
+        viewState.bBox.expansionW = maxConnectorWidth;
     }
 }
 

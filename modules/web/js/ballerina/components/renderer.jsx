@@ -19,7 +19,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { getCanvasOverlay } from '../configs/app-context';
 import './text-input.css';
-import CreateStruct from './create-struct';
 
 class TextBox extends React.Component {
     constructor(props) {
@@ -174,11 +173,6 @@ export default class Renderer {
     static renderDropdown(options, overlay) {
         ReactDOM.render(
             <Dropdown {...options} />,
-              overlay);
-    }
-    static renderStructOperations(options, overlay) {
-        ReactDOM.render(
-            <CreateStruct {...options} />,
               overlay);
     }
 }

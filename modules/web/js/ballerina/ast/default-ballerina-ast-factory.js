@@ -193,7 +193,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
  */
 DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
     const tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
-    tryCatchStatement.setStatementFromString('try{}catch(exception e){}');
+    tryCatchStatement.setStatementFromString('try{}catch(errors:Error err){}');
     tryCatchStatement.accept(new EnableDefaultWSVisitor());
     return tryCatchStatement;
 };

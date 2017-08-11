@@ -227,18 +227,9 @@ class ServiceDefinition extends ASTNode {
         this.setServiceName(jsonNode.service_name, { doSilently: true });
 
         _.each(jsonNode.children, (childNode) => {
-            let child;
-            let childNodeTemp;
-            if (childNode.type === 'variable_definition_statement' &&
-                      !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.BallerinaASTFactory.createConnectorDeclaration();
-                childNodeTemp = childNode;
-            } else {
-                child = self.BallerinaASTFactory.createFromJson(childNode);
-                childNodeTemp = childNode;
-            }
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child, undefined, true, true);
-            child.initFromJson(childNodeTemp);
+            child.initFromJson(childNode);
         });
     }
 

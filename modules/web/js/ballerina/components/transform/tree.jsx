@@ -40,9 +40,9 @@ export default class Tree extends React.Component {
     }
 
     renderEndpoint(endpoint, kind, level) {
-        const { endpoints, type, makeConnectPoint, viewId, removeTypeCallbackFunc } = this.props;
+        const { endpoints, type, makeConnectPoint, viewId } = this.props;
         const paramNamePrefix = endpoint.paramName ? `${endpoint.paramName}:` : '';
-        const key = `${paramNamePrefix}${endpoint.fieldName || endpoint.name}:${viewId}`;
+        const key = `${paramNamePrefix}${endpoint.fieldName || endpoint.name || endpoint.id}:${viewId}`;
 
         let endpointKind = kind;
         if (type === 'param' || type === 'return') {
@@ -58,23 +58,34 @@ export default class Tree extends React.Component {
                 endpointKind={endpointKind}
                 makeConnectPoint={makeConnectPoint}
                 level={level}
-                removeTypeCallbackFunc={removeTypeCallbackFunc}
             />
         );
     }
 
     render() {
-        const { endpoints } = this.props;
+        const { endpoints, type, removeTypeCallbackFunc } = this.props;
         return (
             <div className='transform-endpoint-tree'>
                 {
                 endpoints.map((endpoint) => {
+                    const className = `transform-endpoint-container transform-${type}`;
                     return (
-                        <div key={endpoint.name} className='transform-endpoint-container'>
-                            {
-                                endpoint.type === 'struct' ?
-                                this.renderStruct(endpoint, 0) : this.renderEndpoint(endpoint, 'variable', 0)
-                            }
+                        <div key={endpoint.name} className={className}>
+                            <div className='transform-endpoint-details'>
+                                {
+                                    endpoint.type === 'struct' ?
+                                    this.renderStruct(endpoint, 0) : this.renderEndpoint(endpoint, 'variable', 0)
+                                }
+                                {
+                                    (type === 'source' || type === 'target') &&
+                                    <span
+                                        onClick={() => removeTypeCallbackFunc(endpoint)}
+                                        className='fw-stack fw-lg btn btn-remove'
+                                    >
+                                        <i className='fw fw-delete fw-stack-1x' />
+                                    </span>
+                                }
+                            </div>
                         </div>
                     );
                 })

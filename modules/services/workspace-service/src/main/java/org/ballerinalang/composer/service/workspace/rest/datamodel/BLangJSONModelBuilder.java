@@ -77,6 +77,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -367,6 +368,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_LAMBDA_FUNCTION, function.isLambda());
+        jsonFunc.addProperty(BLangJSONModelConstants.HAS_RETURNS_KEYWORD, function.hasReturnsKeyword());
         this.addPosition(jsonFunc, function.getNodeLocation());
         this.addWhitespaceDescriptor(jsonFunc, function.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -1133,8 +1135,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
             // add else catch to parent try-catch
             tryCatchStmtObj.add(BLangJSONModelConstants.CATCH_BLOCKS, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
-        tempJsonArrayRef.pop();
 
         if (tryCatchStmt.getFinallyBlock() != null) {
             JsonObject finallyBlockObj = new JsonObject();
@@ -2115,6 +2117,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     private void addPosition(JsonObject jsonObj, NodeLocation nodeLocation) {
         if (nodeLocation != null) {
             jsonObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(nodeLocation.getLineNumber()));
+
+            JsonObject position = new JsonObject();
+            position.addProperty(BLangJSONModelConstants.START_LINE, nodeLocation.startLineNumber);
+            position.addProperty(BLangJSONModelConstants.START_OFFSET, nodeLocation.startColumn);
+            position.addProperty(BLangJSONModelConstants.STOP_LINE, nodeLocation.stopLineNumber);
+            position.addProperty(BLangJSONModelConstants.STOP_OFFSET, nodeLocation.startColumn);
+
+            jsonObj.add(BLangJSONModelConstants.POSITION_INFO, position);
         }
     }
 
@@ -2179,6 +2189,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     }
 
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+
+    }
+
     private String generateTypeSting(SimpleTypeName typename) {
         if (typename instanceof FunctionTypeName) {
             StringBuilder sb = new StringBuilder();
@@ -2195,7 +2210,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             FunctionTypeName functionTypeName = (FunctionTypeName) typename;
 
             getParamList(sb, functionTypeName.getParamTypes(), functionTypeName.getParamFieldNames());
-            if (functionTypeName.isReturnWordAvailable()) {
+            if (functionTypeName.hasReturnsKeyword()) {
                 sb.append(" returns ");
             }
 

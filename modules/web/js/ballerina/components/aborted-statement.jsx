@@ -62,7 +62,7 @@ class AbortedStatement extends React.Component {
         if (!parent.getCommittedStatement() || !parent.getFailedStatement()) {
             return (<g onClick={this.onAddCommittedClick}>
                 <rect
-                    x={bBox.x + bBox.w - 10}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
                     y={bBox.y + bBox.h - 25}
                     width={20}
                     height={20}
@@ -71,7 +71,7 @@ class AbortedStatement extends React.Component {
                     className="add-else-button"
                 />
                 <text
-                    x={bBox.x + bBox.w - 4}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
                     y={bBox.y + bBox.h - 15}
                     width={20}
                     height={20}

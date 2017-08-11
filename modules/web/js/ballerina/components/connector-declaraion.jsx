@@ -126,6 +126,7 @@ class ConnectorDeclaration extends React.Component {
                 }
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
                 <LifeLine
+                    model={model}
                     title={util.getTextWidth(connectorName, 0, DesignerDefaults.lifeLine.width - 30).text}
                     bBox={connectorBBox}
                     editorOptions={this.editorOptions}

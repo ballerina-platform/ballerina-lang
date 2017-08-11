@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 
 /**
  * Source Gen visitor for the Aborted statement
@@ -95,9 +96,18 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
         // Add the increased number of lines
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-        
+
         this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
+    }
+
+    /**
+     * Visit connector declarations
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration AST node
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 }
 

@@ -21,6 +21,8 @@ import PropTypes from 'prop-types';
 import CanvasDecorator from './canvas-decorator';
 import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
+import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
+import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import { getComponentForNodeArray } from './utils';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
@@ -66,6 +68,9 @@ class Diagram extends React.Component {
         // Following is how we render the diagram.
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.
+        // 1.1 First clear any offset values we have set.
+        this.props.model.accept(new ClearOffset());
+        // 1.2 Run the dimention calculator.
         this.props.model.accept(this.dimentionCalc);
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
@@ -76,6 +81,11 @@ class Diagram extends React.Component {
         };
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
+        this.props.model.accept(this.positionCalc);
+        // 2.1 Lets resolve arrow conflicts.
+        this.props.model.accept(new ArrowConflictResolver());
+        // we re run the dimention and possition calculator again there are any conflicts.
+        this.props.model.accept(this.dimentionCalc);
         this.props.model.accept(this.positionCalc);
         // 3. Now we need to create component for each child of root node.
         let [others] = [undefined, [], [], []];
@@ -102,7 +112,7 @@ class Diagram extends React.Component {
         }
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
-        //    s CsnvasDecorator and pass child components for that.
+        //    a CsnvasDecorator and pass child components for that.
 
         return (<CanvasDecorator
             dropTarget={this.props.model}

@@ -72,7 +72,7 @@ class CatchStatement extends React.Component {
         const addFinallyBtn = (
             <g onClick={this.onAddFinallyClick}>
                 <rect
-                    x={bBox.x + bBox.w - 10}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}
                     y={bBox.y + bBox.h - 25}
                     width={20}
                     height={20}
@@ -81,7 +81,7 @@ class CatchStatement extends React.Component {
                     className="add-finally-button"
                 />
                 <text
-                    x={bBox.x + bBox.w - 4}
+                    x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 4}
                     y={bBox.y + bBox.h - 15}
                     width={20}
                     height={20}

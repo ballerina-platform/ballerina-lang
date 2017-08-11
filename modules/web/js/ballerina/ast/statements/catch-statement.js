@@ -96,9 +96,14 @@ class CatchStatement extends ConditionalStatement {
         paramDefNode.initFromJson(parameterDef[0]);
         this.setParameter(paramDefNode, { doSilently: true });
         this.setParameterDefString(paramDefNode.getParameterDefinitionAsString(), { doSilently: true });
-
+        let child;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            if (childNode.type === 'variable_definition_statement' &&
+                !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = this.getFactory().createConnectorDeclaration();
+            } else {
+                child = this.getFactory().createFromJson(childNode);
+            }
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

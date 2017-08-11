@@ -15,19 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { getCanvasOverlay } from '../configs/app-context';
-import './text-input.css';
-import CreateStruct from './create-struct';
+import _ from 'lodash';
+import Visitors from './dimension-calculator/components';
 
-export default class StructOperationsRenderer {
-    constructor(overlay) {
-        this.overlay = overlay;
+/**
+ * This will vist the tree to clear any offsets.
+ *
+ * @class ArrowConflictResolver
+ */
+class ClearOffset {
+
+
+    canVisit() {
+        return true;
     }
-    renderOverlay(options) {
-        ReactDOM.render(
-            <CreateStruct {...options} />,
-            this.overlay);
+
+    visit(node) {
+        return undefined;
+    }
+
+    beginVisit(node) {
+        node.viewState.offSet = 0;
+    }
+
+    endVisit(node) {
+        return undefined;
     }
 }
+
+export default ClearOffset;
