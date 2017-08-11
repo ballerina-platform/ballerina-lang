@@ -80,7 +80,7 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
     }
 
     @Override
-    public boolean stop() {
+    public boolean close() {
         return false;
     }
 }

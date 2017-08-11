@@ -17,7 +17,7 @@ public class HTTPClientConnectorFutureImpl implements HTTPClientConnectorFuture 
     }
 
     @Override
-    public void removeHTTPListener(HTTPConnectorListener connectorListener) {
+    public void removeHTTPListener() {
         this.httpConnectorListener = null;
     }
 
