@@ -139,6 +139,8 @@
             <groupId>org.atomikos.wso2</groupId>
             <artifactId>atomikos</artifactId>
         </dependency>
+
+        <!--TODO REMOVE BELOW-->
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.jms</artifactId>
