@@ -18,24 +18,15 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.ServerConnectorMessageHandler;
 import org.ballerinalang.runtime.threadpool.RequestWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
-import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
-
-import java.util.Optional;
 
 /**
  * HTTP connector listener for Ballerina.
