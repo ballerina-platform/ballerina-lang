@@ -47,82 +47,102 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
                                         HashMap<String, Object> properties) {
 
         int currentTokenIndex = dataModel.getTokenIndex();
-        int searchLevel = 0;
-        ArrayList<String> searchTokens = new ArrayList<>();
         TokenStream tokenStream = dataModel.getTokenStream();
-        boolean continueSearch = true;
-        int searchTokenIndex = currentTokenIndex + 1;
-
-        while (continueSearch) {
-            if (tokenStream != null && searchTokenIndex < tokenStream.size()) {
-                Token token = tokenStream.get(searchTokenIndex);
-                String tokenStr = token.getText();
-
-                // exit the while-loop once we found the first token which is not in default channel
-                if (token.getChannel() != Token.DEFAULT_CHANNEL) {
-                    break;
-                }
-                if (tokenStr.equals(":") || tokenStr.equals(".")) {
-                    searchTokens.add(tokenStream.get(searchTokenIndex - 1).getText());
-                    searchLevel++;
-                }
-                searchTokenIndex++;
-            } else {
-                continueSearch = false;
-            }
+        String searchTokenString = tokenStream.get(currentTokenIndex).getText();
+        int colonTokenIndex;
+        // This is for the case where we have the code segment such as http:, xmls:, etc.. current token is http or xmls
+        // in such cases we assume that the next token is for either : or .
+        // TODO: Refactor after integrating the semantic analyzer
+        if (!searchTokenString.equals(":") || !searchTokenString.equals(".")) {
+            searchTokenString = tokenStream.get(currentTokenIndex + 1).getText();
+            currentTokenIndex += 1;
+        }
+        if (searchTokenString.equals(":")) {
+            // this is the case where package's native functions are being called such as http:getStatusCode()
+            colonTokenIndex = currentTokenIndex;
+        } else {
+            int initTokenIndex = this.getIndexOfTokenString(searchTokenString, 0, dataModel);
+            int equalTokenIndex = this.getIndexOfTokenString("=", initTokenIndex, dataModel);
+            colonTokenIndex = this.getIndexOfTokenString(":", equalTokenIndex, dataModel);
         }
 
-        List<SymbolInfo> searchList = symbols.stream()
+        ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
+
+        if (colonTokenIndex > -1) {
+            String packageName = tokenStream.get(colonTokenIndex - 1).getText();
+
+            List<SymbolInfo> searchList = symbols.stream()
                 .filter(symbolInfo -> !(symbolInfo.getSymbol() instanceof BType)).collect(Collectors.toList());
 
-        for (int itr = 0; itr < searchLevel; itr++) {
-            String searchStr = searchTokens.get(itr);
             List<SymbolInfo> filteredSymbolInfoList = searchList.stream()
                     .filter(
-                            symbolInfo -> symbolInfo.getSymbolName().contains(searchStr)
+                            symbolInfo -> symbolInfo.getSymbolName().contains(packageName)
                                     && (symbolInfo.getSymbol() instanceof NativePackageProxy
                                     || symbolInfo.getSymbol() instanceof NativeUnitProxy)
                     ).collect(Collectors.toList());
 
-            searchList.clear();
             for (SymbolInfo aFilteredSymbolInfoList : filteredSymbolInfoList) {
                 if (aFilteredSymbolInfoList.getSymbol() instanceof NativePackageProxy) {
                     BLangPackage bLangPackage =
                             ((NativePackageProxy) aFilteredSymbolInfoList.getSymbol()).load();
                     bLangPackage.getSymbolMap().forEach((k, v) -> {
                         SymbolInfo symbolInfo = new SymbolInfo(k.getName(), v);
-                        searchList.add(symbolInfo);
+                        returnSymbolsInfoList.add(symbolInfo);
                     });
                 } else if (aFilteredSymbolInfoList.getSymbol() instanceof NativeUnitProxy) {
                     NativeUnit nativeUnit = ((NativeUnitProxy) aFilteredSymbolInfoList.getSymbol()).load();
                     SymbolInfo symbolInfo = new SymbolInfo(((BLangSymbol) nativeUnit).getName(),
                             ((BLangSymbol) nativeUnit));
-                    searchList.add(symbolInfo);
+                    returnSymbolsInfoList.add(symbolInfo);
                 }
             }
         }
 
-        return searchList;
+        return returnSymbolsInfoList;
     }
 
     /**
      * Get the list of completion Items from the symbolInfo list
      * @return {@link ArrayList}
      */
-    public ArrayList<CompletionItem> getCompletionItems(List<SymbolInfo> symbolInfoList) {
+    public ArrayList<CompletionItem> getCompletionItems(List<SymbolInfo> symbolInfoList,
+                                                        SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         boolean canSuggestClientConnector = false;
+        String tokenStr = dataModel.getTokenStream().get(dataModel.getTokenIndex()).getText();
 
-        for (SymbolInfo symbolInfo : symbolInfoList) {
+        // This is for the case where we have the code segment such as http:, xmls:, etc.. current token is http or xmls
+        // in such cases we assume that the next token is for either : or .
+        // TODO: Refactor after integrating the semantic analyzer
+        if (!tokenStr.equals(":") || !tokenStr.equals(".")) {
+            tokenStr = dataModel.getTokenStream().get(dataModel.getTokenIndex() + 1).getText();
+        }
+        List<SymbolInfo> symbolInfos = new ArrayList<>();
+        List<SymbolInfo> connectorActions = symbolInfoList.stream()
+                .filter(symbolInfo -> symbolInfo.getSymbolName().contains(".ClientConnector."))
+                .collect(Collectors.toList());
+        if (tokenStr.equals(":")) {
+            symbolInfos = symbolInfoList.stream()
+                    .filter(symbolInfo -> !symbolInfo.getSymbolName().contains(".ClientConnector."))
+                    .collect(Collectors.toList());
+
+            // TODO: Need to find an alternative way to find this
+            if (connectorActions.size() > 0) {
+                canSuggestClientConnector = true;
+            }
+        } else {
+            symbolInfos.addAll(connectorActions);
+        }
+
+        for (SymbolInfo symbolInfo : symbolInfos) {
             CompletionItem completionItem = new CompletionItem();
             FunctionSignature functionSignature;
             if (symbolInfo.getSymbolName().contains(".ClientConnector.")) {
-                canSuggestClientConnector = true;
                 String[] tokens = symbolInfo.getSymbolName().split("\\.");
                 functionSignature = this.getFunctionSignature(tokens[tokens.length - 1],
                         ((NativeUnitProxy) symbolInfo.getSymbol()).load());
-                completionItem.setInsertText("ClientConnector." + functionSignature.getInsertText());
-                completionItem.setLabel("ClientConnector." + functionSignature.getLabel());
+                completionItem.setInsertText(functionSignature.getInsertText());
+                completionItem.setLabel(functionSignature.getLabel());
                 completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
             } else {
@@ -222,5 +242,33 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         public void setLabel(String label) {
             this.label = label;
         }
+    }
+
+    /**
+     * Get the index of a certain token
+     * @param tokenString - token string
+     * @param from - start searching from
+     * @param dataModel - suggestions filter data model
+     * @return {@link Integer}
+     */
+    private int getIndexOfTokenString(String tokenString, int from, SuggestionsFilterDataModel dataModel) {
+        TokenStream tokenStream = dataModel.getTokenStream();
+        int resultTokenIndex = -1;
+        int searchIndex = from;
+
+        while (true) {
+            if (searchIndex < 0 || tokenStream.size() - 1 < searchIndex) {
+                break;
+            }
+            Token token = tokenStream.get(searchIndex);
+            if (token.getChannel() != Token.DEFAULT_CHANNEL || !token.getText().equals(tokenString)) {
+                searchIndex++;
+            } else {
+                resultTokenIndex = searchIndex;
+                break;
+            }
+        }
+
+        return resultTokenIndex;
     }
 }
