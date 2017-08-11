@@ -77,6 +77,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     ServiceBodyNode.class, ConnectorBodyNode.class);
             if (definitionParent != null && prevVisibleLeaf != null && "=".equals(prevVisibleLeaf.getText())) {
                 addCreateKeyword(result);
+                addTypeOfKeyword(result);
+                addLengthOfKeyword(result);
                 result.addAllElements(getValueKeywords());
             }
 
@@ -108,6 +110,15 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             }
         }
 
+        if (parent instanceof StatementNode) {
+            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
+                addCreateKeyword(result);
+                addTypeOfKeyword(result);
+                addLengthOfKeyword(result);
+            }
+        }
+
         if (parent instanceof ConstantDefinitionNode || parent instanceof PsiErrorElement) {
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
             if (prevVisibleSibling != null && "const".equals(prevVisibleSibling.getText())) {
@@ -128,6 +139,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
                     addCreateKeyword(result);
                     result.addAllElements(getValueKeywords());
+                    addTypeOfKeyword(result);
+                    addLengthOfKeyword(result);
                 }
 
                 if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{}]")
