@@ -51,10 +51,11 @@ HTTP Sessions
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
-Websocket Basic Endpoint
-Websocket Basic Functions
-Websocket Connection Groups
-Websocket Connection Store
 Log API
 Function Pointers
 Lambda
+WebSocket Basic Endpoint
+WebSocket Basic Functions
+WebSocket Connection Store
+WebSocket Connection Groups
+WebSocket Client Connector
