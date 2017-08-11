@@ -87,14 +87,19 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
                                     .getFactory().isAnnotationAttribute);
         if (_.isArray(attributes)) {
             attributes.forEach((attribute, index) => {
-                if (index !== 0) {
+                const mockParent = new AbstractSourceGenVisitor();
+                const annotationAttributeVisitor = new AnnotationAttributeVisitor(mockParent, index === 0);
+                attribute.accept(annotationAttributeVisitor);
+                const genSource = annotationAttributeVisitor.getGeneratedSource();
+                console.log(genSource);
+                if (index !== 0 && !_.isEmpty(genSource)) {
                     this.appendSource(',');
                     if (annotationAttachment.whiteSpace.useDefault) {
                         this.appendSource('\n');
                     }
                 }
-                const annotationAttributeVisitor = new AnnotationAttributeVisitor(this, index === 0);
-                attribute.accept(annotationAttributeVisitor);
+                this.appendSource(genSource);
+               
                 if (index === attributes.length - 1) {
                     if (annotationAttachment.whiteSpace.useDefault) {
                         this.appendSource('\n');
