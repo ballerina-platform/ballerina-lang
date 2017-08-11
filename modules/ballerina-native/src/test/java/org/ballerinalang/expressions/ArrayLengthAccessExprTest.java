@@ -41,11 +41,12 @@ public class ArrayLengthAccessExprTest {
         bLangProgram = BTestUtils.getProgramFile("lang/expressions/array-length-access-expr.bal");
     }
 
-    @Test(description = "Test array length access expression when array is null.")
+    @Test(description = "Test array length access expression when array is null.",
+            expectedExceptions = {BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     public void testArrayLengthAccessExpArrayNullCase() {
-        //BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "arrayLengthAccessNullArrayCase");
-        int i = returns.length;
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BLangFunctions.invokeNew(bLangProgram, "arrayLengthAccessNullArrayCase", args);
     }
 
 }

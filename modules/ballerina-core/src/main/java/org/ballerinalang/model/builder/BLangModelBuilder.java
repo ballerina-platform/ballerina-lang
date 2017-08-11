@@ -199,7 +199,7 @@ public class BLangModelBuilder {
     protected SymbolScope packageScope = null;
 
     // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
-    protected SymbolScope forkJoinScope = null;
+    protected Stack<SymbolScope> forkJoinScope = new Stack<>();
 
     // This variable keeps the current scope when adding workers and resolve back to current scope once done
     protected Stack<SymbolScope> workerOuterBlockScope = new Stack<>();
@@ -1040,7 +1040,7 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(currentScope.getEnclosingScope());
         //setting workerOuterBlockScope if it is not a fork join statement
-        if (forkJoinScope == null) {
+        if (forkJoinScope.empty()) {
             workerOuterBlockScope.push(currentScope);
         }
         currentScope = currentCUBuilder.getCurrentScope();
@@ -1127,7 +1127,7 @@ public class BLangModelBuilder {
             currentScope = workerOuterBlockScope.pop();
         } else {
             workerStack.peek().add(worker);
-            currentScope = forkJoinScope;
+            currentScope = forkJoinScope.peek();
         }
 
         currentCUBuilder = parentCUBuilder.pop();
@@ -1585,7 +1585,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
-        forkJoinScope = currentScope;
+        forkJoinScope.push(currentScope);
         workerStack.push(new ArrayList<>());
     }
 
@@ -1752,6 +1752,7 @@ public class BLangModelBuilder {
         }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
+        forkJoinScope.pop();
 
     }
 
