@@ -142,8 +142,7 @@ class TransformStatement extends Statement {
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
            if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
-              let index = 0;
-               _.forEach(child.getRightExpression().children, (expChild) => {
+               _.forEach(child.getRightExpression().children, (expChild, index) => {
                  if ((BallerinaASTFactory.isFieldBasedVarRefExpression(expChild)
                               && expChild.getVarRoot().getVariableName()  == input.name) ||
                      (BallerinaASTFactory.isSimpleVariableReferenceExpression(expChild)
@@ -151,7 +150,6 @@ class TransformStatement extends Statement {
                       this.getChildById(child.getID()).getRightExpression().children[index]
                                                                     = BallerinaASTFactory.createNullLiteralExpression();
                  }
-                 index++;
                });
            } else if((BallerinaASTFactory.isFieldBasedVarRefExpression (child.getRightExpression())
                           && child.getRightExpression().getVarRoot().getVariableName() == input.name)||
