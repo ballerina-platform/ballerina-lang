@@ -377,7 +377,9 @@ class TransformRender {
     }
 
     remove(elementId) {
-        this.jsPlumbInstance.remove(elementId);
+        jsPlumb.detachAllConnections(elementId);
+        jsPlumb.removeAllEndpoints(elementId);
+        jsPlumb.detach(elementId);
     }
 
 // /**
