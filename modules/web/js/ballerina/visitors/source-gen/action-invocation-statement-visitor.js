@@ -69,15 +69,15 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
                 argsString += args[itr].getExpressionString();
             } else if (ASTFactory.isResourceParameter(args[itr])) {
                 argsString += args[itr].getParameterAsString();
+            } else if (ASTFactory.isLambdaExpression(args[itr])) {
+                const lambdaFn = args[itr].getLambdaFunction();
+                lambdaFn.accept(new FunctionDefinitionVisitor(this));
             }
 
             if (itr !== args.length - 1) {
                 argsString += ', ';
             }
         }
-
-        let connectorRef = '';
-        const connectorExpression = actionInvocationExpr.getConnectorExpression();
 
         let constructedSourceSegment = '';
         if (!_.isUndefined(actionInvocationExpr.getActionPackageName()) &&
@@ -93,39 +93,8 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
             actionInvocationExpr.getActionName() + actionInvocationExpr.getWSRegion(3)
             + '(' + actionInvocationExpr.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
-
-
-        // Get the Connector expression reference name
-        if (!_.isNil(actionInvocationExpr.getConnector())) {
-            const connector = actionInvocationExpr.getConnector();
-            if (ASTFactory.isAssignmentStatement(connector)) {
-                const variableReferenceList = [];
-
-                _.forEach(connector.getChildren()[0].getChildren(), (child) => {
-                    variableReferenceList.push(child.getExpressionString());
-                });
-                connectorRef = _.join(variableReferenceList, ', ');
-            } else {
-                connectorRef = actionInvocationExpr.getConnector().getConnectorVariable();
-            }
-        } else if (!_.isNil(connectorExpression)) {
-            if (ASTFactory.isLambdaExpression(connectorExpression)) {
-                const lambdaFn = connectorExpression.getLambdaFunction();
-                lambdaFn.accept(new FunctionDefinitionVisitor(this));
-            } else {
-                connectorRef = connectorExpression.getExpressionString();
-            }
-        }
-
-        // Append the connector reference expression name to the arguments string
-        if (!_.isEmpty(argsString)) {
-            argsString = connectorRef + ', ' + argsString;
-        } else {
-            argsString = connectorRef;
-        }
         constructedSourceSegment = argsString + ')' + actionInvocationExpr.getWSRegion(5);
         this.appendSource(constructedSourceSegment);
-
     }
 
     endVisitActionInvocationExpression(expression) {
