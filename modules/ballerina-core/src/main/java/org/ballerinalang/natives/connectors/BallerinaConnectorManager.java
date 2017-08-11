@@ -17,17 +17,16 @@
  */
 package org.ballerinalang.natives.connectors;
 
-import com.sun.corba.se.spi.activation.Server;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.services.dispatchers.ws.BallerinaWSServerConnectorListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.connector.framework.ConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
@@ -243,9 +242,9 @@ public class BallerinaConnectorManager {
                 serverConnectorEntry: startupDelayedHTTPServerConnectors.entrySet()) {
             org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
                     serverConnectorEntry.getValue();
-            ServerConnectorFuture connectorFuture =
-                    serverConnector.start();
+            ServerConnectorFuture connectorFuture = serverConnector.start();
             connectorFuture.setHTTPConnectorListener(new BallerinaHTTPConnectorListener());
+            connectorFuture.setWSConnectorListener(new BallerinaWSServerConnectorListener());
             startedConnectors.add(serverConnector);
         }
         startupDelayedServerConnectors.clear();
