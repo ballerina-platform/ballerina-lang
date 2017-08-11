@@ -99,7 +99,7 @@ function breakpointHOC(WrappedComponent) {
         debugHit(message) {
             const { editor } = this.context;
             const fileName = editor.getFile().getName();
-            const lineNumber = this.props.model._lineNumber;
+            const lineNumber = this.props.model.getLineNumber();
             const position = message.location;
             const { astRoot } = this.context;
             const packagePath = astRoot.getPackageDefinition().getPackageName() || '.';
