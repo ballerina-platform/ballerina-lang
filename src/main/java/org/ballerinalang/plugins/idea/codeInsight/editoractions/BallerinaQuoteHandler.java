@@ -16,11 +16,18 @@
 
 package org.ballerinalang.plugins.idea.codeInsight.editoractions;
 
+import com.intellij.codeInsight.editorActions.JavaLikeQuoteHandler;
 import com.intellij.codeInsight.editorActions.SimpleTokenSetQuoteHandler;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.jetbrains.annotations.NotNull;
 
-public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
+public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler implements JavaLikeQuoteHandler {
+
+    private static final TokenSet SINGLE_LINE_LITERALS = TokenSet.create(BallerinaTypes.QUOTED_STRING);
 
     public BallerinaQuoteHandler() {
         super(BallerinaTypes.DOUBLE_QUOTE, BallerinaTypes.BACK_TICK, //Needed to identify start tokens
@@ -30,5 +37,30 @@ public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
     @Override
     protected boolean isNonClosedLiteral(HighlighterIterator iterator, CharSequence chars) {
         return true;
+    }
+
+    @Override
+    public TokenSet getConcatenatableStringTokenTypes() {
+        return SINGLE_LINE_LITERALS;
+    }
+
+    @Override
+    public String getStringConcatenationOperatorRepresentation() {
+        return "+";
+    }
+
+    @Override
+    public TokenSet getStringTokenTypes() {
+        return SINGLE_LINE_LITERALS;
+    }
+
+    @Override
+    public boolean isAppropriateElementTypeForLiteral(@NotNull IElementType tokenType) {
+        return true;
+    }
+
+    @Override
+    public boolean needParenthesesAroundConcatenation(PsiElement element) {
+        return false;
     }
 }

@@ -323,9 +323,8 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["\\]
-    |   ('\\' '\\')+
-    |   ('\\' .)
+    :   ~["\n\r]
+    |   ~'\\'? ('\\' '\\')* '\\' ["]
     ;
 
 BacktickStringLiteral
