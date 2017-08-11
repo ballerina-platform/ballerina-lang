@@ -123,15 +123,12 @@ class TransformExpanded extends React.Component {
         if (!_.isUndefined(sourceStruct) && connection.isTargetFunction) {
             // Connection source is a struct and target is not a struct.
             // Target could be a function node.
-            const assignmentStmtSource = connection.targetReference;
-            let funcNode;
-            if (BallerinaASTFactory.isFunctionInvocationExpression(connection.targetReference)) {
-                funcNode = connection.targetReference;
-            } else {
-                funcNode = connection.targetReference.getRightExpression();
-            }
-            const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(),
-                                    (param) => { return param.name == connection.targetStruct; });
+            const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetFuncInv);
+            const funcNode = connection.targetFuncInv;
+            const index = _.findIndex(this.getFunctionDefinition(connection.targetFuncInv).getParameters(), param => {
+                return param.name == connection.targetStruct;
+            });
+
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
             if (connection.targetProperty && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
@@ -154,26 +151,18 @@ class TransformExpanded extends React.Component {
             } else {
                 funcNode.addChild(sourceExpression, index);
             }
-            return assignmentStmtSource.id;
+            return assignmentStmtTarget.id;
         }
 
         if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            let sourceExpression;
+            const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
 
-            if(BallerinaASTFactory.isFunctionInvocationExpression(connection.sourceReference)) {
-                sourceExpression = connection.sourceReference;
-            } else {
-                sourceExpression = connection.sourceReference.getRightExpression();
-            }
-
-            const assignmentStmtTarget = connection.sourceFuncInv.getParent();
-
-            const index = _.findIndex(this.getFunctionDefinition(sourceExpression).getReturnParams(), param => {
+            const index = _.findIndex(this.getFunctionDefinition(connection.sourceFuncInv).getReturnParams(), param => {
                 return param.name == connection.sourceStruct;
             });
-            assignmentStmtTarget.getLeftExpression().addChild(targetExpression, index);
+            assignmentStmtSource.getLeftExpression().addChild(targetExpression, index);
             return assignmentStmtTarget.id;
         }
 
@@ -266,7 +255,7 @@ class TransformExpanded extends React.Component {
     }
 
     getStructAccessNode(name, property, isStruct) {
-        if (!isStruct) {
+        if (!isStruct || !property) {
             const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString(name);
             return simpleVarRefExpression;

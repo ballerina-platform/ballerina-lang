@@ -810,11 +810,8 @@ class TransformRender {
 
                 const connection = this.getConnectionObject(params.id, input, output);
                 if (isValidTypes) {
-                    this.midpoint += this.midpointVariance;
                     this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
                     connection.id = this.onConnection(connection);
-                    params.connection.setParameter('id', connection.id);
-                    params.connection.setParameter('output', output);
                 }
                 return isValidTypes;
             },
