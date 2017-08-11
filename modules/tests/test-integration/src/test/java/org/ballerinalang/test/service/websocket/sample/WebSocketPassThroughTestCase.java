@@ -35,7 +35,7 @@ import java.io.File;
  * Test class for WebSocket client connector.
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
-public class WebSocketClientTest extends WebSocketIntegrationTest {
+public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     private final int threadSleepTime = 100;
     private final int messageDeliveryCountDown = 40;

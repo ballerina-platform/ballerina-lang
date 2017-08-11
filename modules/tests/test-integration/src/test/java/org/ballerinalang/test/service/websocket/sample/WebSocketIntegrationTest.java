@@ -39,14 +39,4 @@ public class WebSocketIntegrationTest extends IntegrationTestCase {
         }
         Assert.assertTrue(false);
     }
-
-    protected void assertWebSocketClientStringMessageNullCheck(WebSocketClient client, int threadSleepTime)
-            throws InterruptedException {
-        Thread.sleep(threadSleepTime);
-        if (client.getTextReceived() != null) {
-            Assert.assertTrue(false);
-            return;
-        }
-        Assert.assertTrue(true);
-    }
 }

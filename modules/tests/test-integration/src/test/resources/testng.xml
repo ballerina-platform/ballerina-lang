@@ -32,10 +32,7 @@
 
     <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websocket.sample.EchoServerSampleTestCase"/>
-            <class name="org.ballerinalang.test.service.websocket.sample.ConnectionGroupSampleTest"/>
-            <class name="org.ballerinalang.test.service.websocket.sample.ConnectionStoreSampleTest"/>
-            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketClientTest"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketPassThroughTestCase"/>
         </classes>
     </test>
 </suite>
