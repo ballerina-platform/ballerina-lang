@@ -2,9 +2,9 @@ import ballerina.lang.system;
 import ballerina.data.sql;
 
 function main (string[] args) {
-    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
-                    "username":"root", "password":"root"};
-    sql:ClientConnector testDB = create sql:ClientConnector(props);
+    sql:ConnectionProperties Properties = {maximumPoolSize:5};
+    sql:ClientConnector testDB = create sql:ClientConnector(
+      sql:MYSQL, "localhost", 3306, "db", "sa", "root", Properties);
 
     //Here is the transaction block. You can use a Try catch here since update action can throw
     //errors due to SQL errors, connection pool errors etc.
