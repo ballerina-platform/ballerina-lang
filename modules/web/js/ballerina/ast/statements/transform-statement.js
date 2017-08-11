@@ -142,11 +142,21 @@ class TransformStatement extends Statement {
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
            if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
-             if (child.getRightExpression().children[0].getVarRoot().getVariableName()  == input.name) {
-                  this.getChildById(child.getID()).getRightExpression().children[0]
-                                                                = BallerinaASTFactory.createNullLiteralExpression();
-             }
-           } else if(child.getRightExpression().children[0].getVariableName() == input.name){
+              let index = 0;
+               _.forEach(child.getRightExpression().children, (expChild) => {
+                 if ((BallerinaASTFactory.isFieldBasedVarRefExpression(expChild)
+                              && expChild.getVarRoot().getVariableName()  == input.name) ||
+                     (BallerinaASTFactory.isSimpleVariableReferenceExpression(expChild)
+                              && expChild.getVariableName()  == input.name)) {
+                      this.getChildById(child.getID()).getRightExpression().children[index]
+                                                                    = BallerinaASTFactory.createNullLiteralExpression();
+                 }
+                 index++;
+               });
+           } else if((BallerinaASTFactory.isFieldBasedVarRefExpression (child.getRightExpression())
+                          && child.getRightExpression().getVarRoot().getVariableName() == input.name)||
+                        (BallerinaASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
+                                                && child.getRightExpression().getVariableName() == input.name)){
              this.removeChild(child, true, true);
            }
       });
