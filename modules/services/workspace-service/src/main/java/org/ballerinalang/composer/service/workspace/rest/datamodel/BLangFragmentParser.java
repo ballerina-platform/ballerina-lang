@@ -79,6 +79,14 @@ public class BLangFragmentParser {
                 fragmentNode = varDef.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(1).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
+                // 0 & 1 are function args and return types, 2 is the assignment statement
+                JsonObject assignmentStmt = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                                               .get(2).getAsJsonObject();
+                // 0th child is the var ref list expression of assignment stmt
+                fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                                     .get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.STATEMENT:
                 // 0 & 1 are function args and return types, 2 is the statement came from source fragment
                 fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2).getAsJsonObject();
@@ -173,6 +181,10 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.RETURN_PARAMETER:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_RETURN_WRAPPER,
                         sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, sourceFragment.getSource());
                 break;
             default:
                 parsableText = "";

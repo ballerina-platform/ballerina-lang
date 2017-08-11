@@ -27,10 +27,11 @@ export default class FunctionInv extends React.Component {
             func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
             parentFunc, funcInv,
         } = this.props;
-        const params = func.getParameters().map((paramObj) => {
+        const params = func.getParameters().map((paramObj, index) => {
             const param = paramObj.typeDef || paramObj;
             const paramDetails = {
                 name: paramObj.name,
+                index,
                 type: param.type,
                 typeName: param.typeName,
                 properties: param.properties,
@@ -47,7 +48,7 @@ export default class FunctionInv extends React.Component {
         const returns = func.getReturnParams().map((returnsObj, index) => {
             return {
                 name: returnsObj.name,
-                id: returnsObj.name || index,
+                index,
                 type: returnsObj.typeName || returnsObj.type,
                 paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
