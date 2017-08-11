@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -375,6 +376,72 @@ public class TypeOfUnaryExpressionTest {
         int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 1;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test type to any implicit cast.")
+    public void testTypeToAnyImplicitCast() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "typeToAnyImplicitCast", args);
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[1].getClass(), BTypeValue.class);
+        Assert.assertEquals(returns[0], returns[1]);
+    }
+
+    @Test(description = "Test type to any explicit cast.")
+    public void testTypeToAnyExplicitCast() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "typeToAnyExplicitCast", args);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[1].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[2].getClass(), BTypeValue.class);
+        Assert.assertEquals(returns[0], returns[1]);
+        Assert.assertEquals(returns[1], returns[2]);
+    }
+
+    @Test(description = "Test any to type explicit cast.")
+    public void testAnyToTypeExplicitCast() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "anyToTypeExplicitCast", args);
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[1].getClass(), BTypeValue.class);
+
+        Assert.assertEquals(returns[0], returns[1]);
+
+    }
+
+    @Test(description = "Test access string value of a type")
+    public void testTypeStringValue() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getTypeStringValue", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+
+        String typeString = returns[0].stringValue();
+        String typeStringExpected = "int";
+        Assert.assertEquals(typeString, typeStringExpected);
+    }
+
+    @Test(description = "Test access string value of a Struct type")
+    public void getStructTypeStringValue() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getStructTypeStringValue", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+
+        String typeString = returns[0].stringValue();
+        String typeStringExpected = "Person";
+        Assert.assertEquals(typeString, typeStringExpected);
     }
 }
 
