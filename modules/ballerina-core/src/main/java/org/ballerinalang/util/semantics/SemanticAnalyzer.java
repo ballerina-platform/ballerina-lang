@@ -430,7 +430,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Worker worker : resource.getWorkers()) {
-            addWorkerSymbol(worker);
             visit(worker);
         }
 
@@ -668,7 +667,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!function.isNative()) {
             for (Worker worker : function.getWorkers()) {
-                //addWorkerSymbol(worker);
                 worker.accept(this);
             }
 
@@ -716,7 +714,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!action.isNative()) {
             for (Worker worker : action.getWorkers()) {
-                //addWorkerSymbol(worker);
                 worker.accept(this);
             }
 
@@ -753,7 +750,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         // addWorkerSymbol(worker);
 
         for (Worker worker2 : worker.getWorkers()) {
-            addWorkerSymbol(worker2);
             worker2.accept(this);
         }
 
