@@ -50,6 +50,7 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         variableDefinitionStatement.setLineNumber(lineNumber, { doSilently: true });
+        const isIdentifierLiteral = variableDefinitionStatement.getChildren()[0].isIdentifierLiteral;
 
         let variableDefinitionStatementString =
             !_.isNil(((variableDefinitionStatement.getChildren()[0]).getChildren()[0]).getPkgName()) ?
@@ -61,8 +62,17 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
                 variableDefinitionStatementString += '[]';
             }
         }
-        variableDefinitionStatementString += variableDefinitionStatement.getWSRegion(0) +
-            variableDefinitionStatement.getIdentifier();
+
+        if (variableDefinitionStatement.getVariableDef().getTypeConstraint()) {
+            const constraint = variableDefinitionStatement.getVariableDef().getTypeConstraint();
+            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
+                                  + constraint.type + '>');
+            variableDefinitionStatementString += constraintStr;
+        }
+        variableDefinitionStatementString += variableDefinitionStatement.getWSRegion(0)
+                + (isIdentifierLiteral ? '|' : '') + variableDefinitionStatement.getIdentifier()
+                + (isIdentifierLiteral ? '|' : '');
+
         const child = variableDefinitionStatement.children[1];
         if (!_.isNil(child)) {
             variableDefinitionStatementString +=
