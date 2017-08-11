@@ -21,7 +21,7 @@ service<ws> serverConnector {
         } else {
             system:println("Client connector sending message: " +
                            messages:getStringPayload(m));
-            ws:ClientConnector.pushText(con, messages:getStringPayload(m));
+            con.pushText(messages:getStringPayload(m));
         }
     }
 }
