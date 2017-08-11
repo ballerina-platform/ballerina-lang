@@ -302,11 +302,12 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "Colombo");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*failed to set element to json: array index out of range: index: 7, " +
-                    "size: 3.*")
+    @Test()
     public void testSetArrayOutofBoundElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetArrayOutofBoundElement");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        BJSON json = ((BJSON) returns[0]);
+        Assert.assertEquals(json.toString(), "[1,2,3,null,null,null,null,8]");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -407,5 +408,44 @@ public class BJSONValueTest {
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\\\"name\\\", \"supun\"}");
+    }
+    
+    @Test
+    public void testJsonArrayToJsonCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonArrayToJsonCasting");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
+    }
+    
+    @Test
+    public void testJsonToJsonArrayCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToJsonArrayCasting");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        
+        Assert.assertEquals(returns[0].toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
+    }
+    
+    @Test
+    public void testJsonToJsonArrayInvalidCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToJsonArrayInvalidCasting");
+        Assert.assertEquals(returns[0], null);
+        
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        String errorMsg = ((BStruct) returns[1]).getStringField(0);
+        Assert.assertEquals(errorMsg, "'json' cannot be cast to 'json[][][]'");
+    }
+
+    @Test
+    public void testJsonLength() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonLength");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 3);
     }
 }

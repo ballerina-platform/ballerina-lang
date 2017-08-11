@@ -1,5 +1,4 @@
 import ballerina.lang.system;
-import ballerina.lang.datatables;
 import ballerina.data.sql;
 
 function main (string[] args) {
@@ -14,7 +13,7 @@ function main (string[] args) {
     sql:Parameter[] params = [];
     int ret = sql:ClientConnector.update(testDB,
                     "create table Students(id int auto_increment,  " +
-                    "age intname varchar(255), primary key (id))", params);
+                    "age int, name varchar(255), primary key (id))", params);
     system:println("Table creation status:" + ret);
 
     //Create a stored procedure using update action.
@@ -57,7 +56,6 @@ function main (string[] args) {
                                 "SELECT * from Students where age = ?", params);
     var jsonRes, err = <json>dt;
     system:println(jsonRes);
-    datatables:close(dt);
 
     //A Batch of data can be inserted using  batchUpdate action. Number
     //of inserted rows for each insert in batch is returned as an array

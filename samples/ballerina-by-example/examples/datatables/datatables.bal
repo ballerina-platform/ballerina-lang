@@ -37,23 +37,19 @@ function main (string[] args) {
                        "|" + rs.birthtime +
                        "|" + rs.updated);
     }
-    //Close the datatable to clean the resources.
-    datatables:close(dt);
 
     //Convert a datatable to json.
     dt = sql:ClientConnector.select(empDB,
                                     "SELECT id,name from employees", params);
     var jsonRes, _ = <json>dt;
     system:println(jsonRes);
-    datatables:close(dt);
 
     //Convert a datatable to xml.
     dt = sql:ClientConnector.select(empDB,
                                     "SELECT id,name from employees", params);
     var xmlRes, _ = <xml>dt;
     system:println(xmlRes);
-    datatables:close(dt);
-    
+
     //Finally close the DB connection.
     sql:ClientConnector.close(empDB);
 }

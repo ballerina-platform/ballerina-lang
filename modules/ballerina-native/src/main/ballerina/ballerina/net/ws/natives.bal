@@ -51,5 +51,14 @@ native function pushTextToGroup (string connectionGroupName, string text);
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
 native function closeConnectionGroup(string connectionGroupName);
 
+connector ClientConnector (string url, string callbackService) {
+
+    @doc:Description { value:"Push text to the server"}
+    @doc:Param { value:"c: WebSocket Client Connector"}
+    @doc:Param { value:"text: text which should be sent"}
+    native action pushText(ClientConnector c, string text);
+
+}
+
 
 

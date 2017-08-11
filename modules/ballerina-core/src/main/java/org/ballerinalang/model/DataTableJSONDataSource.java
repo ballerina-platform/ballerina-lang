@@ -55,7 +55,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
     @Override
     public void serialize(JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         gen.writeStartArray();
-        while (this.df.hasNext()) {
+        while (this.df.hasNext(this.isInTransaction)) {
             this.objGen.transform(this.df).serialize(gen, serializerProvider);
         }
         gen.writeEndArray();

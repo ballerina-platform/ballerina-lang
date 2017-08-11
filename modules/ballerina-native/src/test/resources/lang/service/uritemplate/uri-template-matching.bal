@@ -1,7 +1,7 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/hello"}
+@http:configuration {basePath:"/hello"}
 service<http> echo11 {
 
     @http:GET{}
@@ -153,7 +153,7 @@ service<http> echo11 {
     }
 }
 
-@http:config {basePath:"/hello/world"}
+@http:configuration {basePath:"/hello/world"}
 service<http> echo22 {
 
     @http:GET{}
@@ -184,7 +184,7 @@ service<http> echo22 {
     }
 }
 
-@http:config {basePath:"/"}
+@http:configuration {basePath:"/"}
 service<http> echo33 {
     resource echo1 (message m, string foo) {
         message response = {};
@@ -201,14 +201,39 @@ service<http> echo44 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:Path {value:"echo2"}
+    resource echo221 (message m) {
+        message response = {};
+        json responseJson = {"first":"zzz"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"echo2"}
+    resource echo222 (message m) {
+        message response = {};
+        json responseJson = {"first":"bar"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }
 
-@http:config {basePath:"/echo55"}
+@http:configuration {basePath:"/echo55"}
 service<http> echo55 {
     @http:Path {value:"/foo/bar"}
     resource echo1 (message m, string foo) {
         message response = {};
         json responseJson = {"echo55":"echo55"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:Path {value:"/*"}
+    resource echo2 (message m, string foo) {
+        message response = {};
+        json responseJson = {"echo55":"default"};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }

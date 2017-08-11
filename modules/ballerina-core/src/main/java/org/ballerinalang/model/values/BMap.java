@@ -45,7 +45,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
 
     /**
-     * Output stream to write message out to the socket
+     * Output stream to write message out to the socket.
      */
      private OutputStream outputStream;
 
@@ -148,7 +148,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(",", "{", "}");
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
         String key;
         BValue value;
         String stringValue;

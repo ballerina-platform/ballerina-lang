@@ -3,11 +3,9 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-
-@http:config{basePath:"/groups"}
+@http:configuration {basePath:"/groups"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> echoServer {
-
     int i = 0;
     string groupEven = "even";
     string groupOdd = "odd";

@@ -306,7 +306,7 @@ function testDatatableAutoClose () (int i, string test) {
     datatable dt2 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
     var jsonstring,err = <json> dt2;
-    var test, castErr = (string)jsonstring;
+    test = jsons:toString(jsonstring);
 
     datatable dt3 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);

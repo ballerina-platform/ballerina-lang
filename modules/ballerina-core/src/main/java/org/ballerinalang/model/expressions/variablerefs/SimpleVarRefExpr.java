@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.expressions.variablerefs;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
@@ -76,10 +75,6 @@ public class SimpleVarRefExpr extends AbstractExpression implements VariableRefe
 
     public SymbolName getSymbolName() {
         return symbolName;
-    }
-
-    public MemoryLocation getMemoryLocation() {
-        return variableDef.getMemoryLocation();
     }
 
     public VariableDef getVariableDef() {

@@ -24,6 +24,7 @@ import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
@@ -67,6 +68,9 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private BallerinaConnectorDef connectorDef;
     private int stackFrameSize;
     private Queue<Statement> workerInteractionStatements;
+
+    // Key -  workerDataChannelName
+    private Map<String, WorkerDataChannel> workerDataChannelMap = new HashMap<>();
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -145,6 +149,16 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    @Override
+    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        workerDataChannelMap.put(workerDataChannel.getChannelName(), workerDataChannel);
+    }
+
+    @Override
+    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
+        return workerDataChannelMap;
     }
 
     public Queue<Statement> getWorkerInteractionStatements() {
@@ -252,6 +266,35 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     @Override
     public SymbolScope getEnclosingScope() {
         return enclosingScope;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BallerinaAction) {
+            BallerinaAction other = (BallerinaAction) obj;
+
+            if (!this.getName().equals(other.getName())) {
+                return false;
+            }
+
+            if (this.parameterTypes.length == other.parameterTypes.length) {
+                for (int i = 1; i < this.parameterTypes.length; i++) {
+                    if (!this.parameterTypes[i].equals(other.parameterTypes[i])) {
+                        return false;
+                    }
+                }
+            }
+            if (this.returnParamTypes.length == other.returnParamTypes.length) {
+                for (int i = 0; i < this.returnParamTypes.length; i++) {
+                    if (!this.returnParamTypes[i].equals(other.returnParamTypes[i])) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 
     @Override

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.core.interpreter;
 
-import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
@@ -32,6 +31,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -40,9 +40,6 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
@@ -60,35 +57,57 @@ public class VMDebuggerTest {
     private static final String FILE = "testDebug.bal";
     private PrintStream original;
 
-    private static void startDebug(NodeLocation[] breakPoints, NodeLocation[] expectedPoints, String[] debugCommand) {
+    private static void startDebug(BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints, String[] debugCommand) {
         DebugSessionObserverImpl debugSessionObserver = new DebugSessionObserverImpl();
         DebugRunner debugRunner = new DebugRunner();
         Context bContext = debugRunner.setup(debugSessionObserver, breakPoints);
 
-        debugRunner.run();
+        if (!waitTillDebugStarts(1000, bContext)) {
+            Assert.fail("VM doesn't start within 1000ms");
+        }
 
         bContext.getDebugInfoHolder().releaseLock();
 
         for (int i = 0; i <= expectedPoints.length; i++) {
             debugSessionObserver.aquireSem();
             if (i < expectedPoints.length) {
-                Assert.assertEquals(debugSessionObserver.haltPosition, expectedPoints[i],
+                NodeLocation expected = new NodeLocation(expectedPoints[i].getFileName(),
+                        expectedPoints[i].getLineNumber());
+                Assert.assertEquals(debugSessionObserver.haltPosition, expected,
                         "Unexpected halt position for debug step " + (i + 1));
                 executeDebuggerCmd(bContext, debugCommand[i]);
             } else {
-//                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
+                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
             }
         }
     }
 
-    private static NodeLocation[] createBreakNodeLocations(String fileName, int... lineNos) {
-        NodeLocation[] nodeLocations = new NodeLocation[lineNos.length];
+    private static boolean waitTillDebugStarts(long maxhWait, Context bContext) {
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            if (bContext.getDebugInfoHolder().hasQueuedThreads()) {
+                return true;
+            }
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - startTime > maxhWait) {
+                return false;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+
+            }
+        }
+    }
+
+    private static BreakPointDTO[] createBreakNodeLocations(String fileName, int... lineNos) {
+        BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
         int i = 0;
         for (int line : lineNos) {
-            nodeLocations[i] = new NodeLocation(fileName, line);
+            breakPointDTOS[i] = new BreakPointDTO(".", fileName, line);
             i++;
         }
-        return nodeLocations;
+        return breakPointDTOS;
     }
 
     private static void executeDebuggerCmd(Context bContext, String cmd) {
@@ -124,57 +143,59 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
-        String[] debugCommand = {RESUME, RESUME, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
+        String[] debugCommand = {RESUME, RESUME, RESUME, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 41, 35, 41);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Debugger with breakpoint in non executable and not reachable lines.")
     public void testNegativeBreakPoints() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 4, 7, 51, 37);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 4, 7, 51, 37);
         String[] debugCommand = {};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE);
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step In.")
     public void testStepIn() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 5, 8, 41);
-        String[] debugCommand = {STEP_IN, RESUME, STEP_IN, RESUME, STEP_IN, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 5, 12, 8, 39, 41, 24);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 5, 8, 41);
+        String[] debugCommand = {STEP_IN, RESUME, RESUME, STEP_IN, STEP_IN, RESUME, RESUME, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 5, 13, 5, 8, 41, 25, 41, 8);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step Out.")
     public void testStepOut() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 24);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 25);
         String[] debugCommand = {STEP_OUT, STEP_OUT, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 24, 42, 9);
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 25, 41, 8);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step Over.")
     public void testStepOver() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 3);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 5, 6, 8, 9);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 3);
+        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 5, 6, 8, 9, 10);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 26);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 26, 29, 35, 36, 42);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 26);
+        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 26, 28, 29, 35, 36, 41);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 13, 19, 21);
-        String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 13, 14, 19, 19, 19, 19, 21);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 13, 19, 21);
+        String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME,
+                RESUME, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 13, 14, 19, 13, 19, 13, 19,
+                13, 19, 13, 21);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
@@ -183,25 +204,17 @@ public class VMDebuggerTest {
         ProgramFile programFile;
         Context bContext;
 
-        Context setup(DebugSessionObserverImpl debugSessionObserver, NodeLocation[] breakPoints) {
+        Context setup(DebugSessionObserverImpl debugSessionObserver, BreakPointDTO[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
             String sourceFilePath = "samples/debug/testDebug.bal";
-            Path path;
-            
-            try {
-                path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("error while running test: " + e.getMessage());
-            }
 
-            programFile = new BLangProgramLoader().loadMainProgramFile(path, Paths.get(sourceFilePath));
+            programFile = BTestUtils.getProgramFile(sourceFilePath);
 
-
-            bContext = new Context();
-            bContext.setDebugInfoHolder(new DebugInfoHolder());
+            bContext = new Context(programFile);
+            bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
 
             ControlStackNew controlStackNew = bContext.getControlStackNew();
-            String mainPkgName = programFile.getMainPackageName();
+            String mainPkgName = programFile.getEntryPkgName();
 
             PackageInfo mainPkgInfo = programFile.getPackageInfo(mainPkgName);
             if (mainPkgInfo == null) {
@@ -214,7 +227,7 @@ public class VMDebuggerTest {
             }
 
             // Invoke package init function
-            BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
+            BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
 
             // Prepare main function arguments
             BStringArray arrayArgs = new BStringArray();
@@ -231,16 +244,9 @@ public class VMDebuggerTest {
             bContext.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
             bContext.getDebugInfoHolder().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
             bContext.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            return bContext;
-        }
-
-        private void startDebug() {
             DebuggerExecutor executor = new DebuggerExecutor(programFile, bContext);
             (new Thread(executor)).start();
-        }
-
-        public void run() {
-            startDebug();
+            return bContext;
         }
     }
 
@@ -264,12 +270,18 @@ public class VMDebuggerTest {
         }
 
         @Override
+        public void addContext(Context bContext) {
+
+        }
+
+        @Override
         public void notifyComplete() {
         }
 
         @Override
         public void notifyExit() {
             isExit = true;
+            executionSem.release();
         }
 
         @Override

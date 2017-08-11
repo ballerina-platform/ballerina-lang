@@ -1,4 +1,2 @@
-//Ballerina Date time API is used to manipulate date and time 
-//related data. All the functionalities related to the date 
-//and time will be supported via structs and associated native 
-//functions in the ballerina.lang.time package.
+// Ballerina Date time API is used to manipulate date and time
+// related data.
