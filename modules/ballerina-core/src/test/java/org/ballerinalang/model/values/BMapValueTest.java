@@ -165,14 +165,14 @@ public class BMapValueTest   {
     void testInvalidGrammar3() {
         BTestUtils.getProgramFile("lang/values/map-value-invalid3.bal");
     }
-    
+
     @Test
     public void testBMapToString() {
         BMap<String, BRefType> map = new BMap<>();
         map.put(new String("key1"), new BInteger(1));
         map.put(new String("key2"), new BString("foo"));
         map.put(new String("key3"), new BXMLItem("<bar>hello</bar>"));
-        
+
         Assert.assertEquals(map.stringValue(), "{\"key1\":1,\"key2\":\"foo\",\"key3\":<bar>hello</bar>}");
     }
 }

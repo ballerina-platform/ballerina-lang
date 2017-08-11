@@ -181,7 +181,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         }
         return map;
     }
-    
+
     private class MapEntry<K, V> {
         private final K key;
         private V value;
