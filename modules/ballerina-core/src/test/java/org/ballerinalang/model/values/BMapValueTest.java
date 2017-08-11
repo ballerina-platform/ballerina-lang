@@ -62,17 +62,19 @@ public class BMapValueTest   {
     public void testBMap() {
 
         BMap<BString, BInteger> map = new BMap<>();
-        map.put(new BString("Chanaka"), new BInteger(1));
+        BString s = new BString("Chanaka");
+        map.put(s, new BInteger(1));
         map.put(new BString("Udaya"), new BInteger(2));
-        map.put(new BString("Chanaka"), new BInteger(1));
-        assertEquals(map.get(new BString("Chanaka")), new BInteger(1));
+        map.put(s, new BInteger(1));
+        assertEquals(map.get(s), new BInteger(1));
         for (int i = 0; i < 100; i++) {
             map.put(new BString(String.valueOf(i)), new BInteger(i));
         }
+        BInteger u = new BInteger(51);
         assertEquals(map.size(), 102);
-        assertEquals(map.get(new BString("51")), new BInteger(51));
+        assertEquals(u, new BInteger(51));
 
-        map.remove(new BString("Chanaka"));
+        map.remove(s);
         assertEquals(map.size(), 101);
 
         map.remove(new BString("Chanaka"));
