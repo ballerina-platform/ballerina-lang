@@ -17,7 +17,6 @@ connector Foo (string name, int age) {
     }
 }
 
-
 function testConnectorInit (string name, int age) (int, string){
     Foo f = create Foo (name, age);
     return invokeConnector (f, "sam");
@@ -33,4 +32,21 @@ function invokeConnector (Foo myFoo, string name) (int, string) {
 function test (int x) (int y) {
     y = x * 2;
     return;
+}
+
+connector Bar(any name, json age) {
+    action getNameAndAge(Bar bar, any name, json age) (any, json) {
+        return name, age;
+    }
+}
+ 
+function testConnectorInitWithImplicitCastableTypes() (string, int){
+    string arg1 = "John";
+    int arg2 = 40;
+    Bar bar = create Bar(arg1, arg2);
+    var a, j = Bar.getNameAndAge(bar, arg1, arg2);
+    
+    var s, _ = (string) a;
+    var i, _ = (int) j;
+    return s, i;
 }

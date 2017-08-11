@@ -1986,20 +1986,29 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BType inheritedType = connectorInitExpr.getInheritedType();
+        boolean isFilterConnector = ((BallerinaConnectorDef) inheritedType).isFilterConnector();
         if (!(inheritedType instanceof BallerinaConnectorDef)) {
             BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED);
         }
         connectorInitExpr.setType(inheritedType);
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
 
-        for (Expression argExpr : connectorInitExpr.getArgExprs()) {
+        // if this is a normal connector, arguments count should match to the parameter defs count.
+        // if this is a filter connector, arguments count should be one less than the parameter defs count.
+        if ((!isFilterConnector && argExprs.length != parameterDefs.length)
+                || (isFilterConnector && argExprs.length != parameterDefs.length - 1)) {
+            BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.ARGUMENTS_COUNT_MISMATCH,
+                    parameterDefs.length, argExprs.length);
+        }
+
+        for (Expression argExpr : argExprs) {
             visitSingleValueExpr(argExpr);
         }
 
-        Expression[] argExprs = connectorInitExpr.getArgExprs();
-        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
         for (int i = 0; i < argExprs.length; i++) {
             int j = i;
-            if (((BallerinaConnectorDef) inheritedType).isFilterConnector()) {
+            if (isFilterConnector) {
                 j += 1;
             }
             SimpleTypeName simpleTypeName = parameterDefs[j].getTypeName();
@@ -2007,7 +2016,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDefs[j].setType(paramType);
 
             Expression argExpr = argExprs[i];
-            if (!(parameterDefs[j].getType().equals(argExpr.getType()))) {
+            AssignabilityResult result = performAssignabilityCheck(parameterDefs[j].getType(), argExpr);
+            if (result.expression != null) {
+                argExprs[i] = result.expression;
+            } else if (!result.assignable) {
                 BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         parameterDefs[j].getType(), argExpr.getType());
             }

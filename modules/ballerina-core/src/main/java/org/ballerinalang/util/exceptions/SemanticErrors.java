@@ -132,6 +132,7 @@ public enum SemanticErrors {
     FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0107"),
     UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
     INVALID_ACTION_FIRST_PARAMETER("invalid.action.first.parameter", "SEMANTIC_0109"),
+    ARGUMENTS_COUNT_MISMATCH("arguments.count.mismatch", "SEMANTIC_0110")
     ;
 
     private String errorMsgKey;
