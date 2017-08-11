@@ -448,6 +448,15 @@ function testAnyToStringWithErrors()(string, errors:TypeCastError) {
     return s, err;
 }
 
+function testAnyToStringWithoutErrors()(string, errors:TypeCastError) {
+    any a = "value";
+    string s;
+    errors:TypeCastError err;
+    s, err = (string) a;
+
+    return s, err;
+}
+
 function testAnyNullToStringWithErrors()(string, errors:TypeCastError) {
     any a = null; 
     string s;

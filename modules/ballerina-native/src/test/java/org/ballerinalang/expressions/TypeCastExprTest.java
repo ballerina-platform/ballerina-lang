@@ -678,6 +678,17 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'int' cannot be cast to 'string'");
     }
 
+    @Test (description = "Test when casting is happens without errors, error struct should be null")
+    public void testAnyToStringWithoutErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToStringWithoutErrors", new BValue[]{});
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "value");
+
+        // check the error
+        Assert.assertNull(returns[1]);
+    }
+
     @Test
     public void testAnyNullToStringWithErrors() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
