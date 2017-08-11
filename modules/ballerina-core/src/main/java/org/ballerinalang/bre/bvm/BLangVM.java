@@ -1354,6 +1354,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2MSG:
+                case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
@@ -1580,11 +1581,13 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    String qNameStr = sf.stringRegs[i];
 
-                    if (qNameStr.startsWith("{") && qNameStr.indexOf('}') > 0) {
-                        sf.stringRegs[j] = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
-                        sf.stringRegs[k] = qNameStr.substring(1, qNameStr.indexOf('}'));
+                    String qNameStr = sf.stringRegs[i];
+                    int parenEndIndex = qNameStr.indexOf('}');
+
+                    if (qNameStr.startsWith("{") && parenEndIndex > 0) {
+                        sf.stringRegs[j] = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+                        sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                     } else {
                         sf.stringRegs[j] = qNameStr;
                         sf.stringRegs[k] = "";
@@ -1744,6 +1747,9 @@ public class BLangVM {
                 break;
             case InstructionCodes.ANY2MSG:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
+                break;
+            case InstructionCodes.ANY2TYPE:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
                 break;
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);

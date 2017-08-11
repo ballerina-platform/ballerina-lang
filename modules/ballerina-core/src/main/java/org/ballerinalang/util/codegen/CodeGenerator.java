@@ -76,6 +76,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -311,6 +312,7 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+        bLangPackage.setSymbolsDefined(true);
     }
 
     private void visitConstants(ConstDef[] constDefs) {
@@ -1011,7 +1013,6 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
-        resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
@@ -1319,6 +1320,13 @@ public class CodeGenerator implements NodeVisitor {
         int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
         lambdaExpr.setTempOffset(nextIndex);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression concatExpr = stringTemplateLiteral.getConcatExpr();
+        concatExpr.accept(this);
+        stringTemplateLiteral.setTempOffset(concatExpr.getTempOffset());
     }
 
     @Override
@@ -2063,7 +2071,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT) {
+        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT
+                || variableKind == VariableDef.Kind.SERVICE_VAR) {
             int gvIndex = variableDef.getVarIndex();
 
             if (variableStore) {
@@ -2307,7 +2316,9 @@ public class CodeGenerator implements NodeVisitor {
         // Else, treat it as QName
 
         Expression namespaceUriLiteral = xmlQNameRefExpr.getNamepsaceUri();
-        namespaceUriLiteral.accept(this);
+        if (!namespaceUriLiteral.hasTemporaryValues()) {
+            namespaceUriLiteral.accept(this);
+        }
 
         BasicLiteral localNameLiteral =
                 new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getLocalname()));
@@ -2333,6 +2344,9 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(XMLElementLiteral xmlElementLiteral) {
         int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
         xmlElementLiteral.setTempOffset(xmlVarRegIndex);
+
+        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
+        defaultNamespaceUri.accept(this);
 
         Expression startTagName = xmlElementLiteral.getStartTagName();
         startTagName.accept(this);
@@ -2368,9 +2382,6 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             endTagNameRegIndex = startTagNameRegIndex;
         }
-
-        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
-        defaultNamespaceUri.accept(this);
 
         // Create an empty xml with the given QName
         emit(InstructionCodes.NEWXMLELEMENT, xmlVarRegIndex, startTagNameRegIndex, endTagNameRegIndex,
@@ -2478,6 +2489,7 @@ public class CodeGenerator implements NodeVisitor {
 
         resetIndexes(lvIndexes);
         resetIndexes(regIndexes);
+        resetIndexes(maxRegIndexes);
     }
 
     private void resetIndexes(int[] indexes) {
@@ -2843,6 +2855,7 @@ public class CodeGenerator implements NodeVisitor {
         int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         int[] lvIndexesCopy = lvIndexes.clone();
         int[] regIndexesCopy = regIndexes.clone();
+        int[] maxRegIndexesCopy = maxRegIndexes.clone();
         for (Worker worker : forkJoinStmt.getWorkers()) {
             WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.getName());
             workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
@@ -2857,6 +2870,7 @@ public class CodeGenerator implements NodeVisitor {
 
         lvIndexes = lvIndexesCopy;
         regIndexes = regIndexesCopy;
+        maxRegIndexes = maxRegIndexesCopy;
 
         int i = 0;
         int[] joinWrkrNameCPIndexes = new int[forkJoinStmt.getJoin().getJoinWorkers().length];
@@ -3120,7 +3134,6 @@ public class CodeGenerator implements NodeVisitor {
 
             // Set local variables and reg indexes and reset instance variables to defaults
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
-            resetIndexes(maxRegIndexes);
 
             // Now visit each Worker
             for (Worker worker : workers) {
@@ -3138,7 +3151,6 @@ public class CodeGenerator implements NodeVisitor {
 
                 //workerInfo.setWorkerEndIP(nextIP());
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
-                resetIndexes(maxRegIndexes);
 
                 // emit HALT instruction to finish the worker activity
                 emit(InstructionCodes.HALT);
@@ -3150,7 +3162,6 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
-            resetIndexes(maxRegIndexes);
         }
 
         currentlLocalVarAttribInfo = null;
