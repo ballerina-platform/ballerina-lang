@@ -1,5 +1,4 @@
 import ballerina.lang.xmls;
-import ballerina.lang.system;
 import ballerina.lang.strings;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
@@ -36,12 +35,6 @@ function testAddAttributeWithQName() (xml) {
     xml x1 = xmls:parse("<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>");
     
     x1@[ns0:foo1] = "bar1";
-    
-    // with an existing prefix, but different uri
-    x1@[ns3:foo2] = "bar2";
-    
-    system:println(x1);
-    
     return x1;
 }
 
@@ -50,7 +43,6 @@ function testAddAttributeWithDiffQName_1() (xml) {
     //same uri, non existant prefix
     xmlns "http://sample.com/wso2/f" as pre;
     x1@[pre:foo1] = "bar1";
-    system:println(x1);
     return x1;
 }
 
@@ -59,7 +51,6 @@ function testAddAttributeWithDiffQName_2() (xml) {
     //same uri, existing, non used prefix
     xmlns "http://sample.com/wso2/f/" as ns5;
     x1@[ns5:foo1] = "bar1";
-    system:println(x1);
     return x1;
 }
 
@@ -68,7 +59,6 @@ function testAddAttributeWithDiffQName_3() (xml) {
     //same uri, existing, used prefix
     xmlns "http://sample.com/wso2/f/" as ns4;
     x1@[ns4:foo1] = "bar1";
-    system:println(x1);
     return x1;
 }
 
@@ -77,7 +67,6 @@ function testAddAttributeWithDiffQName_4() (xml) {
     //different uri, existing, non used prefix
     xmlns "http://sample.com/wso2/f/t" as ns5;
     x1@[ns5:foo1] = "bar1";
-    system:println(x1);
     return x1;
 }
 
@@ -89,7 +78,6 @@ function testAddAttributeWithDiffQName_5() (xml) {
     x1@["{}foo2"] = "bar2";
     //adding attribute without a namespace
     x1@["foo3"] = "bar3";
-    system:println(x1);
     return x1;
 }
 
@@ -161,8 +149,6 @@ function testUpdateAttributeWithQName() (xml) {
     xmlns "http://sample.com/wso2/f" as ns4;
     x1@[ns4:foo2] = "newbar2";
 
-    system:println(x1);
-    
     return x1;
 }
 
@@ -172,8 +158,6 @@ function testUpdateAttributeWithQName_1() (xml) {
     // with a matching namespaceUri but different prefix
     xmlns "http://sample.com/wso2/a1" as pre;
     x1@[pre:foo1] = "newaddedbar1";
-
-    system:println(x1);
 
     return x1;
 }
