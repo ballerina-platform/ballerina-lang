@@ -216,8 +216,15 @@ class TransformExpanded extends React.Component {
                 return (child.getExpressionString().trim() === (connection.sourceProperty || connection.sourceStruct));
             });
             let index = funcInvocationExpression.getIndexOfChild(expression);
-            funcInvocationExpression.removeChild(expression);
-            funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression(), index);
+            funcInvocationExpression.removeChild(expression, true);
+            funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
+            this.props.model.trigger('tree-modified', {
+                origin: this,
+                type: 'function-connection-removed',
+                title: `Remove ${connection.sourceProperty}`,
+                data: {
+                }
+            });
             return;
         }
 
