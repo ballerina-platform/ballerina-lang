@@ -1062,7 +1062,7 @@ public class BLangModelBuilder {
     }
 
     public void addFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
-                            boolean isNative) {
+                            boolean isNative, boolean hasReturnsKeyword) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -1072,6 +1072,7 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setHasReturnsKeyword(hasReturnsKeyword);
         bFileBuilder.addFunction(function);
 
         currentScope = function.getEnclosingScope();

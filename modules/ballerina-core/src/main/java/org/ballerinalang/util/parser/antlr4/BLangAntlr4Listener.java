@@ -312,12 +312,19 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
-        String functionName = ctx.callableUnitSignature().Identifier().getText();
+        CallableUnitSignatureContext callableUnitSignatureContext = ctx.callableUnitSignature();
+        String functionName = callableUnitSignatureContext.Identifier().getText();
+        BallerinaParser.ReturnParametersContext returnParameters = callableUnitSignatureContext.returnParameters();
+        boolean hasReturnsKeyword = false;
+        if (returnParameters != null) {
+            hasReturnsKeyword = (returnParameters.RETURNS() != null);
+        }
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
         }
-        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName, isNative);
+        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName,
+                isNative, hasReturnsKeyword);
     }
 
     @Override
