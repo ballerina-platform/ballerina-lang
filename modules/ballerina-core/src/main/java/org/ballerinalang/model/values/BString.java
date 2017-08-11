@@ -82,6 +82,11 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
     public String value() {
         return value;
     }
