@@ -1,9 +1,19 @@
 
+function arrayLengthAccessNullArrayCase() {
 
-function arrayLengthAccessNullArrayCase(int x, int y) (int) {
-    int z = x + y;
-    int[] arr;
-    int length;
-    length = arr.length;
-    return length;
+    fork {
+        worker forkWorker1 {
+        }
+        worker forkWorker2 {
+        }
+    } join (all) (map m) {
+    }
+
+
+    worker newWorker1 {
+       int a = 5;
+    }
+    worker newWorker2 {
+       int b = 5;
+    }
 }
