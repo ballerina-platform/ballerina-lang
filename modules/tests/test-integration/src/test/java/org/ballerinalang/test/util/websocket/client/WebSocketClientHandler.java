@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.test.util.websocket;
+package org.ballerinalang.test.util.websocket.client;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
