@@ -65,8 +65,10 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
 
         SourceHandler srcHandler = (SourceHandler) httpCarbonMessage.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
-            log.debug("SRC_HANDLER property not found in the message." +
-                    " Message is not originated from the HTTP Server connector");
+            if (log.isDebugEnabled()) {
+                log.debug(Constants.SRC_HANDLER + " property not found in the message."
+                        + " Message is not originated from the HTTP Server connector");
+            }
         }
 
         try {

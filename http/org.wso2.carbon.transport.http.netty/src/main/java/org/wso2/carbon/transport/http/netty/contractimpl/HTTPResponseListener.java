@@ -69,31 +69,7 @@ public class HTTPResponseListener implements HTTPConnectorListener {
                 ctx.write(httpContent);
             }
 
-//            if (httpMessage instanceof HTTPCarbonMessage) {
-//                HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) httpMessage;
-//                while (true) {
-//                    if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
-//                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//                        if (connectionCloseAfterResponse) {
-//                            future.addListener(ChannelFutureListener.CLOSE);
-//                        }
-//                        break;
-//                    }
-//                    HttpContent httpContent = nettyCMsg.getHttpContent();
-//                    if (httpContent instanceof LastHttpContent) {
-//                        ChannelFuture future = ctx.writeAndFlush(httpContent);
-//                        if (connectionCloseAfterResponse) {
-//                            future.addListener(ChannelFutureListener.CLOSE);
-//                        }
-//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                    executeAtSourceResponseSending(httpMessage);
-//                        }
-//                        break;
-//                    }
-//                    ctx.write(httpContent);
-//                }
-//            }
+            // TODO: Remove this once the testing is completed.
 //            else if (httpMessage instanceof DefaultCarbonMessage) {
 //                DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) httpMessage;
 //                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
