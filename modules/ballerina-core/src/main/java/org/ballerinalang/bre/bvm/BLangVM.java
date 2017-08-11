@@ -105,6 +105,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
@@ -3333,17 +3334,18 @@ public class BLangVM {
             ip = -1;
             if (context.getServiceInfo() != null) {
                 // Invoke ServiceConnector error handler.
-                Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
-                Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                        BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-                try {
-                    optionalErrorHandler
-                            .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                            .handleError(new BallerinaException(
-                                            BLangVMErrors.getPrintableStackTrace(context.getError())),
-                                    context.getCarbonMessage(), context.getBalCallback());
-                } catch (Exception e) {
-                    logger.error("cannot handle error using the error handler for: " + protocol, e);
+                CarbonMessage carbonMessage = context.getCarbonMessage();
+                if (carbonMessage != null) {
+                    Object protocol = carbonMessage.getProperty("PROTOCOL");
+                    Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
+                            .getServerConnectorErrorHandler((String) protocol);
+                    try {
+                        optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
+                                new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
+                                context.getCarbonMessage(), context.getBalCallback());
+                    } catch (Exception e) {
+                        logger.error("cannot handle error using the error handler for: " + protocol, e);
+                    }
                 }
             }
             return;
