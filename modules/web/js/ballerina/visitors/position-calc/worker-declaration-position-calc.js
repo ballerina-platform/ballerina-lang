@@ -125,6 +125,7 @@ class WorkerDeclarationPositionCalcVisitor {
 
         viewState.components.workerScopeContainer.x = x;
         viewState.components.workerScopeContainer.y = y - (DesignerDefaults.canvas.padding.top / 2);
+
         bBox.x = x + DesignerDefaults.lifeLine.gutter.h;
         bBox.y = y + DesignerDefaults.lifeLine.gutter.v;
         viewState.components.statementContainer.x = x;

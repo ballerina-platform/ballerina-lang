@@ -277,9 +277,6 @@ class SizingUtil {
 
         components.statementContainer.h = statementHeight;
         components.statementContainer.w = statementWidth;
-        components.workerScopeContainer.w = statementWidth;
-        components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
-
         components.body = new SimpleBBox();
 
         const workerChildren = node.filterChildren(child => BallerinaASTFactory.isWorkerDeclaration(child));
@@ -299,9 +296,14 @@ class SizingUtil {
         components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
 
         const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
-        components.workerScopeContainer.h = components.statementContainer.h + DesignerDefaults.canvas.padding.top +
-            DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
-            + DesignerDefaults.statement.padding.bottom;
+        // If more than one worker is present, then draw the worker scope container boundary around the workers
+        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+            components.workerScopeContainer.w = statementWidth;
+            components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
+            components.workerScopeContainer.h = components.statementContainer.h + DesignerDefaults.canvas.padding.top +
+                DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
+                + DesignerDefaults.statement.padding.bottom;
+        }
 
         let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), (child) => {

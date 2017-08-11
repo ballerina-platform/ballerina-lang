@@ -59,9 +59,7 @@ class WorkerDeclaration extends React.Component {
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
 
         // Check for connector declaration children
-        const connectorChildren = _.filter(this.props.model.getChildren(),
-            child => nodeFactory.isConnectorDeclaration(child));
-
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const classes = {
             lineClass: 'worker-life-line',
             polygonClass: 'worker-life-line-polygon',
@@ -82,6 +80,7 @@ class WorkerDeclaration extends React.Component {
                 iconColor='#0380c6'
             />
             { connectorChildren.length > 0 &&
+            <g>
                 <rect
                     x={workerScopeContainerBBox.x}
                     y={workerScopeContainerBBox.y}
@@ -95,7 +94,8 @@ class WorkerDeclaration extends React.Component {
                         strokeMiterlimit: 4,
                         strokeOpacity: 1,
                         strokeDasharray: 5 }}
-                /> }
+                /> </g>
+            }
             {children}
         </g>
         );

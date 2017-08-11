@@ -169,8 +169,11 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
     statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
         DesignerDefaults.lifeLine.head.height;
-    workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
-    workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
+    // If more than one worker is present, then draw the worker scope container boundary around the workers
+    if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+        workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
+        workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
+    }
     bBox.x = x;
     bBox.y = y;
     headerBBox.x = headerX;
