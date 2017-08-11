@@ -696,7 +696,7 @@ public class TypeCastExprTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
 
         // check the error
         Assert.assertNull(returns[1]);
@@ -708,7 +708,7 @@ public class TypeCastExprTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat)returns[0]).floatValue(), 6.99);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 6.99);
 
         // check the error
         Assert.assertNull(returns[1]);
@@ -720,7 +720,7 @@ public class TypeCastExprTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean)returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
 
         // check the error
         Assert.assertNull(returns[1]);

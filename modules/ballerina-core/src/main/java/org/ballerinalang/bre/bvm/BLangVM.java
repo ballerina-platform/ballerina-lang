@@ -1735,6 +1735,7 @@ public class BLangVM {
                     sf.byteRegs[j] = new byte[0];
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBlob);
                 } else if (bRefType.getType() == BTypes.typeBlob) {
+                    sf.refRegs[k] = null;
                     sf.byteRegs[j] = ((BBlob) bRefType).blobValue();
                 } else {
                     sf.byteRegs[j] = new byte[0];
