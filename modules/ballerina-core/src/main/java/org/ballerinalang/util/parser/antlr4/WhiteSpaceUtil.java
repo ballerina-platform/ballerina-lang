@@ -1224,6 +1224,18 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getRetryStmtWS(CommonTokenStream tokenStream,
+            BallerinaParser.RetryStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETRY_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETRY_STMT_RETRY_KEYWORD_TO_LITERAL,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETRY_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
     public static WhiteSpaceDescriptor getNamespaceDeclarationWS(CommonTokenStream tokenStream,
                                                                  BallerinaParser.NamespaceDeclarationContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();

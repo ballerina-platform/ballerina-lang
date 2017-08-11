@@ -106,6 +106,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -221,6 +222,8 @@ public class CodeGenerator implements NodeVisitor {
     private boolean varAssignment;
     private boolean arrayMapAssignment;
     private boolean structAssignment;
+
+    private int transactionIndex = 0;
 
     private Stack<Instruction> breakInstructions = new Stack<>();
     private Stack<Instruction> continueInstructions = new Stack<>();
@@ -1189,21 +1192,33 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TransactionStmt transactionStmt) {
+        ++transactionIndex;
+        Expression retryCountExpression = transactionStmt.getRetryCountExpression();
+        int retryCountAvailable = 0;
+        if (retryCountExpression != null) {
+            retryCountExpression.accept(this);
+            retryCountAvailable = 1;
+        }
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = new Instruction(InstructionCodes.GOTO, -1);
         Instruction gotoStartOfAbortedBlock = new Instruction(InstructionCodes.GOTO, -1);
         abortInstructions.push(gotoStartOfAbortedBlock);
 
         //start transaction
+        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
         int startIP = nextIP();
-        emit(new Instruction(InstructionCodes.TRBGN));
+        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+
+        //retry transaction
+        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
+        emit(retryInstruction);
 
         //process transaction statements
         transactionStmt.getTransactionBlock().accept(this);
 
         //end the transaction
         int endIP = nextIP();
-        emit(new Instruction(InstructionCodes.TREND, 0));
+        emit(new Instruction(InstructionCodes.TR_END, 0));
 
         //process committed block
         if (transactionStmt.getCommittedBlock() != null) {
@@ -1213,8 +1228,9 @@ public class CodeGenerator implements NodeVisitor {
             emit(gotoEndOfTransactionBlock);
         }
         abortInstructions.pop();
-        gotoStartOfAbortedBlock.setOperand(0, nextIP());
-        emit(new Instruction(InstructionCodes.TREND, -1));
+        int startOfAbortedIP = nextIP();
+        gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
+        emit(new Instruction(InstructionCodes.TR_END, -1));
 
         //process aborted block
         if (transactionStmt.getAbortedBlock() != null) {
@@ -1224,21 +1240,35 @@ public class CodeGenerator implements NodeVisitor {
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(new Instruction(InstructionCodes.TREND, -1));
+        emit(new Instruction(InstructionCodes.TR_END, -1));
+        if (transactionStmt.getFailedBlock() != null) {
+            transactionStmt.getFailedBlock().getFailedBlockStmt().accept(this);
+
+        }
+        emit(gotoInstruction);
+        int ifIP = nextIP();
+        retryInstruction.setOperand(1, ifIP);
         if (transactionStmt.getAbortedBlock() != null) {
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
         }
+
 
         emit(new Instruction(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
+        emit(new Instruction(InstructionCodes.TR_END, 1));
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
         generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+
     }
 
     @Override

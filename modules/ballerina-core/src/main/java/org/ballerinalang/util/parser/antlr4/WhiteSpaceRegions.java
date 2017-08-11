@@ -409,6 +409,11 @@ public class WhiteSpaceRegions {
     public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
     public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
     public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
+
+    // whitespace regions in retry statement
+    public static final int RETRY_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int RETRY_STMT_RETRY_KEYWORD_TO_LITERAL = 1;
+    public static final int RETRY_STMT_END_TO_NEXT_TOKEN = 2;
     
     // whitespace regions in a import declaration
     public static final int NAMESPACE_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START = 0;

@@ -2089,6 +2089,20 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startFailedClause();
+        }
+    }
+
+    @Override
+    public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addFailedClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
     public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startAbortedClause();
@@ -2131,6 +2145,23 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAbortStmtWS(tokenStream, ctx);
         }
         modelBuilder.createAbortStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getRetryStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createRetryStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
