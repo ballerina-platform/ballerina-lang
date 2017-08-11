@@ -72,6 +72,11 @@ class StructDefinition extends React.Component {
             Alerts.error(errorString);
             throw errorString;
         }
+        if (!identifier || !identifier.length) {
+            const errorString = 'Identifier cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
 
         const { model } = this.props;
         const identifierAlreadyExists = _.findIndex(model.getVariableDefinitionStatements(), (variableDefinitionStatement) => {
@@ -138,6 +143,9 @@ class StructDefinition extends React.Component {
      * @memberof StructDefinition
      */
     validateDefaultValue(type, value) {
+        if (!value) {
+            return;
+        }
         if (type === 'int' && /^[-]?\d+$/.test(value)) {
             return;
         } else if (type === 'float' && ((/\d*\.?\d+/.test(value) || parseFloat(value)))) {
@@ -260,7 +268,7 @@ class StructDefinition extends React.Component {
                     }}
                     editing={this.state.newIdentifierEditing}
                     onChange={ (e) => {
-                        if (this.validateIdentifierName(e.target.value)) {
+                        if (!e.target.value.length || this.validateIdentifierName(e.target.value)) {
                             this.setState({
                                 newIdentifier: e.target.value,
                             });
@@ -370,6 +378,7 @@ class StructDefinition extends React.Component {
                                         key={child.getIdentifier()}
                                         validateIdentifierName={this.validateIdentifierName}
                                         validateDefaultValue={this.validateDefaultValue}
+                                        addQuotesToString={this.addQuotesToString}
                                     />
                                 );
                             }
