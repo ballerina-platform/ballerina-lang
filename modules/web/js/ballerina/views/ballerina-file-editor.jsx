@@ -59,6 +59,7 @@ class BallerinaFileEditor extends React.Component {
         super(props);
         this.state = {
             isASTInvalid: false,
+            validatePending: false,
             parsePending: false,
             swaggerViewTargetService: undefined,
             parseFailed: true,
@@ -299,12 +300,14 @@ class BallerinaFileEditor extends React.Component {
      */
     validateAndParseFile() {
         this.setState({
+            validatePending: true,
             parsePending: true,
         });
         const file = this.props.file;
         return new Promise((resolve, reject) => {
             // final state to be passed into resolve
             const newState = {
+                validatePending: false,
                 parsePending: false,
             };
             // first validate the file for syntax errors
@@ -314,6 +317,7 @@ class BallerinaFileEditor extends React.Component {
                     if (!_.isEmpty(errors)) {
                         newState.parseFailed = true;
                         newState.syntaxErrors = errors;
+                        newState.validatePending = false;
                         newState.model = new BallerinaASTRoot();
                         // Cannot proceed due to syntax errors.
                         // Hence resolve now.
@@ -330,6 +334,7 @@ class BallerinaFileEditor extends React.Component {
                         // as it knows the syntax is valid. However, the loading overlay will displayed until
                         // the AST is ready so that render can continue.
                         this.setState({
+                            validatePending: false,
                             syntaxErrors: [],
                         });
                     }
@@ -429,6 +434,19 @@ class BallerinaFileEditor extends React.Component {
         // activeView    - Indicates which view user wanted to be displayed.
         // parsePending  - Indicates an ongoing validate & parse process in background
 
+        // if we are automatically switching to source view due to syntax errors in file,
+        // popup error list in source view so that the user is aware of the cause
+        const popupErrorListInSourceView = this.state.activeView === DESIGN_VIEW
+                    && !_.isEmpty(this.state.syntaxErrors);
+
+        // If there are syntax errors, forward editor to source view & update state
+        // to make that decision reflect in state. This is to prevent automatic
+        // redirection to design view once the syntax errors are fixed in source view.
+        if (!this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
+                && this.state.activeView !== SOURCE_VIEW) {
+            this.state.activeView = SOURCE_VIEW;
+        }
+
         const showDesignView = (!this.state.parseFailed || this.state.parsePending)
                                     && _.isEmpty(this.state.syntaxErrors)
                                         && this.state.activeView === DESIGN_VIEW;
@@ -440,10 +458,6 @@ class BallerinaFileEditor extends React.Component {
                                         && this.state.activeView === SWAGGER_VIEW;
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
-        // if we are automatically switching to source view due to syntax errors in file,
-        // popup error list in source view so that the user is aware of the cause
-        const popupErrorListInSourceView = this.state.activeView === DESIGN_VIEW
-                    && !_.isEmpty(this.state.syntaxErrors);
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
         if (showSourceView || showSwaggerView) {
