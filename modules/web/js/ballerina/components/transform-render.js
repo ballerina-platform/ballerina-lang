@@ -157,8 +157,13 @@ class TransformRender {
         this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
         this.disconnectCallback(propertyConnection);
-    // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
-    // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
+        this.unmarkConnected(connection.targetId);
+        this.unmarkConnected(connection.sourceId);
+        _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
+            if (con.sourceId == connection.sourceId) {
+                this.markConnected(con.sourceId);
+            }
+        });
     }
 
 
@@ -459,8 +464,8 @@ class TransformRender {
             source: sourceId,
             target: targetId,
         });
-        this.container.find(document.getElementById(sourceId)).removeClass('fw-circle-outline').addClass('fw-circle');
-        this.container.find(document.getElementById(targetId)).removeClass('fw-circle-outline').addClass('fw-circle');
+        this.markConnected(sourceId);
+        this.markConnected(targetId);
     }
 
 
