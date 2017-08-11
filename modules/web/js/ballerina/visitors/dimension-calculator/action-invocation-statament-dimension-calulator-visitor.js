@@ -16,6 +16,7 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Dimension visitor for action invocation statement.
@@ -62,7 +63,11 @@ class ActionInvocationStatementDimensionCalculatorVisitor {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
         // set the statement box arrow state to true.
         const viewState = node.getViewState();
-        viewState.components['statement-box'].arrow = true;
+        const actionExpression = node.children[0];
+        if (actionExpression.getConnector() !== undefined &&
+            BallerinaASTFactory.isServiceDefinition(actionExpression.getConnector().getParent())) {
+            viewState.components['statement-box'].arrow = true;
+        }
     }
 }
 

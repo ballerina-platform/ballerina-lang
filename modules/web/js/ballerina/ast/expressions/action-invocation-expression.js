@@ -278,9 +278,15 @@ class ActionInvocationExpression extends Expression {
     }
 
     messageDrawTargetAllowed(target) {
+        // TODO this needs to be refactord.
         return (this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
             this.getFactory().isConnectorInitExpression(target.getChildren()[1]))) &&
-            this.getTopLevelParent().getID() === target.getTopLevelParent().getID();
+            (
+                // check if target parent is a service.
+                this.getFactory().isServiceDefinition(target.getParent()) ||
+                // if the target has a top level parent we will check if the id's are equal.
+                this.getTopLevelParent().getID() === target.getTopLevelParent().getID()
+            );
     }
 }
 
