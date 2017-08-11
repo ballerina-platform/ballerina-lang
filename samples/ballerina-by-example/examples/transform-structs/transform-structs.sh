@@ -1,4 +1,4 @@
-$ ballerina run main transform-structs.bal
+$ ballerina run transform-structs.bal
 Employee details :
 Name = john
 Address = london
