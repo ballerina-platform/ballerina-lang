@@ -39,6 +39,7 @@ describe('Ballerina Composer Test Suite', () => {
         });
 
         it("Global level completions", function(done){
+            this.timeout(0);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
             const testFile = 'echoService.js';
             const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case1.js'));
@@ -47,6 +48,7 @@ describe('Ballerina Composer Test Suite', () => {
         });
 
         it("Service level completions", function(done){
+            this.timeout(0);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
             const testFile = 'echoService.js';
             const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case2.js'));
@@ -55,6 +57,7 @@ describe('Ballerina Composer Test Suite', () => {
         });
 
         it("Resource level completions", function (done) {
+            this.timeout(0);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
             const testFile = 'echoService.js';
             const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));

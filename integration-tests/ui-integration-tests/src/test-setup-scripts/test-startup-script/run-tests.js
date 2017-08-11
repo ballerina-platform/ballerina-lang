@@ -21,7 +21,13 @@ if (argv.skipTests === "true") {
     return;
 } else {
     console.log('Running Integration Tests');
-    shell.exec("NODE_ENV=test env DIRECTORY=target mocha-webpack --require target/js/tests/js/spec/setup.js --webpack-config webpack.config.js \"target/js/tests/js/spec/*Test.js\"", function (code) {
+    shell.exec("NODE_ENV=test env DIRECTORY=target mocha-webpack --require target/js/tests/js/spec/setup.js --webpack-config webpack.config.js target/js/tests/js/spec/BallerinaTest.js", function (code) {
+        console.log('Stop Composer Process.');
+        util.killChildProcess();
+        shell.exit(code);
+    });
+
+    shell.exec("NODE_ENV=test env DIRECTORY=target mocha-webpack --require target/js/tests/js/spec/setup.js --webpack-config webpack.config.js target/js/tests/js/spec/LanguageServerTest.js", function (code) {
         console.log('Stop Composer Process.');
         util.killChildProcess();
         shell.exit(code);
