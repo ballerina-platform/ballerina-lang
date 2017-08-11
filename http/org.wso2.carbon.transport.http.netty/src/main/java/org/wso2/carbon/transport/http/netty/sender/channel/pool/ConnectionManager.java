@@ -15,13 +15,13 @@
 
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.logging.LogLevel;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -193,26 +193,15 @@ public class ConnectionManager {
                 int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
                 ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
 
-                /* Need to check if the handler already exists in the pipeline because there cannot be duplicate
-                   handlers in a pipeline of a particular channel. */
-                //TODO: Check the possibility of moving these 2 to the HTTPClientInitializer to address the above issue
-                if (pipeline.get(Constants.IDLE_STATE_HANDLER) == null) {
-                    pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
+                pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
                                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                                                             TimeUnit.MILLISECONDS));
-                }
 
-                if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))
-                                                    && pipeline.get(Constants.LOGGING_HANDLER) == null) {
-                    if (sourceHandler != null) {
-                        pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
-                                           new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG,
-                                                                    sourceHandler.getInboundChannelContext()
-                                                                            .channel().id()
-                                                                            .asShortText()));
-                    } else {
-                        pipeline.addBefore(Constants.IDLE_STATE_HANDLER, Constants.LOGGING_HANDLER,
-                                           new CarbonLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG));
+                if (sourceHandler != null) {
+                    ChannelHandler loggingHandler = pipeline.get(Constants.LOGGING_HANDLER);
+                    if (loggingHandler instanceof CarbonLoggingHandler) {
+                        ((CarbonLoggingHandler) loggingHandler).setCorrelatedSourceId(
+                                sourceHandler.getInboundChannelContext().channel().id().asShortText());
                     }
                 }
 

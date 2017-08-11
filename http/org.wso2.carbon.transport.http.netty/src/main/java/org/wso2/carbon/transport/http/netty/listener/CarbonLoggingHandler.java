@@ -25,6 +25,8 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+import java.net.SocketAddress;
+
 import static io.netty.buffer.ByteBufUtil.appendPrettyHexDump;
 import static io.netty.util.internal.StringUtil.NEWLINE;
 
@@ -32,6 +34,10 @@ import static io.netty.util.internal.StringUtil.NEWLINE;
  * A custom LoggingHandler for the HTTP wire logs
  */
 public class CarbonLoggingHandler extends LoggingHandler {
+    private static final String EVENT_REGISTERED = "REGISTERED";
+    private static final String EVENT_CONNECT = "CONNECT";
+    private static final String EVENT_INBOUND = "INBOUND";
+    private static final String EVENT_OUTBOUND = "OUTBOUND";
 
     private String correlatedSourceId;
 
@@ -65,10 +71,14 @@ public class CarbonLoggingHandler extends LoggingHandler {
         correlatedSourceId = "n/a";
     }
 
+    public void setCorrelatedSourceId(String correlatedSourceId) {
+        this.correlatedSourceId = correlatedSourceId;
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (logger.isEnabled(internalLevel)) {
-            logger.log(internalLevel, format(ctx, "INBOUND", msg));
+            logger.log(internalLevel, format(ctx, EVENT_INBOUND, msg));
         }
         ctx.fireChannelRead(msg);
     }
@@ -76,7 +86,7 @@ public class CarbonLoggingHandler extends LoggingHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         if (logger.isEnabled(internalLevel)) {
-            logger.log(internalLevel, format(ctx, "OUTBOUND", msg));
+            logger.log(internalLevel, format(ctx, EVENT_OUTBOUND, msg));
         }
         ctx.write(msg);
     }
@@ -93,23 +103,24 @@ public class CarbonLoggingHandler extends LoggingHandler {
     @Override
     protected String format(ChannelHandlerContext ctx, String eventName) {
         String channelId = ctx.channel().id().asShortText();
-        String local = ctx.channel().localAddress().toString();
-        String remote = ctx.channel().remoteAddress().toString();
+        String socketInfo = buildSocketInfo(ctx.channel().localAddress(), ctx.channel().remoteAddress());
 
-        StringBuilder buf = new StringBuilder(
-                7 + channelId.length() + 14 + correlatedSourceId.length() + 7 + local.length() + 10 + remote.length() +
+        StringBuilder stringBuilder = new StringBuilder(
+                7 + channelId.length() + 14 + correlatedSourceId.length() + socketInfo.length() +
                         2 + eventName.length());
 
-        return buf.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
-                .append(", host:").append(local).append(" - remote:").append(remote).append("] ")
-                .append(eventName).toString();
+        if (EVENT_REGISTERED.equals(eventName) || EVENT_CONNECT.equals(eventName)) {
+            return stringBuilder.append("[id: 0x").append(channelId).append("] ").append(eventName).toString();
+        } else {
+            return stringBuilder.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
+                    .append(socketInfo).append("] ").append(eventName).toString();
+        }
     }
 
     @Override
     protected String format(ChannelHandlerContext ctx, String eventName, Object msg) {
         String channelId = ctx.channel().id().asShortText();
-        String local = ctx.channel().localAddress().toString();
-        String remote = ctx.channel().remoteAddress().toString();
+        String socketInfo = buildSocketInfo(ctx.channel().localAddress(), ctx.channel().remoteAddress());
         String msgStr;
 
         if (msg instanceof ByteBuf) {
@@ -120,13 +131,17 @@ public class CarbonLoggingHandler extends LoggingHandler {
             msgStr = String.valueOf(msg);
         }
 
-        StringBuilder buf = new StringBuilder(
-                7 + channelId.length() + 14 + correlatedSourceId.length() + 7 + local.length() + 10 +
-                        remote.length() + 2 + eventName.length() + 2 + msgStr.length());
+        StringBuilder stringBuilder = new StringBuilder(
+                7 + channelId.length() + 14 + correlatedSourceId.length() + socketInfo.length() + 2 +
+                        eventName.length() + 2 + msgStr.length());
 
-        return buf.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
-                .append(", host:").append(local).append(" - remote:").append(remote).append("] ")
-                .append(eventName).append(": ").append(msgStr).toString();
+        if (EVENT_REGISTERED.equals(eventName) || EVENT_CONNECT.equals(eventName)) {
+            return stringBuilder.append("[id: 0x").append(channelId).append("] ").append(eventName)
+                    .append(": ").append(msgStr).toString();
+        } else {
+            return stringBuilder.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
+                    .append(socketInfo).append("] ").append(eventName).append(": ").append(msgStr).toString();
+        }
     }
 
     private static String formatPayload(ByteBuf msg) {
@@ -135,12 +150,12 @@ public class CarbonLoggingHandler extends LoggingHandler {
             return " 0B";
         } else {
             int rows = length / 16 + (length % 16 == 0 ? 0 : 1) + 4;
-            StringBuilder buf = new StringBuilder(10 + 1 + 2 + rows * 80);
+            StringBuilder stringBuilder = new StringBuilder(10 + 1 + 2 + rows * 80);
 
-            buf.append(length).append('B').append(NEWLINE);
-            appendPrettyHexDump(buf, msg);
+            stringBuilder.append(length).append('B').append(NEWLINE);
+            appendPrettyHexDump(stringBuilder, msg);
 
-            return buf.toString();
+            return stringBuilder.toString();
         }
     }
 
@@ -149,17 +164,30 @@ public class CarbonLoggingHandler extends LoggingHandler {
         ByteBuf content = msg.content();
         int length = content.readableBytes();
         if (length == 0) {
-            StringBuilder buf = new StringBuilder(2 + msgStr.length() + 4);
-            buf.append(msgStr).append(", 0B");
-            return buf.toString();
+            StringBuilder stringBuilder = new StringBuilder(2 + msgStr.length() + 4);
+            stringBuilder.append(msgStr).append(", 0B");
+            return stringBuilder.toString();
         } else {
             int rows = length / 16 + (length % 16 == 0 ? 0 : 1) + 4;
-            StringBuilder buf = new StringBuilder(2 + msgStr.length() + 2 + 10 + 1 + 2 + rows * 80);
+            StringBuilder stringBuilder = new StringBuilder(2 + msgStr.length() + 2 + 10 + 1 + 2 + rows * 80);
 
-            buf.append(msgStr).append(", ").append(length).append('B').append(NEWLINE);
-            appendPrettyHexDump(buf, content);
+            stringBuilder.append(msgStr).append(", ").append(length).append('B').append(NEWLINE);
+            appendPrettyHexDump(stringBuilder, content);
 
-            return buf.toString();
+            return stringBuilder.toString();
         }
+    }
+
+    private static String buildSocketInfo(SocketAddress local, SocketAddress remote) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (local != null) {
+            stringBuilder.append(", host:").append(local.toString()).append(" - ");
+        }
+        if (remote != null) {
+            stringBuilder.append("remote:").append(remote.toString());
+        }
+
+        return stringBuilder.toString();
     }
 }
