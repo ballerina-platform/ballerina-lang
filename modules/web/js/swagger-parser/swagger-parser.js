@@ -362,7 +362,7 @@ class SwaggerParser {
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const serviceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
             SWAGGER_PACKAGE, 'ServiceInfo');
-        serviceDefinition.addChild(serviceInfoAnnotation, serviceInfoAnnotationIndex);
+        serviceDefinition.addChild(serviceInfoAnnotation, serviceInfoAnnotationIndex, true, true);
     }
 
     /**
@@ -423,7 +423,7 @@ class SwaggerParser {
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const serviceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
             SWAGGER_PACKAGE, 'ServiceConfig');
-        serviceDefinition.addChild(serviceConfigAnnotation, serviceConfigAnnotationIndex);
+        serviceDefinition.addChild(serviceConfigAnnotation, serviceConfigAnnotationIndex, true, true);
     }
 
     /**
@@ -491,7 +491,7 @@ class SwaggerParser {
         const resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
             HTTP_PACKAGE, 'resourceConfig');
-        resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex);
+        resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex, true, true);
     }
 
     /**
@@ -564,8 +564,9 @@ class SwaggerParser {
                         paramAnnotation.setName('PathParam');
                     }
 
-                    newParameterDefinition.addChild(paramAnnotation);
-                    resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
+                    newParameterDefinition.addChild(paramAnnotation, undefined, true, true);
+                    resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition,
+                        undefined, true, true);
                 }
             });
         }
@@ -650,7 +651,7 @@ class SwaggerParser {
                 resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
             const parametersInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
                 SWAGGER_PACKAGE, 'ParametersInfo');
-            resourceDefinition.addChild(parametersInfoAnnotation, parametersInfoAnnotationIndex);
+            resourceDefinition.addChild(parametersInfoAnnotation, parametersInfoAnnotationIndex, true, true);
         }
     }
 
@@ -713,7 +714,7 @@ class SwaggerParser {
             resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const resourceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
             SWAGGER_PACKAGE, 'ResourceInfo');
-        resourceDefinition.addChild(resourceInfoAnnotation, resourceInfoAnnotationIndex);
+        resourceDefinition.addChild(resourceInfoAnnotation, resourceInfoAnnotationIndex, true, true);
     }
 
     /**
@@ -758,7 +759,7 @@ class SwaggerParser {
                 resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
             const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
                                                                                         SWAGGER_PACKAGE, 'Responses');
-            resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex);
+            resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex, true, true);
         }
     }
 
@@ -798,7 +799,7 @@ class SwaggerParser {
             if (_.isEqual(existingAnnotation.getPackageName(), annotationPackage) &&
                 _.isEqual(existingAnnotation.getName(), annotationIdentifier)) {
                 removedChildIndex = existingAnnotation.getParent().getIndexOfChild(existingAnnotation);
-                existingAnnotation.getParent().removeChild(existingAnnotation);
+                existingAnnotation.getParent().removeChild(existingAnnotation, true);
                 return false;
             }
 
@@ -827,7 +828,7 @@ class SwaggerParser {
         });
 
         if (matchingAttachments.length > 0) {
-            matchingAttachments[0].removeAllChildren();
+            matchingAttachments[0].removeAllChildren(true);
             return matchingAttachments[0];
         } else {
             const newAnnotation = ASTFactory.createAnnotationAttachment({
@@ -835,7 +836,7 @@ class SwaggerParser {
                 packageName,
                 name,
             });
-            astNode.addChild(newAnnotation);
+            astNode.addChild(newAnnotation, undefined, true, true);
             return newAnnotation;
         }
     }
@@ -857,14 +858,14 @@ class SwaggerParser {
 
         if (matchingAttributes.length > 0) {
             const attributeValue = matchingAttributes[0].getValue();
-            attributeValue.removeAllChildren();
-            attributeValue.addChild(valueAST);
+            attributeValue.removeAllChildren(true);
+            attributeValue.addChild(valueAST, undefined, true, true);
         } else {
             const value = ASTFactory.createAnnotationAttributeValue();
-            value.addChild(valueAST);
+            value.addChild(valueAST, undefined, true, true);
             const attribute = ASTFactory.createAnnotationAttribute({ key });
-            attribute.addChild(value);
-            annotationAttachment.addChild(attribute);
+            attribute.addChild(value, undefined, true, true);
+            annotationAttachment.addChild(attribute, undefined, true, true);
         }
     }
 
@@ -887,24 +888,24 @@ class SwaggerParser {
         if (matchingAttributes.length > 0) {
             const attributeValue = matchingAttributes[0].getValue();
             // Removing existing array elements.
-            attributeValue.removeAllChildren();
+            attributeValue.removeAllChildren(true);
 
             astNodes.forEach((ast) => {
                 const arrayItem = ASTFactory.createAnnotationAttributeValue();
-                arrayItem.addChild(ast);
-                attributeValue.addChild(arrayItem);
+                arrayItem.addChild(ast, undefined, true, true);
+                attributeValue.addChild(arrayItem, undefined, true, true);
             });
         } else {
             const value = ASTFactory.createAnnotationAttributeValue();
             astNodes.forEach((ast) => {
                 const arrayItem = ASTFactory.createAnnotationAttributeValue();
-                arrayItem.addChild(ast);
-                value.addChild(arrayItem);
+                arrayItem.addChild(ast, undefined, true, true);
+                value.addChild(arrayItem, undefined, true, true);
             });
 
             const attribute = ASTFactory.createAnnotationAttribute({ key });
-            attribute.addChild(value);
-            annotationAttachment.addChild(attribute);
+            attribute.addChild(value, undefined, true, true);
+            annotationAttachment.addChild(attribute, undefined, true, true);
         }
     }
 }
