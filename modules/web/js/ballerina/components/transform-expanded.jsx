@@ -296,6 +296,7 @@ class TransformExpanded extends React.Component {
         if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
+        this.mapper.reposition(this.props.model.getID());
     }
 
     drawFunctionDefinitionNodes(functionInvocationExpression, statement) {
@@ -394,6 +395,7 @@ class TransformExpanded extends React.Component {
         const targetId = `${parentFuncInvID}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
 
         this.mapper.addConnection(sourceId, targetId);
+        this.mapper.reposition(this.props.model.getID());
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
@@ -449,6 +451,7 @@ class TransformExpanded extends React.Component {
             const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             this.mapper.addConnection(sourceId, targetId);
         });
+        this.mapper.reposition(this.props.model.getID());
     }
 
     getConnectionProperties(type, expression) {
@@ -697,7 +700,7 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        this.mapper.reposition(this.mapper);
+        this.mapper.reposition(this.props.model.getID());
 
         this.loadVertices();
     }
@@ -724,12 +727,7 @@ class TransformExpanded extends React.Component {
                 this.createConnection(statement);
             });
         }
-
-        this.mapper.reposition(this.mapper);
-
-        $(this.transformOverlayContentDiv).find('.leftType, .rightType, .middle-content').on('scroll', () => {
-            this.mapper.reposition(this.mapper);
-        });
+        this.mapper.reposition(this.props.model.getID());
     }
 
     onTransformDropZoneActivate(e) {
