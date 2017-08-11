@@ -409,8 +409,7 @@ class SizingUtil {
                 connectorStatementContainerHeight = DesignerDefaults.statementContainer.height;
             } else {
                 // Here we add additional gutter height to balance the gaps from top and bottom
-                connectorStatementContainerHeight = totalResourceHeight +
-                    DesignerDefaults.panel.wrapper.gutter.v * (resources.length + 1);
+                connectorStatementContainerHeight = totalResourceHeight + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 2);
             }
             /**
              * Adjust the height of the connectors and adjust the service's body width with the connector widths
@@ -422,11 +421,11 @@ class SizingUtil {
                 bodyWidth += (connector.getViewState().components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h);
             });
 
-            bodyHeight = connectorStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2 +
+            bodyHeight = connectorStatementContainerHeight + DesignerDefaults.lifeLine.head.height +
                 DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         } else if (totalResourceHeight > 0) {
             bodyHeight = totalResourceHeight + DesignerDefaults.panel.body.padding.top +
-                DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 1);
+                DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 2);
         } else if (ASTFactory.isStructDefinition(node)) {
             bodyHeight = DesignerDefaults.structDefinition.body.height;
         } else {

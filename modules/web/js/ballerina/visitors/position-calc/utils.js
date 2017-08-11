@@ -143,12 +143,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
          */
         const parentLevelConnectors = node.getParent().filterChildren(child =>
             ASTFactory.isConnectorDeclaration(child));
-        if (parentLevelConnectors.length > 0) {
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
-                DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
-        } else {
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
-        }
+        headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+        
 
         headerY += serviceVariablesHeightGap;
     } else if (currentResourceIndex > 0) {
