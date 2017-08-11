@@ -119,11 +119,15 @@ class StructDefinitionItem extends React.Component {
                         this.setState({
                             newIdentifierEditing: false,
                         });
+                        // Identifier has not changed
+                        if (this.state.newIdentifier === identifier) {
+                            return;
+                        }
                         const identifierAlreadyExists = _.findIndex(model.getParent().getVariableDefinitionStatements(), (variableDefinitionStatement) => {
-                            return variableDefinitionStatement.getIdentifier() === identifier;
+                            return variableDefinitionStatement.getIdentifier() === this.state.newIdentifier;
                         }) !== -1;
                         if (identifierAlreadyExists) {
-                            const errorString = `A variable with identifier ${identifier} already exists.`;
+                            const errorString = `A variable with identifier ${this.state.newIdentifier} already exists.`;
                             Alerts.error(errorString);
                             throw errorString;
                         }
@@ -161,7 +165,7 @@ class StructDefinitionItem extends React.Component {
                         });
                         validateDefaultValue(type, this.state.newDefaultValue);
                         if (!this.state.newDefaultValue) {
-                            const valueArrayId = model.getChildren() && model.getChildren()[1] && model.getChildren()[1].id;
+                            const valueArrayId = model.getRightExpression() && model.getRightExpression().id;
                             if (valueArrayId) {
                                 model.removeChildById(valueArrayId);
                             }
