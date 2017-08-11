@@ -875,7 +875,7 @@ function testInvalidDBType () (string firstName) {
                                                             "", properties);
 
     sql:Parameter[] parameters = [];
-    sql:ClientConnector.update (testDB, "Insert into Customers(firstName) values ('James')",parameters);
-    sql:ClientConnector.close (testDB);
+    testDB.update ("Insert into Customers(firstName) values ('James')",parameters);
+    testDB.close ();
     return;
 }
