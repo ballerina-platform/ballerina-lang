@@ -134,11 +134,15 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      */
     void populateVariableDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
+        String typeName = "";
+        SimpleTypeName type = ((VariableDef) symbolInfo.getSymbol()).getTypeName();
+        if (type != null) {
+            typeName = type.getName();
+        }
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
 
         CompletionItemData data = new CompletionItemData();
-        data.addData("type", ((VariableDef) symbolInfo.getSymbol()).getTypeName());
+        data.addData("type", type);
         completionItem.setData(data);
 
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);

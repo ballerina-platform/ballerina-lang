@@ -743,7 +743,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
                 }
             }
         } else if (position.getLine() == startLineNumber) {
-            if (position.getCharacter() >= startColumn) {
+            if (position.getCharacter() > startColumn) {
                 if (stop.lineNumber != -1 && stop.column != -1) {
                     if (position.getLine() < stop.lineNumber) {
                         closestScope = currentScope;
