@@ -363,7 +363,8 @@ class BallerinaFileEditor extends React.Component {
                                 newState.isASTInvalid = true;
                                 newState.model = new BallerinaASTRoot();
                                 resolve(newState);
-                                alerts.error(jsonTree.errorMessage);
+                                alerts.error('Seems to be there is a bug in back-end parser.'
+                                        + 'Please report an issue attaching current source.');
                                 return;
                             }
                             // get ast from json
