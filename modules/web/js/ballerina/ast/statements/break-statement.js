@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import Statement from './statement';
 
 /**
@@ -42,7 +43,13 @@ class BreakStatement extends Statement {
      * @return {boolean} true|false.
      */
     canBeAChildOf(node) {
-        return this.getFactory().isStatement(node);
+        let canBeChildOf = this.getFactory().isWhileStatement(node);
+        let nodeToBeParent = node;
+        while (!canBeChildOf && !_.isEmpty(nodeToBeParent.getParent())) {
+            canBeChildOf = this.getFactory().isWhileStatement(nodeToBeParent);
+            nodeToBeParent = nodeToBeParent.getParent();
+        }
+        return canBeChildOf;
     }
 
     /**
