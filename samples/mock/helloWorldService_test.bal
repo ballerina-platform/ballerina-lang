@@ -19,7 +19,7 @@ function testMain () {
 
     http:ClientConnector varEP = create http:ClientConnector(myURL);
     messages:setStringPayload(request, mockURL);
-    response = http:ClientConnector.get(varEP, "/", request);
+    response = varEP.get("/", request);
 
     responseString = messages:getStringPayload(response);
     system:println("hello response: " + responseString);
