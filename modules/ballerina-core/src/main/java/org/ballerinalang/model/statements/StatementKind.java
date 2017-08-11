@@ -44,7 +44,7 @@ public enum StatementKind {
     WORKER_REPLY(18),
     TRANSFORM(19),
     NAMESPACE_DECLARATION(20),
-
+    RETRY(21),
     // Blocks
     CALLABLE_UNIT_BLOCK(30),
     TRANSACTION_BLOCK(31),
@@ -60,6 +60,7 @@ public enum StatementKind {
     JOIN_BLOCK(41),
     TIMEOUT_BLOCK(42),
     TRANSFORM_BLOCK(43),
+    FAILED_BLOCK(44),
 
     ;
     private final int key;

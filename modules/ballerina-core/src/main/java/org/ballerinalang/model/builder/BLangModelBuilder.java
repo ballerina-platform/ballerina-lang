@@ -98,6 +98,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -1877,6 +1878,27 @@ public class BLangModelBuilder {
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
+    public void startFailedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing failed clause.
+        TransactionStmt.FailedBlock failedBlock = new TransactionStmt.FailedBlock(currentScope);
+        transactionStmtBuilder.setFailedBlock(failedBlock);
+        currentScope = failedBlock;
+        BlockStmt.BlockStmtBuilder failedBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
+        blockStmtBuilderStack.push(failedBlockBuilder);
+        currentScope = failedBlockBuilder.getCurrentScope();
+    }
+
+    public void addFailedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder failedBlockBuilder = blockStmtBuilderStack.pop();
+        failedBlockBuilder.setLocation(location);
+        failedBlockBuilder.setBlockKind(StatementKind.FAILED_BLOCK);
+        BlockStmt failedBlock = failedBlockBuilder.build();
+        currentScope = failedBlock.getEnclosingScope();
+        transactionStmtBuilder.setFailedBlockStmt(failedBlock);
+    }
+
     public void addTransactionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
         transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
@@ -1887,6 +1909,14 @@ public class BLangModelBuilder {
 
     public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
+    }
+
+    public void createRetryStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        Expression countExpression = exprStack.pop();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        transactionStmtBuilder.setRetryCountExpression(countExpression);
+        RetryStmt retryStmt = new RetryStmt(location, whiteSpaceDescriptor, countExpression);
+        addToBlockStmt(retryStmt);
     }
 
     // Literal Values

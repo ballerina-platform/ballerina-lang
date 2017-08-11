@@ -35,11 +35,15 @@ public class BallerinaTransactionManager {
     private TransactionManager transactionManager;
     private int transactionLevel; //level of the nested transaction
     private boolean transactionError; //status of nested transactions
+    private Map<Integer, Integer> allowedTransactionRetryCounts;
+    private Map<Integer, Integer> currentTransactionRetryCounts;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
         this.transactionLevel = 0;
         this.transactionError = false;
+        this.allowedTransactionRetryCounts = new HashMap<>();
+        this.currentTransactionRetryCounts = new HashMap<>();
     }
 
     public void registerTransactionContext(String id, BallerinaTransactionContext txContext) {
@@ -50,20 +54,36 @@ public class BallerinaTransactionManager {
         return transactionContextStore.get(id);
     }
 
-    public boolean isTransactionError() {
-        return this.transactionError;
-    }
-
     public void setTransactionError(boolean transactionError) {
         this.transactionError = transactionError;
     }
 
-    public void beginTransactionBlock() {
+    public void beginTransactionBlock(int transactionID, int retryCount) {
+        allowedTransactionRetryCounts.put(transactionID, retryCount);
+        currentTransactionRetryCounts.put(transactionID, 0);
         ++transactionLevel;
+    }
+
+    public int getAllowedRetryCount(int transactionId) {
+        return allowedTransactionRetryCounts.get(transactionId);
+    }
+
+    public int getCurrentRetryCount(int transactionId) {
+        return currentTransactionRetryCounts.get(transactionId);
+    }
+
+    public void incrementCurrentRetryCount(int transactionId) {
+        int count = currentTransactionRetryCounts.containsKey(transactionId) ?
+                currentTransactionRetryCounts.get(transactionId) :
+                0;
+        currentTransactionRetryCounts.put(transactionId, count + 1);
     }
 
     public void endTransactionBlock() {
         --transactionLevel;
+        if (transactionLevel == 0) {
+            closeAllConnections();
+        }
     }
 
     public void commitTransactionBlock() {
@@ -77,7 +97,6 @@ public class BallerinaTransactionManager {
     public void rollbackTransactionBlock() {
         if (transactionLevel == 1) {
             rollbackNonXAConnections();
-            closeAllConnections();
             rollbackXATransaction();
         }
     }
