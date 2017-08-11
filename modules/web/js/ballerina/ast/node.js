@@ -525,7 +525,10 @@ class ASTNode extends EventChannel {
      * @returns {number}
      */
     getLineNumber() {
-        return this.getAttribute('_lineNumber');
+        if (!this.getPosition()) {
+            return null;
+        }
+        return this.getPosition().startLine;
     }
 
     /**

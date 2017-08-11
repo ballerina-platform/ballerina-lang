@@ -174,7 +174,6 @@ class BallerinaFileEditor extends React.Component {
         const newContent = sourceGenVisitor.getGeneratedSource();
         // set breakpoints to model
         this.reCalculateBreakpoints(this.state.model);
-        // this.markBreakpointsOnAST(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
