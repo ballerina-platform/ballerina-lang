@@ -17,26 +17,22 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contract.websocket;
-
-import java.nio.ByteBuffer;
+package org.wso2.carbon.transport.http.netty.contract;
 
 /**
- * This message contains the details of WebSocket bong message.
+ * Exception for Server Connectors.
  */
-public interface WebSocketControlMessage extends WebSocketMessageContext, WebSocketMessageSessionContext {
+public class ServerConnectorException extends Exception {
 
-    /**
-     * Get the control signal.
-     *
-     * @return the control signal as a {@link WebSocketControlSignal}.
-     */
-    WebSocketControlSignal getControlSignal();
+    public ServerConnectorException(String message) {
+        super(message);
+    }
 
-    /**
-     * Get the payload of the control signal.
-     *
-     * @return the payload of the control signal.
-     */
-    ByteBuffer getPayload();
+    public ServerConnectorException(Exception e) {
+        super(e);
+    }
+
+    public ServerConnectorException(String message, Exception e) {
+        super(message, e);
+    }
 }

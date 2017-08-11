@@ -138,7 +138,7 @@ public class SSLHandlerFactory {
      * Application Layer Protocol Negotiation (ALPN)
      *
      * @return instance of {@link SslContext}
-     * @throws SSLException
+     * @throws SSLException if any error occurred during building SSL context.
      */
     public SslContext createHttp2TLSContext() throws SSLException {
 

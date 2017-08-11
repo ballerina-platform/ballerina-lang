@@ -16,34 +16,24 @@
 package org.wso2.carbon.transport.http.netty.sender.channel;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -146,10 +136,9 @@ public class ChannelUtils {
      * @param channel       OutboundChanel
      * @param httpRequest   HTTPRequest
      * @param carbonMessage Carbon Message
-     * @return
+     * @return true if the context is written correctly.
      */
-    public static boolean writeContent(Channel channel, HttpRequest httpRequest, HTTPCarbonMessage carbonMessage)
-                                                                                        throws Exception {
+    public static boolean writeContent(Channel channel, HttpRequest httpRequest, HTTPCarbonMessage carbonMessage) {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                     executeAtTargetRequestReceiving(carbonMessage);

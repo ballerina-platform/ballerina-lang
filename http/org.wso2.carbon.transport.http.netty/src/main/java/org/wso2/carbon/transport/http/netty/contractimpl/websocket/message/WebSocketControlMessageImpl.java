@@ -17,24 +17,24 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket.message;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.WebSocketChannelContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
 
 import java.nio.ByteBuffer;
 
 /**
  * Implementation of WebSocket control message.
  */
-public class WebSocketControlMessageImpl extends WebSocketChannelContextImpl implements WebSocketControlMessage {
+public class WebSocketControlMessageImpl extends WebSocketMessageContextImpl implements WebSocketControlMessage {
 
     private final WebSocketControlSignal controlSignal;
     private final ByteBuffer buffer;
 
     public WebSocketControlMessageImpl(WebSocketControlSignal controlSignal, ByteBuffer buffer,
-                                       WebSocketChannelContextImpl channelContext) {
+                                       WebSocketMessageContextImpl channelContext) {
         super(channelContext.getChannelSession(), channelContext.getChannelContext());
         this.controlSignal = controlSignal;
         this.buffer = buffer;

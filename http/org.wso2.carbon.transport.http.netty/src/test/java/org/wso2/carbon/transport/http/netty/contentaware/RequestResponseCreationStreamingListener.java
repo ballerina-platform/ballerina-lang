@@ -10,10 +10,10 @@ import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
@@ -21,10 +21,7 @@ import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -93,7 +90,12 @@ public class RequestResponseCreationStreamingListener implements HTTPConnectorLi
                             newMsg.setEndOfMsgAdded(true);
 
                             HTTPCarbonMessage httpCarbonMessage1 = HTTPMessageUtil.convertCarbonMessage(newMsg);
-                            httpRequest.respond(httpCarbonMessage1);
+
+                            try {
+                                httpRequest.respond(httpCarbonMessage1);
+                            } catch (ServerConnectorException e) {
+                                logger.error("Error occurred during message notification: " + e.getMessage());
+                            }
                         });
                     }
 

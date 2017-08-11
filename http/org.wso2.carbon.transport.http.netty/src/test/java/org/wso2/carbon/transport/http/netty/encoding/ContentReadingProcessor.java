@@ -28,8 +28,6 @@ import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

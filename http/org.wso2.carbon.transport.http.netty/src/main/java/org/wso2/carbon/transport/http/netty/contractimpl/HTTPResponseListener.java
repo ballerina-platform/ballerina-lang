@@ -1,16 +1,12 @@
-package org.wso2.carbon.transport.http.netty.contractImpl;
+package org.wso2.carbon.transport.http.netty.contractimpl;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
@@ -18,8 +14,6 @@ import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.carbon.transport.http.netty.listener.ResponseContentWriter;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-
-import java.nio.ByteBuffer;
 
 /**
  * Get executed when the response is available.

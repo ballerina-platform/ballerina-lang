@@ -17,13 +17,13 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketChannelContext;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
 
@@ -52,10 +52,9 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
 
     @Override
     public Session connect(WebSocketConnectorListener listener) throws ClientConnectorException {
-        WebSocketSourceHandler sourceHandler = null;
         Map<String, String> headers = new HashMap<>();
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions, headers,
-                                                              sourceHandler, listener);
+                                                              null, listener);
         try {
             webSocketClient.handshake();
             return webSocketClient.getSession();
@@ -71,9 +70,8 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     @Override
     public Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
             throws ClientConnectorException {
-        WebSocketSourceHandler sourceHandler = null;
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
-                                                              customHeaders, sourceHandler, listener);
+                                                              customHeaders, null, listener);
         try {
             webSocketClient.handshake();
             return webSocketClient.getSession();
@@ -87,11 +85,17 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     }
 
     @Override
-    public Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext)
+    public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext)
             throws ClientConnectorException {
-        WebSocketChannelContextImpl channelContextImp = (WebSocketChannelContextImpl) channelContext;
+        WebSocketMessageContextImpl messageContextImp;
+        if (messageContext instanceof WebSocketMessageContextImpl) {
+            messageContextImp = (WebSocketMessageContextImpl) messageContext;
+        } else {
+            throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
+        }
+
         WebSocketSourceHandler sourceHandler =
-                (WebSocketSourceHandler) channelContextImp.getProperty(Constants.SRC_HANDLER);
+                (WebSocketSourceHandler) messageContextImp.getProperty(Constants.SRC_HANDLER);
         Map<String, String> headers = new HashMap<>();
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions, headers,
                                                               sourceHandler, listener);
@@ -108,11 +112,17 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     }
 
     @Override
-    public Session connect(WebSocketConnectorListener listener, WebSocketChannelContext channelContext,
+    public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext,
                            Map<String, String> customHeaders) throws ClientConnectorException {
-        WebSocketChannelContextImpl channelContextImp = (WebSocketChannelContextImpl) channelContext;
+        WebSocketMessageContextImpl messageContextImp;
+        if (messageContext instanceof WebSocketMessageContextImpl) {
+            messageContextImp = (WebSocketMessageContextImpl) messageContext;
+        } else {
+            throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
+        }
+
         WebSocketSourceHandler sourceHandler =
-                (WebSocketSourceHandler) channelContextImp.getProperty(Constants.SRC_HANDLER);
+                (WebSocketSourceHandler) messageContextImp.getProperty(Constants.SRC_HANDLER);
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
                                                               customHeaders, sourceHandler, listener);
         try {

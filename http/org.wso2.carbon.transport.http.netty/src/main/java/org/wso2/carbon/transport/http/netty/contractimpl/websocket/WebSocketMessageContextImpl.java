@@ -17,9 +17,9 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketSessionContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageSessionContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,13 +28,15 @@ import javax.websocket.Session;
 /**
  * WebSocket channel handler context with Session context.
  */
-public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImpl implements WebSocketSessionContext {
+public class WebSocketMessageContextImpl extends BasicWebSocketMessageContextImpl implements
+                                                                                  WebSocketMessageSessionContext {
 
+    protected Session serverSession = null;
     protected final Session channelSession;
     protected final List<Session> clientSessions = new LinkedList<>();
-    protected final BasicWebSocketChannelContextImpl channelContext;
+    protected final BasicWebSocketMessageContextImpl channelContext;
 
-    public WebSocketChannelContextImpl(Session channelSession, BasicWebSocketChannelContextImpl channelContext) {
+    public WebSocketMessageContextImpl(Session channelSession, BasicWebSocketMessageContextImpl channelContext) {
         super(channelContext.subProtocol, channelContext.target, channelContext.listenerPort,
               channelContext.isConnectionSecured, channelContext.isServerMessage, channelContext.connectionManager,
               channelContext.listenerConfiguration);
@@ -46,7 +48,11 @@ public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImp
         clientSessions.add(clientSession);
     }
 
-    public BasicWebSocketChannelContextImpl getChannelContext() {
+    public void setServerSession(Session serverSession) {
+        this.serverSession = serverSession;
+    }
+
+    public BasicWebSocketMessageContextImpl getChannelContext() {
         return channelContext;
     }
 
@@ -56,7 +62,18 @@ public class WebSocketChannelContextImpl extends BasicWebSocketChannelContextImp
     }
 
     @Override
+    public Session getServerSession() {
+        if (isServerMessage) {
+            return channelSession;
+        }
+        return serverSession;
+    }
+
+    @Override
     public List<Session> getClientSessions() {
-        return clientSessions;
+        if (isServerMessage) {
+            return clientSessions;
+        }
+        throw new UnsupportedOperationException("Only applicable for server messages");
     }
 }

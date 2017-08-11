@@ -28,12 +28,12 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HTTPServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
 import java.net.InetSocketAddress;

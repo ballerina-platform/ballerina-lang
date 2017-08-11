@@ -1,4 +1,4 @@
-package org.wso2.carbon.transport.http.netty.contractImpl;
+package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
@@ -9,7 +9,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class HTTPClientConnectorFutureImpl implements HTTPClientConnectorFuture {
 
-    private HTTPConnectorListener httpConnectorListener;
+    private HTTPConnectorListener httpConnectorListener = null;
 
     @Override
     public void setHTTPConnectorListener(HTTPConnectorListener connectorListener) {

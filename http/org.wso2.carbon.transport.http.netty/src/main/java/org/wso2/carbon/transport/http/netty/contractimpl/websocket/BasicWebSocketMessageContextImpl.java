@@ -17,19 +17,19 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketChannelContext;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementation of {@link WebSocketChannelContext}.
+ * Implementation of {@link WebSocketMessageContext}.
  */
-public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext {
+public class BasicWebSocketMessageContextImpl implements WebSocketMessageContext {
 
     private final Map<String, Object> properties = new HashMap<>();
     protected final String subProtocol;
@@ -40,7 +40,7 @@ public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext
     protected final ConnectionManager connectionManager;
     protected final ListenerConfiguration listenerConfiguration;
 
-    public BasicWebSocketChannelContextImpl(String subProtocol, String target, boolean isConnectionSecured,
+    public BasicWebSocketMessageContextImpl(String subProtocol, String target, boolean isConnectionSecured,
                                             boolean isServerMessage) {
         this.subProtocol = subProtocol;
         this.target = target;
@@ -51,7 +51,7 @@ public class BasicWebSocketChannelContextImpl implements WebSocketChannelContext
         this.listenerConfiguration = null;
     }
 
-    public BasicWebSocketChannelContextImpl(String subProtocol, String target, String listenerPort,
+    public BasicWebSocketMessageContextImpl(String subProtocol, String target, String listenerPort,
                                             boolean isConnectionSecured, boolean isServerMessage,
                                             ConnectionManager connectionManager,
                                             ListenerConfiguration listenerConfiguration) {

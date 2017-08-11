@@ -18,29 +18,29 @@
 
 package org.wso2.carbon.transport.http.netty.http2;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.client.http2.HTTP2Client;
-import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
-
-import java.util.List;
-
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.POST;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static org.testng.AssertJUnit.assertEquals;
+//import io.netty.buffer.ByteBuf;
+//import io.netty.handler.codec.http.DefaultFullHttpRequest;
+//import io.netty.handler.codec.http.HttpHeaderNames;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+//import org.testng.annotations.AfterClass;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
+//import org.wso2.carbon.messaging.CarbonMessageProcessor;
+//import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+//import org.wso2.carbon.transport.http.netty.common.Constants;
+//import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+//import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+//import org.wso2.carbon.transport.http.netty.util.TestUtil;
+//import org.wso2.carbon.transport.http.netty.util.client.http2.HTTP2Client;
+//import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+//
+//import java.util.List;
+//
+//import static io.netty.handler.codec.http.HttpMethod.GET;
+//import static io.netty.handler.codec.http.HttpMethod.POST;
+//import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+//import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * A test class for http2 transport.

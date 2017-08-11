@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 
 /**
  * A class that starts the HTTP Server Bootstrap in given port and capable of binding interfaces to Server Bootstrap.
- * @deprecated use {@link HTTPServerConnector} instead.
+ * @deprecated use HTTPServerConnector instead.
  */
 @Deprecated
 public class HTTPTransportListener extends TransportListener {
@@ -75,7 +75,8 @@ public class HTTPTransportListener extends TransportListener {
         super(listenerConfigurationSet.iterator().next().getId());
 
         if (listenerConfigurationSet.isEmpty()) {
-            log.error("Cannot find registered listener configurations  hence cannot initialize the transport listeners");
+            log.error("Cannot find registered listener configurations  hence " +
+                              "cannot initialize the transport listeners");
             return;
         }
 
@@ -248,7 +249,8 @@ public class HTTPTransportListener extends TransportListener {
                 return true;
             }
         } else {
-            log.error("Cannot find defined HTTPConnectorListener interface  for HTTPConnectorListener id " + interfaceId);
+            log.error("Cannot find defined HTTPConnectorListener interface  for HTTPConnectorListener id "
+                              + interfaceId);
         }
         return false;
     }
@@ -298,11 +300,13 @@ public class HTTPTransportListener extends TransportListener {
                 }
                 future.channel().close();
                 if (listenerConfiguration.getSslConfig() == null) {
-                    log.info("HTTP HTTPConnectorListener stopped on listening interface " + interfaceId + " attached to   host  "
-                            + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                    log.info("HTTP HTTPConnectorListener stopped on listening interface " +
+                                     interfaceId + " attached to host  " + listenerConfiguration.getHost() +
+                                     " and port " + listenerConfiguration.getPort());
                 } else {
-                    log.info("HTTPS HTTPConnectorListener stopped on listening interface " + interfaceId + " attached to   host  "
-                            + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                    log.info("HTTPS HTTPConnectorListener stopped on listening interface " + interfaceId +
+                                     " attached to host " + listenerConfiguration.getHost() + " and port " +
+                                     listenerConfiguration.getPort());
                 }
                 return true;
             }

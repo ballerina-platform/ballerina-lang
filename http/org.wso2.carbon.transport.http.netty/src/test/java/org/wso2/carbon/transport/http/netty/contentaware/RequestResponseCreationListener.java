@@ -10,10 +10,10 @@ import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +79,11 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                 carbonMessage.setEndOfMsgAdded(true);
 
                 HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(carbonMessage);
-                request.respond(httpCarbonMessage);
+                try {
+                    request.respond(httpCarbonMessage);
+                } catch (ServerConnectorException e) {
+                    logger.error("Error occurred during message notification: " + e.getMessage());
+                }
             }
         }
 
@@ -160,12 +163,17 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                                     carbonMessage.addMessageBody(byteBuff);
                                     carbonMessage.setEndOfMsgAdded(true);
 
-                                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
-                                            .convertCarbonMessage(carbonMessage);
-                                    httpRequest.respond(httpCarbonMessage);
+                                            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
+                                                    .convertCarbonMessage(carbonMessage);
+                                            try {
+                                                httpRequest.respond(httpCarbonMessage);
+                                            } catch (ServerConnectorException e) {
+                                                logger.error("Error occurred during message notification: "
+                                                                     + e.getMessage());
+                                            }
+                                        }
+                                    });
                                 }
-                            });
-                        }
 
                         @Override
                         public void onError(Throwable throwable) {

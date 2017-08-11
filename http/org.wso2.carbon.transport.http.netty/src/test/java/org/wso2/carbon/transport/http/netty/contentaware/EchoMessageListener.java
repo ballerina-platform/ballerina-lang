@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.nio.ByteBuffer;
@@ -63,6 +64,8 @@ public class EchoMessageListener implements HTTPConnectorListener {
                     cMsg.addMessageBody(byteBuffer);
                     cMsg.setEndOfMsgAdded(true);
                     httpRequest.respond(cMsg);
+                } catch (ServerConnectorException e) {
+                    logger.error("Error occurred during message notification: " + e.getMessage());
                 } finally {
                     // Calling the release method to make sure that there won't be any memory leaks from netty
                     httpRequest.release();

@@ -1,4 +1,4 @@
-package org.wso2.carbon.transport.http.netty.contractImpl;
+package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +17,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
  */
 public class HTTPClientConnectorImpl implements HTTPClientConnector {
 
-    private static final Logger log = LoggerFactory
-            .getLogger(org.wso2.carbon.transport.http.netty.sender.HTTPClientConnector.class);
+    private static final Logger log = LoggerFactory.getLogger(HTTPClientConnector.class);
 
     private ConnectionManager connectionManager;
     private SSLConfig sslConfig;

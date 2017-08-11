@@ -36,17 +36,18 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPResponseListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HTTPResponseListener;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -175,8 +176,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * Handle the WebSocket handshake.
      *
      * @param httpRequest {@link HttpRequest} of the request.
+     * @throws ServerConnectorException if any error occurred during notification of the message.
      */
-    protected void handleWebSocketHandshake(HttpRequest httpRequest) {
+    private void handleWebSocketHandshake(HttpRequest httpRequest) throws ServerConnectorException {
             boolean isSecured = false;
             if (listenerConfiguration.getSslConfig() != null) {
                 isSecured = true;
@@ -185,12 +187,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
             boolean isServerMessage = true;
 
-            BasicWebSocketChannelContextImpl webSocketChannelContext = new BasicWebSocketChannelContextImpl(
+            BasicWebSocketMessageContextImpl webSocketChannelContext = new BasicWebSocketMessageContextImpl(
                     subProtocol, uri, listenerConfiguration.getId(), isSecured, isServerMessage, connectionManager,
                     listenerConfiguration);
 
             WebSocketInitMessageImpl initMessage =
-                    new WebSocketInitMessageImpl(httpRequest, serverConnectorFuture, webSocketChannelContext,ctx);
+                    new WebSocketInitMessageImpl(httpRequest, serverConnectorFuture, webSocketChannelContext, ctx);
 
             serverConnectorFuture.notifyWSListener(initMessage);
     }
@@ -199,7 +201,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     //immediately
     protected void publishToMessageProcessor(HTTPCarbonMessage httpRequestMsg) throws URISyntaxException {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(httpRequestMsg);
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                    executeAtSourceRequestReceiving(httpRequestMsg);
         }
 
         boolean continueRequest = true;

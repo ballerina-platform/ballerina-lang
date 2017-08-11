@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -33,13 +32,10 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.contractImpl.HTTPServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
-import org.wso2.carbon.transport.http.netty.sender.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 

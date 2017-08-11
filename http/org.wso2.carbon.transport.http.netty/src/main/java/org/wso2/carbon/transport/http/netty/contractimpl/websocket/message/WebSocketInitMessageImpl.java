@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contractImpl.websocket.message;
+package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -26,12 +26,12 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contractImpl.websocket.BasicWebSocketChannelContextImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.ProtocolException;
@@ -41,16 +41,16 @@ import javax.websocket.Session;
 /**
  * Implementation of {@link WebSocketInitMessage}.
  */
-public class WebSocketInitMessageImpl extends BasicWebSocketChannelContextImpl implements WebSocketInitMessage {
+public class WebSocketInitMessageImpl extends BasicWebSocketMessageContextImpl implements WebSocketInitMessage {
 
     private final ChannelHandlerContext ctx;
     private final HttpRequest httpRequest;
     private final WebSocketServerHandshaker handshaker;
-    private final BasicWebSocketChannelContextImpl basicWebSocketChannelContext;
+    private final BasicWebSocketMessageContextImpl basicWebSocketChannelContext;
     private final ServerConnectorFuture connectorFuture;
 
     public WebSocketInitMessageImpl(HttpRequest httpRequest, ServerConnectorFuture connectorFuture,
-                                    BasicWebSocketChannelContextImpl webSocketChannelContext,
+                                    BasicWebSocketMessageContextImpl webSocketChannelContext,
                                     ChannelHandlerContext ctx) {
         super(webSocketChannelContext.getSubProtocol(), webSocketChannelContext.getTarget(),
               webSocketChannelContext.getListenerPort(), webSocketChannelContext.isConnectionSecured(),
