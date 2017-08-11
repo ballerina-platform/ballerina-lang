@@ -99,9 +99,11 @@
                                     <th>Parameter Name</th><th>Data Type</th><th>Description</th>
                                 </tr>
                                 {{#each parameterDefs}}
-                                <tr>
-                                    <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a></td><td>{{paramAnnotation this "param"}}</td>
-                                </tr>
+                                    {{#if @first}}{{else}}
+                                        <tr>
+                                            <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                        </tr>
+                                    {{/if}}
                                 {{/each}}
                             </table>
                         </p>
@@ -235,7 +237,7 @@
                                 <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameterDefs}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
                                     <ul>
                                         {{#each actions}}
-                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameterDefs}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
+                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameterDefs}}{{#if @first}}{{else}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/if}}{{/each}})</a></li>
                                         {{/each}}
                                     </ul>
                                 </li>{{/each}}

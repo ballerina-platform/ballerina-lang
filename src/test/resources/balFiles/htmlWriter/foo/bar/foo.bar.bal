@@ -38,7 +38,6 @@ struct Argument {
 connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
 
     @doc:Description{value:"test connector action"}
-    @doc:Param{value:"t: connector object"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response: response object"}
     action testAction1(string msg) (message response) {
@@ -48,7 +47,6 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     }
 
     @doc:Description{value:"test connector action2"}
-    @doc:Param{value:"t: connector object"}
     @doc:Param{value:"msg: a string message"}
     @doc:Return{value:"response2: response object"}
     action testAction2(string msg) (message response) {

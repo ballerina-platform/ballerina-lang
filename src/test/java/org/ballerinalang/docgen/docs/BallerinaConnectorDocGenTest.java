@@ -52,7 +52,7 @@ public class BallerinaConnectorDocGenTest {
             Assert.assertEquals(connectorDoc.getParameterDefs().length, 4);
             BallerinaAction[] actions = connectorDoc.getActions();
             BallerinaAction action = actions[0];
-            Assert.assertEquals(action.getParameterDefs().length, 1);
+            Assert.assertEquals(action.getParameterDefs().length, 2);
             Assert.assertEquals(action.getReturnParameters().length, 1);
         } catch (IOException e) {
             Assert.fail();
@@ -81,7 +81,7 @@ public class BallerinaConnectorDocGenTest {
             Assert.assertEquals(connector.getParameterDefs().length, 4);
 
             for (BallerinaAction action : connector.getActions()) {
-                Assert.assertEquals(action.getParameterDefs().length, 1);
+                Assert.assertEquals(action.getParameterDefs().length, 2);
                 Assert.assertEquals(action.getReturnParameters().length, 1);
             }
         } catch (IOException e) {
