@@ -91,3 +91,7 @@ function split(string j, string k) (string[]) {
 function toBlob(string l, string m) (blob) {
     return strings:toBlob(l, m);
 }
+
+function format(string f, any[] args) (string) {
+    return strings:format(f, args);
+}

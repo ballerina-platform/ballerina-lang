@@ -17,15 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.model.values.*;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -33,6 +25,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 
@@ -308,6 +301,97 @@ public class StringTest {
 
         Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
                             "Produced Blob value is wrong");
+    }
+
+    @Test
+    public void testFormatString() {
+        String name = "John";
+        BRefValueArray f_args = new BRefValueArray();
+        f_args.add(0, new BString(name));
+        BValue[] args = {new BString("%s"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), name);
+    }
+
+    @Test
+    public void testFormatDecimal() {
+        BRefValueArray f_args = new BRefValueArray();
+        f_args.add(0, new BInteger(65));
+        BValue[] args = {new BString("%d"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "65");
+    }
+
+    @Test
+    public void testFormatBooleanTrue() {
+        BRefValueArray f_args = new BRefValueArray();
+        f_args.add(0, new BBoolean(true));
+        BValue[] args = {new BString("%b"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "true");
+    }
+
+    @Test
+    public void testFormatBooleanFalse() {
+        BRefValueArray f_args = new BRefValueArray();
+        f_args.add(0, new BBoolean(false));
+        BValue[] args = {new BString("%b"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "false");
+    }
+
+    @Test
+    public void testFormatFloat() {
+        BRefValueArray f_args = new BRefValueArray();
+        f_args.add(0, new BFloat(3.25));
+        BValue[] args = {new BString("%f"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "3.250000");
+    }
+
+    @Test
+    public void testFormatMessage() {
+        BRefValueArray f_args = new BRefValueArray();
+
+        DefaultCarbonMessage dcmsg = new DefaultCarbonMessage();
+        dcmsg.setStringMessageBody("Hello Ballerina!");
+        BMessage msg = new BMessage(dcmsg);
+
+        f_args.add(0, msg);
+        BValue[] args = {new BString("%m"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!");
+    }
+
+    @Test
+    public void testFormatIntArray() {
+        BRefValueArray f_args = new BRefValueArray();
+        BIntArray arr = new BIntArray();
+        arr.add(0, 111);
+        arr.add(1, 222);
+        arr.add(2, 333);
+
+        f_args.add(0, arr);
+        BValue[] args = {new BString("%s"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "[111,222,333]");
+    }
+
+    @Test
+    public void testFormatLiteralPercentChar() {
+        BRefValueArray f_args = new BRefValueArray();
+        f_args.add(0, new BString("test"));
+        BValue[] args = {new BString("%% %s"), f_args};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "format", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "% test");
     }
 
 }

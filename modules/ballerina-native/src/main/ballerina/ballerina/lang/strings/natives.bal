@@ -107,3 +107,9 @@ native function split (string mainString, string regex) (string[]);
 @doc:Param { value:"encoding: Encoding to used in the conversion" }
 @doc:Return { value:"string: BLOB representation of the given String" }
 native function toBlob (string s, string encoding) (blob);
+
+@doc:Description { value:"Returns a formatted string using the specified format string and arguments"}
+@doc:Param { value:"format: format string"}
+@doc:Param { value:"args: arguments for format string"}
+@doc:Return { value:"string: Formatted string"}
+native function format (string format, any[] args) (string);
