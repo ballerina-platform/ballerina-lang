@@ -1,3 +1,0 @@
-function xmlTest() {
-    xml xml = {};
-}
