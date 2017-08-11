@@ -167,6 +167,7 @@ import java.util.Stack;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TNAME;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 
 /**
@@ -3137,10 +3138,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] argExprs = ((CallableUnitInvocationExpr) callableIExpr).getArgExprs();
         Expression[] updatedArgExprs = new Expression[argExprs.length];
 
-        boolean isAction = callableIExpr instanceof ActionInvocationExpr;
-
         CallableUnitSymbolName funcSymName = (CallableUnitSymbolName) callableSymbol.getSymbolName();
-        if (!funcSymName.isNameAndParamCountMatch(symbolName, isAction)) {
+        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
             return null;
         }
 
@@ -3165,18 +3164,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         } else {
             for (int i = 0; i < argExprs.length; i++) {
-                int paramIndex = i;
-                //For actions the first argument is the Connector
-                if (isAction) {
-                    paramIndex = i - 1;
-                    if (i == 0) {
-                        updatedArgExprs[i] = argExprs[i];
-                        continue;
-                    }
-                }
                 Expression argExpr = argExprs[i];
                 updatedArgExprs[i] = argExpr;
-                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[paramIndex].getType();
+                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[i].getType();
 
                 AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
                 if (result.expression != null) {
@@ -3389,6 +3379,20 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void defineAction(BallerinaAction action, BallerinaConnectorDef connectorDef) {
+        //ConnectorDef is a reserved first parameter in any action
+        ParameterDef[] updatedParamDefs = new ParameterDef[action.getParameterDefs().length + 1];
+        ParameterDef connectorParamDef = new ParameterDef(connectorDef.getNodeLocation(), null,
+                new Identifier(CONNECTOR_TNAME),
+                new SimpleTypeName(connectorDef.getName(), null, connectorDef.getPackagePath()),
+                new SymbolName(CONNECTOR_TNAME, connectorDef.getPackagePath()),
+                action.getSymbolScope());
+        connectorParamDef.setType(connectorDef);
+        updatedParamDefs[0] = connectorParamDef;
+        for (int i = 0; i < action.getParameterDefs().length; i++) {
+            updatedParamDefs[i + 1] = action.getParameterDefs()[i];
+        }
+        action.setParameterDefs(updatedParamDefs);
+
         ParameterDef[] paramDefArray = action.getParameterDefs();
         BType[] paramTypes = new BType[paramDefArray.length];
         for (int i = 0; i < paramDefArray.length; i++) {

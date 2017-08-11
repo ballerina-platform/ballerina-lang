@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -91,12 +90,7 @@ public class StackFrame {
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         Arrays.fill(byteLocalVars, new byte[0]);
 
-        int refLocalVarsCount = codeAttribInfo.getMaxRefLocalVars();
-        if (callableUnitInfo instanceof ActionInfo) {
-            //For actions the first connector is the reserved first argument.
-            refLocalVarsCount = refLocalVarsCount + 1;
-        }
-        this.refLocalVars = new BRefType[refLocalVarsCount];
+        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
@@ -130,13 +124,7 @@ public class StackFrame {
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         Arrays.fill(byteLocalVars, new byte[0]);
-
-        int refLocalVarsCount = codeAttribInfo.getMaxRefLocalVars();
-        if (callableUnitInfo instanceof ActionInfo) {
-            //For actions the first connector is the reserved first argument
-            refLocalVarsCount = refLocalVarsCount + 1;
-        }
-        this.refLocalVars = new BRefType[refLocalVarsCount];
+        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
