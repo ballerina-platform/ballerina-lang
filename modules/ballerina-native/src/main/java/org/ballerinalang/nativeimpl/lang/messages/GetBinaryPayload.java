@@ -34,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BinaryCarbonMessage;
 
+import java.nio.ByteBuffer;
+
 /**
  * Native function to get payload as Blob..
  * ballerina.model.messages:getBinaryPayload
@@ -64,7 +66,14 @@ public class GetBinaryPayload extends AbstractNativeFunction {
                 result = new BBlob((byte[]) msg.getMessageDataSource().getDataObject());
             } else {
                 BinaryCarbonMessage binaryCarbonMessage = (BinaryCarbonMessage) msg.value();
-                byte[] arr = binaryCarbonMessage.readBytes().array();
+                ByteBuffer buffer = binaryCarbonMessage.readBytes();
+                byte[] arr;
+                if (buffer.hasArray()) {
+                    arr = binaryCarbonMessage.readBytes().array();
+                } else {
+                    arr = new byte[buffer.remaining()];
+                    buffer.get(arr);
+                }
                 result = new BBlob(arr);
             }
             if (log.isDebugEnabled()) {

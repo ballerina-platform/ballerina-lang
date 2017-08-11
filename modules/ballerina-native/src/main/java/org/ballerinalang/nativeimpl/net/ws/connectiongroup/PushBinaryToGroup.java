@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws.connectionstore;
+package org.ballerinalang.nativeimpl.net.ws.connectiongroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -30,28 +30,31 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 import javax.websocket.Session;
 
 /**
- * Push text to the connection chose by the user from the connection store.
+ * This pushes binary message to a group which is previously define.
  */
+
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushTextToConnection",
+        functionName = "pushBinaryToGroup",
         args = {
-                @Argument(name = "connectionName", type = TypeEnum.STRING),
-                @Argument(name = "text", type = TypeEnum.STRING)
+                @Argument(name = "connectionGroupName", type = TypeEnum.STRING),
+                @Argument(name = "binary", type = TypeEnum.BLOB)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Push text to the connection chose by " +
-                             "the user from the connection store.") })
+                     attributes = { @Attribute(name = "value", value = "Push binary message from server to all " +
+                             "the connected clients of the service.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionName", value = "name of the stored connection") })
+                     attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushTextToConnection extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "binary", value = "Binary message which should be sent") })
+public class PushBinaryToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
 
@@ -59,17 +62,22 @@ public class PushTextToConnection extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String connectionName = getStringArgument(context, 0);
-        String text = getStringArgument(context, 1);
-        Session session = WebSocketConnectionManager.getInstance().getStoredConnection(connectionName);
-        if (session == null) {
-            throw new BallerinaException("Cannot find a connection for the connection name: " + connectionName);
+        String connectionGroupName = getStringArgument(context, 0);
+        byte[] bytes = getBlobArgument(context, 0);
+        List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
+        if (sessions == null) {
+            throw new BallerinaException("Connection group name " + connectionGroupName +
+                                                 " not exists. Cannot push text to group");
         }
-        try {
-            session.getBasicRemote().sendText(text);
-        } catch (IOException e) {
-            throw new BallerinaException("IO exception occurred during pushing text to client", e, context);
-        }
+        sessions.forEach(
+                session -> {
+                    try {
+                        session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
+                    } catch (IOException e) {
+                        throw new BallerinaException("IO exception occurred during broadcasting text", e, context);
+                    }
+                }
+        );
         return VOID_RETURN;
     }
 }

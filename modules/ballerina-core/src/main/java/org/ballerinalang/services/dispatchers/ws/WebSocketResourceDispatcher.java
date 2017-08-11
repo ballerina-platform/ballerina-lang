@@ -61,7 +61,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             if (cMsg instanceof TextCarbonMessage) {
                 return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
             } else if (cMsg instanceof BinaryCarbonMessage) {
-                throw new BallerinaException("Binary messages are not supported!");
+                return getResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
             } else if (cMsg instanceof ControlCarbonMessage) {
                 throw new BallerinaException("Pong messages are not supported!");
             } else if (cMsg instanceof StatusCarbonMessage) {

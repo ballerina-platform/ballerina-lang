@@ -29,6 +29,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Test connected client scenarios. When the client connects, send  and receive text and closing the connection.
  */
@@ -67,6 +70,28 @@ public class WebSocketEndpointTest {
         CarbonMessage client1Message = MessageUtils.generateWebSocketTextMessage(expectedText, session1, uri);
         Services.invoke(client1Message);
         Assert.assertEquals(session1.getTextReceived(), expectedText);
+    }
+
+    @Test(description = "Test sending binary messages.",
+          priority = 1)
+    public void testPushBinary() {
+        String expectedText = "binary";
+        CarbonMessage clientMessage = MessageUtils.generateWebSocketTextMessage(expectedText, session2, uri);
+        Services.invoke(clientMessage);
+        ByteBuffer binaryReceived = session2.getBufferReceived();
+        String textReceived = StandardCharsets.UTF_8.decode(binaryReceived).toString();
+        Assert.assertEquals(textReceived, expectedText);
+    }
+
+    @Test(description = "Test the resource for Binary message.",
+          priority = 1)
+    public void testOnBinaryMessageResource() {
+        byte[] bytes = {1, 2, 3, 4, 5};
+        ByteBuffer expectedByteBuffer = ByteBuffer.wrap(bytes);
+        CarbonMessage clientMessage = MessageUtils.generateWebSocketBinaryMessage(expectedByteBuffer, session3, uri);
+        Services.invoke(clientMessage);
+        ByteBuffer receivedBuffer = session3.getBufferReceived();
+        Assert.assertEquals(receivedBuffer, expectedByteBuffer);
     }
 
     @Test(description = "Test closing a connection and broadcast.",

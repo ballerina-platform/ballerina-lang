@@ -6,6 +6,10 @@ import ballerina.doc;
 @doc:Param { value:"text: Text which should be sent" }
 native function pushText (string text);
 
+@doc:Description { value:"This pushes binary data from server to the the same client who sent the message."}
+@doc:Param { value:"binary: Blob message which should be sent" }
+native function pushBinary (blob binary);
+
 @doc:Description { value:"This pushes text from server to all the connected clients of the service."}
 @doc:Param { value:"text: Text which should be sent" }
 native function broadcastText (string text);
@@ -25,6 +29,11 @@ native function removeStoredConnection (string connectionName);
 @doc:Param { value:"connectionName: Name of the connection" }
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToConnection (string connectionName, string text);
+
+@doc:Description { value:"Push binary message to the connection chose by the user from the connection store."}
+@doc:Param { value:"connectionName: Name of the connection" }
+@doc:Param { value:"binary: Binary message which should be sent" }
+native function pushBinaryToConnection (string connectionName, blob binary);
 
 @doc:Description { value:"Close stored connection."}
 @doc:Param { value:"connectionName: Name of the connection" }
@@ -47,6 +56,12 @@ native function removeConnectionGroup (string connectionGroupName);
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToGroup (string connectionGroupName, string text);
 
+@doc:Description { value:"Push binary message from server to all the connected clients of the service."}
+@doc:Param { value:"connectionGroupName: Name of the connection group" }
+@doc:Param { value:"binary: Binary message which should be sent" }
+native function pushBinaryToGroup (string connectionGroupName, blob binary);
+
+
 @doc:Description { value:"Close all the connections in connection group."}
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
 native function closeConnectionGroup(string connectionGroupName);
@@ -56,6 +71,11 @@ connector ClientConnector (string url, string callbackService) {
     @doc:Description { value:"Push text to the server"}
     @doc:Param { value:"text: text which should be sent"}
     native action pushText(string text);
+
+    @doc:Description { value:"Push binary message to the server"}
+    @doc:Param { value:"c: WebSocket Client Connector"}
+    @doc:Param { value:"binary: Binary message which should be sent"}
+    native action pushBinary(ClientConnector c, blob binary);
 
 }
 
