@@ -1790,7 +1790,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testWorkerKeyword() {
-        doCheckResult("test.bal", "function test(){ worker<caret> }", "function test(){ worker {\n    \n} }", null);
+        doCheckResult("test.bal", "function test(){ worker<caret> }", "function test(){ worker  {\n    \n} }",
+                null);
     }
 
     public void testTransformKeyword() {

@@ -88,7 +88,8 @@
     </template>
 
     <template description='Worker Statement' id='ballerina_lang_worker' name='ballerina_lang_worker'
-              toReformat='false' toShortenFQNames='true' value='worker {&#10;    $END$&#10;}'>
+              toReformat='false' toShortenFQNames='true' value='worker $NAME$ {&#10;    $END$&#10;}'>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
