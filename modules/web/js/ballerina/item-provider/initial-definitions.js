@@ -288,12 +288,35 @@ const createRetryStatementTool = {
     definition: 'Statement which sets the retry count for the transaction when transaction fails',
 };
 
-const statementToolDefArray = [createAbortStatementTool, createAssignmentExpressionTool, createBreakStatementTool,
-    createContinueStatementTool, createJoinStatementTool, createFunctionInvocationTool, createIfStatementTool,
-    createNamespaceDeclarationStatementTool, createWorkerReplyStatementTool, createReplyStatementTool,
-    createReturnStatementTool, createWorkerInvocationStatementTool, createThrowStatementTool,
-    createTransactionAbortedStatementTool, createTransformStatementTool, createTryCatchStatementTool,
-    createVariableDefinitionStatementTool, createWhileStatementTool, createRetryStatementTool];
+const statementToolDefArray = [
+    createVariableDefinitionStatementTool,
+    createAssignmentExpressionTool,
+
+    createIfStatementTool,
+    createFunctionInvocationTool,
+
+    createWhileStatementTool,
+    createTransformStatementTool,
+
+    createBreakStatementTool,
+    createContinueStatementTool,
+
+    createTryCatchStatementTool,
+    createThrowStatementTool,
+
+    createReturnStatementTool,
+    createReplyStatementTool,
+
+    createWorkerInvocationStatementTool,
+    createWorkerReplyStatementTool,
+
+    createTransactionAbortedStatementTool,
+    createAbortStatementTool,
+    createRetryStatementTool,
+
+    createJoinStatementTool,
+    createNamespaceDeclarationStatementTool,
+];
 
 const seperator = {
     id: 'constructs_seperator',
