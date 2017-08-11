@@ -17,6 +17,6 @@ function forkJoinWithWorkers() {
     }
 
     worker newWorker2 {
-           int a = 5;
+       int a = 5;
     }
 }
