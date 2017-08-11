@@ -101,7 +101,7 @@ public class BasicWebSocketMessageContextImpl implements WebSocketMessageContext
     }
 
     @Override
-    public String getListenerPort() {
+    public String getListenerInterface() {
         return listenerPort;
     }
 

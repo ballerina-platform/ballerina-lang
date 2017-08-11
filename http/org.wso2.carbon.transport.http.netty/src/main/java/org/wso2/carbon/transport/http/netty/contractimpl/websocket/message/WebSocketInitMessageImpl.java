@@ -53,7 +53,7 @@ public class WebSocketInitMessageImpl extends BasicWebSocketMessageContextImpl i
                                     BasicWebSocketMessageContextImpl webSocketChannelContext,
                                     ChannelHandlerContext ctx) {
         super(webSocketChannelContext.getSubProtocol(), webSocketChannelContext.getTarget(),
-              webSocketChannelContext.getListenerPort(), webSocketChannelContext.isConnectionSecured(),
+              webSocketChannelContext.getListenerInterface(), webSocketChannelContext.isConnectionSecured(),
               webSocketChannelContext.isServerMessage(), webSocketChannelContext.getConnectionManager(),
               webSocketChannelContext.getListenerConfiguration());
         this.httpRequest = httpRequest;
