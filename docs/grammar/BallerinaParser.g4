@@ -458,6 +458,7 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   mapStructLiteral                                                    # mapStructLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
@@ -576,4 +577,17 @@ xmlDoubleQuotedString
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
     |   XMLTagExpressionStart expression ExpressionEnd
+    ;
+
+stringTemplateLiteral
+    :   StringTemplateLiteralStart stringTemplateContent? StringTemplateLiteralEnd
+    ;
+
+stringTemplateContent
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
+    |   stringTemplateText
+    ;
+
+stringTemplateText
+    :   StringTemplateText
     ;

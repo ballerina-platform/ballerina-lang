@@ -88,6 +88,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -2474,6 +2475,26 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression[] items = stringTemplateLiteral.getArgExprs();
+        Expression concatExpr;
+        if (items.length == 1) {
+            concatExpr = items[0];
+        } else {
+            concatExpr = items[0];
+            for (int i = 1; i < items.length; i++) {
+                Expression currentItem = items[i];
+                concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
+                                               concatExpr, currentItem);
+            }
+        }
+        concatExpr.accept(this);
+        concatExpr.setType(BTypes.typeString);
+        stringTemplateLiteral.setConcatExpr(concatExpr);
+        stringTemplateLiteral.setType(BTypes.typeString);
+    }
+
+    @Override
     public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
         namespaceDeclarationStmt.getNamespaceDclr().accept(this);
     }
@@ -2561,7 +2582,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Validate start tag
         if (startTagName instanceof XMLQNameExpr) {
-            validateXMLQname((XMLQNameExpr) startTagName, namespaces);
+            validateXMLQname((XMLQNameExpr) startTagName, namespaces, xmlElementLiteral.getDefaultNamespaceUri());
         } else {
             startTagName.accept(this);
         }
@@ -2573,7 +2594,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Validate the ending tag of the XML element
-        validateXMLLiteralEndTag(xmlElementLiteral);
+        validateXMLLiteralEndTag(xmlElementLiteral, xmlElementLiteral.getDefaultNamespaceUri());
 
         // Visit children
         XMLSequenceLiteral children = xmlElementLiteral.getContent();
@@ -4127,15 +4148,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         return concatExpr;
     }
 
-    private void validateXMLQname(XMLQNameExpr qname, Map<String, Expression> namespaces) {
+    private void validateXMLQname(XMLQNameExpr qname, Map<String, Expression> namespaces, Expression defaultNsUri) {
         qname.setType(BTypes.typeString);
         String prefix = qname.getPrefix();
 
         if (prefix.isEmpty()) {
-            BasicLiteral emptyNsUriLiteral = new BasicLiteral(qname.getNodeLocation(), null,
-                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.NULL_NS_URI));
-            emptyNsUriLiteral.accept(this);
-            qname.setNamepsaceUri(emptyNsUriLiteral);
+            qname.setNamepsaceUri(defaultNsUri);
             return;
         }
 
@@ -4157,7 +4175,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (attrNameExpr instanceof XMLQNameExpr) {
                 XMLQNameExpr attrQNameRefExpr = (XMLQNameExpr) attrNameExpr;
                 attrQNameRefExpr.isUsedInXML();
-                validateXMLQname(attrQNameRefExpr, namespaces);
+
+                BasicLiteral emptyNsUriLiteral = new BasicLiteral(attrNameExpr.getNodeLocation(), null,
+                        new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.NULL_NS_URI));
+                emptyNsUriLiteral.accept(this);
+                validateXMLQname(attrQNameRefExpr, namespaces, emptyNsUriLiteral);
             } else {
                 attrNameExpr.accept(this);
                 if (attrNameExpr.getType() != BTypes.typeString) {
@@ -4176,7 +4198,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void validateXMLLiteralEndTag(XMLElementLiteral xmlElementLiteral) {
+    private void validateXMLLiteralEndTag(XMLElementLiteral xmlElementLiteral, Expression defaultNsUri) {
         Expression startTagName = xmlElementLiteral.getStartTagName();
         Expression endTagName = xmlElementLiteral.getEndTagName();
 
@@ -4197,7 +4219,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (endTagName instanceof XMLQNameExpr) {
-                validateXMLQname((XMLQNameExpr) endTagName, xmlElementLiteral.getNamespaces());
+                validateXMLQname((XMLQNameExpr) endTagName, xmlElementLiteral.getNamespaces(), defaultNsUri);
             } else {
                 endTagName.accept(this);
             }

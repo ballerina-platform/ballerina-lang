@@ -1581,11 +1581,13 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    String qNameStr = sf.stringRegs[i];
 
-                    if (qNameStr.startsWith("{") && qNameStr.indexOf('}') > 0) {
-                        sf.stringRegs[j] = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
-                        sf.stringRegs[k] = qNameStr.substring(1, qNameStr.indexOf('}'));
+                    String qNameStr = sf.stringRegs[i];
+                    int parenEndIndex = qNameStr.indexOf('}');
+
+                    if (qNameStr.startsWith("{") && parenEndIndex > 0) {
+                        sf.stringRegs[j] = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+                        sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                     } else {
                         sf.stringRegs[j] = qNameStr;
                         sf.stringRegs[k] = "";
