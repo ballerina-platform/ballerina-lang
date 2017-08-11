@@ -10,7 +10,7 @@ connector MyConnector (string url) {
 
     http:ClientConnector myConnector = create http:ClientConnector(url);
 
-    action connect (MyConnector c, string path) (message) {
+    action connect (string path) (message) {
         message request = {};
         message response = http:ClientConnector.get(myConnector, path, request);
         return response;
@@ -19,6 +19,6 @@ connector MyConnector (string url) {
 
 function main (string[] args) {
     MyConnector myConnector = create MyConnector("http://example.com");
-    message response = MyConnector.connect(myConnector, "");
+    message response = myConnector.connect("");
     system:println(messages:getStringPayload(response));
 }
