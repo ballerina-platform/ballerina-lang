@@ -248,30 +248,9 @@ public abstract class AbstractItemResolver {
     public boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
         TokenStream tokenStream = dataModel.getTokenStream();
         int currentTokenIndex = dataModel.getTokenIndex();
-        boolean continueSearch = true;
-        int searchIndex = currentTokenIndex + 1;
 
-        while (continueSearch) {
-            if (tokenStream != null && searchIndex < tokenStream.size()) {
-                Token token = tokenStream.get(searchIndex);
-                String tokenStr = token.getText();
-
-                // return 'false' once we found the first token which is not in default channel
-                if (token.getChannel() != Token.DEFAULT_CHANNEL ||
-                        (tokenStr.equals(":") && tokenStream.get(searchIndex - 2) != null &&
-                                tokenStream.get(searchIndex - 2).getText().equals("@"))) {
-                    return false;
-                }
-                if (tokenStr.equals(":") || tokenStr.equals(".")) {
-                    return true;
-                }
-                searchIndex++;
-            } else {
-                continueSearch = false;
-            }
-        }
-
-        return false;
+        return tokenStream.get(currentTokenIndex + 1).getText().equals(".") ||
+                tokenStream.get(currentTokenIndex + 1).getText().equals(":");
     }
 
     /**
