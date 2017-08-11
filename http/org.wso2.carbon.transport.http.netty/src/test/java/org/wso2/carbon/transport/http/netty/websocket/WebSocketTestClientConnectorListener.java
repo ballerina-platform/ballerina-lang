@@ -30,9 +30,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
-import javax.websocket.Session;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -41,7 +38,6 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
-    private List<Session> sessionList = new LinkedList<>();
     private String receivedTextToClient;
     private ByteBuffer receivedByteBufferToClient;
     private boolean isPongReceived = false;

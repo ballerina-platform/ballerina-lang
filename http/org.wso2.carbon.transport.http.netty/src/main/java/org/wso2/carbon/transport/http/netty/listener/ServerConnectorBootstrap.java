@@ -126,7 +126,7 @@ public class ServerConnectorBootstrap {
     }
 
     public ServerConnector getServerConnector(ListenerConfiguration listenerConfiguration) {
-        HTTPServerConnector httpServerConnector = new HTTPServerConnector("serviceID", this,
+        HTTPServerConnector httpServerConnector = new HTTPServerConnector(listenerConfiguration.getId(), this,
                 listenerConfiguration.getHost(), listenerConfiguration.getPort());
         httpServerChannelInitializer.setServerConnectorFuture(httpServerConnector.getServerConnectorFuture());
         return httpServerConnector;
@@ -180,6 +180,7 @@ public class ServerConnectorBootstrap {
         private ServerConnectorBootstrap serverConnectorBootstrap;
         private String host;
         private int port;
+        private String connectorID;
 
         public HTTPServerConnector(String id, ServerConnectorBootstrap serverConnectorBootstrap,
                 String host, int port) {
@@ -187,6 +188,7 @@ public class ServerConnectorBootstrap {
             this.serverConnectorBootstrap = serverConnectorBootstrap;
             this.host = host;
             this.port = port;
+            this.connectorID =  id;
         }
 
         @Override
@@ -203,6 +205,11 @@ public class ServerConnectorBootstrap {
                 log.error("Couldn't close the port", e);
                 return false;
             }
+        }
+
+        @Override
+        public String getConnectorID() {
+            return this.connectorID;
         }
 
         private ChannelFuture getChannelFuture() {

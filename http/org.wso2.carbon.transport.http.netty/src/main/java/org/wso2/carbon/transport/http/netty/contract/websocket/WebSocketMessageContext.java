@@ -41,11 +41,11 @@ public interface WebSocketMessageContext {
     String getTarget();
 
     /**
-     * Retrieve the listener port of the the incoming message.
+     * Retrieve the listener interface of the the incoming message.
      *
-     * @return the listener port.
+     * @return the listener interface.
      */
-    String getListenerPort();
+    String getListenerInterface();
 
     /**
      * Check whether the given connection is secured or not.

@@ -1,12 +1,20 @@
 package org.wso2.carbon.transport.http.netty.message;
 
+import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.StatusCarbonMessage;
+import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 
 import java.util.HashMap;
@@ -21,6 +29,12 @@ import java.util.stream.Collectors;
  */
 public class HTTPMessageUtil {
 
+    /**
+     * Convert {@link CarbonMessage} to a {@link HTTPCarbonMessage}.
+     *
+     * @param carbonMessage {@link CarbonMessage} which should be converted to a {@link HTTPCarbonMessage}.
+     * @return converted {@link HTTPCarbonMessage}.
+     */
     public static HTTPCarbonMessage convertCarbonMessage(CarbonMessage carbonMessage) {
         HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
 
@@ -40,6 +54,71 @@ public class HTTPMessageUtil {
         return httpCarbonMessage;
     }
 
+    public static CarbonMessage convertWebSocketInitMessage(WebSocketInitMessage initMessage) {
+        StatusCarbonMessage carbonMessage =
+                new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
+        if (initMessage instanceof WebSocketMessageContextImpl) {
+            WebSocketMessageContextImpl webSocketInitMessage = (WebSocketMessageContextImpl) initMessage;
+            return setWebSocketCommonProperties(carbonMessage, webSocketInitMessage);
+        }
+        throw new UnsupportedOperationException("Message conversion is not supported");
+    }
+
+    public static CarbonMessage convertWebSocketTextMessage(WebSocketTextMessage textMessage) {
+        TextCarbonMessage carbonMessage = new TextCarbonMessage(textMessage.getText());
+        if (textMessage instanceof WebSocketMessageContextImpl) {
+            WebSocketMessageContextImpl webSocketInitMessage = (WebSocketMessageContextImpl) textMessage;
+            return setWebSocketCommonProperties(carbonMessage, webSocketInitMessage);
+        }
+        throw new UnsupportedOperationException("Message conversion is not supported");
+    }
+
+    public static CarbonMessage convertWebSocketBinaryMessage(WebSocketBinaryMessage binaryMessage) {
+        BinaryCarbonMessage carbonMessage =
+                new BinaryCarbonMessage(binaryMessage.getByteBuffer(), binaryMessage.isFinalFragment());
+        if (binaryMessage instanceof WebSocketMessageContextImpl) {
+            WebSocketMessageContextImpl webSocketInitMessage = (WebSocketMessageContextImpl) binaryMessage;
+            return setWebSocketCommonProperties(carbonMessage, webSocketInitMessage);
+        }
+        throw new UnsupportedOperationException("Message conversion is not supported");
+    }
+
+    public static CarbonMessage convertWebSocketCloseMessage(WebSocketCloseMessage closeMessage) {
+        StatusCarbonMessage carbonMessage =
+                new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN,
+                                        closeMessage.getCloseCode(), closeMessage.getCloseReason());
+        if (closeMessage instanceof WebSocketMessageContextImpl) {
+            WebSocketMessageContextImpl webSocketInitMessage = (WebSocketMessageContextImpl) closeMessage;
+            return setWebSocketCommonProperties(carbonMessage, webSocketInitMessage);
+        }
+        throw new UnsupportedOperationException("Message conversion is not supported");
+    }
+
+    private static CarbonMessage setWebSocketCommonProperties(CarbonMessage cMsg,
+                                                              WebSocketMessageContextImpl messageContext) {
+        cMsg.setProperty(Constants.TO, messageContext.getTarget());
+        cMsg.setProperty(Constants.SRC_HANDLER, messageContext.getProperty(Constants.SRC_HANDLER));
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
+                         messageContext.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT));
+        cMsg.setProperty(Constants.IS_SECURED_CONNECTION, messageContext.isConnectionSecured());
+        cMsg.setProperty(Constants.LOCAL_ADDRESS, messageContext.getProperty(Constants.LOCAL_ADDRESS));
+        cMsg.setProperty(Constants.LOCAL_NAME, messageContext.getProperty(Constants.LOCAL_NAME));
+        cMsg.setProperty(Constants.CHANNEL_ID, messageContext.getProperty(Constants.CHANNEL_ID));
+        cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
+        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
+        cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, messageContext.getServerSession());
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, messageContext.getClientSessions());
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, messageContext.getChannelSession());
+        cMsg.setProperty(Constants.WEBSOCKET_MESSAGE_CONTEXT, messageContext);
+        return cMsg;
+    }
+
+    /**
+     * Extract sender configuration from transport configuration.
+     *
+     * @param transportsConfiguration {@link TransportsConfiguration} which sender configurations should be extracted.
+     * @return extracted {@link SenderConfiguration}.
+     */
     public static SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
         Map<String, SenderConfiguration> senderConfigurations =
                 transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
@@ -48,6 +127,31 @@ public class HTTPMessageUtil {
         return senderConfigurations.get("http");
     }
 
+    /**
+     * Extract transport properties from transport configurations.
+     *
+     * @param transportsConfiguration transportsConfiguration {@link TransportsConfiguration} which transport
+     *                                properties should be extracted.
+     * @return Map of transport properties.
+     */
+    public static Map<String, Object> getTransportProperties(TransportsConfiguration transportsConfiguration) {
+        Map<String, Object> transportProperties = new HashMap<>();
+        Set<TransportProperty> transportPropertiesSet = transportsConfiguration.getTransportProperties();
+        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+            transportProperties = transportPropertiesSet.stream().collect(
+                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+
+        }
+        return transportProperties;
+    }
+
+    /**
+     * Create server bootstrap configuration from given transport property set.
+     *
+     * @param transportPropertiesSet Set of transport properties which should be converted
+     *                               to {@link ServerBootstrapConfiguration}.
+     * @return ServerBootstrapConfiguration which is created from given Set of transport properties.
+     */
     public static ServerBootstrapConfiguration getServerBootstrapConfiguration(Set<TransportProperty>
             transportPropertiesSet) {
         Map<String, Object> transportProperties = new HashMap<>();
