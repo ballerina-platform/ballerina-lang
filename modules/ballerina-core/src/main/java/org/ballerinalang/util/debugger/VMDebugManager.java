@@ -56,7 +56,7 @@ public class VMDebugManager {
 
     private static VMDebugManager debugManagerInstance = null;
 
-    private static boolean debugManagerInitialized = false;
+    private boolean debugManagerInitialized = false;
 
     /**
      * Instantiates a new Debug manager.
@@ -76,10 +76,12 @@ public class VMDebugManager {
         if (debugManagerInstance != null) {
             return debugManagerInstance;
         }
-        synchronized (VMDebugManager.class) {
-            if (debugManagerInstance == null) {
-                debugManagerInstance = new VMDebugManager();
-            }
+        return initialize();
+    }
+
+    private static synchronized VMDebugManager initialize() {
+        if (debugManagerInstance == null) {
+            debugManagerInstance = new VMDebugManager();
         }
         return debugManagerInstance;
     }

@@ -1,10 +1,14 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
+const string constPath = getConstPath();
+
 @http:configuration {basePath:"/echo"}
 service<http> echo {
 
     string serviceLevelStr;
+
+    string serviceLevelStringVar = "sample value";
 
     @http:GET {}
     @http:Path {value : "/message"}
@@ -35,4 +39,24 @@ service<http> echo {
         messages:removeAllHeaders(m);
         reply m;
     }
+
+    @http:GET {}
+    @http:Path {value:"/getServiceLevelString"}
+    resource getServiceLevelString (message m) {
+        message response = {};
+        messages:setStringPayload(response, serviceLevelStringVar);
+        reply response;
+    }
+
+    @http:GET {}
+    @http:Path {value:constPath}
+    resource constValueAsAttributeValue (message m) {
+        message response = {};
+        messages:setStringPayload(response, "constant path test");
+        reply response;
+    }
+}
+
+function getConstPath() (string) {
+    return "/constantPath";
 }

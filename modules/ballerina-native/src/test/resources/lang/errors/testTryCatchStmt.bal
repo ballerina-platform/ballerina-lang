@@ -125,3 +125,16 @@ function scopeIssueTest () (int) {
     j6 = i + j6;
     return j6;
 }
+
+function testTryWithinWhile() (int) {
+    int i = 0;
+    while(i < 3) {
+        try {
+            int o = 0;
+        } catch (errors:Error e) {
+
+        }
+        i = i+1;
+    }
+    return i;
+}

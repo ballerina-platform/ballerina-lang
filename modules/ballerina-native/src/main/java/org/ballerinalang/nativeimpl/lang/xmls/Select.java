@@ -51,7 +51,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "qname",
         value = "Qualified name of the element") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "elements",
-        value = "all the elements-type items in the given sequence, that matches a given qualified name") })
+        value = "All the elements-type items in the given sequence, that matches a given qualified name") })
 public class Select extends AbstractNativeFunction {
 
     private static final String OPERATION = "select elements from xml";

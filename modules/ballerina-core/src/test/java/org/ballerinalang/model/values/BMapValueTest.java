@@ -173,6 +173,6 @@ public class BMapValueTest   {
         map.put(new String("key2"), new BString("foo"));
         map.put(new String("key3"), new BXMLItem("<bar>hello</bar>"));
         
-        Assert.assertEquals(map.stringValue(), "{\"key1\":1,\"key2\":\"foo\",\"key3\":<bar>hello</bar>}");
+        Assert.assertEquals(map.stringValue(), "{\"key1\":1, \"key2\":\"foo\", \"key3\":<bar>hello</bar>}");
     }
 }

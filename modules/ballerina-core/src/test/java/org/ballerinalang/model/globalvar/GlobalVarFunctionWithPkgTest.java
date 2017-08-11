@@ -102,4 +102,17 @@ public class GlobalVarFunctionWithPkgTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 8876);
 
     }
+
+    @Test(description = "Test retrieving variable from different package when that package is already initialized " +
+            "within another package")
+    public void testRetrievingVarFromDifferentPkg() {
+        ProgramFile programFile = BTestUtils.getProgramFileWithoutSerializing("lang/globalvar/pkg/abc");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.globalvar.pkg.abc",
+                "getStringInPkg");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "sample value");
+    }
 }

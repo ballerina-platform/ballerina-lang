@@ -105,6 +105,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
@@ -1361,6 +1362,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2MSG:
+                case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
@@ -1587,11 +1589,13 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    String qNameStr = sf.stringRegs[i];
 
-                    if (qNameStr.startsWith("{") && qNameStr.indexOf('}') > 0) {
-                        sf.stringRegs[j] = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
-                        sf.stringRegs[k] = qNameStr.substring(1, qNameStr.indexOf('}'));
+                    String qNameStr = sf.stringRegs[i];
+                    int parenEndIndex = qNameStr.indexOf('}');
+
+                    if (qNameStr.startsWith("{") && parenEndIndex > 0) {
+                        sf.stringRegs[j] = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+                        sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                     } else {
                         sf.stringRegs[j] = qNameStr;
                         sf.stringRegs[k] = "";
@@ -1751,6 +1755,9 @@ public class BLangVM {
                 break;
             case InstructionCodes.ANY2MSG:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
+                break;
+            case InstructionCodes.ANY2TYPE:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
                 break;
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
@@ -2208,7 +2215,7 @@ public class BLangVM {
                 continue;
             }
             localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
-                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
+                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVariableName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
                     variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
@@ -3353,17 +3360,18 @@ public class BLangVM {
             ip = -1;
             if (context.getServiceInfo() != null) {
                 // Invoke ServiceConnector error handler.
-                Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
-                Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                        BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-                try {
-                    optionalErrorHandler
-                            .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                            .handleError(new BallerinaException(
-                                            BLangVMErrors.getPrintableStackTrace(context.getError())),
-                                    context.getCarbonMessage(), context.getBalCallback());
-                } catch (Exception e) {
-                    logger.error("cannot handle error using the error handler for: " + protocol, e);
+                CarbonMessage carbonMessage = context.getCarbonMessage();
+                if (carbonMessage != null) {
+                    Object protocol = carbonMessage.getProperty("PROTOCOL");
+                    Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
+                            .getServerConnectorErrorHandler((String) protocol);
+                    try {
+                        optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
+                                new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
+                                context.getCarbonMessage(), context.getBalCallback());
+                    } catch (Exception e) {
+                        logger.error("cannot handle error using the error handler for: " + protocol, e);
+                    }
                 }
             }
             return;
