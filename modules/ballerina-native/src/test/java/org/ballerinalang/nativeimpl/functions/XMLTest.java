@@ -1308,7 +1308,9 @@ public class XMLTest {
                 "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns4:foo1=\"bar1\"/>");
     }
 
-    @Test
+    @Test(expectedExceptions = { BLangRuntimeException.class }, 
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to add attribute " +
+            "'ns5:foo1'. prefix 'ns5' is already bound to namespace 'http://sample.com/wso2/f/'.*")
     public void testAddAttributeWithQName_4() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -2042,7 +2044,9 @@ public class XMLTest {
                 + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
     }
 
-    @Test
+    @Test(expectedExceptions = { BLangRuntimeException.class }, 
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to add attribute " +
+            "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
     public void testUpdateAttributeWithDifferentUri() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateAttributeWithDifferentUri");
         Assert.assertTrue(returns[0] instanceof BXML);
