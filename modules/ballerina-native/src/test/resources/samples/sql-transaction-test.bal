@@ -13,18 +13,17 @@ function testLocalTransacton () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                    parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                    parameters);
     } aborted {
         returnVal = -1;
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
-                                   registrationID = 200", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", parameters);
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -32,7 +31,7 @@ function testLocalTransacton () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -44,9 +43,9 @@ function testTransactonRollback () (int returnVal, int count) {
     sql:Parameter[] parameters = [];
     try {
         transaction {
-            sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,
+            testDB.update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
-            sql:ClientConnector.update(testDB, "Insert into Customers2 (firstName,lastName,registrationID,
+            testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
         } aborted {
             returnVal = -1;
@@ -55,8 +54,7 @@ function testTransactonRollback () (int returnVal, int count) {
         // ignore.
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
-                                   registrationID = 210", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", parameters);
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -64,7 +62,7 @@ function testTransactonRollback () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -75,11 +73,11 @@ function testTransactonAbort () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+        int insertCount = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')",
                                                      parameters);
 
-        insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+        insertCount = testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')",
                                                  parameters);
         int i = 0;
@@ -90,8 +88,7 @@ function testTransactonAbort () (int returnVal, int count) {
         returnVal = -1;
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
-                                   registrationID = 220", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", parameters);
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -99,7 +96,7 @@ function testTransactonAbort () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -112,7 +109,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
     sql:Parameter[] parameters = [];
     try {
         transaction {
-            int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,
+            int insertCount = testDB.update("Insert into Customers (firstName,lastName,
                       registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')", parameters);
             int i = 0;
             if (i == 0) {
@@ -126,15 +123,14 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
         catchValue = -1;
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
-                                   registrationID = 260", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:next(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -146,7 +142,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
     catchValue = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,
+        int insertCount = testDB.update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')", parameters);
         int i = 0;
         try {
@@ -163,14 +159,14 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
     //check whether update action is performed
     errors:TypeCastError err;
     ResultCount rs;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                    registrationID = 250", parameters);
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:next(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -181,16 +177,15 @@ function testTransactonCommitted () (int returnVal, int count) {
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
     } committed {
         returnVal = 1;
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
-                                  registrationID = 300", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", parameters);
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -198,7 +193,7 @@ function testTransactonCommitted () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -210,10 +205,10 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     returnVal2 = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
     } committed {
@@ -223,10 +218,10 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     }
 
     transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
             (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
                                    parameters);
     } aborted {
@@ -235,15 +230,14 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
         returnVal2 = 1;
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
-                                      registrationID = 400", parameters);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:next(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return returnVal1, returnVal2, count;
 }
 
@@ -253,15 +247,15 @@ function testTransactonWithoutHandlers () (int count) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters = [];
     transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
                         (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers
+        testDB.update("Insert into Customers
                         (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
     }
     //check whether update action is performed
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                       registrationID = 350", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -269,7 +263,7 @@ function testTransactonWithoutHandlers () (int count) {
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return;
 }
 
@@ -283,10 +277,10 @@ function testLocalTransactionFailed () (string, int) {
     try {
         transaction {
             a = a + " inTrx";
-            sql:ClientConnector.update(testDB, "Insert into Customers
+            testDB.update("Insert into Customers
                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 111, 5000.75, 'USA')",
                parameters);
-            sql:ClientConnector.update(testDB, "Insert into Customers2
+            testDB.update("Insert into Customers2
                (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 111, 5000.75, 'USA')",
                                        parameters);
         } failed {
@@ -301,7 +295,7 @@ function testLocalTransactionFailed () (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                           registrationID = 111", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -309,7 +303,7 @@ function testLocalTransactionFailed () (string, int) {
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return a, count;
 }
 
@@ -324,15 +318,15 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     try {
         transaction {
             a = a + " inTrx";
-            sql:ClientConnector.update(testDB, "Insert into Customers
+                testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             if (i == 2 ){
-                sql:ClientConnector.update(testDB, "Insert into Customers
+                testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             } else {
-                sql:ClientConnector.update(testDB, "Insert into Customers2
+                testDB.update("Insert into Customers2
                 (firstName,lastName,registrationID,creditLimit,country) values ('Anne', 'Clerk', 222, 5000.75, 'USA')",
                 parameters);
             }
@@ -349,7 +343,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                         registrationID = 222", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -357,6 +351,6 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    sql:ClientConnector.close(testDB);
+    testDB.close();
     return a, count;
 }

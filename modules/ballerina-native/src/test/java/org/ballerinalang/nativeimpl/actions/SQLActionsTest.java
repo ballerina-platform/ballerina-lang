@@ -97,7 +97,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest for int float types")
-    public void testSelectIntFloatData() {
+    public   void testSelectIntFloatData() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testSelectIntFloatData");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

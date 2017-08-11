@@ -62,7 +62,7 @@ service<jms> jmsService {
                          "connectionFactoryType" : "queue"};
 
         jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
-        jms:ClientConnector.send(jmsEP, "MySecondQueue", responseMessage);
+        jmsEP.send("MySecondQueue", responseMessage);
 
     }
 }
