@@ -37,7 +37,7 @@ public class Constants {
     /**
      * JMSSource annotation name which is used to define a JMS server connector.
      */
-    public static final String ANNOTATION_JMS_CONFIG = "config";
+    public static final String ANNOTATION_JMS_CONFIGURATION = "configuration";
 
     // jms protocol name
     public static final String PROTOCOL_JMS = "jms";
