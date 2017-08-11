@@ -1,2 +1,0 @@
-org.wso2.carbon.transport.http.netty.sender.HTTPClientConnector
-org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClientConnector

@@ -25,4 +25,5 @@ package org.wso2.carbon.transport.http.netty.contract;
 public interface ServerConnector {
     ServerConnectorFuture start();
     boolean stop();
+    String getConnectorID();
 }
