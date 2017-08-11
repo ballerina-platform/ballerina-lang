@@ -10,6 +10,7 @@ struct Person {
     any a;
     float score;
     boolean alive;
+    Person[] children;
 }
 
 struct Student {
@@ -105,8 +106,24 @@ function testIncompatibleMapToStruct() (Person) {
     int[] marks = [87,94,72];
     map m = { name:"Child", 
                age:25, 
-               address:{"city":"Colombo", "country":"SriLanka"}, 
+               address:{"city":"Colombo", "country":"SriLanka"},
                info:{status:"single"},
+               marks:marks
+             };
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> m;
+    if (e != null) {
+        throw e;
+    }
+    return p;
+}
+
+function testMapWithMissingFieldsToStruct() (Person) {
+    int[] marks = [87,94,72];
+    map m = { name:"Child", 
+               age:25, 
+               address:{"city":"Colombo", "country":"SriLanka"}, 
                marks:marks
              };
     Person p;
@@ -178,9 +195,25 @@ function testMapWithIncompatibleStructToStruct() (Employee) {
     return e;
 }
 
-function testIncompatibleJsonToStruct() (Person) {
+function testJsonToStructWithMissingFields() (Person) {
     json j = { name:"Child", 
                age:25, 
+               address:{"city":"Colombo", "country":"SriLanka"}, 
+               info:{status:"single"},
+               marks:[87,94,72]
+             };
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
+    return p;
+}
+
+function testIncompatibleJsonToStruct() (Person) {
+    json j = { name:"Child", 
+               age:"25", 
                address:{"city":"Colombo", "country":"SriLanka"}, 
                info:{status:"single"},
                marks:[87,94,72]
@@ -515,4 +548,92 @@ function JsonToStructWithErrors() (PersonA, errors:TypeConversionError) {
     person, err = <PersonA> j; 
     
     return person, err;
+}
+
+struct PhoneBook {
+    string[] names;
+}
+
+function testStructWithStringArrayToJSON() (json){
+    PhoneBook phonebook = { names:["John", "Doe"]};
+    var phonebookJson, error = <json> phonebook;
+    return phonebookJson;
+}
+
+struct person {
+    string fname;
+    string lname;
+    int age;
+}
+
+struct movie {
+    string title;
+    int year;
+    string released;
+    string[] genre;
+    person[] writers;
+    person[] actors;
+}
+
+function testStructToMapWithRefTypeArray() (map, int){
+    movie theRevenant = {title:"The Revenant",
+                         year:2015,
+                         released:"08 Jan 2016",
+                         genre:["Adventure", "Drama", "Thriller"],
+                         writers:[{fname:"Michael", lname:"Punke", age:30}],
+                         actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
+                                 {fname:"Tom", lname:"Hardy", age:34}]};
+                                 
+    map m = <map> theRevenant;
+    
+    any a = m["writers"];
+    var writers, _ = (person[])a;
+   
+    return m, writers[0].age;
+}
+
+struct StructWithDefaults {
+    string s = "string value";
+    int a = 45;
+    float f = 5.3;
+    boolean b = true;
+    json j;
+    blob blb;
+}
+
+function testEmptyJSONtoStructWithDefaults() (StructWithDefaults) {
+    json j = {};
+    var testStruct, _ = <StructWithDefaults> j;
+    
+    return testStruct;
+}
+
+struct StructWithoutDefaults {
+    string s;
+    int a;
+    float f;
+    boolean b;
+    json j;
+    blob blb;
+}
+
+function testEmptyJSONtoStructWithoutDefaults() (StructWithoutDefaults) {
+    json j = {};
+    var testStruct, _ = <StructWithoutDefaults> j;
+    
+    return testStruct;
+}
+
+function testEmptyMaptoStructWithDefaults() (StructWithDefaults) {
+    map m = {};
+    var testStruct, _ = <StructWithDefaults> m;
+    
+    return testStruct;
+}
+
+function testEmptyMaptoStructWithoutDefaults() (StructWithoutDefaults) {
+    map m = {};
+    var testStruct, _ = <StructWithoutDefaults> m;
+    
+    return testStruct;
 }

@@ -81,10 +81,13 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
@@ -3215,54 +3218,71 @@ public class BLangVM {
         int refRegIndex = -1;
         BStructType structType = (BStructType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
+        StructInfo structInfo = sf.packageInfo.getStructInfo(structType.getName());
 
         Set<String> keys = bMap.keySet();
-        for (BStructType.StructField structField : structType.getStructFields()) {
-            String key = structField.getFieldName();
-            BType fieldType = structField.getFieldType();
-            BValue mapVal;
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            String key = fieldInfo.getName();
+            BType fieldType = fieldInfo.getFieldType();
+            BValue mapVal = null;
             try {
-                if (!keys.contains(key)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD, key);
-                }
+                boolean containsField = keys.contains(key);
+                DefaultValueAttributeInfo defaultValAttrInfo = null;
+                if (containsField) {
+                    mapVal = bMap.get(key);
+                    if (mapVal == null && BTypes.isValueType(fieldType)) {
+                        throw BLangExceptionHelper.getRuntimeException(
+                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
+                    }
 
-                mapVal = bMap.get(key);
-                if (mapVal == null && BTypes.isValueType(fieldType)) {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
-                }
-
-                if (mapVal != null && !checkCast(mapVal, fieldType)) {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
+                    if (mapVal != null && !checkCast(mapVal, fieldType)) {
+                        throw BLangExceptionHelper.getRuntimeException(
+                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
+                    }
+                } else {
+                    defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
+                            AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
                 }
 
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        if (mapVal != null) {
-                            bStruct.setIntField(++longRegIndex, ((BInteger) mapVal).intValue());
+                        longRegIndex++;
+                        if (containsField) {
+                            bStruct.setIntField(longRegIndex, ((BInteger) mapVal).intValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
                         }
                         break;
                     case TypeTags.FLOAT_TAG:
-                        if (mapVal != null) {
-                            bStruct.setFloatField(++doubleRegIndex, ((BFloat) mapVal).floatValue());
+                        doubleRegIndex++;
+                        if (containsField) {
+                            bStruct.setFloatField(doubleRegIndex, ((BFloat) mapVal).floatValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
                         }
                         break;
                     case TypeTags.STRING_TAG:
-                        if (mapVal != null) {
-                            bStruct.setStringField(++stringRegIndex, ((BString) mapVal).stringValue());
-                        } else {
-                            bStruct.setStringField(++stringRegIndex, "");
+                        stringRegIndex++;
+                        if (containsField) {
+                            bStruct.setStringField(stringRegIndex, ((BString) mapVal).stringValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setStringField(stringRegIndex,
+                                    defaultValAttrInfo.getDefaultValue().getStringValue());
                         }
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        if (mapVal != null) {
-                            bStruct.setBooleanField(++booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
+                        booleanRegIndex++;
+                        if (containsField) {
+                            bStruct.setBooleanField(booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setBooleanField(booleanRegIndex,
+                                    defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
                         }
                         break;
                     case TypeTags.BLOB_TAG:
-                        if (mapVal != null) {
-                            bStruct.setBlobField(++blobRegIndex, ((BBlob) mapVal).blobValue());
+                        blobRegIndex++;
+                        if (containsField && mapVal != null) {
+                            bStruct.setBlobField(blobRegIndex, ((BBlob) mapVal).blobValue());
                         }
                         break;
                     default:
@@ -3294,7 +3314,8 @@ public class BLangVM {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(), 
+                    sf.packageInfo);
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
@@ -3370,5 +3391,14 @@ public class BLangVM {
         if (session != null) {
             session.generateSessionHeader(message);
         }
+    }
+    
+    private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
+        for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {
+            if (attributeInfo.getKind() == attrInfoKind) {
+                return attributeInfo;
+            }
+        }
+        return null;
     }
 }
