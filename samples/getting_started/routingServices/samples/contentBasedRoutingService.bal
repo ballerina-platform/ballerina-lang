@@ -18,11 +18,10 @@ service<http> contentBasedRouting {
         var nameString, _ = (string) jsonMsg.name;
         message response = {};
         if (nameString == nyseString) {
-            response = http:ClientConnector.post(nyseEP, "/stocks", m);
-            
-        } else {
-            response = http:ClientConnector.post(nasdaqEP, "/stocks", m);
-        
+            response = nyseEP.post("/stocks", m);
+        }
+        else {
+            response = nasdaqEP.post("/stocks", m);
         }
         reply response;
         

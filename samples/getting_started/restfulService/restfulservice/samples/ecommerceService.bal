@@ -13,7 +13,7 @@ service<http> Ecommerce {
     resource productsInfo(message m,
     @http:PathParam{value:"productId"} string prodId) {
         string reqPath = "/productsservice/" + prodId;
-        message response = http:ClientConnector.get(productsService, reqPath, m);
+        message response = productsService.get(reqPath, m);
         reply response;
     
     }
@@ -23,7 +23,7 @@ service<http> Ecommerce {
         path:"/products"
     }
     resource productMgt (message m) {
-        message response = http:ClientConnector.post(productsService, "/productsservice", m);
+        message response = productsService.post("/productsservice", m);
         reply response;
         
     }
@@ -34,7 +34,7 @@ service<http> Ecommerce {
     }
     resource ordersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.get(productsService, "/orderservice/orders", m);
+        message response = productsService.get("/orderservice/orders", m);
         reply response;
         
     }
@@ -45,7 +45,7 @@ service<http> Ecommerce {
     }
     resource ordersMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.post(productsService, "/orderservice/orders", m);
+        message response = productsService.post("/orderservice/orders", m);
         reply response;
         
     }
@@ -56,7 +56,7 @@ service<http> Ecommerce {
     }
     resource customersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.get(productsService, "/customerservice/customers", m);
+        message response = productsService.get("/customerservice/customers", m);
         reply response;
         
     }
@@ -67,7 +67,7 @@ service<http> Ecommerce {
     }
     resource customerMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.post(productsService, "/customerservice/customers", m);
+        message response = productsService.post("/customerservice/customers", m);
         reply response;
         
     }

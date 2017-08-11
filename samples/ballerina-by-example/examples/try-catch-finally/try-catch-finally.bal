@@ -16,7 +16,7 @@ function main (string[] args) {
 
         //Accessing a null variable 'data' cause NullReferenceError to be thrown.
         blob c2 = strings:toBlob(data[0], "utf-8");
-        //Non of the following lines will get executed after the error.
+        //None of the following lines will get executed after the error.
         files:write(c2, target);
         system:println("content is written to file");
         //A Catch block executes, when an error is thrown from the enclosing try
@@ -27,7 +27,7 @@ function main (string[] args) {
         system:println("error: " + err.msg);
         //Catching specific error type 'errors:NullReferenceError'.
     } catch (errors:NullReferenceError err) {
-        system:println("error: " + err.msg);
+        system:println("NullReferenceError error occurred");
         //Finally block always executes when the execution exits from the try block or
         //catch block when an error occurred. It is also useful, not only in an anomalous
         //situation, where the execution exit the try block using a return, break, abort.
