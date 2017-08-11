@@ -163,9 +163,9 @@ public class StartService extends AbstractNativeFunction {
             String basePath = service.getName();
 
             AnnAttachmentInfo annotation = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                    Constants.ANNOTATION_NAME_CONFIGURATION);
+                    Constants.ANN_NAME_CONFIG);
             if (annotation != null) {
-                basePath = annotation.getAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH)
+                basePath = annotation.getAttributeValue(Constants.ANN_CONFIG_ATTR_BASE_PATH)
                         .getStringValue();
             }
             if (basePath.startsWith("\"")) {
