@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi.injector;
 
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
@@ -43,6 +44,10 @@ public class LanguageInjectorUtils {
         }
         ExpressionListNode expressionListNode = PsiTreeUtil.getTopmostParentOfType(host, ExpressionListNode.class);
         if (expressionListNode == null) {
+            return false;
+        }
+        PsiElement firstChild = expressionListNode.getFirstChild();
+        if (firstChild.getChildren().length > 1) {
             return false;
         }
         VariableReferenceNode variableReferenceNode = PsiTreeUtil.getPrevSiblingOfType(expressionListNode,
