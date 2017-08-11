@@ -67,15 +67,15 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         }
 
         if (parent instanceof NameReferenceNode) {
-            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
-            if (prevVisibleSibling instanceof IdentifierPSINode) {
+            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleLeaf instanceof IdentifierPSINode) {
                 addAttachKeyword(result);
                 return;
             }
 
             ANTLRPsiNode definitionParent = PsiTreeUtil.getParentOfType(parent, CallableUnitBodyNode.class,
                     ServiceBodyNode.class, ConnectorBodyNode.class);
-            if (definitionParent != null && prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
+            if (definitionParent != null && prevVisibleLeaf != null && "=".equals(prevVisibleLeaf.getText())) {
                 addCreateKeyword(result);
                 result.addAllElements(getValueKeywords());
             }
@@ -86,10 +86,17 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 if (referenceAt == null || referenceAt instanceof NameReference) {
                     result.addAllElements(getValueKeywords());
                 }
+                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
+                if ((prevVisibleLeaf != null && "(".equals(prevVisibleLeaf.getText())) ||
+                        (nextVisibleLeaf != null && ")".equals(nextVisibleLeaf.getText()))) {
+                    addOtherTypeAsLookup(result);
+                    addValueTypesAsLookups(result);
+                    addReferenceTypesAsLookups(result);
+                }
             }
 
             TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(parent, TypeNameNode.class);
-            if (typeNameNode != null && prevVisibleSibling != null && !prevVisibleSibling.getText().matches("[:.=]")) {
+            if (typeNameNode != null && prevVisibleLeaf != null && !prevVisibleLeaf.getText().matches("[:.=]")) {
                 AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(typeNameNode,
                         AnnotationDefinitionNode.class);
                 if (annotationDefinitionNode == null) {
