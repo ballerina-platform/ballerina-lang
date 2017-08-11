@@ -67,8 +67,11 @@ function getSimpleStatementPosition(node) {
     }
 
     // calculate the positions of sub components.
-    viewState.components['drop-zone'].x = x;
-    viewState.components['drop-zone'].y = y;
+    if(viewState.components['drop-zone']){
+        viewState.components['drop-zone'].x = x;
+        viewState.components['drop-zone'].y = y;
+    }
+
     if (viewState.components['statement-box']) {
         viewState.components['statement-box'].x = x;
         viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
