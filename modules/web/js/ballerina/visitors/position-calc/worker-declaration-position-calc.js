@@ -122,11 +122,10 @@ class WorkerDeclarationPositionCalcVisitor {
             throw exception;
         }
         const y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
-        // If more than one worker is present, then draw the worker scope container boundary around the workers
-        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 0) {
-            viewState.components.workerScopeContainer.x = x;
-            viewState.components.workerScopeContainer.y = y - (DesignerDefaults.canvas.padding.top / 2);
-        }
+
+        viewState.components.workerScopeContainer.x = x;
+        viewState.components.workerScopeContainer.y = y - (DesignerDefaults.canvas.padding.top / 2);
+
         bBox.x = x + DesignerDefaults.lifeLine.gutter.h;
         bBox.y = y + DesignerDefaults.lifeLine.gutter.v;
         viewState.components.statementContainer.x = x;
