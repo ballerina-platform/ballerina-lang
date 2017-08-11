@@ -47,7 +47,6 @@ class CommentStatementPositionCalcVisitor {
      * */
     beginVisit(node) {
         log.debug('begin visit CommentStatementPositionCalcVisitor');
-        PositioningUtils.getSimpleStatementPosition(node);
     }
 
     /**
