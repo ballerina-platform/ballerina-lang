@@ -28,8 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -115,15 +114,19 @@ public class HTTPServicesRegistry {
                 // Assumption : this is always sequential, no two simultaneous calls can get here
                 servicesOnInterface = new HashMap<>();
                 servicesInfoMap.put(listenerInterface, servicesOnInterface);
+
+                // TODO: Add correct parameters
+                Map<String, String> parameters = new HashMap<>();
                 ServerConnector connector = BallerinaConnectorManager.getInstance()
-                        .getServerConnector(listenerInterface);
+                        .createHTTPServerConnector(listenerInterface, parameters);
 
                 if (connector == null) {
                     throw new BallerinaException(
                             "ServerConnector interface not registered for : " + listenerInterface);
                 }
                 // Delay the startup until all services are deployed
-                BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
+                BallerinaConnectorManager.getInstance().
+                        addStartupDelayedHTTPServerConnector(listenerInterface, connector);
             }
             if (servicesOnInterface.containsKey(basePath)) {
                 throw new BallerinaException(
@@ -135,7 +138,8 @@ public class HTTPServicesRegistry {
         }
 
         for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
-            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entry.getKey());
+            String entryListenerInterface = entry.getKey();
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entryListenerInterface);
             Map<String, String> propMap = entry.getValue();
             if (servicesOnInterface == null) {
                 // Assumption : this is always sequential, no two simultaneous calls can get here
@@ -146,14 +150,15 @@ public class HTTPServicesRegistry {
                 //a listener for the given id, then we don't have a way to make sure that
                 //configuration are same in given configuration and existing listener
                 ServerConnector connector = BallerinaConnectorManager.getInstance()
-                            .createServerConnector(Constants.PROTOCOL_HTTP, entry.getKey(), propMap);
+                            .createHTTPServerConnector(entryListenerInterface, propMap);
                 listenerPropMap.put(entry.getKey(), propMap);
                 if (connector == null) {
                     throw new BallerinaException(
                             "ServerConnector interface not registered for : " + entry.getKey());
                 }
                 // Delay the startup until all services are deployed
-                BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
+                BallerinaConnectorManager.getInstance().
+                        addStartupDelayedHTTPServerConnector(entryListenerInterface, connector);
             } else {
                 Map<String, String> existingMap = listenerPropMap.get(entry.getKey());
                 if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
@@ -163,7 +168,8 @@ public class HTTPServicesRegistry {
             }
             if (servicesOnInterface.containsKey(basePath)) {
                 throw new BallerinaException(
-                        "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
+                        "service with base path :" + basePath + " already exists in listener : "
+                                + entryListenerInterface);
             }
             servicesOnInterface.put(basePath, service);
         }
@@ -283,15 +289,14 @@ public class HTTPServicesRegistry {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
                 servicesInfoMap.remove(listenerInterface);
+
+                // TODO: Add correct parameters
+                Map<String, String> parameters = new HashMap<>();
                 ServerConnector connector =
-                        BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+                        BallerinaConnectorManager.getInstance().
+                                createHTTPServerConnector(listenerInterface, parameters);
                 if (connector != null) {
-                    try {
-                        connector.stop();
-                    } catch (ServerConnectorException e) {
-                        throw new BallerinaException("Cannot stop the connector for the interface : " +
-                                listenerInterface, e);
-                    }
+                    connector.stop();
                 }
             }
         }
