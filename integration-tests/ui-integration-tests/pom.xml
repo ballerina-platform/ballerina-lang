@@ -391,6 +391,7 @@
                                 <argument>test</argument>
                                 <argument>skipTests=${maven.test.skip}</argument>
                             </arguments>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
                     <!--<execution>-->
