@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import _ from 'lodash';
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
@@ -60,8 +59,7 @@ class WorkerDeclaration extends React.Component {
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
 
         // Check for connector declaration children
-        const connectorChildren = _.filter(this.props.model.getChildren(),
-            child => nodeFactory.isConnectorDeclaration(child));
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const classes = {
             lineClass: 'worker-life-line',
             polygonClass: 'worker-life-line-polygon',

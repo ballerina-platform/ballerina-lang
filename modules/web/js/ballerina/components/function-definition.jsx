@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import _ from 'lodash';
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
@@ -66,8 +65,7 @@ class FunctionDefinition extends React.Component {
         const children = getComponentForNodeArray(this.props.model.getChildren());
         const nodeFactory = this.props.model.getFactory();
         // Check for connector declaration children
-        const connectorChildren = _.filter(this.props.model.getChildren(), child =>
-            nodeFactory.isConnectorDeclaration(child));
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         // change icon for main function
         let icons = 'tool-icons/function';
         if (name === 'main') {

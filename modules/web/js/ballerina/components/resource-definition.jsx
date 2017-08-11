@@ -61,8 +61,7 @@ class ResourceDefinition extends React.Component {
         const children = getComponentForNodeArray(this.props.model.getChildren());
         const nodeFactory = this.props.model.getFactory();
         // Check for connector declaration children
-        const connectorChildren = _.filter(this.props.model.getChildren(),
-            child => nodeFactory.isConnectorDeclaration(child));
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
