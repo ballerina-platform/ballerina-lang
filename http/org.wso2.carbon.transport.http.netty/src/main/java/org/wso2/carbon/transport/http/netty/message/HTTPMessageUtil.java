@@ -68,7 +68,7 @@ public class HTTPMessageUtil {
      * @param properties    Property map
      * @return              listener config
      */
-    private ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
+    public ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
         String host = properties.get(Constants.HTTP_HOST) != null ?
                 properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
         int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
