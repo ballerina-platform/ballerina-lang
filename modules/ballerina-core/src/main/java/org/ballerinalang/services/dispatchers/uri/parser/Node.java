@@ -20,9 +20,6 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
-import org.ballerinalang.services.dispatchers.uri.URIUtil;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -264,10 +261,10 @@ public abstract class Node {
     private String getAllowHeaderValues() {
         List<String> methods = new ArrayList<>();
         for (ResourceInfo resourceInfo : this.resource) {
-            methods.addAll(Arrays.stream(getHttpMethods(resourceInfo)).collect(Collectors.toList()));
+            methods.addAll(Arrays.stream(DispatcherUtil.getHttpMethods(resourceInfo)).collect(Collectors.toList()));
         }
-        URIUtil.validateAllowMethods(methods);
-        return URIUtil.concatValues(methods);
+        DispatcherUtil.validateAllowMethods(methods);
+        return DispatcherUtil.concatValues(methods);
     }
 
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {

@@ -19,9 +19,9 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
-import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -77,7 +77,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         return Constants.PROTOCOL_HTTP;
     }
 
-    private String sanitizeSubPath (String subPath) {
+    private String sanitizeSubPath(String subPath) {
         if (!"/".equals(subPath)) {
             if (!subPath.startsWith("/")) {
                 subPath = Constants.DEFAULT_BASE_PATH + subPath;
@@ -94,9 +94,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             DefaultCarbonMessage response = new DefaultCarbonMessage();
             if (cMsg.getHeader(Constants.ALLOW) != null) {
                 response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
-            } else if (URIUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
+            } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
                 if (!getAllResourceMethods(service).isEmpty()) {
-                    response.setHeader(Constants.ALLOW, URIUtil.concatValues(getAllResourceMethods(service)));
+                    response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service)));
                 }
             } else {
                 cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
@@ -116,12 +116,13 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static List<String> getAllResourceMethods(ServiceInfo service) {
         List<String> cachedMethods = new ArrayList();
         for (ResourceInfo resource : service.getResourceInfoEntries()) {
-            if (getHttpMethods(resource) == null) {
-                cachedMethods = URIUtil.addAllMethods();
+            if (DispatcherUtil.getHttpMethods(resource) == null) {
+                cachedMethods = DispatcherUtil.addAllMethods();
                 break;
             } else {
-                cachedMethods.addAll(Arrays.asList(getHttpMethods(resource)));
+                cachedMethods.addAll(Arrays.asList(DispatcherUtil.getHttpMethods(resource)));
             }
         }
-        return URIUtil.validateAllowMethods(cachedMethods);
+        return DispatcherUtil.validateAllowMethods(cachedMethods);
     }
+}

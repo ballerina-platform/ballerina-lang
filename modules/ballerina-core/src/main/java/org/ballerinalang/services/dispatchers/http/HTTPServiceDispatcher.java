@@ -19,6 +19,7 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
@@ -125,7 +126,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 throw new BallerinaException(e.getMessage());
             }
         }
-        String basePath = URIUtil.getServiceBasePath(service);
+        String basePath = DispatcherUtil.getServiceBasePath(service);
         sortedServiceURIs.add(basePath);
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
     }
@@ -134,7 +135,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceUnregistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().unregisterService(service);
 
-        String basePath = URIUtil.getServiceBasePath(service);
+        String basePath = DispatcherUtil.getServiceBasePath(service);
         sortedServiceURIs.remove(basePath);
     }
 
