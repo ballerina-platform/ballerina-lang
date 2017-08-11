@@ -107,7 +107,8 @@
     "react-test-renderer":"^15.6.1",
     "enzyme": "^2.9.1",
     "jest-enzyme":"^3.6.1",
-    "babel-plugin-module-resolver": "^2.7.0"
+    "babel-plugin-module-resolver": "^2.7.0",
+    "ws":"^3.1.0"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",

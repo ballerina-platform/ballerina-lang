@@ -29,6 +29,7 @@ function loadFiles(dir) {
 
 function generatedDiagram(fileContent) {
     return new Promise((resolve, reject) => {
+        console.log(fileContent);
         parseContent(fileContent)
             .then((parsedJson) => {
                 const ASTModel = BallerinaASTDeserializer.getASTModel(parsedJson);
@@ -36,7 +37,6 @@ function generatedDiagram(fileContent) {
                 const tree = renderer
                     .create(
                         <BallerinaDiagram
-                            style={{display: isTransformActive ? 'none' : 'block'}}
                             model={ASTModel}
                         />
                     )
