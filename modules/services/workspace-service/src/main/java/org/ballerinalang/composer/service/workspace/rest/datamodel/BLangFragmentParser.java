@@ -82,10 +82,10 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 // 0 & 1 are function args and return types, 2 is the assignment statement
                 JsonObject assignmentStmt = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
-                                               .get(2).getAsJsonObject();
+                        .get(2).getAsJsonObject();
                 // 0th child is the var ref list expression of assignment stmt
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
-                                     .get(0).getAsJsonObject();
+                        .get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.STATEMENT:
                 // 0 & 1 are function args and return types, 2 is the statement came from source fragment
@@ -103,6 +103,11 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
                 fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.TRANSACTION_FAILED:
+                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
                 break;
             default:
@@ -180,6 +185,10 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_RETURN_WRAPPER,
+                        sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.TRANSACTION_FAILED:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.TRANSACTION_FAILED_RETRY_WRAPPER,
                         sourceFragment.getSource());
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:

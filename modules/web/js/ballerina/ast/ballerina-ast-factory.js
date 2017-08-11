@@ -109,6 +109,8 @@ import NamespaceDeclarationStatement from './statements/namespace-declaration-st
 import NamespaceDeclaration from './namespace-declaration';
 import XMLQNameExpression from './expressions/xml-qname-expression';
 import XMLAttributeReferenceExpression from './expressions/xml-attribute-reference-expression';
+import FailedStatement from './statements/failed-statement';
+import RetryStatement from './statements/retry-statement';
 
 /**
  * @class BallerinaASTFactory
@@ -726,6 +728,15 @@ BallerinaASTFactory.createTransformStatement = function (args) {
 };
 
 /**
+ * Creates retry statement
+ * @param {Object} args - argument for the creating retry statement.
+ * @return {RetryStatement} retry statement.
+ * */
+BallerinaASTFactory.createRetryStatement = function(args){
+    return new RetryStatement(args);
+};
+
+/**
  * creates {@link AnnotationAttachment}
  * @param  {Object} args arguments for creating a new annotation.
  * @return {AnnotationAttachment}      new annotation object.
@@ -785,6 +796,15 @@ BallerinaASTFactory.createTransactionAbortedStatement = function (args) {
  * */
 BallerinaASTFactory.createTransactionStatement = function (args) {
     return new transactionStatement();
+};
+
+/**
+ * Create {@link FailedStatement}
+ * @param {object} args - Argument to create the failed statement.
+ * @return {FailedStatement} new Failed Statement.
+ * */
+BallerinaASTFactory.createFailedStatement = function (args) {
+    return new FailedStatement();
 };
 
 /**
@@ -1310,6 +1330,15 @@ BallerinaASTFactory.isReturnType = function (child) {
 };
 
 /**
+ * instanceof check for retry.
+ * @param {ASTNode} child - object for instanceof check
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isRetry = function(child){
+    return child instanceof RetryStatement;
+};
+
+/**
  * instanceof check for TypeName
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1596,6 +1625,15 @@ BallerinaASTFactory.isTransactionAbortedStatement = function (child) {
  * */
 BallerinaASTFactory.isTransactionStatement = function (child) {
     return child instanceof transactionStatement;
+};
+
+/**
+ * instanceof check for the FailedStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isFailedStatement = function (child) {
+    return child instanceof FailedStatement;
 };
 
 /**
@@ -1968,6 +2006,12 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             break;
         case 'xml_attribute_ref_expression':
             node = BallerinaASTFactory.createXMLAttributeReferenceExpression();
+            break;
+        case 'failed_statement':
+            node = BallerinaASTFactory.createFailedStatement();
+            break;
+        case 'retry_statement':
+            node = BallerinaASTFactory.createRetryStatement();
             break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);

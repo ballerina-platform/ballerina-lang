@@ -225,7 +225,7 @@ DefaultBallerinaASTFactory.createAbortStatement = function (args) {
  * */
 DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     const transactionAbortedStatement = BallerinaASTFactory.createTransactionAbortedStatement(args);
-    transactionAbortedStatement.setStatementFromString('transaction {} aborted {} committed {}');
+    transactionAbortedStatement.setStatementFromString('transaction {} failed {} aborted {} committed {}');
     transactionAbortedStatement.accept(new EnableDefaultWSVisitor());
     return transactionAbortedStatement;
 };
@@ -252,7 +252,7 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
     const fragment = FragmentUtils.createStatementFragment('a = b;');
     const parsedJson = FragmentUtils.parseFragment(fragment);
     if ((!_.has(parsedJson, 'error')
-        || !_.has(parsedJson, 'syntax_errors'))
+            || !_.has(parsedJson, 'syntax_errors'))
         && _.isEqual(parsedJson.type, 'assignment_statement')) {
         const node = BallerinaASTFactory.createFromJson(parsedJson);
         node.initFromJson(parsedJson);
@@ -385,7 +385,7 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
             args.functionDef.getReturnParams().forEach((returnParam, index) => {
                 if (index === 0) {
                     leftOperandExpression = returnParam.type + ' ' + (returnParam.identifier
-                            ? returnParam.identifier : returnParam.type.substr(0, 1));
+                        ? returnParam.identifier : returnParam.type.substr(0, 1));
                 }
             });
             const expression = leftOperandExpression + ' = ' + functionInvokeString;

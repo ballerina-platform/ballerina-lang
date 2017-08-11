@@ -279,12 +279,21 @@ const createTransactionAbortedStatementTool = {
     definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
+const createRetryStatementTool = {
+    id: 'Retry',
+    name: 'Retry',
+    cssClass: 'icon fw fw-refresh',
+    title: 'Retry',
+    nodeFactoryMethod: BallerinaASTFactory.createRetryStatement,
+    definition: 'Statement which sets the retry count for the transaction when transaction fails',
+};
+
 const statementToolDefArray = [createAbortStatementTool, createAssignmentExpressionTool, createBreakStatementTool,
     createContinueStatementTool, createJoinStatementTool, createFunctionInvocationTool, createIfStatementTool,
     createNamespaceDeclarationStatementTool, createWorkerReplyStatementTool, createReplyStatementTool,
     createReturnStatementTool, createWorkerInvocationStatementTool, createThrowStatementTool,
     createTransactionAbortedStatementTool, createTransformStatementTool, createTryCatchStatementTool,
-    createVariableDefinitionStatementTool, createWhileStatementTool];
+    createVariableDefinitionStatementTool, createWhileStatementTool, createRetryStatementTool];
 
 const seperator = {
     id: 'constructs_seperator',
