@@ -102,9 +102,9 @@ class AssignmentStatement extends Statement {
     getLambdaChildren() {
         // TODO: remove after making connector expression a child of RHS
         const rightExpression = this.getRightExpression();
-        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)
-            && BallerinaASTFactory.isLambdaExpression(rightExpression.getConnectorExpression())) {
-            return [rightExpression.getConnectorExpression().getLambdaFunction()];
+        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)) {
+            return rightExpression.getArguments().filter(BallerinaASTFactory.isLambdaExpression)
+                .map(l => l.getLambdaFunction());
         }
 
         const deepFilterChildren = x =>
