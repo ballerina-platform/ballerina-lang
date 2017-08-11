@@ -311,7 +311,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression) => {
@@ -337,7 +337,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression) => {
@@ -366,7 +366,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         const params = func.getParameters();
@@ -410,7 +410,7 @@ class TransformExpanded extends React.Component {
             return;
         }
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         const params = func.getParameters();
@@ -446,7 +446,7 @@ class TransformExpanded extends React.Component {
         });
 
         if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
-            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
@@ -695,7 +695,6 @@ class TransformExpanded extends React.Component {
         this.mapper.reposition(this.mapper);
 
         this.loadVertices();
-
     }
 
     componentDidMount() {
@@ -851,14 +850,13 @@ class TransformExpanded extends React.Component {
             const vertices = [];
 
             const fileData = this.context.designView.context.editor.props.file.attributes;
-            const lineNo = this.props.model.getLineNumber();
+            const position = this.props.model.getPosition();
 
             const options = {
                 textDocument: fileData.content,
                 position: {
-                    line: lineNo,
-                    // TODO replace with column number once implemented in AST node
-                    character: 0,
+                    line: position.startLine,
+                    character: position.startOffset,
                 },
                 fileName: fileData.name,
                 filePath: fileData.path,
@@ -922,7 +920,9 @@ class TransformExpanded extends React.Component {
                     }
                 });
                 // set state with new vertices
-                this.setState({ vertices });
+                if (!_.isEqual(vertices, this.state.vertices)) {
+                    this.setState({ vertices });
+                }
             });
         }).catch(error => alerts.error('Could not initialize transform statement view ' + error));
     }
@@ -947,7 +947,7 @@ class TransformExpanded extends React.Component {
     setSource(currentSelection) {
         const sourceSelection = _.find(this.state.vertices, { name: currentSelection });
         if (_.isUndefined(sourceSelection)) {
-            alerts.error('Mapping source "' + currentSelection + '" cannot be found');
+            // alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
         }
         return true;
@@ -956,7 +956,7 @@ class TransformExpanded extends React.Component {
     setTarget(currentSelection) {
         const targetSelection = _.find(this.state.vertices, { name: currentSelection });
         if (_.isUndefined(targetSelection)) {
-            alerts.error('Mapping target "' + currentSelection + '" cannot be found');
+            // alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
         }
         return true;
@@ -1038,7 +1038,7 @@ class TransformExpanded extends React.Component {
                 const name = inputNode.getVariableName();
                 const sourceSelection = _.find(vertices, { name });
                 if (_.isUndefined(sourceSelection)) {
-                    alerts.error('Mapping source "' + name + '" cannot be found');
+                    // alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
                 }
                 _.remove(vertices, (vertex)=> { return vertex.name == sourceSelection.name})
@@ -1049,7 +1049,7 @@ class TransformExpanded extends React.Component {
                 const name = outputNode.getVariableName();
                 const targetSelection = _.find(vertices, { name });
                 if (_.isUndefined(targetSelection)) {
-                    alerts.error('Mapping target "' + name + '" cannot be found');
+                    // alerts.error('Mapping target "' + name + '" cannot be found');
                     return;
                 }
                 _.remove(vertices, (vertex)=> { return vertex.name == targetSelection.name})
