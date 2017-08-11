@@ -61,7 +61,9 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
             if (resolvedElement == null) {
                 continue;
             }
-
+            if (!(resolvedElement.getParent() instanceof FunctionDefinitionNode)) {
+                continue;
+            }
             // Get the document manager;
             PsiDocumentManager documentManager = PsiDocumentManager.getInstance(element.getProject());
             // Get the document.
