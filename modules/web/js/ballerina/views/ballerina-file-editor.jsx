@@ -87,9 +87,8 @@ class BallerinaFileEditor extends React.Component {
                         this.syncASTs(currentAST, newAST);
                         // remove new AST from new state to be set
                         delete state.model;
-                        // update state without triggering a re-render
-                        Object.assign(this.state, state);
                         this.skipLoadingOverlay = false;
+                        this.setState(state);
                     })
                     .catch(error => log.error(error));
             } else {
@@ -284,9 +283,9 @@ class BallerinaFileEditor extends React.Component {
         if (this.state.isASTInvalid && this.state.activeView !== SOURCE_VIEW) {
             this.validateAndParseFile()
                 .then((state) => {
+                    this.skipLoadingOverlay = false;
                     this.setState(state);
                     this.forceUpdate();
-                    this.skipLoadingOverlay = false;
                 })
                 .catch(error => log.error(error));
         } else {
