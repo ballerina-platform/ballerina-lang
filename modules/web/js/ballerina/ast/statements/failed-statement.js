@@ -57,7 +57,7 @@ class FailedStatement extends Statement {
         } else {
             const retryChild = this.filterChildren(retry => BallerinaASTFactory.isRetry(retry));
             Object.getPrototypeOf(this.constructor.prototype)
-                .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
+                .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
             if (retryChild.length !== 0) {
                 this.removeChild(retryChild[0], true);
                 Object.getPrototypeOf(this.constructor.prototype)
@@ -65,6 +65,21 @@ class FailedStatement extends Statement {
                     ignoreChildAddedEvent, generateId);
             }
         }
+    }
+
+    /**
+     * Check whether this can be a parent of mentioned child.
+     * @param {ASTNode} child - AST Node.
+     * @retrun {boolean} true if node can be a child else false.
+     * */
+    canBeParentOf(child) {
+        let canBeAParent = true;
+        if (BallerinaASTFactory.isRetry(child)) {
+            canBeAParent = this.filterChildren(retry => BallerinaASTFactory.isRetry(retry)).length === 0;
+        } else {
+            canBeAParent = this.getFactory().isStatement(child);
+        }
+        return canBeAParent;
     }
 
     /**
@@ -85,7 +100,7 @@ class FailedStatement extends Statement {
                 child.initFromJson(childNode);
             }
         });
-        if (retryChild && jsonNode.children.length > 1 && retryChildNode) {
+        if (retryChild && retryChildNode) {
             self.addChild(retryChild, jsonNode.children.length, true, true);
             retryChild.initFromJson(retryChildNode);
         }
