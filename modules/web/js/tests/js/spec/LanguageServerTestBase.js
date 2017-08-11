@@ -42,12 +42,12 @@ export function testCompletions(cursorPosition, testFilePath, testFileName, expe
     // callback function to validate generated completions.
     const test = function (x, completions) {
         expect(expectedFileContent).to.equal(JSON.stringify(completions));
+        done();
     }
 
     getLangServerClientInstance()
         .then((langserverClient) => {
             sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, test);
-            done();
         })
         .catch(error => log.error(error));
 }
