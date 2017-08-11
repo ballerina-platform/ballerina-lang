@@ -155,9 +155,9 @@ public class ServerConnectorMessageHandler {
 
         Map<String, Object> properties = null;
         if (resourceMessage.getProperty(Constants.SRC_HANDLER) != null) {
-            context.setProperty(Constants.SRC_HANDLER, resourceMessage.getProperty(Constants.SRC_HANDLER));
-            properties = Collections.singletonMap(Constants.SRC_HANDLER,
-                                                  resourceMessage.getProperty(Constants.SRC_HANDLER));
+            Object srcHandler = resourceMessage.getProperty(Constants.SRC_HANDLER);
+            context.setProperty(Constants.SRC_HANDLER, srcHandler);
+            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
         }
         ControlStackNew controlStackNew = context.getControlStackNew();
 
