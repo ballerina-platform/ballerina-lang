@@ -67,8 +67,12 @@ export default class FunctionInv extends React.Component {
 
                 const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
                 const varRefList = BallerinaASTFactory.createVariableReferenceList();
+                const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                simpleVarRefExpression.setExpressionFromString('_temp');
+                varRefList.addChild(simpleVarRefExpression);
                 assignmentStmt.addChild(varRefList, 0);
                 assignmentStmt.addChild(childFuncInv, 1);
+                assignmentStmt.setIsDeclaredWithVar(true);
                 const transformModel = enclosingAssignmentStatement.getParent();
                 transformModel.addChild(assignmentStmt,
                     transformModel.getIndexOfChild(enclosingAssignmentStatement), true);
