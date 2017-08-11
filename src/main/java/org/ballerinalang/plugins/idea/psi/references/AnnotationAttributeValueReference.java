@@ -43,7 +43,7 @@ public class AnnotationAttributeValueReference extends BallerinaElementReference
     @Override
     public Object[] getVariants() {
         List<LookupElement> results = new LinkedList<>();
-        results.addAll(BallerinaCompletionUtils.createValueKeywords());
+        results.addAll(BallerinaCompletionUtils.getValueKeywords());
         return results.toArray(new LookupElement[results.size()]);
     }
 }

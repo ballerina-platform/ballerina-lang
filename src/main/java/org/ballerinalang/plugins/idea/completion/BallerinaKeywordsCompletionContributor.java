@@ -21,6 +21,7 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -33,6 +34,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -43,7 +45,9 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
@@ -73,6 +77,15 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     ServiceBodyNode.class, ConnectorBodyNode.class);
             if (definitionParent != null && prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
                 addCreateKeyword(result);
+                result.addAllElements(getValueKeywords());
+            }
+
+            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(parent, ExpressionNode.class);
+            if (expressionNode != null && expressionNode.getChildren().length == 1) {
+                PsiReference referenceAt = parent.findReferenceAt(0);
+                if (referenceAt == null || referenceAt instanceof NameReference) {
+                    result.addAllElements(getValueKeywords());
+                }
             }
 
             TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(parent, TypeNameNode.class);
@@ -107,6 +120,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                 if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
                     addCreateKeyword(result);
+                    result.addAllElements(getValueKeywords());
                 }
 
                 if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{}]")
@@ -124,11 +138,11 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     if (definitionNode instanceof ResourceDefinitionNode) {
                         result.addAllElements(getResourceSpecificKeywords());
                     }
-                    result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
+                    result.addAllElements(createCommonKeywords());
                 }
                 if (prevVisibleSibling == null
                         || !(prevVisibleSibling.getParent() instanceof AnnotationAttachmentNode)) {
-                    addValueKeywords(result);
+                    result.addAllElements(getValueKeywords());
                 }
             }
 
@@ -165,10 +179,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                         addReferenceTypesAsLookups(result);
 
                         result.addAllElements(getFunctionSpecificKeywords());
-
-                        result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
-
-                        addValueKeywords(result);
+                        result.addAllElements(createCommonKeywords());
+                        result.addAllElements(getValueKeywords());
                     }
 
                     ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
