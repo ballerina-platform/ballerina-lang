@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.BaseIncrementalValueStore;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
@@ -45,14 +45,15 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private Map<TimePeriod.Duration, CompiledCondition> tableCompiledConditions;
     private CompiledCondition inMemoryStoreCompileCondition;
     private CompiledCondition finalCompiledCondition;
-    private List<ExpressionExecutor> baseExecutors;
     private List<ExpressionExecutor> outputExpressionExecutors;
     private StreamEventPool streamEventPoolForInternalMeta;
     private StreamEventPool streamEventPoolForFinalMeta;
     private Map<TimePeriod.Duration, Table> aggregationTables;
     private Map<TimePeriod.Duration, Object> inMemoryStoreMap;
     private List<TimePeriod.Duration> incrementalDurations;
-    private Map<Long, Map<String, Object[]>> inMemoryAggregateMap = new HashMap<>();
+    private List<ExpressionExecutor> baseExecutors;
+    private Map<Long, Map<String, BaseIncrementalValueStore>> inMemoryAggregateStoreMap = new HashMap<>();
+    private BaseIncrementalValueStore baseIncrementalValueStore;
     private MetaStreamEvent internalMetaStreamEvent;
     private MetaStreamEvent finalOutputMetaStreamEvent;
     private final StreamEvent resetEvent;
@@ -68,7 +69,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.tableCompiledConditions = tableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.finalCompiledCondition = finalCompiledCondition;
-        this.baseExecutors = baseExecutors;
         this.outputExpressionExecutors = outputExpressionExecutors;
         this.streamEventPoolForInternalMeta = new StreamEventPool(internalMetaStreamEvent, 10);
         this.streamEventPoolForFinalMeta = new StreamEventPool(finalOutputMetaStreamEvent, 10);
@@ -81,6 +81,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.resetEvent.setType(ComplexEvent.Type.RESET);
         this.storeEventCloner = new StreamEventCloner(internalMetaStreamEvent, streamEventPoolForInternalMeta);
         this.outputEventCloner = new StreamEventCloner(finalOutputMetaStreamEvent, streamEventPoolForFinalMeta);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors);
+        this.baseExecutors = baseExecutors;
     }
 
     @Override
@@ -104,64 +106,63 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
                             boolean perEqualsRootExecutorDuration) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(true);
+        ComplexEventChunk<StreamEvent> complexEventChunkToHoldMatches = new ComplexEventChunk<>(true);
+        // TODO: 8/11/17 break long return
         StreamEvent matchFromPersistedEvents = aggregationTables.get(perValue).find(matchingEvent,
-                tableCompiledConditions.get(perValue));
-        complexEventChunk.add(matchFromPersistedEvents);
+                tableCompiledConditions.get(perValue)); // TODO: 8/11/17 withinTableComileCONDITION
+        complexEventChunkToHoldMatches.add(matchFromPersistedEvents);
 
-        findAndProcessInMemoryData(inMemoryStoreMap.get(perValue), matchingEvent, perValue);
+        aggregateInMemoryData(inMemoryStoreMap.get(perValue), perValue);
 
         if (!perEqualsRootExecutorDuration) {
             // If the 'per' is for root executor, there would be no executors prior to that
             for (int i = perValue.ordinal() - 1; i >= 0
                     && incrementalDurations.contains(TimePeriod.Duration.values()[i]); i--) {
                 TimePeriod.Duration duration = TimePeriod.Duration.values()[i];
-                findAndProcessInMemoryData(inMemoryStoreMap.get(duration), matchingEvent, perValue);
+                aggregateInMemoryData(inMemoryStoreMap.get(duration), perValue);
+            }
+        }// TODO: 8/11/17 add thrown error messages to my error message (e.getMessage)
+        ComplexEventChunk<StreamEvent> processedInMemoryEventChunk = new ComplexEventChunk<>(true);
+        for (Map.Entry<Long, Map<String, BaseIncrementalValueStore>> timeBucketEntry :
+                inMemoryAggregateStoreMap.entrySet()) {
+            for (Map.Entry<String, BaseIncrementalValueStore> groupByEntry : timeBucketEntry.getValue().entrySet()) {
+                processedInMemoryEventChunk.add(createStreamEvent(groupByEntry.getValue()));
             }
         }
-        for (Map<String, Object[]> executorsAndOutputDataMap : inMemoryAggregateMap.values()) {
-            for (Object[] executorsAndOutputData : executorsAndOutputDataMap.values()) {
-                List<ExpressionExecutor> executors = (List<ExpressionExecutor>) executorsAndOutputData[0];
-                Object[] outputData = (Object[]) executorsAndOutputData[1];
-                StreamEvent streamEvent = streamEventPoolForInternalMeta.borrowEvent();
-                streamEvent.setTimestamp((long) outputData[0]);
-                streamEvent.setOutputData(outputData);
-                complexEventChunk.add(streamEvent);
-                for (ExpressionExecutor expressionExecutor : executors) {
-                    expressionExecutor.execute(resetEvent);
-                }
-            }
-        }
-        return executeFinalCompileConditionOnWithinData(matchingEvent, complexEventChunk);
+        ((Operator)inMemoryStoreCompileCondition).find(matchingEvent, processedInMemoryEventChunk, storeEventCloner);
+        inMemoryAggregateStoreMap.clear();
+
+        return executeFinalCompileConditionOnWithinData(matchingEvent, complexEventChunkToHoldMatches);
     }
 
-    private void findAndProcessInMemoryData(Object inMemoryStore, StateEvent matchingEvent,
-                                            TimePeriod.Duration perValue) {
+    private void aggregateInMemoryData(Object inMemoryStore, TimePeriod.Duration perValue) {
+        BaseIncrementalValueStore baseIncrementalValueStore; // TODO: 8/11/17 convert method in baseIncrementalValueStore. Extend store to have one format .have interface
+        // TODO: 8/11/17 or move to 3 methods
+        long timeBucket;
+        String groupByKey;
+        StreamEvent streamEvent;
         if (inMemoryStore instanceof ArrayList) {
-            for (int i = 0; i < ((ArrayList) inMemoryStore).size(); i++) {
-                if (((ArrayList) inMemoryStore).get(i) instanceof IncrementalExecutor.BaseIncrementalValueStore) {
+            ArrayList inMemoryStoreElements = (ArrayList) inMemoryStore;
+            for (int i = 0; i < inMemoryStoreElements.size(); i++) {
+                if (inMemoryStoreElements.get(i) instanceof BaseIncrementalValueStore) {
                     // inMemory store is baseIncrementalValueStoreList (no group by, buffer > 0)
-                    ComplexEventChunk<StreamEvent> complexEventChunk = createComplexEventChunk(
-                            (IncrementalExecutor.BaseIncrementalValueStore) ((ArrayList) inMemoryStore).get(i),
-                            streamEventPoolForInternalMeta);
-                    StreamEvent matchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(matchingEvent,
-                            complexEventChunk, storeEventCloner);
-                    if (matchFromInMemory != null) {
-                        updateInMemoryAggregateMap(perValue, matchFromInMemory, "ALL");
-                    }
+                    baseIncrementalValueStore = (BaseIncrementalValueStore) inMemoryStoreElements.get(i);
+                    timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                            baseIncrementalValueStore.getTimestamp(), perValue);
+                    groupByKey = "ALL"; // TODO: 8/11/17 have null
+                    // TODO: 8/11/17 add logs wherever possible
+                    streamEvent = createStreamEvent(baseIncrementalValueStore);
+                    updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
                 } else { // inMemory store is baseIncrementalValueGroupByStoreList (group by, buffer > 0)
-                    assert ((ArrayList) inMemoryStore).get(i) instanceof Map;
-                    Map inMemoryMap = (Map) ((ArrayList) inMemoryStore).get(i);
+                    assert inMemoryStoreElements.get(i) instanceof Map;
+                    Map inMemoryMap = (Map) inMemoryStoreElements.get(i);
                     for (Object entry : inMemoryMap.entrySet()) {
-                        ComplexEventChunk<StreamEvent> complexEventChunk = createComplexEventChunk(
-                                (IncrementalExecutor.BaseIncrementalValueStore) ((Map.Entry) entry).getValue(),
-                                streamEventPoolForInternalMeta);
-                        StreamEvent matchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(matchingEvent,
-                                complexEventChunk, storeEventCloner);
-                        if (matchFromInMemory != null) {
-                            updateInMemoryAggregateMap(perValue, matchFromInMemory,
-                                    (String) ((Map.Entry) entry).getKey());
-                        }
+                        baseIncrementalValueStore = (BaseIncrementalValueStore) ((Map.Entry) entry).getValue();
+                        timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                                baseIncrementalValueStore.getTimestamp(), perValue);
+                        groupByKey = (String) ((Map.Entry) entry).getKey();
+                        streamEvent = createStreamEvent(baseIncrementalValueStore);
+                        updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
                     }
                 }
             }
@@ -169,86 +170,68 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             // inMemory store is baseIncrementalValueStoreMap (group by, buffer == 0)
             Map inMemoryMap = (Map) inMemoryStore;
             for (Object entry : inMemoryMap.entrySet()) {
-                ComplexEventChunk<StreamEvent> complexEventChunk = createComplexEventChunk(
-                        (IncrementalExecutor.BaseIncrementalValueStore) ((Map.Entry) entry).getValue(),
-                        streamEventPoolForInternalMeta);
-                StreamEvent matchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(matchingEvent,
-                        complexEventChunk, storeEventCloner);
-                if (matchFromInMemory != null) {
-                    updateInMemoryAggregateMap(perValue, matchFromInMemory, (String) ((Map.Entry) entry).getKey());
-                }
+                baseIncrementalValueStore = (BaseIncrementalValueStore) ((Map.Entry) entry).getValue();
+                timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                        baseIncrementalValueStore.getTimestamp(), perValue);
+                groupByKey = (String) ((Map.Entry) entry).getKey();
+                streamEvent = createStreamEvent(baseIncrementalValueStore);
+                updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
             }
         } else {
             // inMemory store is baseIncrementalValueStore (no group by, buffer == 0)
-            ComplexEventChunk<StreamEvent> complexEventChunk = createComplexEventChunk(
-                    (IncrementalExecutor.BaseIncrementalValueStore) inMemoryStore, streamEventPoolForInternalMeta);
-            StreamEvent matchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(matchingEvent,
-                    complexEventChunk, storeEventCloner);
-            if (matchFromInMemory != null) {
-                updateInMemoryAggregateMap(perValue, matchFromInMemory, "ALL");
-            }
+            baseIncrementalValueStore = (BaseIncrementalValueStore) inMemoryStore;
+            timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                    baseIncrementalValueStore.getTimestamp(), perValue);
+            groupByKey = "ALL";
+            streamEvent = createStreamEvent(baseIncrementalValueStore);
+            updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
         }
     }
 
-    private ComplexEventChunk<StreamEvent> createComplexEventChunk(
-            IncrementalExecutor.BaseIncrementalValueStore aBaseIncrementalValueStore, StreamEventPool streamEventPool) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(true);
-        StreamEvent streamEvent = streamEventPool.borrowEvent();
+    private StreamEvent createStreamEvent(BaseIncrementalValueStore aBaseIncrementalValueStore) {
+        StreamEvent streamEvent = streamEventPoolForInternalMeta.borrowEvent(); // TODO: 8/11/17 same as table structre
         streamEvent.setTimestamp(aBaseIncrementalValueStore.getTimestamp());
         aBaseIncrementalValueStore.setValue(aBaseIncrementalValueStore.getTimestamp(), 0);
-        streamEvent.setOutputData(aBaseIncrementalValueStore.getValues());
-        complexEventChunk.add(streamEvent);
-        return complexEventChunk;
+        streamEvent.setOutputData(aBaseIncrementalValueStore.getValues()); // TODO: 8/11/17 dont write like this
+        return streamEvent;
     }
 
-    private static List<ExpressionExecutor> cloneExpressionExecutors(List<ExpressionExecutor> expressionExecutors) {
-        List<ExpressionExecutor> arrayList = expressionExecutors.stream()
-                .map(expressionExecutor -> expressionExecutor.cloneExecutor(null)).collect(Collectors.toList());
-        return arrayList;
+    private void process(StreamEvent streamEvent, BaseIncrementalValueStore baseIncrementalValueStore) {
+        List<ExpressionExecutor> expressionExecutors = baseIncrementalValueStore.getExpressionExecutors();
+        for (int i = 0; i < expressionExecutors.size(); i++) { // keeping timestamp value location as null
+            ExpressionExecutor expressionExecutor = expressionExecutors.get(i);
+            baseIncrementalValueStore.setValue(expressionExecutor.execute(streamEvent), i + 1);
+        }
+        baseIncrementalValueStore.setProcessed(true);
     }
 
-    private void updateInMemoryAggregateMap(TimePeriod.Duration perValue, StreamEvent matchFromInMemory,
-                                            String groupByKey) {
-        long timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(matchFromInMemory.getTimestamp(),
-                perValue);
-        List<ExpressionExecutor> baseExecutors;
-        Object[] outputData;
-        if (inMemoryAggregateMap.get(timeBucket) != null) {
-            if (inMemoryAggregateMap.get(timeBucket).get(groupByKey) != null) {
-                baseExecutors = (List<ExpressionExecutor>) inMemoryAggregateMap.get(timeBucket).get(groupByKey)[0];
-                outputData = (Object[]) inMemoryAggregateMap.get(timeBucket).get(groupByKey)[1];
+    private void updateInMemoryAggregateStoreMap(long timeBucket, String groupByKey, StreamEvent streamEvent) {
+        if (inMemoryAggregateStoreMap.get(timeBucket) != null) {
+            if (inMemoryAggregateStoreMap.get(timeBucket).get(groupByKey) != null) {
+                process(streamEvent, inMemoryAggregateStoreMap.get(timeBucket).get(groupByKey));
             } else {
-                baseExecutors = cloneExpressionExecutors(this.baseExecutors);
-                for (ExpressionExecutor baseExecutor : baseExecutors) {
-                    baseExecutor.execute(resetEvent);
-                }
-                outputData = new Object[matchFromInMemory.getOutputData().length];
-                Object[] executorsAndOutputData = new Object[]{baseExecutors, outputData};
-                outputData[0] = timeBucket;
-                inMemoryAggregateMap.get(timeBucket).put(groupByKey, executorsAndOutputData);
+                BaseIncrementalValueStore baseIncrementalValueStore =
+                        this.baseIncrementalValueStore.cloneStore(groupByKey.concat(((Long)timeBucket).toString()),
+                                timeBucket);
+                inMemoryAggregateStoreMap.get(timeBucket).put(groupByKey, baseIncrementalValueStore);
+                process(streamEvent, baseIncrementalValueStore);
             }
         } else {
-            baseExecutors = cloneExpressionExecutors(this.baseExecutors);
-            for (ExpressionExecutor baseExecutor : baseExecutors) {
-                baseExecutor.execute(resetEvent);
-            }
-            outputData = new Object[matchFromInMemory.getOutputData().length];
-            Object[] executorsAndOutputData = new Object[]{baseExecutors, outputData};
-            outputData[0] = timeBucket;
-            Map<String, Object[]> executorsAndOutputDataMap = new HashMap<>();
-            executorsAndOutputDataMap.put(groupByKey, executorsAndOutputData);
-            inMemoryAggregateMap.put(timeBucket, executorsAndOutputDataMap);
-        }
-        for (int j = 1; j < baseExecutors.size(); j++) {
-            outputData[j] = baseExecutors.get(j).execute(matchFromInMemory);
+            BaseIncrementalValueStore baseIncrementalValueStore =
+                    this.baseIncrementalValueStore.cloneStore(groupByKey.concat(((Long)timeBucket).toString()),
+                            timeBucket);
+            Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore = new HashMap<>();
+            baseIncrementalValueGroupByStore.put(groupByKey, baseIncrementalValueStore);
+            inMemoryAggregateStoreMap.put(timeBucket, baseIncrementalValueGroupByStore);
+            process(streamEvent, baseIncrementalValueStore);
         }
     }
 
     private StreamEvent executeFinalCompileConditionOnWithinData(StateEvent matchingEvent,
-                                                                 ComplexEventChunk<StreamEvent> complexEventChunk) {
+        ComplexEventChunk<StreamEvent> complexEventChunkToHoldMatches) {
         ComplexEventChunk<StreamEvent> finalComplexEventChunk = new ComplexEventChunk<>(true);
-        while (complexEventChunk.hasNext()) {
-            StreamEvent streamEvent = complexEventChunk.next();
+        while (complexEventChunkToHoldMatches.hasNext()) {
+            StreamEvent streamEvent = complexEventChunkToHoldMatches.next();
             StreamEvent newStreamEvent = streamEventPoolForFinalMeta.borrowEvent();
             Object outputData[] = new Object[newStreamEvent.getOutputData().length];
             for (int i = 0; i < outputExpressionExecutors.size(); i++) {

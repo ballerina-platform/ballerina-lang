@@ -121,7 +121,7 @@ public class AggregationRuntime {
             throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
                     + " granularity cannot be provided since aggregation definition " + aggregationDefinition.getId()
                     + " does not contain " + perValue.toString() + " duration");
-        }
+        } 
         return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
                 incrementalExecutorMap.get(perValue).isRoot());
     }
@@ -137,13 +137,14 @@ public class AggregationRuntime {
             throw new SiddhiAppCreationException("Query " + queryName + "'s per value expected a string but found "
                     + perExpressionExecutor.getReturnType());
         }
+        // TODO: 8/11/17 add as a function 
         Expression withinExpression = Expression.incrementalWithinTime(within, Expression.variable("_TIMESTAMP"));
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
             CompiledCondition tableCompileCondition = entry.getValue().compileCondition(withinExpression,
                     newMatchingMetaInfoHolder(matchingMetaInfoHolder, entry.getValue().getTableDefinition()),
                     siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
             tableCompiledConditions.put(entry.getKey(), tableCompileCondition);
-
+            // TODO: 8/11/17 do this in the init 
             inMemoryStoreMap.put(entry.getKey(), incrementalExecutorMap.get(entry.getKey()).getInMemoryStore());
         }
         CompiledCondition inMemoryStoreCompileCondition = OperatorParser.constructOperator(
@@ -151,6 +152,8 @@ public class AggregationRuntime {
                 newMatchingMetaInfoHolder(matchingMetaInfoHolder,
                         ((Table) aggregationTables.values().toArray()[0]).getTableDefinition()),
                 siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+        // TODO: 8/11/17 oncompileCondition
+        // TODO: 8/11/17 optimize on and to retrieve group by
         CompiledCondition finalCompiledCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
                 expression, matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
         MetaStreamEvent finalOutputMetaStreamEvent = null;
@@ -159,7 +162,7 @@ public class AggregationRuntime {
                     .equals(matchingMetaInfoHolder.getStoreDefinition().getId())) {
                 if (metaStreamEvent.getOutputData() == null || metaStreamEvent.getOutputData().isEmpty()) {
                     metaStreamEvent.getLastInputDefinition().getAttributeList().forEach(metaStreamEvent::addOutputData);
-                }
+                } // TODO: 8/11/17 get from aggregate parser
                 finalOutputMetaStreamEvent = metaStreamEvent;
             }
         }
@@ -168,6 +171,7 @@ public class AggregationRuntime {
                 incrementalDurations, outputExpressionExecutors, finalOutputMetaStreamEvent);
     }
 
+    // TODO: 8/11/17 aggregationTableMetaInfoHolder 
     private static MatchingMetaInfoHolder newMatchingMetaInfoHolder(MatchingMetaInfoHolder matchingMetaInfoHolder,
             AbstractDefinition tableDefinition) {
         MetaStreamEvent rightMetaStreamEventForTable = new MetaStreamEvent();

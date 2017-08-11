@@ -138,7 +138,7 @@ public class AggregationTestCase {
         String query = "" +
                 "define aggregation test " +
                 "from cseEventStream " +
-                "select symbol as s, avg(price1) as avgPrice, sum(price1) as totprice1, count(price1) as countPrice, " +
+                "select symbol as s, avg(price1) as avgPrice, sum(price1) as totprice1, count() as countPrice, " +
                 "(quantity * volume) as mult  " +
                 "aggregate by timestamp every sec...year ;" +
 

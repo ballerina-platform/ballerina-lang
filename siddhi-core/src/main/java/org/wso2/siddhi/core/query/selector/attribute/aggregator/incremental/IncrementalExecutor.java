@@ -215,12 +215,12 @@ public class IncrementalExecutor implements Executor {
     }
 
     private void process(StreamEvent streamEvent, BaseIncrementalValueStore baseIncrementalValueStore) {
-        List<ExpressionExecutor> expressionExecutors = baseIncrementalValueStore.expressionExecutors;
+        List<ExpressionExecutor> expressionExecutors = baseIncrementalValueStore.getExpressionExecutors();
         for (int i = 0; i < expressionExecutors.size(); i++) { // keeping timestamp value location as null
             ExpressionExecutor expressionExecutor = expressionExecutors.get(i);
             baseIncrementalValueStore.setValue(expressionExecutor.execute(streamEvent), i + 1);
         }
-        baseIncrementalValueStore.isProcessed = true;
+        baseIncrementalValueStore.setProcessed(true);
     }
 
     private void dispatchAggregateEvents(long startTimeOfNewAggregates, long currentTimeStamp) {
@@ -254,7 +254,7 @@ public class IncrementalExecutor implements Executor {
     }
 
     private void dispatchEvent(long startTimeOfNewAggregates, BaseIncrementalValueStore aBaseIncrementalValueStore) {
-        if (aBaseIncrementalValueStore.isProcessed) {
+        if (aBaseIncrementalValueStore.isProcessed()) {
             StreamEvent streamEvent = createStreamEvent(aBaseIncrementalValueStore);
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             eventChunk.add(streamEvent);
@@ -279,60 +279,19 @@ public class IncrementalExecutor implements Executor {
 
     private StreamEvent createStreamEvent(BaseIncrementalValueStore aBaseIncrementalValueStore) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
-        streamEvent.setTimestamp(aBaseIncrementalValueStore.timestamp);
-        aBaseIncrementalValueStore.values[0] = aBaseIncrementalValueStore.timestamp;
-        streamEvent.setOutputData(aBaseIncrementalValueStore.values);
+        streamEvent.setTimestamp(aBaseIncrementalValueStore.getTimestamp());
+        aBaseIncrementalValueStore.setValue(aBaseIncrementalValueStore.getTimestamp(), 0);
+        streamEvent.setOutputData(aBaseIncrementalValueStore.getValues());
         return streamEvent;
     }
 
     private void cleanBaseIncrementalValueStore(long startTimeOfNewAggregates,
             BaseIncrementalValueStore baseIncrementalValueStore) {
         baseIncrementalValueStore.clearValues();
-        baseIncrementalValueStore.timestamp = startTimeOfNewAggregates;
-        baseIncrementalValueStore.isProcessed = false;
-        for (ExpressionExecutor expressionExecutor : baseIncrementalValueStore.expressionExecutors) {
+        baseIncrementalValueStore.setTimestamp(startTimeOfNewAggregates);
+        baseIncrementalValueStore.setProcessed(false);
+        for (ExpressionExecutor expressionExecutor : baseIncrementalValueStore.getExpressionExecutors()) {
             expressionExecutor.execute(resetEvent);
         }
-    }
-
-    /**
-     * Store for maintaining the base values related to incremental aggregation. (e.g. for average,
-     * the base incremental values would be sum and count. The timestamp too is stored here.
-     */
-    public class BaseIncrementalValueStore {
-        private long timestamp; // This is the starting timeStamp of aggregates
-        private Object[] values;
-        private List<ExpressionExecutor> expressionExecutors;
-        private boolean isProcessed = false;
-
-        public BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors) {
-            this.timestamp = timeStamp;
-            this.values = new Object[expressionExecutors.size() + 1];
-            this.expressionExecutors = expressionExecutors;
-        }
-
-        public void clearValues() {
-            this.values = new Object[expressionExecutors.size() + 1];
-        }
-
-        public void setValue(Object value, int position) {
-            values[position] = value;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public Object[] getValues() {
-            return values;
-        }
-
-        public BaseIncrementalValueStore cloneStore(String key, long timestamp) {
-            List<ExpressionExecutor> newExpressionExecutors = new ArrayList<>(expressionExecutors.size());
-            expressionExecutors
-                    .forEach(expressionExecutor -> newExpressionExecutors.add(expressionExecutor.cloneExecutor(key)));
-            return new BaseIncrementalValueStore(timestamp, newExpressionExecutors);
-        }
-
     }
 }
