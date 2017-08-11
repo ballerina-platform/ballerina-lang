@@ -87,9 +87,9 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     @Override
     public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext)
             throws ClientConnectorException {
-        WebSocketMessageContextImpl messageContextImp;
-        if (messageContext instanceof WebSocketMessageContextImpl) {
-            messageContextImp = (WebSocketMessageContextImpl) messageContext;
+        BasicWebSocketMessageContextImpl messageContextImp;
+        if (messageContext instanceof BasicWebSocketMessageContextImpl) {
+            messageContextImp = (BasicWebSocketMessageContextImpl) messageContext;
         } else {
             throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
         }
@@ -114,9 +114,9 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     @Override
     public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext,
                            Map<String, String> customHeaders) throws ClientConnectorException {
-        WebSocketMessageContextImpl messageContextImp;
-        if (messageContext instanceof WebSocketMessageContextImpl) {
-            messageContextImp = (WebSocketMessageContextImpl) messageContext;
+        BasicWebSocketMessageContextImpl messageContextImp;
+        if (messageContext instanceof BasicWebSocketMessageContextImpl) {
+            messageContextImp = (BasicWebSocketMessageContextImpl) messageContext;
         } else {
             throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
         }

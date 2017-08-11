@@ -14,7 +14,9 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMe
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 
 import java.util.HashMap;
@@ -57,8 +59,8 @@ public class HTTPMessageUtil {
     public static CarbonMessage convertWebSocketInitMessage(WebSocketInitMessage initMessage) {
         StatusCarbonMessage carbonMessage =
                 new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        if (initMessage instanceof WebSocketMessageContextImpl) {
-            WebSocketMessageContextImpl webSocketInitMessage = (WebSocketMessageContextImpl) initMessage;
+        if (initMessage instanceof BasicWebSocketMessageContextImpl) {
+            BasicWebSocketMessageContextImpl webSocketInitMessage = (BasicWebSocketMessageContextImpl) initMessage;
             return setWebSocketCommonProperties(carbonMessage, webSocketInitMessage);
         }
         throw new UnsupportedOperationException("Message conversion is not supported");
@@ -112,6 +114,24 @@ public class HTTPMessageUtil {
         cMsg.setProperty(Constants.WEBSOCKET_MESSAGE_CONTEXT, messageContext);
         return cMsg;
     }
+
+    private static CarbonMessage setWebSocketCommonProperties(CarbonMessage cMsg,
+                                                              BasicWebSocketMessageContextImpl messageContext) {
+        cMsg.setProperty(Constants.TO, messageContext.getTarget());
+        cMsg.setProperty(Constants.SRC_HANDLER, messageContext.getProperty(Constants.SRC_HANDLER));
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
+                         messageContext.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT));
+        cMsg.setProperty(Constants.IS_SECURED_CONNECTION, messageContext.isConnectionSecured());
+        cMsg.setProperty(Constants.LOCAL_ADDRESS, messageContext.getProperty(Constants.LOCAL_ADDRESS));
+        cMsg.setProperty(Constants.LOCAL_NAME, messageContext.getProperty(Constants.LOCAL_NAME));
+        cMsg.setProperty(Constants.CHANNEL_ID, messageContext.getProperty(Constants.CHANNEL_ID));
+        cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
+        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, messageContext.isServerMessage());
+        cMsg.setProperty(Constants.WEBSOCKET_MESSAGE_CONTEXT, messageContext);
+        return cMsg;
+    }
+
+
 
     /**
      * Extract sender configuration from transport configuration.
