@@ -18,7 +18,8 @@ import javax.net.ssl.SSLException;
  */
 public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 1000;
+    private final int threadSleepTime = 100;
+    private final int messageDeliveryCountDown = 40;
     private final int clientCount = 10;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -42,10 +43,10 @@ public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
         handshakeAllClients(wsClients);
         String sentText = "test";
         wsClients[0].sendText(sentText);
-        Thread.sleep(threadSleepTime);
-        Assert.assertEquals(wsClients[0].getTextReceived(), sentText);
+
+        assertWebSocketClientStringMessage(wsClients[0], sentText, threadSleepTime, messageDeliveryCountDown);
         for (int i = 1; i < clientCount; i++) {
-            Assert.assertEquals(null, wsClients[i].getTextReceived());
+            assertWebSocketClientStringMessageNullCheck(wsClients[i], threadSleepTime * 10);
         }
         shutDownAllClients(wsClients);
     }

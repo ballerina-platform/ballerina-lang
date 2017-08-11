@@ -20,7 +20,8 @@ import java.util.Map;
  */
 public class ConnectionStoreSampleTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 1000;
+    private final int threadSleepTime = 100;
+    private final int messageDeliveryCountDown = 40;
     private final int clientCount = 5;
     private final WebSocketClient[] webSocketClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -49,9 +50,10 @@ public class ConnectionStoreSampleTest extends WebSocketIntegrationTest {
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("storeInfo/2"), sentText + "2", headers);
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("storeInfo/3"), sentText + "3", headers);
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("storeInfo/4"), sentText + "4", headers);
-        Thread.sleep(threadSleepTime);
+
         for (int i = 0; i < clientCount; i++) {
-            Assert.assertEquals(webSocketClients[i].getTextReceived(), sentText + i);
+            assertWebSocketClientStringMessage(webSocketClients[i], sentText + i, threadSleepTime,
+                                               messageDeliveryCountDown);
         }
     }
 
@@ -61,7 +63,7 @@ public class ConnectionStoreSampleTest extends WebSocketIntegrationTest {
         Thread.sleep(threadSleepTime);
         Map<String, String> headers = new HashMap<>();
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("storeInfo/0"), "You are out", headers);
-        Assert.assertEquals(webSocketClients[0].getTextReceived(), null);
+        assertWebSocketClientStringMessageNullCheck(webSocketClients[0], threadSleepTime * 10);
     }
 
     //TODO: disabled due to intermittent build failure

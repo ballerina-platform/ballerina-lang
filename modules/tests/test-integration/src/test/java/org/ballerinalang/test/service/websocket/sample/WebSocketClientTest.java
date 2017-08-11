@@ -37,8 +37,8 @@ import java.io.File;
  */
 public class WebSocketClientTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 200;
-    private final int messageDeliveryCountDown = 20;
+    private final int threadSleepTime = 100;
+    private final int messageDeliveryCountDown = 40;
     private final int clientCount = 5;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -72,21 +72,10 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
             wsClients[i].sendText(i + "");
         }
 
-        /* WebSocket message delivery is asynchronous.
-           So assertion should wait multiple times in order to check whether
-           the message is delivered back correctly. */
-        boolean received = false;
         for (int i = 0; i < clientCount; i++) {
-            for (int j = 0; j < messageDeliveryCountDown; j++) {
-                Thread.sleep(threadSleepTime);
-                String expectedMessage = "client service : " + i;
-                if (received = expectedMessage.equals(wsClients[i].getTextReceived())) {
-                    Assert.assertTrue(received);
-                    break;
-                }
-            }
-            Assert.assertTrue(received);
-            received = false;
+            String expectedMessage = "client service : " + i;
+            assertWebSocketClientStringMessage(wsClients[i], expectedMessage, threadSleepTime,
+                                               messageDeliveryCountDown);
         }
     }
 

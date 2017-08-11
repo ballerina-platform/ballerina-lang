@@ -21,7 +21,8 @@ import javax.net.ssl.SSLException;
  */
 public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 1000;
+    private final int threadSleepTime = 100;
+    private final int messageDeliveryCountDown = 40;
     private final int clientCount = 10;
     private final WebSocketClient[] clients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -45,12 +46,14 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         handshakeAllClients(clients);
         String sentText = "test1";
         clients[0].sendText(sentText);
-        Thread.sleep(threadSleepTime);
+
         for (int i = 0; i < clientCount; i++) {
             if (i % 2 == 0) {
-                Assert.assertEquals(clients[i].getTextReceived(), "evenGroup: " + sentText);
+                assertWebSocketClientStringMessage(clients[i], "evenGroup: " + sentText, threadSleepTime,
+                                                   messageDeliveryCountDown);
             } else {
-                Assert.assertEquals(clients[i].getTextReceived(), "oddGroup: " + sentText);
+                assertWebSocketClientStringMessage(clients[i], "oddGroup: " + sentText, threadSleepTime,
+                                                   messageDeliveryCountDown);
             }
         }
     }
@@ -62,12 +65,12 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         Map<String, String> headers = new HashMap<>();
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/even"), evenString, headers);
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/odd"), oddString, headers);
-        Thread.sleep(threadSleepTime);
+
         for (int i = 0; i < clientCount; i++) {
             if (i % 2 == 0) {
-                Assert.assertEquals(clients[i].getTextReceived(), evenString);
+                assertWebSocketClientStringMessage(clients[i], evenString, threadSleepTime, messageDeliveryCountDown);
             } else {
-                Assert.assertEquals(clients[i].getTextReceived(), oddString);
+                assertWebSocketClientStringMessage(clients[i], oddString, threadSleepTime, messageDeliveryCountDown);
             }
         }
     }
@@ -79,13 +82,13 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         Map<String, String> headers = new HashMap<>();
         String oddString = "hi even 0 removed";
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/odd"), oddString, headers);
-        Thread.sleep(threadSleepTime);
-        Assert.assertEquals(clients[0].getTextReceived(), null);
+
+        assertWebSocketClientStringMessageNullCheck(clients[0], threadSleepTime * 10);
         for (int i = 1; i < clientCount; i++) {
             if (i % 2 == 0) {
-                Assert.assertEquals(clients[i].getTextReceived(), null);
+                assertWebSocketClientStringMessageNullCheck(clients[i], threadSleepTime * 10);
             } else {
-                Assert.assertEquals(clients[i].getTextReceived(), oddString);
+                assertWebSocketClientStringMessage(clients[i], oddString, threadSleepTime, messageDeliveryCountDown);
             }
         }
     }
@@ -100,14 +103,12 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/even"), evenString, headers);
         HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("groupInfo/odd"), oddString, headers);
 
-        Thread.sleep(threadSleepTime);
-
-        Assert.assertEquals(clients[0].getTextReceived(), null);
+        assertWebSocketClientStringMessageNullCheck(clients[0], threadSleepTime * 10);
         for (int i = 1; i < clientCount; i++) {
             if (i % 2 == 0) {
-                Assert.assertEquals(clients[i].getTextReceived(), evenString);
+                assertWebSocketClientStringMessage(clients[i], evenString, threadSleepTime, messageDeliveryCountDown);
             } else {
-                Assert.assertEquals(clients[i].getTextReceived(), null);
+                assertWebSocketClientStringMessageNullCheck(clients[i], threadSleepTime * 10);
             }
         }
     }

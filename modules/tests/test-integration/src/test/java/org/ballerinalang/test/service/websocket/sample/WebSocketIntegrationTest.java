@@ -2,6 +2,7 @@ package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.util.websocket.client.WebSocketClient;
+import org.testng.Assert;
 
 import java.net.URISyntaxException;
 import javax.net.ssl.SSLException;
@@ -24,5 +25,28 @@ public class WebSocketIntegrationTest extends IntegrationTestCase {
                 client.shutDown();
             }
         }
+    }
+
+    protected void assertWebSocketClientStringMessage(WebSocketClient client, String expected,
+                                                      int threadSleepTime, int messageDeliveryCountDown)
+            throws InterruptedException {
+        for (int j = 0; j < messageDeliveryCountDown; j++) {
+            Thread.sleep(threadSleepTime);
+            if (expected.equals(client.getTextReceived())) {
+                Assert.assertTrue(true);
+                return;
+            }
+        }
+        Assert.assertTrue(false);
+    }
+
+    protected void assertWebSocketClientStringMessageNullCheck(WebSocketClient client, int threadSleepTime)
+            throws InterruptedException {
+        Thread.sleep(threadSleepTime);
+        if (client.getTextReceived() != null) {
+            Assert.assertTrue(false);
+            return;
+        }
+        Assert.assertTrue(true);
     }
 }
