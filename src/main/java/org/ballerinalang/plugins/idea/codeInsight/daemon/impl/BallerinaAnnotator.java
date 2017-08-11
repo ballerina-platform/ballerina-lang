@@ -223,6 +223,8 @@ public class BallerinaAnnotator implements Annotator {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
             }
+        } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_START) {
+            annotateStringLiteral(element, holder);
         }
     }
 
@@ -442,5 +444,12 @@ public class BallerinaAnnotator implements Annotator {
         // Create the annotation.
         Annotation annotation = holder.createInfoAnnotation(element.getTextRange(), null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
+    }
+
+    private void annotateStringLiteral(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        TextRange textRange = element.getTextRange();
+        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
+        Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
     }
 }
