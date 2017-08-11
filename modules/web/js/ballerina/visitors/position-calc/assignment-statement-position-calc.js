@@ -65,11 +65,8 @@ class AssignmentStatementPositionCalcVisitor {
      * */
     visit(node) {
         log.debug('visit AssignmentStatementPositionCalc');
-        const child = node.getRightExpression();
-        if (ASTFactory.isActionInvocationExpression(child) &&
-            ASTFactory.isLambdaExpression(child.getConnectorExpression())) {
-            child.getConnectorExpression().getLambdaFunction().accept(new PositionCalculatorVisitor());
-        }
+        // TODO: this visit can be removed making all lambdas children of the node.
+        node.getLambdaChildren().forEach(f => f.accept(new PositionCalculatorVisitor()));
     }
 
     /**

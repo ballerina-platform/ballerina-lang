@@ -631,6 +631,13 @@ class ASTVisitor extends EventChannel {
         return false;
     }
 
+    canVisitVariableReferenceList() {
+        return false;
+    }
+
+    visitVariableReferenceList() {
+    }
+
     beginVisitBValue(bValue) {
     }
 

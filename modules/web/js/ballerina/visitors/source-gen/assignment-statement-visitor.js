@@ -21,6 +21,7 @@ import AssignmentStatement from '../../ast/statements/assignment-statement';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 import FunctionDefinitionVisitor from './function-definition-visitor';
 import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor'
 
 /**
  * Assignment statement source generation visitor
@@ -65,6 +66,8 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
             child.accept(new FunctionDefinitionVisitor(this));
         } else if (ASTFactory.isActionInvocationExpression(rightExpression)) {
             rightExpression.accept(new ActionInvocationStatementVisitor(this));
+        } else if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
+            // TODO: remove this by moving all visitors to functions.
         } else if (!_.isNil(rightExpression)) {
             const expressionStr = rightExpression.getExpressionString();
             constructedSourceSegment += expressionStr;
@@ -72,6 +75,10 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+    }
+
+    visitFuncInvocationExpression(node) {
+        node.accept(new FunctionInvocationExpressionVisitor(this));
     }
 
     /**

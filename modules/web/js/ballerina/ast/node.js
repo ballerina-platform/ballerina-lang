@@ -74,7 +74,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Get the node's view state
-     * @return {{bBox: BBox}} node's view state
+     * @return {{bBox: SimpleBBox}} node's view state
      */
     getViewState() {
         return this.viewState;

@@ -227,11 +227,8 @@ class AssignmentStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
-        let lambdaFunc = null;
-        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)
-            && BallerinaASTFactory.isLambdaExpression(rightExpression.getConnectorExpression())) {
-            lambdaFunc = rightExpression.getConnectorExpression().getLambdaFunction();
-        }
+        const lambdaFunc = model.getLambdaChildren().map(f =>
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
 
         return (
             <g>
@@ -259,9 +256,7 @@ class AssignmentStatement extends React.Component {
                     </g>
                     }
                 </StatementDecorator>
-                {lambdaFunc &&
-                <FunctionDefinition model={lambdaFunc} />
-                }
+                {lambdaFunc}
                 {connectorDeclaration}
             </g>);
     }

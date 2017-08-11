@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
-
+import ASTFactory from './../../ast/ballerina-ast-factory';
 /**
  * Position visitor class for Function Definition.
  *
@@ -37,6 +37,22 @@ class FunctionDefinitionPositionCalcVisitor {
     canVisit() {
         log.debug('can visit FunctionDefinitionPositionCalc');
         return true;
+    }
+
+    /**
+     *
+     * @param {ASTNode} node
+     * @private
+     */
+    static findParent(node) {
+        const p = node.getParent();
+        if (!p) {
+            return null;
+        }
+        if (ASTFactory.isAssignmentStatement(p) || ASTFactory.isVariableDefinitionStatement(p)) {
+            return p;
+        }
+        return this.findParent(p);
     }
 
     /**
@@ -60,8 +76,18 @@ class FunctionDefinitionPositionCalcVisitor {
             workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
         }
         if (node.isLambda()) {
-            const parentViewState = node.getParent().getParent().getViewState();
-            viewState.bBox.y = parentViewState.bBox.getBottom() - viewState.bBox.h;
+            const parent = this.constructor.findParent(node);
+            const lambdaChildren = parent.getLambdaChildren();
+            const i = lambdaChildren.indexOf(node);
+            const parentViewState = parent.getViewState();
+
+            if (i > 0) {
+                viewState.bBox.y = lambdaChildren[i - 1].getViewState().bBox.getBottom();
+            } else {
+                viewState.bBox.y = parentViewState.bBox.getTop() + DesignerDefaults.statement.height
+                    + DesignerDefaults.statement.gutter.v;
+            }
+
             viewState.bBox.x = parentViewState.bBox.x;
             viewState.components.body.y = viewState.bBox.y;
             viewState.components.body.x = viewState.bBox.x;

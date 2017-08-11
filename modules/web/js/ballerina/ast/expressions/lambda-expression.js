@@ -43,6 +43,16 @@ class LambdaExpression extends Expression {
         });
     }
 
+    /**
+     * @param {string} statementString
+     * @param {[FunctionDefinition]} lambdaChildren
+     */
+    static replaceSymbol(statementString, lambdaChildren) {
+        let i = 0;
+        return statementString.replace(/ƒ/g,
+            () => (lambdaChildren.length > i ? lambdaChildren[i++].getViewState().source : 'function(){}'));
+    }
+
     setExpressionFromString(expression, callback) {
     }
 
@@ -51,7 +61,7 @@ class LambdaExpression extends Expression {
     }
 
     /**
-     * 
+     *
      * @return {FunctionDefinition}
      */
     getLambdaFunction() {

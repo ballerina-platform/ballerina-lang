@@ -22,6 +22,8 @@ import CommonUtils from '../../utils/common-utils';
 import VariableDeclaration from './../variable-declaration';
 import FragmentUtils from '../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import LambdaExpression from '../expressions/lambda-expression';
 
 /**
  * Class to represent an Variable Definition statement.
@@ -196,13 +198,8 @@ class VariableDefinitionStatement extends Statement {
      * @override
      */
     setStatementFromString(stmtString, callback) {
-        // TODO: multiple lambdas
-        const lambdaChildrend = this.filterChildren(this.getFactory().isLambdaExpression);
-        let lambdaSource;
-        if (lambdaChildrend.length > 0) {
-            lambdaSource = lambdaChildrend[0].getLambdaFunction().viewState.source;
-        }
-        const fragment = FragmentUtils.createStatementFragment(stmtString.replace('ƒ', lambdaSource) + ';');
+        const replaced = LambdaExpression.replaceSymbol(stmtString, this.getLambdaChildren());
+        const fragment = FragmentUtils.createStatementFragment(replaced + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {
@@ -325,6 +322,22 @@ class VariableDefinitionStatement extends Statement {
                 }],
             });
         }
+    }
+
+    /**
+     * @returns {[FunctionDefinition]} lambda
+     */
+    getLambdaChildren() {
+        // TODO: remove after making connector expression a child of RHS
+        const rightExpression = this.getRightExpression();
+        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)
+            && BallerinaASTFactory.isLambdaExpression(rightExpression.getConnectorExpression())) {
+            return [rightExpression.getConnectorExpression().getLambdaFunction()];
+        }
+
+        const deepFilterChildren = x =>
+            (BallerinaASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
+        return _.flatMapDeep(deepFilterChildren(this)).map(l => l.getLambdaFunction());
     }
 
 
