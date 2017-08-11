@@ -118,6 +118,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -188,6 +189,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
+    private int failedBlockCount = 0;
     private boolean isWithinWorker = false;
     private SymbolScope currentScope;
     private SymbolScope currentPackageScope;
@@ -1191,6 +1193,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
             }
 
+            if (stmt instanceof RetryStmt && failedBlockCount < 1) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.RETRY_STMT_NOT_ALLOWED_HERE);
+            }
+
+
             if (isWithinWorker) {
                 if (stmt instanceof ReplyStmt) {
                     BLangExceptionHelper.throwSemanticError(stmt,
@@ -1203,7 +1211,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (stmt instanceof BreakStmt || stmt instanceof ContinueStmt || stmt instanceof ReplyStmt ||
-                    stmt instanceof AbortStmt) {
+                    stmt instanceof AbortStmt || stmt instanceof RetryStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
 
@@ -1510,6 +1518,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
         transactionStmtCount--;
+        TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
+        if (failedBlock != null) {
+            failedBlockCount++;
+            failedBlock.getFailedBlockStmt().accept(this);
+            failedBlockCount--;
+        }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {
             abortedBlock.getAbortedBlockStmt().accept(this);
@@ -1523,6 +1537,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AbortStmt abortStmt) {
 
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+        retryStmt.getRetryCountExpression().accept(this);
+        checkRetryStmtValidity(retryStmt);
     }
 
     @Override
@@ -1979,20 +1999,29 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BType inheritedType = connectorInitExpr.getInheritedType();
+        boolean isFilterConnector = ((BallerinaConnectorDef) inheritedType).isFilterConnector();
         if (!(inheritedType instanceof BallerinaConnectorDef)) {
             BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED);
         }
         connectorInitExpr.setType(inheritedType);
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
 
-        for (Expression argExpr : connectorInitExpr.getArgExprs()) {
+        // if this is a normal connector, arguments count should match to the parameter defs count.
+        // if this is a filter connector, arguments count should be one less than the parameter defs count.
+        if ((!isFilterConnector && argExprs.length != parameterDefs.length)
+                || (isFilterConnector && argExprs.length != parameterDefs.length - 1)) {
+            BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.ARGUMENTS_COUNT_MISMATCH,
+                    parameterDefs.length, argExprs.length);
+        }
+
+        for (Expression argExpr : argExprs) {
             visitSingleValueExpr(argExpr);
         }
 
-        Expression[] argExprs = connectorInitExpr.getArgExprs();
-        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
         for (int i = 0; i < argExprs.length; i++) {
             int j = i;
-            if (((BallerinaConnectorDef) inheritedType).isFilterConnector()) {
+            if (isFilterConnector) {
                 j += 1;
             }
             SimpleTypeName simpleTypeName = parameterDefs[j].getTypeName();
@@ -2000,7 +2029,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDefs[j].setType(paramType);
 
             Expression argExpr = argExprs[i];
-            if (!(parameterDefs[j].getType().equals(argExpr.getType()))) {
+            AssignabilityResult result = performAssignabilityCheck(parameterDefs[j].getType(), argExpr);
+            if (result.expression != null) {
+                argExprs[i] = result.expression;
+            } else if (!result.assignable) {
                 BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         parameterDefs[j].getType(), argExpr.getType());
             }
@@ -4126,6 +4158,34 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
             parent = parent.getParent();
+        }
+    }
+
+    private static void checkRetryStmtValidity(RetryStmt stmt) {
+        //Check whether the retry statement is root level statement in the failed block
+        StatementKind parentStmtType = stmt.getParent().getKind();
+        if (StatementKind.FAILED_BLOCK != parentStmtType) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_STMT_LOCATION);
+        }
+        //Only non negative integer constants and integer literals are allowed as retry count;
+        Expression retryCountExpr = stmt.getRetryCountExpression();
+        boolean error = true;
+        if (retryCountExpr instanceof BasicLiteral) {
+            if (retryCountExpr.getType().getTag() == TypeTags.INT_TAG) {
+                if (((BasicLiteral) retryCountExpr).getBValue().intValue() >= 0) {
+                    error = false;
+                }
+            }
+        } else if (retryCountExpr instanceof VariableReferenceExpr) {
+            VariableDef variableDef = ((SimpleVarRefExpr) retryCountExpr).getVariableDef();
+            if (variableDef.getKind() == VariableDef.Kind.CONSTANT) {
+                if (variableDef.getType().getTag() == TypeTags.INT_TAG) {
+                    error = false;
+                }
+            }
+        }
+        if (error) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_COUNT);
         }
     }
 

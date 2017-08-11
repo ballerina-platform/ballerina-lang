@@ -19,12 +19,12 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public abstract class Node {
         boolean isOptionsRequest = false;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : resources) {
-            if (isMatchingMethodExist(resourceInfo, httpMethod)) {
+            if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 resource = resourceInfo;
                 break;
             }
@@ -160,10 +160,10 @@ public abstract class Node {
             isFirstTraverse = false;
             return;
         }
-        String[] newMethods = getHttpMethods(newResource);
+        String[] newMethods = DispatcherUtil.getHttpMethods(newResource);
         if (newMethods == null) {
             for (ResourceInfo previousResource : this.resource) {
-                if (getHttpMethods(previousResource) == null) {
+                if (DispatcherUtil.getHttpMethods(previousResource) == null) {
                     //if both resources do not have methods but same URI, then throw following error.
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
                             + previousResource.getName() + " and " + newResource.getName());
@@ -174,7 +174,7 @@ public abstract class Node {
         }
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
-                if (isMatchingMethodExist(r, newMethod)) {
+                if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
                             + r.getName() + " and " + newResource.getName());
                 }
@@ -182,36 +182,6 @@ public abstract class Node {
         });
         this.resource.add(newResource);
     }
-
-    public boolean isMatchingMethodExist(ResourceInfo resourceInfo, String method) {
-        String[] rHttpMethods = getHttpMethods(resourceInfo);
-        if (rHttpMethods == null) {
-            return false;
-        }
-        for (String value : rHttpMethods) {
-            if (value.equals(method)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String[] getHttpMethods(ResourceInfo resourceInfo) {
-        AnnAttachmentInfo rConfigAnnAtchmnt = resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnAtchmnt == null) {
-            return null;
-        }
-
-        AnnAttributeValue methodsAttrVal = rConfigAnnAtchmnt
-                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_METHODS);
-        if (methodsAttrVal == null) {
-            return null;
-        }
-        return getStringArray(methodsAttrVal.getAttributeValueArray());
-    }
-
-
 
     abstract String expand(Map<String, String> variables);
 
@@ -276,7 +246,7 @@ public abstract class Node {
 
     private ResourceInfo tryMatchingToDefaultVerb(String method) {
         for (ResourceInfo resourceInfo : this.resource) {
-            if (getHttpMethods(resourceInfo) == null) {
+            if (DispatcherUtil.getHttpMethods(resourceInfo) == null) {
                 return resourceInfo;
             }
         }
@@ -303,7 +273,7 @@ public abstract class Node {
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
-        String[] consumesList  = getConsumerList(resource);
+        String[] consumesList  = DispatcherUtil.getConsumerList(resource);
 
         if (consumesList != null) {
             //when Content-Type header is not set, treat it as "application/octet-stream"
@@ -322,20 +292,6 @@ public abstract class Node {
         return resource;
     }
 
-    private String[] getConsumerList(ResourceInfo resourceInfo) {
-        AnnAttachmentInfo rConfigAnnAtchmnt = resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnAtchmnt == null) {
-            return null;
-        }
-        AnnAttributeValue consumesAttrVal = rConfigAnnAtchmnt
-                        .getAttributeValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
-        if (consumesAttrVal == null) {
-            return null;
-        }
-        return getStringArray(consumesAttrVal.getAttributeValueArray());
-    }
-
     private String extractContentMediaType(String header) {
         if (header == null) {
             return null;
@@ -350,7 +306,7 @@ public abstract class Node {
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
-        String[] producesList = getProducesList(resource);
+        String[] producesList = DispatcherUtil.getProducesList(resource);
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
         if (producesList != null && acceptMediaTypes != null) {
@@ -396,20 +352,6 @@ public abstract class Node {
         return resource;
     }
 
-    private String[] getProducesList(ResourceInfo resourceInfo) {
-        AnnAttachmentInfo rConfigAnnAtchmnt = resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnAtchmnt == null) {
-            return null;
-        }
-        AnnAttributeValue producesAttrVal = rConfigAnnAtchmnt
-                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
-        if (producesAttrVal == null) {
-            return null;
-        }
-        return getStringArray(producesAttrVal.getAttributeValueArray());
-    }
-
     private List<String> extractAcceptMediaTypes(String header) {
         List<String> acceptMediaTypes = new ArrayList();
         if (header == null) {
@@ -429,13 +371,5 @@ public abstract class Node {
             }
         }
         return acceptMediaTypes;
-    }
-
-    private String[] getStringArray(AnnAttributeValue[] annAttributeValues) {
-        String[] values = new String[annAttributeValues.length];
-        for (int i = 0; i < annAttributeValues.length; i++) {
-            values[i] = annAttributeValues[i].getStringValue();
-        }
-        return values;
     }
 }

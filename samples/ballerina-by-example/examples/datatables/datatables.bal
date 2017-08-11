@@ -17,9 +17,9 @@ struct Employee {
 function main (string[] args) {
     //Create a SQL connector by providing the required database connection
     //pool properties.
-    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
-                    "username":"root", "password":"root"};
-    sql:ClientConnector empDB = create sql:ClientConnector(props);
+    sql:ConnectionProperties Properties = {maximumPoolSize:5};
+    sql:ClientConnector empDB = create sql:ClientConnector(
+      sql:MYSQL, "localhost", 3306, "db", "sa", "root", Properties);
     //Query the table using SQL connector select action. Either select or call
     //action can return a datatable.
     sql:Parameter[] params = [];
