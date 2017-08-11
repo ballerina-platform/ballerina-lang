@@ -19,11 +19,12 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
-import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
@@ -293,7 +294,7 @@ public abstract class Node {
     private String getAllowHeaderValues() {
         List<String> methods = new ArrayList<>();
         for (ResourceInfo resourceInfo : this.resource) {
-            methods.addAll(Arrays.stream(resourceInfo.getHttpMethods()).collect(Collectors.toList()));
+            methods.addAll(Arrays.stream(getHttpMethods(resourceInfo)).collect(Collectors.toList()));
         }
         URIUtil.validateAllowMethods(methods);
         return URIUtil.concatValues(methods);

@@ -32,7 +32,10 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -92,8 +95,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             if (cMsg.getHeader(Constants.ALLOW) != null) {
                 response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
             } else if (URIUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
-                if (!service.getCachedMethods().isEmpty()) {
-                    response.setHeader(Constants.ALLOW, URIUtil.concatValues(service.getCachedMethods()));
+                if (!getAllResourceMethods(service).isEmpty()) {
+                    response.setHeader(Constants.ALLOW, URIUtil.concatValues(getAllResourceMethods(service)));
                 }
             } else {
                 cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
@@ -109,4 +112,16 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
         }
     }
-}
+
+    private static List<String> getAllResourceMethods(ServiceInfo service) {
+        List<String> cachedMethods = new ArrayList();
+        for (ResourceInfo resource : service.getResourceInfoEntries()) {
+            if (getHttpMethods(resource) == null) {
+                cachedMethods = URIUtil.addAllMethods();
+                break;
+            } else {
+                cachedMethods.addAll(Arrays.asList(getHttpMethods(resource)));
+            }
+        }
+        return URIUtil.validateAllowMethods(cachedMethods);
+    }

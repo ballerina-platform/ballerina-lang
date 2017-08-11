@@ -128,7 +128,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         String basePath = URIUtil.getServiceBasePath(service);
         sortedServiceURIs.add(basePath);
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
-        service.setCachedMethods();
     }
 
     @Override
