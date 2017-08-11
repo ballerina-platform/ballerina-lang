@@ -151,14 +151,13 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     addValueTypesAsLookups(result);
                     addReferenceTypesAsLookups(result);
 
-                    addCommonKeywords(result);
                     if (definitionNode instanceof FunctionDefinitionNode) {
                         result.addAllElements(getFunctionSpecificKeywords());
                     }
                     if (definitionNode instanceof ResourceDefinitionNode) {
                         result.addAllElements(getResourceSpecificKeywords());
                     }
-                    result.addAllElements(createCommonKeywords());
+                    result.addAllElements(getCommonKeywords());
                 }
                 if (prevVisibleSibling == null
                         || !(prevVisibleSibling.getParent() instanceof AnnotationAttachmentNode)) {
@@ -199,7 +198,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                         addReferenceTypesAsLookups(result);
 
                         result.addAllElements(getFunctionSpecificKeywords());
-                        result.addAllElements(createCommonKeywords());
+                        result.addAllElements(getCommonKeywords());
                         result.addAllElements(getValueKeywords());
                     }
 
