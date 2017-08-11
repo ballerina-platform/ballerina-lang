@@ -10,6 +10,7 @@ struct Person {
     any a;
     float score;
     boolean alive;
+    Person[] children;
 }
 
 struct Student {
@@ -105,8 +106,24 @@ function testIncompatibleMapToStruct() (Person) {
     int[] marks = [87,94,72];
     map m = { name:"Child", 
                age:25, 
-               address:{"city":"Colombo", "country":"SriLanka"}, 
+               address:{"city":"Colombo", "country":"SriLanka"},
                info:{status:"single"},
+               marks:marks
+             };
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> m;
+    if (e != null) {
+        throw e;
+    }
+    return p;
+}
+
+function testMapWithMissingFieldsToStruct() (Person) {
+    int[] marks = [87,94,72];
+    map m = { name:"Child", 
+               age:25, 
+               address:{"city":"Colombo", "country":"SriLanka"}, 
                marks:marks
              };
     Person p;
@@ -581,6 +598,7 @@ struct StructWithDefaults {
     float f = 5.3;
     boolean b = true;
     json j;
+    blob blb;
 }
 
 function testEmptyJSONtoStructWithDefaults() (StructWithDefaults) {
@@ -596,11 +614,26 @@ struct StructWithoutDefaults {
     float f;
     boolean b;
     json j;
+    blob blb;
 }
 
 function testEmptyJSONtoStructWithoutDefaults() (StructWithoutDefaults) {
     json j = {};
     var testStruct, _ = <StructWithoutDefaults> j;
+    
+    return testStruct;
+}
+
+function testEmptyMaptoStructWithDefaults() (StructWithDefaults) {
+    map m = {};
+    var testStruct, _ = <StructWithDefaults> m;
+    
+    return testStruct;
+}
+
+function testEmptyMaptoStructWithoutDefaults() (StructWithoutDefaults) {
+    map m = {};
+    var testStruct, _ = <StructWithoutDefaults> m;
     
     return testStruct;
 }

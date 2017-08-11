@@ -95,7 +95,8 @@ public final class BStruct implements BRefType, StructureType {
             } else if (fieldType == BTypes.typeBoolean) {
                 fieldVal = intFields[intIndex++] == 1;
             } else if (fieldType == BTypes.typeBlob) {
-                fieldVal = new String(byteFields[byteIndex++]);
+                byte[] blob = byteFields[byteIndex++];
+                fieldVal = blob == null ? null : new String(blob);
             } else {
                 BValue val = refFields[refValIndex++];
                 fieldVal = val == null ? null : val.stringValue();

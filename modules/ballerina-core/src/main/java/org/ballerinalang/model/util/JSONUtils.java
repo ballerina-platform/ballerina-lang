@@ -701,79 +701,78 @@ public class JSONUtils {
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
-            if (!jsonNode.has(fieldName)) {
-                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
-                        AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+            try {
+                boolean containsField = jsonNode.has(fieldName);
+                DefaultValueAttributeInfo defaultValAttrInfo = null;
+                JsonNode jsonValue = null;
+
+                if (containsField) {
+                    jsonValue = jsonNode.get(fieldName);
+                } else {
+                    defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
+                            AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                }
                 switch (fieldType.getTag()) {
-                    case TypeTags.STRING_TAG:
-                        stringRegIndex++;
-                        if (defaultValAttrInfo == null) {
-                            break;
-                        }
-                        bStruct.setStringField(stringRegIndex, defaultValAttrInfo.getDefaultValue().getStringValue());
-                        break;
                     case TypeTags.INT_TAG:
                         longRegIndex++;
-                        if (defaultValAttrInfo == null) {
-                            break;
+                        if (containsField) {
+                            bStruct.setIntField(longRegIndex, jsonNodeToInt(jsonValue));
                         }
-                        bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
+                        }
                         break;
                     case TypeTags.FLOAT_TAG:
                         doubleRegIndex++;
-                        if (defaultValAttrInfo == null) {
-                            break;
+                        if (containsField) {
+                            bStruct.setFloatField(doubleRegIndex, jsonNodeToFloat(jsonValue));
                         }
-                        bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
+                        }
+                        break;
+                    case TypeTags.STRING_TAG:
+                        stringRegIndex++;
+                        if (containsField) {
+                            String stringVal;
+                            if (jsonValue.isTextual()) {
+                                stringVal = jsonValue.textValue();
+                            } else {
+                                stringVal = jsonValue.toString();
+                            }
+                            bStruct.setStringField(stringRegIndex, stringVal);
+                        }
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setStringField(stringRegIndex,
+                                    defaultValAttrInfo.getDefaultValue().getStringValue());
+                        }
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         booleanRegIndex++;
-                        if (defaultValAttrInfo == null) {
+                        if (containsField) {
+                            bStruct.setBooleanField(booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
+                        }
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setBooleanField(booleanRegIndex,
+                                    defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
+                        }
+                        break;
+                    default:
+                        refRegIndex++;
+                        if (!containsField) {
                             break;
                         }
-                        bStruct.setBooleanField(booleanRegIndex,
-                                defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
-                        break;
-                    default:
-                        ++refRegIndex;
-                        break;
-                }
-                continue;
-            }
-
-            try {
-                JsonNode jsonValue = jsonNode.get(fieldName);
-                switch (fieldType.getTag()) {
-                    case TypeTags.INT_TAG:
-                        bStruct.setIntField(++longRegIndex, jsonNodeToInt(jsonValue));
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        bStruct.setFloatField(++doubleRegIndex, jsonNodeToFloat(jsonValue));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        String stringVal;
-                        if (jsonValue.isTextual()) {
-                            stringVal = jsonValue.textValue();
-                        } else {
-                            stringVal = jsonValue.toString();
-                        }
-                        bStruct.setStringField(++stringRegIndex, stringVal);
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        bStruct.setBooleanField(++booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
-                        break;
-                    default:
                         if ((jsonValue == null || jsonValue.isNull())) {
-                            bStruct.setRefField(++refRegIndex, null);
+                            bStruct.setRefField(refRegIndex, null);
                         } else if (fieldType instanceof BJSONType || fieldType instanceof BAnyType) {
-                            bStruct.setRefField(++refRegIndex, new BJSON(jsonValue));
+                            bStruct.setRefField(refRegIndex, new BJSON(jsonValue));
                         } else if (fieldType instanceof BMapType) {
-                            bStruct.setRefField(++refRegIndex, jsonNodeToBMap(jsonValue));
+                            bStruct.setRefField(refRegIndex, jsonNodeToBMap(jsonValue));
                         } else if (fieldType instanceof BStructType) {
-                            bStruct.setRefField(++refRegIndex,
+                            bStruct.setRefField(refRegIndex,
                                     convertJSONNodeToStruct(jsonValue, (BStructType) fieldType, pkgInfo));
                         } else if (fieldType instanceof BArrayType) {
-                            bStruct.setRefField(++refRegIndex,
+                            bStruct.setRefField(refRegIndex,
                                     jsonNodeToBArray(jsonValue, (BArrayType) fieldType, pkgInfo));
                         } else {
                             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,

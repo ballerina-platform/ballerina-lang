@@ -3245,54 +3245,78 @@ public class BLangVM {
         int refRegIndex = -1;
         BStructType structType = (BStructType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
+        StructInfo structInfo = sf.packageInfo.getStructInfo(structType.getName());
 
         Set<String> keys = bMap.keySet();
-        for (BStructType.StructField structField : structType.getStructFields()) {
-            String key = structField.getFieldName();
-            BType fieldType = structField.getFieldType();
-            BValue mapVal;
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            String key = fieldInfo.getName();
+            BType fieldType = fieldInfo.getFieldType();
+            BValue mapVal = null;
             try {
-                if (!keys.contains(key)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD, key);
-                }
+                boolean containsField = keys.contains(key);
+                DefaultValueAttributeInfo defaultValAttrInfo = null;
+                if (containsField) {
+                    mapVal = bMap.get(key);
+                    if (mapVal == null && BTypes.isValueType(fieldType)) {
+                        throw BLangExceptionHelper.getRuntimeException(
+                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
+                    }
 
-                mapVal = bMap.get(key);
-                if (mapVal == null && BTypes.isValueType(fieldType)) {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
-                }
-
-                if (mapVal != null && !checkCast(mapVal, fieldType)) {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
+                    if (mapVal != null && !checkCast(mapVal, fieldType)) {
+                        throw BLangExceptionHelper.getRuntimeException(
+                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
+                    }
+                } else {
+                    defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
+                            AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
                 }
 
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        if (mapVal != null) {
-                            bStruct.setIntField(++longRegIndex, ((BInteger) mapVal).intValue());
+                        longRegIndex++;
+                        if (containsField) {
+                            bStruct.setIntField(longRegIndex, ((BInteger) mapVal).intValue());
+                            break;
+                        }
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
                         }
                         break;
                     case TypeTags.FLOAT_TAG:
-                        if (mapVal != null) {
-                            bStruct.setFloatField(++doubleRegIndex, ((BFloat) mapVal).floatValue());
+                        doubleRegIndex++;
+                        if (containsField) {
+                            bStruct.setFloatField(doubleRegIndex, ((BFloat) mapVal).floatValue());
+                            break;
+                        }
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
                         }
                         break;
                     case TypeTags.STRING_TAG:
-                        if (mapVal != null) {
-                            bStruct.setStringField(++stringRegIndex, ((BString) mapVal).stringValue());
-                        } else {
-                            bStruct.setStringField(++stringRegIndex, "");
+                        stringRegIndex++;
+                        if (containsField) {
+                            bStruct.setStringField(stringRegIndex, ((BString) mapVal).stringValue());
+                            break;
+                        }
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setStringField(stringRegIndex,
+                                    defaultValAttrInfo.getDefaultValue().getStringValue());
                         }
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        if (mapVal != null) {
-                            bStruct.setBooleanField(++booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
+                        booleanRegIndex++;
+                        if (containsField) {
+                            bStruct.setBooleanField(booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
+                        }
+                        if (defaultValAttrInfo != null) {
+                            bStruct.setBooleanField(booleanRegIndex,
+                                    defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
                         }
                         break;
                     case TypeTags.BLOB_TAG:
-                        if (mapVal != null) {
-                            bStruct.setBlobField(++blobRegIndex, ((BBlob) mapVal).blobValue());
+                        blobRegIndex++;
+                        if (containsField && mapVal != null) {
+                            bStruct.setBlobField(blobRegIndex, ((BBlob) mapVal).blobValue());
                         }
                         break;
                     default:

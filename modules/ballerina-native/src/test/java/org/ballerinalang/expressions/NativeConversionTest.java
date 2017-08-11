@@ -217,13 +217,23 @@ public class NativeConversionTest {
     public void testMapToJsonConversionError() {
         BTestUtils.getProgramFile("lang/expressions/btype/conversion/map-to-json-conversion-error.bal");
     }
-    
-    @Test(description = "Test converting a map with missing field to a struct", 
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Person: error while " +
-                    "mapping 'parent': no such field found.*")
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Person: error while mapping 'info': " + 
+            "incompatible types: expected 'json', found 'map'.*")
     public void testIncompatibleMapToStruct() {
         BLangFunctions.invokeNew(programFile, "testIncompatibleMapToStruct");
+    }
+
+    @Test(description = "Test converting a map with missing field to a struct")
+    public void testMapWithMissingFieldsToStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMapWithMissingFieldsToStruct");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct personStruct = (BStruct) returns[0];
+
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\",age:25,parent:null,info:null," + 
+                "address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72],a:null,score:0.0," + 
+                "alive:false,children:null}");
     }
 
     @Test(description = "Test converting a map with incompatible inner array to a struct", 
@@ -258,7 +268,7 @@ public class NativeConversionTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToStructWithMissingFields");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\",age:25,parent:null,info:" + 
                 "{\"status\":\"single\"},address:{\"city\":\"Colombo\",\"country\":\"SriLanka\"},marks:[87,94,72]," +
-                "a:null,score:0.0,alive:false}");
+                "a:null,score:0.0,alive:false,children:null}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
@@ -469,13 +479,27 @@ public class NativeConversionTest {
     public void testEmptyJSONtoStructWithDefaults() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null,blb:null}");
     }
 
     @Test
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null,blb:null}");
+    }
+    
+    @Test
+    public void testEmptyMaptoStructWithDefaults() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyMaptoStructWithDefaults");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\",a:45,f:5.3,b:true,j:null,blb:null}");
+    }
+
+    @Test
+    public void testEmptyMaptoStructWithoutDefaults() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyMaptoStructWithoutDefaults");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\",a:0,f:0.0,b:false,j:null,blb:null}");
     }
 }
