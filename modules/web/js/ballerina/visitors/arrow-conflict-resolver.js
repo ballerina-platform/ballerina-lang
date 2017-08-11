@@ -53,6 +53,7 @@ class ArrowConflictResolver {
      */
     startWorker() {
         this.offSet = 0;
+        this.connectors = [];
     }
 
     canVisit() {
@@ -70,6 +71,15 @@ class ArrowConflictResolver {
             ASTFactory.isResourceDefinition(node) ||
             ASTFactory.isConnectorAction(node)) {
             this.startGrid();
+        }
+        // lets collect the connector declarations for this worker.
+        if (ASTFactory.isConnectorDeclaration(node)) {
+            this.connectors.push(node.getIdentifire());
+        }
+        // If the connector is declaired in the worker lets not mark it as an arrow.
+        if (ASTFactory.isActionInvocationStatement(node)||
+            ASTFactory.isVariableDefinitionStatement(node)) {
+            node.viewState.components['statement-box'].arrow = false;
         }
         // if a worker is found init a new active line
         if (ASTFactory.isWorkerDeclaration(node)) {
