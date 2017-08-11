@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -183,6 +184,12 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         }
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
+
+        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))) {
+            p.addLast(Constants.HTTP_TRACE_LOGGING_HANDLER,
+                      new HTTPTraceLoggingHandler("wirelog.http.downstream", LogLevel.DEBUG));
+        }
+
         try {
             int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(120000);
             p.addLast(Constants.IDLE_STATE_HANDLER,

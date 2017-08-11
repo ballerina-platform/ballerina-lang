@@ -16,6 +16,7 @@
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -31,6 +32,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -188,13 +190,29 @@ public class ConnectionManager {
                 targetHandler.setConnectionManager(connectionManager);
                 targetHandler.setTargetChannel(targetChannel);
                 int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-                targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
-                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
+
+                ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
+                pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
+                                       new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
+                                                            TimeUnit.MILLISECONDS));
+                if (sourceHandler != null && pipeline.get(Constants.HTTP_TRACE_LOGGING_HANDLER) != null) {
+                    HTTPTraceLoggingHandler loggingHandler
+                            = (HTTPTraceLoggingHandler) pipeline.get(Constants.HTTP_TRACE_LOGGING_HANDLER);
+                    loggingHandler.setCorrelatedSourceId(
+                                sourceHandler.getInboundChannelContext().channel().id().asShortText());
+
+                }
+
                 targetChannel.setRequestWritten(true);
                 ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage);
             }
         } catch (Exception e) {
-            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            String msg;
+            if (e.getMessage() != null) {
+                msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            } else {
+                msg = "Failed to send the request.";
+            }
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             carbonMessage.setMessagingException(messagingException);
