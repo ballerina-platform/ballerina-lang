@@ -2020,6 +2020,69 @@ public class SequenceTestCase {
     }
 
     @Test
+    public void testQuery32() throws InterruptedException {
+        log.info("testQuery32 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); " +
+                "define stream Stream2 (symbol string, price float, volume int); " +
+                "define stream Stream3 (symbol string, price float, volume int); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from e1=Stream1[price >20] and e2=Stream2['IBM' == symbol], " +
+                "e3=Stream3['WSO2' == symbol]" +
+                "select e1.price as price1, e2.price as price2, e3.price as price3 " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                    switch (inEventCount) {
+                        case 1:
+                            Assert.assertArrayEquals(new Object[]{25.5f, 45.5f, 46.56f}, inEvents[0].getData());
+                            break;
+                        default:
+                            Assert.assertEquals("Number of success events", 1, inEventCount);
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
+        InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
+
+        siddhiAppRuntime.start();
+
+        stream1.send(new Object[]{"IBM", 25.5f, 100});
+        Thread.sleep(100);
+        stream2.send(new Object[]{"IBM", 45.5f, 100});
+        Thread.sleep(100);
+        stream3.send(new Object[]{"WSO2", 46.56f, 100});
+        Thread.sleep(100);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test
     public void testTimeBatchAndSequence() throws Exception {
         log.info("testTimeBatchAndSequence  OUT 1");
         SiddhiManager siddhiManager = new SiddhiManager();

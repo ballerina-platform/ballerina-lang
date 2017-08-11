@@ -199,7 +199,8 @@ join_source
     ;
 
 pattern_stream
-    :every_pattern_source_chain
+    : every_pattern_source_chain
+    | absent_pattern_source_chain
     ;
 
 every_pattern_source_chain
@@ -211,19 +212,61 @@ every_pattern_source_chain
     ;
 
 pattern_source_chain
-    : '('pattern_source_chain')' within_time? 
+    : '('pattern_source_chain')' within_time?
     | pattern_source_chain  '->' pattern_source_chain
-    | pattern_source within_time? 
+    | pattern_source within_time?
+    ;
+
+absent_pattern_source_chain
+    : EVERY? '('absent_pattern_source_chain')' within_time?
+    | every_absent_pattern_source
+    | left_absent_pattern_source
+    | right_absent_pattern_source
+    ;
+
+left_absent_pattern_source
+    : EVERY? '('left_absent_pattern_source')' within_time?
+    | every_absent_pattern_source '->' every_pattern_source_chain
+    | left_absent_pattern_source '->' left_absent_pattern_source
+    | left_absent_pattern_source '->' every_absent_pattern_source
+    | every_pattern_source_chain '->' left_absent_pattern_source
+    ;
+
+right_absent_pattern_source
+    : EVERY? '('right_absent_pattern_source')' within_time?
+    | every_pattern_source_chain '->' every_absent_pattern_source
+    | right_absent_pattern_source '->' right_absent_pattern_source
+    | every_absent_pattern_source '->' right_absent_pattern_source
+    | right_absent_pattern_source '->' every_pattern_source_chain
     ;
 
 pattern_source
-    :logical_stateful_source|pattern_collection_stateful_source|standard_stateful_source
+    :logical_stateful_source|pattern_collection_stateful_source|standard_stateful_source|logical_absent_stateful_source
     ;
 
 logical_stateful_source
-    :NOT standard_stateful_source (AND standard_stateful_source) ?
-    |standard_stateful_source AND standard_stateful_source
+    :standard_stateful_source AND standard_stateful_source
     |standard_stateful_source OR standard_stateful_source
+    ;
+
+logical_absent_stateful_source
+    : '(' logical_absent_stateful_source ')'
+    | standard_stateful_source AND NOT basic_source
+    | NOT basic_source AND standard_stateful_source
+    | standard_stateful_source AND basic_absent_pattern_source
+    | basic_absent_pattern_source AND standard_stateful_source
+    | basic_absent_pattern_source AND basic_absent_pattern_source
+    | standard_stateful_source OR basic_absent_pattern_source
+    | basic_absent_pattern_source OR standard_stateful_source
+    | basic_absent_pattern_source OR basic_absent_pattern_source
+    ;
+
+every_absent_pattern_source
+    : EVERY? basic_absent_pattern_source
+    ;
+
+basic_absent_pattern_source
+    : NOT basic_source for_time
     ;
 
 pattern_collection_stateful_source
@@ -247,7 +290,40 @@ basic_source_stream_handler
     ;
 
 sequence_stream
-    :EVERY? sequence_source  within_time?  ',' sequence_source_chain
+    :every_sequence_source_chain
+    |every_absent_sequence_source_chain
+    ;
+
+every_sequence_source_chain
+    : EVERY? sequence_source  within_time?  ',' sequence_source_chain
+    ;
+
+every_absent_sequence_source_chain
+    : EVERY? absent_sequence_source_chain  within_time? ',' sequence_source_chain
+    | EVERY? sequence_source  within_time? ',' absent_sequence_source_chain
+    ;
+
+absent_sequence_source_chain
+    : '('absent_sequence_source_chain')' within_time?
+    | basic_absent_pattern_source
+    | left_absent_sequence_source
+    | right_absent_sequence_source
+    ;
+
+left_absent_sequence_source
+    : '('left_absent_sequence_source')' within_time?
+    | basic_absent_pattern_source ',' sequence_source_chain
+    | left_absent_sequence_source ',' left_absent_sequence_source
+    | left_absent_sequence_source ',' basic_absent_pattern_source
+    | sequence_source_chain ',' left_absent_sequence_source
+    ;
+
+right_absent_sequence_source
+    : '('right_absent_sequence_source')' within_time?
+    | sequence_source_chain ',' basic_absent_pattern_source
+    | right_absent_sequence_source ',' right_absent_sequence_source
+    | basic_absent_pattern_source ',' right_absent_sequence_source
+    | right_absent_sequence_source ',' sequence_source_chain
     ;
 
 sequence_source_chain
@@ -257,7 +333,7 @@ sequence_source_chain
     ;
 
 sequence_source
-    :logical_stateful_source|sequence_collection_stateful_source|standard_stateful_source
+    :logical_stateful_source|sequence_collection_stateful_source|standard_stateful_source|logical_absent_stateful_source
     ;
 
 sequence_collection_stateful_source
@@ -326,6 +402,10 @@ output_rate_type
     : ALL
     | LAST
     | FIRST
+    ;
+
+for_time
+    : FOR time_value
     ;
 
 within_time

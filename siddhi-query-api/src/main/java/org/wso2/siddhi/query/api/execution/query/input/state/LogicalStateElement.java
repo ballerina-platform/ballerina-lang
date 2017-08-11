@@ -119,7 +119,6 @@ public class LogicalStateElement implements StateElement {
      */
     public enum Type {
         AND,
-        OR,
-        NOT
+        OR
     }
 }
