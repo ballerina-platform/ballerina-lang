@@ -39,6 +39,8 @@ import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
+import FindLineNumbersVisiter from './../visitors/find-line-numbers';
+import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -206,7 +208,13 @@ class BallerinaFileEditor extends React.Component {
      * @param {ASTNode} newAST A new AST with up-to-date position
      */
     syncASTs(currentAST, newAST) {
-        // TODO
+        const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
+        newAST.accept(findLineNumbersVisiter);
+        const lineNumbers = findLineNumbersVisiter.getLineNumbers();
+
+        const updateLineNumbersVisiter = new UpdateLineNumbersVisiter(currentAST);
+        updateLineNumbersVisiter.setLineNumbers(lineNumbers);
+        currentAST.accept(updateLineNumbersVisiter);
     }
 
     /**
