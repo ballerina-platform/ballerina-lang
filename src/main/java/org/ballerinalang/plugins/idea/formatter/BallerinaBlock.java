@@ -130,8 +130,8 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                             || parentElementType == CATCH_CLAUSE || parentElementType == FINALLY_CLAUSE
                             || parentElementType == JOIN_CLAUSE || parentElementType == TIMEOUT_CLAUSE
-                            || parentElementType == TRANSACTION_STATEMENT || parentElementType == ABORTED_CLAUSE
-                            || parentElementType == COMMITTED_CLAUSE) {
+                            || parentElementType == TRANSACTION_STATEMENT || parentElementType == FAILED_CLAUSE
+                            || parentElementType == ABORTED_CLAUSE || parentElementType == COMMITTED_CLAUSE) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == EXPRESSION_LIST) {

@@ -230,6 +230,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -445,8 +446,11 @@ transactionStatement
     ;
 
 transactionHandlers
-    : abortedClause committedClause
-    | committedClause abortedClause
+    :   failedClause abortedClause committedClause
+    ;
+
+failedClause
+    :   RIGHT_BRACE FAILED LEFT_BRACE codeBlockBody
     ;
 
 abortedClause
@@ -459,6 +463,10 @@ committedClause
 
 abortStatement
     :   ABORT SEMICOLON
+    ;
+
+retryStatement
+    :   RETRY expression SEMICOLON
     ;
 
 actionInvocation

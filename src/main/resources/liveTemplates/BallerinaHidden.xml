@@ -105,7 +105,7 @@
         </context>
     </template>
 
-    <template description='Transaction Statement' id='ballerina_lang_transaction' name='ballerina_lang_transaction'
+    <template description='Transaction clause' id='ballerina_lang_transaction' name='ballerina_lang_transaction'
               toReformat='false' toShortenFQNames='true' value='transaction {&#10;    $END$&#10;}'>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
@@ -114,7 +114,16 @@
         </context>
     </template>
 
-    <template description='Aborted Statement' id='ballerina_lang_aborted' name='ballerina_lang_aborted'
+    <template description='Failed clause' id='ballerina_lang_failed' name='ballerina_lang_failed'
+              toReformat='false' toShortenFQNames='true' value='failed {&#10;    $END$&#10;}'>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
+    <template description='Aborted clause' id='ballerina_lang_aborted' name='ballerina_lang_aborted'
               toReformat='false' toShortenFQNames='true' value='aborted {&#10;    $END$&#10;}'>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
@@ -123,7 +132,7 @@
         </context>
     </template>
 
-    <template description='Committed Statement' id='ballerina_lang_committed' name='ballerina_lang_committed'
+    <template description='Committed clause' id='ballerina_lang_committed' name='ballerina_lang_committed'
               toReformat='false' toShortenFQNames='true' value='committed {&#10;    $END$&#10;}'>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>

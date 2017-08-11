@@ -32,8 +32,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
     private static final List<String> OTHER_TYPES = Arrays.asList("any", "type");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "abort", "aborted", "committed", "try", "catch", "finally", "iterate",
-            "while", "continue", "break", "throw");
+            "worker", "transform", "transaction", "failed", "aborted", "committed", "abort", "try", "catch", "finally",
+            "iterate", "while", "continue", "break", "throw");
     private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
@@ -614,6 +614,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("iterate");
         expectedLookups.add("while");
         expectedLookups.add("committed");
+        expectedLookups.add("failed");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
