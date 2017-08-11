@@ -88,6 +88,29 @@ class TransformRender {
             ],
         });
         this.container.find('#' + self.contextMenu).hide();
+        this.jsPlumbInstance.bind('connection',function(params,ev){
+            if (!_.isUndefined(ev)) {
+              const input = params.connection.getParameters().input;
+              const output = params.connection.getParameters().output;
+              const sourceType = input.type;
+              const targetType = output.type;
+              let isValidTypes;
+
+              if (sourceType === 'struct' || targetType === 'struct') {
+                  isValidTypes = input.typeName == output.typeName;
+              } else {
+                  isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
+                    || sourceType === 'json' || targetType === 'json';
+              }
+
+              const connection = self.getConnectionObject(params.id, input, output);
+              if (isValidTypes) {
+                  self.midpoint += self.midpointVariance;
+                  self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
+                  self.onConnection(connection);
+              }
+            }
+        });
         this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
             const contextMenuDiv = this.container.find('#' + self.contextMenu);
             const anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
@@ -133,7 +156,6 @@ class TransformRender {
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
-        this.reposition(this);
         this.disconnectCallback(propertyConnection);
     // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
     // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
@@ -350,7 +372,6 @@ class TransformRender {
                 this.unmarkConnected(con.sourceId);
             }
         });
-        this.reposition(this);
     }
 
     remove(elementId) {
@@ -475,7 +496,6 @@ class TransformRender {
             });
             this.container.find('#' + jsTreeId).jstree('open_all');
             self.existingJsTrees.push(structId);
-            self.reposition(self);
             _.forEach(self.connectionPool, (conPoolObj) => {
                 let targetUUID = '';
                 let sourceUUID = '';
@@ -501,7 +521,6 @@ class TransformRender {
                 }
             });
         }).on('after_open.jstree', (event, data) => {
-            self.reposition(self);
             const parentId = data.node.id;
             const sourceElements = this.container.find('#' + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, (element) => {
@@ -509,7 +528,6 @@ class TransformRender {
             });
             self.jsPlumbInstance.repaintEverything();
         }).on('after_close.jstree', (event, data) => {
-            self.reposition(self);
             self.jsPlumbInstance.repaintEverything();
         }).on('select_node.jstree', (event, data) => {
             data.instance.deselect_node(data.node);
@@ -647,7 +665,6 @@ class TransformRender {
             this.addTarget(property, this);
         }
         this.onRemove(id, variable, removeCallback, variable.name);
-        this.reposition(this);
     }
 
 
@@ -697,8 +714,6 @@ class TransformRender {
                 const property = self.makeProperty(this.container.find('#' + jsTreeIdOut), parameter.name, parameter.type);
             });
             this.processJSTree(jsTreeIdOut, jsTreeIdOut, this.addSource);
-
-            self.reposition(this);
         }
     }
 
@@ -800,18 +815,11 @@ class TransformRender {
                 const sourceType = input.type;
                 const targetType = output.type;
                 let isValidTypes;
-
                 if (sourceType === 'struct' || targetType === 'struct') {
                     isValidTypes = input.typeName == output.typeName;
                 } else {
                     isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
                       || sourceType === 'json' || targetType === 'json';
-                }
-
-                const connection = this.getConnectionObject(params.id, input, output);
-                if (isValidTypes) {
-                    this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
-                    connection.id = this.onConnection(connection);
                 }
                 return isValidTypes;
             },
@@ -968,7 +976,8 @@ class TransformRender {
  * @param {string} viewId type mapper view identifier
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
-    reposition(self) {
+    reposition(viewId) {
+        this.viewId = viewId;
         const funcs = this.container.find('.middle-content  > .func');
         const sourceStructs = this.container.find('.leftType').find('.jtk-droppable');
         const targetStructs = this.container.find('.rightType').find('.jtk-droppable');
@@ -979,7 +988,7 @@ class TransformRender {
         const xTargetPointer = 0;
         let yTargetPointer = 0;
         const functionGap = 0;
-        const svgLines =   $('#'+this.placeHolderName+'-'+self.viewId+' > svg');
+        const svgLines =   $('#'+this.placeHolderName+'-'+viewId+' > svg');
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
             // Get bottom and right values relative to the type mapper parent div
@@ -997,8 +1006,7 @@ class TransformRender {
             this.container.find(func).css('top', yFunctionPointer + 'px');
             yFunctionPointer += this.container.find(func).height() + functionGap;
         });
-        self.jsPlumbInstance.recalculateOffsets();
-        self.jsPlumbInstance.repaintEverything();
+        this.jsPlumbInstance.repaintEverything();
     }
 
 /**
