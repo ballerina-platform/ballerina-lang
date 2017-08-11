@@ -2136,25 +2136,31 @@ public class BLangModelBuilder {
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof AssignStmt) {
-                for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
+                AssignStmt assignStmt = (AssignStmt) statement;
+                for (Expression lExpr : assignStmt.getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (Expression exp : varRefExpressions) {
                         String varName = ((SimpleVarRefExpr) exp).getVarName();
-                        if (inputs.get(varName) == null) {
-                            //if variable has not been used as an input before
-                            if (outputs.get(varName) == null) {
-                                List<Statement> stmtList = new ArrayList<>();
-                                stmtList.add(statement);
-                                outputs.put(varName, exp);
+                        if (!assignStmt.isDeclaredWithVar()) {
+                            // if lhs is declared with var, they not considered as output variables since they are
+                            // only available in transform statement scope
+                            if (inputs.get(varName) == null) {
+                                //if variable has not been used as an input before
+                                if (outputs.get(varName) == null) {
+                                    List<Statement> stmtList = new ArrayList<>();
+                                    stmtList.add(statement);
+                                    outputs.put(varName, exp);
+                                }
+                            } else {
+                                String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                     SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT,
+                                                                                            statement);
+                                errorMsgs.add(errMsg);
                             }
-                        } else {
-                            String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                  SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
-                            errorMsgs.add(errMsg);
                         }
                     }
                 }
-                Expression rExpr = ((AssignStmt) statement).getRExpr();
+                Expression rExpr = assignStmt.getRExpr();
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
                     String varName = ((SimpleVarRefExpr) exp).getVarName();
