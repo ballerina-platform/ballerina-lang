@@ -70,6 +70,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
@@ -197,8 +198,8 @@ public class BLangModelBuilder {
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     protected SymbolScope packageScope = null;
 
-    // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
-    protected SymbolScope forkJoinScope = null;
+    // This variable stack keeps the fork-join scope when adding workers and resolve back to current scope once done
+    protected Stack<SymbolScope> forkJoinScopeStack = new Stack<>();
 
     // This variable keeps the current scope when adding workers and resolve back to current scope once done
     protected Stack<SymbolScope> workerOuterBlockScope = new Stack<>();
@@ -210,7 +211,7 @@ public class BLangModelBuilder {
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
 
     protected List<String> errorMsgs = new ArrayList<>();
-    
+
     protected List<String> namespaces = new ArrayList<String>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -285,7 +286,7 @@ public class BLangModelBuilder {
                     .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
             errorMsgs.add(errMsg);
         }
-        
+
         // Check whether there is a namespace declaration with the same name
         if (namespaces.contains(importPkg.getName())) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -539,6 +540,21 @@ public class BLangModelBuilder {
         BValue value = basicLiteral.getBValue();
         annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName(), location,
                 whiteSpaceDescriptor));
+    }
+
+    /**
+     * Create a variable reference type attribute value.
+     *
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param nameReference     Name Reference value
+     */
+    public void createNameReferenceTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                      NameReference nameReference) {
+        validateAndSetPackagePath(location, nameReference);
+        SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
+        annotationAttributeValues.push(new AnnotationAttributeValue(simpleVarRefExpr, location, whiteSpaceDescriptor));
     }
 
     /**
@@ -1039,14 +1055,14 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(currentScope.getEnclosingScope());
         //setting workerOuterBlockScope if it is not a fork join statement
-        if (forkJoinScope == null) {
+        if (forkJoinScopeStack.empty()) {
             workerOuterBlockScope.push(currentScope);
         }
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
     public void addFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
-                            boolean isNative) {
+                            boolean isNative, boolean hasReturnsKeyword) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -1056,6 +1072,7 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setHasReturnsKeyword(hasReturnsKeyword);
         bFileBuilder.addFunction(function);
 
         currentScope = function.getEnclosingScope();
@@ -1126,7 +1143,7 @@ public class BLangModelBuilder {
             currentScope = workerOuterBlockScope.pop();
         } else {
             workerStack.peek().add(worker);
-            currentScope = forkJoinScope;
+            currentScope = forkJoinScopeStack.peek();
         }
 
         currentCUBuilder = parentCUBuilder.pop();
@@ -1584,7 +1601,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
-        forkJoinScope = currentScope;
+        forkJoinScopeStack.push(currentScope);
         workerStack.push(new ArrayList<>());
     }
 
@@ -1751,6 +1768,7 @@ public class BLangModelBuilder {
         }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
+        forkJoinScopeStack.pop();
 
     }
 
@@ -1975,7 +1993,7 @@ public class BLangModelBuilder {
 
     /**
      * Create a namespace declaration statement.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @param wsDescriptor Holds whitespace region data
      * @param namespaceUri Namespace URI of the namespace declaration
@@ -2010,7 +2028,7 @@ public class BLangModelBuilder {
 
     /**
      * Create an XML attributes map reference expression.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param singleAttribute Flag indicating whether this is a single attribute reference
@@ -2119,25 +2137,31 @@ public class BLangModelBuilder {
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof AssignStmt) {
-                for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
+                AssignStmt assignStmt = (AssignStmt) statement;
+                for (Expression lExpr : assignStmt.getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (Expression exp : varRefExpressions) {
                         String varName = ((SimpleVarRefExpr) exp).getVarName();
-                        if (inputs.get(varName) == null) {
-                            //if variable has not been used as an input before
-                            if (outputs.get(varName) == null) {
-                                List<Statement> stmtList = new ArrayList<>();
-                                stmtList.add(statement);
-                                outputs.put(varName, exp);
+                        if (!assignStmt.isDeclaredWithVar()) {
+                            // if lhs is declared with var, they not considered as output variables since they are
+                            // only available in transform statement scope
+                            if (inputs.get(varName) == null) {
+                                //if variable has not been used as an input before
+                                if (outputs.get(varName) == null) {
+                                    List<Statement> stmtList = new ArrayList<>();
+                                    stmtList.add(statement);
+                                    outputs.put(varName, exp);
+                                }
+                            } else {
+                                String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                     SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT,
+                                                                                            statement);
+                                errorMsgs.add(errMsg);
                             }
-                        } else {
-                            String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                  SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
-                            errorMsgs.add(errMsg);
                         }
                     }
                 }
-                Expression rExpr = ((AssignStmt) statement).getRExpr();
+                Expression rExpr = assignStmt.getRExpr();
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
                     String varName = ((SimpleVarRefExpr) exp).getVarName();
@@ -2243,7 +2267,7 @@ public class BLangModelBuilder {
 
     /**
      * Create an {@link XMLQNameExpr}.
-     *  
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param localname Local part of the qname
@@ -2258,7 +2282,7 @@ public class BLangModelBuilder {
 
     /**
      * Start an XML element literal.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attributeCount Number of attributes in the element
@@ -2306,7 +2330,7 @@ public class BLangModelBuilder {
                 contentExprs.add(items[j]);
             }
         }
-        
+
         Collections.reverse(contentExprs);
         XMLSequenceLiteral xmlSequenceExpr = new XMLSequenceLiteral(location, whiteSpaceDescriptor,
                 contentExprs.toArray(new Expression[0]));
@@ -2323,7 +2347,7 @@ public class BLangModelBuilder {
             createStringLiteral(location, whiteSpaceDescriptor, endingText);
             items.add(exprStack.pop());
         }
-        
+
         for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
             items.add(exprStack.pop());
 
@@ -2342,10 +2366,38 @@ public class BLangModelBuilder {
         exprStack.push(xmlSeqLiteral);
     }
 
+    public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                            String[] exprPrecedingTextFragments, String endingText) {
+        List<Expression> items = new ArrayList<>();
+        // First we process the last text sequence and add it to the list. Please note that the items will be added
+        // in reverse order later. So later we reverse the list.
+        if (endingText != null && !endingText.isEmpty()) {
+            createStringLiteral(location, whiteSpaceDescriptor, endingText);
+            items.add(exprStack.pop());
+        }
+        // Iterate through all of the text fragments in reverse order. We do this becase
+        for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
+            items.add(exprStack.pop());
+            String textFragment = exprPrecedingTextFragments[i];
+            // If the text fragment is empty, that means that is at the beginning. So we don't get an expression in
+            // that case.
+            if (textFragment != null && !textFragment.isEmpty()) {
+                createStringLiteral(location, whiteSpaceDescriptor, textFragment);
+                items.add(exprStack.pop());
+            }
+        }
+        // Reverse the list.
+        Collections.reverse(items);
+        // Create and add a string template literal to the expression stack.
+        StringTemplateLiteral templateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                          items.toArray(new Expression[items.size()]));
+        exprStack.push(templateLiteral);
+    }
+
     /**
      * Create a quoted literal in XML. If the literal is interpolated,
      * this will create a add expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param exprPrecedingStringFragments Array of string fragments that precede the expressions
@@ -2372,7 +2424,7 @@ public class BLangModelBuilder {
 
     /**
      * Creates an XML Text literal expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param text Text content
@@ -2385,8 +2437,24 @@ public class BLangModelBuilder {
     }
 
     /**
+     * Creates an String Template literal expression.
+     *
+     * @param location
+     * @param whiteSpaceDescriptor
+     * @param text
+     */
+    public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                            String text) {
+        createStringLiteral(location, whiteSpaceDescriptor, text);
+        Expression textLiteral = exprStack.pop();
+        StringTemplateLiteral stringTemplateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                                new Expression[]{textLiteral});
+        exprStack.push(stringTemplateLiteral);
+    }
+
+    /**
      * Creates an XML processing instruction literal expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param target PI target
@@ -2397,10 +2465,10 @@ public class BLangModelBuilder {
             String target, String[] exprPrecedingTextFragments, String endingText) {
         createStringLiteral(location, whiteSpaceDescriptor, target);
         Expression targetExpr = exprStack.pop();
-        
+
         createTemplateStringLiteral(location, whiteSpaceDescriptor, exprPrecedingTextFragments, endingText, false);
         Expression dataExpr = exprStack.pop();
-        
+
         XMLPILiteral xmlPILiteral = new XMLPILiteral(location, whiteSpaceDescriptor, targetExpr, dataExpr);
         exprStack.push(xmlPILiteral);
     }
@@ -2408,7 +2476,7 @@ public class BLangModelBuilder {
     /**
      * Creates template string literal. Creates a chain of binary add expressions using the
      * text fragments and the expressions in an interpolated string.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param exprPrecedingStringFragments Array of string fragments that precede the expressions

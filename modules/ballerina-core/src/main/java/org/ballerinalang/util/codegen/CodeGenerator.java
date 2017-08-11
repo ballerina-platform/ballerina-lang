@@ -76,6 +76,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -137,6 +138,7 @@ import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -209,6 +211,7 @@ public class CodeGenerator implements NodeVisitor {
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private LocalVariableAttributeInfo currentlGlobalVarAttribInfo;
     private LineNumberTableAttributeInfo lineNumberTableAttributeInfo;
     private CallableUnitInfo currentCallableUnitInfo;
     private int workerChannelCount = 0;
@@ -287,6 +290,12 @@ public class CodeGenerator implements NodeVisitor {
         int lineNumberAttribNameIndex = currentPkgInfo.addCPEntry(lineNumberAttribUTF8CPEntry);
         lineNumberTableAttributeInfo = new LineNumberTableAttributeInfo(lineNumberAttribNameIndex);
 
+        UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(
+                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.toString());
+        int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+        currentlGlobalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, currentlGlobalVarAttribInfo);
+
         visitConstants(bLangPackage.getConsts());
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
@@ -310,6 +319,8 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+        currentlGlobalVarAttribInfo = null;
+        bLangPackage.setSymbolsDefined(true);
     }
 
     private void visitConstants(ConstDef[] constDefs) {
@@ -326,6 +337,9 @@ public class CodeGenerator implements NodeVisitor {
                     typeSigCPIndex, typeSigUTF8Entry.getValue());
             packageVarInfo.setType(varType);
             currentPkgInfo.addConstantInfo(constDef.getName(), packageVarInfo);
+
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(constDef.getVariableDefStmt().getVariableDef());
+            currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
 
             // TODO Populate annotation attribute
         }
@@ -345,6 +359,9 @@ public class CodeGenerator implements NodeVisitor {
                     typeSigCPIndex, typeSigUTF8Entry.getValue());
             packageVarInfo.setType(varType);
             currentPkgInfo.addPackageVarInfo(varDef.getName(), packageVarInfo);
+
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varDef.getVariableDefStmt().getVariableDef());
+            currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
 
             // TODO Populate annotation attribute
         }
@@ -433,14 +450,11 @@ public class CodeGenerator implements NodeVisitor {
 
             BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
             structInfo.setType(structType);
-
         }
 
         for (StructDef structDef : structDefs) {
             StructInfo structInfo = currentPkgInfo.getStructInfo(structDef.getName());
-
             VariableDefStmt[] fieldDefStmts = structDef.getFieldDefStmts();
-
             BStructType.StructField[] structFields = new BStructType.StructField[fieldDefStmts.length];
             for (int i = 0; i < fieldDefStmts.length; i++) {
                 VariableDefStmt fieldDefStmt = fieldDefStmts[i];
@@ -455,9 +469,18 @@ public class CodeGenerator implements NodeVisitor {
                 String fieldTypeSig = fieldDef.getType().getSig().toString();
                 UTF8CPEntry sigUTF8Entry = new UTF8CPEntry(fieldTypeSig);
                 int sigCPIndex = currentPkgInfo.addCPEntry(sigUTF8Entry);
+
                 StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldDef.getName(),
                         sigCPIndex, fieldTypeSig);
                 structFieldInfo.setFieldType(fieldType);
+
+                // Populate default values
+                Expression defaultValExpr = fieldDefStmt.getRExpr();
+                if (defaultValExpr != null) {
+                    DefaultValueAttributeInfo defaultVal = getStructFieldDefaultValue(defaultValExpr);
+                    structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+                }
+
                 structInfo.addFieldInfo(structFieldInfo);
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
@@ -634,6 +657,8 @@ public class CodeGenerator implements NodeVisitor {
             workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName());
             callableUnitInfo.addWorkerInfo(worker.getName(), workerInfo);
+
+            generateCallableUnitInfoDataChannelMap(worker, callableUnitInfo);
         }
     }
 
@@ -1310,6 +1335,13 @@ public class CodeGenerator implements NodeVisitor {
         int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
         lambdaExpr.setTempOffset(nextIndex);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression concatExpr = stringTemplateLiteral.getConcatExpr();
+        concatExpr.accept(this);
+        stringTemplateLiteral.setTempOffset(concatExpr.getTempOffset());
     }
 
     @Override
@@ -2054,7 +2086,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT) {
+        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT
+                || variableKind == VariableDef.Kind.SERVICE_VAR) {
             int gvIndex = variableDef.getVarIndex();
 
             if (variableStore) {
@@ -2298,7 +2331,9 @@ public class CodeGenerator implements NodeVisitor {
         // Else, treat it as QName
 
         Expression namespaceUriLiteral = xmlQNameRefExpr.getNamepsaceUri();
-        namespaceUriLiteral.accept(this);
+        if (!namespaceUriLiteral.hasTemporaryValues()) {
+            namespaceUriLiteral.accept(this);
+        }
 
         BasicLiteral localNameLiteral =
                 new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getLocalname()));
@@ -2324,6 +2359,9 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(XMLElementLiteral xmlElementLiteral) {
         int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
         xmlElementLiteral.setTempOffset(xmlVarRegIndex);
+
+        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
+        defaultNamespaceUri.accept(this);
 
         Expression startTagName = xmlElementLiteral.getStartTagName();
         startTagName.accept(this);
@@ -2359,9 +2397,6 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             endTagNameRegIndex = startTagNameRegIndex;
         }
-
-        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
-        defaultNamespaceUri.accept(this);
 
         // Create an empty xml with the given QName
         emit(InstructionCodes.NEWXMLELEMENT, xmlVarRegIndex, startTagNameRegIndex, endTagNameRegIndex,
@@ -2992,6 +3027,25 @@ public class CodeGenerator implements NodeVisitor {
             int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
             attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
 
+        } else if (attributeValue.getVarRefExpr() != null) {
+            String typeDesc = attributeValue.getType().getSig().toString();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+
+
+            String constPkg = attributeValue.getVarRefExpr().getVariableDef().getPackagePath();
+            UTF8CPEntry constPkgCPEntry = new UTF8CPEntry(constPkg);
+            int constPkgCPIndex = currentPkgInfo.addCPEntry(constPkgCPEntry);
+
+            String constName = attributeValue.getVarRefExpr().getVariableDef().getName();
+            UTF8CPEntry constNameCPEntry = new UTF8CPEntry(constName);
+            int constNameCPIndex = currentPkgInfo.addCPEntry(constNameCPEntry);
+
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkg, constNameCPIndex, constName);
+            attribValue.setConstVarExpr(true);
+
+            programFile.addUnresolvedAnnAttrValue(attribValue);
         } else {
             org.ballerinalang.model.AnnotationAttributeValue[] attributeValues = attributeValue.getValueArray();
             AnnAttributeValue[] annotationAttribValues = new AnnAttributeValue[attributeValues.length];
@@ -3360,6 +3414,47 @@ public class CodeGenerator implements NodeVisitor {
                     prefixLiteral.getTempOffset(), qnameRegIndex);
             emit(InstructionCodes.XMLATTRSTORE, xmlVarRegIndex, qnameRegIndex, valueLiteral.getTempOffset());
         }
+    }
+
+    private DefaultValueAttributeInfo getStructFieldDefaultValue(Expression defaultValueExpr) {
+        BasicLiteral defaultValLiteral = (BasicLiteral) defaultValueExpr;
+        String typeDesc = defaultValueExpr.getType().getSig().toString();
+        UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+        int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+        StructFieldDefaultValue defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+
+        int valueCPIndex;
+        int typeTag = defaultValueExpr.getType().getTag();
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                long intValue = defaultValLiteral.getBValue().intValue();
+                defaultValue.setIntValue(intValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(intValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.FLOAT_TAG:
+                double floatValue = defaultValLiteral.getBValue().floatValue();
+                defaultValue.setFloatValue(floatValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(floatValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.STRING_TAG:
+                String stringValue = defaultValLiteral.getBValue().stringValue();
+                defaultValue.setStringValue(stringValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(stringValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                boolean boolValue = defaultValLiteral.getBValue().booleanValue();
+                defaultValue.setBooleanValue(boolValue);
+                break;
+        }
+
+        UTF8CPEntry defaultValueAttribUTF8CPEntry =
+                new UTF8CPEntry(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE.toString());
+        int defaultValueAttribNameIndex = currentPkgInfo.addCPEntry(defaultValueAttribUTF8CPEntry);
+
+        return new DefaultValueAttributeInfo(defaultValueAttribNameIndex, defaultValue);
     }
 
     /**

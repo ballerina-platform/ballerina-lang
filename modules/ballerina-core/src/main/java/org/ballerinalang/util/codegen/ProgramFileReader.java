@@ -38,6 +38,7 @@ import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -397,7 +398,7 @@ public class ProgramFileReader {
                         fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue());
                 structInfo.addFieldInfo(fieldInfo);
 
-                // TODO Read attributes
+                readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
             }
 
             // Read attributes of the struct info
@@ -1084,6 +1085,11 @@ public class ProgramFileReader {
                     lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
                 }
                 return lnNoTblAttrInfo;
+            case DEFAULT_VALUE_ATTRIBUTE:
+                StructFieldDefaultValue defaultValue = getDefaultValue(dataInStream, constantPool);
+                DefaultValueAttributeInfo defaultValAttrInfo =
+                        new DefaultValueAttributeInfo(attribNameCPIndex, defaultValue);
+                return defaultValAttrInfo;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
@@ -1172,6 +1178,20 @@ public class ProgramFileReader {
         int typeDescCPIndex = dataInStream.readInt();
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
         String typeDesc = typeDescCPEntry.getValue();
+
+        boolean isConstVarExpr = dataInStream.readBoolean();
+        if (isConstVarExpr) {
+            int constPkgCPIndex = dataInStream.readInt();
+            int constNameCPIndex = dataInStream.readInt();
+
+            UTF8CPEntry constPkgCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constPkgCPIndex);
+            UTF8CPEntry constNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constNameCPIndex);
+            attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkgCPEntry.getValue(), constNameCPIndex, constNameCPEntry.getValue());
+            attributeValue.setConstVarExpr(isConstVarExpr);
+            programFile.addUnresolvedAnnAttrValue(attributeValue);
+            return attributeValue;
+        }
 
         int valueCPIndex;
         switch (typeDesc) {
@@ -1409,6 +1429,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2MSG:
+                case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
@@ -1556,5 +1577,43 @@ public class ProgramFileReader {
                 setCallableUnitSignature(actionInfo, actionInfo.getSignature(), packageInfo);
             }
         }
+    }
+
+    private StructFieldDefaultValue getDefaultValue(DataInputStream dataInStream, ConstantPool constantPool)
+            throws IOException {
+        StructFieldDefaultValue defaultValue;
+        int typeDescCPIndex = dataInStream.readInt();
+        UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
+        String typeDesc = typeDescCPEntry.getValue();
+
+        int valueCPIndex;
+        switch (typeDesc) {
+            case TypeSignature.SIG_BOOLEAN:
+                boolean boolValue = dataInStream.readBoolean();
+                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue.setBooleanValue(boolValue);
+                break;
+            case TypeSignature.SIG_INT:
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue.setIntValue(integerCPEntry.getValue());
+                break;
+            case TypeSignature.SIG_FLOAT:
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue.setFloatValue(floatCPEntry.getValue());
+                break;
+            case TypeSignature.SIG_STRING:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue.setStringValue(stringCPEntry.getValue());
+                break;
+            default:
+                throw new ProgramFileFormatException("unknown default value type " + typeDesc);
+        }
+        return defaultValue;
     }
 }

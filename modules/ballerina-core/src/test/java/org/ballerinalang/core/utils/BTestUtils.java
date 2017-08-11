@@ -80,4 +80,16 @@ public class BTestUtils {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
+    public static ProgramFile getProgramFileWithoutSerializing(String sourceFilePath) {
+        Path programPath;
+        try {
+            programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            ProgramFile programFile = BLangCompiler.compile(programPath,
+                    Paths.get(sourceFilePath));
+            return programFile;
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        }
+    }
 }

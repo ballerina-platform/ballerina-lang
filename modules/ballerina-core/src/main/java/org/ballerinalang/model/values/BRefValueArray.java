@@ -69,12 +69,13 @@ public class BRefValueArray extends BNewArray {
     public BValue copy() {
         BRefValueArray refValueArray = new BRefValueArray(Arrays.copyOf(values, values.length));
         refValueArray.size = this.size;
+        refValueArray.arrayType = this.arrayType;
         return refValueArray;
     }
     
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(",", "[", "]");
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
         for (int i = 0; i < size; i++) {
             sj.add(values[i] == null ? "null" : values[i].stringValue());
         }

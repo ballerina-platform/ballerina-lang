@@ -652,11 +652,11 @@ public class XMLTest {
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 0);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
 
         // is element seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
 
         // is element seq is singleton?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
@@ -911,8 +911,8 @@ public class XMLTest {
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
-                "<fname>supun</fname><lname>setunga</lname><residency citizen=\"true\">true</residency></name>");
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\"><fname>supun</fname>"
+                + "<lname>setunga</lname><residency xmlns=\"\" citizen=\"true\">true</residency></name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -928,8 +928,7 @@ public class XMLTest {
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
         Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
-        Assert.assertEquals(children.get(2).stringValue(),
-                "<residency xmlns=\"http://sample.com/test\" citizen=\"true\">true</residency>");
+        Assert.assertEquals(children.get(2).stringValue(), "<residency citizen=\"true\">true</residency>");
 
         // Check attribute value
         Assert.assertSame(returns[4].getClass(), BString.class);
@@ -962,8 +961,8 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BXML);
 
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
-                "<fname>supun</fname><lname>setunga</lname>" +
-                "<residency xmlns:pre=\"http://sample.com/test/code\" pre:citizen=\"true\">true</residency></name>");
+                "<fname>supun</fname><lname>setunga</lname><residency xmlns=\"\" " + 
+                "xmlns:pre=\"http://sample.com/test/code\" pre:citizen=\"true\">true</residency></name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -1034,8 +1033,7 @@ public class XMLTest {
 
         Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
                 "xmlns=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
-                "<nsncdom:residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
-                "xmlns:citizen=\"yes\">true</nsncdom:residency></ns0:name>");
+                "<residency xmlns:citizen=\"yes\">true</residency></ns0:name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -1241,8 +1239,8 @@ public class XMLTest {
     public void testAddAttributeWithString() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
-                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" "
+                + "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
@@ -1310,7 +1308,9 @@ public class XMLTest {
                 "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns4:foo1=\"bar1\"/>");
     }
 
-    @Test
+    @Test(expectedExceptions = { BLangRuntimeException.class }, 
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to add attribute " +
+            "'ns5:foo1'. prefix 'ns5' is already bound to namespace 'http://sample.com/wso2/f/'.*")
     public void testAddAttributeWithQName_4() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -1337,9 +1337,8 @@ public class XMLTest {
     public void testUpdateAttributeWithString() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
-                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"newbar1\" ns0Kf5j:foo2=\"newbar2\" " +
-                "ns4:foo3=\"bar3\"/>");
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://sample.com/wso2/e\" "
+                + "foo1=\"newbar1\" ns0:foo2=\"newbar2\" foo3=\"newbar3\"/>");
     }
 
     @Test
@@ -1441,11 +1440,11 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributesAsMap");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":"
-                + "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+                + "\"http://sample.com/wso2/a1\", \"{http://sample.com/wso2/a1}foo1\":\"bar1\", \"foo2\":\"bar2\"}");
 
         Assert.assertTrue(returns[1] instanceof BMap);
         Assert.assertEquals(returns[1].stringValue(), "{\"{http://sample.com/default/namepsace}ns0\":"
-                + "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+                + "\"http://sample.com/wso2/a1\", \"{http://sample.com/wso2/a1}foo1\":\"bar1\", \"foo2\":\"bar2\"}");
 
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "bar1");
@@ -1499,7 +1498,7 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testXMLAttributesToAny");
         Assert.assertTrue(returns[0] instanceof BXMLAttributes);
         Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":" +
-            "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+            "\"http://sample.com/wso2/a1\", \"{http://sample.com/wso2/a1}foo1\":\"bar1\", \"foo2\":\"bar2\"}");
     }
 
     @Test(expectedExceptions = { SemanticException.class },
@@ -1987,5 +1986,70 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromLiteral");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "5");
+    }
+
+    @Test
+    public void testSelectChildrenWithEmptyNs() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectChildrenWithEmptyNs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        Assert.assertEquals(returns[0].stringValue(), "<fname>supun</fname><fname>thilina</fname>");
+    }
+
+    @Test
+    public void testSelectElementsWithEmptyNs() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectElementsWithEmptyNs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 2);
+
+        Assert.assertEquals(returns[0].stringValue(), "<fname>supun</fname><fname>thilina</fname>");
+    }
+
+    @Test
+    public void testSelectDescendants() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectDescendants");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        BXMLSequence seq = (BXMLSequence) returns[0];
+        Assert.assertEquals(seq.value().size(), 2);
+
+        Assert.assertEquals(seq.stringValue(), "<name xmlns=\"http://ballerinalang.org/\" "
+                + "xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name><lname>Setunga</lname></name>"
+                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
+    }
+
+    @Test
+    public void testSelectDescendantsWithEmptyNs() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectDescendantsWithEmptyNs");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        BXMLSequence seq = (BXMLSequence) returns[0];
+        Assert.assertEquals(seq.value().size(), 2);
+
+        Assert.assertEquals(seq.stringValue(), "<name xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name>"
+                + "<lname>Setunga</lname></name><name xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
+    }
+
+    @Test
+    public void testSelectDescendantsFromSeq() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSelectDescendantsFromSeq");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        BXMLSequence seq = (BXMLSequence) returns[0];
+        Assert.assertEquals(seq.value().size(), 3);
+
+        Assert.assertEquals(seq.stringValue(), "<name xmlns=\"http://ballerinalang.org/\" "
+                + "xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name><lname>Setunga</lname></name>"
+                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>"
+                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class }, 
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to add attribute " +
+            "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
+    public void testUpdateAttributeWithDifferentUri() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateAttributeWithDifferentUri");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
     }
 }

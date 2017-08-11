@@ -118,7 +118,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
             return "{}";
         }
 
-        StringJoiner sj = new StringJoiner(",", "{", "}");
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
 
         String key;
         String stringValue;

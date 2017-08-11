@@ -97,7 +97,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest for int float types")
-    public void testSelectIntFloatData() {
+    public   void testSelectIntFloatData() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testSelectIntFloatData");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -442,6 +442,12 @@ public class SQLActionsTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTimeOutParams", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error in sql connector configuration.*")
+    public void testInvalidDBType() {
+        BLangFunctions.invokeNew(bLangProgram, "testInvalidDBType");
     }
 
     @AfterSuite
