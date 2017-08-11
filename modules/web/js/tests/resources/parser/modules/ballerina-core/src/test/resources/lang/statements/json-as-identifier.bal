@@ -1,0 +1,3 @@
+function jsonTest() {
+    json json = {};
+}

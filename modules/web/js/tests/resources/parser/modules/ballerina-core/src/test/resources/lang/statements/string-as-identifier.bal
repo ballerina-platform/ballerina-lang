@@ -1,0 +1,3 @@
+function stringTest() {
+    string string = "";
+}

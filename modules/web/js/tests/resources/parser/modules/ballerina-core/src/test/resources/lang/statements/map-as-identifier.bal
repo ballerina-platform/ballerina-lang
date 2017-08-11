@@ -1,0 +1,3 @@
+function mapTest() {
+    map map = {};
+}
