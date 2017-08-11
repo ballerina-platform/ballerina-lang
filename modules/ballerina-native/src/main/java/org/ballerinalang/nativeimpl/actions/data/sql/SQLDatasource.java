@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -54,9 +55,9 @@ public class SQLDatasource implements BValue {
 
     public SQLDatasource() {}
 
-    public boolean init(BStruct options, String dbType, String hostOrPath, int port, String userName, String password,
+    public boolean init(BStruct options, String dbType, String hostOrPath, int port, String username, String password,
             String dbName) {
-        buildDataSource(options, dbType, hostOrPath, dbName, port, userName, password);
+        buildDataSource(options, dbType, hostOrPath, dbName, port, username, password);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
@@ -100,7 +101,7 @@ public class SQLDatasource implements BValue {
     }
 
     private void buildDataSource(BStruct options, String dbType, String hostOrPath, String dbName, int port,
-            String userName, String password) {
+            String username, String password) {
         try {
             HikariConfig config = new HikariConfig();
             String jdbcurl = options.getStringField(0);
@@ -109,19 +110,19 @@ public class SQLDatasource implements BValue {
                 config.setDataSourceClassName(dataSourceClassName);
             } else {
                 if (jdbcurl.isEmpty()) {
-                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, userName, password);
+                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
                 }
                 if (!jdbcurl.isEmpty()) {
                     config.setJdbcUrl(jdbcurl);
                 } else {
-                    throw new BallerinaException("invalid db connection properties");
+                    throw new BallerinaException("invalid database connection properties for db " + dbType);
                 }
             }
             String user = options.getStringField(2);
             if (!user.isEmpty()) {
                 config.setUsername(user);
-            } else if (!userName.isEmpty()) {
-                config.setUsername(userName);
+            } else if (!username.isEmpty()) {
+                config.setUsername(username);
             }
             String pass = options.getStringField(3);
             if (!pass.isEmpty()) {
@@ -204,7 +205,7 @@ public class SQLDatasource implements BValue {
         }
     }
 
-    private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String userName,
+    private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
             String password) {
         StringBuilder jdbcUrl = new StringBuilder();
         dbType = dbType.toUpperCase(Locale.ENGLISH);
@@ -227,7 +228,7 @@ public class SQLDatasource implements BValue {
             if (port <= 0) {
                 port = Constants.DefaultPort.ORACLE;
             }
-            jdbcUrl.append("jdbc:oracle:thin:").append(userName).append("/").append(password).append("@")
+            jdbcUrl.append("jdbc:oracle:thin:").append(username).append("/").append(password).append("@")
                     .append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.SYBASE:
@@ -291,7 +292,9 @@ public class SQLDatasource implements BValue {
             } else if (value instanceof BInteger) {
                 config.addDataSourceProperty(key, ((BInteger) value).intValue());
             } else if (value instanceof BBoolean) {
-                config.addDataSourceProperty(key, Boolean.parseBoolean(value.stringValue()));
+                config.addDataSourceProperty(key, ((BBoolean) value).booleanValue());
+            } else if (value instanceof BFloat) {
+                config.addDataSourceProperty(key, ((BFloat) value).floatValue());
             }
         }
     }

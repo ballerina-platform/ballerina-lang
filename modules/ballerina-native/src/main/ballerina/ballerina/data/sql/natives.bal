@@ -13,14 +13,14 @@ struct Parameter {
 @doc:Description { value: "DB Connection properties struct"}
 @doc:Field {value:"url: Platform independent DB access URL"}
 @doc:Field {value:"dataSourceClassName: Name of the DataSource class provided by the JDBC driver"}
-@doc:Field {value:"userName: Default authentication username used when obtaining Connections from the underlying driver"}
+@doc:Field {value:"username: Default authentication username used when obtaining Connections from the underlying driver"}
 @doc:Field {value:"password: Default authentication password used when obtaining Connections from the underlying driver"}
 @doc:Field {value:"connectionTestQuery: Query that will be executed to validate that the connection to the database is still alive"}
 @doc:Field {value:"poolName: User-defined name for the connection pool and appears mainly in logging"}
 @doc:Field {value:"catalog: Catalog of connections created by this pool"}
 @doc:Field {value:"connectionInitSql:  SQL statement that will be executed after every new connection creation before adding it to the pool"}
 @doc:Field {value:"driverClassName: Fully qualified Java class name of the JDBC driver to be used"}
-@doc:Field {value:"transactionIsolation:  Transaction isolation level of connections returned from the pool"}
+@doc:Field {value:"transactionIsolation:  Transaction isolation level of connections returned from the pool. The supported values are TRANSACTION_READ_UNCOMMITTED, TRANSACTION_READ_COMMITTED, TRANSACTION_REPEATABLE_READ and TRANSACTION_SERIALIZABLE"}
 @doc:Field {value:"autoCommit: Auto-commit behavior of connections returned from the pool"}
 @doc:Field {value:"isolateInternalQueries: Determines whether HikariCP isolates internal pool queries, such as the connection alive test, in their own transaction"}
 @doc:Field {value:"allowPoolSuspension: Whether the pool can be suspended and resumed through JMX"}
@@ -36,7 +36,7 @@ struct Parameter {
 struct ConnectionProperties {
 	string url;
 	string dataSourceClassName;
-	string userName;
+	string username;
 	string password;
 	string connectionTestQuery;
 	string poolName;

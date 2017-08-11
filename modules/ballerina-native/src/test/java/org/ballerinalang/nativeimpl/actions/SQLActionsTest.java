@@ -444,6 +444,12 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(expectedExceptions = RuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error in sql connector configuration.*")
+    public void testInvalidDBType() {
+        BLangFunctions.invokeNew(bLangProgram, "testInvalidDBType");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
