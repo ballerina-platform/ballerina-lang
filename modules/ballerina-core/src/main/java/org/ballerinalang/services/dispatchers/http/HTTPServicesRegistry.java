@@ -114,19 +114,18 @@ public class HTTPServicesRegistry {
                 // Assumption : this is always sequential, no two simultaneous calls can get here
                 servicesOnInterface = new HashMap<>();
                 servicesInfoMap.put(listenerInterface, servicesOnInterface);
-
-                // TODO: Add correct parameters
-                Map<String, String> parameters = new HashMap<>();
-                ServerConnector connector = BallerinaConnectorManager.getInstance()
-                        .createHTTPServerConnector(listenerInterface, parameters);
-
-                if (connector == null) {
-                    throw new BallerinaException(
-                            "ServerConnector interface not registered for : " + listenerInterface);
-                }
-                // Delay the startup until all services are deployed
-                BallerinaConnectorManager.getInstance().
-                        addStartupDelayedHTTPServerConnector(listenerInterface, connector);
+//
+//                // TODO: Add correct parameters
+//                ServerConnector connector = BallerinaConnectorManager.getInstance()
+//                        .createHTTPServerConnector(listenerInterface, null);
+//
+//                if (connector == null) {
+//                    throw new BallerinaException(
+//                            "ServerConnector interface not registered for : " + listenerInterface);
+//                }
+//                // Delay the startup until all services are deployed
+//                BallerinaConnectorManager.getInstance().
+//                        addStartupDelayedHTTPServerConnector(listenerInterface, connector);
             }
             if (servicesOnInterface.containsKey(basePath)) {
                 throw new BallerinaException(

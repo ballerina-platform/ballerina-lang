@@ -18,14 +18,11 @@
 
 package org.ballerinalang.services.dispatchers.ws;
 
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,15 +66,15 @@ public class WebSocketServicesRegistry {
                 } else {
 
                     // TODO: Add properties to propMap after adding config annotation to WebSocket.
-                    Map<String, String> propMap = new HashMap<>();
-
-                    // Since WebSocket runs in the HTTP connector. Adding http connector.
-                    ServerConnector connector = BallerinaConnectorManager.getInstance().createHTTPServerConnector(
-                                listenerInterface, propMap);
-
-                    // Delay the startup until all services are deployed
-                    BallerinaConnectorManager.getInstance().
-                            addStartupDelayedHTTPServerConnector(listenerInterface, connector);
+//                    Map<String, String> propMap = new HashMap<>();
+//
+//                    // Since WebSocket runs in the HTTP connector. Adding http connector.
+//                    ServerConnector connector = BallerinaConnectorManager.getInstance().createHTTPServerConnector(
+//                                listenerInterface, propMap);
+//
+//                    // Delay the startup until all services are deployed
+//                    BallerinaConnectorManager.getInstance().
+//                            addStartupDelayedHTTPServerConnector(listenerInterface, connector);
 
                     // Register service
                     Map<String, ServiceInfo> servicesOnInterface = new ConcurrentHashMap<>();
