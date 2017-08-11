@@ -707,13 +707,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        // First parameter should be of type connector in which these actions are defined.
-        if (action.getParameterDefs().length < 1 ||
-                action.getParameterDefs()[0].getType() != action.getConnectorDef()) {
-            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.INVALID_ACTION_FIRST_PARAMETER,
-                    action.getConnectorDef());
-        }
-
         for (ParameterDef parameterDef : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -1788,7 +1781,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionIExpr.setConnectorName(varDef.getTypeName().getName());
             actionIExpr.setPackageName(varDef.getTypeName().getPackageName());
             actionIExpr.setPackagePath(varDef.getTypeName().getPackagePath());
-        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
+        } else if (bLangSymbol instanceof BallerinaConnectorDef) {
             throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
                     SemanticErrors.INVALID_ACTION_INVOCATION);
         }
@@ -3440,6 +3433,20 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void defineAction(BallerinaAction action, BallerinaConnectorDef connectorDef) {
+        //ConnectorDef is a reserved first parameter in any action
+        ParameterDef[] updatedParamDefs = new ParameterDef[action.getParameterDefs().length + 1];
+        ParameterDef connectorParamDef = new ParameterDef(connectorDef.getNodeLocation(), null,
+                new Identifier(TypeConstants.CONNECTOR_TNAME),
+                new SimpleTypeName(connectorDef.getName(), null, connectorDef.getPackagePath()),
+                new SymbolName(TypeConstants.CONNECTOR_TNAME, connectorDef.getPackagePath()),
+                action.getSymbolScope());
+        connectorParamDef.setType(connectorDef);
+        updatedParamDefs[0] = connectorParamDef;
+        for (int i = 0; i < action.getParameterDefs().length; i++) {
+            updatedParamDefs[i + 1] = action.getParameterDefs()[i];
+        }
+        action.setParameterDefs(updatedParamDefs);
+
         ParameterDef[] paramDefArray = action.getParameterDefs();
         BType[] paramTypes = new BType[paramDefArray.length];
         for (int i = 0; i < paramDefArray.length; i++) {

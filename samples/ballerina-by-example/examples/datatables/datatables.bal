@@ -3,7 +3,7 @@ import ballerina.lang.datatables;
 import ballerina.data.sql;
 import ballerina.doc;
 
-@doc:Description {value:"This is the Employee struct. The field names of the this should match column names of the table. The field types should match with sql types."}
+@doc:Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with sql types."}
 struct Employee {
     int id;
     string name;
@@ -23,8 +23,7 @@ function main (string[] args) {
     //Query the table using SQL connector select action. Either select or call
     //action can return a datatable.
     sql:Parameter[] params = [];
-    datatable dt = sql:ClientConnector.select(empDB,
-                                              "SELECT * from employees", params);
+    datatable dt = empDB.select("SELECT * from employees", params);
 
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
@@ -39,17 +38,15 @@ function main (string[] args) {
     }
 
     //Convert a datatable to json.
-    dt = sql:ClientConnector.select(empDB,
-                                    "SELECT id,name from employees", params);
+    dt = empDB.select("SELECT id,name from employees", params);
     var jsonRes, _ = <json>dt;
     system:println(jsonRes);
 
     //Convert a datatable to xml.
-    dt = sql:ClientConnector.select(empDB,
-                                    "SELECT id,name from employees", params);
+    dt = empDB.select("SELECT id,name from employees", params);
     var xmlRes, _ = <xml>dt;
     system:println(xmlRes);
 
     //Finally close the DB connection.
-    sql:ClientConnector.close(empDB);
+    empDB.close();
 }
