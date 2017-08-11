@@ -99,13 +99,12 @@ under the License.
         </classes>
     </test>
 
-    <!-- TODO : Fix this. -->
-    <!--<test name="ballerina-global-var-test-suite">
+    <test name="ballerina-global-var-test-suite">
         <classes>
             <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
             <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
         </classes>
-    </test>-->
+    </test>
 
     <!-- WebSocket Test Cases -->
     <test name="websocket-test-cases" parallel="false">

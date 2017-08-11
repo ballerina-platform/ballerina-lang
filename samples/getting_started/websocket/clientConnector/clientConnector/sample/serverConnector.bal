@@ -1,3 +1,5 @@
+package clientConnector.sample;
+
 import ballerina.net.http;
 import ballerina.net.ws;
 import ballerina.lang.messages;
@@ -18,7 +20,7 @@ service<ws> serverConnector {
             ws:closeConnection();
         } else {
             system:println("Client connector sending message: " + messages:getStringPayload(m));
-            ws:ClientConnector.pushText(c, messages:getStringPayload(m));
+            c.pushText(messages:getStringPayload(m));
         }
     }
 }

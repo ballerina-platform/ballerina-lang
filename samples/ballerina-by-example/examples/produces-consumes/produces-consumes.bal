@@ -4,12 +4,15 @@ import ballerina.lang.messages;
 import ballerina.doc;
 @doc:Description {value:"Consumes and Produces annotations contain MIME types as an array of strings."}
 service<http> infoService {
-    @http:POST {}
-    @http:Path {value:"/"}
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/",
+        consumes:["text/json","application/json"],
+        produces:["application/xml"]
+    }
     @doc:Description {value:"Resource can consume/accept text/json and application/json media types only. Therefore Content-Type header must have one of the types."}
-    @http:Consumes{value:["text/json","application/json"]}
     @doc:Description {value:"Resource can produce application/xml payloads. Therefore Accept header should be set accordingly."}
-    @http:Produces{value:["application/xml"]}
     resource student (message m) {
         //Get JSON payload from the request message.
         json jsonMsg = messages:getJsonPayload(m);

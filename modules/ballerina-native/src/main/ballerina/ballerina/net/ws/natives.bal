@@ -54,9 +54,8 @@ native function closeConnectionGroup(string connectionGroupName);
 connector ClientConnector (string url, string callbackService) {
 
     @doc:Description { value:"Push text to the server"}
-    @doc:Param { value:"c: WebSocket Client Connector"}
     @doc:Param { value:"text: text which should be sent"}
-    native action pushText(ClientConnector c, string text);
+    native action pushText(string text);
 
 }
 

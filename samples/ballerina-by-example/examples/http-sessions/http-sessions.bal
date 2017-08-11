@@ -2,60 +2,63 @@ import ballerina.net.http;
 import ballerina.lang.messages;
 
 service<http> session {
-    @http:GET {}
+
+    string key = "status";
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource sayHello (message m) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
         http:Session session = http:createSessionIfAbsent(m);
         string result;
+        message response = {};
         //Session status(new or already existing) is informed by isNew() as boolean value.
-        if (session != null && http:isNew(session)) {
+        if (http:isNew(session)) {
             result = "Say hello to a new session";
-            //Gets the session creation time in milliseconds.
-            int createTime = http:getCreationTime(session);
-            //Sets inactive time interval in seconds.
-            http:setMaxInactiveInterval(session, 1000);
+        } else {
+            result = "Say hello to an existing session";
         }
-        //Binds an object in any type to this session with a key(string).
-        http:setAttribute(session, "key", "Session example");
-        messages:setStringPayload(m, result);
-        reply m;
+        //Binds a string attribute to this session with a key(string).
+        http:setAttribute(session, key, "Session sample");
+        messages:setStringPayload(response, result);
+        reply response;
     }
 
-    @http:GET {}
-    resource welcome (message m) {
+    @http:resourceConfig {
+        methods:["GET"]
+    }
+    resource doTask (message m) {
         //getSession() returns an existing session for a valid session id. otherwise null.
         http:Session session = http:getSession(m);
         string attributeValue;
-
+        message response = {};
         if (session != null) {
-            //Returns an array of Strings containing the keys of all the objects.
-            string[] arr = http:getAttributeNames(session);
             //Returns the object bound with the specified key.
-            attributeValue, _ = (string)http:getAttribute(session, arr[0]);
-            //Gets the session last accessed time in milliseconds.
-            int lastAccessedTime = http:getLastAccessedTime(session);
+            attributeValue, _ = (string)http:getAttribute(session, key);
+        } else {
+            attributeValue = "Session unavailable";
         }
-        messages:setStringPayload(m, "Hi " + attributeValue);
-        reply m;
+        messages:setStringPayload(response, attributeValue);
+        reply response;
     }
 
-    @http:GET {}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource sayBye (message m) {
         http:Session session = http:getSession(m);
-        string id;
+        message response = {};
         if (session != null) {
-            //Gets the session max inactive interval in seconds.
-            int inactiveInterval = http:getMaxInactiveInterval(session);
             //Returns session id.
-            id = http:getId(session);
-            //Removes the object bound with the specified key from this session.
-            http:removeAttribute(session, "key");
+            string id = http:getId(session);
+            //Invalidates this session.
+            http:invalidate(session);
+            messages:setStringPayload(response
+                            , "Session: " + id + " invalidated");
+        } else {
+            messages:setStringPayload(response, "Session unavailable");
         }
-        
-        //Invalidates this session.
-        http:invalidate(session);
-        messages:setStringPayload(m, "Session: " + id + " invalidated");
-        reply m;
+        reply response;
     }
 }
 

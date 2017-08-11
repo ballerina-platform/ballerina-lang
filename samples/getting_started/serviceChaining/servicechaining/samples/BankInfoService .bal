@@ -5,8 +5,10 @@ import ballerina.net.http;
 
 @http:configuration {basePath:"/bankinfo"}
 service<http> Bankinfo {
-    
-    @http:POST{}
+
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource product (message m) {
         message response = {};
         json jsonRequest = messages:getJsonPayload(m);

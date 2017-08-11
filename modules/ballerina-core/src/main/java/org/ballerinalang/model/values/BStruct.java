@@ -81,7 +81,7 @@ public final class BStruct implements BRefType, StructureType {
                 byteIndex = 0,
                 refValIndex = 0;
 
-        StringJoiner sj = new StringJoiner(",", "{", "}");
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
         for (StructField field : structType.getStructFields()) {
             String fieldName = field.getFieldName();
             Object fieldVal;
@@ -95,7 +95,7 @@ public final class BStruct implements BRefType, StructureType {
             } else if (fieldType == BTypes.typeBoolean) {
                 fieldVal = intFields[intIndex++];
             } else if (fieldType == BTypes.typeBlob) {
-                fieldVal = byteFields[byteIndex++].toString();
+                fieldVal = new String(byteFields[byteIndex++]);
             } else {
                 BValue val = refFields[refValIndex++];
                 fieldVal = val == null ? null : val.stringValue();

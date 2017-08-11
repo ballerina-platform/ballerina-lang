@@ -6,8 +6,10 @@ import ballerina.lang.system;
 
 @http:configuration {basePath:"/ABCBank"}
 service<http> ATMLocator {
-    
-    @http:POST{}
+
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource locator (message m) {
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo/product");
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator/product");
@@ -21,7 +23,7 @@ service<http> ATMLocator {
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
         messages:setJsonPayload(backendServiceReq, branchLocatorReq);
         
-        message response = http:ClientConnector.post(branchLocatorService, "", backendServiceReq);
+        message response = branchLocatorService.post("", backendServiceReq);
         json branchLocatorRes = messages:getJsonPayload(response);
         string branchCode;
         branchCode, _ = (string) branchLocatorRes.ABCBank.BranchCode;
@@ -29,7 +31,7 @@ service<http> ATMLocator {
         json bankInfoReq = {"BranchInfo": {"BranchCode":""}};
         bankInfoReq.BranchInfo.BranchCode = branchCode;
         messages:setJsonPayload(backendServiceReq, bankInfoReq);
-        response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
+        response = bankInfoService.post("", backendServiceReq);
         
         reply response;
     

@@ -1,19 +1,34 @@
+import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.doc;
 
-@doc:Description {value:"Since the basepath is not specified, it's value will be '/passthrough' which is the name of the service."}
 service<http> passthrough {
-    @http:GET {}
-    @http:Path {value:"/"}
-    resource passthrough (message m) {
-        http:ClientConnector endPoint = create http:ClientConnector(
-                                        "http://samples.openweathermap.org");
-
-        //Action get() returns the response from backend service. It includes endPoint, resource path and message as parameters.
-        message response = http:ClientConnector.get(endPoint, "/data/2.5/weather?lat=35&lon=139&appid=b1b1", m);
-        reply response;
-
+    @doc:Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
+    @http:resourceConfig {
+        path:"/"
     }
+    resource passthrough (message m) {
+        http:ClientConnector endPoint = create http:ClientConnector
+                                            ("http://localhost:9090/echo");
+        //Extract request method from message.
+        string method = http:getMethod(m);
+        //Action execute() returns the response from backend service. It includes endPoint, HTTP method, resource path and message as parameters.
+        message response = endPoint.execute(method, "/", m);
+        reply response;
+    }
+}
 
+@doc:Description {value:"Sample backend echo service."}
+service<http> echo {
+    @doc:Description {value:"A common resource for POST, PUT and GET methods."}
+    @http:resourceConfig {
+        methods:["POST", "PUT", "GET"],
+        path:"/"
+    }
+    resource echoResource (message m) {
+        message response = {};
+        messages:setStringPayload(response, "Resource is invoked");
+        reply response;
+    }
 }
 

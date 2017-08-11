@@ -70,6 +70,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
@@ -210,7 +211,7 @@ public class BLangModelBuilder {
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
 
     protected List<String> errorMsgs = new ArrayList<>();
-    
+
     protected List<String> namespaces = new ArrayList<String>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -285,7 +286,7 @@ public class BLangModelBuilder {
                     .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
             errorMsgs.add(errMsg);
         }
-        
+
         // Check whether there is a namespace declaration with the same name
         if (namespaces.contains(importPkg.getName())) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -542,6 +543,21 @@ public class BLangModelBuilder {
     }
 
     /**
+     * Create a variable reference type attribute value.
+     *
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param nameReference     Name Reference value
+     */
+    public void createNameReferenceTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                      NameReference nameReference) {
+        validateAndSetPackagePath(location, nameReference);
+        SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
+        annotationAttributeValues.push(new AnnotationAttributeValue(simpleVarRefExpr, location, whiteSpaceDescriptor));
+    }
+
+    /**
      * Create an annotation type attribute value.
      *
      * @param location Location of the value in the source file
@@ -618,7 +634,8 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, typeName.getWhiteSpaceDescriptor(),
+                    null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
@@ -922,9 +939,9 @@ public class BLangModelBuilder {
 
     public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                                   SimpleTypeName typeName, boolean argsAvailable,
-                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
                                                   List<BLangModelBuilder.NameReference> filterNameReferenceList,
-                                                  List<Boolean> argExistenceList) {
+                                                  List<Boolean> argExistenceList,
+                                                  List<WhiteSpaceDescriptor> filterInitWSDescriptors) {
         List<List<Expression>> filterArgExprList = new ArrayList<>();
         for (int i = 0; i < argExistenceList.size(); i++) {
             List<Expression> filterArgExpr;
@@ -957,8 +974,9 @@ public class BLangModelBuilder {
                     filterNameReference.getPackageName(), null);
             List<Expression> argExpr = filterArgExprList.get(j);
             filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
-            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
-                    filterTypeName,
+            WhiteSpaceDescriptor wsDescriptor = (filterInitWSDescriptors.size() == 0 ?
+                    null : filterInitWSDescriptors.get(j));
+            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, wsDescriptor, filterTypeName,
                     argExpr.toArray(new Expression[argExpr.size()]));
             currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
             currentConnectorInitExpr = filterConnectorInitExpr;
@@ -1044,7 +1062,7 @@ public class BLangModelBuilder {
     }
 
     public void addFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
-                            boolean isNative) {
+                            boolean isNative, boolean hasReturnsKeyword) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -1054,6 +1072,7 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setHasReturnsKeyword(hasReturnsKeyword);
         bFileBuilder.addFunction(function);
 
         currentScope = function.getEnclosingScope();
@@ -1469,12 +1488,13 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addTryCatchBlockStmt() {
+    public void addTryCatchBlockStmt(NodeLocation location) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setBlockKind(StatementKind.TRY_BLOCK);
+        blockStmtBuilder.setLocation(location);
         BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
@@ -1803,11 +1823,12 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addTransactionBlockStmt() {
+    public void addTransactionBlockStmt(NodeLocation location) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setBlockKind(StatementKind.TRANSACTION_BLOCK);
+        blockStmtBuilder.setLocation(location);
         BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
@@ -1971,7 +1992,7 @@ public class BLangModelBuilder {
 
     /**
      * Create a namespace declaration statement.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @param wsDescriptor Holds whitespace region data
      * @param namespaceUri Namespace URI of the namespace declaration
@@ -2006,7 +2027,7 @@ public class BLangModelBuilder {
 
     /**
      * Create an XML attributes map reference expression.
-     * 
+     *
      * @param location Source location of the ballerina file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param singleAttribute Flag indicating whether this is a single attribute reference
@@ -2239,7 +2260,7 @@ public class BLangModelBuilder {
 
     /**
      * Create an {@link XMLQNameExpr}.
-     *  
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param localname Local part of the qname
@@ -2254,7 +2275,7 @@ public class BLangModelBuilder {
 
     /**
      * Start an XML element literal.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attributeCount Number of attributes in the element
@@ -2302,7 +2323,7 @@ public class BLangModelBuilder {
                 contentExprs.add(items[j]);
             }
         }
-        
+
         Collections.reverse(contentExprs);
         XMLSequenceLiteral xmlSequenceExpr = new XMLSequenceLiteral(location, whiteSpaceDescriptor,
                 contentExprs.toArray(new Expression[0]));
@@ -2319,7 +2340,7 @@ public class BLangModelBuilder {
             createStringLiteral(location, whiteSpaceDescriptor, endingText);
             items.add(exprStack.pop());
         }
-        
+
         for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
             items.add(exprStack.pop());
 
@@ -2338,10 +2359,38 @@ public class BLangModelBuilder {
         exprStack.push(xmlSeqLiteral);
     }
 
+    public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                            String[] exprPrecedingTextFragments, String endingText) {
+        List<Expression> items = new ArrayList<>();
+        // First we process the last text sequence and add it to the list. Please note that the items will be added
+        // in reverse order later. So later we reverse the list.
+        if (endingText != null && !endingText.isEmpty()) {
+            createStringLiteral(location, whiteSpaceDescriptor, endingText);
+            items.add(exprStack.pop());
+        }
+        // Iterate through all of the text fragments in reverse order. We do this becase
+        for (int i = exprPrecedingTextFragments.length - 1; i >= 0; i--) {
+            items.add(exprStack.pop());
+            String textFragment = exprPrecedingTextFragments[i];
+            // If the text fragment is empty, that means that is at the beginning. So we don't get an expression in
+            // that case.
+            if (textFragment != null && !textFragment.isEmpty()) {
+                createStringLiteral(location, whiteSpaceDescriptor, textFragment);
+                items.add(exprStack.pop());
+            }
+        }
+        // Reverse the list.
+        Collections.reverse(items);
+        // Create and add a string template literal to the expression stack.
+        StringTemplateLiteral templateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                          items.toArray(new Expression[items.size()]));
+        exprStack.push(templateLiteral);
+    }
+
     /**
      * Create a quoted literal in XML. If the literal is interpolated,
      * this will create a add expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param exprPrecedingStringFragments Array of string fragments that precede the expressions
@@ -2368,7 +2417,7 @@ public class BLangModelBuilder {
 
     /**
      * Creates an XML Text literal expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param text Text content
@@ -2381,8 +2430,24 @@ public class BLangModelBuilder {
     }
 
     /**
+     * Creates an String Template literal expression.
+     *
+     * @param location
+     * @param whiteSpaceDescriptor
+     * @param text
+     */
+    public void createStringTemplateLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                            String text) {
+        createStringLiteral(location, whiteSpaceDescriptor, text);
+        Expression textLiteral = exprStack.pop();
+        StringTemplateLiteral stringTemplateLiteral = new StringTemplateLiteral(location, whiteSpaceDescriptor,
+                                                                                new Expression[]{textLiteral});
+        exprStack.push(stringTemplateLiteral);
+    }
+
+    /**
      * Creates an XML processing instruction literal expression.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param target PI target
@@ -2393,10 +2458,10 @@ public class BLangModelBuilder {
             String target, String[] exprPrecedingTextFragments, String endingText) {
         createStringLiteral(location, whiteSpaceDescriptor, target);
         Expression targetExpr = exprStack.pop();
-        
+
         createTemplateStringLiteral(location, whiteSpaceDescriptor, exprPrecedingTextFragments, endingText, false);
         Expression dataExpr = exprStack.pop();
-        
+
         XMLPILiteral xmlPILiteral = new XMLPILiteral(location, whiteSpaceDescriptor, targetExpr, dataExpr);
         exprStack.push(xmlPILiteral);
     }
@@ -2404,7 +2469,7 @@ public class BLangModelBuilder {
     /**
      * Creates template string literal. Creates a chain of binary add expressions using the
      * text fragments and the expressions in an interpolated string.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param exprPrecedingStringFragments Array of string fragments that precede the expressions

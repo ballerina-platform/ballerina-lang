@@ -5,22 +5,22 @@ import ballerina.lang.messages;
 
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
-    
-    @http:GET{}
-    @http:Path {value:"/"}
-    resource cbrResource (message m) {
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/"
+    }
+    resource hbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
         string nyseString = "nyse";
         string nameString = messages:getHeader(m, "name");
         message response = {};
         if (nameString == nyseString) {
-            response = http:ClientConnector.post(nyseEP, "/stocks", m);
-            
+            response = nyseEP.post("/stocks", m);
         }
         else {
-            response = http:ClientConnector.post(nasdaqEP, "/stocks", m);
-            
+            response = nasdaqEP.post("/stocks", m);
         }
         reply response;
         

@@ -117,21 +117,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 } else {
                     subPathAnnotationVal = pathAttrVal.getStringValue();
                 }
-                AnnAttributeValue methodsAttrVal = rConfigAnnAtchmnt
-                        .getAttributeValue(Constants.ANN_RESOURCE_ATTR_METHODS);
-                if (methodsAttrVal != null) {
-                    resource.setHttpMethods(getStringArray(methodsAttrVal.getAttributeValueArray()));
-                }
-                AnnAttributeValue consumesAttrVal = rConfigAnnAtchmnt
-                        .getAttributeValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
-                if (consumesAttrVal != null) {
-                    resource.setConsumesList(getStringArray(consumesAttrVal.getAttributeValueArray()));
-                }
-                AnnAttributeValue producesAttrVal = rConfigAnnAtchmnt
-                        .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
-                if (producesAttrVal != null) {
-                    resource.setProducesList(getStringArray(producesAttrVal.getAttributeValueArray()));
-                }
             }
 
             try {
@@ -144,14 +129,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         sortedServiceURIs.add(basePath);
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
         service.setCachedMethods();
-    }
-
-    private String[] getStringArray(AnnAttributeValue[] annAttributeValues) {
-        String[] values = new String[annAttributeValues.length];
-        for (int i = 0; i < annAttributeValues.length; i++) {
-            values[i] = annAttributeValues[i].getStringValue();
-        }
-        return values;
     }
 
     @Override

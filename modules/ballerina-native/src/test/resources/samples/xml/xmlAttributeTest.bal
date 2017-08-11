@@ -1,5 +1,4 @@
 import ballerina.lang.xmls;
-import ballerina.lang.system;
 import ballerina.lang.strings;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
@@ -36,12 +35,49 @@ function testAddAttributeWithQName() (xml) {
     xml x1 = xmls:parse("<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>");
     
     x1@[ns0:foo1] = "bar1";
-    
-    // with an existing prefix, but different uri
-    x1@[ns3:foo2] = "bar2";
-    
-    system:println(x1);
-    
+    return x1;
+}
+
+function testAddAttributeWithDiffQName_1() (xml) {
+    xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
+    //same uri, non existant prefix
+    xmlns "http://sample.com/wso2/f" as pre;
+    x1@[pre:foo1] = "bar1";
+    return x1;
+}
+
+function testAddAttributeWithDiffQName_2() (xml) {
+    xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
+    //same uri, existing, non used prefix
+    xmlns "http://sample.com/wso2/f/" as ns5;
+    x1@[ns5:foo1] = "bar1";
+    return x1;
+}
+
+function testAddAttributeWithDiffQName_3() (xml) {
+    xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
+    //same uri, existing, used prefix
+    xmlns "http://sample.com/wso2/f/" as ns4;
+    x1@[ns4:foo1] = "bar1";
+    return x1;
+}
+
+function testAddAttributeWithDiffQName_4() (xml) {
+    xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
+    //different uri, existing, non used prefix
+    xmlns "http://sample.com/wso2/f/t" as ns5;
+    x1@[ns5:foo1] = "bar1";
+    return x1;
+}
+
+function testAddAttributeWithDiffQName_5() (xml) {
+    xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
+    //adding attribute with default namespace
+    x1@["{http://sample.com/wso2/c1}foo1"] = "bar1";
+    //adding attribute with empty namepsace
+    x1@["{}foo2"] = "bar2";
+    //adding attribute without a namespace
+    x1@["foo3"] = "bar3";
     return x1;
 }
 
@@ -78,14 +114,28 @@ function testUpdateNamespaceAsAttribute() (xml, xml) {
 }
 
 function testUpdateAttributeWithString() (xml) {
-    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+    xmlns "http://defaultNs/";
     
-    // without namespaceUri
-    x1@["foo1"] = "newbar1";
+    xml x1 = xmls:parse("<root xmlns:ns0=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0:foo2=\"bar2\" foo3=\"bar3\"/>");
+    
+    // with empty namespaceUri
+    x1@["{}foo1"] = "newbar1";
     
     // with a new namespaceUri
     x1@["{http://sample.com/wso2/e}foo2"] = "newbar2";
     
+    // without namespaceUri
+    x1@["foo3"] = "newbar3";
+    
+    return x1;
+}
+
+function testUpdateAttributeWithString_1() (xml) {
+    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+
+    //with a new uri than the assigned uri for the attribute
+    x1@["{http://sample.com/wso2/f/t}foo3"] = "newbar3";
+
     return x1;
 }
 
@@ -98,15 +148,24 @@ function testUpdateAttributeWithQName() (xml) {
     // with a matching namespaceUri but different prefix
     xmlns "http://sample.com/wso2/f" as ns4;
     x1@[ns4:foo2] = "newbar2";
-    
-    system:println(x1);
-    
+
+    return x1;
+}
+
+function testUpdateAttributeWithQName_1() (xml) {
+    xml x1 = xmls:parse("<root xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns5=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>");
+
+    // with a matching namespaceUri but different prefix
+    xmlns "http://sample.com/wso2/a1" as pre;
+    x1@[pre:foo1] = "newaddedbar1";
+
     return x1;
 }
 
 function testGetAttributeWithString() (string, string, string) {
-    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
-    return x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/e}foo3"];
+    xmlns "http://sample.com/wso2/f";
+    xml x1 = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+    return x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/eee}foo2"];
 }
 
 function testGetAttributeWithoutLocalname() (string) {

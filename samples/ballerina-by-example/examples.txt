@@ -23,6 +23,7 @@ JSON
 JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
+Constrained JSON
 XML
 XML Namespaces
 XML Literal
@@ -37,6 +38,8 @@ Fork/Join Condition Some
 Datatables
 SQL Connector
 Transactions
+Transform Structs
+Transform JSON
 Strings
 Blob Type
 Date Time
@@ -51,10 +54,11 @@ HTTP Sessions
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
-Websocket Basic Endpoint
-Websocket Basic Functions
-Websocket Connection Groups
-Websocket Connection Store
 Log API
 Function Pointers
 Lambda
+WebSocket Basic Endpoint
+WebSocket Basic Functions
+WebSocket Connection Store
+WebSocket Connection Groups
+WebSocket Client Connector
