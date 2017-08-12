@@ -47,8 +47,8 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
             packageDefinition.setLineNumber(lineNumber, { doSilently: true });
 
             const middleWS = packageDefinition.getParent().getWSRegion(1);
-            const constructedSourceSegment = 'package'
-                + ((packageDefinition.whiteSpace.useDefault) ? ' ' : middleWS)
+            const constructedSourceSegment = 'package'      // TODO find a proper fix for middleWS setting as ''.
+                + ((packageDefinition.whiteSpace.useDefault || middleWS === '') ? ' ' : middleWS)
                 + packageDefinition.getPackageName();
 
             const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
