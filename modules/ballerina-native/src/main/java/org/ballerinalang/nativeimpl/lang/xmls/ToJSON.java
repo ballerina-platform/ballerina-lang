@@ -24,8 +24,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.nativeimpl.lang.jsons.AbstractJSONFunction;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -54,7 +54,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         value = "Options for xml to json conversion ") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
         value = "JSON value of the given XML") })
-public class ToJSON extends AbstractJSONFunction {
+public class ToJSON extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context ctx) {

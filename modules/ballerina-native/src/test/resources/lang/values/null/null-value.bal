@@ -45,7 +45,7 @@ function testConnectorNull() (TestConnector, TestConnector, int) {
 connector TestConnector() {
     string name;
 
-    action testAction(TestConnector testConnector) (string) {
+    action testAction() (string) {
         return name;
     }
 }
@@ -99,7 +99,7 @@ function foo(xml x) (xml) {
 
 function testActionInNullConenctor() {
     TestConnector testConnector;
-    string result = TestConnector.testAction(testConnector);
+    string result = testConnector.testAction();
 }
 
 function testNullLiteralComparison() (boolean) {

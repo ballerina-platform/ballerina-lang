@@ -12,7 +12,7 @@ connector Twitter(string consumerKey, string consumerSecret, string accessToken,
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, msg);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(msg);
         messages:setHeader(request, "Authorization", oauthHeader);
-        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
+        message response = tweeterEP.post(tweetPath, request);
         return response;
     
     }

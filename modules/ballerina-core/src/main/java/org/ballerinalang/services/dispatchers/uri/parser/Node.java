@@ -19,6 +19,7 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -122,7 +123,7 @@ public abstract class Node {
         ResourceInfo resource = null;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : resources) {
-            if (resourceInfo.isMatchingMethodExist(httpMethod)) {
+            if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 resource = resourceInfo;
                 break;
             }
@@ -144,10 +145,10 @@ public abstract class Node {
             isFirstTraverse = false;
             return;
         }
-        String[] newMethods = newResource.getHttpMethods();
+        String[] newMethods = DispatcherUtil.getHttpMethods(newResource);
         if (newMethods == null) {
             for (ResourceInfo previousResource : this.resource) {
-                if (previousResource.getHttpMethods() == null) {
+                if (DispatcherUtil.getHttpMethods(previousResource) == null) {
                     //if both resources do not have methods but same URI, then throw following error.
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
                             + previousResource.getName() + " and " + newResource.getName());
@@ -158,7 +159,7 @@ public abstract class Node {
         }
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
-                if (r.isMatchingMethodExist(newMethod)) {
+                if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
                     throw new BallerinaException("Seems two resources have the same addressable URI, "
                             + r.getName() + " and " + newResource.getName());
                 }
@@ -230,7 +231,7 @@ public abstract class Node {
 
     private ResourceInfo tryMatchingToDefaultVerb(String method) {
         for (ResourceInfo resourceInfo : this.resource) {
-            if (resourceInfo.getHttpMethods() == null) {
+            if (DispatcherUtil.getHttpMethods(resourceInfo) == null) {
                 return resourceInfo;
             }
         }
@@ -240,7 +241,7 @@ public abstract class Node {
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
-        String[] consumesList  = resource.getConsumesList();
+        String[] consumesList  = DispatcherUtil.getConsumerList(resource);
 
         if (consumesList != null) {
             //when Content-Type header is not set, treat it as "application/octet-stream"
@@ -273,7 +274,7 @@ public abstract class Node {
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
-        String[] producesList = resource.getProducesList();
+        String[] producesList = DispatcherUtil.getProducesList(resource);
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
         if (producesList != null && acceptMediaTypes != null) {

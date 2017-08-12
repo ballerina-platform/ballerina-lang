@@ -42,10 +42,13 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Arrays;
@@ -113,7 +116,7 @@ public class BLangFunctions {
         }
 
         ControlStackNew controlStackNew = context.getControlStackNew();
-        invokeFunction(bLangProgram, packageInfo.getInitFunctionInfo(), context);
+        invokePackageInitFunction(bLangProgram, packageInfo.getInitFunctionInfo(), context);
 
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
@@ -279,6 +282,44 @@ public class BLangFunctions {
         BLangVM bLangVM = new BLangVM(programFile);
         context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(context);
+    }
+
+    public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
+        invokeFunction(programFile, initFuncInfo, context);
+        if (context.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
+        if (programFile.getUnresolvedAnnAttrValues() == null) {
+            return;
+        }
+        programFile.getUnresolvedAnnAttrValues().forEach(a -> {
+            PackageInfo packageInfo = programFile.getPackageInfo(a.getConstPkg());
+            LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) packageInfo
+                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+
+            LocalVariableInfo localVariableInfo = localVariableAttributeInfo.getLocalVarialbeDetails(a.getConstName());
+
+            switch (localVariableInfo.getVariableType().getTag()) {
+                case TypeTags.BOOLEAN_TAG:
+                    a.setBooleanValue(programFile.getGlobalMemoryBlock().getBooleanField(localVariableInfo
+                            .getVariableIndex()) == 1 ? true : false);
+                    break;
+                case TypeTags.INT_TAG:
+                    a.setIntValue(programFile.getGlobalMemoryBlock().getIntField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    a.setFloatValue(programFile.getGlobalMemoryBlock().getFloatField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+                case TypeTags.STRING_TAG:
+                    a.setStringValue(programFile.getGlobalMemoryBlock().getStringField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+            }
+        });
+        programFile.setUnresolvedAnnAttrValues(null);
     }
 
     /**

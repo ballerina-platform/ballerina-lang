@@ -155,6 +155,7 @@ public interface InstructionCodes {
 
     int GOTO = 117;
     int HALT = 118;
+    int TR_RETRY = 119;
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
@@ -218,10 +219,12 @@ public interface InstructionCodes {
     int CHECKCAST = 180;
     int NULL2JSON = 181;
 
+    int ANY2TYPE = 182;
+
 
     // Transactions
-    int TRBGN = 188;
-    int TREND = 189;
+    int TR_BEGIN = 188;
+    int TR_END = 189;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
