@@ -148,7 +148,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(",", "{", "}");
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
         String key;
         BValue value;
         String stringValue;

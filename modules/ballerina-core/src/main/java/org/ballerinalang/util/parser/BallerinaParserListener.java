@@ -1046,6 +1046,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterFailedClause(BallerinaParser.FailedClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitFailedClause(BallerinaParser.FailedClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortedClause}.
 	 * @param ctx the parse tree
 	 */
@@ -1075,6 +1085,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#retryStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterRetryStatement(BallerinaParser.RetryStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#retryStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocation}.
 	 * @param ctx the parse tree
@@ -1165,6 +1185,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code stringTemplateLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code stringTemplateLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code lambdaFunctionExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -1553,4 +1585,34 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#stringTemplateLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#stringTemplateLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#stringTemplateContent}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#stringTemplateContent}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#stringTemplateText}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringTemplateText(BallerinaParser.StringTemplateTextContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#stringTemplateText}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringTemplateText(BallerinaParser.StringTemplateTextContext ctx);
 }

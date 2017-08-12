@@ -42,6 +42,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -70,6 +71,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
@@ -167,6 +169,8 @@ public interface NodeVisitor {
 
     void visit(AbortStmt abortStmt);
 
+    void visit(RetryStmt retryStmt);
+
     void visit(NamespaceDeclarationStmt namespaceDeclarationStmt);
     
     void visit(NamespaceDeclaration namespaceDclr);
@@ -255,4 +259,5 @@ public interface NodeVisitor {
 
     void visit(LambdaExpression lambdaExpr);
 
+    void visit(StringTemplateLiteral stringTemplateLiteral);
 }

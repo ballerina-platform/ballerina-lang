@@ -222,8 +222,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertTrue(returns[1] instanceof BStruct);
         BStruct error = (BStruct) returns[1];
         String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonA': " +
-                "error while mapping 'age': no such field found");
+        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonA': error while mapping 'age': " +
+                "incompatible types: expected 'int', found 'string' in json");
     }
 
     @Test(description = "Test compatible struct with force casting.")

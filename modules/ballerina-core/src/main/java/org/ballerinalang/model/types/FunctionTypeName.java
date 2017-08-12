@@ -27,7 +27,7 @@ public class FunctionTypeName extends SimpleTypeName {
     private SimpleTypeName[] paramTypes;
     private SimpleTypeName[] returnParamsTypes;
 
-    private boolean isReturnWordAvailable;
+    private boolean hasReturnsKeyword;
     private String[] paramFieldNames;
     private String[] returnParamFieldNames;
 
@@ -70,12 +70,12 @@ public class FunctionTypeName extends SimpleTypeName {
 
     /* Util methods for retrieving information about function type syntex */
 
-    public boolean isReturnWordAvailable() {
-        return isReturnWordAvailable;
+    public boolean hasReturnsKeyword() {
+        return hasReturnsKeyword;
     }
 
-    public void setReturnWordAvailable(boolean returnWordAvailable) {
-        isReturnWordAvailable = returnWordAvailable;
+    public void setHasReturnsKeyword(boolean hasReturnsKeyword) {
+        this.hasReturnsKeyword = hasReturnsKeyword;
     }
 
     public String[] getParamFieldNames() {

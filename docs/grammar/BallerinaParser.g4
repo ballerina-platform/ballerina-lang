@@ -195,6 +195,7 @@ xmlLocalName
 
  annotationAttributeValue
      :   simpleLiteral
+     |   nameReference
      |   annotationAttachment
      |   annotationAttributeArray
      ;
@@ -226,6 +227,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -241,7 +243,7 @@ transformStatementBody
     ;
 
 expressionAssignmentStatement
-    :   variableReferenceList ASSIGN expression SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
     ;
 
 expressionVariableDefinitionStatement
@@ -425,8 +427,12 @@ transactionStatement
     ;
 
 transactionHandlers
-    : abortedClause? committedClause?
-    | committedClause? abortedClause?
+    : failedClause? abortedClause? committedClause?
+    | failedClause? committedClause? abortedClause?
+    ;
+
+failedClause
+    :   FAILED LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortedClause
     :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
@@ -438,6 +444,10 @@ committedClause
 
 abortStatement
     :   ABORT SEMICOLON
+    ;
+
+retryStatement
+    :   RETRY expression SEMICOLON
     ;
 
 actionInvocation
@@ -457,6 +467,7 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   mapStructLiteral                                                    # mapStructLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
@@ -575,4 +586,17 @@ xmlDoubleQuotedString
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
     |   XMLTagExpressionStart expression ExpressionEnd
+    ;
+
+stringTemplateLiteral
+    :   StringTemplateLiteralStart stringTemplateContent? StringTemplateLiteralEnd
+    ;
+
+stringTemplateContent
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
+    |   stringTemplateText
+    ;
+
+stringTemplateText
+    :   StringTemplateText
     ;

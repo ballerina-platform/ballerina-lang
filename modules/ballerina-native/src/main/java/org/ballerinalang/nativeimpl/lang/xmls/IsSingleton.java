@@ -47,7 +47,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "flag",
-        value = "flag indicating whether the XML sequence contains only a single element") })
+        value = "Flag indicating whether the XML sequence contains only a single element") })
 public class IsSingleton extends AbstractNativeFunction {
 
     private static final String OPERATION = "check xml is singleton";

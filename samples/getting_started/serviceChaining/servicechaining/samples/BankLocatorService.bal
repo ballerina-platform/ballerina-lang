@@ -5,8 +5,10 @@ import ballerina.net.http;
 
 @http:configuration {basePath:"/branchlocator"}
 service<http> Banklocator {
-    
-    @http:POST{}
+
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource product (message m) {
         message response = {};
         json jsonRequest = messages:getJsonPayload(m);
