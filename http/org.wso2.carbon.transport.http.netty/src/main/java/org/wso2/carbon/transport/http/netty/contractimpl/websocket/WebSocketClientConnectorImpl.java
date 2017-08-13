@@ -19,24 +19,10 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
-import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
-import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
-
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-import javax.net.ssl.SSLException;
-import javax.websocket.Session;
-
 /**
  * Implementation of WebSocket client connector.
  */
-public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
+public class WebSocketClientConnectorImpl {
 
     private final String remoteUrl;
     private final String subProtocol;
@@ -50,90 +36,90 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
         this.allowExtensions = allowExtensions;
     }
 
-    @Override
-    public Session connect(WebSocketConnectorListener listener) throws ClientConnectorException {
-        Map<String, String> headers = new HashMap<>();
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions, headers,
-                                                              null, listener);
-        try {
-            webSocketClient.handshake();
-            return webSocketClient.getSession();
-        } catch (InterruptedException e) {
-            throw new ClientConnectorException("Handshake interrupted", e);
-        } catch (URISyntaxException e) {
-            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
-        } catch (SSLException e) {
-            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
-        }
-    }
-
-    @Override
-    public Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
-            throws ClientConnectorException {
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
-                                                              customHeaders, null, listener);
-        try {
-            webSocketClient.handshake();
-            return webSocketClient.getSession();
-        } catch (InterruptedException e) {
-            throw new ClientConnectorException("Handshake interrupted", e);
-        } catch (URISyntaxException e) {
-            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
-        } catch (SSLException e) {
-            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
-        }
-    }
-
-    @Override
-    public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext)
-            throws ClientConnectorException {
-        BasicWebSocketMessageContextImpl messageContextImp;
-        if (messageContext instanceof BasicWebSocketMessageContextImpl) {
-            messageContextImp = (BasicWebSocketMessageContextImpl) messageContext;
-        } else {
-            throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
-        }
-
-        WebSocketSourceHandler sourceHandler =
-                (WebSocketSourceHandler) messageContextImp.getProperty(Constants.SRC_HANDLER);
-        Map<String, String> headers = new HashMap<>();
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions, headers,
-                                                              sourceHandler, listener);
-        try {
-            webSocketClient.handshake();
-            return webSocketClient.getSession();
-        } catch (InterruptedException e) {
-            throw new ClientConnectorException("Handshake interrupted", e);
-        } catch (URISyntaxException e) {
-            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
-        } catch (SSLException e) {
-            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
-        }
-    }
-
-    @Override
-    public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext,
-                           Map<String, String> customHeaders) throws ClientConnectorException {
-        BasicWebSocketMessageContextImpl messageContextImp;
-        if (messageContext instanceof BasicWebSocketMessageContextImpl) {
-            messageContextImp = (BasicWebSocketMessageContextImpl) messageContext;
-        } else {
-            throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
-        }
-
-        WebSocketSourceHandler sourceHandler =
-                (WebSocketSourceHandler) messageContextImp.getProperty(Constants.SRC_HANDLER);
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
-                                                              customHeaders, sourceHandler, listener);
-        try {
-            webSocketClient.handshake();
-            return webSocketClient.getSession();
-        } catch (InterruptedException e) {
-            throw new ClientConnectorException("Handshake interrupted", e);
-        } catch (URISyntaxException e) {
-            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
-        } catch (SSLException e) {
-            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
-        }
-    }
+//    @Override
+//    public Session connect(WebSocketConnectorListener listener) throws ClientConnectorException {
+//        Map<String, String> headers = new HashMap<>();
+//        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions, headers,
+//                                                              null, listener);
+//        try {
+//            webSocketClient.handshake();
+//            return webSocketClient.getSession();
+//        } catch (InterruptedException e) {
+//            throw new ClientConnectorException("Handshake interrupted", e);
+//        } catch (URISyntaxException e) {
+//            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
+//        } catch (SSLException e) {
+//            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
+//        }
+//    }
+//
+//    @Override
+//    public Session connect(WebSocketConnectorListener listener, Map<String, String> customHeaders)
+//            throws ClientConnectorException {
+//        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
+//                                                              customHeaders, null, listener);
+//        try {
+//            webSocketClient.handshake();
+//            return webSocketClient.getSession();
+//        } catch (InterruptedException e) {
+//            throw new ClientConnectorException("Handshake interrupted", e);
+//        } catch (URISyntaxException e) {
+//            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
+//        } catch (SSLException e) {
+//            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
+//        }
+//    }
+//
+//    @Override
+//    public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext)
+//            throws ClientConnectorException {
+//        WebSocketMessageContextImpl messageContextImp;
+//        if (messageContext instanceof WebSocketMessageContextImpl) {
+//            messageContextImp = (WebSocketMessageContextImpl) messageContext;
+//        } else {
+//            throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
+//        }
+//
+//        WebSocketSourceHandler sourceHandler =
+//                (WebSocketSourceHandler) messageContextImp.getProperty(Constants.SRC_HANDLER);
+//        Map<String, String> headers = new HashMap<>();
+//        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions, headers,
+//                                                              sourceHandler, listener);
+//        try {
+//            webSocketClient.handshake();
+//            return webSocketClient.getSession();
+//        } catch (InterruptedException e) {
+//            throw new ClientConnectorException("Handshake interrupted", e);
+//        } catch (URISyntaxException e) {
+//            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
+//        } catch (SSLException e) {
+//            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
+//        }
+//    }
+//
+//    @Override
+//    public Session connect(WebSocketConnectorListener listener, WebSocketMessageContext messageContext,
+//                           Map<String, String> customHeaders) throws ClientConnectorException {
+//        WebSocketMessageContextImpl messageContextImp;
+//        if (messageContext instanceof WebSocketMessageContextImpl) {
+//            messageContextImp = (WebSocketMessageContextImpl) messageContext;
+//        } else {
+//            throw new ClientConnectorException("Cannot extract WebSocketChannelContext context from message");
+//        }
+//
+//        WebSocketSourceHandler sourceHandler =
+//                (WebSocketSourceHandler) messageContextImp.getProperty(Constants.SRC_HANDLER);
+//        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
+//                                                              customHeaders, sourceHandler, listener);
+//        try {
+//            webSocketClient.handshake();
+//            return webSocketClient.getSession();
+//        } catch (InterruptedException e) {
+//            throw new ClientConnectorException("Handshake interrupted", e);
+//        } catch (URISyntaxException e) {
+//            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
+//        } catch (SSLException e) {
+//            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
+//        }
+//    }
 }

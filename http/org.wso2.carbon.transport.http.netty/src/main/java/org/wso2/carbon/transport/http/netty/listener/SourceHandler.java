@@ -44,9 +44,9 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPResponseListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -178,23 +178,25 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * @param httpRequest {@link HttpRequest} of the request.
      * @throws ServerConnectorException if any error occurred during notification of the message.
      */
-    private void handleWebSocketHandshake(HttpRequest httpRequest) throws ServerConnectorException {
-            boolean isSecured = false;
-            if (listenerConfiguration.getSslConfig() != null) {
-                isSecured = true;
-            }
-            String uri = httpRequest.uri();
-            String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
-            boolean isServerMessage = true;
+    private void handleWebSocketHandshake(HttpRequest httpRequest) throws Exception {
+        boolean isSecured = false;
+        if (listenerConfiguration.getSslConfig() != null) {
+            isSecured = true;
+        }
+        String uri = httpRequest.uri();
+        String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
+        WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
+        WebSocketSourceHandler webSocketSourceHandler =
+                new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
+                                           connectionManager, listenerConfiguration, ctx);
+        WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler);
 
-            BasicWebSocketMessageContextImpl webSocketChannelContext = new BasicWebSocketMessageContextImpl(
-                    subProtocol, uri, listenerConfiguration.getId(), isSecured, isServerMessage, connectionManager,
-                    listenerConfiguration);
+        // Setting common properties for init message
+        initMessage.setSubProtocol(subProtocol);
+        initMessage.setChannelSession(channelSession);
+        initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
 
-            WebSocketInitMessageImpl initMessage =
-                    new WebSocketInitMessageImpl(httpRequest, serverConnectorFuture, webSocketChannelContext, ctx);
-
-            serverConnectorFuture.notifyWSListener(initMessage);
+        serverConnectorFuture.notifyWSListener(initMessage);
     }
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread

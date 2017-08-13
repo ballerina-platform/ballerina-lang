@@ -19,12 +19,15 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
+import java.util.List;
+import javax.websocket.Session;
+
 /**
  * This is the common interface for all WebSocket messages.
  * <b>Note: Use this interface in the application level only and only if the user needs only the channel details
  * of a WebSocket message otherwise use the extensions of this interface.</b>
  */
-public interface WebSocketMessageContext {
+public interface WebSocketMessage {
 
     /**
      * Retrieve negotiated sub-protocol.
@@ -61,4 +64,25 @@ public interface WebSocketMessageContext {
      * client connector.
      */
     boolean isServerMessage();
+
+    /**
+     * Retrieve the session of the connection.
+     *
+     * @return the session of the connection.
+     */
+    Session getChannelSession();
+
+    /**
+     * Retrieve the server session of the connection.
+     *
+     * @return the server session if exists.
+     */
+    Session getServerSession();
+
+    /**
+     * Retrieve the client session array relates to the listener channel.
+     *
+     * @return the client session array relates to the listener channel.
+     */
+    List<Session> getClientSessions();
 }

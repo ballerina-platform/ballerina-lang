@@ -27,11 +27,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.ProtocolException;
@@ -41,25 +38,18 @@ import javax.websocket.Session;
 /**
  * Implementation of {@link WebSocketInitMessage}.
  */
-public class WebSocketInitMessageImpl extends BasicWebSocketMessageContextImpl implements WebSocketInitMessage {
+public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements WebSocketInitMessage {
 
     private final ChannelHandlerContext ctx;
     private final HttpRequest httpRequest;
     private final WebSocketServerHandshaker handshaker;
-    private final BasicWebSocketMessageContextImpl basicWebSocketChannelContext;
-    private final ServerConnectorFuture connectorFuture;
+    private final WebSocketSourceHandler webSocketSourceHandler;
 
-    public WebSocketInitMessageImpl(HttpRequest httpRequest, ServerConnectorFuture connectorFuture,
-                                    BasicWebSocketMessageContextImpl webSocketChannelContext,
-                                    ChannelHandlerContext ctx) {
-        super(webSocketChannelContext.getSubProtocol(), webSocketChannelContext.getTarget(),
-              webSocketChannelContext.getListenerInterface(), webSocketChannelContext.isConnectionSecured(),
-              webSocketChannelContext.isServerMessage(), webSocketChannelContext.getConnectionManager(),
-              webSocketChannelContext.getListenerConfiguration());
-        this.httpRequest = httpRequest;
-        this.basicWebSocketChannelContext = webSocketChannelContext;
+    public WebSocketInitMessageImpl(ChannelHandlerContext ctx, HttpRequest httpRequest,
+                                    WebSocketSourceHandler webSocketSourceHandler) {
         this.ctx = ctx;
-        this.connectorFuture = connectorFuture;
+        this.httpRequest = httpRequest;
+        this.webSocketSourceHandler = webSocketSourceHandler;
 
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), subProtocol, true);
@@ -70,11 +60,6 @@ public class WebSocketInitMessageImpl extends BasicWebSocketMessageContextImpl i
     public Session handshake() throws ProtocolException {
 
         try {
-            WebSocketSessionImpl serverSession = WebSocketUtil.getSession(ctx, isConnectionSecured, target);
-            WebSocketSourceHandler webSocketSourceHandler =
-                    new WebSocketSourceHandler(WebSocketUtil.getSessionID(ctx), this.connectionManager,
-                                               this.listenerConfiguration, httpRequest, isConnectionSecured, ctx,
-                                               basicWebSocketChannelContext, connectorFuture, serverSession);
             handshaker.handshake(ctx.channel(), httpRequest);
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
@@ -84,7 +69,6 @@ public class WebSocketInitMessageImpl extends BasicWebSocketMessageContextImpl i
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
             pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
 
-            setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
             return serverSession;
         } catch (Exception e) {
             /*
@@ -101,11 +85,6 @@ public class WebSocketInitMessageImpl extends BasicWebSocketMessageContextImpl i
     @Override
     public Session handshake(int idleTimeout) throws ProtocolException {
         try {
-            WebSocketSessionImpl serverSession = WebSocketUtil.getSession(ctx, isConnectionSecured, target);
-            WebSocketSourceHandler webSocketSourceHandler =
-                    new WebSocketSourceHandler(WebSocketUtil.getSessionID(ctx), this.connectionManager,
-                                               this.listenerConfiguration, httpRequest, isConnectionSecured, ctx,
-                                               basicWebSocketChannelContext, connectorFuture, serverSession);
             handshaker.handshake(ctx.channel(), httpRequest);
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline

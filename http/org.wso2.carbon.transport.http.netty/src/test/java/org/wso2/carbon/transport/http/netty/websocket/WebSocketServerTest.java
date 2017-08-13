@@ -60,7 +60,6 @@ public class WebSocketServerTest {
     public void setup() {
         log.info(System.lineSeparator() +
                          "---------------------WebSocket Server Test Cases---------------------");
-        Map<String, String> props = new HashMap<>();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(9009);

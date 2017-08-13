@@ -40,8 +40,10 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.BasicWebSocketMessageContextImpl;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
@@ -81,12 +83,14 @@ public class WebSocketClient {
      */
     public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
                            Map<String, String> headers,
-                           WebSocketSourceHandler sourceHandler, WebSocketConnectorListener connectorListener) {
+                           WebSocketSourceHandler sourceHandler, WebSocketConnectorListener connectorListener,
+                           WebSocketMessage webSocketMessageContext) {
         this.url = url;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
-        this.sourceHandler = sourceHandler;
+        this.sourceHandler = (WebSocketSourceHandler) ((WebSocketMessageImpl)
+                webSocketMessageContext).getProperty(Constants.SRC_HANDLER);
 
         if (target == null) {
             this.target = "client";
@@ -145,11 +149,7 @@ public class WebSocketClient {
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
 
-        BasicWebSocketMessageContextImpl webSocketChannelContext =
-                new BasicWebSocketMessageContextImpl(subprotocol, target, ssl, false);
-
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, url, connectorListener,
-                                             webSocketChannelContext);
+        handler = new WebSocketTargetHandler(subprotocol, target, ssl, websocketHandshaker, sourceHandler, url, connectorListener);
 
         Bootstrap b = new Bootstrap();
         b.group(group)
@@ -180,7 +180,7 @@ public class WebSocketClient {
      * @return Session of the client.
      */
     public Session getSession() {
-        return handler.getClientSession();
+        return handler.getChannelSession();
     }
 
 }

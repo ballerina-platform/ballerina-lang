@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 /**
  * This message contains the details of WebSocket bong message.
  */
-public interface WebSocketControlMessage extends WebSocketMessageContext, WebSocketMessageSessionContext {
+public interface WebSocketControlMessage extends WebSocketMessage {
 
     /**
      * Get the control signal.
