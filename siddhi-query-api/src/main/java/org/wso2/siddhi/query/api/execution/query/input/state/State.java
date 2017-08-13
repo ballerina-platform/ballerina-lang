@@ -71,22 +71,22 @@ public class State {
         return new AbsentStreamStateElement(streamStateElement.getBasicSingleInputStream(), time);
     }
 
-    public static StateElement logicalNotAnd(StreamStateElement streamStateElement1,
-                                             AbsentStreamStateElement streamStateElement2) {
+    public static StateElement logicalNotAnd(AbsentStreamStateElement streamStateElement1,
+                                             StreamStateElement streamStateElement2) {
 
-        if (streamStateElement1 instanceof AbsentStreamStateElement) {
+        if (streamStateElement2 instanceof AbsentStreamStateElement) {
             // not A for 1 sec and not B for 1 sec
             return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND,
                     streamStateElement2);
         }
-        if (streamStateElement2.getWaitingTime() == null) {
+        if (streamStateElement1.getWaitingTime() == null) {
             // not A and B
             return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND,
                     streamStateElement2);
         } else {
             // not A for 1 sec and B
-            return new LogicalStateElement(streamStateElement2, LogicalStateElement.Type.AND,
-                    streamStateElement1);
+            return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND,
+                    streamStateElement2);
         }
     }
 

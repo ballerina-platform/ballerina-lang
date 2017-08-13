@@ -957,7 +957,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                     absentStreamState = State.logicalNot(new StreamStateElement((BasicSingleInputStream) visit(ctx
                             .basic_source())));
                 }
-                return State.logicalNotAnd(presentStreamState, absentStreamState);
+                return State.logicalNotAnd(absentStreamState, presentStreamState);
             }
         } else if (ctx.OR() != null) {
             if (ctx.basic_absent_pattern_source().size() == 2) {

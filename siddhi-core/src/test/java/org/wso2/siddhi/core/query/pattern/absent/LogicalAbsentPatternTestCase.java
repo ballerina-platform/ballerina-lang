@@ -2964,6 +2964,79 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
+    @Test
+    public void testQueryAbsent66() throws InterruptedException {
+        log.info("Test the query not e1 and e2 -> e3 with e2 only");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); " +
+                "define stream Stream2 (symbol string, price float, volume int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from not Stream1[price>50] and e2=Stream2[price>20] " +
+                "select e2.symbol as symbol2 " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM"});
+
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
+
+        siddhiAppRuntime.start();
+
+        stream2.send(new Object[]{"IBM", 25.0f, 100});
+        Thread.sleep(100);
+
+        for (AssertionError e : this.assertionErrors) {
+            throw e;
+        }
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertTrue("Event arrived", eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test
+    public void testQueryAbsent67() throws InterruptedException {
+        log.info("Test the query not e1 and e2 -> e3 with e1 and e2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from not Stream1[price==50.0f] and e2=Stream1[price==20.0f] " +
+                "select e2.symbol as symbol2 " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        addCallback(siddhiAppRuntime, "query1");
+
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+
+        siddhiAppRuntime.start();
+
+        stream1.send(new Object[]{"WSO2", 50.0f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"IBM", 20.0f, 100});
+        Thread.sleep(100);
+
+        for (AssertionError e : this.assertionErrors) {
+            throw e;
+        }
+        Assert.assertEquals("Number of success events", 0, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertFalse("Event arrived", eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
     private void addCallback(SiddhiAppRuntime siddhiAppRuntime, String queryName, Object[]... expected) {
         final int noOfExpectedEvents = expected.length;
         siddhiAppRuntime.addCallback(queryName, new QueryCallback() {

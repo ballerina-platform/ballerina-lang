@@ -287,10 +287,10 @@ public class AbsentLogicalPreStateProcessor extends LogicalPreStateProcessor imp
                 if (!stateChanged) {
                     switch (stateType) {
                         case PATTERN:
-                            stateEvent.setEvent(stateId, null);
+                            stateEvent.setEvent(stateId, currentStreamEvent);
                             break;
                         case SEQUENCE:
-                            stateEvent.setEvent(stateId, null);
+                            stateEvent.setEvent(stateId, currentStreamEvent);
                             iterator.remove();
                             break;
                     }
