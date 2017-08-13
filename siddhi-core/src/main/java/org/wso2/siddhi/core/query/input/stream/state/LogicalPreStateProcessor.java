@@ -34,8 +34,8 @@ import java.util.Set;
  */
 public class LogicalPreStateProcessor extends StreamPreStateProcessor {
 
-    private LogicalStateElement.Type logicalType;
-    private LogicalPreStateProcessor partnerStatePreProcessor;
+    protected LogicalStateElement.Type logicalType;
+    protected LogicalPreStateProcessor partnerStatePreProcessor;
 
     public LogicalPreStateProcessor(LogicalStateElement.Type type, StateInputStream.Type stateType, List<Map
             .Entry<Long, Set<Integer>>> withinStates) {
@@ -131,7 +131,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
             if (withinStates.size() > 0) {
-                if (isExpired(stateEvent, streamEvent)) {
+                if (isExpired(stateEvent, streamEvent.getTimestamp())) {
                     iterator.remove();
                     continue;
                 }

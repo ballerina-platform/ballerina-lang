@@ -22,11 +22,18 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.state.AbsentLogicalPostStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.AbsentLogicalPreStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.AbsentPreStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.AbsentStreamPostStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.AbsentStreamPreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.CountPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.CountPreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.LogicalPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.LogicalPreStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.StreamPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
@@ -40,10 +47,13 @@ import org.wso2.siddhi.core.query.input.stream.state.runtime.InnerStateRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.runtime.LogicalInnerStateRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.runtime.NextInnerStateRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.runtime.StreamInnerStateRuntime;
+import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.execution.query.input.state.AbsentStreamStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.state.CountStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.state.EveryStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
@@ -60,6 +70,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Class to parse {@link StateStreamRuntime}
@@ -157,7 +168,25 @@ public class StateInputStreamParser {
                             .getValue(), withinStateset));
                 }
 
-                streamPreStateProcessor = new StreamPreStateProcessor(stateType, clonewithinStates(withinStates));
+                if (stateElement instanceof AbsentStreamStateElement) {
+
+                    AbsentStreamPreStateProcessor absentProcessor = new AbsentStreamPreStateProcessor(stateType,
+                            clonewithinStates(withinStates),
+                            ((AbsentStreamStateElement) stateElement).getWaitingTime());
+
+                    // Set the scheduler
+                    siddhiAppContext.addEternalReferencedHolder(absentProcessor);
+                    EntryValveProcessor entryValveProcessor = new EntryValveProcessor(siddhiAppContext);
+                    entryValveProcessor.setToLast(absentProcessor);
+                    Scheduler scheduler = SchedulerParser.parse(siddhiAppContext.getScheduledExecutorService(),
+                            entryValveProcessor, siddhiAppContext);
+                    absentProcessor.setScheduler(scheduler);
+
+                    // Assign the AbsentStreamPreStateProcessor to streamPreStateProcessor
+                    streamPreStateProcessor = absentProcessor;
+                } else {
+                    streamPreStateProcessor = new StreamPreStateProcessor(stateType, clonewithinStates(withinStates));
+                }
                 streamPreStateProcessor.init(siddhiAppContext, queryName);
 
                 if (stateElement.getWithin() != null) {
@@ -168,7 +197,11 @@ public class StateInputStreamParser {
             streamPreStateProcessor.setNextProcessor(singleStreamRuntime.getProcessorChain());
             singleStreamRuntime.setProcessorChain(streamPreStateProcessor);
             if (streamPostStateProcessor == null) {
-                streamPostStateProcessor = new StreamPostStateProcessor();
+                if (stateElement instanceof AbsentStreamStateElement) {
+                    streamPostStateProcessor = new AbsentStreamPostStateProcessor();
+                } else {
+                    streamPostStateProcessor = new StreamPostStateProcessor();
+                }
             }
             streamPostStateProcessor.setStateId(stateIndex);
             singleStreamRuntime.getProcessorChain().setToLast(streamPostStateProcessor);
@@ -262,15 +295,57 @@ public class StateInputStreamParser {
                         (), withinStateset));
             }
 
-            LogicalPreStateProcessor logicalPreStateProcessor1 = new LogicalPreStateProcessor(type, stateType,
-                    clonewithinStates(withinStates));
-            logicalPreStateProcessor1.init(siddhiAppContext, queryName);
-            LogicalPostStateProcessor logicalPostStateProcessor1 = new LogicalPostStateProcessor(type);
+            ReentrantLock lock = new ReentrantLock();
+            LogicalPreStateProcessor logicalPreStateProcessor1;
+            if (((LogicalStateElement) stateElement).getStreamStateElement1() instanceof AbsentStreamStateElement) {
+                logicalPreStateProcessor1 = new AbsentLogicalPreStateProcessor(type, stateType, clonewithinStates
+                        (withinStates), ((AbsentStreamStateElement) ((LogicalStateElement) stateElement)
+                        .getStreamStateElement1()).getWaitingTime(), lock);
 
-            LogicalPreStateProcessor logicalPreStateProcessor2 = new LogicalPreStateProcessor(type, stateType,
-                    clonewithinStates(withinStates));
+                // Set the scheduler
+                siddhiAppContext.addEternalReferencedHolder((AbsentLogicalPreStateProcessor)
+                        logicalPreStateProcessor1);
+                EntryValveProcessor entryValveProcessor = new EntryValveProcessor(siddhiAppContext);
+                entryValveProcessor.setToLast(logicalPreStateProcessor1);
+                Scheduler scheduler = SchedulerParser.parse(siddhiAppContext.getScheduledExecutorService(),
+                        entryValveProcessor, siddhiAppContext);
+                ((SchedulingProcessor) logicalPreStateProcessor1).setScheduler(scheduler);
+            } else {
+                logicalPreStateProcessor1 = new LogicalPreStateProcessor(type, stateType, clonewithinStates
+                        (withinStates));
+            }
+            logicalPreStateProcessor1.init(siddhiAppContext, queryName);
+            LogicalPostStateProcessor logicalPostStateProcessor1;
+            if (((LogicalStateElement) stateElement).getStreamStateElement1() instanceof AbsentStreamStateElement) {
+                logicalPostStateProcessor1 = new AbsentLogicalPostStateProcessor(type);
+            } else {
+                logicalPostStateProcessor1 = new LogicalPostStateProcessor(type);
+            }
+
+            LogicalPreStateProcessor logicalPreStateProcessor2;
+            if (((LogicalStateElement) stateElement).getStreamStateElement2() instanceof AbsentStreamStateElement) {
+                logicalPreStateProcessor2 = new AbsentLogicalPreStateProcessor(type, stateType, clonewithinStates
+                        (withinStates),
+                        ((AbsentStreamStateElement) ((LogicalStateElement) stateElement).getStreamStateElement2())
+                                .getWaitingTime(), lock);
+                siddhiAppContext.addEternalReferencedHolder((AbsentLogicalPreStateProcessor)
+                        logicalPreStateProcessor2);
+                EntryValveProcessor entryValveProcessor = new EntryValveProcessor(siddhiAppContext);
+                entryValveProcessor.setToLast(logicalPreStateProcessor2);
+                Scheduler scheduler = SchedulerParser.parse(siddhiAppContext.getScheduledExecutorService(),
+                        entryValveProcessor, siddhiAppContext);
+                ((SchedulingProcessor) logicalPreStateProcessor2).setScheduler(scheduler);
+            } else {
+                logicalPreStateProcessor2 = new LogicalPreStateProcessor(type, stateType, clonewithinStates
+                        (withinStates));
+            }
             logicalPreStateProcessor2.init(siddhiAppContext, queryName);
-            LogicalPostStateProcessor logicalPostStateProcessor2 = new LogicalPostStateProcessor(type);
+            LogicalPostStateProcessor logicalPostStateProcessor2;
+            if (((LogicalStateElement) stateElement).getStreamStateElement2() instanceof AbsentStreamStateElement) {
+                logicalPostStateProcessor2 = new AbsentLogicalPostStateProcessor(type);
+            } else {
+                logicalPostStateProcessor2 = new LogicalPostStateProcessor(type);
+            }
 
             if (stateElement.getWithin() != null) {
                 withinStates.remove(0);
@@ -356,7 +431,6 @@ public class StateInputStreamParser {
 
         } else {
             throw new OperationNotSupportedException();
-            //todo support not
         }
 
     }
