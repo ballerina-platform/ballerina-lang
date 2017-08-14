@@ -19,7 +19,6 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -29,6 +28,7 @@ import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketClientConnectorImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
@@ -71,15 +71,25 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     }
 
     @Override
-    public WebSocketClientConnector getWSClientConnector(CarbonMessage carbonMessage) {
-        String subProtocol = (String) carbonMessage.getProperty(Constants.WEBSOCKET_SUBPROTOCOLS);
-        String remoteUrl = (String) carbonMessage.getProperty(Constants.REMOTE_ADDRESS);
-        String target = (String) carbonMessage.getProperty(Constants.TO);
-        WebSocketSourceHandler sourceHandler =
-                (WebSocketSourceHandler) carbonMessage.getProperty(Constants.SRC_HANDLER);
+    public WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties) {
+        String subProtocol = (String) senderProperties.get(Constants.WEBSOCKET_SUBPROTOCOLS);
+        String remoteUrl = (String) senderProperties.get(Constants.REMOTE_ADDRESS);
+        String target = (String) senderProperties.get(Constants.TO);
 
-        // TODO: Allow extensions when any type is supported in change of message type.
         boolean allowExtensions = true;
+        Object allowExtensionsObj = senderProperties.get(Constants.WEBSOCKET_ALLOW_EXTENSIONS);
+        if (allowExtensionsObj != null) {
+            allowExtensions = (boolean) allowExtensionsObj;
+        }
+
+        WebSocketSourceHandler sourceHandler = null;
+        WebSocketMessageImpl webSocketMessage =
+                (WebSocketMessageImpl) senderProperties.get(Constants.WEBSOCKET_MESSAGE);
+        if (webSocketMessage != null) {
+            sourceHandler =
+                    (WebSocketSourceHandler) webSocketMessage.getProperty(Constants.SRC_HANDLER);
+        }
+
         return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocol, allowExtensions, sourceHandler);
     }
 }

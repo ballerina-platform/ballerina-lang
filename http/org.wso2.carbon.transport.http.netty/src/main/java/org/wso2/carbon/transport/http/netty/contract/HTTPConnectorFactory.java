@@ -19,7 +19,6 @@
 
 package org.wso2.carbon.transport.http.netty.contract;
 
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
@@ -35,5 +34,5 @@ public interface HTTPConnectorFactory {
             ListenerConfiguration listenerConfiguration);
     HTTPClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration);
-    WebSocketClientConnector getWSClientConnector(CarbonMessage carbonMessage);
+    WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties);
 }

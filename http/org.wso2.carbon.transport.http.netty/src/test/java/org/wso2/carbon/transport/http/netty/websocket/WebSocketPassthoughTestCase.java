@@ -54,7 +54,7 @@ public class WebSocketPassthoughTestCase {
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         log.info(System.lineSeparator() +
-                         "---------------------WebSocket Client Connector Test Cases---------------------");
+                         "---------------------WebSocket Pass Through Connector Test Cases---------------------");
         remoteServer.run();
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();

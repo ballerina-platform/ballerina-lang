@@ -25,8 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -60,11 +58,11 @@ public class WebSocketClientTest {
         log.info(System.lineSeparator() +
                          "---------------------WebSocket Client Connector Test Cases---------------------");
         remoteServer.run();
-        CarbonMessage carbonMessage = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN,
-                                                              0, null);
-        carbonMessage.setProperty(Constants.REMOTE_ADDRESS, url);
-        carbonMessage.setProperty(Constants.WEBSOCKET_SUBPROTOCOLS, null);
-        clientConnector = httpConnectorFactory.getWSClientConnector(carbonMessage);
+        Map<String, Object> senderProperties = new HashMap<>();
+
+        senderProperties.put(Constants.REMOTE_ADDRESS, url);
+        senderProperties.put(Constants.WEBSOCKET_SUBPROTOCOLS, null);
+        clientConnector = httpConnectorFactory.getWSClientConnector(senderProperties);
     }
 
     @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")

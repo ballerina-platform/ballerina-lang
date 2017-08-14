@@ -21,8 +21,6 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
@@ -34,7 +32,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.io.IOException;
 import java.net.ProtocolException;
@@ -56,13 +53,11 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
-            CarbonMessage carbonMessage = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN,
-                                                                  0, null);
-            CarbonMessage serverCarbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(initMessage);
-            carbonMessage.setProperty(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
-            carbonMessage.setProperty(Constants.TO, "myService");
-            carbonMessage.setProperty(Constants.SRC_HANDLER, serverCarbonMessage.getProperty(Constants.SRC_HANDLER));
-            WebSocketClientConnector clientConnector = connectorFactory.getWSClientConnector(carbonMessage);
+            Map<String, Object> senderProperties = new HashMap<>();
+            senderProperties.put(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
+            senderProperties.put(Constants.TO, "myService");
+            senderProperties.put(Constants.WEBSOCKET_MESSAGE, initMessage);
+            WebSocketClientConnector clientConnector = connectorFactory.getWSClientConnector(senderProperties);
 
             WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
             Map<String, String> customHeaders = new HashMap<>();
