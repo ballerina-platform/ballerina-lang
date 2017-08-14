@@ -28,7 +28,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMes
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessageContext;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
@@ -89,20 +89,23 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     }
 
     private void dispatchMessage(CarbonMessage message, ServiceInfo service, ResourceInfo resource) {
-        ServerConnectorMessageHandler.
-                invokeResource(message, null, Constants.PROTOCOL_WEBSOCKET, resource, service);
+        if (resource != null) {
+            ServerConnectorMessageHandler.
+                    invokeResource(message, null, Constants.PROTOCOL_WEBSOCKET, resource, service);
+        }
     }
 
-    private ServiceInfo findService(CarbonMessage message, WebSocketMessageContext messageContext) {
-        if (messageContext.isServerMessage()) {
+    private ServiceInfo findService(CarbonMessage message, WebSocketMessage webSocketMessage) {
+        if (webSocketMessage.isServerMessage()) {
             try {
-                String interfaceId = messageContext.getListenerInterface();
-                String serviceUri = messageContext.getTarget();
+                String interfaceId = webSocketMessage.getListenerInterface();
+                String serviceUri = webSocketMessage.getTarget();
                 serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
                 if (serviceUri == null) {
                     throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
                 }
-                ServiceInfo service = WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
+                ServiceInfo service =
+                        WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
 
                 if (service == null) {
                     throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
@@ -113,7 +116,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
                 throw new BallerinaException("no Service found to handle the service request");
             }
         } else {
-            String clientServiceName = messageContext.getTarget();
+            String clientServiceName = webSocketMessage.getTarget();
             ServiceInfo clientService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
             if (clientService == null) {
                 throw new BallerinaException("no client service found to handle the service request");
@@ -129,7 +132,6 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
                 return resource;
             }
         }
-
-        throw new BallerinaException("Cannot find a resource for annotation: " + annotationName);
+        return null;
     }
 }

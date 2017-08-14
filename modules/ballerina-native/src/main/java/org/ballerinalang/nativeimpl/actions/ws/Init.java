@@ -41,6 +41,7 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 
 import java.util.HashMap;
@@ -80,13 +81,15 @@ public class Init extends AbstractWebSocketAction {
         ServiceInfo parentService = context.getServiceInfo();
 
         // Initializing a client connection.
-        Map<String, String> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
         properties.put(Constants.TO, clientServiceName);
         WebSocketClientConnector clientConnector = httpConnectorFactory.getWSClientConnector(properties);
+
+        Map<String, String> customHeaders = new HashMap<>();
         Session clientSession;
         try {
-            clientSession = clientConnector.connect(new BallerinaWebSocketConnectorListener());
+            clientSession = clientConnector.connect(new BallerinaWebSocketConnectorListener(), customHeaders);
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
         }
