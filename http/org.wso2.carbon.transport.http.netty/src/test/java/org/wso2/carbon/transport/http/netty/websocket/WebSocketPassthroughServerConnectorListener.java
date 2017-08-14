@@ -32,19 +32,13 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMes
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;

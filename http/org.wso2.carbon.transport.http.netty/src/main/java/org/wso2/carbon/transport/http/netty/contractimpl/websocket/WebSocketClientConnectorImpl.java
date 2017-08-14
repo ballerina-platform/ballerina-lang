@@ -20,7 +20,6 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
@@ -55,7 +54,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     public Session connect(WebSocketConnectorListener connectorListener, Map<String, String> customHeaders)
             throws ClientConnectorException {
 
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, true,
+        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
                                                               customHeaders, sourceHandler, connectorListener);
         try {
             webSocketClient.handshake();

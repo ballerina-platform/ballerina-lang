@@ -29,7 +29,6 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.ProtocolException;

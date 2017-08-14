@@ -41,7 +41,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPResponseListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
@@ -176,7 +175,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * Handle the WebSocket handshake.
      *
      * @param httpRequest {@link HttpRequest} of the request.
-     * @throws ServerConnectorException if any error occurred during notification of the message.
      */
     private void handleWebSocketHandshake(HttpRequest httpRequest) throws Exception {
         boolean isSecured = false;

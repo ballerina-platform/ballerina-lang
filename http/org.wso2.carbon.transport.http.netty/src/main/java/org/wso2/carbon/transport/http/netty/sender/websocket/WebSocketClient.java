@@ -40,7 +40,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 

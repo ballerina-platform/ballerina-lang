@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.websocket.Session;

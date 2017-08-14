@@ -20,7 +20,6 @@
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 
 import java.util.Map;
 import javax.websocket.Session;

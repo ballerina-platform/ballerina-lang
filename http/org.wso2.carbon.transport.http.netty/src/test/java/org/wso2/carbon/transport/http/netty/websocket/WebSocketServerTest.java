@@ -35,8 +35,6 @@ import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestC
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import javax.net.ssl.SSLException;
 
 import static org.testng.AssertJUnit.assertEquals;
