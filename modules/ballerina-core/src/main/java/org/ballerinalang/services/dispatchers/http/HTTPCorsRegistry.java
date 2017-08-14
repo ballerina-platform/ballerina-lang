@@ -27,30 +27,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * HTTPCorsFilter loads CORS headers at service/resource level.
+ * HTTPCorsRegistry loads CORS headers at service/resource level.
  *
  * @since 0.92
  */
-public class HTTPCorsFilter {
+public class HTTPCorsRegistry {
 
     private AnnAttributeValue attributeValue;
     private AnnAttachmentInfo configAnnotInfo;
-    private static final HTTPCorsFilter corsRegistry = new HTTPCorsFilter();
+    private static final HTTPCorsRegistry corsRegistry = new HTTPCorsRegistry();
+    private Map<ResourceInfo, Map<String, List<String>>> resourceCorsHolder = new ConcurrentHashMap<>();
     private String[] corsHeaders = {Constants.ALLOW_ORIGIN, Constants.MAX_AGE
             , Constants.ALLOW_CREDENTIALS, Constants.ALLOW_METHODS
             , Constants.ALLOW_HEADERS, Constants.EXPOSE_HEADERS};
 
 
-    public static HTTPCorsFilter getInstance() {
+    public static HTTPCorsRegistry getInstance() {
         return corsRegistry;
     }
 
     public Map<String, List<String>> getServiceCors(ServiceInfo service) {
         if (isHeadersAvailable(service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
                 , Constants.ANN_NAME_CONFIG))) {
-            return populateServiceCoresMap();
+            return populateCorsHeaders(null);
         } else {
             return null;
         }
@@ -59,9 +61,9 @@ public class HTTPCorsFilter {
     public void processResourceCors(ResourceInfo resource, Map<String, List<String>> serviceCorsMap) {
         if (isHeadersAvailable(resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
                 , Constants.ANN_NAME_RESOURCE_CONFIG))) {
-            resource.setCorsHeaders(populateResourceCors(resource));
+            resourceCorsHolder.put(resource, populateCorsHeaders(resource));
         } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
-            resource.setCorsHeaders(serviceCorsMap);
+            resourceCorsHolder.put(resource, serviceCorsMap);
         }
     }
 
@@ -81,63 +83,44 @@ public class HTTPCorsFilter {
         return hasCorsHeaders;
     }
 
-    public Map<String, List<String>> populateServiceCoresMap() {
-
-        Map<String, List<String>> serviceCorsMap = new HashMap<>();
-        for (String header : corsHeaders) {
-            attributeValue = configAnnotInfo.getAttributeValue(header);
-            List<String> list = new ArrayList();
-            if (attributeValue != null) {
-                if (attributeValue.getAttributeValueArray() != null) {
-                    for (AnnAttributeValue att : attributeValue.getAttributeValueArray()) {
-                        list.add(att.getStringValue().trim());
-                    }
-                } else {
-                    list.add(attributeValue.getStringValue().trim());
-                }
-            } else {
-                switch (header) {
-                    case Constants.ALLOW_ORIGIN:
-                    case Constants.ALLOW_METHODS:
-                        list.add("*");
-                        break;
-                    case Constants.ALLOW_CREDENTIALS:
-                        list.add("false");
-                        break;
-                    case Constants.MAX_AGE:
-                        list.add("-1");
-                        break;
-                    default:
-                        break;
-                }
-            }
-            serviceCorsMap.put(header, list);
-        }
-        return serviceCorsMap;
-    }
-
-//    public boolean isResourceCorsDefined(AnnAttachmentInfo resource) {
-//        this.resource = resource;
-//        resourceConfigAnnotInfo = resource
-//                .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_RESOURCE_CONFIG);
-//        boolean hasCorsHeaders = false;
+//    public Map<String, List<String>> populateServiceCoresMap() {
+//
+//        Map<String, List<String>> serviceCorsMap = new HashMap<>();
 //        for (String header : corsHeaders) {
 //            attributeValue = configAnnotInfo.getAttributeValue(header);
+//            List<String> list = new ArrayList();
 //            if (attributeValue != null) {
-//                hasCorsHeaders = true;
-//                break;
+//                if (attributeValue.getAttributeValueArray() != null) {
+//                    for (AnnAttributeValue att : attributeValue.getAttributeValueArray()) {
+//                        list.add(att.getStringValue().trim());
+//                    }
+//                } else {
+//                    list.add(attributeValue.getStringValue().trim());
+//                }
+//            } else {
+//                switch (header) {
+//                    case Constants.ALLOW_ORIGIN:
+//                    case Constants.ALLOW_METHODS:
+//                        list.add("*");
+//                        break;
+//                    case Constants.ALLOW_CREDENTIALS:
+//                        list.add("false");
+//                        break;
+//                    case Constants.MAX_AGE:
+//                        list.add("-1");
+//                        break;
+//                    default:
+//                        break;
+//                }
 //            }
+//            serviceCorsMap.put(header, list);
 //        }
-//
-//        if (resourceConfigAnnotInfo != null) {
-//            return true;
-//        }
-//        return hasCorsHeaders;
+//        return serviceCorsMap;
 //    }
 
-    public Map<String, List<String>> populateResourceCors(ResourceInfo resource) {
+    public Map<String, List<String>> populateCorsHeaders(ResourceInfo resource) {
 
-        Map<String, List<String>> resourceCorsMap = new HashMap<>();
+        Map<String, List<String>> corsMap = new HashMap<>();
         for (String header : corsHeaders) {
             attributeValue = configAnnotInfo.getAttributeValue(header);
             List<String> list = new ArrayList();
@@ -158,7 +141,11 @@ public class HTTPCorsFilter {
                         list.add("false");
                         break;
                     case Constants.ALLOW_METHODS:
-                        list.add(getResourceMethod(resource));
+                        if (resource != null) {
+                            list.add(getResourceMethod(resource));
+                        } else {
+                            list.add("*");
+                        }
                         break;
                     case Constants.MAX_AGE:
                         list.add("-1");
@@ -167,9 +154,9 @@ public class HTTPCorsFilter {
                         break;
                 }
             }
-            resourceCorsMap.put(header, list);
+            corsMap.put(header, list);
         }
-        return resourceCorsMap;
+        return corsMap;
     }
 
     private String getResourceMethod(ResourceInfo resource) {
@@ -180,5 +167,9 @@ public class HTTPCorsFilter {
             }
         }
         return "*";
+    }
+
+    public Map<String,List<String>> getCorsHeaders(ResourceInfo resource) {
+        return resourceCorsHolder.get(resource);
     }
 }

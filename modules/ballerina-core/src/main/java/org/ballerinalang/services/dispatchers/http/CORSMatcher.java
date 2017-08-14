@@ -51,19 +51,18 @@ public class CORSMatcher {
         if (origin != null && resourceCors != null) {
             String httpMethod = cMsg.getProperty(Constants.HTTP_METHOD).toString();
             if (Constants.HTTP_METHOD_OPTIONS.equals(httpMethod)) {
-                //validatePreflightRequest(origin, cMsg);
+                //isPreflightRequest(origin, cMsg);
             } else {
-                if (validateSimpleRequest(origin)) {
+                if (isSimpleRequest(origin)) {
                     isCorsResponseHeadersAvailable = true;
                 } else {
                     //do not set headers.
                 }
             }
-
         }
     }
 
-    private static boolean validateSimpleRequest(String origin) {
+    private static boolean isSimpleRequest(String origin) {
         List<String> list = new ArrayList();
         List<String> resourceOrigins = resourceCors.get(Constants.ALLOW_ORIGIN);
         List<String> requestOrigins = getOriginValues(origin);
@@ -89,7 +88,7 @@ public class CORSMatcher {
         return true;
     }
 
-    private static boolean validatePreflightRequest(String originValue, CarbonMessage cMsg) {
+    private static boolean isPreflightRequest(String originValue, CarbonMessage cMsg) {
         List<String> requestOrigins = getOriginValues(originValue);
         if (requestOrigins != null && requestOrigins.size() == 1) {
             String origin = requestOrigins.get(0);
@@ -99,13 +98,9 @@ public class CORSMatcher {
             } else {
 
             }
-
-
         } else {
             return false;
         }
-
-
         return true;
     }
 
