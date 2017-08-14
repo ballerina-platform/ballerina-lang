@@ -57,8 +57,10 @@ public class ForkJoinInFunctionTest {
         bProgramFile = BTestUtils.getProgramFile("samples/fork-join-some.bal");
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAny", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
         Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
 
@@ -81,8 +83,10 @@ public class ForkJoinInFunctionTest {
         bProgramFile = BTestUtils.getProgramFile("samples/fork-join-any-specific.bal");
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAnyOfSpecific", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
         Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
         Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
     }
