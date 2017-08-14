@@ -47,9 +47,9 @@ class ElseStatement extends Statement {
             // it is for now. We should refactor this
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = this.getFactory().createConnectorDeclaration();
+                child = ASTFactory.createConnectorDeclaration();
             } else {
-                child = this.getFactory().createFromJson(childNode);
+                child = ASTFactory.createFromJson(childNode);
             }
             this.addChild(child);
             child.initFromJson(childNode);

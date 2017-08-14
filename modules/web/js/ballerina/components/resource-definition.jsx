@@ -29,7 +29,7 @@ import ImageUtil from './image-util';
 class ResourceDefinition extends React.Component {
 
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for worker and connector declarations only.
         // Statements should only be allowed on top of resource worker's dropzone.
@@ -59,7 +59,7 @@ class ResourceDefinition extends React.Component {
 
 
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const titleComponentData = [{

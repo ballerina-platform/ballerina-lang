@@ -169,11 +169,11 @@ class WorkerInvocationStatement extends Statement {
      * @return {boolean} true|false.
      */
     canBeAChildOf(node) {
-        return this.getFactory().isResourceDefinition(node)
-            || this.getFactory().isFunctionDefinition(node)
-            || this.getFactory().isWorkerDeclaration(node)
-            || this.getFactory().isConnectorAction(node)
-            || this.getFactory().isStatement(node);
+        return ASTFactory.isResourceDefinition(node)
+            || ASTFactory.isFunctionDefinition(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isConnectorAction(node)
+            || ASTFactory.isStatement(node);
     }
 
     /**
@@ -195,7 +195,7 @@ class WorkerInvocationStatement extends Statement {
         let workerInstance;
         if (!_.isNil(this.getParent())) {
             workerInstance = _.find(this.getParent().getChildren(), (child) => {
-                return self.getFactory().isWorkerDeclaration(child)
+                return ASTFactory.isWorkerDeclaration(child)
                     && !child.isDefaultWorker() && child.getWorkerName() === workerName;
             });
         }
@@ -210,10 +210,10 @@ class WorkerInvocationStatement extends Statement {
      * @return {boolean} - whether message can be drawn to the target
      */
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isWorkerDeclaration(target)
-            || this.getFactory().isResourceDefinition(target)
-            || this.getFactory().isFunctionDefinition(target)
-            || this.getFactory().isConnectorAction(target);
+        return ASTFactory.isWorkerDeclaration(target)
+            || ASTFactory.isResourceDefinition(target)
+            || ASTFactory.isFunctionDefinition(target)
+            || ASTFactory.isConnectorAction(target);
     }
 
     /**

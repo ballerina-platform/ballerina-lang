@@ -67,7 +67,7 @@ class StatementContainer extends React.Component {
                 // IMPORTANT: override node's default validation logic
                 // This drop zone is for statements only.
                 // Unless it's in a Fork, in that case only Worker are allowed.
-                const factory = dropTarget.getFactory();
+                const factory = ASTFactory;
                 const callback = this.props.draggable;
                 return callback ? callback(nodeBeingDragged, dropTarget) :
                     (factory.isStatement(nodeBeingDragged) || factory.isConnectorDeclaration(nodeBeingDragged));

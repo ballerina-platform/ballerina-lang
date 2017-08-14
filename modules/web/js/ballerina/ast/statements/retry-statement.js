@@ -54,8 +54,8 @@ class RetryStatement extends Statement {
             if (_.isEqual(parsedJson.type, 'retry_statement')) {
                 this.initFromJson(parsedJson);
             } else if (_.has(parsedJson, 'type')) {
-                const newNode = this.getFactory().createFromJson(parsedJson);
-                if (this.getFactory().isStatement(newNode)) {
+                const newNode = ASTFactory.createFromJson(parsedJson);
+                if (ASTFactory.isStatement(newNode)) {
                     const parent = this.getParent();
                     const index = parent.getIndexOfChild(this);
                     parent.removeChild(this, true);
@@ -95,7 +95,7 @@ class RetryStatement extends Statement {
      * @return {boolean} can be a child of status.
      * */
     canBeAChildOf(node) {
-        return this.getFactory().isFailedStatement(node);
+        return ASTFactory.isFailedStatement(node);
     }
 
     /**
@@ -124,7 +124,7 @@ class RetryStatement extends Statement {
     initFromJson(jsonNode) {
         this.children.length = 0;
         jsonNode.children.forEach((childJsonNode) => {
-            const child = this.getFactory().createFromJson(childJsonNode);
+            const child = ASTFactory.createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
             this.addChild(child, undefined, true, true);
         });

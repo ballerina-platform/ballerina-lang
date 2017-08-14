@@ -48,9 +48,9 @@ class TransactionStatement extends Statement {
         _.each(jsonNode.children, (childNode) => {
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = this.getFactory().createConnectorDeclaration();
+                child = ASTFactory.createConnectorDeclaration();
             } else {
-                child = this.getFactory().createFromJson(childNode);
+                child = ASTFactory.createFromJson(childNode);
             }
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);

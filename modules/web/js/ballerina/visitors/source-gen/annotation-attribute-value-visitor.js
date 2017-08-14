@@ -60,8 +60,7 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
     visitAnnotationAttributeValue(annotationAttributeValue) {
         // override default visit mechanism to keep track of no of children
         // this is needed for adding comma logic
-        const attributeValues = annotationAttributeValue.getChildrenOfType(annotationAttributeValue
-                                    .getFactory().isAnnotationAttributeValue);
+        const attributeValues = annotationAttributeValue.getChildrenOfType(ASTFactory.isAnnotationAttributeValue);
         if (_.isArray(attributeValues)) {
             attributeValues.forEach((attributeVal, index) => {
                 if (index !== 0) {

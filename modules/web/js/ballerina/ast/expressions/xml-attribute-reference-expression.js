@@ -59,7 +59,7 @@ class XMLAttributeReferenceExpression extends Expression {
     initFromJson(jsonNode) {
         this.children = [];
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

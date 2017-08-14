@@ -40,7 +40,6 @@ class ReturnType extends Argument {
      */
     initFromJson(jsonNode) {
         const self = this;
-        const ASTFactory = this.getFactory();
 
         _.each(jsonNode.children, (childNode) => {
             const child = ASTFactory.createFromJson(childNode);

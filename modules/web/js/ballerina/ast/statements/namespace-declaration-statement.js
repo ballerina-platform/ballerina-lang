@@ -81,8 +81,8 @@ class NamespaceDeclarationStatement extends statement {
             if (_.isEqual(parsedJson.type, 'namespace_declaration_statement')) {
                 this.initFromJson(parsedJson);
             } else if (_.has(parsedJson, 'type')) {
-                const newNode = this.getFactory().createFromJson(parsedJson);
-                if (this.getFactory().isStatement(newNode)) {
+                const newNode = ASTFactory.createFromJson(parsedJson);
+                if (ASTFactory.isStatement(newNode)) {
                     const parent = this.getParent();
                     const index = this.getIndexOfChild(this);
                     parent.removeChild(this, true);
@@ -116,8 +116,8 @@ class NamespaceDeclarationStatement extends statement {
      * Generate unique identifiers.
      * */
     generateUniqueIdentifiers() {
-        if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)
-            || this.getFactory().isFunctionDefinition(this.parent)) {
+        if (ASTFactory.isResourceDefinition(this.parent) || ASTFactory.isConnectorAction(this.parent)
+            || ASTFactory.isFunctionDefinition(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
                 attributes: [{
@@ -143,7 +143,7 @@ class NamespaceDeclarationStatement extends statement {
     initFromJson(jsonNode) {
         this.children = [];
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

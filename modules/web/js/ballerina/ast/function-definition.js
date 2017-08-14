@@ -82,7 +82,7 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     getVariableDefinitionStatements() {
-        return this.filterChildren(this.getFactory().isVariableDefinitionStatement).slice(0);
+        return this.filterChildren(ASTFactory.isVariableDefinitionStatement).slice(0);
     }
 
     /**
@@ -90,7 +90,7 @@ class FunctionDefinition extends CallableDefinition {
      * @return {ASTNode[]} namespace declaration statements
      * */
     getNamespaceDeclarationStatements() {
-        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+        return this.filterChildren(ASTFactory.isNamespaceDeclarationStatement).slice(0);
     }
 
     /**
@@ -98,11 +98,11 @@ class FunctionDefinition extends CallableDefinition {
      */
     addVariableDeclaration(newVariableDeclaration) {
         // Get the index of the last variable declaration.
-        let index = this.findLastIndexOfChild(this.getFactory().isVariableDeclaration);
+        let index = this.findLastIndexOfChild(ASTFactory.isVariableDeclaration);
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
-            index = this.findLastIndexOfChild(this.getFactory().isConnectorDeclaration);
+            index = this.findLastIndexOfChild(ASTFactory.isConnectorDeclaration);
         }
 
         this.addChild(newVariableDeclaration, index + 1);
@@ -113,7 +113,7 @@ class FunctionDefinition extends CallableDefinition {
      */
     removeVariableDeclaration(variableDeclarationIdentifier) {
         // Removing the variable from the children.
-        this.removeChildByIdentifier = _.remove(this.getFactory().isVariableDeclaration, variableDeclarationIdentifier);
+        this.removeChildByIdentifier = _.remove(ASTFactory.isVariableDeclaration, variableDeclarationIdentifier);
     }
 
     /**
@@ -138,7 +138,7 @@ class FunctionDefinition extends CallableDefinition {
      * @param identifier - The identifier of the argument.
      */
     addArgument(type, identifier) {
-        const newArgumentParamDef = this.getFactory().createParameterDefinition();
+        const newArgumentParamDef = ASTFactory.createParameterDefinition();
         newArgumentParamDef.setTypeName(type);
         newArgumentParamDef.setName(identifier);
 
@@ -154,13 +154,13 @@ class FunctionDefinition extends CallableDefinition {
      * @return {Array} - The removed argument.
      */
     removeArgument(identifier) {
-        this.getArgumentParameterDefinitionHolder().removeChildByName(this.getFactory().isParameterDefinition, identifier);
+        this.getArgumentParameterDefinitionHolder().removeChildByName(ASTFactory.isParameterDefinition, identifier);
     }
 
     getArgumentParameterDefinitionHolder() {
-        let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        let argParamDefHolder = this.findChild(ASTFactory.isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
-            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            argParamDefHolder = ASTFactory.createArgumentParameterDefinitionHolder();
             this.addChild(argParamDefHolder, undefined, true, true, false);
         }
         return argParamDefHolder;
@@ -228,7 +228,7 @@ class FunctionDefinition extends CallableDefinition {
             throw errorStringWithIdentifiers;
         }
 
-        const paramDef = this.getFactory().createParameterDefinition({ typeName: type, name: identifier });
+        const paramDef = ASTFactory.createParameterDefinition({ typeName: type, name: identifier });
         returnParamDefHolder.addChild(paramDef, 0);
     }
 
@@ -263,7 +263,7 @@ class FunctionDefinition extends CallableDefinition {
      * @param {string} identifier - The identifier of a {ParameterDefinition} which resides in the return type model.
      */
     removeReturnType(modelID) {
-        const removeChild = this.getReturnParameterDefinitionHolder().removeChildById(this.getFactory().isParameterDefinition, modelID);
+        const removeChild = this.getReturnParameterDefinitionHolder().removeChildById(ASTFactory.isParameterDefinition, modelID);
 
         // Deleting the argument from the AST.
         if (!_.isUndefined(removeChild)) {
@@ -274,9 +274,9 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     getReturnParameterDefinitionHolder() {
-        let returnParamDefHolder = this.findChild(this.getFactory().isReturnParameterDefinitionHolder);
+        let returnParamDefHolder = this.findChild(ASTFactory.isReturnParameterDefinitionHolder);
         if (_.isUndefined(returnParamDefHolder)) {
-            returnParamDefHolder = this.getFactory().createReturnParameterDefinitionHolder();
+            returnParamDefHolder = ASTFactory.createReturnParameterDefinitionHolder();
             this.addChild(returnParamDefHolder, undefined, true, true, false);
         }
         return returnParamDefHolder;
@@ -289,7 +289,7 @@ class FunctionDefinition extends CallableDefinition {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConnectorDeclaration(child)) {
+            if (ASTFactory.isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
         });
@@ -327,7 +327,7 @@ class FunctionDefinition extends CallableDefinition {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
         });
@@ -343,10 +343,10 @@ class FunctionDefinition extends CallableDefinition {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.getFactory().isConnectorDeclaration(node)
-            || this.getFactory().isVariableDeclaration(node)
-            || this.getFactory().isWorkerDeclaration(node)
-            || this.getFactory().isStatement(node);
+        return ASTFactory.isConnectorDeclaration(node)
+            || ASTFactory.isVariableDeclaration(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isStatement(node);
     }
 
     isNative(isNative) {
@@ -395,7 +395,7 @@ class FunctionDefinition extends CallableDefinition {
         const self = this;
 
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -428,7 +428,7 @@ class FunctionDefinition extends CallableDefinition {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReference = _.find(this.getChildren(), (child) => {
             let connectorVariableName;
             if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
@@ -454,7 +454,7 @@ class FunctionDefinition extends CallableDefinition {
      * @return {ConnectorDeclaration[]} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         return _.filter(this.getChildren(), (child) => {
             return factory.isConnectorDeclaration(child);
         });

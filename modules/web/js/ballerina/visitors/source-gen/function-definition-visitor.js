@@ -61,7 +61,7 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
 
         let constructedSourceSegment = '';
         // generate source for annotation attachmments
-        functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotationAttachment).forEach(
+        functionDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

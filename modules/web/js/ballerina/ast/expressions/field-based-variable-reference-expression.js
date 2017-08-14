@@ -47,7 +47,7 @@ class FieldBasedVariableReferenceExpression extends Expression {
         this.setFieldName(jsonNode.field_name);
         if (!_.isNil(jsonNode.children) && !_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childNode) => {
-                const child = this.getFactory().createFromJson(childNode);
+                const child = ASTFactory.createFromJson(childNode);
                 this.addChild(child, undefined, true, true);
                 child.initFromJson(childNode);
             });
@@ -104,9 +104,9 @@ class FieldBasedVariableReferenceExpression extends Expression {
     getStructVariableReference() {
         let variableRef;
         _.forEach(this.getChildren(), (child) => {
-            if (this.getFactory().isSimpleVariableReferenceExpression(child)) {
+            if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
                 variableRef = child;
-            } else if (this.getFactory().isFieldBasedVarRefExpression(child)) {
+            } else if (ASTFactory.isFieldBasedVarRefExpression(child)) {
                 variableRef = child.getStructVariableReference();
             }
         });

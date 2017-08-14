@@ -45,7 +45,7 @@ class ForkJoinStatement extends Statement {
             return false;
         }
         const child = this.children[this.children.length - 1];
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         return factory.isTimeoutStatement(child);
     }
 
@@ -58,7 +58,7 @@ class ForkJoinStatement extends Statement {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
         });
@@ -75,7 +75,7 @@ class ForkJoinStatement extends Statement {
      * @override
      */
     canBeParentOf(node) {
-        return this.getFactory().isWorkerDeclaration(node);
+        return ASTFactory.isWorkerDeclaration(node);
     }
 
     /**
@@ -86,7 +86,7 @@ class ForkJoinStatement extends Statement {
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -103,7 +103,7 @@ class ForkJoinStatement extends Statement {
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (_.isUndefined(index)) {
-            const factory = this.getFactory();
+            const factory = ASTFactory;
             let newIndex = this.children.length;
             if (factory.isWorkerDeclaration(child)) {
                 while (factory.isJoinStatement(this.children[newIndex - 1]) ||

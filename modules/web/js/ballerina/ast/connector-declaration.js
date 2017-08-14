@@ -97,7 +97,7 @@ class ConnectorDeclaration extends ASTNode {
     setFullPackageName(fullPackageName) {
         if (this._declarationStatement) {
             const connectorInit = this._declarationStatement.getChildren()[1];
-            if (connectorInit && this.getFactory().isConnectorInitExpression(connectorInit)) {
+            if (connectorInit && ASTFactory.isConnectorInitExpression(connectorInit)) {
                 connectorInit.getConnectorName().setFullPackageName(fullPackageName);
             }
         }
@@ -106,7 +106,7 @@ class ConnectorDeclaration extends ASTNode {
     getFullPackageName() {
         if (this._declarationStatement) {
             const connectorInit = this._declarationStatement.getChildren()[1];
-            if (connectorInit && this.getFactory().isConnectorInitExpression(connectorInit)) {
+            if (connectorInit && ASTFactory.isConnectorInitExpression(connectorInit)) {
                 return connectorInit.getConnectorName().getFullPackageName();
             }
         }
@@ -133,7 +133,7 @@ class ConnectorDeclaration extends ASTNode {
             this.whiteSpace.useDefault = false;
         }
 
-        this._declarationStatement = self.getFactory().createVariableDefinitionStatement();
+        this._declarationStatement = ASTFactory.createVariableDefinitionStatement();
         this._declarationStatement.initFromJson(jsonNode);
     }
 
@@ -168,14 +168,14 @@ class ConnectorDeclaration extends ASTNode {
             }],
         };
 
-        if (this.getFactory().isResourceDefinition(this.parent)) {
+        if (ASTFactory.isResourceDefinition(this.parent)) {
             uniqueIDGenObject.attributes[0].parents.push({
                 // service definition
                 node: this.parent.parent,
                 getChildrenFunc: this.parent.getConnectionDeclarations,
                 getter: this.getConnectorVariable,
             });
-        } else if (this.getFactory().isServiceDefinition(this.parent)) {
+        } else if (ASTFactory.isServiceDefinition(this.parent)) {
             const resourceDefinitions = this.parent.getResourceDefinitions();
             _.forEach(resourceDefinitions, (resourceDefinition) => {
                 uniqueIDGenObject.attributes[0].parents.push({
@@ -185,14 +185,14 @@ class ConnectorDeclaration extends ASTNode {
                     getter: self.getConnectorVariable,
                 });
             });
-        } else if (this.getFactory().isConnectorAction(this.parent)) {
+        } else if (ASTFactory.isConnectorAction(this.parent)) {
             uniqueIDGenObject.attributes[0].parents.push({
                 // connector definition
                 node: this.parent.parent,
                 getChildrenFunc: this.parent.getConnectionDeclarations,
                 getter: this.getConnectorVariable,
             });
-        } else if (this.getFactory().isConnectorDefinition(this.parent)) {
+        } else if (ASTFactory.isConnectorDefinition(this.parent)) {
             const connectorActions = this.parent.getConnectorActionDefinitions();
             _.forEach(connectorActions, (connectionAction) => {
                 uniqueIDGenObject.attributes[0].parents.push({

@@ -41,7 +41,7 @@ class WhileStatement extends ConditionalStatement {
                 basicLiteralValue: true,
             };
             // create default condition
-            this.setCondition(this.getFactory().createBasicLiteralExpression(opts));
+            this.setCondition(ASTFactory.createBasicLiteralExpression(opts));
         }
         this._statements = _.get(args, 'statements', []);
         this.whiteSpace.defaultDescriptor.regions = {
@@ -71,7 +71,7 @@ class WhileStatement extends ConditionalStatement {
         if (!_.isNil(conditionString) || !_.isEmpty(conditionString)) {
             const fragment = FragmentUtils.createExpressionFragment(conditionString);
             const parsedJson = FragmentUtils.parseFragment(fragment);
-            const condition = this.getFactory().createFromJson(parsedJson);
+            const condition = ASTFactory.createFromJson(parsedJson);
             condition.initFromJson(parsedJson);
             this.setCondition(condition);
             condition.setParent(this, {doSilently: true});
@@ -106,7 +106,7 @@ class WhileStatement extends ConditionalStatement {
     initFromJson(jsonNode) {
         const self = this;
         if (!_.isNil(jsonNode.condition)) {
-            const condition = self.getFactory().createFromJson(jsonNode.condition);
+            const condition = ASTFactory.createFromJson(jsonNode.condition);
             condition.initFromJson(jsonNode.condition);
             self.setCondition(condition, { doSilently: true });
             condition.setParent(this, {doSilently: true});
@@ -117,10 +117,10 @@ class WhileStatement extends ConditionalStatement {
             // TODO : generalize this logic
             if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1])
                 && childNode.children[1].type === 'connector_init_expr') {
-                child = self.getFactory().createConnectorDeclaration();
+                child = ASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
-                child = self.getFactory().createFromJson(childNode);
+                child = ASTFactory.createFromJson(childNode);
                 childNodeTemp = childNode;
             }
             self.addChild(child, undefined, true, true);

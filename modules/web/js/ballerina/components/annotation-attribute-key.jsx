@@ -115,7 +115,7 @@ class AnnotationAttributeKey extends React.Component {
 
                 annotationAttributeValue.addChild(arrayAnnotationAttributeValue);
             } else if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {
-                const bValue = this.props.attributeModel.getFactory().createBValue();
+                const bValue = ASTFactory.createBValue();
                 bValue.setBType(annotationAttributeDef.getBType());
                 annotationAttributeValue.addChild(bValue);
             } else {

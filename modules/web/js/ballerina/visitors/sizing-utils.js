@@ -296,7 +296,7 @@ class SizingUtil {
 
         const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
         // If more than one worker is present, then draw the worker scope container boundary around the workers
-        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+        if ((node.filterChildren(ASTFactory.isWorkerDeclaration)).length >= 1) {
             components.workerScopeContainer.w = statementWidth;
             components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
             components.workerScopeContainer.h = components.statementContainer.h + DesignerDefaults.canvas.padding.top +

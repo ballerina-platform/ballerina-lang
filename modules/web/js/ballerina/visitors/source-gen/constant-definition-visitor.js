@@ -47,7 +47,7 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        constantDefinition.getChildrenOfType(constantDefinition.getFactory().isAnnotationAttachment).forEach(
+        constantDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

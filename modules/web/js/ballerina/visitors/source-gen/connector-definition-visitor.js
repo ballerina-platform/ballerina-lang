@@ -55,7 +55,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
-        connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotationAttachment).forEach(
+        connectorDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

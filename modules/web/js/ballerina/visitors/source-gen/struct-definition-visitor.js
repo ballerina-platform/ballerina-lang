@@ -47,7 +47,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotationAttachment).forEach(
+        structDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

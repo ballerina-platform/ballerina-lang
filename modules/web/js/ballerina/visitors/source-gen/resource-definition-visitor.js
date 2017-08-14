@@ -53,7 +53,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         }
         let constructedSourceSegment = '';
         const annotationAttachments = resourceDefinition.getChildrenOfType(
-                                        resourceDefinition.getFactory().isAnnotationAttachment);
+                                        ASTFactory.isAnnotationAttachment);
         annotationAttachments.forEach(
             (annotationAttachment, index) => {
                 let annotationAttachmentVisitor;

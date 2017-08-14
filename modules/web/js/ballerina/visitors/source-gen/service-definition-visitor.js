@@ -54,7 +54,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
 
         let constructedSourceSegment = '';
 
-        serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotationAttachment).forEach(
+        serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

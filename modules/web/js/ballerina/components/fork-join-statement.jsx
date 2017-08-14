@@ -36,7 +36,7 @@ class ForkJoinStatement extends React.Component {
      * @returns {Boolean} true if the node is a worker.
      */
     static isWorker(node) {
-        const factory = node.getFactory();
+        const factory = ASTFactory;
         return factory.isWorkerDeclaration(node);
     }
 

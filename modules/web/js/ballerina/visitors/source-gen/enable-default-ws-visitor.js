@@ -35,29 +35,29 @@ class EnableDefaultWSVisitor {
 
     visit(node) {
         node.whiteSpace.useDefault = true;
-        if (node.getFactory().isBinaryExpression(node)) {
+        if (ASTFactory.isBinaryExpression(node)) {
             node.getRightExpression().accept(this);
             node.getLeftExpression().accept(this);
-        } else if (node.getFactory().isActionInvocationExpression(node)) {
+        } else if (ASTFactory.isActionInvocationExpression(node)) {
             node.getArguments().forEach((arg) => {
                 arg.accept(this);
             });
-        } else if (node.getFactory().isConnectorInitExpression(node)) {
+        } else if (ASTFactory.isConnectorInitExpression(node)) {
             node.getArgs().forEach((arg) => {
                 arg.accept(this);
             });
             node.getConnectorName().accept(this);
-        } else if (node.getFactory().isCatchStatement(node)) {
+        } else if (ASTFactory.isCatchStatement(node)) {
             node.getParameter().accept(this);
-        } else if (node.getFactory().isWorkerInvocationStatement(node)) {
+        } else if (ASTFactory.isWorkerInvocationStatement(node)) {
             node.getExpressionList().forEach((expr) => {
                 expr.accept(this);
             });
-        } else if (node.getFactory().isWorkerReplyStatement(node)) {
+        } else if (ASTFactory.isWorkerReplyStatement(node)) {
             node.getExpressionList().forEach((expr) => {
                 expr.accept(this);
             });
-        } else if (node.getFactory().isConnectorDeclaration(node)) {
+        } else if (ASTFactory.isConnectorDeclaration(node)) {
             node.getDeclarationStatement().accept(this);
         }
     }

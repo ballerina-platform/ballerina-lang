@@ -68,7 +68,7 @@ class AssignmentStatementDimensionCalculatorVisitor {
         const viewState = node.getViewState();
         util.populateSimpleStatementBBox(node.getStatementString(), viewState);
         const child = node.getRightExpression();
-        if (node.getFactory().isConnectorInitExpression(child)) {
+        if (ASTFactory.isConnectorInitExpression(child)) {
             AssignmentStatementDimensionCalculatorVisitor.calculateConnectorDeclarationDimension(node);
         }
         node.getLambdaChildren().forEach((f) => {

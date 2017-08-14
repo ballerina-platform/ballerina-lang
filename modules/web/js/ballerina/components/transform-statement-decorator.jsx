@@ -87,7 +87,7 @@ class TransformStatementDecorator extends React.Component {
                     // IMPORTANT: override node's default validation logic
                     // This drop zone is for statements only.
                     // Statements should only be allowed here.
-                    return model.getFactory().isStatement(nodeBeingDragged);
+                    return ASTFactory.isStatement(nodeBeingDragged);
                 },
                 () => {
                     return dropTarget.getIndexOfChild(model);

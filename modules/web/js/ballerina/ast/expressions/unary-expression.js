@@ -41,7 +41,7 @@ class UnaryExpression extends Expression {
     initFromJson(jsonNode) {
         if (!_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childNode) => {
-                const child = this.getFactory().createFromJson(childNode);
+                const child = ASTFactory.createFromJson(childNode);
                 child.initFromJson(childNode);
                 this.addChild(child);
             });

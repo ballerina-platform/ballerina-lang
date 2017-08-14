@@ -33,7 +33,7 @@ class JoinStatement extends Statement {
         super('JoinStatement');
         this._joinType = _.get(args, 'joinType', 'all');
         this._joinWorkers = _.get(args, 'joinWorkers', []);
-        const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
+        const parameterDefinition = ASTFactory.createParameterDefinition({ typeName: 'map', name: 'm' });
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
         this._joinCount = _.get(args, 'joinCount');
 
@@ -66,7 +66,7 @@ class JoinStatement extends Statement {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
         });
@@ -207,7 +207,7 @@ class JoinStatement extends Statement {
         const myRegexp = /^\s*(map\s*)([^\s\[\]]+)\s*$/g;
         const match = myRegexp.exec(str);
         if (match) {
-            const factory = this.getFactory();
+            const factory = ASTFactory;
             const typeName = match[1];
             const name = match[2];
             const parameterDefinition = factory.createParameterDefinition({ typeName, name });
@@ -228,14 +228,14 @@ class JoinStatement extends Statement {
 
         const paramJsonNode = jsonNode.join_parameter;
         if (paramJsonNode) {
-            const paramASTNode = self.getFactory().createFromJson(paramJsonNode);
+            const paramASTNode = ASTFactory.createFromJson(paramJsonNode);
             paramASTNode.initFromJson(paramJsonNode);
             self.setParameter(paramASTNode);
         }
 
         if (jsonNode.children) {
             _.each(jsonNode.children, (childNode) => {
-                const child = self.getFactory().createFromJson(childNode);
+                const child = ASTFactory.createFromJson(childNode);
                 self.addChild(child, undefined, true, true);
                 child.initFromJson(childNode);
             });

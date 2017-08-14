@@ -101,7 +101,7 @@ class AnnotationHelper {
      */
     static getNames(environment, astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
         const annotationIdentifiers = new Set();
-        const factory = astNode.getFactory();
+        const factory = ASTFactory;
         let attachmentType = '';
         if (factory.isServiceDefinition(astNode)) {
             attachmentType = 'service';
@@ -160,7 +160,7 @@ class AnnotationHelper {
      * @memberof AnnotationHelper
      */
     static getPackageNames(environment, astNode, allowAnnotationWithNoAttachmentType = true) {
-        const factory = astNode.getFactory();
+        const factory = ASTFactory;
         const packageNames = new Set();
         let attachmentType = '';
         if (factory.isServiceDefinition(astNode)) {

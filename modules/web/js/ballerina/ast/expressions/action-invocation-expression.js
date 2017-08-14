@@ -141,7 +141,7 @@ class ActionInvocationExpression extends Expression {
         this.setConnector(connector, { doSilently: true });
 
         _.each(jsonNode.children, (argNode) => {
-            const arg = this.getFactory().createFromJson(argNode);
+            const arg = ASTFactory.createFromJson(argNode);
             arg.initFromJson(argNode);
             this.addArgument(arg);
         });
@@ -158,7 +158,7 @@ class ActionInvocationExpression extends Expression {
 
     getInvocationConnector(connectorVariable) {
         let parent = this.getParent();
-        const factory = this.getFactory();
+        const factory = ASTFactory;
 
         if (_.isNil(parent.getParent())) {
             return undefined;
@@ -187,9 +187,9 @@ class ActionInvocationExpression extends Expression {
 
         for (let itr = 0; itr < args.length; itr++) {
             // TODO: we need to refactor this along with the action invocation argument types as well
-            if (this.getFactory().isExpression(args[itr])) {
+            if (ASTFactory.isExpression(args[itr])) {
                 argsString += args[itr].getExpressionString();
-            } else if (this.getFactory().isResourceParameter(args[itr])) {
+            } else if (ASTFactory.isResourceParameter(args[itr])) {
                 argsString += args[itr].getParameterAsString();
             }
 
@@ -237,11 +237,11 @@ class ActionInvocationExpression extends Expression {
 
     messageDrawTargetAllowed(target) {
         // TODO this needs to be refactord.
-        return (this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
-            this.getFactory().isConnectorInitExpression(target.getChildren()[1]))) &&
+        return (ASTFactory.isConnectorDeclaration(target) || (ASTFactory.isAssignmentStatement(target) &&
+            ASTFactory.isConnectorInitExpression(target.getChildren()[1]))) &&
             (
                 // check if target parent is a service.
-                this.getFactory().isServiceDefinition(target.getParent()) ||
+                ASTFactory.isServiceDefinition(target.getParent()) ||
                 // if the target has a top level parent we will check if the id's are equal.
                 this.getTopLevelParent().getID() === target.getTopLevelParent().getID()
             );

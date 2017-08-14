@@ -130,7 +130,7 @@ class AnnotationDefinition extends ASTNode {
     }
 
     getAnnotationAttributeDefinitions() {
-        return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
+        return this.filterChildren(ASTFactory.isAnnotationAttributeDefinition);
     }
 
     addAnnotationAttributeDefinition(type, identifier, defaultValue) {
@@ -154,13 +154,13 @@ class AnnotationDefinition extends ASTNode {
             throw errorString;
         } else {
             // Creating new annotation attribute definition.
-            const newAnnotationAttributeDefinition = this.getFactory().createAnnotationAttributeDefinition();
+            const newAnnotationAttributeDefinition = ASTFactory.createAnnotationAttributeDefinition();
             newAnnotationAttributeDefinition.setAttributeName(identifier);
             newAnnotationAttributeDefinition.setAttributeType(type);
             newAnnotationAttributeDefinition.setAttributeValue(defaultValue);
 
             // Get the index of the last definition.
-            const index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
+            const index = this.findLastIndexOfChild(ASTFactory.isVariableDefinitionStatement);
 
             this.addChild(newAnnotationAttributeDefinition, index + 1);
         }
@@ -221,7 +221,7 @@ class AnnotationDefinition extends ASTNode {
             this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), { doSilently: true });
         }
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

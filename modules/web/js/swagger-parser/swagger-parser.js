@@ -503,7 +503,7 @@ class SwaggerParser {
      * @memberof SwaggerParser
      */
     createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
-        const resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotationAttachment({
+        const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
             fullPackageName: SWAGGER_FULL_PACKAGE,
             packageName: SWAGGER_PACKAGE,
             name: 'ResourceConfig',
@@ -664,7 +664,7 @@ class SwaggerParser {
      * @memberof SwaggerParser
      */
     createResourceInfoAnnotation(resourceDefinition, httpMethodJsonObject) {
-        const resourceInfoAnnotation = resourceDefinition.getFactory().createAnnotationAttachment({
+        const resourceInfoAnnotation = ASTFactory.createAnnotationAttachment({
             fullPackageName: SWAGGER_FULL_PACKAGE,
             packageName: SWAGGER_PACKAGE,
             name: 'ResourceInfo',

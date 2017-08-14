@@ -84,19 +84,19 @@ class TransformStatement extends Statement {
      */
     initFromJson(jsonNode) {
         _.each(jsonNode.transform_input, (childNode) => {
-            const inputVar = this.getFactory().createFromJson(childNode);
+            const inputVar = ASTFactory.createFromJson(childNode);
             inputVar.initFromJson(childNode);
             this.input.push(inputVar);
         });
 
         _.each(jsonNode.transform_output, (childNode) => {
-            const outputVar = this.getFactory().createFromJson(childNode);
+            const outputVar = ASTFactory.createFromJson(childNode);
             outputVar.initFromJson(childNode);
             this.output.push(outputVar);
         });
 
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

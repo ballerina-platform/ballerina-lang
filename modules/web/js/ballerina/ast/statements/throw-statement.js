@@ -101,7 +101,7 @@ class ThrowStatement extends Statement {
         this.getChildren().length = 0;
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

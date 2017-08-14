@@ -43,10 +43,10 @@ class BreakStatement extends Statement {
      * @return {boolean} true|false.
      */
     canBeAChildOf(node) {
-        let canBeChildOf = this.getFactory().isWhileStatement(node);
+        let canBeChildOf = ASTFactory.isWhileStatement(node);
         let nodeToBeParent = node;
         while (!canBeChildOf && !_.isEmpty(nodeToBeParent.getParent())) {
-            canBeChildOf = this.getFactory().isWhileStatement(nodeToBeParent);
+            canBeChildOf = ASTFactory.isWhileStatement(nodeToBeParent);
             nodeToBeParent = nodeToBeParent.getParent();
         }
         return canBeChildOf;

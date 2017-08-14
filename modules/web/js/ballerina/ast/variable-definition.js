@@ -139,7 +139,7 @@ class VariableDefinition extends ASTNode {
         }
 
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

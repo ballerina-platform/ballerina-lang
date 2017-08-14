@@ -44,7 +44,7 @@ class AnnotationAttributeValue extends ASTNode {
      * @memberof AnnotationAttributeValue
      */
     isBValue() {
-        return this.getChildren().length > 0 && this.getFactory().isBValue(this.getChildren()[0]);
+        return this.getChildren().length > 0 && ASTFactory.isBValue(this.getChildren()[0]);
     }
 
     /**
@@ -54,7 +54,7 @@ class AnnotationAttributeValue extends ASTNode {
      * @memberof AnnotationAttributeValue
      */
     isAnnotation() {
-        return this.getChildren().length > 0 && this.getFactory().isAnnotationAttachment(this.getChildren()[0]);
+        return this.getChildren().length > 0 && ASTFactory.isAnnotationAttachment(this.getChildren()[0]);
     }
 
     /**
@@ -64,7 +64,7 @@ class AnnotationAttributeValue extends ASTNode {
      * @memberof AnnotationAttributeValue
      */
     isArray() {
-        return this.getChildren().length === 0 || this.getFactory().isAnnotationAttributeValue(this.getChildren()[0]);
+        return this.getChildren().length === 0 || ASTFactory.isAnnotationAttributeValue(this.getChildren()[0]);
     }
 
     /**
@@ -73,7 +73,7 @@ class AnnotationAttributeValue extends ASTNode {
      */
     initFromJson(jsonNode) {
         jsonNode.children.forEach((childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

@@ -64,7 +64,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 
         let constructedSourceSegment = '';
         const annotationAttachments = connectorAction.getChildrenOfType(
-                                            connectorAction.getFactory().isAnnotationAttachment);
+                                            ASTFactory.isAnnotationAttachment);
         annotationAttachments.forEach(
             (annotationAttachment, index) => {
                 let annotationAttachmentVisitor;

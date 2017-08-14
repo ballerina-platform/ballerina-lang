@@ -49,7 +49,7 @@ class IndexBasedVariableReferenceExpression extends Expression {
         this.getChildren().length = 0;
         if (!_.isNil(jsonNode.children) && !_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childNode) => {
-                const child = this.getFactory().createFromJson(childNode);
+                const child = ASTFactory.createFromJson(childNode);
                 this.addChild(child, undefined, true, true);
                 child.initFromJson(childNode);
             });

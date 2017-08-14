@@ -70,9 +70,9 @@ class ContinueStatement extends Statement {
         if (node === undefined) {
             return false;
         }
-        if (this.getFactory().isBallerinaAstRoot(node)) {
+        if (ASTFactory.isBallerinaAstRoot(node)) {
             return false;
-        } else if (this.getFactory().isWhileStatement(node)) {
+        } else if (ASTFactory.isWhileStatement(node)) {
             return true;
         } else {
             return this.iterateOverParent(node.getParent());

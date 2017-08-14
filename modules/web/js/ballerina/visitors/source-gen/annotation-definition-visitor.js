@@ -51,7 +51,7 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         annotationDefinition.setLineNumber(lineNumber, { doSilently: true });
 
         let constructedSourceSegment = '';
-        annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotationAttachment).forEach(
+        annotationDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

@@ -54,7 +54,7 @@ class ConnectorDefinition extends React.Component {
      * @memberof ConnectorDefinition
      */
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for resource defs and connector declarations only.
         return nodeFactory.isConnectorDeclaration(nodeBeingDragged)

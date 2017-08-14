@@ -77,7 +77,7 @@ class FailedStatement extends Statement {
         if (ASTFactory.isRetry(child)) {
             canBeAParent = this.filterChildren(retry => ASTFactory.isRetry(retry)).length === 0;
         } else {
-            canBeAParent = this.getFactory().isStatement(child);
+            canBeAParent = ASTFactory.isStatement(child);
         }
         return canBeAParent;
     }
@@ -91,7 +91,7 @@ class FailedStatement extends Statement {
         let retryChild;
         let retryChildNode;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             if (ASTFactory.isRetry(child)) {
                 retryChild = child;
                 retryChildNode = childNode;

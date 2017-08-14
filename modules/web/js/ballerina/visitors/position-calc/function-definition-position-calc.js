@@ -71,7 +71,7 @@ class FunctionDefinitionPositionCalcVisitor {
         const statementContainer = viewState.components.statementContainer;
         const workerScopeContainer = viewState.components.workerScopeContainer;
         // If more than one worker is present, then draw the worker scope container boundary around the workers
-        if ((node.filterChildren(node.getFactory().isWorkerDeclaration)).length >= 1) {
+        if ((node.filterChildren(ASTFactory.isWorkerDeclaration)).length >= 1) {
             workerScopeContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
             workerScopeContainer.y = viewState.components.body.y + (DesignerDefaults.innerPanel.body.padding.top / 2);
         }
@@ -92,7 +92,7 @@ class FunctionDefinitionPositionCalcVisitor {
                 viewState.bBox.x = parentViewState.bBox.x;
                 viewState.components.body.y = viewState.bBox.y;
                 viewState.components.body.x = viewState.bBox.x;
-                if (node.filterChildren(node.getFactory().isConnectorDeclaration).length > 0) {
+                if (node.filterChildren(ASTFactory.isConnectorDeclaration).length > 0) {
                     statementContainer.x = viewState.bBox.x + DesignerDefaults.innerPanel.body.padding.left;
                 } else {
                     statementContainer.x = viewState.bBox.x + (viewState.bBox.w - statementContainer.w) / 2;

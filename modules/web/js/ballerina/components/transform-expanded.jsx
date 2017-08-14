@@ -759,7 +759,7 @@ class TransformExpanded extends React.Component {
                     // is an Assignment Statement, that implies there is a return parameter . If there is no
                     // return parameter, then it is a Function Invocation Statement,
                     // which is validated with below check.
-                    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+                    return ASTFactory.isAssignmentStatement(nodeBeingDragged);
                 },
                 () => {
                     return dropTarget.getChildren().length;
@@ -990,16 +990,16 @@ class TransformExpanded extends React.Component {
                 nodeToRemove = currentObject.getLeftExpression();
             }
 
-            if (nodeToRemove.getFactory().isFieldBasedVarRefExpression(nodeToRemove)) {
+            if (ASTFactory.isFieldBasedVarRefExpression(nodeToRemove)) {
                 if (nodeToRemove.getExpressionString().startsWith(`${id}.`)) {
                     statementsToRemove.push(currentObject);
                     return;
                 }
             }
 
-            if ((nodeToRemove.getFactory().isVariableReferenceList(nodeToRemove))) {
+            if ((ASTFactory.isVariableReferenceList(nodeToRemove))) {
                 nodeToRemove.getChildren().forEach((childVarRef) => {
-                    if (nodeToRemove.getFactory().isFieldBasedVarRefExpression(childVarRef)) {
+                    if (ASTFactory.isFieldBasedVarRefExpression(childVarRef)) {
                         if (childVarRef.getExpressionString().startsWith(`${id}.`)) {
                             statementsToRemove.push(currentObject);
                             return;

@@ -137,7 +137,7 @@ class AnnotationAttachment extends ASTNode {
         this.setIsHttpMethod();
 
         jsonNode.children.forEach((childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

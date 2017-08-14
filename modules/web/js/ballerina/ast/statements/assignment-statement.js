@@ -54,7 +54,7 @@ class AssignmentStatement extends Statement {
         this.children = [];
         this.setIsDeclaredWithVar(jsonNode.is_declared_with_var);
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -149,8 +149,8 @@ class AssignmentStatement extends Statement {
                         this.initFromJson(parsedJson);
                     } else if (_.has(parsedJson, 'type')) {
                         // user may want to change the statement type
-                        const newNode = this.getFactory().createFromJson(parsedJson);
-                        if (this.getFactory().isStatement(newNode)) {
+                        const newNode = ASTFactory.createFromJson(parsedJson);
+                        if (ASTFactory.isStatement(newNode)) {
                             // somebody changed the type of statement to an assignment
                             // to capture retun value of function Invocation
                             const parent = this.getParent();

@@ -53,7 +53,7 @@ class ElseIfStatement extends ConditionalStatement {
         if (!_.isNil(conditionString)) {
             const fragment = FragmentUtils.createExpressionFragment(conditionString);
             const parsedJson = FragmentUtils.parseFragment(fragment);
-            const condition = this.getFactory().createFromJson(parsedJson);
+            const condition = ASTFactory.createFromJson(parsedJson);
             condition.initFromJson(parsedJson);
             this.setCondition(condition);
             condition.setParent(this, {doSilently: true});
@@ -95,7 +95,7 @@ class ElseIfStatement extends ConditionalStatement {
      */
     initFromJson(jsonNode) {
         if (!_.isNil(jsonNode.condition)) {
-            const condition = this.getFactory().createFromJson(jsonNode.condition);
+            const condition = ASTFactory.createFromJson(jsonNode.condition);
             condition.initFromJson(jsonNode.condition);
             this.setCondition(condition, {doSilently: true});
             condition.setParent(this, {doSilently: true});
@@ -106,9 +106,9 @@ class ElseIfStatement extends ConditionalStatement {
             // declaration as it is for now. We should refactor this
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = this.getFactory().createConnectorDeclaration();
+                child = ASTFactory.createConnectorDeclaration();
             } else {
-                child = this.getFactory().createFromJson(childNode);
+                child = ASTFactory.createFromJson(childNode);
             }
             this.addChild(child);
             child.initFromJson(childNode);

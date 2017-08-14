@@ -56,7 +56,7 @@ class Statement extends ASTNode {
      * @param connectorName
      */
     getConnectorByName(connectorName) {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReference = _.find(this.getChildren(), (child) => {
             let connectorVariableName;
             if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
@@ -81,7 +81,7 @@ class Statement extends ASTNode {
      * Get the connectors in immediate scope
      */
     getConnectorsInImmediateScope() {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         return _.filter(this.getChildren(), (child) => {
             return factory.isConnectorDeclaration(child);
         });
@@ -95,7 +95,7 @@ class Statement extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConnectorDeclaration(child)) {
+            if (ASTFactory.isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
         });

@@ -67,9 +67,9 @@ class ReplyStatement extends Statement {
      * @return {boolean} can be a child of status
      */
     canBeAChildOf(node) {
-        return this.getFactory().isResourceDefinition(node)
-                || this.getFactory().isWorkerDeclaration(node)
-                || this.getFactory().isStatement(node);
+        return ASTFactory.isResourceDefinition(node)
+                || ASTFactory.isWorkerDeclaration(node)
+                || ASTFactory.isStatement(node);
     }
 
     /**
@@ -100,9 +100,9 @@ class ReplyStatement extends Statement {
      * @return {boolean} target allowed or not
      */
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isResourceDefinition(target)
-            || this.getFactory().isConnectorAction(target)
-            || this.getFactory().isFunctionDefinition(target);
+        return ASTFactory.isResourceDefinition(target)
+            || ASTFactory.isConnectorAction(target)
+            || ASTFactory.isFunctionDefinition(target);
     }
 }
 

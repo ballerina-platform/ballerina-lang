@@ -41,7 +41,7 @@ class BallerinaASTRoot extends ASTNode {
         });
         this.packageDefinition = _.get(args, 'packageDefinition');
         const self = this;
-        const factory = self.getFactory();
+        const factory = ASTFactory;
         // Add new imports on new child added to the canvas.
         // Ignore if already added or if it is a current package
         const addImport = function (fullPackageName, options) {
@@ -117,7 +117,7 @@ class BallerinaASTRoot extends ASTNode {
      * @return {*}
      */
     getPackageDefinition() {
-        return this.getChildrenOfType(this.getFactory().isPackageDefinition)[0];
+        return this.getChildrenOfType(ASTFactory.isPackageDefinition)[0];
     }
 
     /**
@@ -126,7 +126,7 @@ class BallerinaASTRoot extends ASTNode {
      */
     getImportDeclarations() {
         const importDeclarations = [];
-        const ballerinaASTFactory = this.getFactory();
+        const ballerinaASTFactory = ASTFactory;
         _.forEach(this.getChildren(), (child) => {
             if (ballerinaASTFactory.isImportDeclaration(child)) {
                 importDeclarations.push(child);
@@ -148,7 +148,7 @@ class BallerinaASTRoot extends ASTNode {
      * Deletes an import with given package name.
      */
     deleteImport(packageName, options) {
-        const ballerinaASTFactory = this.getFactory();
+        const ballerinaASTFactory = ASTFactory;
         const importDeclaration = _.find(this.getChildren(), (child) => {
             return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
         });
@@ -180,8 +180,8 @@ class BallerinaASTRoot extends ASTNode {
      * @param {Object} jsonNode json object representing the import
      */
     addImportFromJson(jsonNode) {
-        const importDeclaration = this.getFactory().createFromJson(jsonNode);
-        if (!this.getFactory().isImportDeclaration(importDeclaration)) {
+        const importDeclaration = ASTFactory.createFromJson(jsonNode);
+        if (!ASTFactory.isImportDeclaration(importDeclaration)) {
         // only imports can added at global level
             return;
         }
@@ -201,7 +201,7 @@ class BallerinaASTRoot extends ASTNode {
             return;
         }
 
-        const ballerinaASTFactory = this.getFactory();
+        const ballerinaASTFactory = ASTFactory;
         let index = _.findLastIndex(this.getChildren(), (child) => {
             return ballerinaASTFactory.isImportDeclaration(child);
         });
@@ -252,7 +252,7 @@ class BallerinaASTRoot extends ASTNode {
             throw errorString;
         } else {
             // Creating new constant definition.
-            const newConstantDefinition = this.getFactory().createConstantDefinition();
+            const newConstantDefinition = ASTFactory.createConstantDefinition();
             newConstantDefinition.setBType(bType);
             newConstantDefinition.setIdentifier(identifier);
             newConstantDefinition.setValue(value);
@@ -261,13 +261,13 @@ class BallerinaASTRoot extends ASTNode {
 
             // Get the index of the last constant declaration.
             let index = _.findLastIndex(this.getChildren(), (child) => {
-                return self.getFactory().isConstantDefinition(child);
+                return ASTFactory.isConstantDefinition(child);
             });
 
             // If index is still -1, then get the index of the last import.
             if (index == -1) {
                 index = _.findLastIndex(this.getChildren(), (child) => {
-                    return self.getFactory().isImportDeclaration(child);
+                    return ASTFactory.isImportDeclaration(child);
                 });
             }
 
@@ -286,10 +286,10 @@ class BallerinaASTRoot extends ASTNode {
      * @returns {void}
      */
     addGlobal(jsonNode) {
-        const globalNode = this.getFactory().createFromJson(jsonNode);
+        const globalNode = ASTFactory.createFromJson(jsonNode);
 
-        if (!this.getFactory().isConstantDefinition(globalNode) &&
-            !this.getFactory().isGlobalVariableDefinition(globalNode)) {
+        if (!ASTFactory.isConstantDefinition(globalNode) &&
+            !ASTFactory.isGlobalVariableDefinition(globalNode)) {
             // only constants and global variables can be added at global level
             return;
         }
@@ -297,14 +297,14 @@ class BallerinaASTRoot extends ASTNode {
         globalNode.initFromJson(jsonNode);
         // Get the index of the last constant declaration.
         let index = _.findLastIndex(this.getChildren(), (child) => {
-            return this.getFactory().isConstantDefinition(child) ||
-                   this.getFactory().isGlobalVariableDefinition(child);
+            return ASTFactory.isConstantDefinition(child) ||
+                   ASTFactory.isGlobalVariableDefinition(child);
         });
 
         // If index is still -1, then get the index of the last import.
         if (index == -1) {
             index = _.findLastIndex(this.getChildren(), (child) => {
-                return this.getFactory().isImportDeclaration(child);
+                return ASTFactory.isImportDeclaration(child);
             });
         }
 
@@ -324,7 +324,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
         // Deleting the variable from the children.
         const resourceParameter = _.find(this.getChildren(), (child) => {
-            return self.getFactory().isConstantDefinition(child) && child.id === modelID;
+            return ASTFactory.isConstantDefinition(child) && child.id === modelID;
         });
 
         this.removeChild(resourceParameter);
@@ -339,7 +339,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConstantDefinition(child)) {
+            if (ASTFactory.isConstantDefinition(child)) {
                 constantDeclarations.push(child);
             }
         });
@@ -355,7 +355,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isAnnotationDefinition(child)) {
+            if (ASTFactory.isAnnotationDefinition(child)) {
                 annotationDefinition.push(child);
             }
         });
@@ -371,7 +371,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isServiceDefinition(child)) {
+            if (ASTFactory.isServiceDefinition(child)) {
                 serviceDefinition.push(child);
             }
         });
@@ -387,7 +387,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConnectorDefinition(child)) {
+            if (ASTFactory.isConnectorDefinition(child)) {
                 connectorDefinitions.push(child);
             }
         });
@@ -403,7 +403,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isFunctionDefinition(child)) {
+            if (ASTFactory.isFunctionDefinition(child)) {
                 functionDefinitions.push(child);
             }
         });
@@ -419,7 +419,7 @@ class BallerinaASTRoot extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isStructDefinition(child)) {
+            if (ASTFactory.isStructDefinition(child)) {
                 structDefinitions.push(child);
             }
         });
@@ -435,8 +435,6 @@ class BallerinaASTRoot extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        const ASTFactory = this.getFactory();
-
         const existingMainFunction = _.find(this.getFunctionDefinitions(), (functionDef) => {
             return functionDef.isMainFunction();
         });

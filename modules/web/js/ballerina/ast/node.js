@@ -566,7 +566,7 @@ class ASTNode extends EventChannel {
      */
     getChildrenOfType(typeCheckFunction) {
         return _.filter(this.getChildren(), (child) => {
-            return typeCheckFunction.call(child.getFactory(), child);
+            return typeCheckFunction.call(ASTFactory, child);
         });
     }
 

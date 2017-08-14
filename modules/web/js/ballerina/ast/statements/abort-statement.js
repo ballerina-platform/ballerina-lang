@@ -41,10 +41,10 @@ class AbortStatement extends Statement {
      * @return {boolean} true|false.
      * */
     canBeAChildOf(node) {
-        let canBeChildOf = this.getFactory().isTransactionStatement(node);
+        let canBeChildOf = ASTFactory.isTransactionStatement(node);
         let nodeToBeParent = node;
         while (!canBeChildOf && !_.isEmpty(nodeToBeParent.getParent())) {
-            canBeChildOf = this.getFactory().isTransactionStatement(nodeToBeParent);
+            canBeChildOf = ASTFactory.isTransactionStatement(nodeToBeParent);
             nodeToBeParent = nodeToBeParent.getParent();
         }
         return canBeChildOf;

@@ -86,7 +86,7 @@ class ParameterDefinition extends VariableDefinition {
     getParameterDefinitionAsString() {
         let argAsString = '';
         // add annotations
-        this.getChildrenOfType(this.getFactory().isAnnotationAttachment).forEach(
+        this.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 // TODO: This func should move into the source-gen visitor. Unable to use annotation source gen visitor
                 // due to cyclic imports.
@@ -142,7 +142,7 @@ class ParameterDefinition extends VariableDefinition {
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
             let nodeToFireEvent = this;
             if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                const newNode = this.getFactory().createFromJson(parsedJson);
+                const newNode = ASTFactory.createFromJson(parsedJson);
                 const parent = this.getParent();
                 const index = parent.getIndexOfChild(this);
                 if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
@@ -204,7 +204,7 @@ class ParameterDefinition extends VariableDefinition {
         // As of now we only support one annotation.
         if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation_attachment')) {
             const annotationJson = jsonNode.children[0];
-            const child = this.getFactory().createFromJson(annotationJson);
+            const child = ASTFactory.createFromJson(annotationJson);
             this.addChild(child);
             child.initFromJson(annotationJson);
         }
