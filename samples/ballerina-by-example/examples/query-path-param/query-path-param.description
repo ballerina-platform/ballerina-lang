@@ -1,0 +1,2 @@
+// Ballerina support extracting values both from PathParam and QueryParam. Following example
+// shows how to do that.
