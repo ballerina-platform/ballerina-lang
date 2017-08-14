@@ -40,11 +40,12 @@ import javax.net.ssl.SSLException;
 /**
  * Test cases for WebSocket pass-through scenarios.
  */
-public class WebSocketPassthoughTestCase {
+public class WebSocketPassthoughTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTest.class);
 
-    private final int sleepTime = 3000;
+    private final int threadSleepTime = 100;
+    private final int messageDeliveryCountdown = 40;
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
 
@@ -54,7 +55,7 @@ public class WebSocketPassthoughTestCase {
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         log.info(System.lineSeparator() +
-                         "---------------------WebSocket Pass Through Connector Test Cases---------------------");
+                         "--------------------- WebSocket Pass Through Test Cases ---------------------");
         remoteServer.run();
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
@@ -70,7 +71,7 @@ public class WebSocketPassthoughTestCase {
         webSocketClient.handhshake();
         String text = "hello-pass-through";
         webSocketClient.sendText(text);
-        Thread.sleep(sleepTime);
+        assertWebSocketClientTextMessage(webSocketClient, text);
         Assert.assertEquals(webSocketClient.getTextReceived(), text);
     }
 

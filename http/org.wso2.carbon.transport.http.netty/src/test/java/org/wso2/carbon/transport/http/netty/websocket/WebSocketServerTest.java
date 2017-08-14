@@ -37,18 +37,18 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import javax.net.ssl.SSLException;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Test class for WebSocket protocol.
  */
-public class WebSocketServerTest {
+public class WebSocketServerTest extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerTest.class);
 
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
-    private final int threadSleepTime = 500;
+    private final int threadSleepTime = 100;
+    private final int messageDeliveryCountdown = 40;
     private WebSocketClient primaryClient = new WebSocketClient();
     private WebSocketClient secondaryClient = new WebSocketClient();
     private ServerConnector serverConnector;
@@ -57,7 +57,7 @@ public class WebSocketServerTest {
     @BeforeClass
     public void setup() {
         log.info(System.lineSeparator() +
-                         "---------------------WebSocket Server Test Cases---------------------");
+                         "--------------------- WebSocket Server Test Cases ---------------------");
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(9009);
@@ -70,7 +70,6 @@ public class WebSocketServerTest {
     @Test
     public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException {
         assertTrue(primaryClient.handhshake());
-        log.info("Handshake test completed.");
     }
 
     @Test
@@ -78,10 +77,7 @@ public class WebSocketServerTest {
         primaryClient.handhshake();
         String textSent = "test";
         primaryClient.sendText(textSent);
-        Thread.sleep(threadSleepTime);
-        String textReceived = primaryClient.getTextReceived();
-        assertEquals("Not received the same text.", textReceived, textSent);
-        log.info("pushing and receiving text data from server completed.");
+        assertWebSocketClientTextMessage(primaryClient, textSent);
         primaryClient.shutDown();
     }
 
@@ -91,12 +87,7 @@ public class WebSocketServerTest {
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         primaryClient.sendBinary(bufferSent);
-        Thread.sleep(threadSleepTime);
-        ByteBuffer bufferReceived = primaryClient.getBufferReceived();
-        assertTrue("Buffer capacity is not the same.",
-                   bufferSent.capacity() == bufferReceived.capacity());
-        assertEquals("Buffers data are not equal.", bufferReceived, bufferSent);
-        log.info("pushing and receiving binary data from server completed.");
+        assertWebSocketClientBinaryMessage(primaryClient, bufferSent);
         primaryClient.shutDown();
     }
 
@@ -109,12 +100,7 @@ public class WebSocketServerTest {
     public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException {
         primaryClient.handhshake();
         secondaryClient.handhshake();
-        Thread.sleep(threadSleepTime);
-        String textReceived = primaryClient.getTextReceived();
-        log.info("Received text : " + textReceived);
-        assertEquals("New Client was not connected.",
-                     textReceived, WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-        log.info("New client successfully connected to the server.");
+        assertWebSocketClientTextMessage(primaryClient, WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
         secondaryClient.shutDown();
         primaryClient.shutDown();
     }
@@ -128,13 +114,8 @@ public class WebSocketServerTest {
     public void testClientCloseConnection() throws InterruptedException, URISyntaxException, SSLException {
         primaryClient.handhshake();
         secondaryClient.handhshake();
-        Thread.sleep(threadSleepTime);
         secondaryClient.shutDown();
-        Thread.sleep(threadSleepTime);
-        String textReceived = primaryClient.getTextReceived();
-        log.info("Received Text : " + textReceived);
-        assertEquals("Connection close is unsuccessful.", textReceived, WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
-        log.info("Client left the server successfully.");
+        assertWebSocketClientTextMessage(primaryClient, WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
         primaryClient.shutDown();
         secondaryClient.shutDown();
     }
@@ -145,10 +126,7 @@ public class WebSocketServerTest {
         byte[] bytes = {6, 7, 8, 9, 10, 11};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         primaryClient.sendPing(bufferSent);
-        Thread.sleep(threadSleepTime);
-        ByteBuffer bufferReceived = primaryClient.getBufferReceived();
-        assertEquals("Didn't receive the correct pong.", bufferReceived, bufferSent);
-        log.info("Receiving a pong message is completed.");
+        assertWebSocketClientBinaryMessage(primaryClient, bufferSent);
     }
 
     @AfterClass

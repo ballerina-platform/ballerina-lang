@@ -70,16 +70,20 @@ public class WebSocketClient {
     private final WebSocketConnectorListener connectorListener;
 
     /**
+     *
      * @param url url of the remote endpoint.
+     * @param target target for the inbound messages from the remote server.
      * @param subprotocol the negotiable sub-protocol if server is asking for it.
      * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
+     * @param sourceHandler {@link WebSocketSourceHandler} for pass through purposes.
+     * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String clientServiceName, String subprotocol, boolean allowExtensions,
+    public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
                            Map<String, String> headers, WebSocketSourceHandler sourceHandler,
                            WebSocketConnectorListener connectorListener) {
         this.url = url;
-        this.target = clientServiceName;
+        this.target = target;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;

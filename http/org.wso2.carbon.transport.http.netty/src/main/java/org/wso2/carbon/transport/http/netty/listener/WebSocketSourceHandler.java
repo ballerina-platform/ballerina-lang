@@ -71,26 +71,27 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final List<Session> clientSessionsList = new LinkedList<>();
 
     /**
+     * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
+     * @param subProtocol the sub-protocol which the client is registering.
+     * @param isSecured indication of whether the connection is secured or not.
+     * @param channelSession session relates to the channel.
+     * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param connectionManager connection manager for WebSocket connection.
      * @param listenerConfiguration HTTPConnectorListener configuration for WebSocket connection.
-     * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
-     * @param isSecured indication of whether the connection is secured or not.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
-     * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
-     * @param channelSession session relates to the channel.
-     * @throws Exception throws if error occurred during the construction.
+     * @throws Exception
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
                                   ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration,
                                   ChannelHandlerContext ctx) throws Exception {
         super(connectionManager, listenerConfiguration, new HTTPServerConnectorFuture());
-        this.target = httpRequest.uri();
-        this.ctx = ctx;
-        this.isSecured = isSecured;
         this.connectorFuture = connectorFuture;
-        this.channelSession = channelSession;
         this.subProtocol = subProtocol;
+        this.isSecured = isSecured;
+        this.channelSession = channelSession;
+        this.ctx = ctx;
+        this.target = httpRequest.uri();
     }
 
     /**
