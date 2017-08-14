@@ -110,6 +110,10 @@ public class HTTPMessageUtil {
         cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, webSocketMessage.getClientSessions());
         cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, webSocketMessage.getChannelSession());
         cMsg.setProperty(Constants.WEBSOCKET_MESSAGE, webSocketMessage);
+
+        webSocketMessage.getHeaders().entrySet().forEach(
+                header -> cMsg.setHeader(header.getKey(), header.getValue())
+        );
         return cMsg;
     }
 

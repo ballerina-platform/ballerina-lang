@@ -51,8 +51,10 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -69,6 +71,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final String subProtocol;
     private final WebSocketSessionImpl channelSession;
     private final List<Session> clientSessionsList = new LinkedList<>();
+    private final Map<String, String> headers = new HashMap<>();
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -92,6 +95,9 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.channelSession = channelSession;
         this.ctx = ctx;
         this.target = httpRequest.uri();
+        httpRequest.headers().forEach(
+                header -> headers.put(header.getKey(), header.getValue())
+        );
     }
 
     /**
@@ -201,22 +207,23 @@ public class WebSocketSourceHandler extends SourceHandler {
         connectorFuture.notifyWSListener((WebSocketControlMessage) webSocketControlMessage);
     }
 
-    private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketChannelContext) {
-        webSocketChannelContext.setSubProtocol(subProtocol);
-        webSocketChannelContext.setTarget(target);
-        webSocketChannelContext.setListenerInterface(listenerConfiguration.getId());
-        webSocketChannelContext.setIsConnectionSecured(isSecured);
-        webSocketChannelContext.setIsServerMessage(true);
-        webSocketChannelContext.setChannelSession(channelSession);
-        webSocketChannelContext.setClientSessionsList(clientSessionsList);
+    private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketMessage) {
+        webSocketMessage.setSubProtocol(subProtocol);
+        webSocketMessage.setTarget(target);
+        webSocketMessage.setListenerInterface(listenerConfiguration.getId());
+        webSocketMessage.setIsConnectionSecured(isSecured);
+        webSocketMessage.setIsServerMessage(true);
+        webSocketMessage.setChannelSession(channelSession);
+        webSocketMessage.setClientSessionsList(clientSessionsList);
+        webSocketMessage.setHeaders(headers);
 
-        webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);
-        webSocketChannelContext.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
+        webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
+        webSocketMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                                             ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-        webSocketChannelContext.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        webSocketChannelContext.setProperty(
+        webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        webSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-        return webSocketChannelContext;
+        return webSocketMessage;
     }
 
     @Override

@@ -20,6 +20,7 @@
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
 import java.util.List;
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -85,4 +86,34 @@ public interface WebSocketMessage {
      * @return the client session array relates to the listener channel.
      */
     List<Session> getClientSessions();
+
+    /**
+     * Set header for the message.
+     *
+     * @param key key of the header.
+     * @param value value of the header.
+     */
+    void setHeader(String key, String value);
+
+    /**
+     * Set headers for the message.
+     *
+     * @param headers map of headers which should be added to the current headers.
+     */
+    void setHeaders(Map<String, String> headers);
+
+    /**
+     * Get the value of a header.
+     *
+     * @param key key of the header.
+     * @return the value of the header.
+     */
+    String getHeader(String key);
+
+    /**
+     * Get a map of all headers.
+     *
+     * @return a map of all headers.
+     */
+    Map<String, String> getHeaders();
 }

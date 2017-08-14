@@ -40,6 +40,7 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     protected Session channelSession;
     protected Session serverSession;
     protected List<Session> clientSessionsList;
+    protected Map<String, String> headers = new HashMap<>();
 
     public void setProperty(String key, Object value) {
         properties.put(key, value);
@@ -142,5 +143,27 @@ public class WebSocketMessageImpl implements WebSocketMessage {
             return clientSessionsList;
         }
         return null;
+    }
+
+    @Override
+    public void setHeader(String key, String value) {
+        headers.put(key, value);
+    }
+
+    @Override
+    public void setHeaders(Map<String, String> headers) {
+        headers.entrySet().forEach(
+                entry -> this.headers.put(entry.getKey(), entry.getValue())
+        );
+    }
+
+    @Override
+    public String getHeader(String key) {
+        return headers.get(key);
+    }
+
+    @Override
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 }
