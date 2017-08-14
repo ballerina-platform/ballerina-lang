@@ -1,0 +1,34 @@
+.menu-item-toggle {
+    background: none;
+    border: none;
+    text-shadow: none;
+    color: white;
+    box-shadow: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.application-menu {
+    & .dropdown-toggle.btn-default
+    {
+       @extend .menu-item-toggle;
+    }
+    & .dropdown-menu {
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+.application-menu {
+    & .open {
+        & .dropdown-toggle.btn-default
+        {
+            @extend .menu-item-toggle;
+            background: grey;
+        }
+    }
+}

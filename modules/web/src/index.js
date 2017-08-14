@@ -8,6 +8,8 @@ import defaultConfig from './config';
 // importing for side effects only
 import 'bootstrap';
 import 'theme_wso2';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap-theme.min.css';
 
 
 // Before start rendering, fetch api endpoint information & other configs from config service

@@ -14,21 +14,35 @@ import { REGIONS } from './../constants';
 class App extends React.Component {
 
     /**
+     * Get views of Header Region
+     * @returns {Array<React.Component>}
+     */
+    getHeaderViews() {
+        return this.props.layout[REGIONS.HEADER].map((viewDef) => {
+            return this.createViewFromViewDef(viewDef);
+        });
+    }
+
+    /**
+     * Creates View from view Def
+     * @param {Object} viewDef View Definition
+     */
+    createViewFromViewDef(viewDef) {
+        const { component, propsProvider } = viewDef;
+        const View = component;
+        return (
+            <View {...propsProvider()} key={viewDef.id} />
+        );
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
-        const headerViews = [];
-        this.props.layout[REGIONS.HEADER].forEach((view) => {
-            const { component, propsProvider } = view;
-            const View = component;
-            headerViews.push(
-                <View {...propsProvider()} />
-            );
-        });
         return (
             <div className="">
                 <Header>
-                    {headerViews}
+                    {this.getHeaderViews()}
                 </Header>
                 <ActivityBar />
                 <GLRegion />
