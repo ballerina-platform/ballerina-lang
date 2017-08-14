@@ -29,6 +29,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.ProtocolException;
@@ -69,7 +70,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
             pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
 
-            return serverSession;
+            return webSocketSourceHandler.getChannelSession();
         } catch (Exception e) {
             /*
             Code 1002 : indicates that an endpoint is terminating the connection
@@ -96,7 +97,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
             pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
 
             setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
-            return serverSession;
+            return webSocketSourceHandler.getChannelSession();
         } catch (Exception e) {
             /*
             Code 1002 : indicates that an endpoint is terminating the connection

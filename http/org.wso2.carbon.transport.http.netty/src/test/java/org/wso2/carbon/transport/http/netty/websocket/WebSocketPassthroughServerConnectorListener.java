@@ -21,6 +21,8 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
@@ -30,12 +32,19 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMes
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
@@ -48,19 +57,22 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
 
     private final HTTPConnectorFactory connectorFactory = new HTTPConnectorFactoryImpl();
-    private final Map<String, String> properties = new HashMap<>();
     private final Map<String, Session> sessionsMap = new ConcurrentHashMap<>();
-
-    public WebSocketPassthroughServerConnectorListener() {
-        properties.put(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
-        properties.put(Constants.TO, "myService");
-    }
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
-            WebSocketClientConnector clientConnector = connectorFactory.getWSClientConnector(properties);
-            Session clientSession = clientConnector.connect(new WebSocketPassthroughClientConnectorListener(), initMessage);
+            CarbonMessage carbonMessage = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN,
+                                                                  0, null);
+            CarbonMessage serverCarbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(initMessage);
+            carbonMessage.setProperty(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
+            carbonMessage.setProperty(Constants.TO, "myService");
+            carbonMessage.setProperty(Constants.SRC_HANDLER, serverCarbonMessage.getProperty(Constants.SRC_HANDLER));
+            WebSocketClientConnector clientConnector = connectorFactory.getWSClientConnector(carbonMessage);
+
+            WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
+            Map<String, String> customHeaders = new HashMap<>();
+            Session clientSession = clientConnector.connect(connectorListener, customHeaders);
             Session serverSession = initMessage.handshake();
             sessionsMap.put(serverSession.getId(), clientSession);
         } catch (ProtocolException | ClientConnectorException e) {

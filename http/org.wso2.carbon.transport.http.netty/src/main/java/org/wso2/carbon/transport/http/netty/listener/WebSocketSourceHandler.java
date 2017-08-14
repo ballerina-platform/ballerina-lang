@@ -116,7 +116,7 @@ public class WebSocketSourceHandler extends SourceHandler {
      *
      * @return the server session of this source handler.
      */
-    public Session getServerSession() {
+    public WebSocketSessionImpl getChannelSession() {
         return channelSession;
     }
 
@@ -205,6 +205,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         webSocketChannelContext.setTarget(target);
         webSocketChannelContext.setListenerInterface(listenerConfiguration.getId());
         webSocketChannelContext.setIsConnectionSecured(isSecured);
+        webSocketChannelContext.setIsServerMessage(true);
         webSocketChannelContext.setChannelSession(channelSession);
         webSocketChannelContext.setClientSessionsList(clientSessionsList);
 

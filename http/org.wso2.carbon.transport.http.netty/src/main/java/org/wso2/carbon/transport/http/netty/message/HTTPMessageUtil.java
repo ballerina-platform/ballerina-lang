@@ -95,21 +95,21 @@ public class HTTPMessageUtil {
     }
 
     private static CarbonMessage setWebSocketCommonProperties(CarbonMessage cMsg,
-                                                              WebSocketMessageImpl messageContext) {
-        cMsg.setProperty(Constants.TO, messageContext.getTarget());
-        cMsg.setProperty(Constants.SRC_HANDLER, messageContext.getProperty(Constants.SRC_HANDLER));
+                                                              WebSocketMessageImpl webSocketMessage) {
+        cMsg.setProperty(Constants.TO, webSocketMessage.getTarget());
+        cMsg.setProperty(Constants.SRC_HANDLER, webSocketMessage.getProperty(Constants.SRC_HANDLER));
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
-                         messageContext.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT));
-        cMsg.setProperty(Constants.IS_SECURED_CONNECTION, messageContext.isConnectionSecured());
-        cMsg.setProperty(Constants.LOCAL_ADDRESS, messageContext.getProperty(Constants.LOCAL_ADDRESS));
-        cMsg.setProperty(Constants.LOCAL_NAME, messageContext.getProperty(Constants.LOCAL_NAME));
-        cMsg.setProperty(Constants.CHANNEL_ID, messageContext.getProperty(Constants.CHANNEL_ID));
+                         webSocketMessage.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT));
+        cMsg.setProperty(Constants.IS_SECURED_CONNECTION, webSocketMessage.isConnectionSecured());
+        cMsg.setProperty(Constants.LOCAL_ADDRESS, webSocketMessage.getProperty(Constants.LOCAL_ADDRESS));
+        cMsg.setProperty(Constants.LOCAL_NAME, webSocketMessage.getProperty(Constants.LOCAL_NAME));
+        cMsg.setProperty(Constants.CHANNEL_ID, webSocketMessage.getProperty(Constants.CHANNEL_ID));
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
-        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, messageContext.isServerMessage());
-        cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, messageContext.getServerSession());
-        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, messageContext.getClientSessions());
-        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, messageContext.getChannelSession());
-        cMsg.setProperty(Constants.WEBSOCKET_MESSAGE_CONTEXT, messageContext);
+        cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, webSocketMessage.isServerMessage());
+        cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, webSocketMessage.getServerSession());
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, webSocketMessage.getClientSessions());
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, webSocketMessage.getChannelSession());
+        cMsg.setProperty(Constants.WEBSOCKET_MESSAGE, webSocketMessage);
         return cMsg;
     }
 

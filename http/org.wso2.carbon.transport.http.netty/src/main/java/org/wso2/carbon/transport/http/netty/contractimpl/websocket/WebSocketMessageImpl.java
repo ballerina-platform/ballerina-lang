@@ -99,9 +99,6 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     }
 
     public void  setIsServerMessage(boolean isServerMessage) {
-        if (isServerMessage) {
-            throw new UnsupportedOperationException("This operation is not supported for server messages.");
-        }
         this.isServerMessage = isServerMessage;
     }
 
@@ -145,6 +142,6 @@ public class WebSocketMessageImpl implements WebSocketMessage {
         if (isServerMessage) {
             return clientSessionsList;
         }
-        throw new UnsupportedOperationException("Only applicable for server messages");
+        return null;
     }
 }

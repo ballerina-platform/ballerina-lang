@@ -36,15 +36,26 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.BinaryCarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ControlCarbonMessage;
+import org.wso2.carbon.messaging.StatusCarbonMessage;
+import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketTextMessageImpl;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
@@ -65,27 +76,29 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
     private final WebSocketClientHandshaker handshaker;
-    private final WebSocketSourceHandler sourceHandler;
-    private final String requestedUri;
-    private final WebSocketConnectorListener connectorListener;
-    private final String subProtocol;
-    private final String target;
     private final boolean isSecure;
-    private WebSocketMessageImpl webSocketChannelContext = null;
-    private ChannelHandlerContext ctx = null;
-    private WebSocketSessionImpl channelSession = null;
-    private ChannelPromise handshakeFuture = null;
+    private final String requestedUri;
+    private final WebSocketSourceHandler sourceHandler;
+    private final WebSocketConnectorListener connectorListener;
+    private final String target;
+    private final String subProtocol;
+    private ChannelHandlerContext ctx;
+    private WebSocketSessionImpl channelSession;
+    private WebSocketSessionImpl serverSession;
+    private ChannelPromise handshakeFuture;
+    private CarbonMessage cMsg;
 
-    public WebSocketTargetHandler(String subprotocol, String target, boolean isSecure,
-                                  WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  String requestedUri, WebSocketConnectorListener connectorListener) {
+    public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
+                                  boolean isSecure, String requestedUri, String target, String subProtocol,
+                                  WebSocketConnectorListener webSocketConnectorListener) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
-        this.requestedUri = requestedUri;
-        this.connectorListener = connectorListener;
-        this.subProtocol = subprotocol;
-        this.target = target;
         this.isSecure = isSecure;
+        this.requestedUri = requestedUri;
+        this.target = target;
+        this.subProtocol = subProtocol;
+        this.connectorListener = webSocketConnectorListener;
+        cMsg = null;
         handshakeFuture = null;
     }
 
@@ -97,39 +110,46 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         return channelSession;
     }
 
+    public Session getServerSession() {
+        return  serverSession;
+    }
+
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws URISyntaxException {
+    public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
         this.ctx = ctx;
-        channelSession = WebSocketUtil.getSession(ctx, isSecure, target);
-        webSocketChannelContext =
-                new WebSocketMessageImpl(subProtocol, target, isSecure, false, channelSession);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         handshaker.handshake(ctx.channel());
+        channelSession = WebSocketUtil.getSession(ctx, isSecure, requestedUri);
+        if (sourceHandler != null) {
+            serverSession = sourceHandler.getChannelSession();
+            sourceHandler.addClientSession(channelSession);
+        }
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        log.debug("WebSocket Client disconnected!");
-        int statusCode = 1001; // Client is going away.
-        String reasonText = "Client is going away";
-        WebSocketCloseMessageImpl webSocketCloseMessage =
-                new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
-        connectorListener.onMessage(webSocketCloseMessage);
+    public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
+        int statusCode = 1001;
+        String reasonText = "Server is going away";
+        notifyCloseMessage(statusCode, reasonText);
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg)
-            throws UnknownWebSocketFrameTypeException, URISyntaxException {
+            throws UnknownWebSocketFrameTypeException, URISyntaxException, ServerConnectorException {
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
-            channelSession = getChannelSession(ctx);
+            channelSession = WebSocketUtil.getSession(ctx, isSecure, requestedUri);
+            if (sourceHandler != null) {
+                serverSession = sourceHandler.getChannelSession();
+                sourceHandler.addClientSession(channelSession);
+            }
             return;
         }
 
@@ -141,48 +161,79 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         }
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            String text = textFrame.text();
-            boolean isFinalFragment = textFrame.isFinalFragment();
-            WebSocketTextMessageImpl textMessage =
-                    new WebSocketTextMessageImpl(text, isFinalFragment, webSocketChannelContext);
-            connectorListener.onMessage(textMessage);
-
+            notifyTextMessage((TextWebSocketFrame) frame);
         } else if (frame instanceof BinaryWebSocketFrame) {
-            BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
-            ByteBuf byteBuf = binaryWebSocketFrame.content();
-            boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
-            ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            WebSocketBinaryMessageImpl binaryMessage =
-                    new WebSocketBinaryMessageImpl(byteBuffer, finalFragment, webSocketChannelContext);
-            connectorListener.onMessage(binaryMessage);
-
+            notifyBinaryMessage((BinaryWebSocketFrame) frame);
         } else if (frame instanceof PongWebSocketFrame) {
-            PongWebSocketFrame pongWebSocketFrame = (PongWebSocketFrame) msg;
-            ByteBuf byteBuf = pongWebSocketFrame.content();
-            ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            WebSocketControlMessageImpl webSocketControlMessage =
-                    new WebSocketControlMessageImpl(WebSocketControlSignal.PONG, byteBuffer, webSocketChannelContext);
-            connectorListener.onMessage(webSocketControlMessage);
-
+            notifyPongMessage((PongWebSocketFrame) frame);
         } else if (frame instanceof PingWebSocketFrame) {
             PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
             ctx.channel().writeAndFlush(new PongWebSocketFrame(pingFrame.content()));
         } else if (frame instanceof CloseWebSocketFrame) {
-            CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
-            String reasonText = closeWebSocketFrame.reasonText();
-            int statusCode = closeWebSocketFrame.statusCode();
-            ctx.channel().close();
-            WebSocketCloseMessageImpl webSocketCloseMessage =
-                    new WebSocketCloseMessageImpl(statusCode, reasonText, webSocketChannelContext);
-            connectorListener.onMessage(webSocketCloseMessage);
-
+            notifyCloseMessage((CloseWebSocketFrame) frame);
+            ch.close();
         } else {
             throw new UnknownWebSocketFrameTypeException("Cannot identify the WebSocket frame type");
         }
     }
 
+    private void notifyTextMessage(TextWebSocketFrame textWebSocketFrame) throws ServerConnectorException {
+        String text = textWebSocketFrame.text();
+        boolean isFinalFragment = textWebSocketFrame.isFinalFragment();
+        WebSocketMessageImpl webSocketTextMessage =
+                new WebSocketTextMessageImpl(text, isFinalFragment);
+        webSocketTextMessage = setupCommonProperties(webSocketTextMessage);
+        connectorListener.onMessage((WebSocketTextMessage) webSocketTextMessage);
+    }
+
+    private void notifyBinaryMessage(BinaryWebSocketFrame binaryWebSocketFrame) throws ServerConnectorException {
+        ByteBuf byteBuf = binaryWebSocketFrame.content();
+        boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
+        ByteBuffer byteBuffer = byteBuf.nioBuffer();
+        WebSocketMessageImpl webSocketBinaryMessage =
+                new WebSocketBinaryMessageImpl(byteBuffer, finalFragment);
+        webSocketBinaryMessage = setupCommonProperties(webSocketBinaryMessage);
+        connectorListener.onMessage((WebSocketBinaryMessage) webSocketBinaryMessage);
+    }
+
+    private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws ServerConnectorException {
+        String reasonText = closeWebSocketFrame.reasonText();
+        int statusCode = closeWebSocketFrame.statusCode();
+        ctx.channel().close();
+        channelSession.setIsOpen(false);
+        WebSocketMessageImpl webSocketCloseMessage =
+                new WebSocketCloseMessageImpl(statusCode, reasonText);
+        webSocketCloseMessage = setupCommonProperties(webSocketCloseMessage);
+        connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
+    }
+
+    private void notifyCloseMessage(int statusCode, String reasonText) throws ServerConnectorException {
+        ctx.channel().close();
+        channelSession.setIsOpen(false);
+        WebSocketMessageImpl webSocketCloseMessage =
+                new WebSocketCloseMessageImpl(statusCode, reasonText);
+        webSocketCloseMessage = setupCommonProperties(webSocketCloseMessage);
+        connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
+    }
+
+    private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws ServerConnectorException {
+        //Control message for WebSocket is Pong Message
+        ByteBuf byteBuf = pongWebSocketFrame.content();
+        ByteBuffer byteBuffer = byteBuf.nioBuffer();
+        WebSocketMessageImpl webSocketControlMessage =
+                new WebSocketControlMessageImpl(WebSocketControlSignal.PONG, byteBuffer);
+        webSocketControlMessage = setupCommonProperties(webSocketControlMessage);
+        connectorListener.onMessage((WebSocketControlMessage) webSocketControlMessage);
+    }
+
     private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketChannelContext) {
+        webSocketChannelContext.setSubProtocol(subProtocol);
+        webSocketChannelContext.setTarget(target);
+        webSocketChannelContext.setIsConnectionSecured(isSecure);
+        webSocketChannelContext.setChannelSession(channelSession);
+        webSocketChannelContext.setServerSession(serverSession);
+        webSocketChannelContext.setIsServerMessage(false);
+
         webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);
         webSocketChannelContext.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                                             ((InetSocketAddress) ctx.channel().localAddress()).getPort());
@@ -192,23 +243,13 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         return webSocketChannelContext;
     }
 
-    private WebSocketSessionImpl getChannelSession(ChannelHandlerContext ctx) throws URISyntaxException {
-        channelSession = WebSocketUtil.getSession(ctx, webSocketChannelContext.isConnectionSecured() , requestedUri);
-        if (sourceHandler != null) {
-            sourceHandler.addClientSession(channelSession);
-            webSocketChannelContext.setServerSession(sourceHandler.getServerSession());
-        }
-        webSocketChannelContext = setupCommonProperties(webSocketChannelContext);
-        return channelSession;
-    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
             log.error("Handshake failed : " + cause.getMessage(), cause);
             handshakeFuture.setFailure(cause);
         }
-        connectorListener.onError(cause);
         ctx.close();
+        connectorListener.onError(cause);
     }
 }

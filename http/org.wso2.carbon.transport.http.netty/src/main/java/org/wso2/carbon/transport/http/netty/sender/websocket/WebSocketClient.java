@@ -40,10 +40,8 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
@@ -65,8 +63,8 @@ public class WebSocketClient {
     private boolean handshakeDone = false;
 
     private final String url;
-    private final String target;
     private final String subprotocol;
+    private final String target;
     private final boolean allowExtensions;
     private final Map<String, String> headers;
     private final WebSocketSourceHandler sourceHandler;
@@ -74,29 +72,19 @@ public class WebSocketClient {
 
     /**
      * @param url url of the remote endpoint.
-     * @param target the negotiable sub-protocol if server is asking for it.
-     * @param subprotocol true is extensions are allowed.
-     * @param allowExtensions any specific headers which need to send to the server.
-     * @param headers custom headers for the handshake.
-     * @param sourceHandler {@link WebSocketSourceHandler} for pass-through purposes.
-     * @param connectorListener {@link WebSocketConnectorListener} to notify incoming messages from the server.
+     * @param subprotocol the negotiable sub-protocol if server is asking for it.
+     * @param allowExtensions true is extensions are allowed.
+     * @param headers any specific headers which need to send to the server.
      */
-    public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
-                           Map<String, String> headers,
-                           WebSocketSourceHandler sourceHandler, WebSocketConnectorListener connectorListener,
-                           WebSocketMessage webSocketMessageContext) {
+    public WebSocketClient(String url, String clientServiceName, String subprotocol, boolean allowExtensions,
+                           Map<String, String> headers, WebSocketSourceHandler sourceHandler,
+                           WebSocketConnectorListener connectorListener) {
         this.url = url;
+        this.target = clientServiceName;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
-        this.sourceHandler = (WebSocketSourceHandler) ((WebSocketMessageImpl)
-                webSocketMessageContext).getProperty(Constants.SRC_HANDLER);
-
-        if (target == null) {
-            this.target = "client";
-        } else {
-            this.target = target;
-        }
+        this.sourceHandler = sourceHandler;
         this.connectorListener = connectorListener;
     }
 
@@ -142,14 +130,15 @@ public class WebSocketClient {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
 
         // Adding custom headers to the handshake request.
+
         headers.entrySet().forEach(
                 entry -> httpHeaders.add(entry.getKey(), entry.getValue())
         );
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-
-        handler = new WebSocketTargetHandler(subprotocol, target, ssl, websocketHandshaker, sourceHandler, url, connectorListener);
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, subprotocol,
+                                             connectorListener);
 
         Bootstrap b = new Bootstrap();
         b.group(group)
