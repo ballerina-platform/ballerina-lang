@@ -20,7 +20,7 @@ import JS_YAML from 'js-yaml';
 import _ from 'lodash';
 import log from 'log';
 import ASTFactory from '../ballerina/ast/ballerina-ast-factory';
-import DefaultBallerinaASTFactory from '../ballerina/ast/default-ballerina-ast-factory';
+import DefaultASTFactory from '../ballerina/ast/default-ballerina-ast-factory';
 
 const HTTP_FULL_PACKAGE = 'ballerina.net.http';
 const HTTP_PACKAGE = 'http';
@@ -772,7 +772,7 @@ class SwaggerParser {
      * @param {object} httpMethodJsonObject http method object of the swagger JSON.
      */
     _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
-        const newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
+        const newResourceDefinition = DefaultASTFactory.createResourceDefinition();
 
         // if an operation id is defined set it as resource name.
         if (httpMethodJsonObject.operationId && httpMethodJsonObject.operationId.trim() !== '') {

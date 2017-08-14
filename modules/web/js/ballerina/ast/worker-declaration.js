@@ -124,7 +124,7 @@ class WorkerDeclaration extends ASTNode {
 
     initFromJson(jsonNode) {
         const self = this;
-        const BallerinaASTFactory = this.getFactory();
+        const ASTFactory = this.getFactory();
         this.setWorkerName(jsonNode.worker_name);
         const args = jsonNode.argument_declaration;
 

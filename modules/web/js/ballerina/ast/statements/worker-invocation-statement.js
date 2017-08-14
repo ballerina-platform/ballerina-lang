@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 
 /**
@@ -113,9 +113,9 @@ class WorkerInvocationStatement extends Statement {
     getStatementString() {
         let statementStr = '';
         for (let itr = 0; itr < this._expressionList.length; itr++) {
-            if (BallerinaASTFactory.isExpression(this.getExpressionList()[itr])) {
+            if (ASTFactory.isExpression(this.getExpressionList()[itr])) {
                 statementStr += this.getExpressionList()[itr].getExpressionString();
-            } else if (BallerinaASTFactory.isStatement(this.getExpressionList()[itr])) {
+            } else if (ASTFactory.isStatement(this.getExpressionList()[itr])) {
                 statementStr += this.getExpressionList()[itr].getStatementString();
             }
 
@@ -187,7 +187,7 @@ class WorkerInvocationStatement extends Statement {
         this.getExpressionList().length = 0;
 
         for (let itr = 0; itr < expressionList.length; itr++) {
-            const expressionNode = BallerinaASTFactory.createFromJson(expressionList[itr].expression[0]);
+            const expressionNode = ASTFactory.createFromJson(expressionList[itr].expression[0]);
             expressionNode.initFromJson(expressionList[itr].expression[0]);
             self.addToExpressionList(expressionNode);
         }

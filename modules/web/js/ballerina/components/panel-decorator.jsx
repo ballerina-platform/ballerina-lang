@@ -26,7 +26,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import EditableText from './editable-text';
 import './panel-decorator.css';
 import { panel } from '../configs/designer-defaults.js';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 import { getComponentForNodeArray } from './utils';
 import { util } from '../visitors/sizing-utils';
 import SimpleBBox from '../ast/simple-bounding-box';
@@ -190,7 +190,7 @@ class PanelDecorator extends React.Component {
         }
         const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const annotations = this.props.model.getChildren().filter(
-                                                        child => BallerinaASTFactory.isAnnotationAttachment(child));
+                                                        child => ASTFactory.isAnnotationAttachment(child));
         const annotationString = this.getAnnotationsString(annotations);
         const annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
@@ -302,10 +302,10 @@ class PanelDecorator extends React.Component {
         const dropTarget = this.props.dropTarget;
         const dropSourceValidateCB = this.props.dropSourceValidateCB;
         const droppedNodeIndexCallBack = function () {
-            if (BallerinaASTFactory.isConnectorDeclaration(dragDropManager.getNodeBeingDragged())) {
+            if (ASTFactory.isConnectorDeclaration(dragDropManager.getNodeBeingDragged())) {
                 const nodes = _.filter(dropTarget.getChildren(), (child) => {
-                    return BallerinaASTFactory.isConnectorDeclaration(child)
-                       || BallerinaASTFactory.isStatement(child) || BallerinaASTFactory.isWorkerDeclaration(child);
+                    return ASTFactory.isConnectorDeclaration(child)
+                       || ASTFactory.isStatement(child) || ASTFactory.isWorkerDeclaration(child);
                 });
 
                 if (nodes.length > 0) {

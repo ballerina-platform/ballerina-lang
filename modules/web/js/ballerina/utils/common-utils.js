@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ConnectorDeclarationVisitor from '../visitors/connector-declaration-visitor';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 class CommonUtils {
     /**
@@ -65,10 +65,10 @@ class CommonUtils {
                 while (true) {
                     const tempNewValue = currentAttributeValue + counter;
                     // Generate unique
-                    if (BallerinaASTFactory.isConnectorDeclaration(genArgs.node)) {
+                    if (ASTFactory.isConnectorDeclaration(genArgs.node)) {
                         this.connectorDeclarationVisitor = new ConnectorDeclarationVisitor();
                         let parent = genArgs.node.getParent();
-                        while (!BallerinaASTFactory.isBallerinaAstRoot(parent)) {
+                        while (!ASTFactory.isBallerinaAstRoot(parent)) {
                             parent = parent.getParent();
                         }
                         parent.accept(this.connectorDeclarationVisitor);

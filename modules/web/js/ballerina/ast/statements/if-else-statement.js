@@ -20,7 +20,7 @@ import Statement from './statement';
 import ElseStatement from './else-statement';
 import ElseIfStatement from './else-if-statement';
 import IfStatement from './if-statement';
-import BallerinaASTFactory from './../ballerina-ast-factory';
+import ASTFactory from './../ballerina-ast-factory';
 
 /**
  * Class for if conditions in ballerina.
@@ -119,7 +119,7 @@ class IfElseStatement extends Statement {
      */
     addElseIfStatement(elseIfStatement, index) {
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
-            return BallerinaASTFactory.isElseStatement(node);
+            return ASTFactory.isElseStatement(node);
         });
 
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(
@@ -137,10 +137,10 @@ class IfElseStatement extends Statement {
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
-            return BallerinaASTFactory.isElseStatement(node);
+            return ASTFactory.isElseStatement(node);
         });
 
-        if (BallerinaASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
+        if (ASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
             index = elseStatementIndex;
         }
 

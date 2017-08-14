@@ -19,7 +19,6 @@
 import _ from 'lodash';
 import { statement } from './../configs/designer-defaults';
 import { blockStatement } from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTFactory from './../ast/ballerina-ast-factory';
@@ -123,8 +122,8 @@ class SizingUtil {
         const viewState = node.getViewState();
         const components = viewState.components;
         components.statementContainer = new SimpleBBox();
-        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        const connectorDeclarationChildren = node.filterChildren(BallerinaASTFactory.isConnectorDeclaration);
+        const statementChildren = node.filterChildren(ASTFactory.isStatement);
+        const connectorDeclarationChildren = node.filterChildren(ASTFactory.isConnectorDeclaration);
         let statementContainerWidth = 0;
         let statementContainerHeight = 0;
         let widthExpansion = 0;
@@ -239,7 +238,7 @@ class SizingUtil {
 
         let connectorOffset = 0;
         const statementChildren = node.filterChildren(
-            child => BallerinaASTFactory.isStatement(child) || BallerinaASTFactory.isConnectorDeclaration(child));
+            child => ASTFactory.isStatement(child) || ASTFactory.isConnectorDeclaration(child));
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
@@ -248,7 +247,7 @@ class SizingUtil {
         _.forEach(statementChildren, (child) => {
             let childW = 0;
             let childH = 0;
-            if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+            if (ASTFactory.isConnectorDeclaration(child)) {
                 childW = child.viewState.components.statementViewState.bBox.w;
                 childH = child.viewState.components.statementViewState.bBox.h;
                 connectorsForWorker += child.viewState.bBox.w + blockStatement.heading.width;
@@ -279,12 +278,12 @@ class SizingUtil {
         components.statementContainer.w = statementWidth;
         components.body = new SimpleBBox();
 
-        const workerChildren = node.filterChildren(child => BallerinaASTFactory.isWorkerDeclaration(child));
+        const workerChildren = node.filterChildren(child => ASTFactory.isWorkerDeclaration(child));
 
         const connectorChildren = node.filterChildren(
-            child => BallerinaASTFactory.isConnectorDeclaration(child)
-            || (BallerinaASTFactory.isAssignmentStatement(child)
-            && BallerinaASTFactory.isConnectorInitExpression(child.getChildren()[1])));
+            child => ASTFactory.isConnectorDeclaration(child)
+            || (ASTFactory.isAssignmentStatement(child)
+            && ASTFactory.isConnectorInitExpression(child.getChildren()[1])));
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
 
@@ -308,8 +307,8 @@ class SizingUtil {
         let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), (child) => {
             let childViewState;
-            if (BallerinaASTFactory.isAssignmentStatement(child)
-                && BallerinaASTFactory.isConnectorInitExpression(child.getChildren()[1])) {
+            if (ASTFactory.isAssignmentStatement(child)
+                && ASTFactory.isConnectorInitExpression(child.getChildren()[1])) {
                 childViewState = child.getViewState().connectorDeclViewState;
             } else {
                 childViewState = child.getViewState();
@@ -320,14 +319,14 @@ class SizingUtil {
                 (DesignerDefaults.lifeLine.head.height * 2);
             childViewState.components.statementContainer.h = _.max([components.statementContainer.h,
                 highestStatementContainerHeight]);
-            if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 childViewState.components.workerScopeContainer.h = components.statementContainer.h +
                     DesignerDefaults.canvas.padding.top +
                     DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
                     + DesignerDefaults.statement.padding.bottom;
             }
             // Set the connector height of the worker's children
-            const connectorChildrenOfWorker = child.filterChildren(innerChild => BallerinaASTFactory
+            const connectorChildrenOfWorker = child.filterChildren(innerChild => ASTFactory
             .isConnectorDeclaration(innerChild));
             if (connectorChildrenOfWorker.length > 0) {
                 _.forEach(connectorChildrenOfWorker, (innerChild) => {
@@ -476,7 +475,7 @@ class SizingUtil {
 
     getStatementHeightBefore(statement) {
         const parent = statement.getParent();
-        const statements = parent.filterChildren(BallerinaASTFactory.isStatement);
+        const statements = parent.filterChildren(ASTFactory.isStatement);
         const currentStatementIndex = _.indexOf(statements, statement);
         const connectors = [];
         const statementsBefore = _.slice(statements, 0, currentStatementIndex);
@@ -502,7 +501,7 @@ class SizingUtil {
     getTotalHeightUpto(parent, childNode) {
         const self = this;
 
-        const statementChildren = _.filter(parent.getChildren(), child => BallerinaASTFactory.isStatement(child));
+        const statementChildren = _.filter(parent.getChildren(), child => ASTFactory.isStatement(child));
         const nodeIndex = _.findIndex(statementChildren, child => child.id === childNode.id);
 
         const slicedChildren = _.slice(statementChildren, 0, nodeIndex);
@@ -510,11 +509,11 @@ class SizingUtil {
 
         _.forEach(slicedChildren, (child) => {
             const dimensionSynced = child.getViewState().dimensionsSynced;
-            if (BallerinaASTFactory.isWorkerInvocationStatement(child) && !dimensionSynced) {
+            if (ASTFactory.isWorkerInvocationStatement(child) && !dimensionSynced) {
                 if (!child.getViewState().dimensionsSynced) {
                     self.syncWorkerInvocationDimension(child);
                 }
-            } else if (BallerinaASTFactory.isWorkerReplyStatement(child) && !dimensionSynced) {
+            } else if (ASTFactory.isWorkerReplyStatement(child) && !dimensionSynced) {
                 if (!child.getViewState().dimensionsSynced) {
                     self.syncWorkerReplyDimension(child);
                 }
@@ -527,7 +526,7 @@ class SizingUtil {
         const connectors = [];
         parent.children.forEach((child) => {
             if (childNode.getNodeIndex() > child.getNodeIndex() &&
-                BallerinaASTFactory.isConnectorDeclaration(child)) {
+                ASTFactory.isConnectorDeclaration(child)) {
                 connectors.push(child);
             }
         });
@@ -550,7 +549,7 @@ class SizingUtil {
     syncWorkerInvocationDimension(node) {
         const destinationWorkerName = node.getWorkerName();
         const topLevelParent = node.getTopLevelParent();
-        const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+        const workersParent = ASTFactory.isWorkerDeclaration(topLevelParent) ?
             topLevelParent.getParent() : topLevelParent;
 
         let workerDeclaration;
@@ -558,7 +557,7 @@ class SizingUtil {
             workerDeclaration = workersParent;
         } else {
             workerDeclaration = _.find(workersParent.getChildren(), (child) => {
-                if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                if (ASTFactory.isWorkerDeclaration(child)) {
                     return child.getWorkerName() === destinationWorkerName;
                 }
 
@@ -570,7 +569,7 @@ class SizingUtil {
             /**
              * Check whether there is a worker reply at destination, receiving the invocation
              */
-            const workerName = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+            const workerName = ASTFactory.isWorkerDeclaration(topLevelParent) ?
                 topLevelParent.getWorkerName() : 'default';
             const workerReplyStatement = this.getWorkerReplyStatementTo(workerDeclaration, workerName);
 
@@ -600,14 +599,14 @@ class SizingUtil {
     syncWorkerReplyDimension(node) {
         const destinationWorkerName = node.getWorkerName();
         const topLevelParent = node.getTopLevelParent();
-        const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+        const workersParent = ASTFactory.isWorkerDeclaration(topLevelParent) ?
             topLevelParent.getParent() : topLevelParent;
         let workerDeclaration;
         if (destinationWorkerName === 'default') {
             workerDeclaration = workersParent;
         } else {
             workerDeclaration = _.find(workersParent.getChildren(), (child) => {
-                if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                if (ASTFactory.isWorkerDeclaration(child)) {
                     return child.getWorkerName() === destinationWorkerName;
                 }
 
@@ -618,7 +617,7 @@ class SizingUtil {
             /**
              * Check whether there is a worker reply at destination, receiving the invocation
              */
-            const workerName = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+            const workerName = ASTFactory.isWorkerDeclaration(topLevelParent) ?
                 topLevelParent.getWorkerName() : 'default';
             const workerInvocationStatement = this.getWorkerInvocationStatementFrom(workerDeclaration, workerName);
 
@@ -650,7 +649,7 @@ class SizingUtil {
         let childNodes;
         if (!_.isNil(parentNode)) {
             childNodes = _.filter(parentNode.getChildren(), (child) => {
-                if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
+                if (ASTFactory.isWorkerReplyStatement(child)) {
                     return child.getWorkerName() === workerName;
                 }
                 return false;
@@ -672,7 +671,7 @@ class SizingUtil {
      */
     getWorkerInvocationStatementFrom(parentNode, workerName) {
         const childNodes = _.filter(parentNode.getChildren(), (child) => {
-            if (BallerinaASTFactory.isWorkerInvocationStatement(child)) {
+            if (ASTFactory.isWorkerInvocationStatement(child)) {
                 return child.getWorkerName() === workerName;
             }
             return false;

@@ -16,9 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 import ToolGroup from './../tool-palette/tool-group';
-import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
+import DefaultASTFactory from '../ast/default-ballerina-ast-factory';
 
 const ToolPalette = [];
 
@@ -27,7 +27,7 @@ const createResourceDefTool = {
     name: 'Resource',
     cssClass: 'icon fw fw-resource',
     title: 'Resource',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createResourceDefinition,
+    nodeFactoryMethod: DefaultASTFactory.createResourceDefinition,
     definition: 'Construct that handles one request within a service',
 };
 
@@ -36,7 +36,7 @@ const createServiceDefTool = {
     name: 'Service',
     cssClass: 'icon fw fw-service',
     title: 'Service',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createServiceDefinition,
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
     definition: 'Container of resources, each of which defines the logic for handling one type of request',
 };
 
@@ -45,7 +45,7 @@ const createFunctionDefTool = {
     name: 'Function',
     cssClass: 'icon fw fw-function',
     title: 'Function',
-    nodeFactoryMethod: BallerinaASTFactory.createFunctionDefinition,
+    nodeFactoryMethod: ASTFactory.createFunctionDefinition,
     definition: 'Single operation that is intended to be a unit of reusable functionality',
 };
 
@@ -63,7 +63,7 @@ const createMainFunctionDefTool = {
     },
     cssClass: 'icon fw fw-main-function',
     title: 'Main Function',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createMainFunctionDefinition,
+    nodeFactoryMethod: DefaultASTFactory.createMainFunctionDefinition,
     definition: 'Potential entry point for command line execution',
 };
 
@@ -72,7 +72,7 @@ const createConnectorDefTool = {
     name: 'Connector',
     cssClass: 'icon fw fw-connector',
     title: 'Connector Definition',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createConnectorDefinition,
+    nodeFactoryMethod: DefaultASTFactory.createConnectorDefinition,
     definition: 'Participant in the integration and is used to interact with an external system or a service defined',
 };
 
@@ -81,7 +81,7 @@ const createConnectorActionTool = {
     name: 'Action',
     cssClass: 'icon fw fw-dgm-action',
     title: 'Connector Action',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createConnectorAction,
+    nodeFactoryMethod: DefaultASTFactory.createConnectorAction,
     definition: 'Operation that can be executed against a connector',
 };
 
@@ -90,7 +90,7 @@ const createStructsDefTool = {
     name: 'Struct',
     cssClass: 'icon fw fw-struct',
     title: 'Struct',
-    nodeFactoryMethod: BallerinaASTFactory.createStructDefinition,
+    nodeFactoryMethod: ASTFactory.createStructDefinition,
     definition: 'User-defined record type',
 };
 
@@ -99,7 +99,7 @@ const createWorkerDecTool = {
     name: 'Worker',
     cssClass: 'icon fw fw-worker',
     title: 'Worker',
-    nodeFactoryMethod: BallerinaASTFactory.createWorkerDeclaration,
+    nodeFactoryMethod: ASTFactory.createWorkerDeclaration,
     definition: 'Programmable actor which is represented on a sequence diagram as a vertical lifeline of logic to be executed.',
 };
 
@@ -108,7 +108,7 @@ const createAnnotationDefTool = {
     name: 'Annotation',
     cssClass: 'icon fw fw-annotation',
     title: 'Annotation Definition',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createAnnotationDefinition,
+    nodeFactoryMethod: DefaultASTFactory.createAnnotationDefinition,
     definition: 'Hold meta data related to the attached code',
 };
 
@@ -121,7 +121,7 @@ const createIfStatementTool = {
     name: 'If',
     cssClass: 'icon fw fw-dgm-if-else',
     title: 'If',
-    nodeFactoryMethod: BallerinaASTFactory.createIfElseStatement,
+    nodeFactoryMethod: ASTFactory.createIfElseStatement,
     definition: 'Provide a way to perform conditional execution',
 };
 
@@ -130,7 +130,7 @@ const createWhileStatementTool = {
     name: 'While',
     cssClass: 'icon fw fw-dgm-while',
     title: 'While',
-    nodeFactoryMethod: BallerinaASTFactory.createWhileStatement,
+    nodeFactoryMethod: ASTFactory.createWhileStatement,
     definition: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
 };
 
@@ -139,7 +139,7 @@ const createBreakStatementTool = {
     name: 'Break',
     cssClass: 'icon fw fw-break',
     title: 'Break',
-    nodeFactoryMethod: BallerinaASTFactory.createBreakStatement,
+    nodeFactoryMethod: ASTFactory.createBreakStatement,
     definition: 'Provide a way to terminate the immediately enclosing loop',
 };
 
@@ -148,7 +148,7 @@ const createContinueStatementTool = {
     name: 'Continue',
     cssClass: 'icon fw fw-continue',
     title: 'Continue',
-    nodeFactoryMethod: BallerinaASTFactory.createContinueStatement,
+    nodeFactoryMethod: ASTFactory.createContinueStatement,
     definition: 'Provide a way to continue with the immediately enclosing loop',
 };
 
@@ -157,7 +157,7 @@ const createTryCatchStatementTool = {
     name: 'Try-Catch',
     cssClass: 'icon fw fw-try-catch',
     title: 'Try-Catch',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createTryCatchStatement,
+    nodeFactoryMethod: DefaultASTFactory.createTryCatchStatement,
     definition: 'Handle the exception by the block after the catch, if any exception occurs while executing the first block of statements ',
 };
 
@@ -166,7 +166,7 @@ const createAssignmentExpressionTool = {
     name: 'Assignment',
     cssClass: 'icon fw fw-assign',
     title: 'Assignment',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedAssignmentStatement,
+    nodeFactoryMethod: DefaultASTFactory.createAggregatedAssignmentStatement,
     definition: 'Provide a way to assign a value to a variable accessor',
 };
 
@@ -175,7 +175,7 @@ const createTransformStatementTool = {
     name: 'Transform',
     cssClass: 'icon fw fw-type-converter',
     title: 'Transform',
-    nodeFactoryMethod: BallerinaASTFactory.createTransformStatement,
+    nodeFactoryMethod: ASTFactory.createTransformStatement,
     definition: 'Transform any chosen variables in the enclosing scope',
 };
 
@@ -184,7 +184,7 @@ const createJoinStatementTool = {
     name: 'Fork',
     cssClass: 'icon fw fw-fork-join',
     title: 'Fork',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createForkJoinStatement,
+    nodeFactoryMethod: DefaultASTFactory.createForkJoinStatement,
     definition: 'Provide a way to replicate a message to any number of parallel workers and have them independently operate on the copies of the message',
 };
 
@@ -194,7 +194,7 @@ const createVariableDefinitionStatementTool = {
     name: 'Variable',
     cssClass: 'icon fw fw-variable',
     title: 'Variable Definition',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createVariableDefinitionStatement,
+    nodeFactoryMethod: DefaultASTFactory.createVariableDefinitionStatement,
     definition: 'Statements which can be added anywhere a statement is allowed. \n They can be interspersed with other statements in any order',
 };
 
@@ -203,7 +203,7 @@ const createFunctionInvocationTool = {
     name: 'Function Invoke',
     cssClass: 'icon fw fw-function-invoke',
     title: 'Function Invoke',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement,
+    nodeFactoryMethod: DefaultASTFactory.createAggregatedFunctionInvocationStatement,
     definition: 'Provide a way to invoke/call functions',
 };
 
@@ -212,7 +212,7 @@ const createReplyStatementTool = {
     name: 'Reply',
     cssClass: 'icon fw fw-reply',
     title: 'Reply',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createReplyStatement,
+    nodeFactoryMethod: DefaultASTFactory.createReplyStatement,
     definition: 'Send the request message back to the client',
 };
 
@@ -221,7 +221,7 @@ const createReturnStatementTool = {
     name: 'Return',
     cssClass: 'icon fw fw-return',
     title: 'Return',
-    nodeFactoryMethod: BallerinaASTFactory.createReturnStatement,
+    nodeFactoryMethod: ASTFactory.createReturnStatement,
     definition: 'Evaluate the expression, stops the current function, and returns the result of the expression to the caller',
 };
 
@@ -230,7 +230,7 @@ const createWorkerInvocationStatementTool = {
     name: 'Send',
     cssClass: 'icon fw fw-worker-invoke',
     title: 'Worker Invocation',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createWorkerInvocationStatement,
+    nodeFactoryMethod: DefaultASTFactory.createWorkerInvocationStatement,
     definition: 'Provide a way to send a message to a worker',
 };
 
@@ -239,7 +239,7 @@ const createWorkerReplyStatementTool = {
     name: 'Receive',
     cssClass: 'icon fw fw-worker-reply',
     title: 'Worker Receive',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createWorkerReplyStatement,
+    nodeFactoryMethod: DefaultASTFactory.createWorkerReplyStatement,
     definition: 'Provide a way to receive the reply from a worker',
 };
 
@@ -248,7 +248,7 @@ const createThrowStatementTool = {
     name: 'Throw',
     cssClass: 'icon fw fw-throw',
     title: 'Throw',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createThrowStatement,
+    nodeFactoryMethod: DefaultASTFactory.createThrowStatement,
     definition: 'Provide a way to throw errors',
 };
 
@@ -257,7 +257,7 @@ const createAbortStatementTool = {
     name: 'Abort',
     cssClass: 'icon fw fw-abort',
     title: 'Abort',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createAbortStatement,
+    nodeFactoryMethod: DefaultASTFactory.createAbortStatement,
     definition: 'Can be executed after the transaction is rolled back due to any conditions',
 };
 
@@ -266,7 +266,7 @@ const createNamespaceDeclarationStatementTool = {
     name: 'Namespace',
     cssClass: 'icon fw fw-namespace',
     title: 'Namespace',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createNamespaceDeclarationStatement,
+    nodeFactoryMethod: DefaultASTFactory.createNamespaceDeclarationStatement,
     definition: 'Can be used for xml qualified names',
 };
 
@@ -275,7 +275,7 @@ const createTransactionAbortedStatementTool = {
     name: 'Transaction',
     cssClass: 'icon fw fw-transaction',
     title: 'Transaction',
-    nodeFactoryMethod: DefaultBallerinaASTFactory.createTransactionAbortedStatement,
+    nodeFactoryMethod: DefaultASTFactory.createTransactionAbortedStatement,
     definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
@@ -284,7 +284,7 @@ const createRetryStatementTool = {
     name: 'Retry',
     cssClass: 'icon fw fw-refresh',
     title: 'Retry',
-    nodeFactoryMethod: BallerinaASTFactory.createRetryStatement,
+    nodeFactoryMethod: ASTFactory.createRetryStatement,
     definition: 'Statement which sets the retry count for the transaction when transaction fails',
 };
 

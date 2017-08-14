@@ -19,7 +19,7 @@
 import React from 'react';
 import Tree from './tree.jsx';
 import './function.css';
-import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ballerina-ast-factory';
 
 export default class FunctionInv extends React.Component {
     render() {
@@ -61,13 +61,13 @@ export default class FunctionInv extends React.Component {
             // add children function invocations to the transform model so that only this function invocation
             // is removed from the view
             funcInv.getChildren().forEach(childFuncInv => {
-                if(!BallerinaASTFactory.isFunctionInvocationExpression(childFuncInv)){
+                if(!ASTFactory.isFunctionInvocationExpression(childFuncInv)){
                     return;
                 }
 
-                const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-                const varRefList = BallerinaASTFactory.createVariableReferenceList();
-                const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                const assignmentStmt = ASTFactory.createAssignmentStatement();
+                const varRefList = ASTFactory.createVariableReferenceList();
+                const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
                 simpleVarRefExpression.setExpressionFromString('_temp');
                 varRefList.addChild(simpleVarRefExpression);
                 assignmentStmt.addChild(varRefList, 0);

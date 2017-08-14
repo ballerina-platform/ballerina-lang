@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import BallerinaASTFactory from './ballerina-ast-factory';
+import ASTFactory from './ballerina-ast-factory';
 import PackageDefinition from './package-definition';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
 
@@ -46,10 +46,10 @@ class BallerinaASTDeserializer {
 }
 
 function deserializeNode(node) {
-    const astRoot = BallerinaASTFactory.createBallerinaAstRoot();
+    const astRoot = ASTFactory.createBallerinaAstRoot();
 
     _.each(node, (childNode) => {
-        const child = BallerinaASTFactory.createFromJson(childNode);
+        const child = ASTFactory.createFromJson(childNode);
         astRoot.addChild(child);
         child.initFromJson(childNode);
     });

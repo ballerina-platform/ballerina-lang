@@ -20,7 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import CallableDefinition from './callable-definition';
 import CommonUtils from '../utils/common-utils';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for FunctionDefinition
@@ -306,12 +306,12 @@ class FunctionDefinition extends CallableDefinition {
      * @param ignoreChildAddedEvent {boolean}
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+        if (ASTFactory.isWorkerDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
                 .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), (child) => {
-                return BallerinaASTFactory.isWorkerDeclaration(child);
+                return ASTFactory.isWorkerDeclaration(child);
             });
 
             if (firstWorkerIndex > -1 && (_.isNil(index) || index < 0)) {

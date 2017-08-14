@@ -20,7 +20,7 @@ import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
-import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ballerina-ast-factory';
 import LambdaExpression from '../expressions/lambda-expression';
 
 /**
@@ -102,13 +102,13 @@ class AssignmentStatement extends Statement {
     getLambdaChildren() {
         // TODO: remove after making connector expression a child of RHS
         const rightExpression = this.getRightExpression();
-        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)) {
-            return rightExpression.getArguments().filter(BallerinaASTFactory.isLambdaExpression)
+        if (ASTFactory.isActionInvocationExpression(rightExpression)) {
+            return rightExpression.getArguments().filter(ASTFactory.isLambdaExpression)
                 .map(l => l.getLambdaFunction());
         }
 
         const deepFilterChildren = x =>
-            (BallerinaASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
+            (ASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
         return _.flatMapDeep(deepFilterChildren(this)).map(l => l.getLambdaFunction());
     }
 

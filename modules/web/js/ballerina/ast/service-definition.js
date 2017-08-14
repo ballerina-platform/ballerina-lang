@@ -34,7 +34,7 @@ class ServiceDefinition extends ASTNode {
         this._serviceName = _.get(args, 'serviceName');
 
         // TODO: All the types should be referred from the global constants
-        this.BallerinaASTFactory = this.getFactory();
+        this.ASTFactory = this.getFactory();
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
@@ -207,9 +207,9 @@ class ServiceDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.BallerinaASTFactory.isResourceDefinition(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node)
-            || this.BallerinaASTFactory.isConnectorDeclaration(node);
+        return this.ASTFactory.isResourceDefinition(node)
+            || this.ASTFactory.isVariableDeclaration(node)
+            || this.ASTFactory.isConnectorDeclaration(node);
     }
 
     /**
@@ -243,9 +243,9 @@ class ServiceDefinition extends ASTNode {
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         let newIndex = index;
         // Always the connector declarations should be the first children
-        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+        if (this.ASTFactory.isConnectorDeclaration(child)) {
             newIndex = _.findLastIndex(this.getChildren(), node =>
-                             this.BallerinaASTFactory.isConnectorDeclaration(node));
+                             this.ASTFactory.isConnectorDeclaration(node));
 
             if (newIndex === -1) {
                 newIndex = _.findLastIndex(this.getChildren(), childIndex =>

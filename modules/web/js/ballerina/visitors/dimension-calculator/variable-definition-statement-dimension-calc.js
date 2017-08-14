@@ -16,7 +16,7 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
 
 /**
@@ -73,12 +73,12 @@ class VariableDefinitionStatementDimensionCalculatorVisitor {
         });
 
         // check if it is an action invocation statement if so initialize it as an arrow.
-        const statementChildren = node.filterChildren(BallerinaASTFactory.isActionInvocationExpression);
+        const statementChildren = node.filterChildren(ASTFactory.isActionInvocationExpression);
         if (statementChildren instanceof Array && statementChildren.length > 0) {
             const action = statementChildren[0];
             // if the arrow is drawn to a connector in service level we will mark it as a conflict.
             if (action.getConnector() !== undefined && 
-               BallerinaASTFactory.isServiceDefinition(action.getConnector().getParent())) {
+               ASTFactory.isServiceDefinition(action.getConnector().getParent())) {
                 viewState.components['statement-box'].arrow = true;
             }
         }

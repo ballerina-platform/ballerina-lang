@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for ResourceDefinition
@@ -34,7 +34,7 @@ class ResourceDefinition extends ASTNode {
         super('ResourceDefinition');
         this._resourceName = _.get(args, 'resourceName');
 
-        this.BallerinaASTFactory = this.getFactory();
+        this.ASTFactory = this.getFactory();
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
@@ -269,9 +269,9 @@ class ResourceDefinition extends ASTNode {
      * @param {number|undefined} index
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        if (!BallerinaASTFactory.isWorkerDeclaration(child)) {
+        if (!ASTFactory.isWorkerDeclaration(child)) {
             const firstWorkerIndex = _.findIndex(
-                this.getChildren(), child => BallerinaASTFactory.isWorkerDeclaration(child));
+                this.getChildren(), child => ASTFactory.isWorkerDeclaration(child));
 
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;

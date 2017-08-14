@@ -17,7 +17,7 @@
  */
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Dimension visitor class for Annotation definition.
@@ -78,7 +78,7 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
     getMaxWidthOfChildren(node) {
         let maxWidthAmongChildren = 0;
         node.children.forEach((child) => {
-            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+            if (ASTFactory.isAnnotationAttributeDefinition(child)) {
                 if (maxWidthAmongChildren < child.viewState.textLength.w) {
                     maxWidthAmongChildren = child.viewState.textLength.w;
                 }
@@ -99,7 +99,7 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         let bodyWidth = node.viewState.components.body.w;
         const maxWidthAmongChildren = this.getMaxWidthOfChildren(node);
         node.children.forEach((child) => {
-            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+            if (ASTFactory.isAnnotationAttributeDefinition(child)) {
                 bodyHeight += child.viewState.bBox.h
                     + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
 

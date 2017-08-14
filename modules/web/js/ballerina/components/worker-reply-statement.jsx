@@ -19,7 +19,7 @@ import React from 'react';
 import StatementDecorator from './statement-decorator';
 import StatementArrowConnection from './statement-arrow-connection';
 import PropTypes from 'prop-types';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 class WorkerReplyStatement extends React.Component {
 
@@ -38,7 +38,7 @@ class WorkerReplyStatement extends React.Component {
         const model = this.props.model;
         const expression = model.viewState.expression;
         if (!_.isUndefined(model.getDestination())) {
-            const workerReplyStatement = model.getDestination().findChild(BallerinaASTFactory.isReplyStatement);
+            const workerReplyStatement = model.getDestination().findChild(ASTFactory.isReplyStatement);
             if (!_.isUndefined(workerReplyStatement)) {
                 return (<g>
                     <StatementDecorator

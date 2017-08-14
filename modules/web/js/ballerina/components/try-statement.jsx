@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 import { getComponentForNodeArray } from './utils';
 import './try-catch-statement.css';
 
@@ -41,11 +41,11 @@ class TryStatement extends React.Component {
         const parent = this.props.model.parent;
         const model = this.props.model;
         if (parent.getCatchStatements()) {
-            const newStatement = BallerinaASTFactory.createCatchStatement();
+            const newStatement = ASTFactory.createCatchStatement();
             const thisNodeIndex = parent.getIndexOfChild(model);
             parent.addChild(newStatement, thisNodeIndex + 1);
         } else {
-            const newStatement = BallerinaASTFactory.createCatchStatement();
+            const newStatement = ASTFactory.createCatchStatement();
             parent.addChild(newStatement);
         }
     }

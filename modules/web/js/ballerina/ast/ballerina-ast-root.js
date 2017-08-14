@@ -435,23 +435,23 @@ class BallerinaASTRoot extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        const BallerinaASTFactory = this.getFactory();
+        const ASTFactory = this.getFactory();
 
         const existingMainFunction = _.find(this.getFunctionDefinitions(), (functionDef) => {
             return functionDef.isMainFunction();
         });
 
-        if (!_.isNil(existingMainFunction) && BallerinaASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
+        if (!_.isNil(existingMainFunction) && ASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
             return false;
         }
 
-        return BallerinaASTFactory.isServiceDefinition(node)
-            || BallerinaASTFactory.isFunctionDefinition(node)
-            || BallerinaASTFactory.isConnectorDefinition(node)
-            || BallerinaASTFactory.isTypeDefinition(node)
-            || BallerinaASTFactory.isConnectorDefinition(node)
-            || BallerinaASTFactory.isStructDefinition(node)
-            || BallerinaASTFactory.isAnnotationDefinition(node);
+        return ASTFactory.isServiceDefinition(node)
+            || ASTFactory.isFunctionDefinition(node)
+            || ASTFactory.isConnectorDefinition(node)
+            || ASTFactory.isTypeDefinition(node)
+            || ASTFactory.isConnectorDefinition(node)
+            || ASTFactory.isStructDefinition(node)
+            || ASTFactory.isAnnotationDefinition(node);
     }
 
     /**

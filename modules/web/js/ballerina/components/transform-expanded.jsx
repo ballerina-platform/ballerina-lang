@@ -24,7 +24,7 @@ import alerts from 'alerts';
 import log from 'log';
 import TransformRender from '../../ballerina/components/transform-render';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
-import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ballerina-ast-factory';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tree from './transform/tree';
@@ -111,8 +111,8 @@ class TransformExpanded extends React.Component {
         if (!_.isUndefined(sourceStruct) && !connection.isSourceFunction &&
             !_.isUndefined(targetStruct) && !connection.isTargetFunction) {
             // Connection is from source struct to target struct.
-            const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            const varRefList = BallerinaASTFactory.createVariableReferenceList();
+            const assignmentStmt = ASTFactory.createAssignmentStatement();
+            const varRefList = ASTFactory.createVariableReferenceList();
             varRefList.addChild(targetExpression);
             assignmentStmt.addChild(varRefList, 0);
             assignmentStmt.addChild(sourceExpression, 1);
@@ -129,8 +129,8 @@ class TransformExpanded extends React.Component {
                 return param.name == connection.targetStruct;
             });
 
-            let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
-            if (connection.targetProperty && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
+            let refType = ASTFactory.createReferenceTypeInitExpression();
+            if (connection.targetProperty && ASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
             }
             funcNode.removeChild(funcNode.children[index], true);
@@ -138,8 +138,8 @@ class TransformExpanded extends React.Component {
             if (connection.targetProperty && _.find(this.state.vertices, (struct) => {
                 return struct.typeName == this.getFunctionDefinition(funcNode).getParameters()[index].type;
             })) {
-                const keyValEx = BallerinaASTFactory.createKeyValueExpression();
-                const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                const keyValEx = ASTFactory.createKeyValueExpression();
+                const nameVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
 
                 const propChain = connection.targetProperty.split('.').splice(1);
 
@@ -217,7 +217,7 @@ class TransformExpanded extends React.Component {
             });
             let index = funcInvocationExpression.getIndexOfChild(expression);
             funcInvocationExpression.removeChild(expression, true);
-            funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
+            funcInvocationExpression.addChild(ASTFactory.createNullLiteralExpression(), index, true);
             this.props.model.trigger('tree-modified', {
                 origin: this,
                 type: 'function-connection-removed',
@@ -237,7 +237,7 @@ class TransformExpanded extends React.Component {
             });
             assignmentStmtTarget.getLeftExpression().removeChild(expression, true);
             assignmentStmtTarget.setIsDeclaredWithVar(true);
-            const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString('_temp' + (connection.sourceIndex + 1));
             assignmentStmtTarget.getLeftExpression().addChild(simpleVarRefExpression, connection.sourceIndex + 1);
             return;
@@ -250,8 +250,8 @@ class TransformExpanded extends React.Component {
 
         targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression, true);
 
-        const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-        const varRefList = BallerinaASTFactory.createVariableReferenceList();
+        const assignmentStmt = ASTFactory.createAssignmentStatement();
+        const varRefList = ASTFactory.createVariableReferenceList();
         assignmentStmt.addChild(varRefList, 0);
         assignmentStmt.addChild(sourceFuncInvocationExpression, 1);
         this.props.model.addChild(assignmentStmt, this.props.model.getIndexOfChild(connection.targetReference));
@@ -267,11 +267,11 @@ class TransformExpanded extends React.Component {
 
     getStructAccessNode(name, property, isStruct) {
         if (!isStruct || !property) {
-            const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString(name);
             return simpleVarRefExpression;
         } else {
-            const fieldVarRefExpression = BallerinaASTFactory.createFieldBasedVarRefExpression();
+            const fieldVarRefExpression = ASTFactory.createFieldBasedVarRefExpression();
             fieldVarRefExpression.setExpressionFromString(property);
             return fieldVarRefExpression;
         }
@@ -281,11 +281,11 @@ class TransformExpanded extends React.Component {
     createConnection(statement) {
         const viewId = this.props.model.getID();
 
-        if (BallerinaASTFactory.isCommentStatement(statement)) {
+        if (ASTFactory.isCommentStatement(statement)) {
             return;
         }
 
-        if (!BallerinaASTFactory.isAssignmentStatement(statement)) {
+        if (!ASTFactory.isAssignmentStatement(statement)) {
             log.error('Invalid statement type in transform statement');
             return;
         }
@@ -295,8 +295,8 @@ class TransformExpanded extends React.Component {
         const leftExpression = statement.getLeftExpression();
         const rightExpression = statement.getRightExpression();
 
-        if (BallerinaASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
-              BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
+        if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
+              ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (expression) => {
                 const sourceId = `${rightExpression.getExpressionString().trim()}:${viewId}`;
                 const targetId = `${leftExpression.getExpressionString().trim()}:${viewId}`;
@@ -304,7 +304,7 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+        if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
         this.mapper.reposition(this.props.model.getID());
@@ -323,7 +323,7 @@ class TransformExpanded extends React.Component {
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression) => {
-                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                if (ASTFactory.isFunctionInvocationExpression(expression)) {
                     this.drawInnerFunctionDefinitionNodes(functionInvocationExpression, expression, statement);
                 }
             });
@@ -349,7 +349,7 @@ class TransformExpanded extends React.Component {
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression) => {
-                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                if (ASTFactory.isFunctionInvocationExpression(expression)) {
                     this.drawInnerFunctionDefinitionNodes(functionInvocationExpression, expression, statement);
                 }
             });
@@ -383,7 +383,7 @@ class TransformExpanded extends React.Component {
         const funcName = functionInvocationExpression.getFunctionName();
 
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-            if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+            if (ASTFactory.isFunctionInvocationExpression(expression)) {
                 this.drawInnerFunctionInvocationExpression(
                     functionInvocationExpression, expression, func, i, statement);
             } else {
@@ -427,13 +427,13 @@ class TransformExpanded extends React.Component {
         const funcName = functionInvocationExpression.getFunctionName();
 
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-            if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+            if (ASTFactory.isFunctionInvocationExpression(expression)) {
                 this.drawInnerFunctionInvocationExpression(
                     functionInvocationExpression, expression, func, i, statement);
             } else {
                 let target;
                 let source;
-                if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
+                if (ASTFactory.isKeyValueExpression(expression.children[0])) {
                 // if parameter is a key value expression, iterate each expression and draw connections
                     _.forEach(expression.children, (propParam) => {
                         source = this.getConnectionProperties('source', propParam.children[1]);
@@ -467,13 +467,13 @@ class TransformExpanded extends React.Component {
 
     getConnectionProperties(type, expression) {
         const con = {};
-        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
+        if (ASTFactory.isFieldBasedVarRefExpression(expression)) {
             const structVarRef = expression.getStructVariableReference();
             con[type + 'Struct'] = structVarRef.getVariableName();
             const complexProp = this.createComplexProp(con[type + 'Struct'], structVarRef.getParent());
             con[type + 'Type'] = complexProp.types;
             con[type + 'Property'] = complexProp.names;
-        } else if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+        } else if (ASTFactory.isFunctionInvocationExpression(expression)) {
             con[type + 'Function'] = true;
             if (_.isNull(expression.getPackageName())) {
                 // for current package, where package name is null
@@ -484,7 +484,7 @@ class TransformExpanded extends React.Component {
                 con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
             }
             con[type + 'Id'] = expression.getID();
-        } else if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
+        } else if (ASTFactory.isSimpleVariableReferenceExpression(expression)) {
             con[type + 'Struct'] = expression.getVariableName();
             const varRef = _.find(this.state.vertices, { name: expression.getVariableName() });
             if (!_.isUndefined(varRef)) {
@@ -558,7 +558,7 @@ class TransformExpanded extends React.Component {
     * @memberof TransformStatementDecorator
     */
     getParentAssignmentStmt(node) {
-        if (BallerinaASTFactory.isAssignmentStatement(node)) {
+        if (ASTFactory.isAssignmentStatement(node)) {
             return node;
         } else {
             return this.getParentAssignmentStmt(node.getParent());
@@ -607,7 +607,7 @@ class TransformExpanded extends React.Component {
         prop.names = [];
         prop.types = [];
 
-        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
+        if (ASTFactory.isFieldBasedVarRefExpression(expression)) {
             const fieldName = expression.getFieldName();
             const structDef = _.find(this.state.vertices, { name: structName });
             if (_.isUndefined(structDef)) {
@@ -831,7 +831,7 @@ class TransformExpanded extends React.Component {
     }
 
     addSource(selectedSource) {
-        const inputDef = BallerinaASTFactory
+        const inputDef = ASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
         if (this.setSource(selectedSource, this.state.vertices, this.props.model, inputDef.id)) {
             const inputs = this.props.model.getInput();
@@ -842,7 +842,7 @@ class TransformExpanded extends React.Component {
     }
 
     addTarget(selectedTarget) {
-        const outDef = BallerinaASTFactory
+        const outDef = ASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
         if (this.setTarget(selectedTarget, this.state.vertices, this.props.model, outDef.id)) {
             const outputs = this.props.model.getOutput();
@@ -1031,7 +1031,7 @@ class TransformExpanded extends React.Component {
             return;
         }
         functionInvocationExpression.getChildren().forEach((child) => {
-            if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
+            if (ASTFactory.isFunctionInvocationExpression(child)) {
                 this.findFunctionInvocations(child, functions, functionInvocationExpression);
             }
         });
@@ -1073,12 +1073,12 @@ class TransformExpanded extends React.Component {
             });
 
             this.props.model.getChildren().forEach((child) => {
-                if (!BallerinaASTFactory.isAssignmentStatement(child)) {
+                if (!ASTFactory.isAssignmentStatement(child)) {
                     return;
                 }
                 const rightExpression = child.getRightExpression();
 
-                if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+                if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
                     const funcInvs = this.findFunctionInvocations(rightExpression);
                     funcInvs.forEach((funcDetails) => {
                         funcDetails.assignmentStmt = child;

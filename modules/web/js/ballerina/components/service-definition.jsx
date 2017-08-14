@@ -23,7 +23,6 @@ import { getComponentForNodeArray } from './utils';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import ServiceDefinitionAST from './../ast/service-definition';
 import PanelDecoratorButton from './panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
@@ -105,13 +104,13 @@ class ServiceDefinition extends React.Component {
         const viewState = model.getViewState();
         const components = viewState.components;
         const bBox = model.viewState.bBox;
-        const variables = model.filterChildren(child => BallerinaASTFactory.isVariableDefinitionStatement(child));
+        const variables = model.filterChildren(child => ASTFactory.isVariableDefinitionStatement(child));
 
         // get the service name
         const title = model.getServiceName();
 
         const childrenWithNoVariables = model.filterChildren(
-                                                child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
+                                                child => !ASTFactory.isVariableDefinitionStatement(child));
 
         /**
          * Here we skip rendering the variables

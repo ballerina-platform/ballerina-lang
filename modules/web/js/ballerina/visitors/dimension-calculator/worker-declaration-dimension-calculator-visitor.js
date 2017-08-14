@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Dimension visitor class for Worker Declaration.
@@ -67,12 +67,12 @@ class WorkerDeclarationDimensionCalculatorVisitor {
         components.statementContainer = new SimpleBBox();
         components.workerScopeContainer = new SimpleBBox();
 
-        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        const statementChildren = node.filterChildren(ASTFactory.isStatement);
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.lifeLine.width + statementContainerWidthPadding;
         let statementHeight = 0;
-        const connectorDeclarationChildren = node.filterChildren(BallerinaASTFactory.isConnectorDeclaration);
+        const connectorDeclarationChildren = node.filterChildren(ASTFactory.isConnectorDeclaration);
         let widthExpansion = 0;
         let statementContainerWidthExpansion = 0;
         // Iterate over statement children

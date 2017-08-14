@@ -21,7 +21,7 @@ import _ from 'lodash';
 import { getComponentForNodeArray } from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
 import CatchStatementAST from './../ast/statements/catch-statement';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './../ast/ballerina-ast-factory';
 import './try-catch-statement.css';
 
 /**
@@ -54,7 +54,7 @@ class CatchStatement extends React.Component {
      */
     onAddFinallyClick() {
         const parent = this.props.model.parent;
-        const newStatement = BallerinaASTFactory.createFinallyStatement();
+        const newStatement = ASTFactory.createFinallyStatement();
         parent.addChild(newStatement);
     }
 
@@ -92,7 +92,7 @@ class CatchStatement extends React.Component {
             </g>
         );
         const catchStatements = _.filter(model.getParent().getChildren(), (child) => {
-            return BallerinaASTFactory.isCatchStatement(child);
+            return ASTFactory.isCatchStatement(child);
         });
         const nodeIndex = _.findIndex(catchStatements, (child) => {
             return child.getID() === model.getID();

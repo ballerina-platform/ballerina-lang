@@ -40,10 +40,10 @@ class ReturnType extends Argument {
      */
     initFromJson(jsonNode) {
         const self = this;
-        const BallerinaASTFactory = this.getFactory();
+        const ASTFactory = this.getFactory();
 
         _.each(jsonNode.children, (childNode) => {
-            const child = BallerinaASTFactory.createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

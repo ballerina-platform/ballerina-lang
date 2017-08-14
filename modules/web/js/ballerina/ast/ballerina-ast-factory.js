@@ -113,16 +113,16 @@ import FailedStatement from './statements/failed-statement';
 import RetryStatement from './statements/retry-statement';
 
 /**
- * @class BallerinaASTFactory
- * @lends BallerinaASTFactory
+ * @class ASTFactory
+ * @lends ASTFactory
  */
-const BallerinaASTFactory = {};
+const ASTFactory = {};
 
 /**
  * creates BallerinaASTRoot
  * @param args
  */
-BallerinaASTFactory.createBallerinaAstRoot = function (args) {
+ASTFactory.createBallerinaAstRoot = function (args) {
     return new ballerinaAstRoot(args);
 };
 
@@ -130,7 +130,7 @@ BallerinaASTFactory.createBallerinaAstRoot = function (args) {
  * creates SimpleTypeName
  * @param args
  */
-BallerinaASTFactory.createSimpleTypeName = function (args) {
+ASTFactory.createSimpleTypeName = function (args) {
     return new simpleTypeName(args);
 };
 
@@ -139,7 +139,7 @@ BallerinaASTFactory.createSimpleTypeName = function (args) {
  * @param args
  * @param setDefaults - if this is set to true, default values will be set to the serviceDefinition
  */
-BallerinaASTFactory.createServiceDefinition = function (args, setDefaults) {
+ASTFactory.createServiceDefinition = function (args, setDefaults) {
     return new serviceDefinition(args);
 };
 
@@ -147,7 +147,7 @@ BallerinaASTFactory.createServiceDefinition = function (args, setDefaults) {
  * creates AnnotationDefinition.
  * @param args
  * */
-BallerinaASTFactory.createAnnotationDefinition = function (args) {
+ASTFactory.createAnnotationDefinition = function (args) {
     return new annotationDefinition(args);
 };
 
@@ -155,7 +155,7 @@ BallerinaASTFactory.createAnnotationDefinition = function (args) {
  * creates Annotation Attribute Definition.
  * @param args
  * */
-BallerinaASTFactory.createAnnotationAttributeDefinition = function (args) {
+ASTFactory.createAnnotationAttributeDefinition = function (args) {
     return new annotationAttributeDefinition(args);
 };
 
@@ -163,7 +163,7 @@ BallerinaASTFactory.createAnnotationAttributeDefinition = function (args) {
  * creates FunctionDefinition
  * @param args
  */
-BallerinaASTFactory.createFunctionDefinition = function (args) {
+ASTFactory.createFunctionDefinition = function (args) {
     return new functionDefinition(args);
 };
 
@@ -171,7 +171,7 @@ BallerinaASTFactory.createFunctionDefinition = function (args) {
  * creates ConnectorDefinition
  * @param args
  */
-BallerinaASTFactory.createConnectorDefinition = function (args) {
+ASTFactory.createConnectorDefinition = function (args) {
     return new connectorDefinition(args);
 };
 
@@ -179,7 +179,7 @@ BallerinaASTFactory.createConnectorDefinition = function (args) {
  * creates WorkerDeclaration
  * @param args
  */
-BallerinaASTFactory.createWorkerDeclaration = function (args) {
+ASTFactory.createWorkerDeclaration = function (args) {
     return new workerDeclaration(args);
 };
 
@@ -187,7 +187,7 @@ BallerinaASTFactory.createWorkerDeclaration = function (args) {
  * creates Statement
  * @param args
  */
-BallerinaASTFactory.createStatement = function (args) {
+ASTFactory.createStatement = function (args) {
     return new statement(args);
 };
 
@@ -195,7 +195,7 @@ BallerinaASTFactory.createStatement = function (args) {
  * creates TypeDefinition
  * @param args
  */
-BallerinaASTFactory.createTypeDefinition = function (args) {
+ASTFactory.createTypeDefinition = function (args) {
     return new typeDefinition(args);
 };
 
@@ -203,7 +203,7 @@ BallerinaASTFactory.createTypeDefinition = function (args) {
  * creates TypeElement
  * @param args
  */
-BallerinaASTFactory.createTypeElement = function (args) {
+ASTFactory.createTypeElement = function (args) {
     return new typeElement(args);
 };
 
@@ -212,7 +212,7 @@ BallerinaASTFactory.createTypeElement = function (args) {
  * @param {Object} args - object for structDefinition creation
  * @returns {StructDefinition}
  */
-BallerinaASTFactory.createStructDefinition = function (args) {
+ASTFactory.createStructDefinition = function (args) {
     return new structDefinition(args);
 };
 
@@ -221,7 +221,7 @@ BallerinaASTFactory.createStructDefinition = function (args) {
  * @param {Object} args - object for keyValueExpression creation
  * @returns {KeyValueExpression}
  */
-BallerinaASTFactory.createKeyValueExpression = function (args) {
+ASTFactory.createKeyValueExpression = function (args) {
     return new keyValueExpression(args);
 };
 
@@ -230,7 +230,7 @@ BallerinaASTFactory.createKeyValueExpression = function (args) {
  * @param {Object} args - object for ReferenceTypeInitExpression creation
  * @returns {ReferenceTypeInitExpression}
  */
-BallerinaASTFactory.createReferenceTypeInitExpression = function (args) {
+ASTFactory.createReferenceTypeInitExpression = function (args) {
     return new referenceTypeInitExpression(args);
 };
 
@@ -239,7 +239,7 @@ BallerinaASTFactory.createReferenceTypeInitExpression = function (args) {
  * @param {Object} args - object for ArrayInitExpression creation
  * @returns {ArrayInitExpression}
  */
-BallerinaASTFactory.createArrayInitExpression = function (args) {
+ASTFactory.createArrayInitExpression = function (args) {
     return new arrayInitExpression(args);
 };
 
@@ -248,7 +248,7 @@ BallerinaASTFactory.createArrayInitExpression = function (args) {
  * @param args - object for variableDeclaration creation
  * @returns {VariableDeclaration}
  */
-BallerinaASTFactory.createVariableDeclaration = function (args) {
+ASTFactory.createVariableDeclaration = function (args) {
     return new variableDeclaration(args);
 };
 
@@ -256,7 +256,7 @@ BallerinaASTFactory.createVariableDeclaration = function (args) {
  * create VariableDefinition
  * @param args
  */
-BallerinaASTFactory.createVariableDefinition = function (args) {
+ASTFactory.createVariableDefinition = function (args) {
     return new variableDefinition(args);
 };
 
@@ -264,7 +264,7 @@ BallerinaASTFactory.createVariableDefinition = function (args) {
  * create ConditionalStatement
  * @param args
  */
-BallerinaASTFactory.createConditionalStatement = function (args) {
+ASTFactory.createConditionalStatement = function (args) {
     return new conditionalStatement(args);
 };
 
@@ -272,7 +272,7 @@ BallerinaASTFactory.createConditionalStatement = function (args) {
  * create ConnectorDeclaration
  * @param args
  */
-BallerinaASTFactory.createConnectorDeclaration = function (args) {
+ASTFactory.createConnectorDeclaration = function (args) {
     return new connectorDeclaration(args);
 };
 
@@ -280,15 +280,15 @@ BallerinaASTFactory.createConnectorDeclaration = function (args) {
  * creates Expression
  * @param args
  */
-BallerinaASTFactory.createExpression = function (args) {
+ASTFactory.createExpression = function (args) {
     return new expression(args);
 };
 
-BallerinaASTFactory.createActionInvocationStatement = function (args) {
+ASTFactory.createActionInvocationStatement = function (args) {
     return new actionInvocationStatement(args);
 };
 
-BallerinaASTFactory.createActionInvocationExpression = function (args) {
+ASTFactory.createActionInvocationExpression = function (args) {
     return new actionInvocationExpression(args);
 };
 
@@ -297,7 +297,7 @@ BallerinaASTFactory.createActionInvocationExpression = function (args) {
  * @param args
  * @return {ConnectorAction} Connector Action
  */
-BallerinaASTFactory.createConnectorAction = function (args) {
+ASTFactory.createConnectorAction = function (args) {
     return new connectorAction(args);
 };
 
@@ -305,7 +305,7 @@ BallerinaASTFactory.createConnectorAction = function (args) {
  * creates If-Else Statement
  * @param args
  */
-BallerinaASTFactory.createIfElseStatement = function (args) {
+ASTFactory.createIfElseStatement = function (args) {
     return new ifElseStatement(args);
 };
 
@@ -313,7 +313,7 @@ BallerinaASTFactory.createIfElseStatement = function (args) {
  * creates If Statement
  * @param args
  */
-BallerinaASTFactory.createIfStatement = function (args) {
+ASTFactory.createIfStatement = function (args) {
     return new ifStatement(args);
 };
 
@@ -321,7 +321,7 @@ BallerinaASTFactory.createIfStatement = function (args) {
  * creates Else-If Statement
  * @param args
  */
-BallerinaASTFactory.createElseIfStatement = function (args) {
+ASTFactory.createElseIfStatement = function (args) {
     return new elseIfStatement(args);
 };
 
@@ -329,7 +329,7 @@ BallerinaASTFactory.createElseIfStatement = function (args) {
  * creates Else Statement
  * @param args
  */
-BallerinaASTFactory.createElseStatement = function (args) {
+ASTFactory.createElseStatement = function (args) {
     return new elseStatement(args);
 };
 
@@ -337,7 +337,7 @@ BallerinaASTFactory.createElseStatement = function (args) {
  * creates TryCatchStatement
  * @param args
  */
-BallerinaASTFactory.createTryCatchStatement = function (args) {
+ASTFactory.createTryCatchStatement = function (args) {
     return new tryCatchStatement(args);
 };
 
@@ -345,7 +345,7 @@ BallerinaASTFactory.createTryCatchStatement = function (args) {
  * creates TryStatement
  * @param args
  */
-BallerinaASTFactory.createTryStatement = function (args) {
+ASTFactory.createTryStatement = function (args) {
     return new tryStatement(args);
 };
 
@@ -353,7 +353,7 @@ BallerinaASTFactory.createTryStatement = function (args) {
  * creates CatchStatement
  * @param args
  */
-BallerinaASTFactory.createCatchStatement = function (args) {
+ASTFactory.createCatchStatement = function (args) {
     return new catchStatement(args);
 };
 
@@ -361,7 +361,7 @@ BallerinaASTFactory.createCatchStatement = function (args) {
  * creates FinallyStatement
  * @param args
  */
-BallerinaASTFactory.createFinallyStatement = function (args) {
+ASTFactory.createFinallyStatement = function (args) {
     return new finallyStatement(args);
 };
 
@@ -369,7 +369,7 @@ BallerinaASTFactory.createFinallyStatement = function (args) {
  * creates Assignment
  * @param args
  */
-BallerinaASTFactory.createAssignment = function (args) {
+ASTFactory.createAssignment = function (args) {
     return new assignment(args);
 };
 
@@ -378,7 +378,7 @@ BallerinaASTFactory.createAssignment = function (args) {
  * @param {Object} args
  * @returns {AssignmentStatement}
  */
-BallerinaASTFactory.createAssignmentStatement = function (args) {
+ASTFactory.createAssignmentStatement = function (args) {
     return new assignmentStatement(args);
 };
 
@@ -387,19 +387,19 @@ BallerinaASTFactory.createAssignmentStatement = function (args) {
  * @param {Object} args
  * @returns {AssignmentStatement}
  */
-BallerinaASTFactory.createTransformStatement = function (args) {
+ASTFactory.createTransformStatement = function (args) {
     return new transformStatement(args);
 };
 
-BallerinaASTFactory.createForkJoinStatement = function (args) {
+ASTFactory.createForkJoinStatement = function (args) {
     return new forkJoinStatement(args);
 };
 
-BallerinaASTFactory.createJoinStatement = function (args) {
+ASTFactory.createJoinStatement = function (args) {
     return new joinStatement(args);
 };
 
-BallerinaASTFactory.createTimeoutStatement = function (args) {
+ASTFactory.createTimeoutStatement = function (args) {
     return new timeoutStatement(args);
 };
 
@@ -408,7 +408,7 @@ BallerinaASTFactory.createTimeoutStatement = function (args) {
  * @param {Object} [args]
  * @returns {VariableDefinitionStatement}
  */
-BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
+ASTFactory.createVariableDefinitionStatement = function (args) {
     return new variableDefinitionStatement(args);
 };
 
@@ -416,7 +416,7 @@ BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
  * creates ReplyStatement
  * @param args
  */
-BallerinaASTFactory.createReplyStatement = function (args) {
+ASTFactory.createReplyStatement = function (args) {
     return new replyStatement(args);
 };
 
@@ -424,7 +424,7 @@ BallerinaASTFactory.createReplyStatement = function (args) {
  * creates FunctionInvocationStatement
  * @param args
  */
-BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
+ASTFactory.createFunctionInvocationStatement = function (args) {
     return new functionInvocationStatement(args);
 };
 
@@ -433,7 +433,7 @@ BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
  * @param {Object} args
  * @returns {FunctionInvocationExpression}
  */
-BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
+ASTFactory.createFunctionInvocationExpression = function (args) {
     return new functionInvocationExpression(args);
 };
 
@@ -442,7 +442,7 @@ BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
  * @param {Object} args
  * @returns {SimpleVariableReferenceExpression}
  */
-BallerinaASTFactory.createSimpleVariableReferenceExpression = function (args) {
+ASTFactory.createSimpleVariableReferenceExpression = function (args) {
     return new SimpleVariableReferenceExpression(args);
 };
 
@@ -450,7 +450,7 @@ BallerinaASTFactory.createSimpleVariableReferenceExpression = function (args) {
  * creates ReturnStatement
  * @param args
  */
-BallerinaASTFactory.createReturnStatement = function (args) {
+ASTFactory.createReturnStatement = function (args) {
     return new returnStatement(args);
 };
 
@@ -458,7 +458,7 @@ BallerinaASTFactory.createReturnStatement = function (args) {
  * creates FieldBasedVarRefExpression
  * @param args
  */
-BallerinaASTFactory.createFieldBasedVarRefExpression = function (args) {
+ASTFactory.createFieldBasedVarRefExpression = function (args) {
     return new fieldBasedVarRefExpression(args);
 };
 
@@ -466,7 +466,7 @@ BallerinaASTFactory.createFieldBasedVarRefExpression = function (args) {
  * creates TypeCastExpression
  * @param args
  */
-BallerinaASTFactory.createTypeCastExpression = function (args) {
+ASTFactory.createTypeCastExpression = function (args) {
     return new typeCastExpression(args);
 };
 
@@ -474,7 +474,7 @@ BallerinaASTFactory.createTypeCastExpression = function (args) {
  * creates TypeConversionExpression
  * @param args
  */
-BallerinaASTFactory.createTypeConversionExpression = function (args) {
+ASTFactory.createTypeConversionExpression = function (args) {
     return new typeConversionExpression(args);
 };
 
@@ -482,7 +482,7 @@ BallerinaASTFactory.createTypeConversionExpression = function (args) {
  * creates WorkerInvocationStatement
  * @param args
  */
-BallerinaASTFactory.createWorkerInvocationStatement = function (args) {
+ASTFactory.createWorkerInvocationStatement = function (args) {
     return new workerInvocationStatement(args);
 };
 
@@ -490,7 +490,7 @@ BallerinaASTFactory.createWorkerInvocationStatement = function (args) {
  * creates WorkerReplyStatement
  * @param args
  */
-BallerinaASTFactory.createWorkerReplyStatement = function (args) {
+ASTFactory.createWorkerReplyStatement = function (args) {
     return new workerReplyStatement(args);
 };
 
@@ -498,14 +498,14 @@ BallerinaASTFactory.createWorkerReplyStatement = function (args) {
  * creates WhileStatement
  * @param args
  */
-BallerinaASTFactory.createWhileStatement = function (args) {
+ASTFactory.createWhileStatement = function (args) {
     return new whileStatement(args);
 };
 
 /**
  * creates BreakStatement
  */
-BallerinaASTFactory.createBreakStatement = function () {
+ASTFactory.createBreakStatement = function () {
     return new breakStatement();
 };
 
@@ -513,7 +513,7 @@ BallerinaASTFactory.createBreakStatement = function () {
  * creates ResourceDefinition
  * @param args
  */
-BallerinaASTFactory.createResourceDefinition = function (args) {
+ASTFactory.createResourceDefinition = function (args) {
     return new resourceDefinition(args);
 };
 
@@ -522,7 +522,7 @@ BallerinaASTFactory.createResourceDefinition = function (args) {
  * @param args
  * @returns {PackageDefinition}
  */
-BallerinaASTFactory.createPackageDefinition = function (args) {
+ASTFactory.createPackageDefinition = function (args) {
     return new packageDefinition(args);
 };
 
@@ -531,7 +531,7 @@ BallerinaASTFactory.createPackageDefinition = function (args) {
  * @param args
  * @returns {ImportDeclaration}
  */
-BallerinaASTFactory.createImportDeclaration = function (args) {
+ASTFactory.createImportDeclaration = function (args) {
     return new importDeclaration(args);
 };
 
@@ -540,7 +540,7 @@ BallerinaASTFactory.createImportDeclaration = function (args) {
  * @param args
  * @returns {ResourceParameter}
  */
-BallerinaASTFactory.createResourceParameter = function (args) {
+ASTFactory.createResourceParameter = function (args) {
     return new resourceParameter(args);
 };
 
@@ -549,7 +549,7 @@ BallerinaASTFactory.createResourceParameter = function (args) {
  * @param args
  * @returns {StructType}
  */
-BallerinaASTFactory.createStructType= function (args) {
+ASTFactory.createStructType= function (args) {
     return new structType(args);
 };
 
@@ -560,7 +560,7 @@ BallerinaASTFactory.createStructType= function (args) {
  * @param {string} [args.identifier] - Identifier of the argument
  * @returns {Argument}
  */
-BallerinaASTFactory.createArgument = function (args) {
+ASTFactory.createArgument = function (args) {
     return new argument(args);
 };
 
@@ -569,7 +569,7 @@ BallerinaASTFactory.createArgument = function (args) {
  * @param args
  * @returns {ReturnType}
  */
-BallerinaASTFactory.createReturnType = function (args) {
+ASTFactory.createReturnType = function (args) {
     return new returnType(args);
 };
 
@@ -578,7 +578,7 @@ BallerinaASTFactory.createReturnType = function (args) {
  * @param args
  * @returns {TypeName}
  */
-BallerinaASTFactory.createTypeName = function (args) {
+ASTFactory.createTypeName = function (args) {
     return new typeName(args);
 };
 
@@ -587,7 +587,7 @@ BallerinaASTFactory.createTypeName = function (args) {
  * @param {Object} args
  * @returns {backTickExpression}
  */
-BallerinaASTFactory.createBackTickExpression = function (args) {
+ASTFactory.createBackTickExpression = function (args) {
     return new backTickExpression(args);
 };
 
@@ -596,7 +596,7 @@ BallerinaASTFactory.createBackTickExpression = function (args) {
  * @param args
  * @returns {basicLiteralExpression}
  */
-BallerinaASTFactory.createBasicLiteralExpression = function (args) {
+ASTFactory.createBasicLiteralExpression = function (args) {
     return new basicLiteralExpression(args);
 };
 
@@ -605,7 +605,7 @@ BallerinaASTFactory.createBasicLiteralExpression = function (args) {
  * @param args
  * @returns {LambdaExpression}
  */
-BallerinaASTFactory.createLambdaExpression = function (args) {
+ASTFactory.createLambdaExpression = function (args) {
     return new lambdaFunctionExpression(args);
 };
 
@@ -614,7 +614,7 @@ BallerinaASTFactory.createLambdaExpression = function (args) {
  * @param args
  * @returns {nullLiteralExpression}
  */
-BallerinaASTFactory.createNullLiteralExpression = function (args) {
+ASTFactory.createNullLiteralExpression = function (args) {
     return new nullLiteralExpression(args);
 };
 
@@ -623,7 +623,7 @@ BallerinaASTFactory.createNullLiteralExpression = function (args) {
  * @param {Object} args
  * @returns {VariableReferenceList}
  */
-BallerinaASTFactory.createVariableReferenceList = function (args) {
+ASTFactory.createVariableReferenceList = function (args) {
     return new VariableReferenceList(args);
 };
 
@@ -633,7 +633,7 @@ BallerinaASTFactory.createVariableReferenceList = function (args) {
  * @param {Object} args.typeName - Type of the new instance creation.
  * @returns {InstanceCreationExpression} - New instance creation node.
  */
-BallerinaASTFactory.createInstanceCreationExpression = function (args) {
+ASTFactory.createInstanceCreationExpression = function (args) {
     return new instanceCreationExpression(args);
 };
 
@@ -642,7 +642,7 @@ BallerinaASTFactory.createInstanceCreationExpression = function (args) {
  * @param {Object} args - Arguments for creating a new instance creation.
  * @returns {ThenBody}
  */
-BallerinaASTFactory.createThenBody = function (args) {
+ASTFactory.createThenBody = function (args) {
     return new thenBody(args);
 };
 
@@ -651,7 +651,7 @@ BallerinaASTFactory.createThenBody = function (args) {
  * @param {Object} args - Arguments for creating a new instance creation.
  * @returns {BinaryExpression}
  */
-BallerinaASTFactory.createBinaryExpression = function (args) {
+ASTFactory.createBinaryExpression = function (args) {
     return new binaryExpression(args);
 };
 
@@ -660,7 +660,7 @@ BallerinaASTFactory.createBinaryExpression = function (args) {
  * @param {Object} args - Arguments for the creating new expression creation
  * @return {UnaryExpression}
  * */
-BallerinaASTFactory.createUnaryExpression = function (args) {
+ASTFactory.createUnaryExpression = function (args) {
     return new unaryExpression(args);
 };
 
@@ -669,7 +669,7 @@ BallerinaASTFactory.createUnaryExpression = function (args) {
  * @param {Object} args - Arguments for the creating new expression creation
  * @return {ConnectorInitExpression}
  * */
-BallerinaASTFactory.createConnectorInitExpression = function (args) {
+ASTFactory.createConnectorInitExpression = function (args) {
     return new connectorInitExpression(args);
 };
 
@@ -678,7 +678,7 @@ BallerinaASTFactory.createConnectorInitExpression = function (args) {
  * @param {Object} args - Arguments for creating a new instance creation.
  * @returns {IndexBasedVarRefExpression}
  */
-BallerinaASTFactory.createIndexBasedVarRefExpression = function (args) {
+ASTFactory.createIndexBasedVarRefExpression = function (args) {
     return new indexBasedVarRefExpression(args);
 };
 
@@ -687,7 +687,7 @@ BallerinaASTFactory.createIndexBasedVarRefExpression = function (args) {
  * @param {Object} args - Arguments for creating a new constant definition.
  * @returns {ConstantDefinition}
  */
-BallerinaASTFactory.createConstantDefinition = function (args) {
+ASTFactory.createConstantDefinition = function (args) {
     return new constantDefinition(args);
 };
 
@@ -696,7 +696,7 @@ BallerinaASTFactory.createConstantDefinition = function (args) {
  * @param {Object} args - Arguments for creating a new constant definition.
  * @returns {globalVariableDefinition}
  */
-BallerinaASTFactory.createGlobalVariableDefinition = function (args) {
+ASTFactory.createGlobalVariableDefinition = function (args) {
     return new globalVariableDefinition(args);
 };
 
@@ -705,7 +705,7 @@ BallerinaASTFactory.createGlobalVariableDefinition = function (args) {
  * @param {Object} args - Arguments for creating a new throw statement.
  * @returns {ThrowStatement}
  */
-BallerinaASTFactory.createThrowStatement = function (args) {
+ASTFactory.createThrowStatement = function (args) {
     return new throwStatement(args);
 };
 
@@ -714,7 +714,7 @@ BallerinaASTFactory.createThrowStatement = function (args) {
  * @param {Object} args - Arguments for creating a new comment statement.
  * @returns {CommentStatement}
  */
-BallerinaASTFactory.createCommentStatement = function (args) {
+ASTFactory.createCommentStatement = function (args) {
     return new commentStatement(args);
 };
 
@@ -723,7 +723,7 @@ BallerinaASTFactory.createCommentStatement = function (args) {
  * @param {Object} args - Arguments for creating a new transform statement.
  * @returns {TransformStatement}
  */
-BallerinaASTFactory.createTransformStatement = function (args) {
+ASTFactory.createTransformStatement = function (args) {
     return new transformStatement(args);
 };
 
@@ -732,7 +732,7 @@ BallerinaASTFactory.createTransformStatement = function (args) {
  * @param {Object} args - argument for the creating retry statement.
  * @return {RetryStatement} retry statement.
  * */
-BallerinaASTFactory.createRetryStatement = function(args){
+ASTFactory.createRetryStatement = function(args){
     return new RetryStatement(args);
 };
 
@@ -741,7 +741,7 @@ BallerinaASTFactory.createRetryStatement = function(args){
  * @param  {Object} args arguments for creating a new annotation.
  * @return {AnnotationAttachment}      new annotation object.
  */
-BallerinaASTFactory.createAnnotationAttachment = function (args) {
+ASTFactory.createAnnotationAttachment = function (args) {
     return new AnnotationAttachment(args);
 };
 
@@ -750,7 +750,7 @@ BallerinaASTFactory.createAnnotationAttachment = function (args) {
  * @param  {Object} args arguments for creating a new annotation attribute.
  * @return {AnnotationAttribute} new annotation attribute object.
  */
-BallerinaASTFactory.createAnnotationAttribute = function (args) {
+ASTFactory.createAnnotationAttribute = function (args) {
     return new AnnotationAttribute(args);
 };
 
@@ -759,7 +759,7 @@ BallerinaASTFactory.createAnnotationAttribute = function (args) {
  * @param {Object} args Arguments for creating a new annotation attribute value.
  * @return {AnnotationAttributeValue}
  */
-BallerinaASTFactory.createAnnotationAttributeValue = (args) => {
+ASTFactory.createAnnotationAttributeValue = (args) => {
     return new AnnotationAttributeValue(args);
 };
 
@@ -768,15 +768,15 @@ BallerinaASTFactory.createAnnotationAttributeValue = (args) => {
  * @param {Object} args - Arguments for creating a new parameter definition.
  * @returns {ParameterDefinition}
  */
-BallerinaASTFactory.createParameterDefinition = function (args) {
+ASTFactory.createParameterDefinition = function (args) {
     return new parameterDefinition(args);
 };
 
-BallerinaASTFactory.createArgumentParameterDefinitionHolder = function (args) {
+ASTFactory.createArgumentParameterDefinitionHolder = function (args) {
     return new argumentParameterDefinitionHolder();
 };
 
-BallerinaASTFactory.createReturnParameterDefinitionHolder = function (args) {
+ASTFactory.createReturnParameterDefinitionHolder = function (args) {
     return new returnParameterDefinitionHolder();
 };
 
@@ -785,7 +785,7 @@ BallerinaASTFactory.createReturnParameterDefinitionHolder = function (args) {
  * @param {object} args - Argument to create the transaction aborted statement.
  * @return {TransactionAbortedStatement} new TransactionAborted Statement.
  * */
-BallerinaASTFactory.createTransactionAbortedStatement = function (args) {
+ASTFactory.createTransactionAbortedStatement = function (args) {
     return new transactionAbortedStatement(args);
 };
 
@@ -794,7 +794,7 @@ BallerinaASTFactory.createTransactionAbortedStatement = function (args) {
  * @param {object} args - Argument to create the transaction statement.
  * @return {TransactionStatement} new Transaction Statement.
  * */
-BallerinaASTFactory.createTransactionStatement = function (args) {
+ASTFactory.createTransactionStatement = function (args) {
     return new transactionStatement();
 };
 
@@ -803,7 +803,7 @@ BallerinaASTFactory.createTransactionStatement = function (args) {
  * @param {object} args - Argument to create the failed statement.
  * @return {FailedStatement} new Failed Statement.
  * */
-BallerinaASTFactory.createFailedStatement = function (args) {
+ASTFactory.createFailedStatement = function (args) {
     return new FailedStatement();
 };
 
@@ -812,7 +812,7 @@ BallerinaASTFactory.createFailedStatement = function (args) {
  * @param {object} args - Argument to create the Aborted statement.
  * @return {AbortedStatement} new Aborted Statement.
  * */
-BallerinaASTFactory.createAbortedStatement = function (args) {
+ASTFactory.createAbortedStatement = function (args) {
     return new abortedStatement();
 };
 
@@ -821,7 +821,7 @@ BallerinaASTFactory.createAbortedStatement = function (args) {
  * @param {object} args - Arguments to create the committed statement.
  * @return {CommittedStatement} new Committed Statement.
  * */
-BallerinaASTFactory.createCommittedStatement = function (args) {
+ASTFactory.createCommittedStatement = function (args) {
     return new committedStatement();
 };
 
@@ -830,7 +830,7 @@ BallerinaASTFactory.createCommittedStatement = function (args) {
  * @param {object} args - Arguments to create the continue statement.
  * @return {} new Committed Statement.
  * */
-BallerinaASTFactory.createContinueStatement = function (args) {
+ASTFactory.createContinueStatement = function (args) {
     return new continueStatement();
 };
 
@@ -839,7 +839,7 @@ BallerinaASTFactory.createContinueStatement = function (args) {
  * @param {object} args - Arguments to create the Abort Statement.
  * @return {AbortStatement} new Abort Statement.
  * */
-BallerinaASTFactory.createAbortStatement = function (args) {
+ASTFactory.createAbortStatement = function (args) {
     return new abortStatement();
 };
 
@@ -848,7 +848,7 @@ BallerinaASTFactory.createAbortStatement = function (args) {
  * @param {Object} Arguments for creating a bvalue object.
  * @return {Bvalue} new Bvalue
  */
-BallerinaASTFactory.createBValue = (args) => {
+ASTFactory.createBValue = (args) => {
     return new BValue(args);
 };
 
@@ -857,7 +857,7 @@ BallerinaASTFactory.createBValue = (args) => {
  * @param {object} args - arguments for creating a namespace declaration object.
  * @return {NamespaceDeclarationStatement} new NamespaceDeclarationStatement.
  * */
-BallerinaASTFactory.createNamespaceDeclarationStatement = (args) => {
+ASTFactory.createNamespaceDeclarationStatement = (args) => {
     return new NamespaceDeclarationStatement(args);
 };
 
@@ -866,7 +866,7 @@ BallerinaASTFactory.createNamespaceDeclarationStatement = (args) => {
  * @param {object} args - arguments for creating a namespace declaration.
  * @return {NamespaceDeclaration} new NamespaceDeclaration.
  * */
-BallerinaASTFactory.createNamespaceDeclaration = (args) => {
+ASTFactory.createNamespaceDeclaration = (args) => {
     return new NamespaceDeclaration(args);
 };
 
@@ -875,7 +875,7 @@ BallerinaASTFactory.createNamespaceDeclaration = (args) => {
  * @param {object} args - arguments for the creating a XML QName expression.
  * @return {XMLQNameExpression} new XMLQNameExpression.
  * */
-BallerinaASTFactory.createXMLQNameExpression = (args) => {
+ASTFactory.createXMLQNameExpression = (args) => {
     return new XMLQNameExpression(args);
 };
 
@@ -883,7 +883,7 @@ BallerinaASTFactory.createXMLQNameExpression = (args) => {
  * Create new {@link XMLAttributeReferenceExpression}
  * @return {XMLAttributeReferenceExpression} new XMLAttributeReferenceExpression.
  * */
-BallerinaASTFactory.createXMLAttributeReferenceExpression = () => {
+ASTFactory.createXMLAttributeReferenceExpression = () => {
     return new XMLAttributeReferenceExpression();
 };
 
@@ -892,7 +892,7 @@ BallerinaASTFactory.createXMLAttributeReferenceExpression = () => {
  * @param {Object} child
  * @returns {boolean}
  */
-BallerinaASTFactory.isBallerinaAstRoot = function (child) {
+ASTFactory.isBallerinaAstRoot = function (child) {
     return child instanceof ballerinaAstRoot;
 };
 
@@ -901,7 +901,7 @@ BallerinaASTFactory.isBallerinaAstRoot = function (child) {
  * @param {Object} child
  * @returns {boolean}
  */
-BallerinaASTFactory.isSimpleTypeName = function (child) {
+ASTFactory.isSimpleTypeName = function (child) {
     return child instanceof simpleTypeName;
 };
 
@@ -910,7 +910,7 @@ BallerinaASTFactory.isSimpleTypeName = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isServiceDefinition = function (child) {
+ASTFactory.isServiceDefinition = function (child) {
     return child instanceof serviceDefinition;
 };
 
@@ -919,7 +919,7 @@ BallerinaASTFactory.isServiceDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isFunctionDefinition = function (child) {
+ASTFactory.isFunctionDefinition = function (child) {
     return child instanceof functionDefinition;
 };
 
@@ -928,7 +928,7 @@ BallerinaASTFactory.isFunctionDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isConnectorDefinition = function (child) {
+ASTFactory.isConnectorDefinition = function (child) {
     return child instanceof connectorDefinition;
 };
 
@@ -937,7 +937,7 @@ BallerinaASTFactory.isConnectorDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isWorkerDeclaration = function (child) {
+ASTFactory.isWorkerDeclaration = function (child) {
     return child instanceof workerDeclaration;
 };
 
@@ -946,7 +946,7 @@ BallerinaASTFactory.isWorkerDeclaration = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isWorkerInvocationStatement = function (child) {
+ASTFactory.isWorkerInvocationStatement = function (child) {
     return child instanceof workerInvocationStatement;
 };
 
@@ -955,7 +955,7 @@ BallerinaASTFactory.isWorkerInvocationStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isJoinStatement = function (child) {
+ASTFactory.isJoinStatement = function (child) {
     return child instanceof joinStatement;
 };
 
@@ -964,7 +964,7 @@ BallerinaASTFactory.isJoinStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isForkJoinStatement = function (child) {
+ASTFactory.isForkJoinStatement = function (child) {
     return child instanceof forkJoinStatement;
 };
 
@@ -973,7 +973,7 @@ BallerinaASTFactory.isForkJoinStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTimeoutStatement = function (child) {
+ASTFactory.isTimeoutStatement = function (child) {
     return child instanceof timeoutStatement;
 };
 
@@ -982,7 +982,7 @@ BallerinaASTFactory.isTimeoutStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isWorkerReplyStatement = function (child) {
+ASTFactory.isWorkerReplyStatement = function (child) {
     return child instanceof workerReplyStatement;
 };
 
@@ -991,7 +991,7 @@ BallerinaASTFactory.isWorkerReplyStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isStatement = function (child) {
+ASTFactory.isStatement = function (child) {
     return child instanceof statement;
 };
 
@@ -1000,7 +1000,7 @@ BallerinaASTFactory.isStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isWhileStatement = function (child) {
+ASTFactory.isWhileStatement = function (child) {
     return child instanceof whileStatement;
 };
 
@@ -1009,7 +1009,7 @@ BallerinaASTFactory.isWhileStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isBreakStatement = function (child) {
+ASTFactory.isBreakStatement = function (child) {
     return child instanceof breakStatement;
 };
 
@@ -1018,7 +1018,7 @@ BallerinaASTFactory.isBreakStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTypeConverterDefinition = function (child) {
+ASTFactory.isTypeConverterDefinition = function (child) {
     return child instanceof typeConverterDefinition;
 };
 
@@ -1027,7 +1027,7 @@ BallerinaASTFactory.isTypeConverterDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTypeDefinition = function (child) {
+ASTFactory.isTypeDefinition = function (child) {
     return child instanceof typeDefinition;
 };
 
@@ -1036,7 +1036,7 @@ BallerinaASTFactory.isTypeDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTypeElement = function (child) {
+ASTFactory.isTypeElement = function (child) {
     return child instanceof typeElement;
 };
 
@@ -1045,7 +1045,7 @@ BallerinaASTFactory.isTypeElement = function (child) {
  * @param {ASTNode} child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isStructDefinition = function (child) {
+ASTFactory.isStructDefinition = function (child) {
     return child instanceof structDefinition;
 };
 
@@ -1054,7 +1054,7 @@ BallerinaASTFactory.isStructDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isVariableDeclaration = function (child) {
+ASTFactory.isVariableDeclaration = function (child) {
     return child instanceof variableDeclaration;
 };
 
@@ -1063,7 +1063,7 @@ BallerinaASTFactory.isVariableDeclaration = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isReferenceTypeInitiExpression = function (child) {
+ASTFactory.isReferenceTypeInitiExpression = function (child) {
     return child instanceof referenceTypeInitExpression;
 };
 
@@ -1073,7 +1073,7 @@ BallerinaASTFactory.isReferenceTypeInitiExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isStructType = function (child) {
+ASTFactory.isStructType = function (child) {
     return child instanceof structType;
 };
 
@@ -1082,7 +1082,7 @@ BallerinaASTFactory.isStructType = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isConditionalStatement = function (child) {
+ASTFactory.isConditionalStatement = function (child) {
     return child instanceof conditionalStatement;
 };
 
@@ -1091,7 +1091,7 @@ BallerinaASTFactory.isConditionalStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isConnectorDeclaration = function (child) {
+ASTFactory.isConnectorDeclaration = function (child) {
     return child instanceof connectorDeclaration;
 };
 
@@ -1100,7 +1100,7 @@ BallerinaASTFactory.isConnectorDeclaration = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isExpression = function (child) {
+ASTFactory.isExpression = function (child) {
     return child instanceof expression;
 };
 
@@ -1109,7 +1109,7 @@ BallerinaASTFactory.isExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isKeyValueExpression= function (child) {
+ASTFactory.isKeyValueExpression= function (child) {
     return child instanceof keyValueExpression;
 };
 
@@ -1118,7 +1118,7 @@ BallerinaASTFactory.isKeyValueExpression= function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isReferenceTypeInitExpression = function (child) {
+ASTFactory.isReferenceTypeInitExpression = function (child) {
     return child instanceof referenceTypeInitExpression;
 };
 
@@ -1127,7 +1127,7 @@ BallerinaASTFactory.isReferenceTypeInitExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isFieldBasedVarRefExpression = function (child) {
+ASTFactory.isFieldBasedVarRefExpression = function (child) {
     return child instanceof fieldBasedVarRefExpression;
 };
 
@@ -1136,7 +1136,7 @@ BallerinaASTFactory.isFieldBasedVarRefExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isVariableReferenceList = function (child) {
+ASTFactory.isVariableReferenceList = function (child) {
     return child instanceof VariableReferenceList;
 };
 
@@ -1145,7 +1145,7 @@ BallerinaASTFactory.isVariableReferenceList = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTypeCastExpression = function (child) {
+ASTFactory.isTypeCastExpression = function (child) {
     return child instanceof typeCastExpression;
 };
 
@@ -1154,7 +1154,7 @@ BallerinaASTFactory.isTypeCastExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTypeConversionExpression = function (child) {
+ASTFactory.isTypeConversionExpression = function (child) {
     return child instanceof typeConversionExpression;
 };
 
@@ -1163,7 +1163,7 @@ BallerinaASTFactory.isTypeConversionExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isIfElseStatement = function (child) {
+ASTFactory.isIfElseStatement = function (child) {
     return child instanceof ifElseStatement;
 };
 
@@ -1172,7 +1172,7 @@ BallerinaASTFactory.isIfElseStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isIfStatement = function (child) {
+ASTFactory.isIfStatement = function (child) {
     return child instanceof ifStatement;
 };
 
@@ -1181,7 +1181,7 @@ BallerinaASTFactory.isIfStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isElseStatement = function (child) {
+ASTFactory.isElseStatement = function (child) {
     return child instanceof elseStatement;
 };
 
@@ -1190,7 +1190,7 @@ BallerinaASTFactory.isElseStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isElseIfStatement = function (child) {
+ASTFactory.isElseIfStatement = function (child) {
     return child instanceof elseIfStatement;
 };
 
@@ -1199,7 +1199,7 @@ BallerinaASTFactory.isElseIfStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTryCatchStatement = function (child) {
+ASTFactory.isTryCatchStatement = function (child) {
     return child instanceof tryCatchStatement;
 };
 
@@ -1208,7 +1208,7 @@ BallerinaASTFactory.isTryCatchStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTryStatement = function (child) {
+ASTFactory.isTryStatement = function (child) {
     return child instanceof tryStatement;
 };
 
@@ -1217,7 +1217,7 @@ BallerinaASTFactory.isTryStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isCatchStatement = function (child) {
+ASTFactory.isCatchStatement = function (child) {
     return child instanceof catchStatement;
 };
 
@@ -1226,7 +1226,7 @@ BallerinaASTFactory.isCatchStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isFinallyStatement = function (child) {
+ASTFactory.isFinallyStatement = function (child) {
     return child instanceof finallyStatement;
 };
 
@@ -1235,7 +1235,7 @@ BallerinaASTFactory.isFinallyStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isReplyStatement = function (child) {
+ASTFactory.isReplyStatement = function (child) {
     return child instanceof replyStatement;
 };
 
@@ -1244,7 +1244,7 @@ BallerinaASTFactory.isReplyStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isReturnStatement = function (child) {
+ASTFactory.isReturnStatement = function (child) {
     return child instanceof returnStatement;
 };
 
@@ -1253,7 +1253,7 @@ BallerinaASTFactory.isReturnStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isResourceDefinition = function (child) {
+ASTFactory.isResourceDefinition = function (child) {
     return child instanceof resourceDefinition;
 };
 
@@ -1262,7 +1262,7 @@ BallerinaASTFactory.isResourceDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isPackageDefinition = function (child) {
+ASTFactory.isPackageDefinition = function (child) {
     return child instanceof packageDefinition;
 };
 
@@ -1271,7 +1271,7 @@ BallerinaASTFactory.isPackageDefinition = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isImportDeclaration = function (child) {
+ASTFactory.isImportDeclaration = function (child) {
     return child instanceof importDeclaration;
 };
 
@@ -1280,7 +1280,7 @@ BallerinaASTFactory.isImportDeclaration = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isResourceParameter = function (child) {
+ASTFactory.isResourceParameter = function (child) {
     return child instanceof resourceParameter;
 };
 
@@ -1289,7 +1289,7 @@ BallerinaASTFactory.isResourceParameter = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isActionInvocationStatement = function (child) {
+ASTFactory.isActionInvocationStatement = function (child) {
     return child instanceof actionInvocationStatement;
 };
 
@@ -1298,7 +1298,7 @@ BallerinaASTFactory.isActionInvocationStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTransformStatement = function (child) {
+ASTFactory.isTransformStatement = function (child) {
     return child instanceof transformStatement;
 };
 
@@ -1307,7 +1307,7 @@ BallerinaASTFactory.isTransformStatement = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isActionInvocationExpression = function (child) {
+ASTFactory.isActionInvocationExpression = function (child) {
     return child instanceof actionInvocationExpression;
 };
 
@@ -1316,7 +1316,7 @@ BallerinaASTFactory.isActionInvocationExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isArgument = function (child) {
+ASTFactory.isArgument = function (child) {
     return child instanceof argument;
 };
 
@@ -1325,7 +1325,7 @@ BallerinaASTFactory.isArgument = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isReturnType = function (child) {
+ASTFactory.isReturnType = function (child) {
     return child instanceof returnType;
 };
 
@@ -1334,7 +1334,7 @@ BallerinaASTFactory.isReturnType = function (child) {
  * @param {ASTNode} child - object for instanceof check
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isRetry = function(child){
+ASTFactory.isRetry = function(child){
     return child instanceof RetryStatement;
 };
 
@@ -1343,7 +1343,7 @@ BallerinaASTFactory.isRetry = function(child){
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isTypeName = function (child) {
+ASTFactory.isTypeName = function (child) {
     return child instanceof typeName;
 };
 
@@ -1352,7 +1352,7 @@ BallerinaASTFactory.isTypeName = function (child) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isBackTickExpression = function (child) {
+ASTFactory.isBackTickExpression = function (child) {
     return child instanceof backTickExpression;
 };
 
@@ -1361,7 +1361,7 @@ BallerinaASTFactory.isBackTickExpression = function (child) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isAssignmentStatement = function (child) {
+ASTFactory.isAssignmentStatement = function (child) {
     return child instanceof assignmentStatement;
 };
 
@@ -1370,7 +1370,7 @@ BallerinaASTFactory.isAssignmentStatement = function (child) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isTransformStatement = function (child) {
+ASTFactory.isTransformStatement = function (child) {
     return child instanceof transformStatement;
 };
 
@@ -1380,7 +1380,7 @@ BallerinaASTFactory.isTransformStatement = function (child) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isBasicLiteralExpression = function (child) {
+ASTFactory.isBasicLiteralExpression = function (child) {
     return child instanceof basicLiteralExpression;
 };
 
@@ -1389,7 +1389,7 @@ BallerinaASTFactory.isBasicLiteralExpression = function (child) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isLambdaExpression = function (child) {
+ASTFactory.isLambdaExpression = function (child) {
     return child instanceof lambdaFunctionExpression;
 };
 
@@ -1398,7 +1398,7 @@ BallerinaASTFactory.isLambdaExpression = function (child) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isNullLiteralExpression = function (child) {
+ASTFactory.isNullLiteralExpression = function (child) {
     return child instanceof nullLiteralExpression;
 };
 
@@ -1407,7 +1407,7 @@ BallerinaASTFactory.isNullLiteralExpression = function (child) {
  * @param node
  * @returns {boolean}
  */
-BallerinaASTFactory.isSimpleVariableReferenceExpression = function (node) {
+ASTFactory.isSimpleVariableReferenceExpression = function (node) {
     return node instanceof SimpleVariableReferenceExpression;
 };
 
@@ -1416,7 +1416,7 @@ BallerinaASTFactory.isSimpleVariableReferenceExpression = function (node) {
  * @param child
  * @returns {boolean}
  */
-BallerinaASTFactory.isVariableDefinition = function (child) {
+ASTFactory.isVariableDefinition = function (child) {
     return child instanceof variableDefinition;
 };
 
@@ -1425,7 +1425,7 @@ BallerinaASTFactory.isVariableDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - True if node is an instance creation, else false.
  */
-BallerinaASTFactory.isInstanceCreationExpression = function (child) {
+ASTFactory.isInstanceCreationExpression = function (child) {
     return child instanceof instanceCreationExpression;
 };
 
@@ -1434,7 +1434,7 @@ BallerinaASTFactory.isInstanceCreationExpression = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isThenBody = function (child) {
+ASTFactory.isThenBody = function (child) {
     return child instanceof thenBody;
 };
 
@@ -1443,7 +1443,7 @@ BallerinaASTFactory.isThenBody = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isBinaryExpression = function (child) {
+ASTFactory.isBinaryExpression = function (child) {
     return child instanceof binaryExpression;
 };
 
@@ -1452,7 +1452,7 @@ BallerinaASTFactory.isBinaryExpression = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isConnectorInitExpression = function (child) {
+ASTFactory.isConnectorInitExpression = function (child) {
     return child instanceof connectorInitExpression;
 };
 
@@ -1461,7 +1461,7 @@ BallerinaASTFactory.isConnectorInitExpression = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isIndexBasedVarRefExpression = function (child) {
+ASTFactory.isIndexBasedVarRefExpression = function (child) {
     return child instanceof indexBasedVarRefExpression;
 };
 
@@ -1470,7 +1470,7 @@ BallerinaASTFactory.isIndexBasedVarRefExpression = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isFunctionInvocationExpression = function (child) {
+ASTFactory.isFunctionInvocationExpression = function (child) {
     return child instanceof functionInvocationExpression;
 };
 
@@ -1479,7 +1479,7 @@ BallerinaASTFactory.isFunctionInvocationExpression = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
+ASTFactory.isFunctionInvocationStatement = function (child) {
     return child instanceof functionInvocationStatement;
 };
 
@@ -1488,7 +1488,7 @@ BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isConnectorAction = function (child) {
+ASTFactory.isConnectorAction = function (child) {
     return child instanceof connectorAction;
 };
 
@@ -1497,7 +1497,7 @@ BallerinaASTFactory.isConnectorAction = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isConstantDefinition = function (child) {
+ASTFactory.isConstantDefinition = function (child) {
     return child instanceof constantDefinition;
 };
 
@@ -1506,7 +1506,7 @@ BallerinaASTFactory.isConstantDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isGlobalVariableDefinition = function (child) {
+ASTFactory.isGlobalVariableDefinition = function (child) {
     return child instanceof globalVariableDefinition;
 };
 
@@ -1515,7 +1515,7 @@ BallerinaASTFactory.isGlobalVariableDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
  * */
-BallerinaASTFactory.isAnnotationDefinition = function (child) {
+ASTFactory.isAnnotationDefinition = function (child) {
     return child instanceof annotationDefinition;
 };
 
@@ -1524,7 +1524,7 @@ BallerinaASTFactory.isAnnotationDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
  * */
-BallerinaASTFactory.isAnnotationAttributeDefinition = function (child) {
+ASTFactory.isAnnotationAttributeDefinition = function (child) {
     return child instanceof annotationAttributeDefinition;
 };
 
@@ -1533,7 +1533,7 @@ BallerinaASTFactory.isAnnotationAttributeDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isVariableDefinitionStatement = function (child) {
+ASTFactory.isVariableDefinitionStatement = function (child) {
     return child instanceof variableDefinitionStatement;
 };
 
@@ -1542,7 +1542,7 @@ BallerinaASTFactory.isVariableDefinitionStatement = function (child) {
  * @param {ASTNode} child - The ast node
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isThrowStatement = function (child) {
+ASTFactory.isThrowStatement = function (child) {
     return child instanceof throwStatement;
 };
 
@@ -1551,7 +1551,7 @@ BallerinaASTFactory.isThrowStatement = function (child) {
  * @param {ASTNode} child - The ast node
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isCommentStatement = function (child) {
+ASTFactory.isCommentStatement = function (child) {
     return child instanceof commentStatement;
 };
 
@@ -1560,7 +1560,7 @@ BallerinaASTFactory.isCommentStatement = function (child) {
  * @param  {ASTNode} child The ast node
  * @return {Boolean} true if same type, else false
  */
-BallerinaASTFactory.isAnnotationAttachment = (child) => {
+ASTFactory.isAnnotationAttachment = (child) => {
     return child instanceof AnnotationAttachment;
 };
 
@@ -1569,7 +1569,7 @@ BallerinaASTFactory.isAnnotationAttachment = (child) => {
  * @param  {ASTNode} child The ast node
  * @return {Boolean} true if same type, else false
  */
-BallerinaASTFactory.isAnnotationAttribute = (child) => {
+ASTFactory.isAnnotationAttribute = (child) => {
     return child instanceof AnnotationAttribute;
 };
 
@@ -1578,7 +1578,7 @@ BallerinaASTFactory.isAnnotationAttribute = (child) => {
  * @param  {ASTNode}  child The ast node
  * @return {Boolean}  true if same type, else false
  */
-BallerinaASTFactory.isAnnotationAttributeValue = function (child) {
+ASTFactory.isAnnotationAttributeValue = function (child) {
     return child instanceof AnnotationAttributeValue;
 };
 
@@ -1587,7 +1587,7 @@ BallerinaASTFactory.isAnnotationAttributeValue = function (child) {
  * @param {ASTNode} child - The ast node
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isParameterDefinition = function (child) {
+ASTFactory.isParameterDefinition = function (child) {
     return child instanceof parameterDefinition;
 };
 
@@ -1596,7 +1596,7 @@ BallerinaASTFactory.isParameterDefinition = function (child) {
  * @param {ASTNode} child - The ast node
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isArgumentParameterDefinitionHolder = function (child) {
+ASTFactory.isArgumentParameterDefinitionHolder = function (child) {
     return child instanceof argumentParameterDefinitionHolder;
 };
 
@@ -1605,7 +1605,7 @@ BallerinaASTFactory.isArgumentParameterDefinitionHolder = function (child) {
  * @param {ASTNode} child - The ast node
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isReturnParameterDefinitionHolder = function (child) {
+ASTFactory.isReturnParameterDefinitionHolder = function (child) {
     return child instanceof returnParameterDefinitionHolder;
 };
 
@@ -1614,7 +1614,7 @@ BallerinaASTFactory.isReturnParameterDefinitionHolder = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isTransactionAbortedStatement = function (child) {
+ASTFactory.isTransactionAbortedStatement = function (child) {
     return child instanceof transactionAbortedStatement;
 };
 
@@ -1623,7 +1623,7 @@ BallerinaASTFactory.isTransactionAbortedStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isTransactionStatement = function (child) {
+ASTFactory.isTransactionStatement = function (child) {
     return child instanceof transactionStatement;
 };
 
@@ -1632,7 +1632,7 @@ BallerinaASTFactory.isTransactionStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isFailedStatement = function (child) {
+ASTFactory.isFailedStatement = function (child) {
     return child instanceof FailedStatement;
 };
 
@@ -1641,7 +1641,7 @@ BallerinaASTFactory.isFailedStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isAbortedStatement = function (child) {
+ASTFactory.isAbortedStatement = function (child) {
     return child instanceof abortedStatement;
 };
 
@@ -1650,7 +1650,7 @@ BallerinaASTFactory.isAbortedStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isAbortStatement = function (child) {
+ASTFactory.isAbortStatement = function (child) {
     return child instanceof abortStatement;
 };
 
@@ -1659,7 +1659,7 @@ BallerinaASTFactory.isAbortStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isCommittedStatement = function (child) {
+ASTFactory.isCommittedStatement = function (child) {
     return child instanceof committedStatement;
 };
 
@@ -1668,7 +1668,7 @@ BallerinaASTFactory.isCommittedStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isContinueStatement = function (child) {
+ASTFactory.isContinueStatement = function (child) {
     return child instanceof continueStatement;
 };
 
@@ -1677,7 +1677,7 @@ BallerinaASTFactory.isContinueStatement = function (child) {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  */
-BallerinaASTFactory.isBValue = (child) => {
+ASTFactory.isBValue = (child) => {
     return child instanceof BValue;
 };
 
@@ -1686,7 +1686,7 @@ BallerinaASTFactory.isBValue = (child) => {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isNamespaceDeclarationStatement = (child) => {
+ASTFactory.isNamespaceDeclarationStatement = (child) => {
     return child instanceof NamespaceDeclarationStatement;
 };
 
@@ -1695,7 +1695,7 @@ BallerinaASTFactory.isNamespaceDeclarationStatement = (child) => {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if the same type, else false.
  * */
-BallerinaASTFactory.isNamespaceDeclaration = (child) => {
+ASTFactory.isNamespaceDeclaration = (child) => {
     return child instanceof NamespaceDeclaration;
 };
 
@@ -1704,7 +1704,7 @@ BallerinaASTFactory.isNamespaceDeclaration = (child) => {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if the same type, else false.
  * */
-BallerinaASTFactory.isXMLQNameExpression = (child) => {
+ASTFactory.isXMLQNameExpression = (child) => {
     return child instanceof XMLQNameExpression;
 };
 
@@ -1713,305 +1713,305 @@ BallerinaASTFactory.isXMLQNameExpression = (child) => {
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if the same typ, else false
  * */
-BallerinaASTFactory.isXMLAttributeReferenceExpression = (child) => {
+ASTFactory.isXMLAttributeReferenceExpression = (child) => {
     return child instanceof XMLAttributeReferenceExpression;
 };
 
-BallerinaASTFactory.createFromJson = function (jsonNode) {
+ASTFactory.createFromJson = function (jsonNode) {
     let node;
     const nodeType = jsonNode.type;
 
     switch (nodeType) {
         case 'simple_type_name':
-            node = BallerinaASTFactory.createSimpleTypeName();
+            node = ASTFactory.createSimpleTypeName();
             break;
         case 'package':
-            node = BallerinaASTFactory.createPackageDefinition();
+            node = ASTFactory.createPackageDefinition();
             break;
         case 'import':
-            node = BallerinaASTFactory.createImportDeclaration();
+            node = ASTFactory.createImportDeclaration();
             break;
         case 'annotation_attachment':
-            node = BallerinaASTFactory.createAnnotationAttachment();
+            node = ASTFactory.createAnnotationAttachment();
             break;
         case 'annotation_attribute':
-            node = BallerinaASTFactory.createAnnotationAttribute();
+            node = ASTFactory.createAnnotationAttribute();
             break;
         case 'annotation_attribute_value':
-            node = BallerinaASTFactory.createAnnotationAttributeValue();
+            node = ASTFactory.createAnnotationAttributeValue();
             break;
         case 'service_definition':
-            node = BallerinaASTFactory.createServiceDefinition();
+            node = ASTFactory.createServiceDefinition();
             break;
         case 'annotation_definition':
-            node = BallerinaASTFactory.createAnnotationDefinition();
+            node = ASTFactory.createAnnotationDefinition();
             break;
         case 'function_definition':
-            node = BallerinaASTFactory.createFunctionDefinition();
+            node = ASTFactory.createFunctionDefinition();
             break;
         case 'connector_definition':
-            node = BallerinaASTFactory.createConnectorDefinition();
+            node = ASTFactory.createConnectorDefinition();
             break;
         case 'type_definition':
-            node = BallerinaASTFactory.createTypeDefinition();
+            node = ASTFactory.createTypeDefinition();
             break;
         case 'resource_definition':
-            node = BallerinaASTFactory.createResourceDefinition();
+            node = ASTFactory.createResourceDefinition();
             break;
         case 'connector_declaration':
-            node = BallerinaASTFactory.createConnectorDeclaration();
+            node = ASTFactory.createConnectorDeclaration();
             break;
         case 'variable_definition':
-            node = BallerinaASTFactory.createVariableDefinition();
+            node = ASTFactory.createVariableDefinition();
             break;
         case 'variable_definition_statement':
-            node = BallerinaASTFactory.createVariableDefinitionStatement();
+            node = ASTFactory.createVariableDefinitionStatement();
             break;
         case 'argument_declaration':
-            node = BallerinaASTFactory.createResourceParameter();
+            node = ASTFactory.createResourceParameter();
             break;
         case 'reply_statement':
-            node = BallerinaASTFactory.createReplyStatement();
+            node = ASTFactory.createReplyStatement();
             break;
         case 'return_statement':
-            node = BallerinaASTFactory.createReturnStatement();
+            node = ASTFactory.createReturnStatement();
             break;
         case 'return_type':
-            node = BallerinaASTFactory.createReturnType();
+            node = ASTFactory.createReturnType();
             break;
         case 'return_argument':
-            node = BallerinaASTFactory.createArgument();
+            node = ASTFactory.createArgument();
             break;
         case 'type_name':
-            node = BallerinaASTFactory.createTypeName();
+            node = ASTFactory.createTypeName();
             break;
         case 'function_invocation_statement':
-            node = BallerinaASTFactory.createFunctionInvocationStatement();
+            node = ASTFactory.createFunctionInvocationStatement();
             break;
         case 'function_invocation_expression':
-            node = BallerinaASTFactory.createFunctionInvocationExpression();
+            node = ASTFactory.createFunctionInvocationExpression();
             break;
         case 'simple_variable_reference_expression':
-            node = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            node = ASTFactory.createSimpleVariableReferenceExpression();
             break;
         case 'action_invocation_expression':
-            node = BallerinaASTFactory.createActionInvocationExpression();
+            node = ASTFactory.createActionInvocationExpression();
             break;
         case 'assignment_statement':
-            node = BallerinaASTFactory.createAssignmentStatement();
+            node = ASTFactory.createAssignmentStatement();
             break;
         case 'back_tick_expression':
-            node = BallerinaASTFactory.createBackTickExpression();
+            node = ASTFactory.createBackTickExpression();
             break;
         case 'while_statement' :
-            node = BallerinaASTFactory.createWhileStatement();
+            node = ASTFactory.createWhileStatement();
             break;
         case 'break_statement' :
-            node = BallerinaASTFactory.createBreakStatement();
+            node = ASTFactory.createBreakStatement();
             break;
         case 'basic_literal_expression' :
-            node = BallerinaASTFactory.createBasicLiteralExpression();
+            node = ASTFactory.createBasicLiteralExpression();
             break;
         case 'lambda_function_expression' :
-            node = BallerinaASTFactory.createLambdaExpression();
+            node = ASTFactory.createLambdaExpression();
             break;
         case 'null_literal_expression' :
-            node = BallerinaASTFactory.createNullLiteralExpression();
+            node = ASTFactory.createNullLiteralExpression();
             break;
         case 'variable_reference_list':
-            node = BallerinaASTFactory.createVariableReferenceList();
+            node = ASTFactory.createVariableReferenceList();
             break;
         case 'if_else_statement' :
-            node = BallerinaASTFactory.createIfElseStatement();
+            node = ASTFactory.createIfElseStatement();
             break;
         case 'if_statement' :
-            node = BallerinaASTFactory.createIfStatement();
+            node = ASTFactory.createIfStatement();
             break;
         case 'else_if_statement' :
-            node = BallerinaASTFactory.createElseIfStatement();
+            node = ASTFactory.createElseIfStatement();
             break;
         case 'else_statement' :
-            node = BallerinaASTFactory.createElseStatement();
+            node = ASTFactory.createElseStatement();
             break;
         case 'instance_creation_expression':
-            node = BallerinaASTFactory.createInstanceCreationExpression();
+            node = ASTFactory.createInstanceCreationExpression();
             break;
         case 'then_body':
-            node = BallerinaASTFactory.createThenBody();
+            node = ASTFactory.createThenBody();
             break;
         case 'equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '==' });
+            node = ASTFactory.createBinaryExpression({ operator: '==' });
             break;
         case 'greater_than_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '>' });
+            node = ASTFactory.createBinaryExpression({ operator: '>' });
             break;
         case 'add_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '+' });
+            node = ASTFactory.createBinaryExpression({ operator: '+' });
             break;
         case 'multiplication_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '*' });
+            node = ASTFactory.createBinaryExpression({ operator: '*' });
             break;
         case 'division_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '/' });
+            node = ASTFactory.createBinaryExpression({ operator: '/' });
             break;
         case 'mod_expression' :
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '%' });
+            node = ASTFactory.createBinaryExpression({ operator: '%' });
             break;
         case 'and_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '&&' });
+            node = ASTFactory.createBinaryExpression({ operator: '&&' });
             break;
         case 'subtract_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '-' });
+            node = ASTFactory.createBinaryExpression({ operator: '-' });
             break;
         case 'or_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '||' });
+            node = ASTFactory.createBinaryExpression({ operator: '||' });
             break;
         case 'greater_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '>=' });
+            node = ASTFactory.createBinaryExpression({ operator: '>=' });
             break;
         case 'less_than_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '<' });
+            node = ASTFactory.createBinaryExpression({ operator: '<' });
             break;
         case 'less_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '<=' });
+            node = ASTFactory.createBinaryExpression({ operator: '<=' });
             break;
         case 'not_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '!=' });
+            node = ASTFactory.createBinaryExpression({ operator: '!=' });
             break;
         case 'unary_expression':
-            node = BallerinaASTFactory.createUnaryExpression({ operator: jsonNode.operator });
+            node = ASTFactory.createUnaryExpression({ operator: jsonNode.operator });
             break;
         case 'connector_init_expr':
-            node = BallerinaASTFactory.createConnectorInitExpression();
+            node = ASTFactory.createConnectorInitExpression();
             break;
         case 'index_based_variable_reference_expression':
-            node = BallerinaASTFactory.createIndexBasedVarRefExpression();
+            node = ASTFactory.createIndexBasedVarRefExpression();
             break;
         case 'connector':
-            node = BallerinaASTFactory.createConnectorDefinition();
+            node = ASTFactory.createConnectorDefinition();
             break;
         case 'action_definition':
-            node = BallerinaASTFactory.createConnectorAction();
+            node = ASTFactory.createConnectorAction();
             break;
         case 'constant_definition':
-            node = BallerinaASTFactory.createConstantDefinition();
+            node = ASTFactory.createConstantDefinition();
             break;
         case 'global_variable_definition':
-            node = BallerinaASTFactory.createGlobalVariableDefinition();
+            node = ASTFactory.createGlobalVariableDefinition();
             break;
         case 'struct_definition':
-            node = BallerinaASTFactory.createStructDefinition();
+            node = ASTFactory.createStructDefinition();
             break;
         case 'key_value_expression':
-            node = BallerinaASTFactory.createKeyValueExpression();
+            node = ASTFactory.createKeyValueExpression();
             break;
         case 'type_cast_expression':
-            node = BallerinaASTFactory.createTypeCastExpression();
+            node = ASTFactory.createTypeCastExpression();
             break;
         case 'type_conversion_expression':
-            node = BallerinaASTFactory.createTypeConversionExpression();
+            node = ASTFactory.createTypeConversionExpression();
             break;
         case 'field_based_variable_reference_expression':
-            node = BallerinaASTFactory.createFieldBasedVarRefExpression();
+            node = ASTFactory.createFieldBasedVarRefExpression();
             break;
         case 'reference_type_init_expression':
-            node = BallerinaASTFactory.createReferenceTypeInitExpression();
+            node = ASTFactory.createReferenceTypeInitExpression();
             break;
         case 'array_init_expression':
-            node = BallerinaASTFactory.createArrayInitExpression();
+            node = ASTFactory.createArrayInitExpression();
             break;
         case 'action_invocation_statement':
-            node = BallerinaASTFactory.createActionInvocationStatement();
+            node = ASTFactory.createActionInvocationStatement();
             break;
         case 'worker':
-            node = BallerinaASTFactory.createWorkerDeclaration();
+            node = ASTFactory.createWorkerDeclaration();
             break;
         case 'worker_invocation_statement':
-            node = BallerinaASTFactory.createWorkerInvocationStatement();
+            node = ASTFactory.createWorkerInvocationStatement();
             break;
         case 'worker_reply_statement':
-            node = BallerinaASTFactory.createWorkerReplyStatement();
+            node = ASTFactory.createWorkerReplyStatement();
             break;
         case 'try_catch_statement':
-            node = BallerinaASTFactory.createTryCatchStatement();
+            node = ASTFactory.createTryCatchStatement();
             break;
         case 'try_block':
-            node = BallerinaASTFactory.createTryStatement();
+            node = ASTFactory.createTryStatement();
             break;
         case 'catch_block':
-            node = BallerinaASTFactory.createCatchStatement();
+            node = ASTFactory.createCatchStatement();
             break;
         case 'finally_block':
-            node = BallerinaASTFactory.createFinallyStatement();
+            node = ASTFactory.createFinallyStatement();
             break;
         case 'throw_statement':
-            node = BallerinaASTFactory.createThrowStatement();
+            node = ASTFactory.createThrowStatement();
             break;
         case 'comment_statement':
-            node = BallerinaASTFactory.createCommentStatement();
+            node = ASTFactory.createCommentStatement();
             break;
         case 'annotation_attribute_definition':
-            node = BallerinaASTFactory.createAnnotationAttributeDefinition();
+            node = ASTFactory.createAnnotationAttributeDefinition();
             break;
         case 'parameter_definition':
-            node = BallerinaASTFactory.createParameterDefinition();
+            node = ASTFactory.createParameterDefinition();
             break;
         case 'argument_parameter_definitions':
-            node = BallerinaASTFactory.createArgumentParameterDefinitionHolder();
+            node = ASTFactory.createArgumentParameterDefinitionHolder();
             break;
         case 'return_parameter_definitions':
-            node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
+            node = ASTFactory.createReturnParameterDefinitionHolder();
             break;
         case 'transform_statement':
-            node = BallerinaASTFactory.createTransformStatement();
+            node = ASTFactory.createTransformStatement();
             break;
         case 'fork_join_statement':
-            node = BallerinaASTFactory.createForkJoinStatement();
+            node = ASTFactory.createForkJoinStatement();
             break;
         case 'join_statement':
-            node = BallerinaASTFactory.createJoinStatement();
+            node = ASTFactory.createJoinStatement();
             break;
         case 'timeout_statement':
-            node = BallerinaASTFactory.createTimeoutStatement();
+            node = ASTFactory.createTimeoutStatement();
             break;
         case 'transaction_aborted_statement':
-            node = BallerinaASTFactory.createTransactionAbortedStatement();
+            node = ASTFactory.createTransactionAbortedStatement();
             break;
         case 'transaction_statement':
-            node = BallerinaASTFactory.createTransactionStatement();
+            node = ASTFactory.createTransactionStatement();
             break;
         case 'aborted_statement':
-            node = BallerinaASTFactory.createAbortedStatement();
+            node = ASTFactory.createAbortedStatement();
             break;
         case 'abort_statement':
-            node = BallerinaASTFactory.createAbortStatement();
+            node = ASTFactory.createAbortStatement();
             break;
         case 'committed_statement':
-            node = BallerinaASTFactory.createCommittedStatement();
+            node = ASTFactory.createCommittedStatement();
             break;
         case 'continue_statement':
-            node = BallerinaASTFactory.createContinueStatement();
+            node = ASTFactory.createContinueStatement();
             break;
         case 'bvalue':
-            node = BallerinaASTFactory.createBValue();
+            node = ASTFactory.createBValue();
             break;
         case 'namespace_declaration_statement':
-            node = BallerinaASTFactory.createNamespaceDeclarationStatement();
+            node = ASTFactory.createNamespaceDeclarationStatement();
             break;
         case 'namespace_declaration':
-            node = BallerinaASTFactory.createNamespaceDeclaration();
+            node = ASTFactory.createNamespaceDeclaration();
             break;
         case 'xml_qname_expression':
-            node = BallerinaASTFactory.createXMLQNameExpression();
+            node = ASTFactory.createXMLQNameExpression();
             break;
         case 'xml_attribute_ref_expression':
-            node = BallerinaASTFactory.createXMLAttributeReferenceExpression();
+            node = ASTFactory.createXMLAttributeReferenceExpression();
             break;
         case 'failed_statement':
-            node = BallerinaASTFactory.createFailedStatement();
+            node = ASTFactory.createFailedStatement();
             break;
         case 'retry_statement':
-            node = BallerinaASTFactory.createRetryStatement();
+            node = ASTFactory.createRetryStatement();
             break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);
@@ -2019,7 +2019,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     // handle special case of connector declaration
     if (jsonNode.type === 'variable_definition_statement' &&
                 !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
-        node = BallerinaASTFactory.createConnectorDeclaration();
+        node = ASTFactory.createConnectorDeclaration();
     } 
 
     node.setLineNumber(jsonNode.line_number, { doSilently: true });
@@ -2045,4 +2045,4 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     return node;
 };
 
-export default BallerinaASTFactory;
+export default ASTFactory;
