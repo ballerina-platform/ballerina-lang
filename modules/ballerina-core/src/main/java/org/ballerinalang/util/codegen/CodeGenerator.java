@@ -1656,6 +1656,7 @@ public class CodeGenerator implements NodeVisitor {
         int connectorNameCPIndex = currentPkgInfo.addCPEntry(connectorNameCPEntry);
         StructureRefCPEntry connectorRefCPEntry = new StructureRefCPEntry(pkgCPIndex, actionIExpr.getPackagePath(),
                 connectorNameCPIndex, connectorDef.getName());
+        connectorRefCPEntry.setStructureTypeInfo(connectorInfo);
         int connectorRefCPIndex = currentPkgInfo.addCPEntry(connectorRefCPEntry);
 
         String actionName = actionIExpr.getName();
