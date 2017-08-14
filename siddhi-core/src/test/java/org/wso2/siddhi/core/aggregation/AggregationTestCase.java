@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
+import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -374,6 +375,12 @@ public class AggregationTestCase {
 //
 //        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496290016000L});
 //        Thread.sleep(60000);
+        Event[] events = siddhiAppRuntime.query("from test " + // TODO: 8/14/17 test as t not supported. ok?
+                "on symbol == \"IBM\" " +
+                "within \"2017-08-** **:**:**\" " +
+                "per \"seconds\"");
+        EventPrinter.print(events);
+        Thread.sleep(50);
         siddhiAppRuntime.shutdown();
     }
 

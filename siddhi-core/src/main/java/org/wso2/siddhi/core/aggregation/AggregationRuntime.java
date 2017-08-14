@@ -179,13 +179,22 @@ public class AggregationRuntime {
 
     private static MatchingMetaInfoHolder aggregationTableMetaInfoHolder(MatchingMetaInfoHolder matchingMetaInfoHolder,
                                                                          AbstractDefinition tableDefinition) {
-        MetaStreamEvent rightMetaStreamEventForTable = new MetaStreamEvent();
-        rightMetaStreamEventForTable.setEventType(MetaStreamEvent.EventType.TABLE);
-        rightMetaStreamEventForTable.addInputDefinition(tableDefinition);
-        MetaStateEvent metaStateEvent = new MetaStateEvent(2);
-        metaStateEvent.addEvent(matchingMetaInfoHolder.getMetaStateEvent()
-                .getMetaStreamEvent(matchingMetaInfoHolder.getMatchingStreamEventIndex()));
-        metaStateEvent.addEvent(rightMetaStreamEventForTable);
-        return MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, tableDefinition, UNKNOWN_STATE);
+        MetaStreamEvent metaStreamEventForTable = new MetaStreamEvent();
+        metaStreamEventForTable.setEventType(MetaStreamEvent.EventType.TABLE);
+        metaStreamEventForTable.addInputDefinition(tableDefinition);
+        MetaStateEvent metaStateEvent;
+        if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1) {
+            //Only store meta is passed via StoreQuery
+            metaStateEvent = new MetaStateEvent(1);
+            metaStateEvent.addEvent(metaStreamEventForTable);
+            return new MatchingMetaInfoHolder(metaStateEvent, 0, 0,  tableDefinition, tableDefinition, 0);
+        } else {
+            //Both stream and store events appear for a join
+            metaStateEvent = new MetaStateEvent(2);
+            metaStateEvent.addEvent(matchingMetaInfoHolder.getMetaStateEvent()
+                    .getMetaStreamEvent(matchingMetaInfoHolder.getMatchingStreamEventIndex()));
+            metaStateEvent.addEvent(metaStreamEventForTable);
+            return MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, tableDefinition, UNKNOWN_STATE);
+        }
     }
 }
