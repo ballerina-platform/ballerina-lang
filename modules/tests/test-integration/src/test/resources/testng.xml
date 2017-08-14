@@ -22,6 +22,7 @@
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
     </listeners>
 
+    <!-- Below tests should run sequentially since it will use same port in each test -->
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
