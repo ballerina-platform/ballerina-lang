@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Expression from './expression';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * Constructor for BasicLiteralExpression

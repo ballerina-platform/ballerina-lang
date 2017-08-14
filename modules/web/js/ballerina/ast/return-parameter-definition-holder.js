@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
+import ASTFactory from './ballerina-ast-factory.js';
 
 class ReturnParameterDefinitionHolder extends ASTNode {
 

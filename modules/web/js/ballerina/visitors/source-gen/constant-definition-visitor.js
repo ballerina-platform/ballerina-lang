@@ -18,6 +18,7 @@
 
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
+import ASTFactory from './../../ast/ballerina-ast-factory.js';
 
 /**
  * Visitor for a constant definition source generation

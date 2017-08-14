@@ -19,6 +19,7 @@ import _ from 'lodash';
 import Expression from './expression';
 import log from 'log';
 import FragmentUtils from '../../utils/fragment-utils';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 class TypeCastExpression extends Expression {
     constructor(args) {

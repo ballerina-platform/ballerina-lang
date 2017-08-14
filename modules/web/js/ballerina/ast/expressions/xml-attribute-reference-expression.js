@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import Expression from './expression';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * class for xml attribute reference expression.

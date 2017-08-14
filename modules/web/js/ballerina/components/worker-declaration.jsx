@@ -23,6 +23,7 @@ import StatementContainer from './statement-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import { util } from './../visitors/sizing-utils';
 import ImageUtil from './image-util';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 class WorkerDeclaration extends React.Component {
 

@@ -23,6 +23,7 @@ import { statement, blockStatement } from './../configs/designer-defaults';
 import { getComponentForNodeArray } from './utils';
 import SimpleBBox from './../ast/simple-bounding-box';
 import ForkJoinStatementAST from './../ast/statements/fork-join-statement';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 /**
  * React UI component to represent the the fork section and contain the timeout

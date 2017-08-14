@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTNode from '../node';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * AST node for an attribute residing in an annotation-attachment. There should only be one child.

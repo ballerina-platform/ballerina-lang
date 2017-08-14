@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * Class to represent filed based variable reference expression

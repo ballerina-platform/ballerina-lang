@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
+import ASTFactory from './ballerina-ast-factory.js';
 
 /**
  * Constructor for ServiceDefinition

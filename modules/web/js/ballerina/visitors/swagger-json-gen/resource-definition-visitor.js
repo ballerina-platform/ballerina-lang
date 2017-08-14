@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
+import ASTFactory from './../../ast/ballerina-ast-factory.js';
 
 /**
  * The {@link ResourceDefinition} visitor for generating its JSON swagger.

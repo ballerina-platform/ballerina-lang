@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
+import ASTFactory from './ballerina-ast-factory.js';
 
 class WorkerDeclaration extends ASTNode {
     constructor(args) {

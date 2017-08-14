@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import ASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * A helper class relations ballerina environment annotations.

@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * Class for throw statement in ballerina.

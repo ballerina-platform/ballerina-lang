@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import ASTFactory from './../../ast/ballerina-ast-factory.js';
 
 /**
  * Source generation for the Import declaration

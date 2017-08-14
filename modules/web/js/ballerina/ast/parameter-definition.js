@@ -22,6 +22,7 @@ import VariableDefinition from './variable-definition';
 import FragmentUtils from './../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import ArgumentParameterDefinitionHolder from './argument-parameter-definition-holder';
+import ASTFactory from './ballerina-ast-factory.js';
 
 class ParameterDefinition extends VariableDefinition {
     /**

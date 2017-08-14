@@ -26,6 +26,7 @@ import * as DesignerDefaults from '../configs/designer-defaults';
 import './statement-decorator.css';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 class TransformStatementDecorator extends React.Component {
 

@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * Class for reply statement in ballerina.

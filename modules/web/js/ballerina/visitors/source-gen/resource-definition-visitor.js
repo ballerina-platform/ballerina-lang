@@ -22,6 +22,7 @@ import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
+import ASTFactory from './../../ast/ballerina-ast-factory.js';
 
 /**
  * Source generation visitor for Resource definition

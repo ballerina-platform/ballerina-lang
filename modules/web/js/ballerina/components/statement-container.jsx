@@ -23,6 +23,7 @@ import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import './statement-container.css';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 class StatementContainer extends React.Component {
 

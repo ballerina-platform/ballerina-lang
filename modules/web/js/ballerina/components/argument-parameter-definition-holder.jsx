@@ -23,6 +23,7 @@ import FragmentUtils from './../utils/fragment-utils';
 import ArgumentParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
 import TagController from './utils/tag-component';
 import { getComponentForNodeArray } from './utils';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 /**
  * Component class for ArgumentParameterDefinitionHolder.

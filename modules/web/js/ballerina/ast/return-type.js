@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Argument from './argument';
+import ASTFactory from './ballerina-ast-factory.js';
 
 class ReturnType extends Argument {
     constructor(args) {

@@ -20,6 +20,7 @@ import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import SourceGenUtil from './source-gen-util';
+import ASTFactory from './../../ast/ballerina-ast-factory.js';
 
 /**
  * Annotation Definition source generation

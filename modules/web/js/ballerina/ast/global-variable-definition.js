@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import BallerinaAstFactory from './ballerina-ast-factory';
+import ASTFactory from './ballerina-ast-factory.js';
 
 /**
  * Constructor GlobalVariableDefinition

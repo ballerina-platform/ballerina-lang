@@ -25,6 +25,7 @@ import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ConnectorActionAST from './../ast/connector-action';
 import ImageUtil from './image-util';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 /**
  * React component for a connector action.

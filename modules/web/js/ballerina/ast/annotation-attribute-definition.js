@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import ASTNode from './node';
 import log from 'log';
+import ASTFactory from './ballerina-ast-factory.js';
 
 /**
  * Annotation Attribute Definition for defining an attribute definition

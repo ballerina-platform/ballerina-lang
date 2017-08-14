@@ -23,6 +23,7 @@ import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 class FunctionDefinition extends React.Component {
 

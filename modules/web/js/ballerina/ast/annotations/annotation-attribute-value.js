@@ -16,6 +16,7 @@
  * under the License.
  */
 import ASTNode from '../node';
+import ASTFactory from './../ballerina-ast-factory.js';
 
 /**
  * AST node for an annotation attribute value.

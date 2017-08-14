@@ -29,6 +29,7 @@ import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import breakpointHOC from './../../debugger/breakpoint-hoc';
+import ASTFactory from './../ast/ballerina-ast-factory.js';
 
 /**
  * Wraps other UI elements and provide box with a heading.

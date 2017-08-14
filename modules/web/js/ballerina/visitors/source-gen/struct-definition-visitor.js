@@ -20,6 +20,7 @@ import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import VariableDefinitionStatementVisitor from './variable-definition-statement-visitor';
+import ASTFactory from './../../ast/ballerina-ast-factory.js';
 
 /**
  * Source generation visitor for Struct definition
