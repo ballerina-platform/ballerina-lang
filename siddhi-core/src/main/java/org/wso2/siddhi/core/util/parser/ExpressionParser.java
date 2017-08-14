@@ -26,8 +26,6 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeExpressionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.AndConditionExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.BoolConditionExpressionExecutor;
@@ -177,8 +175,6 @@ import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.incremental.IncrementalUnixTime;
-import org.wso2.siddhi.query.api.expression.incremental.IncrementalWithinTime;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.And;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -307,31 +303,6 @@ public class ExpressionParser {
         } else if (expression instanceof Variable) {
             return parseVariable((Variable) expression, metaEvent, currentState, executorList, defaultStreamEventIndex);
 
-        } else if (expression instanceof IncrementalWithinTime) {
-            IncrementalWithinTime incrementalTime = (IncrementalWithinTime) expression;
-            ExpressionExecutor timeExpressionExecutor = parseExpression(incrementalTime.getTimeExpression(), metaEvent,
-                    currentState, tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex,
-                    queryName);
-            if (incrementalTime.getWithin().getTimeRange().size() == 1) {
-                ExpressionExecutor singleWithinExecutor = parseExpression(
-                        incrementalTime.getWithin().getTimeRange().get(0), metaEvent, currentState, tableMap,
-                        executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
-                return new IncrementalWithinTimeExpressionExecutor(singleWithinExecutor, timeExpressionExecutor);
-            } else {
-                // incrementalTime.getWithin().getTimeRange().size() == 2
-                ExpressionExecutor leftWithinExecutor = parseExpression(
-                        incrementalTime.getWithin().getTimeRange().get(0), metaEvent, currentState, tableMap,
-                        executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
-                ExpressionExecutor rightWithinExecutor = parseExpression(
-                        incrementalTime.getWithin().getTimeRange().get(1), metaEvent, currentState, tableMap,
-                        executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
-                return new IncrementalWithinTimeExpressionExecutor(leftWithinExecutor, rightWithinExecutor,
-                        timeExpressionExecutor);
-            }
-        } else if (expression instanceof IncrementalUnixTime) {
-            return new IncrementalUnixTimeExpressionExecutor(
-                    parseExpression(((IncrementalUnixTime) expression).getTimeExpression(), metaEvent, currentState,
-                            tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
         } else if (expression instanceof Multiply) {
             ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), metaEvent, currentState,
                     tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);

@@ -18,13 +18,15 @@
 
 package org.wso2.siddhi.core.executor.incremental;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,78 +38,91 @@ import java.util.regex.Pattern;
  * Executor class for finding whether a given time is within given range in incremental processing.
  * Condition evaluation logic is implemented within executor.
  */
-public class IncrementalWithinTimeExpressionExecutor implements ExpressionExecutor {
-    private ExpressionExecutor singleWithinExecutor = null;
-    private ExpressionExecutor leftWithinExecutor;
-    private ExpressionExecutor rightWithinExecutor;
-    private ExpressionExecutor timeExpressionExecutor;
+public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
+    private boolean isSingleWithin = false;
     private Map<Integer, List<Pattern>> supportedGmtNonGmtRegexPatterns = new HashMap<>();
 
-    public IncrementalWithinTimeExpressionExecutor(ExpressionExecutor singleWithinExecutor,
-            ExpressionExecutor timeExpressionExecutor) {
-        if (singleWithinExecutor.getReturnType() != Attribute.Type.STRING) {
-            throw new OperationNotSupportedException("Only string values are supported for single within clause "
-                    + "but found, " + singleWithinExecutor.getReturnType());
-        }
-        if (timeExpressionExecutor.getReturnType() != Attribute.Type.LONG) {
-            throw new OperationNotSupportedException("Only supports checking whether a long value is within the "
-                    + "given range, but found " + timeExpressionExecutor.getReturnType());
-        }
-        this.singleWithinExecutor = singleWithinExecutor;
-        this.timeExpressionExecutor = timeExpressionExecutor;
-
-        setSupportedRegexPatterns();
-    }
-
-    public IncrementalWithinTimeExpressionExecutor(ExpressionExecutor leftWithinExecutor,
-            ExpressionExecutor rightWithinExecutor, ExpressionExecutor timeExpressionExecutor) {
-        if (timeExpressionExecutor.getReturnType() != Attribute.Type.LONG) {
-            throw new OperationNotSupportedException("Only supports checking whether a long value is within the "
-                    + "given range, but found " + timeExpressionExecutor.getReturnType());
-        }
-        this.timeExpressionExecutor = timeExpressionExecutor;
-        if (leftWithinExecutor.getReturnType() == Attribute.Type.LONG
-                || rightWithinExecutor.getReturnType() == Attribute.Type.STRING) {
-            this.leftWithinExecutor = leftWithinExecutor;
+    @Override
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        SiddhiAppContext siddhiAppContext) {
+        if (attributeExpressionExecutors.length == 2) {
+            if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                throw new SiddhiAppValidationException("Only string values are supported for single within clause "
+                        + "but found, " + attributeExpressionExecutors[0].getReturnType());
+            }
+            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                throw new SiddhiAppValidationException("Only supports checking whether a long value is within the "
+                        + "given range, but found " + attributeExpressionExecutors[1].getReturnType());
+            }
+            isSingleWithin = true;
+            setSupportedRegexPatterns();
+        } else if (attributeExpressionExecutors.length == 3) {
+            if (!(attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG
+                    || attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING)) {
+                throw new SiddhiAppValidationException(
+                        "Only string and long types are supported as first value of within clause");
+            }
+            if (!(attributeExpressionExecutors[1].getReturnType() == Attribute.Type.LONG
+                    || attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING)) {
+                throw new SiddhiAppValidationException(
+                        "Only string and long types are supported as second value of within clause");
+            }
+            if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.LONG) {
+                throw new SiddhiAppValidationException("Only supports checking whether a long value is within the "
+                        + "given range, but found " + attributeExpressionExecutors[2].getReturnType());
+            }
+            setSupportedRegexPatterns();
         } else {
-            throw new OperationNotSupportedException(
-                    "Only string and long types are supported as " + "first value of within clause");
+            throw new SiddhiAppValidationException("incrementalAggregator:within() function accepts only two or " +
+                    "three arguments, but found " + attributeExpressionExecutors.length);
         }
-        if (rightWithinExecutor.getReturnType() == Attribute.Type.LONG
-                || rightWithinExecutor.getReturnType() == Attribute.Type.STRING) {
-            this.rightWithinExecutor = rightWithinExecutor;
-        } else {
-            throw new OperationNotSupportedException(
-                    "Only string and long types are supported as " + "second value of within clause");
-        }
-        setSupportedRegexPatterns();
     }
 
     @Override
-    public Boolean execute(ComplexEvent event) {
+    protected Object execute(Object[] data) {
         long startTime;
         long endTime;
-        long timeStamp = (long) timeExpressionExecutor.execute(event);
-        if (singleWithinExecutor != null) {
-            String singleWithinTimeAsString = singleWithinExecutor.execute(event).toString().trim();
-            Long[] startTimeEndTime = getStartTimeEndTime(singleWithinTimeAsString);
+        long timeStamp;
+        if (isSingleWithin) {
+            Long[] startTimeEndTime = getStartTimeEndTime(data[0].toString().trim());
             startTime = startTimeEndTime[0];
             endTime = startTimeEndTime[1];
+            timeStamp = (long) data[1];
         } else {
-            if (leftWithinExecutor.getReturnType() == Attribute.Type.LONG) {
-                startTime = (long) leftWithinExecutor.execute(event);
+            if (data[0] instanceof Long) {
+                startTime = (long) data[0];
             } else {
-                startTime = IncrementalUnixTimeExpressionExecutor
-                        .getUnixTimeStamp(leftWithinExecutor.execute(event).toString());
+                startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(data[0].toString());
             }
-            if (rightWithinExecutor.getReturnType() == Attribute.Type.LONG) {
-                endTime = (long) rightWithinExecutor.execute(event);
+            if (data[1] instanceof Long) {
+                endTime = (long) data[1];
             } else {
-                endTime = IncrementalUnixTimeExpressionExecutor
-                        .getUnixTimeStamp(rightWithinExecutor.execute(event).toString());
+                endTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(data[1].toString());
             }
+            timeStamp = (long) data[2];
+        }
+        if (!(startTime < endTime)) {
+            throw new SiddhiAppRuntimeException("The start time must be less than the end time in the within clause. " +
+                    "However, the given start time is " + startTime + " and given end time is " +
+                    endTime + ", in unix time. Hence, start time is not less than end time.");
         }
         return startTime <= timeStamp && timeStamp < endTime;
+    }
+
+    @Override
+    protected Object execute(Object data) {
+        return null; //Since the within function takes in 2 or 3 parameter, this method does not get called.
+        // Hence, not implemented.
+    }
+
+    @Override
+    public void start() {
+        //Nothing to start
+    }
+
+    @Override
+    public void stop() {
+        //nothing to stop
     }
 
     @Override
@@ -116,14 +131,13 @@ public class IncrementalWithinTimeExpressionExecutor implements ExpressionExecut
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor(String key) {
-        if (singleWithinExecutor != null) {
-            return new IncrementalWithinTimeExpressionExecutor(singleWithinExecutor.cloneExecutor(key),
-                    timeExpressionExecutor.cloneExecutor(key));
-        } else {
-            return new IncrementalWithinTimeExpressionExecutor(leftWithinExecutor.cloneExecutor(key),
-                    rightWithinExecutor.cloneExecutor(key), timeExpressionExecutor.cloneExecutor(key));
-        }
+    public Map<String, Object> currentState() {
+        return null;    //No states
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        //Nothing to be done
     }
 
     private void setSupportedRegexPatterns() {
@@ -170,31 +184,31 @@ public class IncrementalWithinTimeExpressionExecutor implements ExpressionExecut
             if (supportedPatterns.get(i).matcher(singleWithinTimeAsString).matches()) {
                 switch (i) {
                 case 0:
-                    startTime = IncrementalUnixTimeExpressionExecutor.getUnixTimeStamp(singleWithinTimeAsString);
+                    startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString);
                     endTime = startTime + 1000;
                     return new Long[] { startTime, endTime };
                 case 1:
-                    startTime = IncrementalUnixTimeExpressionExecutor
+                    startTime = IncrementalUnixTimeFunctionExecutor
                             .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
                     endTime = startTime + 60000;
                     return new Long[] { startTime, endTime };
                 case 2:
-                    startTime = IncrementalUnixTimeExpressionExecutor
+                    startTime = IncrementalUnixTimeFunctionExecutor
                             .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
                     endTime = startTime + 3600000;
                     return new Long[] { startTime, endTime };
                 case 3:
-                    startTime = IncrementalUnixTimeExpressionExecutor
+                    startTime = IncrementalUnixTimeFunctionExecutor
                             .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
                     endTime = startTime + 86400000;
                     return new Long[] { startTime, endTime };
                 case 4:
-                    startTime = IncrementalUnixTimeExpressionExecutor.getUnixTimeStamp(
+                    startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(
                             singleWithinTimeAsString.replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
                     endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.MONTHS);
                     return new Long[] { startTime, endTime };
                 case 5:
-                    startTime = IncrementalUnixTimeExpressionExecutor.getUnixTimeStamp(singleWithinTimeAsString
+                    startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString
                             .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
                     endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.YEARS);
                     return new Long[] { startTime, endTime };

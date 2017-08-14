@@ -25,6 +25,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
+import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeFunctionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
@@ -51,7 +53,6 @@ import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -100,6 +101,12 @@ public class AggregationParser {
         }
 
         List<VariableExpressionExecutor> incomingVariableExpressionExecutors = new ArrayList<>();
+
+        // Function extensions related to aggregation are registered
+        siddhiAppContext.getSiddhiContext().getSiddhiExtensions().put("incrementalAggregator:within",
+                IncrementalWithinTimeFunctionExecutor.class);
+        siddhiAppContext.getSiddhiContext().getSiddhiExtensions().put("incrementalAggregator:timestampInMilliseconds",
+                IncrementalUnixTimeFunctionExecutor.class);
 
         String aggregatorName = aggregationDefinition.getId();
         LatencyTracker latencyTracker = QueryParserHelper.getLatencyTracker(siddhiAppContext, aggregatorName,
@@ -492,8 +499,9 @@ public class AggregationParser {
                 metaStreamEvent, 0, tableMap, variableExpressionExecutors,
                 siddhiAppContext, false, 0, aggregatorName);
         if (timestampExecutor.getReturnType() == Attribute.Type.STRING) {
-            timestampExecutor = ExpressionParser.parseExpression(Expression.incrementalUnixTime(timestampExpression),
-                    metaStreamEvent, 0, tableMap, variableExpressionExecutors,
+            Expression expression = new AttributeFunction("incrementalAggregator", "timestampInMilliseconds",
+                    timestampExpression);
+            timestampExecutor = ExpressionParser.parseExpression(expression, metaStreamEvent, 0, tableMap, variableExpressionExecutors,
                     siddhiAppContext, false, 0, aggregatorName);
         } else if (timestampExecutor.getReturnType() != Attribute.Type.LONG) {
             throw new SiddhiAppCreationException(

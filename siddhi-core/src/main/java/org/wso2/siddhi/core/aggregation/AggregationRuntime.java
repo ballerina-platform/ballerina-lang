@@ -43,6 +43,7 @@ import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.HashMap;
@@ -137,8 +138,14 @@ public class AggregationRuntime {
             throw new SiddhiAppCreationException("Query " + queryName + "'s per value expected a string but found "
                     + perExpressionExecutor.getReturnType());
         }
-        // TODO: 8/11/17 add as a function 
-        Expression withinExpression = Expression.incrementalWithinTime(within, Expression.variable("_TIMESTAMP"));
+        Expression withinExpression;
+        if (within.getTimeRange().size() == 1){
+            withinExpression = new AttributeFunction("incrementalAggregator", "within",
+                    within.getTimeRange().get(0), Expression.variable("_TIMESTAMP"));
+        } else { // within.getTimeRange().size() == 2
+            withinExpression = new AttributeFunction("incrementalAggregator", "within",
+                    within.getTimeRange().get(0), within.getTimeRange().get(1), Expression.variable("_TIMESTAMP"));
+        }
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
             CompiledCondition tableCompileCondition = entry.getValue().compileCondition(withinExpression,
                     aggregationTableMetaInfoHolder(matchingMetaInfoHolder, entry.getValue().getTableDefinition()),

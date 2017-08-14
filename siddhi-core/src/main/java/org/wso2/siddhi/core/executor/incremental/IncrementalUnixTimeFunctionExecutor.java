@@ -18,40 +18,63 @@
 
 package org.wso2.siddhi.core.executor.incremental;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * Executor class for converting string timestamp to unix time in incremental processing.
  * Condition evaluation logic is implemented within executor.
  */
-public class IncrementalUnixTimeExpressionExecutor implements ExpressionExecutor {
-    private ExpressionExecutor expressionExecutor;
+public class IncrementalUnixTimeFunctionExecutor extends FunctionExecutor {
     private static Pattern nonGmtRegexPattern = Pattern
             .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}\\s[+-][0-9]{2}[:][0-9]{2}");
     private static Pattern gmtRegexPattern = Pattern
             .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}");
 
-    public IncrementalUnixTimeExpressionExecutor(ExpressionExecutor expressionExecutor) {
-        if (expressionExecutor.getReturnType() != Attribute.Type.STRING) {
-            throw new OperationNotSupportedException("Only string values can be converted to unix time, but found " +
-            expressionExecutor.getReturnType());
+    @Override
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        SiddhiAppContext siddhiAppContext) {
+        if (attributeExpressionExecutors.length != 1) {
+            throw new SiddhiAppValidationException("incrementalAggregator:timestampInMilliseconds() function " +
+                    "accepts only one argument, but found " + attributeExpressionExecutors.length);
         }
-        this.expressionExecutor = expressionExecutor;
+        if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+            throw new SiddhiAppValidationException("Only string values can be converted to unix time, but found " +
+                    attributeExpressionExecutors[0].getReturnType());
+        }
     }
 
     @Override
-    public Long execute(ComplexEvent event) {
-        return getUnixTimeStamp(expressionExecutor.execute(event).toString());
+    protected Object execute(Object[] data) {
+        return null; //Since the timestampInMilliseconds function takes in 1 parameter, this method does not get called.
+        // Hence, not implemented.
+    }
+
+    @Override
+    protected Object execute(Object data) {
+        return getUnixTimeStamp(data.toString());
+    }
+
+    @Override
+    public void start() {
+        //Nothing to start
+    }
+
+    @Override
+    public void stop() {
+        //nothing to stop
     }
 
     @Override
@@ -60,8 +83,13 @@ public class IncrementalUnixTimeExpressionExecutor implements ExpressionExecutor
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor(String key) {
-        return new IncrementalUnixTimeExpressionExecutor(expressionExecutor.cloneExecutor(key));
+    public Map<String, Object> currentState() {
+        return null;    //No states
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        //Nothing to be done
     }
 
     public static long getUnixTimeStamp(String stringTimeStamp) {
