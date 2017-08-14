@@ -129,7 +129,7 @@ public class AggregationRuntime {
     public IncrementalAggregateCompileCondition compileExpression(Expression expression, Within within, Expression per,
             MatchingMetaInfoHolder matchingMetaInfoHolder, List<VariableExpressionExecutor> variableExpressionExecutors,
             Map<String, Table> tableMap, String queryName, SiddhiAppContext siddhiAppContext) {
-        Map<TimePeriod.Duration, CompiledCondition> tableCompiledConditions = new HashMap<>();
+        Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions = new HashMap<>();
         perExpressionExecutor = ExpressionParser.parseExpression(per, matchingMetaInfoHolder.getMetaStateEvent(),
                 matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext,
                 false, 0, queryName);
@@ -141,20 +141,19 @@ public class AggregationRuntime {
         Expression withinExpression = Expression.incrementalWithinTime(within, Expression.variable("_TIMESTAMP"));
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
             CompiledCondition tableCompileCondition = entry.getValue().compileCondition(withinExpression,
-                    newMatchingMetaInfoHolder(matchingMetaInfoHolder, entry.getValue().getTableDefinition()),
+                    aggregationTableMetaInfoHolder(matchingMetaInfoHolder, entry.getValue().getTableDefinition()),
                     siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-            tableCompiledConditions.put(entry.getKey(), tableCompileCondition);
+            withinTableCompiledConditions.put(entry.getKey(), tableCompileCondition);
             // TODO: 8/11/17 do this in the init 
             inMemoryStoreMap.put(entry.getKey(), incrementalExecutorMap.get(entry.getKey()).getInMemoryStore());
         }
         CompiledCondition inMemoryStoreCompileCondition = OperatorParser.constructOperator(
                 new ComplexEventChunk<>(true), withinExpression,
-                newMatchingMetaInfoHolder(matchingMetaInfoHolder,
+                aggregationTableMetaInfoHolder(matchingMetaInfoHolder,
                         ((Table) aggregationTables.values().toArray()[0]).getTableDefinition()),
                 siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-        // TODO: 8/11/17 oncompileCondition
         // TODO: 8/11/17 optimize on and to retrieve group by
-        CompiledCondition finalCompiledCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
+        CompiledCondition onCompiledCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
                 expression, matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
         MetaStreamEvent finalOutputMetaStreamEvent = null;
         for (MetaStreamEvent metaStreamEvent : matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()) {
@@ -166,14 +165,13 @@ public class AggregationRuntime {
                 finalOutputMetaStreamEvent = metaStreamEvent;
             }
         }
-        return new IncrementalAggregateCompileCondition(tableCompiledConditions, inMemoryStoreCompileCondition,
-                finalCompiledCondition, baseExecutors, aggregationTables, inMemoryStoreMap, internalMetaStreamEvent,
+        return new IncrementalAggregateCompileCondition(withinTableCompiledConditions, inMemoryStoreCompileCondition,
+                onCompiledCondition, baseExecutors, aggregationTables, inMemoryStoreMap, internalMetaStreamEvent,
                 incrementalDurations, outputExpressionExecutors, finalOutputMetaStreamEvent);
     }
 
-    // TODO: 8/11/17 aggregationTableMetaInfoHolder 
-    private static MatchingMetaInfoHolder newMatchingMetaInfoHolder(MatchingMetaInfoHolder matchingMetaInfoHolder,
-            AbstractDefinition tableDefinition) {
+    private static MatchingMetaInfoHolder aggregationTableMetaInfoHolder(MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                                                         AbstractDefinition tableDefinition) {
         MetaStreamEvent rightMetaStreamEventForTable = new MetaStreamEvent();
         rightMetaStreamEventForTable.setEventType(MetaStreamEvent.EventType.TABLE);
         rightMetaStreamEventForTable.addInputDefinition(tableDefinition);
