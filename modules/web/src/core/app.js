@@ -128,6 +128,7 @@ class Application {
         const commands = _.get(contributions, CONTRIBUTIONS.COMMANDS, []);
         const handlers = _.get(contributions, CONTRIBUTIONS.HANDLERS, []);
         const views = _.get(contributions, CONTRIBUTIONS.VIEWS, []);
+        const menus = _.get(contributions, CONTRIBUTIONS.MENUS, []);
 
         commands.forEach((commandDef) => {
             this.commandManager.registerCommand(commandDef);
@@ -140,6 +141,10 @@ class Application {
 
         views.forEach((viewDef) => {
             this.layoutManager.addViewToLayout(viewDef);
+        });
+
+        menus.forEach((menuDef) => {
+            this.menuManager.addMenu(menuDef);
         });
     }
 

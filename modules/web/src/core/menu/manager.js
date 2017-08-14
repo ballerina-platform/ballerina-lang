@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import log from 'log';
+import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
@@ -22,7 +24,7 @@ import { REGIONS } from './../layout/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
-import { PLUGIN_ID, VIEW_IDS } from './constants';
+import { PLUGIN_ID, VIEW_IDS, MENU_DEF_TYPES } from './constants';
 
 import AppMenuView from './views/AppMenu';
 
@@ -35,7 +37,7 @@ class ApplicationMenuPlugin extends Plugin {
 
     constructor() {
         super();
-        this.menuItems = [];
+        this.menu = {};
     }
 
     /**
@@ -43,6 +45,35 @@ class ApplicationMenuPlugin extends Plugin {
      */
     getID() {
         return PLUGIN_ID;
+    }
+
+    /**
+     * Add a menu definition to application menu.
+     *
+     * @param {Object} menuDef Menu Definition
+     */
+    addMenu(menuDef) {
+        const { type, id, parent } = menuDef;
+        switch (type) {
+        case MENU_DEF_TYPES.ROOT :
+            if (!_.isNil(_.get(this.menu, id))) {
+                log.error('Duplicate menu-definition for menu ' + id);
+            } else {
+                this.menu[id] = menuDef;
+            }
+            break;
+        case MENU_DEF_TYPES.GROUP :
+            if (_.isNil(parent)) {
+                log.error('Parent is not defined for menu ' + id);
+            }
+            break;
+        case MENU_DEF_TYPES.ITEM :
+            if (_.isNil(parent)) {
+                log.error('Parent is not defined for menu ' + id);
+            }
+            break;
+        default :
+        }
     }
 
     /**

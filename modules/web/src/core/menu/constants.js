@@ -9,3 +9,9 @@ export const VIEW_IDS = {
 };
 
 export const PLUGIN_ID = 'composer.plugin.menu.manager';
+
+export const MENU_DEF_TYPES = {
+    ROOT: 'root',
+    GROUP: 'group',
+    ITEM: 'item',
+};
