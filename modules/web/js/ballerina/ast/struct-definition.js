@@ -20,7 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import constants from 'constants';
 import CommonUtils from '../utils/common-utils';
-import ASTFactory from './ballerina-ast-factory.js';
+import ASTFactory from './ast-factory.js';
 const STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME;
 const STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME;
 const STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE;

@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import { getComponentForNodeArray } from './utils';
 import './try-catch-statement.css';
 

@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeVisitor from './annotation-attribute-visitor';
-import ASTFactory from './../../ast/ballerina-ast-factory.js';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source gen visitor for annotation attachment.

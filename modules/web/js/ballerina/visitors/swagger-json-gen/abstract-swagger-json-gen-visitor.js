@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import ASTVisitor from '../ast-visitor';
-import ASTFactory from './../../ast/ballerina-ast-factory.js';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Constructor for the Abstract JSON Generation Visitor

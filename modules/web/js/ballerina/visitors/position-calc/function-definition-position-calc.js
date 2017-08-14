@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 /**
  * Position visitor class for Function Definition.
  *

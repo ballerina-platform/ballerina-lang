@@ -21,7 +21,7 @@ import statement from './statement';
 import CommonUtils from '../../utils/common-utils';
 import FragmentUtils from '../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
-import ASTFactory from './../ballerina-ast-factory.js';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * class for namespace declaration statement.

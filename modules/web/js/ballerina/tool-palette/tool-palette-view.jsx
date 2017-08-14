@@ -25,7 +25,7 @@ import InitialTools from '../item-provider/initial-definitions';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import ToolGroup from './../tool-palette/tool-group';
-import DefaultASTFactory from '../ast/default-ballerina-ast-factory';
+import DefaultASTFactory from '../ast/default-ast-factory';
 import BallerinaASTRoot from '../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import FunctionInvocationVisitor from './function-invocation-visitor';
 import SimpleVariableReferenceExpressionVisitor from './simple-variable-reference-expression-visitor';
 import ReferenceTypeInitExpressionVisitor from './reference-type-init-expression-visitor';

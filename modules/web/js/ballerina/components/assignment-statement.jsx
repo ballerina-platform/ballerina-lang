@@ -24,7 +24,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
-import ASTFactory from './../../ballerina/ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import StatementDecorator from './statement-decorator';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ConnectorActivationContainer from './connector-activation-container';

@@ -24,7 +24,7 @@ import alerts from 'alerts';
 import log from 'log';
 import TransformRender from '../../ballerina/components/transform-render';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
-import ASTFactory from '../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tree from './transform/tree';

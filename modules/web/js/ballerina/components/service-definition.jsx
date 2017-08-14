@@ -29,7 +29,7 @@ import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './image-util';
 import SimpleBBox from './../ast/simple-bounding-box';
 import EditableText from './editable-text';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 /**
  * React component for a service definition.

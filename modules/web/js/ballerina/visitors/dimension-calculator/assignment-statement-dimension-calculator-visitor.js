@@ -20,7 +20,7 @@ import { util } from './../sizing-utils';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
-import ASTFactory from './../../ast/ballerina-ast-factory.js';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Dimension visitor class for assignment statement.

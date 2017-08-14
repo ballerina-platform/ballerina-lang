@@ -16,7 +16,7 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Dimension visitor for action invocation statement.

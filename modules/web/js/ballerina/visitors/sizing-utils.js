@@ -21,7 +21,7 @@ import { statement } from './../configs/designer-defaults';
 import { blockStatement } from './../configs/designer-defaults';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class SizingUtil {
     constructor() {

@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import ASTFactory from './ballerina-ast-factory';
+import ASTFactory from './ast-factory';
 import PackageDefinition from './package-definition';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
 

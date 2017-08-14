@@ -21,7 +21,7 @@ import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
 import FragmentUtils from '../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
-import ASTFactory from './ballerina-ast-factory';
+import ASTFactory from './ast-factory';
 
 /**
  * Defines a connector declaration AST node.

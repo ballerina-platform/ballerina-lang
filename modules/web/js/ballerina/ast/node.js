@@ -18,9 +18,9 @@
 import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
-import BallerinaAstFactory from './ballerina-ast-factory';
+import BallerinaAstFactory from './ast-factory';
 import SimpleBBox from './simple-bounding-box';
-import ASTFactory from './ballerina-ast-factory.js';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for the ASTNode

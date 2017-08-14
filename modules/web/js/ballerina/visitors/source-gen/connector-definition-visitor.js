@@ -24,7 +24,7 @@ import ConnectorActionVisitor from './connector-action-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
-import ASTFactory from './../../ast/ballerina-ast-factory.js';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * @param {ASTVisitor} parent - parent visitor

@@ -22,7 +22,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
-import ASTFactory from './ballerina-ast-factory.js';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructs BallerinaASTRoot

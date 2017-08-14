@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ConnectorDeclarationVisitor from '../visitors/connector-declaration-visitor';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class CommonUtils {
     /**

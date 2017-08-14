@@ -16,9 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ToolGroup from './../tool-palette/tool-group';
-import DefaultASTFactory from '../ast/default-ballerina-ast-factory';
+import DefaultASTFactory from '../ast/default-ast-factory';
 
 const ToolPalette = [];
 

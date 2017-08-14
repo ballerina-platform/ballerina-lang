@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
-import ASTFactory from './../ballerina-ast-factory.js';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class to represent index based variable reference expressions

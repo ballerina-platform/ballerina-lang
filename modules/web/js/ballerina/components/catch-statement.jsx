@@ -21,7 +21,7 @@ import _ from 'lodash';
 import { getComponentForNodeArray } from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
 import CatchStatementAST from './../ast/statements/catch-statement';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import './try-catch-statement.css';
 
 /**

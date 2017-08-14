@@ -25,7 +25,7 @@ import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
-import ASTFactory from './../ast/ballerina-ast-factory.js';
+import ASTFactory from '../ast/ast-factory.js';
 
 class ResourceDefinition extends React.Component {
 

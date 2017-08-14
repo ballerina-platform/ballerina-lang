@@ -20,7 +20,7 @@ import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 import LambdaExpression from '../expressions/lambda-expression';
 
 /**

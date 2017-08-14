@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './ast-factory';
 
 /**
  * Constructor for ResourceDefinition

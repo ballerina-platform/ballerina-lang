@@ -19,7 +19,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import { util } from './../sizing-utils';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Dimension visitor class for While Statement.

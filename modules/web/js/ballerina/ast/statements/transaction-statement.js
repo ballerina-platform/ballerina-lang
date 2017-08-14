@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import ASTFactory from './../ballerina-ast-factory.js';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for Transaction statement

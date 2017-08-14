@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**

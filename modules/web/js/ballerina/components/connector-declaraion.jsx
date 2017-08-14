@@ -24,7 +24,7 @@ import { getComponentForNodeArray } from './utils';
 import ConnectorActivationContainer from './connector-activation-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import StatementDecorator from './statement-decorator';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ImageUtil from './image-util';
 import { util } from './../visitors/sizing-utils';
 

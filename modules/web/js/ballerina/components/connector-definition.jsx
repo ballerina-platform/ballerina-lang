@@ -24,7 +24,7 @@ import ConnectorDefinitionAST from './../ast/connector-definition';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 /**
  * React component for a connector definition.

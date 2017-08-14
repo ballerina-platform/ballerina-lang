@@ -19,8 +19,8 @@
 import JS_YAML from 'js-yaml';
 import _ from 'lodash';
 import log from 'log';
-import ASTFactory from '../ballerina/ast/ballerina-ast-factory';
-import DefaultASTFactory from '../ballerina/ast/default-ballerina-ast-factory';
+import ASTFactory from '../ballerina/ast/ast-factory';
+import DefaultASTFactory from '../ballerina/ast/default-ast-factory';
 
 const HTTP_FULL_PACKAGE = 'ballerina.net.http';
 const HTTP_PACKAGE = 'http';

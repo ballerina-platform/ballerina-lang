@@ -20,7 +20,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
-import ASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import ASTFactory from 'ballerina/ast/ast-factory';
 import SourceGenVisitor from 'ballerina/visitors/source-gen/ballerina-ast-root-visitor';
 import File from 'workspace/file';
 import 'bootstrap';

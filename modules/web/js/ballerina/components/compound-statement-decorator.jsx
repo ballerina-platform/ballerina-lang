@@ -23,7 +23,7 @@ import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './compound-statement-decorator.css';
 import SimpleBBox from '../ast/simple-bounding-box';
-import ASTFactory from './../ast/ballerina-ast-factory.js';
+import ASTFactory from '../ast/ast-factory.js';
 
 
 /**

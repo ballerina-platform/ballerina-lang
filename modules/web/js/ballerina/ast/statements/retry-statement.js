@@ -20,7 +20,7 @@ import log from 'log';
 import Statement from './statement';
 import FragmentUtils from '../../utils/fragment-utils';
 import EnableDefaultWSVisitor from '../../visitors/source-gen/enable-default-ws-visitor';
-import ASTFactory from './../ballerina-ast-factory.js';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for retry statement in ballerina.

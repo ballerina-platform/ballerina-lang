@@ -24,7 +24,7 @@ import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
-import ASTFactory from '../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
 import PackageDefinitionModel from '../ast/package-definition';

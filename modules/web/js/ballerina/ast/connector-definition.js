@@ -19,7 +19,7 @@ import _ from 'lodash';
 import ASTNode from './node';
 import log from 'log';
 import CommonUtils from '../utils/common-utils';
-import ASTFactory from './ballerina-ast-factory.js';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for ConnectorDefinition

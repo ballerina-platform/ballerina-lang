@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
-import ASTFactory from './../ballerina-ast-factory.js';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for Join clause in ballerina.

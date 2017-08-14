@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import ASTNode from './node';
 import FragmentUtils from '../utils/fragment-utils';
-import ASTFactory from './ballerina-ast-factory.js';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for VariableReferenceList

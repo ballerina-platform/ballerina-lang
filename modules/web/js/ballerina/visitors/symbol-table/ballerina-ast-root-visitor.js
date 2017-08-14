@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import AbstractSymbolTableGenVisitor from './abstract-symbol-table-gen-visitor';
 import BallerinaEnvFactory from './../../env/ballerina-env-factory';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
     constructor(pckg, model) {

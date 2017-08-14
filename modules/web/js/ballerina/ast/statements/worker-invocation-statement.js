@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 
 /**

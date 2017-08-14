@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import ASTFactory from './../ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 

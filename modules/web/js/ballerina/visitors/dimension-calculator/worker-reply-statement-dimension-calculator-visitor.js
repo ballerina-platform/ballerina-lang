@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import { util } from './../sizing-utils';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Dimension visitor class for Worker Reply Statement.

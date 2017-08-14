@@ -26,7 +26,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import EditableText from './editable-text';
 import './panel-decorator.css';
 import { panel } from '../configs/designer-defaults.js';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import { getComponentForNodeArray } from './utils';
 import { util } from '../visitors/sizing-utils';
 import SimpleBBox from '../ast/simple-bounding-box';

@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import VariableDeclaration from './variable-declaration';
-import ASTFactory from './ballerina-ast-factory.js';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for constant declaration

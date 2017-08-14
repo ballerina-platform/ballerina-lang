@@ -21,7 +21,7 @@ import $ from 'jquery';
 import log from 'log';
 import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
-import ASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import ASTFactory from 'ballerina/ast/ast-factory';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
 import File from 'workspace/file';

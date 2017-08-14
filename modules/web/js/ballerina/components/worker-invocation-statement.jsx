@@ -22,7 +22,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
 import { util } from './../visitors/sizing-utils';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ArrowDecorator from './arrow-decorator';
 
 class WorkerInvocationStatement extends React.Component {

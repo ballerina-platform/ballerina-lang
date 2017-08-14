@@ -20,7 +20,7 @@ import Statement from './statement';
 import ElseStatement from './else-statement';
 import ElseIfStatement from './else-if-statement';
 import IfStatement from './if-statement';
-import ASTFactory from './../ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 
 /**
  * Class for if conditions in ballerina.

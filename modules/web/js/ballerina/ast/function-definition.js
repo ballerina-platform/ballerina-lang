@@ -20,7 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import CallableDefinition from './callable-definition';
 import CommonUtils from '../utils/common-utils';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './ast-factory';
 
 /**
  * Constructor for FunctionDefinition
