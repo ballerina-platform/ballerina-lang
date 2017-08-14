@@ -67,6 +67,13 @@ service<http> echo {
         messages:setStringPayload(response, "constant path test");
         reply response;
     }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/testEmptyResourceBody"
+    }
+    resource testEmptyResourceBody (message m) {
+    }
 }
 
 function getConstPath() (string) {

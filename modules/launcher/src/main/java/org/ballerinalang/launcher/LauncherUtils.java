@@ -48,7 +48,6 @@ import java.util.List;
  * @since 0.8.0
  */
 public class LauncherUtils {
-    public static final String BALLERINA_HOME = "ballerina.home";
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
         ProgramFile programFile;
@@ -84,7 +83,6 @@ public class LauncherUtils {
     }
 
     private static void runServices(ProgramFile programFile) {
-        LauncherUtils.writePID(System.getProperty(BALLERINA_HOME));
         PrintStream outStream = System.out;
 
         // TODO : Fix this properly.

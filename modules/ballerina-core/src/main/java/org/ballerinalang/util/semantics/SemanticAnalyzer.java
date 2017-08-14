@@ -430,7 +430,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Worker worker : resource.getWorkers()) {
-            addWorkerSymbol(worker);
             visit(worker);
         }
 
@@ -668,18 +667,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!function.isNative()) {
             for (Worker worker : function.getWorkers()) {
-                //addWorkerSymbol(worker);
                 worker.accept(this);
             }
 
             BlockStmt blockStmt = function.getCallableUnitBody();
             blockStmt.accept(this);
-
-            if (function.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
-                BLangExceptionHelper.throwSemanticError(function, SemanticErrors.MISSING_RETURN_STATEMENT);
-            }
-
-            checkAndAddReturnStmt(function.getReturnParamTypes().length, blockStmt);
+            checkAndAddReturnStmt(function);
         }
 
         resolveWorkerInteractions(function);
@@ -721,18 +714,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!action.isNative()) {
             for (Worker worker : action.getWorkers()) {
-                //addWorkerSymbol(worker);
                 worker.accept(this);
             }
 
             BlockStmt blockStmt = action.getCallableUnitBody();
             blockStmt.accept(this);
-
-            if (action.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
-                BLangExceptionHelper.throwSemanticError(action, SemanticErrors.MISSING_RETURN_STATEMENT);
-            }
-
-            checkAndAddReturnStmt(action.getReturnParameters().length, blockStmt);
+            checkAndAddReturnStmt(action);
         }
         resolveWorkerInteractions(action);
 
@@ -763,7 +750,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         // addWorkerSymbol(worker);
 
         for (Worker worker2 : worker.getWorkers()) {
-            addWorkerSymbol(worker2);
             worker2.accept(this);
         }
 
@@ -4097,33 +4083,35 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to add return statement if required.
      *
-     * @param returnParamCount No of return parameters.
-     * @param blockStmt        Block statement to which to add the return statement.
+     * @param callableUnit action/function.
      */
-    private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
-        if (returnParamCount != 0) {
+    private void checkAndAddReturnStmt(CallableUnit callableUnit) {
+        BlockStmt blockStmt = callableUnit.getCallableUnitBody();
+        ParameterDef[] retParams = callableUnit.getReturnParameters();
+        if (retParams.length > 0 && !blockStmt.isAlwaysReturns()) {
+            throw BLangExceptionHelper.getSemanticError(callableUnit.getNodeLocation(),
+                    SemanticErrors.MISSING_RETURN_STATEMENT);
+        } else if (blockStmt.isAlwaysReturns()) {
             return;
         }
 
         Statement[] statements = blockStmt.getStatements();
         int length = statements.length;
-        Statement lastStatement = statements[length - 1];
-        if (!(lastStatement instanceof ReturnStmt)) {
-            NodeLocation blockLocation = blockStmt.getNodeLocation();
-            NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
-                    blockLocation.getFileName(), blockLocation.stopLineNumber);
-            ReturnStmt returnStmt = new ReturnStmt(endOfBlock, null, new Expression[0]);
-            statements = Arrays.copyOf(statements, length + 1);
-            statements[length] = returnStmt;
-            blockStmt.setStatements(statements);
-        }
+        NodeLocation blockLocation = blockStmt.getNodeLocation();
+        NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
+                blockLocation.getFileName(), blockLocation.stopLineNumber);
+        ReturnStmt returnStmt = new ReturnStmt(endOfBlock, null, new Expression[0]);
+
+        int lengthWithReturn = length + 1;
+        statements = Arrays.copyOf(statements, lengthWithReturn);
+        statements[lengthWithReturn - 1] = returnStmt;
+        blockStmt.setStatements(statements);
     }
 
     private void checkAndAddReplyStmt(BlockStmt blockStmt) {
         Statement[] statements = blockStmt.getStatements();
         int length = statements.length;
-        Statement lastStatement = statements[length - 1];
-        if (!(lastStatement instanceof ReplyStmt)) {
+        if ((statements.length > 0 && !(statements[length - 1] instanceof ReplyStmt)) || statements.length == 0) {
             NodeLocation blockLocation = blockStmt.getNodeLocation();
             NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
                     blockLocation.getFileName(), blockLocation.stopLineNumber);
