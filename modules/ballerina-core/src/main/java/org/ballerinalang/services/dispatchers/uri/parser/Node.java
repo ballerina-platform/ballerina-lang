@@ -114,6 +114,9 @@ public abstract class Node {
             return null;
         }
         ResourceInfo resource = validateHTTPMethod(this.resource, carbonMessage);
+        if (resource == null) {
+            return null;
+        }
         validateConsumes(resource, carbonMessage);
         validateProduces(resource, carbonMessage);
         return resource;
@@ -121,6 +124,7 @@ public abstract class Node {
 
     private ResourceInfo validateHTTPMethod(List<ResourceInfo> resources, CarbonMessage carbonMessage) {
         ResourceInfo resource = null;
+        boolean isOptionsRequest = false;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
@@ -132,8 +136,16 @@ public abstract class Node {
             resource = tryMatchingToDefaultVerb(httpMethod);
         }
         if (resource == null) {
-            carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
-            throw new BallerinaException();
+            isOptionsRequest = setAllowHeadersIfOPTIONS(httpMethod, carbonMessage);
+        }
+        if (resource == null) {
+            if (!isOptionsRequest) {
+                carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
+                carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+                throw new BallerinaException();
+            } else {
+                return null;
+            }
         }
         return resource;
     }
@@ -236,6 +248,23 @@ public abstract class Node {
             }
         }
         return null;
+    }
+
+    private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage carbonMessage) {
+        if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
+            carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+            return true;
+        }
+        return false;
+    }
+
+    private String getAllowHeaderValues() {
+        List<String> methods = new ArrayList<>();
+        for (ResourceInfo resourceInfo : this.resource) {
+            methods.addAll(Arrays.stream(DispatcherUtil.getHttpMethods(resourceInfo)).collect(Collectors.toList()));
+        }
+        DispatcherUtil.validateAllowMethods(methods);
+        return DispatcherUtil.concatValues(methods);
     }
 
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {

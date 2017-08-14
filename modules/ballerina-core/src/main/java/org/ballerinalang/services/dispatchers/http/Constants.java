@@ -108,4 +108,7 @@ public class Constants {
     public static final String ALLOW_HEADERS = "allowHeaders";
     public static final String EXPOSE_HEADERS = "exposeHeaders";
 
+
+    public static final String ALLOW = "Allow";
+
 }
