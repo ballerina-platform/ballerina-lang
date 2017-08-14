@@ -32,6 +32,10 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -132,13 +136,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
-            org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
-                    getClientConnector(Constants.PROTOCOL_HTTP);
-
-            if (clientConnector == null) {
-                throw new BallerinaException("Http client connector is not available");
-            }
-
             Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
             if (sourceHandler != null) {
                 context.setProperty(Constants.SRC_HANDLER, sourceHandler);
@@ -146,7 +143,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
-            clientConnector.send(message, balConnectorCallback);
+            HTTPClientConnector clientConnector =
+                    BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
+            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+            httpCarbonMessage.setResponseListener(new HTTPClientConnectorLister(balConnectorCallback));
+            clientConnector.send(httpCarbonMessage);
 
             // Wait till Response comes
             long startTime = System.currentTimeMillis();
@@ -176,12 +177,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
             throws ClientConnectorException {
         balConnectorCallback.setNonBlockingExecution(true);
-        org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
-                getClientConnector(Constants.PROTOCOL_HTTP);
-
-        if (clientConnector == null) {
-            throw new BallerinaException("Http client connector is not available");
-        }
 
         Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
         if (sourceHandler != null) {
@@ -190,7 +185,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
         }
 
-        clientConnector.send(message, balConnectorCallback);
+        HTTPClientConnector clientConnector =
+                BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
+        HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+        httpCarbonMessage.setResponseListener(new HTTPClientConnectorLister(balConnectorCallback));
+
+        try {
+            clientConnector.send(httpCarbonMessage);
+        } catch (Exception e) {
+            throw new BallerinaException("Failed to send message to the backend", e, context);
+        }
     }
 
     @Override
@@ -217,6 +221,25 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         } else {
             String msg = "Invalid message received for the action invocation";
             throw new BallerinaException(msg);
+        }
+    }
+
+    private class HTTPClientConnectorLister implements HTTPConnectorListener {
+
+        private final BalConnectorCallback balConnectorCallback;
+
+        private HTTPClientConnectorLister(BalConnectorCallback balConnectorCallback) {
+            this.balConnectorCallback = balConnectorCallback;
+        }
+
+        @Override
+        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+            balConnectorCallback.done(httpCarbonMessage);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+
         }
     }
 

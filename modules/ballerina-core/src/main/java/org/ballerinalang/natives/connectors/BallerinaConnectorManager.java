@@ -17,23 +17,26 @@
  */
 package org.ballerinalang.natives.connectors;
 
-import com.sun.corba.se.spi.activation.Server;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.services.dispatchers.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.services.dispatchers.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.connector.framework.ConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -45,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 /**
  * {@code BallerinaConnectorManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -58,12 +62,31 @@ public class BallerinaConnectorManager {
     private static BallerinaConnectorManager instance = new BallerinaConnectorManager();
     private boolean connectorsInitialized = false;
     private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
+    private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
+            startupDelayedHTTPServerConnectors = new HashMap<>();
+    private ServerBootstrapConfiguration serverBootstrapConfiguration;
+    private TransportsConfiguration trpConfig;
     private CarbonMessageProcessor messageProcessor;
+
+    private final String nettyConfigFile = System.getProperty(HTTP_TRANSPORT_CONF,
+                                                              "conf" + File.separator + "transports" +
+                                                                      File.separator + "netty-transports.yml");
 
     HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
     private static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
 
     private BallerinaConnectorManager() {
+        trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+        serverBootstrapConfiguration = HTTPMessageUtil
+                .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
+        Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
+
+        org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
+        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+            serverConnector = httpConnectorFactory
+                    .getServerConnector(serverBootstrapConfiguration, listenerConfiguration);
+            addStartupDelayedHTTPServerConnector(listenerConfiguration.getId(), serverConnector);
+        }
     }
 
     public static BallerinaConnectorManager getInstance() {
@@ -116,15 +139,16 @@ public class BallerinaConnectorManager {
     public org.wso2.carbon.transport.http.netty.contract.ServerConnector
     createHTTPServerConnector(String id, Map<String, String> parameters) {
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
-        String nettyConfigFile = System.getProperty(HTTP_TRANSPORT_CONF,
-                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
 
-        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
-        ListenerConfiguration listenerConfig = HTTPMessageUtil.buildListenerConfig("serviceName", parameters);
+        ListenerConfiguration listenerConfig = HTTPMessageUtil.buildListenerConfig(id, parameters);
         ServerBootstrapConfiguration serverBootstrapConfiguration = HTTPMessageUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
+        if (startupDelayedHTTPServerConnectors.containsKey(id)) {
+            return startupDelayedHTTPServerConnectors.get(id);
+        }
         serverConnector = httpConnectorFactory.getServerConnector(serverBootstrapConfiguration, listenerConfig);
+        startupDelayedHTTPServerConnectors.put(id, serverConnector);
         return serverConnector;
     }
 
@@ -197,6 +221,16 @@ public class BallerinaConnectorManager {
     }
 
     /**
+     * Add a HTTP ServerConnector which startup is delayed at the service deployment time.
+     *
+     * @param serverConnector ServerConnector
+     */
+    public void addStartupDelayedHTTPServerConnector(String id,
+            org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector) {
+        startupDelayedHTTPServerConnectors.put(id, serverConnector);
+    }
+
+    /**
      * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
      * @return the list of started server connectors.
@@ -207,6 +241,28 @@ public class BallerinaConnectorManager {
         for (Map.Entry<String, ServerConnector> serverConnectorEntry: startupDelayedServerConnectors.entrySet()) {
             ServerConnector serverConnector = serverConnectorEntry.getValue();
             serverConnector.start();
+            startedConnectors.add(serverConnector);
+        }
+        startupDelayedServerConnectors.clear();
+        return startedConnectors;
+    }
+
+    /**
+     * Start all the ServerConnectors which startup is delayed at the service deployment time.
+     *
+     * @return the list of started server connectors.
+     * @throws ServerConnectorException if exception occurs while starting at least one connector.
+     */
+    public List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startPendingHTTPConnectors()
+            throws ServerConnectorException {
+        List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedConnectors = new ArrayList<>();
+        for (Map.Entry<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
+                serverConnectorEntry: startupDelayedHTTPServerConnectors.entrySet()) {
+            org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
+                    serverConnectorEntry.getValue();
+            ServerConnectorFuture connectorFuture = serverConnector.start();
+            connectorFuture.setHTTPConnectorListener(new BallerinaHTTPConnectorListener());
+            connectorFuture.setWSConnectorListener(new BallerinaWebSocketConnectorListener());
             startedConnectors.add(serverConnector);
         }
         startupDelayedServerConnectors.clear();
@@ -234,5 +290,12 @@ public class BallerinaConnectorManager {
 
     public void registerClientConnector(ClientConnector clientConnector) {
         this.connectorManager.registerClientConnector(clientConnector);
+    }
+
+    public HTTPClientConnector getHTTPHttpClientConnector() {
+        Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
+        SenderConfiguration senderConfiguration =
+                HTTPMessageUtil.getSenderConfiguration(trpConfig);
+        return httpConnectorFactory.getHTTPClientConnector(properties, senderConfiguration);
     }
 }
