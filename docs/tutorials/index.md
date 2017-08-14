@@ -4,4 +4,5 @@ This section provides tutorials that walk you through using Ballerina. If you ha
 
 * [Write your First Program](first-program.md)
 * [Write a Main Program](main-program.md)
+* [Write a Passthrough Service](passthrough-service.md)
 * [Create an Archive of your Program](create-archive.md)

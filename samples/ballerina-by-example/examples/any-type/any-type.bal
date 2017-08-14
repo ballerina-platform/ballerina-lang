@@ -2,7 +2,7 @@ import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"This function return an 'any' typed value."}
-function getValue() (any) {
+function getValue () (any) {
     string name = "cat";
     return name;
 }
@@ -20,6 +20,6 @@ function main (string[] args) {
     int[] ia = [1, 3, 5, 6];
     any ar = ia;
     system:println(ar);
-    
+
     system:println(getValue());
 }

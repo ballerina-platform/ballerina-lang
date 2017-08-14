@@ -1,4 +1,4 @@
-$ ballerina run main type-conversion.bal
+$ ballerina run type-conversion.bal
 10
 error: 'string' cannot be converted to 'int'
 5

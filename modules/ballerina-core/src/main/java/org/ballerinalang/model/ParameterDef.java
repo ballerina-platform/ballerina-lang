@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-public class ParameterDef extends VariableDef implements Node {
+public class ParameterDef extends SimpleVariableDef implements Node {
     private List<AnnotationAttachment> annotations;
 
     public ParameterDef(BType type, SymbolName symbolName) {

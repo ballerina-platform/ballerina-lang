@@ -18,7 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 /**
- * Bytecode instructions of a Ballerina compiled program.
+ * Bytecode instructions of a compiled Ballerina program.
  *
  * @since 0.87
  */
@@ -155,12 +155,15 @@ public interface InstructionCodes {
 
     int GOTO = 117;
     int HALT = 118;
+    int TR_RETRY = 119;
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
     int NACALL = 123;
     int THROW = 124;
     int ERRSTORE = 125;
+    int FPCALL = 126;
+    int FPLOAD = 127;
 
     // Type Conversion related instructions
     int I2F = 130;
@@ -191,6 +194,8 @@ public interface InstructionCodes {
     int JSON2T = 155;
     int XML2JSON = 156;
     int JSON2XML = 157;
+    int LENGTHOF = 158;
+    int LENGTHOFJSON = 159;
 
     // Type cast
     int I2ANY = 160;
@@ -214,10 +219,12 @@ public interface InstructionCodes {
     int CHECKCAST = 180;
     int NULL2JSON = 181;
 
+    int ANY2TYPE = 182;
+
 
     // Transactions
-    int TRBGN = 188;
-    int TREND = 189;
+    int TR_BEGIN = 188;
+    int TR_END = 189;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
@@ -248,5 +255,23 @@ public interface InstructionCodes {
     int RRET = 236;
     int RET = 237;
 
-    int INSTRUCTION_CODE_COUNT = 238;
+    int XML2XMLATTRS = 238;
+    int XMLATTRS2MAP = 239;
+    int XMLATTRLOAD = 240;
+    int XMLATTRSTORE = 241;
+    int S2QNAME = 242;
+    int NEWQNAME = 243;
+    int NEWXMLELEMENT = 244;
+    int NEWXMLCOMMENT = 245;
+    int NEWXMLTEXT = 246;
+    int NEWXMLPI = 247;
+    int XMLSTORE = 248;
+
+    int TYPEOF = 249;
+    int TYPELOAD = 250;
+
+    int TEQ = 251;
+    int TNE = 252;
+
+    int INSTRUCTION_CODE_COUNT = 253;
 }

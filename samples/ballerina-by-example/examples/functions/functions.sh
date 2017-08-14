@@ -1,3 +1,3 @@
-$ ballerina run main functions.bal
+$ ballerina run functions.bal
 This is a sample text
 11

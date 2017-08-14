@@ -4,11 +4,12 @@ import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.net.http;
 
-@http:config{basePath:"/customerservice"}
+@http:configuration{basePath:"/customerservice"}
 service<http> CustomerMgtService {
 
-    @http:GET{}
-    @http:POST{}
+    @http:resourceConfig {
+        methods:["GET", "POST"]
+    }
     resource customers (message m) {
         json payload = {};
         string httpMethod = http:getMethod(m);

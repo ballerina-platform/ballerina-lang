@@ -29,8 +29,7 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
  */
 public class TestErrorHandler implements ServerConnectorErrorHandler {
     @Override
-    public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback)
-            throws Exception {
+    public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
         DefaultCarbonMessage response = new DefaultCarbonMessage();
         if (exception.getMessage() != null) {
             response.setMessageDataSource(new StringDataSource(exception.getMessage()));

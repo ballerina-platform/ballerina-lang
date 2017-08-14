@@ -12,7 +12,7 @@ This sample illustrates a RESTful service that comprises of three resources and 
 
 How to run this sample
 ======================
-bin$ ./ballerina run service ../samples/restfulService/ecommerceService.bsz
+bin$ ./ballerina run ../samples/restfulService/ecommerceService.balx
 
 This starts the EcommerceService as well as the other backend services required to run the sample.
 

@@ -33,15 +33,18 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -73,6 +76,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private SimpleTypeName[] argTypeNames;
     private String[] argNames;
     private int tempStackFrameSize;
+    private BType bType;
 
     /**
      * Initialize a native function.
@@ -107,6 +111,14 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         throw new ArgumentOutOfRangeException(index);
     }
 
+    /**
+     * This will return a int variable defined in ballerina level.
+     * In java level it would be a long value.
+     *
+     * @param context In which the variable reside.
+     * @param index   Index of the variable location.
+     * @return Long value.
+     */
     public long getIntArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
             return context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
@@ -121,11 +133,20 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public long getLongArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
-            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+    /**
+     * This will return a float variable defined in ballerina level.
+     * In java level that would be a double value.
+     *
+     * @param context In which the variable reside.
+     * @param index   Index of the variable location.
+     * @return Double value.
+     */
+    public double getFloatArgument(Context context, int index) {
+        if (index > -1 && index < this.argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+        } else {
+            throw new ArgumentOutOfRangeException(index);
         }
-        throw new ArgumentOutOfRangeException(index);
     }
 
     public boolean getBooleanArgument(Context context, int index) {
@@ -133,6 +154,43 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
             return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
+    }
+
+    @Override
+    public BType getType() {
+        if (bType == null) {
+            BFunctionType functionType = new BFunctionType(this.getSymbolScope().getEnclosingScope(), parameterTypes,
+                    returnParamTypes);
+            bType = functionType;
+        }
+        return bType;
+    }
+
+    @Override
+    public void setType(BType type) {
+    }
+
+    @Override
+    public Kind getKind() {
+        return null;
+    }
+
+    @Override
+    public void setKind(Kind kind) {
+    }
+
+    @Override
+    public int getVarIndex() {
+        return 0;
+    }
+
+    @Override
+    public void setVarIndex(int index) {
+    }
+
+    @Override
+    public SimpleTypeName getTypeName() {
+        return null;
     }
 
     /**
@@ -381,5 +439,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public Worker[] getWorkers() {
         return new Worker[0];
+    }
+
+    @Override
+    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+
+    }
+
+    @Override
+    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
+        return null;
     }
 }

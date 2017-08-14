@@ -40,7 +40,7 @@ public class ValueTypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/expressions/type/cast/value-type-casting.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/btype/cast/value-type-casting.bal");
     }
 
     @Test

@@ -5,26 +5,16 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.BLangProgramArchiveBuilder;
-import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,8 +39,6 @@ public class Main {
     public static void main(String... args) {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
-
-            LauncherUtils.writePID(System.getProperty("ballerina.home"));
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
         } catch (ParserException | SemanticException | BLangRuntimeException e) {
             outStream.println(e.getMessage());
@@ -61,7 +49,7 @@ public class Main {
         } catch (Throwable e) {
             String msg = e.getMessage();
             if (msg == null) {
-                msg = "ballerina: unexpected error occurred";
+                msg = "ballerina: internal error occurred";
             } else {
                 msg = "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg);
             }
@@ -82,40 +70,11 @@ public class Main {
             JCommander cmdParser = new JCommander(defaultCmd);
             defaultCmd.setParentCmdParser(cmdParser);
 
-
             // Run command
             RunCmd runCmd = new RunCmd();
             JCommander jcRunCmd = addSubCommand(cmdParser, "run", runCmd);
             runCmd.setParentCmdParser(cmdParser);
             runCmd.setSelfCmdParser(jcRunCmd);
-
-            // Run main command
-            RunMainCmd runMainCmd = new RunMainCmd();
-            addSubCommand(jcRunCmd, "main", runMainCmd);
-            runMainCmd.setParentCmdParser(jcRunCmd);
-
-            // Run service command
-            RunServiceCmd runServiceCmd = new RunServiceCmd();
-            addSubCommand(jcRunCmd, "service", runServiceCmd);
-            runServiceCmd.setParentCmdParser(jcRunCmd);
-
-
-            // Build command
-            BuildCmd buildCmd = new BuildCmd();
-            JCommander jcBuildCmd = addSubCommand(cmdParser, "build", buildCmd);
-            buildCmd.setParentCmdParser(cmdParser);
-            buildCmd.setSelfCmdParser(jcBuildCmd);
-
-            // Build main command
-            BuildMainCmd buildMainCmd = new BuildMainCmd();
-            addSubCommand(jcBuildCmd, "main", buildMainCmd);
-            buildMainCmd.setParentCmdParser(jcBuildCmd);
-
-            // Build service command
-            BuildServiceCmd buildServiceCmd = new BuildServiceCmd();
-            addSubCommand(jcBuildCmd, "service", buildServiceCmd);
-            buildServiceCmd.setParentCmdParser(jcBuildCmd);
-
 
             HelpCmd helpCmd = new HelpCmd();
             cmdParser.addCommand("help", helpCmd);
@@ -153,7 +112,7 @@ public class Main {
         } catch (ParameterException e) {
             String msg = e.getMessage();
             if (msg == null) {
-                throw LauncherUtils.createUsageException("unexpected error occurred");
+                throw LauncherUtils.createUsageException("internal error occurred");
 
             } else if (msg.startsWith(JC_UNKNOWN_OPTION_PREFIX)) {
                 String flag = msg.substring(JC_UNKNOWN_OPTION_PREFIX.length());
@@ -172,7 +131,8 @@ public class Main {
 
     private static void printUsageInfo(JCommander cmdParser) {
         StringBuilder out = new StringBuilder();
-        out.append("Ballerina is a flexible, powerful and beautiful programming language designed for integration.\n");
+        out.append("Ballerina is a general purpose, concurrent and strongly typed programming language \n");
+        out.append("with both textual and graphical syntaxes, optimized for integration.\n");
         out.append("\n");
         out.append("* Find more information at http://ballerinalang.org\n");
         out.append("\n");
@@ -209,17 +169,28 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @Parameters(commandNames = "run", commandDescription = "run Ballerina main/service programs")
+    @Parameters(commandNames = "run", commandDescription = "compile and run Ballerina program")
     private static class RunCmd implements BLauncherCmd {
 
         private JCommander parentCmdParser;
-        private JCommander selfCmdParser;
+
+        @Parameter(arity = 1, description = "arguments")
+        private List<String> argList;
+
+        @Parameter(names = {"--service", "-s"}, description = "run services instead of main")
+        private boolean runServices;
+
+        @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+        private String sourceRoot;
 
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
+
+        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        private String ballerinaDebugPort;
 
         public void execute() {
             if (helpFlag) {
@@ -228,14 +199,38 @@ public class Main {
                 return;
             }
 
-            String parsedCmdName = selfCmdParser.getParsedCommand();
-            if (parsedCmdName == null || parsedCmdName.isEmpty()) {
-                throw LauncherUtils.createUsageException("unknown command ''");
+            if (argList == null || argList.size() == 0) {
+                throw LauncherUtils.createUsageException("no ballerina program given");
             }
 
-            Map<String, JCommander> commanderMap = selfCmdParser.getCommands();
-            BLauncherCmd bLauncherCmd = (BLauncherCmd) commanderMap.get(parsedCmdName).getObjects().get(0);
-            bLauncherCmd.execute();
+            // Enable remote debugging
+            if (null != ballerinaDebugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
+            }
+
+            Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+
+            // Start all services, if the services flag is set.
+            if (runServices) {
+                if (argList.size() > 1) {
+                    throw LauncherUtils.createUsageException("too many arguments");
+                }
+
+                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, new String[0]);
+                return;
+            }
+
+            Path sourcePath = Paths.get(argList.get(0));
+            // Filter out the list of arguments given to the ballerina program.
+            String[] programArgs;
+            if (argList.size() >= 2) {
+                argList.remove(0);
+                programArgs = argList.toArray(new String[0]);
+            } else {
+                programArgs = new String[0];
+            }
+
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, programArgs);
         }
 
         @Override
@@ -244,398 +239,22 @@ public class Main {
         }
 
         @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina run main  <filename | packagename | archive>\n")
-                    .append("  ballerina run service  <filename | packagename | archive>...\n");
-        }
-
-        @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
-            this.selfCmdParser = selfCmdParser;
-        }
-    }
-
-    /**
-     * This class represents the "run" command and it holds arguments and flags specified by the user.
-     *
-     * @since 0.8.0
-     */
-    @Parameters(commandNames = "main", commandDescription = "run Ballerina main program")
-    private static class RunMainCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
-
-        @Parameter(arity = 1, description = "arguments")
-        private List<String> argList;
-
-        @Parameter(names = {"--help", "-h"}, hidden = true)
-        private boolean helpFlag;
-
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
-
-        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
-        private String ballerinaDebugPort;
-
-        public void execute() {
-            if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "main");
-                outStream.println(commandUsageInfo);
-                return;
-            }
-
-            if (argList == null || argList.size() == 0) {
-                throw LauncherUtils.createUsageException("no ballerina program given");
-            }
-
-            List<String> programArgs;
-            if (argList.size() > 1) {
-                programArgs = argList.subList(1, argList.size());
-            } else {
-                programArgs = new ArrayList<>(0);
-            }
-
-            if (null != ballerinaDebugPort) {
-                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
-            }
-            Path sourcePath = Paths.get(argList.get(0));
-            BProgramRunner.runMain(sourcePath, programArgs);
-        }
-
-        @Override
-        public String getName() {
-            return "main";
+        public void printLongDesc(StringBuilder out) {
+            out.append("Run command runs a compiled Ballerina program. \n");
+            out.append("\n");
+            out.append("If a Ballerina source file or a source package is given, \n");
+            out.append("run command compiles and runs it. \n");
+            out.append("\n");
+            out.append("By default, 'ballerina run' executes the main function. \n");
+            out.append("If the main function is not there, it executes services. \n");
+            out.append("\n");
+            out.append("If the -s flag is given, 'ballerina run' executes\n");
+            out.append("services instead of the main function.\n");
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina run main  <filename | packagename | archive>\n");
-        }
-
-        @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
-        }
-    }
-
-    /**
-     * This class represents the "service" command and it holds arguments and flags specified by the user.
-     *
-     * @since 0.8.0
-     */
-    @Parameters(commandNames = "service", commandDescription = "run Ballerina service programs")
-    private static class RunServiceCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
-
-        @Parameter(description = "The list of files to commit")
-        private List<String> sourceFileList;
-
-        @Parameter(names = {"--help", "-h"}, hidden = true)
-        private boolean helpFlag;
-
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
-
-        @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
-        private String serviceRootPath;
-
-        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
-        private String ballerinaDebugPort;
-
-        public void execute() {
-            if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "service");
-                outStream.println(commandUsageInfo);
-                return;
-            }
-
-            if (serviceRootPath != null && !serviceRootPath.isEmpty()) {
-                if (sourceFileList != null && sourceFileList.size() != 0) {
-                    throw LauncherUtils.createUsageException("too many arguments");
-                }
-
-                Path currentDir = Paths.get(System.getProperty("user.dir"));
-                Path serviceRoot = Paths.get(serviceRootPath);
-                try {
-                    Path serviceRootRealPath = serviceRoot.toRealPath(LinkOption.NOFOLLOW_LINKS);
-                    Path[] paths =
-                            Files.list(serviceRootRealPath)
-                                    .filter(path -> !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
-                                    .filter(path -> path.getFileName().toString()
-                                            .endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension()))
-                                    .map(currentDir::relativize).toArray(Path[]::new);
-                    BProgramRunner.runServices(paths);
-                    return;
-                } catch (NoSuchFileException e) {
-                    throw new IllegalArgumentException("no such file or directory: " + serviceRootPath);
-                } catch (NotDirectoryException e) {
-                    throw new IllegalArgumentException("given file is not a directory: " + serviceRootPath);
-                } catch (IOException e) {
-                    throw new RuntimeException("error reading from file: " + serviceRootPath + " reason: " +
-                            e.getMessage(), e);
-                }
-            }
-
-            if (sourceFileList == null || sourceFileList.size() == 0) {
-                throw LauncherUtils.createUsageException("no ballerina programs given");
-            }
-
-            Path[] paths = new Path[sourceFileList.size()];
-            for (int i = 0; i < sourceFileList.size(); i++) {
-                paths[i] = Paths.get(sourceFileList.get(i));
-            }
-
-            if (null != ballerinaDebugPort) {
-                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
-            }
-            BProgramRunner.runServices(paths);
-        }
-
-        @Override
-        public String getName() {
-            return "service";
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina run service  <filename | packagename | archive>...\n");
-        }
-
-        @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
-        }
-    }
-
-    /**
-     * This class represents the "build" command and it holds arguments and flags specified by the user.
-     *
-     * @since 0.8.0
-     */
-    @Parameters(commandNames = "build", commandDescription = "create Ballerina program archives")
-    private static class BuildCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
-        private JCommander selfCmdParser;
-
-        @Parameter(arity = 1, description = "builds the given package with all the dependencies")
-        private List<String> argList;
-
-        @Parameter(names = {"--help", "-h"}, hidden = true)
-        private boolean helpFlag;
-
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
-
-        public void execute() {
-            if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
-                outStream.println(commandUsageInfo);
-                return;
-            }
-
-            String parsedCmdName = selfCmdParser.getParsedCommand();
-            if (parsedCmdName == null || parsedCmdName.isEmpty()) {
-                throw LauncherUtils.createUsageException("unknown command ''");
-            }
-
-            Map<String, JCommander> commanderMap = selfCmdParser.getCommands();
-            BLauncherCmd bLauncherCmd = (BLauncherCmd) commanderMap.get(parsedCmdName).getObjects().get(0);
-            bLauncherCmd.execute();
-        }
-
-        @Override
-        public String getName() {
-            return "build";
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina build main  <packagename> [-o filename]\n")
-                    .append("  ballerina build service <packagename>... [-o filename]\n");
-        }
-
-        @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
-            this.selfCmdParser = selfCmdParser;
-        }
-    }
-
-    /**
-     * This class represents the "build main" command and it holds arguments and flags specified by the user.
-     *
-     * @since 0.8.0
-     */
-    @Parameters(commandNames = "main", commandDescription = "create main program archive")
-    private static class BuildMainCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
-
-        @Parameter(arity = 1, description = "The package to be added to the Ballerina repository ")
-        private List<String> argList;
-
-        @Parameter(names = {"--help", "-h"}, hidden = true)
-        private boolean helpFlag;
-
-        @Parameter(names = {"-o"}, description = "output filename")
-        private String outputFileName;
-
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
-
-        public void execute() {
-            if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "main");
-                outStream.println(commandUsageInfo);
-                return;
-            }
-
-            if (argList == null || argList.size() == 0) {
-                throw LauncherUtils.createUsageException("no ballerina program given");
-            }
-
-            if (argList.size() > 1) {
-                throw LauncherUtils.createUsageException("too many arguments");
-            }
-
-            Path sourcePath = Paths.get(argList.get(0));
-            try {
-                Path realPath = sourcePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
-                if (!Files.isDirectory(realPath, LinkOption.NOFOLLOW_LINKS)
-                        && !realPath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
-                    throw new IllegalArgumentException("invalid file or package '" + sourcePath + "'");
-
-                }
-            } catch (NoSuchFileException x) {
-                throw new IllegalArgumentException("no such file or directory: " + sourcePath);
-            } catch (IOException e) {
-                throw new RuntimeException("error reading from file: " + sourcePath +
-                        " reason: " + e.getMessage(), e);
-            }
-
-            Path programDirPath = Paths.get(System.getProperty("user.dir"));
-            BLangProgram bLangProgram = new BLangProgramLoader()
-                    .loadMain(programDirPath, sourcePath);
-
-            // TODO Delete existing file  or WARNING
-            if (outputFileName == null || outputFileName.isEmpty()) {
-                new BLangProgramArchiveBuilder().build(bLangProgram);
-            } else {
-                new BLangProgramArchiveBuilder().build(bLangProgram, outputFileName.trim());
-            }
-        }
-
-        @Override
-        public String getName() {
-            return "main";
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina build main  <packagename> [-o filename]\n");
-        }
-
-        @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
-        }
-
-        @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
-        }
-    }
-
-    /**
-     * This class represents the "build service" command and it holds arguments and flags specified by the user.
-     *
-     * @since 0.8.0
-     */
-    @Parameters(commandNames = "service", commandDescription = "create service program archive")
-    private static class BuildServiceCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
-
-        @Parameter(arity = 1, description = "The package to be added to the Ballerina repository ")
-        private List<String> argList;
-
-        @Parameter(names = {"--help", "-h"}, hidden = true)
-        private boolean helpFlag;
-
-        @Parameter(names = {"-o"}, description = "output filename")
-        private String outputFileName;
-
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
-
-        public void execute() {
-            if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "service");
-                outStream.println(commandUsageInfo);
-                return;
-            }
-
-            if (argList == null || argList.size() == 0) {
-                throw LauncherUtils.createUsageException("no ballerina program given");
-            }
-
-            if (argList.size() > 1) {
-                throw LauncherUtils.createUsageException("too many arguments");
-            }
-
-            Path sourcePath = Paths.get(argList.get(0));
-            try {
-                Path realPath = sourcePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
-                if (!Files.isDirectory(realPath, LinkOption.NOFOLLOW_LINKS)
-                        && !realPath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
-                    throw new IllegalArgumentException("invalid file or package '" + sourcePath + "'");
-
-                }
-            } catch (NoSuchFileException x) {
-                throw new IllegalArgumentException("no such file or directory: " + sourcePath);
-            } catch (IOException e) {
-                throw new RuntimeException("error reading from file: " + sourcePath +
-                        " reason: " + e.getMessage(), e);
-            }
-
-            Path programDirPath = Paths.get(System.getProperty("user.dir"));
-            BLangProgram bLangProgram = new BLangProgramLoader()
-                    .loadService(programDirPath, sourcePath);
-
-            // TODO Delete existing file  or WARNING
-            if (outputFileName == null || outputFileName.isEmpty()) {
-                new BLangProgramArchiveBuilder().build(bLangProgram);
-            } else {
-                new BLangProgramArchiveBuilder().build(bLangProgram, outputFileName.trim());
-            }
-        }
-
-        @Override
-        public String getName() {
-            return "service";
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina build service <packagename>... [-o filename]\n");
+            out.append("  ballerina run [flags] <balfile | packagename | balxfile> [args...] \n");
         }
 
         @Override
@@ -685,6 +304,11 @@ public class Main {
         @Override
         public String getName() {
             return "help";
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+
         }
 
         @Override
@@ -746,6 +370,11 @@ public class Main {
         }
 
         @Override
+        public void printLongDesc(StringBuilder out) {
+
+        }
+
+        @Override
         public void printUsage(StringBuilder out) {
             out.append("  ballerina version\n");
         }
@@ -784,6 +413,11 @@ public class Main {
         @Override
         public String getName() {
             return "default-cmd";
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+
         }
 
         @Override

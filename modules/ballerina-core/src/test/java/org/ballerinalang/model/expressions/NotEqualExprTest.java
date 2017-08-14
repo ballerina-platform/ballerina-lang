@@ -134,27 +134,27 @@ public class NotEqualExprTest {
 
     @Test(description = "Test checking equality of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]eq[/\\\\]"
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]btype[/\\\\]incompatible[/\\\\]eq[/\\\\]"
                     + "incompatible-type-equal-expr.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleEquality() {
-        BTestUtils.getProgramFile("lang/expressions/type/incompatible/eq");
+        BTestUtils.getProgramFile("lang/expressions/btype/incompatible/eq");
     }
     
     @Test(description = "Test checking equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]eq[/\\\\]" +
+                  "lang[/\\\\]expressions[/\\\\]btype[/\\\\]unsupported[/\\\\]eq[/\\\\]" +
                   "unsupported-type-equal-expr.bal:9: invalid operation: operator == not defined on 'json'")
     public void testUnsupportedTypeEquality() {
-        BTestUtils.getProgramFile("lang/expressions/type/unsupported/eq");
+        BTestUtils.getProgramFile("lang/expressions/btype/unsupported/eq");
     }
     
     @Test(description = "Test checking not-equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]neq[/\\\\]" +
+                  "lang[/\\\\]expressions[/\\\\]btype[/\\\\]unsupported[/\\\\]neq[/\\\\]" +
                   "unsupported-type-not-equal-expr.bal:9: invalid operation: operator != not defined on 'json'")
     public void testUnsupportedTypeNotEquality() {
-        BTestUtils.getProgramFile("lang/expressions/type/unsupported/neq");
+        BTestUtils.getProgramFile("lang/expressions/btype/unsupported/neq");
     }
 }

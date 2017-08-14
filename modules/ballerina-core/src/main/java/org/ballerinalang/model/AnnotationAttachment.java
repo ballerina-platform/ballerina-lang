@@ -40,7 +40,7 @@ public class AnnotationAttachment implements Node {
     private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
     private NodeLocation location;
     private WhiteSpaceDescriptor whiteSpaceDescriptor;
-    AttachmentPoint attachedPoint;
+    AnnotationAttachmentPoint attachedPoint;
     
     public AnnotationAttachment(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
                                 String pkgName, String pkgPath, Map<String, AnnotationAttributeValue> fieldValPairs) {
@@ -127,7 +127,7 @@ public class AnnotationAttachment implements Node {
      * 
      * @param attachedPoint Where an annotation can be attached
      */
-    public void setAttachedPoint(AttachmentPoint attachedPoint) {
+    public void setAttachedPoint(AnnotationAttachmentPoint attachedPoint) {
         this.attachedPoint = attachedPoint;
     }
     
@@ -136,7 +136,7 @@ public class AnnotationAttachment implements Node {
      * 
      * @return the attachedPoint
      */
-    public AttachmentPoint getAttachedPoint() {
+    public AnnotationAttachmentPoint getAttachedPoint() {
         return attachedPoint;
     }
 

@@ -120,73 +120,73 @@ public class GreaterLessThanExprTest {
 
     @Test(description = "Test greater-than check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]"
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]btype[/\\\\]incompatible[/\\\\]gt[/\\\\]"
                     + "incompatible-type-greater-than.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleGreaterThan() {
-        BTestUtils.getProgramFile("lang/expressions/type/incompatible/gt");
+        BTestUtils.getProgramFile("lang/expressions/btype/incompatible/gt");
     }
 
     @Test(description = "Test greater-than-equal check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gte[/\\\\]"
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]btype[/\\\\]incompatible[/\\\\]gte[/\\\\]"
                     + "incompatible-type-greater-than-equal.bal:6: invalid operation: "
                     + "incompatible types 'int' and 'string'")
     public void testIncompatibleGreaterThanEqual() {
-        BTestUtils.getProgramFile("lang/expressions/type/incompatible/gte");
+        BTestUtils.getProgramFile("lang/expressions/btype/incompatible/gte");
     }
 
     @Test(description = "Test less-than check for two different types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]lt[/\\\\]"
+                  "lang[/\\\\]expressions[/\\\\]btype[/\\\\]incompatible[/\\\\]lt[/\\\\]"
                           + "incompatible-type-less-than.bal:6: invalid operation: "
                           + "incompatible types 'int' and 'string'")
     public void testIncompatibleLessThan() {
-        BTestUtils.getProgramFile("lang/expressions/type/incompatible/lt");
+        BTestUtils.getProgramFile("lang/expressions/btype/incompatible/lt");
     }
 
     @Test(description = "Test less-than-equal check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]lte[/\\\\]"
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]btype[/\\\\]incompatible[/\\\\]lte[/\\\\]"
                     + "incompatible-type-less-than-equal.bal:6: "
                     + "invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleLessThanEqual() {
-        BTestUtils.getProgramFile("lang/expressions/type/incompatible/lte");
+        BTestUtils.getProgramFile("lang/expressions/btype/incompatible/lte");
     }
     
     @Test(description = "Test less-than check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]lt[/\\\\]" +
+                  "lang[/\\\\]expressions[/\\\\]btype[/\\\\]unsupported[/\\\\]lt[/\\\\]" +
                   "unsupported-type-less-than.bal:9: invalid operation: operator < not defined on 'json'")
     public void testUnsupportedTypeLessThan() {
-        BTestUtils.getProgramFile("lang/expressions/type/unsupported/lt");
+        BTestUtils.getProgramFile("lang/expressions/btype/unsupported/lt");
     }
     
     @Test(description = "Test greater-than check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]gt[/\\\\]" +
+                  "lang[/\\\\]expressions[/\\\\]btype[/\\\\]unsupported[/\\\\]gt[/\\\\]" +
                   "unsupported-type-greater-than.bal:9: invalid operation: operator > not defined on 'json'")
     public void testUnsupportedTypeGreaterThan() {
-        BTestUtils.getProgramFile("lang/expressions/type/unsupported/gt");
+        BTestUtils.getProgramFile("lang/expressions/btype/unsupported/gt");
     }
     
     @Test(description = "Test greater-than-equal check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                    "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]gte[/\\\\]" +
+                    "lang[/\\\\]expressions[/\\\\]btype[/\\\\]unsupported[/\\\\]gte[/\\\\]" +
                     "unsupported-type-greater-than-equal.bal:9: invalid operation: operator >= not defined on 'json'")
     public void testUnsupportedTypeGreaterThanEqual() {
-        BTestUtils.getProgramFile("lang/expressions/type/unsupported/gte");
+        BTestUtils.getProgramFile("lang/expressions/btype/unsupported/gte");
     }
     
     @Test(description = "Test less-than-equal check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]lte[/\\\\]" + 
+                  "lang[/\\\\]expressions[/\\\\]btype[/\\\\]unsupported[/\\\\]lte[/\\\\]" +
                   "unsupported-type-less-than-equal.bal:9: invalid operation: operator <= not defined on 'json'")
     public void testUnsupportedTypeLessThanEqual() {
-        BTestUtils.getProgramFile("lang/expressions/type/unsupported/lte");
+        BTestUtils.getProgramFile("lang/expressions/btype/unsupported/lte");
     }
 }

@@ -20,7 +20,7 @@ package org.ballerinalang.services.dispatchers.jms;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(ServiceInfo service) {
 
-        AnnotationAttachmentInfo jmsConfig = service.getAnnotationAttachmentInfo(Constants.JMS_PACKAGE,
+        AnnAttachmentInfo jmsConfig = service.getAnnotationAttachmentInfo(Constants.JMS_PACKAGE,
                 Constants.ANNOTATION_JMS_CONFIG);
 
         if (jmsConfig == null) {

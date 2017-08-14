@@ -59,7 +59,7 @@ public class ServerConnector {
     }
 
     /**
-     * Initialize all the
+     * Initialize all the.
      */
     public void init() {
         // TODO : Add actual server connector initialization here.
@@ -68,8 +68,8 @@ public class ServerConnector {
             Context bContext = new Context(programFile);
             bContext.disableNonBlocking = true;
             // TODO : Fix main init, when Packerina comes. For now let's init main package.
-            PackageInfo mainPkgInfo = programFile.getPackageInfo(programFile.getMainPackageName());
-            BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
+            PackageInfo mainPkgInfo = programFile.getEntryPackage();
+            BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
                 throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -96,7 +96,7 @@ public class ServerConnector {
     }
 
     /**
-     * Builds a {@link ServerConnector}
+     * Builds a {@link ServerConnector}.
      *
      * @since 0.89
      */
@@ -136,13 +136,12 @@ public class ServerConnector {
                     if (serverConnector.interceptorProgramFileMap.containsKey(config.getArchiveName())) {
                         programFile = serverConnector.interceptorProgramFileMap.get(config.getArchiveName());
                     } else {
-                        BLangProgramLoader bLangProgramLoader = new BLangProgramLoader();
+//                        BLangProgramLoader bLangProgramLoader = new BLangProgramLoader();
                         // Assumed all archives are semantically valid, before archived.
-                        bLangProgramLoader.disableSemanticAnalyzer();
+//                        bLangProgramLoader.disableSemanticAnalyzer();
                         Path ballerinaArchive = Paths.get(serverConnector.interceptorDeploymentPath.toString(),
                                 config.getArchiveName());
-                        programFile = bLangProgramLoader.loadMainProgramFile(serverConnector
-                                .interceptorDeploymentPath, ballerinaArchive);
+                        programFile = BLangProgramLoader.read(ballerinaArchive);
                         serverConnector.interceptorProgramFileMap.put(config.getArchiveName(), programFile);
                     }
                     ServiceInterceptor serviceInterceptor = new ServiceInterceptor.ServiceInterceptorBuilder

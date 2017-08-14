@@ -39,12 +39,21 @@ public class IntegerCPEntry implements ConstantPoolEntry {
     }
 
     @Override
-    public int hashCode() {
-        return (int) value;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        IntegerCPEntry that = (IntegerCPEntry) o;
+        return value == that.value;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof IntegerCPEntry && value == (((IntegerCPEntry) obj).value);
+    public int hashCode() {
+        return (int) (value ^ (value >>> 32));
     }
 }

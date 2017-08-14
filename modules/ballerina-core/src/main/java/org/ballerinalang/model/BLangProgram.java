@@ -32,12 +32,10 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BLangProgram implements SymbolScope, Node {
-    private static SymbolName mainFuncSymboleName;
 
     private Category programCategory;
-    private BLangPackage mainPackage;
+    private BLangPackage entryPackage;
     private List<String> entryPoints = new ArrayList<>();
-    private List<BLangPackage> servicePackageList = new ArrayList<>();
     private List<BLangPackage> libraryPackageList = new ArrayList<>();
 
     // Scope related variables
@@ -45,12 +43,10 @@ public class BLangProgram implements SymbolScope, Node {
     private NativeScope nativeScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    private int sizeOfStaticMem;
-
     // This is the actual path given by the user and this is used primarily for error reporting
     private Path programFilePath;
 
-    public BLangProgram(GlobalScope globalScope, NativeScope nativeScope, Category programCategory) {
+    public BLangProgram(GlobalScope globalScope, NativeScope nativeScope) {
         this.globalScope = globalScope;
         this.nativeScope = nativeScope;
         this.programCategory = programCategory;
@@ -65,34 +61,16 @@ public class BLangProgram implements SymbolScope, Node {
         this.programFilePath = programFilePath;
     }
 
+    public void setEntryPackage(BLangPackage entryPackage) {
+        this.entryPackage = entryPackage;
+    }
+
+    public BLangPackage getEntryPackage() {
+        return entryPackage;
+    }
+
     public Category getProgramCategory() {
         return programCategory;
-    }
-
-    public BLangPackage getMainPackage() {
-        return mainPackage;
-    }
-
-    public void setMainPackage(BLangPackage mainPackage) {
-        this.mainPackage = mainPackage;
-    }
-
-    public BallerinaFunction getMainFunction() {
-        mainFuncSymboleName = new SymbolName("main.string[]", mainPackage.getPackagePath());
-        BallerinaFunction mainFunction = (BallerinaFunction) mainPackage.resolveMembers(mainFuncSymboleName);
-        if (mainFunction == null || mainFunction.getReturnParameters().length != 0) {
-            throw new RuntimeException("cannot find main function");
-        }
-
-        return mainFunction;
-    }
-
-    public void addServicePackage(BLangPackage bLangPackage) {
-        servicePackageList.add(bLangPackage);
-    }
-
-    public BLangPackage[] getServicePackages() {
-        return servicePackageList.toArray(new BLangPackage[0]);
     }
 
     public void addLibraryPackage(BLangPackage bLangPackage) {
@@ -113,14 +91,6 @@ public class BLangProgram implements SymbolScope, Node {
 
     public BLangPackage[] getPackages() {
         return symbolMap.values().stream().map(symbol -> (BLangPackage) symbol).toArray(BLangPackage[]::new);
-    }
-
-    public int getSizeOfStaticMem() {
-        return sizeOfStaticMem;
-    }
-
-    public void setSizeOfStaticMem(int sizeOfStaticMem) {
-        this.sizeOfStaticMem = sizeOfStaticMem;
     }
 
 

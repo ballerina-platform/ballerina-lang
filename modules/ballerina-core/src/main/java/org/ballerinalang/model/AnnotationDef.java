@@ -33,7 +33,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     private Identifier identifier;
     private NodeLocation location;
     private WhiteSpaceDescriptor whiteSpaceDescriptor;
-    private String[] attachmentPoints;
+    private AnnotationAttachmentPoint[] attachmentPoints;
     private SymbolName symbolName;
     private AnnotationAttributeDef[] attributes;
     
@@ -82,7 +82,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      *
      * @return Targets to which this annotation can be applied
      */
-    public String[] getAttachmentPoints() {
+    public AnnotationAttachmentPoint[] getAttachmentPoints() {
         return attachmentPoints;
     }
 
@@ -218,7 +218,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         private Identifier identifier;
         private String pkgPath;
         private String pkgName;
-        private List<String> attachmentPoints = new ArrayList<>();
+        private List<AnnotationAttachmentPoint> attachmentPoints = new ArrayList<>();
         private AnnotationDef annotationDef;
         private List<AnnotationAttributeDef> attributes = new ArrayList<>();
         private List<AnnotationAttachment> annotationList = new ArrayList<>();
@@ -270,7 +270,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
          *
          * @param attachmentPoint Field in the annotation
          */
-        public void addAttachmentPoint(String attachmentPoint) {
+        public void addAttachmentPoint(AnnotationAttachmentPoint attachmentPoint) {
             attachmentPoints.add(attachmentPoint);
         }
         
@@ -313,7 +313,8 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
             annotationDef.location = location;
             annotationDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
             annotationDef.identifier = identifier;
-            annotationDef.attachmentPoints = attachmentPoints.toArray(new String[attachmentPoints.size()]);
+            annotationDef.attachmentPoints = attachmentPoints
+                    .toArray(new AnnotationAttachmentPoint[attachmentPoints.size()]);
             annotationDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
             annotationDef.pkgName = pkgName;
             annotationDef.pkgPath = pkgPath;

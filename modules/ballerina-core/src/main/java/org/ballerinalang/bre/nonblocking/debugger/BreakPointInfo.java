@@ -27,12 +27,21 @@ import java.util.List;
  */
 public class BreakPointInfo {
 
+    private String threadId;
     private final NodeLocation haltLocation;
     private List<FrameInfo> frames;
 
     public BreakPointInfo(NodeLocation haltLocation) {
         this.haltLocation = haltLocation;
         frames = new ArrayList<>();
+    }
+
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
     }
 
     public void addFrameInfo(FrameInfo frameInfo) {

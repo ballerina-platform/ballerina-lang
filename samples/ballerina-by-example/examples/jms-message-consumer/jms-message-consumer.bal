@@ -4,7 +4,7 @@ import ballerina.net.jms;
 import ballerina.doc;
 
 @doc:Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
-@jms:config {
+@jms:configuration {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
            "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",

@@ -28,6 +28,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BConnectorType extends BType {
 
+    private int[] fieldTypeCount;
+
     /**
      * Create a {@code BConnectorType} which represents the Ballerina Connector type.
      *
@@ -42,11 +44,19 @@ public class BConnectorType extends BType {
     /**
      * Create a {@code BConnectorType} which represents the Ballerina Connector type.
      *
-     * @param typeName    string name of the type
-     * @param pkgPath     package of the connector
+     * @param typeName string name of the type
+     * @param pkgPath  package of the connector
      */
     public BConnectorType(String typeName, String pkgPath) {
         super(typeName, pkgPath, null, BConnector.class);
+    }
+
+    public int[] getFieldTypeCount() {
+        return fieldTypeCount;
+    }
+
+    public void setFieldTypeCount(int[] fieldTypeCount) {
+        this.fieldTypeCount = fieldTypeCount;
     }
 
     @Override

@@ -18,9 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
@@ -69,11 +66,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         } catch (UnsupportedEncodingException | URITemplateException e) {
             throw new BallerinaException(e.getMessage());
         }
-    }
-
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
-        return null;
     }
 
     @Override

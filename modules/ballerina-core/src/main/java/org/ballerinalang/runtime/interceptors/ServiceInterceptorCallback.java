@@ -31,7 +31,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.List;
 
 /**
- * {@link ServiceInterceptorCallback} Wrapper Callback for Resource's response interception
+ * {@link ServiceInterceptorCallback} Wrapper Callback for Resource's response interception.
  */
 public class ServiceInterceptorCallback extends DefaultBalCallback {
 

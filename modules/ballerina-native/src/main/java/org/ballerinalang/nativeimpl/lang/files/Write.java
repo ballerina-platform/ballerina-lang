@@ -50,7 +50,8 @@ import java.io.OutputStream;
         value = "The file which the blob should be written to") })
 public class Write extends AbstractNativeFunction {
 
-    @Override public BValue[] execute(Context context) {
+    @Override
+    public BValue[] execute(Context context) {
 
         byte[] content = getBlobArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 0);

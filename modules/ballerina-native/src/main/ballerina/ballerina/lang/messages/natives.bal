@@ -12,6 +12,11 @@ native function getJsonPayload (message m) (json);
 @doc:Return { value:"xml: The XML representation of the message payload" }
 native function getXmlPayload (message m) (xml);
 
+@doc:Description { value:"Gets the message payload in BLOB format"}
+@doc:Param { value:"m: The message object" }
+@doc:Return { value:"json: The BLOB reresentation of the message payload" }
+native function getBinaryPayload (message m) (blob);
+
 @doc:Description { value:"Sets a message property"}
 @doc:Param { value:"msg: The current message object" }
 @doc:Param { value:"propertyName: The name of the property" }
@@ -61,6 +66,10 @@ native function getProperty (message msg, string propertyName) (string);
 @doc:Param { value:"m: The message object" }
 @doc:Param { value:"key: The header name" }
 native function removeHeader (message m, string key);
+
+@doc:Description { value:"Removes all transport headers from the message"}
+@doc:Param { value:"m: The message object" }
+native function removeAllHeaders (message m);
 
 @doc:Description { value:"Sets the message payload using an XML object"}
 @doc:Param { value:"m: The current message object" }

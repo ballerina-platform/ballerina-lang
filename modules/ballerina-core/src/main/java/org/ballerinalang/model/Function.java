@@ -21,6 +21,6 @@ package org.ballerinalang.model;
 /**
  * {@code {@link Function}} represents any Ballerina function.
  */
-public interface Function extends CallableUnit {
+public interface Function extends CallableUnit, VariableDef {
 
 }

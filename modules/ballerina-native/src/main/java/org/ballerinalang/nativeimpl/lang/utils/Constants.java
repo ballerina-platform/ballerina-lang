@@ -42,7 +42,7 @@ public class Constants {
     public static final String TEXT_PLAIN = "text/plain";
 
     /**
-     * HTTP content-type application/octet-stream
+     * HTTP content-type application/octet-stream.
      */
     public static final String OCTET_STREAM = "application/octet-stream";
 

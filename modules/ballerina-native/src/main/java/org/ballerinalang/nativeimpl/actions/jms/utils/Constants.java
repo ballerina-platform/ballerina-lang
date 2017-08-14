@@ -22,6 +22,7 @@ package org.ballerinalang.nativeimpl.actions.jms.utils;
 public class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String PROTOCOL_JMS = "jms";
 
     /*
      * Session acknowledgement mode of the particular message.

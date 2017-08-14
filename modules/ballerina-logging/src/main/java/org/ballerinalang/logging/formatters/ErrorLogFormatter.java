@@ -26,7 +26,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom formatter for formatting the error log
+ * A custom formatter for formatting the error log.
  *
  * @since 0.89
  */

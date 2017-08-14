@@ -46,4 +46,4 @@ Let's create the archive.
   ballerina build service samples/helloWorldService -o hello.bsz
   ```
 
-You now have a service archive file of your Ballerina program, which you can upload to WSO2 Integration Cloud, run in a Docker container, or distribute to other Ballerina users. For more information on packages, archives, and running Ballerina programs, see [Packaging and Running Programs](../lang-ref/packaging.md). 
+You now have a service archive file of your Ballerina program, which you can upload to WSO2 Integration Cloud, run in a Docker container, or distribute to other Ballerina users.

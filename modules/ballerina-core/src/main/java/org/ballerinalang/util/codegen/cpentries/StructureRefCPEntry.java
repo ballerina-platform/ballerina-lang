@@ -28,15 +28,35 @@ public class StructureRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
+    private String packagePath;
 
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
+    private String structureName;
 
     private StructureTypeInfo structureTypeInfo;
 
-    public StructureRefCPEntry(int packageCPIndex, int nameCPIndex) {
+    public StructureRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String structureName) {
         this.packageCPIndex = packageCPIndex;
+        this.packagePath = packagePath;
         this.nameCPIndex = nameCPIndex;
+        this.structureName = structureName;
+    }
+
+    public int getPackageCPIndex() {
+        return packageCPIndex;
+    }
+
+    public String getPackagePath() {
+        return packagePath;
+    }
+
+    public int getNameCPIndex() {
+        return nameCPIndex;
+    }
+
+    public String getStructureName() {
+        return structureName;
     }
 
     public StructureTypeInfo getStructureTypeInfo() {
@@ -49,7 +69,7 @@ public class StructureRefCPEntry implements ConstantPoolEntry {
 
     @Override
     public EntryType getEntryType() {
-        return EntryType.CP_ENTRY_STRUCT;
+        return EntryType.CP_ENTRY_STRUCTURE_REF;
     }
 
     @Override
@@ -62,5 +82,15 @@ public class StructureRefCPEntry implements ConstantPoolEntry {
         return obj instanceof StructureRefCPEntry &&
                 packageCPIndex == (((StructureRefCPEntry) obj).packageCPIndex) &&
                 nameCPIndex == ((StructureRefCPEntry) obj).nameCPIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "StructureRefCPEntry{" +
+                "packageCPIndex=" + packageCPIndex +
+                ", packagePath='" + packagePath + '\'' +
+                ", nameCPIndex=" + nameCPIndex +
+                ", structureName='" + structureName + '\'' +
+                '}';
     }
 }

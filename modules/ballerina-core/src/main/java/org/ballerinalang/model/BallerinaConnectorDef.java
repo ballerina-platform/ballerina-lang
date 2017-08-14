@@ -22,6 +22,7 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
@@ -58,6 +59,9 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaAction[] actions;
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
+    private boolean isFilterConnector;
+    private SimpleTypeName filterSupportedType;
+    private BType filteredType;
 
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
@@ -118,6 +122,30 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     public int getSizeOfConnectorMem() {
         return sizeOfConnectorMem;
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
+    }
+
+    public SimpleTypeName getFilterSupportedType() {
+        return filterSupportedType;
+    }
+
+    public void setFilterSupportedType(SimpleTypeName filterSupportedType) {
+        this.filterSupportedType = filterSupportedType;
+    }
+
+    public BType getFilteredType() {
+        return filteredType;
+    }
+
+    public void setFilteredType(BType filteredType) {
+        this.filteredType = filteredType;
     }
 
 
@@ -227,6 +255,22 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     @Override
     public Map<SymbolName, BLangSymbol> getSymbolMap() {
         return Collections.unmodifiableMap(this.symbolMap);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof BallerinaConnectorDef) {
+            BallerinaConnectorDef other = (BallerinaConnectorDef) obj;
+                if (this.actions.length == other.actions.length) {
+                    for (int i = 0; i < this.actions.length; i++) {
+                        if (!this.actions[i].equals(other.actions[i])) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+
+        return false;
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

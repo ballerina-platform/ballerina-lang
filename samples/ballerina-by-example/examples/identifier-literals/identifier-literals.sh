@@ -1,3 +1,2 @@
-$ ballerina run main identifier-literals.bal
-identifier literal
-global var with identifier literal
+$ ballerina run identifier-literals.bal
+John Gosling

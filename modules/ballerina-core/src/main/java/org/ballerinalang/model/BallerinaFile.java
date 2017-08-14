@@ -228,6 +228,10 @@ public class BallerinaFile implements Node {
             this.packageBuilder.addAnnotationDef(annotationDef);
         }
 
+        public void addNamespaceDeclaration(NamespaceDeclaration namespaceDclr) {
+            this.packageBuilder.addNamespaceDeclaration(namespaceDclr);
+        }
+
         public BallerinaFile build() {
             return new BallerinaFile(
                     whiteSpaceDescriptor,

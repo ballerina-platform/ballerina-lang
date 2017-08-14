@@ -20,6 +20,8 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.SimpleVariableDef;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 
@@ -37,6 +39,14 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private Action action;
     private BType[] types = new BType[0];
     private int[] offsets;
+
+    // Following fields are added for backward compatibility and to overcome a limitation where both action and function
+    // invocation have similar grammar productions. Action invocation production will be removed in 0.91.
+    // TODO : Fix this.
+    // Indicates that, this is not an action invocation, but a function pointer invocation in a struct.
+    private boolean isFunctionInvocation;
+    private SimpleVariableDef variableDef;
+    private VariableDef fieldDef;
 
     public ActionInvocationExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -124,6 +134,30 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
 
     public void setOffsets(int[] offsets) {
         this.offsets = offsets;
+    }
+
+    public boolean isFunctionInvocation() {
+        return isFunctionInvocation;
+    }
+
+    public void setFunctionInvocation(boolean functionInvocation) {
+        isFunctionInvocation = functionInvocation;
+    }
+
+    public SimpleVariableDef getVariableDef() {
+        return variableDef;
+    }
+
+    public void setVariableDef(SimpleVariableDef variableDef) {
+        this.variableDef = variableDef;
+    }
+
+    public VariableDef getFieldDef() {
+        return fieldDef;
+    }
+
+    public void setFieldDef(VariableDef fieldDef) {
+        this.fieldDef = fieldDef;
     }
 
     @Override

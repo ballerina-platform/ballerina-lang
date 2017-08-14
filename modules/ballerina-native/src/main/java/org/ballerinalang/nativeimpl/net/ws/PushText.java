@@ -27,7 +27,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -55,13 +56,20 @@ public class PushText extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
 
-        if (context.getServiceInfo() == null) {
-            throw new BallerinaException("This function is only working with services");
+        if (context.getServiceInfo() == null ||
+                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
+            throw new BallerinaException("This function is only working with WebSocket services");
         }
 
         try {
             CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);;
+            if (WebSocketServicesRegistry.getInstance().isClientService(context.getServiceInfo()) &&
+                    session == null) {
+                    throw new BallerinaException("pushing text from client service is not supported. " +
+                                    "This is only supported for WebSocket to WebSocket mediation");
+            }
+
             String text = getStringArgument(context, 0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {

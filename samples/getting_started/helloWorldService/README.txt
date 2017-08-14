@@ -5,7 +5,7 @@ This sample runs a service that replies to a request with a greeting message.
 
 How to run this sample
 ======================
-bin$ ./ballerina run service ../samples/helloWorldService/helloWorldService.bal
+bin$ ./ballerina run ../samples/helloWorldService/helloWorldService.bal
 
 The above command will start the ballerina server in the current terminal, deploy the helloWorldService.bal file, and publish the service 'helloWorldService'.
 

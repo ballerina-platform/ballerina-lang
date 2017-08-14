@@ -58,7 +58,7 @@ public class Constants {
      */
     public static final String ALIAS_CONNECTION_FACTORY_TYPE = "connectionFactoryType";
     /**
-     * jms destination
+     * jms destination.
      */
     public static final String ALIAS_DESTINATION = "destination";
     /**

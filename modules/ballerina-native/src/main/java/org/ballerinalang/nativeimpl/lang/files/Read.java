@@ -48,7 +48,7 @@ import java.util.Arrays;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Gets the next byte from inputstream") })
+        value = "Read byte data from a file") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "is",
         value = "The File struct") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "number",

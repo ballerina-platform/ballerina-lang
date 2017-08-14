@@ -1,4 +1,4 @@
-$ ballerina run main file-api.bal
+$ ballerina run file-api.bal
 file written: /tmp/result.txt
 file existence: true
 file content: Sample Content

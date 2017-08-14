@@ -119,19 +119,19 @@ The `ballerina` command runs a Ballerina program/service in its packaged or unpa
 To execute `main()` from a `.bal` file or a package or archive file:
 
 ```
-ballerina run main (filename | packagename | mainarchive)
+ballerina run (filename | packagename | mainarchive)
 ```
 
 To run named services:
 
 ```
-ballerina run service (filename | packagename | servicearchive)+ 
+ballerina run (filename | packagename | servicearchive)+
 ```
 
 To run a collection of service archives from service root:
 
 ```
-ballerina run service [-sr serviceroot]
+ballerina run [-sr serviceroot]
 ```
 
 ## Creating and running a Docker image of the archive

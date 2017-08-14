@@ -1,2 +1,4 @@
 org.ballerinalang.services.dispatchers.http.HTTPErrorHandler
 org.ballerinalang.services.dispatchers.ws.WebSocketErrorHandler
+org.ballerinalang.services.dispatchers.ftp.FTPErrorHandler
+org.ballerinalang.services.dispatchers.fs.FileSystemErrorHandler

@@ -209,7 +209,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     }
 
     @Override
-    public BLangSymbol resolve(SymbolName name) {
+    public BLangSymbol resolve(SymbolName name)     {
         if (name.getPkgPath() == null) {
             return resolve(symbolMap, name);
         }
@@ -385,6 +385,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
         public void setBallerinaFileList(List<BallerinaFile> ballerinaFileList) {
             this.ballerinaFileList = ballerinaFileList;
+        }
+        
+        public void addNamespaceDeclaration(NamespaceDeclaration namespaceDclr) {
+            this.compilationUnitList.add(namespaceDclr);
         }
 
         public BLangPackage build() {

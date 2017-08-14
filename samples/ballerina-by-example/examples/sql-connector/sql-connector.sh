@@ -1,4 +1,4 @@
-$ ballerina run main sql-connector.bal
+$ ballerina run sql-connector.bal
 Table creation status:0
 Stored proc creation status:0
 Inserted row count:1

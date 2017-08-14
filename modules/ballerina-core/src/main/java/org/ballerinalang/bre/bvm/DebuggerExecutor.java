@@ -37,6 +37,7 @@ public class DebuggerExecutor implements Runnable {
     @Override
     public void run() {
         BLangVM bLangVM = new BLangVM(programFile);
+        bContext.getDebugInfoHolder().getDebugSessionObserver().addContext(bContext);
         bContext.getDebugInfoHolder().waitTillDebuggeeResponds();
         bLangVM.run(bContext);
     }

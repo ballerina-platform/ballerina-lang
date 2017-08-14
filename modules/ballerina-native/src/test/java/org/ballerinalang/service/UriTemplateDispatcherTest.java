@@ -202,6 +202,19 @@ public class UriTemplateDispatcherTest {
         };
     }
 
+    @Test(description = "Test empty string resource path")
+    public void testEmptyStringResourcepath() {
+        String path = "/ecommerceservice";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("echo11").asText(), "echo11"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
 //        EnvironmentInitializer.cleanup(application);

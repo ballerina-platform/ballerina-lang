@@ -1,20 +1,21 @@
 # To run the program, put the code in "hello-world.bal"
-# and use "ballerina run main" command.
-$ ballerina run main hello-world.bal
+# and use "ballerina run" command.
+$ ballerina run hello-world.bal
 Hello, World!
 
-# To build a program archive, we can use the
-# "ballerina build main" command followed by
-# one or more packages to be included into the archive.
+# To build a compiled program file, we can use the
+# "ballerina build" command followed by
+# the ballerina source file or the package
+# which contains the main function.
 $ ballerina build main hello-world.bal
 $ ls
-hello-world.bmz	hello-world.bal
+hello-world.balx	hello-world.bal
 
-# Here is how we can specify a name of the archive file
-$ ballerina build main hello-world.bal -o hello.bmz
+# The output file can be specified with the -o flag.
+$ ballerina build main hello-world.bal -o hello.balx
 
-# We can now run the archive directly.
-$ ballerina run main hello.bmz
+# Here is how you can run the program file.
+$ ballerina run hello.balx
 Hello, World!
 
 # Now that we are familiar with the hello world program,

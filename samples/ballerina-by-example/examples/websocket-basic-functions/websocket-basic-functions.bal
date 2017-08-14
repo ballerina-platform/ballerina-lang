@@ -2,7 +2,7 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:config{basePath:"/functions"}
+@http:configuration{basePath:"/functions"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> websocketEndpoint {
 
