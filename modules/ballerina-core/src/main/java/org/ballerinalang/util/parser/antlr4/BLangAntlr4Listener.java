@@ -1607,7 +1607,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
-            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
+            modelBuilder.createAnyJoinCondition("some", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
                     whiteSpaceDescriptor);
             enterJoinWorkers(ctx.Identifier());
         }
