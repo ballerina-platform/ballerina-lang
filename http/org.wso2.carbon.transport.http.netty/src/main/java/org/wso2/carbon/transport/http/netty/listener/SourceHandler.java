@@ -192,6 +192,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         // Setting common properties for init message
         initMessage.setSubProtocol(subProtocol);
         initMessage.setChannelSession(channelSession);
+        initMessage.setIsServerMessage(true);
+        initMessage.setTarget(httpRequest.uri());
+        initMessage.setListenerInterface(listenerConfiguration.getId());
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
 
         serverConnectorFuture.notifyWSListener(initMessage);
