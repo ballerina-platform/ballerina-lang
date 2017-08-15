@@ -11,6 +11,47 @@
 }
 
 .application-menu {
+    & .menu-label:hover {
+        cursor: default;
+    }
+    & .rc-menu {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    & .rc-menu-item-active {
+        background-color: #f17b31;
+        color: white;
+    }
+    & .rc-menu-vertical {
+        .rc-menu-item {
+            padding: 7px 7px 7px 7px;
+        }
+    } 
+    & .rc-menu-horizontal {
+        background: none;
+        & .rc-menu-submenu, .rc-menu-item {
+            border-bottom: none;
+            & .rc-menu-submenu-title {
+                padding: 7px 7px 7px 7px;
+                cursor: default;
+            }
+        }
+        & .rc-menu-submenu-active {
+            color: white;
+            > .rc-menu-submenu-title {
+                background-color: #f17b31;
+            }
+        }
+    }
+    & .rc-menu-submenu-horizontal {
+        & .rc-menu {
+            margin-top: 0;
+        }
+    }
+    & .rc-menu-submenu-selected {
+        background: none;
+    }
     & .dropdown-toggle.btn-default
     {
        @extend .menu-item-toggle;

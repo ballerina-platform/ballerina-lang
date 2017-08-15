@@ -21,7 +21,9 @@ class Header extends React.Component {
                             <span>Ballerina</span><span className="appname">Composer </span>
                         </a>
                     </div>
-                    { this.props.children }
+                    <div className="pull-left">
+                        { this.props.children }
+                    </div>
                 </div>
             </header>
         );

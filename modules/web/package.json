@@ -75,7 +75,7 @@
     "brace": "^0.10.0",
     "classnames": "^2.2.5",
     "d3": "^4.1.1",
-    "golden-layout": "github:deepstreamio/golden-layout",
+    "golden-layout": "deepstreamIO/golden-layout",
     "html-loader": "^0.4.5",
     "html5shiv": "^3.7.3",
     "jquery": "^1.9.1",
@@ -93,6 +93,7 @@
     "npm": "^4.2.0",
     "prop-types": "^15.5.8",
     "raw-loader": "^0.5.1",
+    "rc-menu": "^5.0.10",
     "react": "^15.4.2",
     "react-autosuggest": "^9.0.1",
     "react-bootstrap": "^0.31.1",
@@ -105,7 +106,6 @@
     "react-treeview": "^0.4.7",
     "select2": "^4.0.3",
     "typeahead.js": "^0.11.1",
-    "unused-files-webpack-plugin": "^3.0.1",
-    "golden-layout": "deepstreamIO/golden-layout"
+    "unused-files-webpack-plugin": "^3.0.1"
   }
 }
