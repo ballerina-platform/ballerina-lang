@@ -26,7 +26,7 @@ export function getMenuDefinitions(workspaceManager) {
                 return true;
             },
             command: COMMANDS.SHOW_FILE_OPEN_WIZARD,
-            icon: '',
+            icon: 'document',
             type: MENU_DEF_TYPES.ITEM,
         },
         {
@@ -37,7 +37,7 @@ export function getMenuDefinitions(workspaceManager) {
                 return true;
             },
             command: COMMANDS.SHOW_FILE_OPEN_WIZARD,
-            icon: '',
+            icon: 'folder-open',
             type: MENU_DEF_TYPES.ITEM,
         },
     ];
