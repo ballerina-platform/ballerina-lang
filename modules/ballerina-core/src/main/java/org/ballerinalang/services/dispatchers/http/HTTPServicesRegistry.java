@@ -197,8 +197,6 @@ public class HTTPServicesRegistry {
                 (Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
         AnnAttributeValue certPassAttrVal = configInfo.getAttributeValue
                 (Constants.ANN_CONFIG_ATTR_CERT_PASS);
-        AnnAttributeValue socketIdleTimeoutAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_CERT_PASS);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
