@@ -50,7 +50,6 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
     private final String url = "ws://localhost:8490/websocket";
     private final int threadSleepTime = 100;
-    private final int messageDeliveryCountdown = 40;
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
 

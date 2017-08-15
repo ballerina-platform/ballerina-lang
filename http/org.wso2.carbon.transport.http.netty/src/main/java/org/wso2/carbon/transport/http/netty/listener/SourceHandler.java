@@ -52,6 +52,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -184,10 +185,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         String uri = httpRequest.uri();
         String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
         WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
+
+        Map<String, String> headers = new HashMap<>();
+        httpRequest.headers().forEach(
+                header -> headers.put(header.getKey(), header.getValue())
+        );
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           connectionManager, listenerConfiguration, ctx);
-        WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler);
+                                           headers, connectionManager, listenerConfiguration, ctx);
+        WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
+                                                                            headers);
 
         // Setting common properties for init message
         initMessage.setSubProtocol(subProtocol);

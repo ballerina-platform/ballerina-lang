@@ -47,8 +47,6 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerTestCase.class);
 
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
-    private final int threadSleepTime = 100;
-    private final int messageDeliveryCountdown = 40;
     private WebSocketClient primaryClient = new WebSocketClient();
     private WebSocketClient secondaryClient = new WebSocketClient();
     private ServerConnector serverConnector;

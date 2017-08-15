@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpRequest;
@@ -32,6 +33,7 @@ import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMess
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.ProtocolException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
 
@@ -42,23 +44,22 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
 
     private final ChannelHandlerContext ctx;
     private final HttpRequest httpRequest;
-    private final WebSocketServerHandshaker handshaker;
     private final WebSocketSourceHandler webSocketSourceHandler;
 
     public WebSocketInitMessageImpl(ChannelHandlerContext ctx, HttpRequest httpRequest,
-                                    WebSocketSourceHandler webSocketSourceHandler) {
+                                    WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
         this.ctx = ctx;
         this.httpRequest = httpRequest;
         this.webSocketSourceHandler = webSocketSourceHandler;
-
-        WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), subProtocol, true);
-        this.handshaker = wsFactory.newHandshaker(httpRequest);
+        this.headers = headers;
     }
 
     @Override
     public Session handshake() throws ProtocolException {
 
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
         try {
             handshaker.handshake(ctx.channel(), httpRequest);
 
@@ -84,6 +85,9 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
 
     @Override
     public Session handshake(int idleTimeout) throws ProtocolException {
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
         try {
             handshaker.handshake(ctx.channel(), httpRequest);
 
@@ -111,7 +115,12 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
 
     @Override
     public void cancelHandShake(int closeCode, String closeReason) {
-        handshaker.close(ctx.channel(), new CloseWebSocketFrame(closeCode, closeReason));
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
+        ChannelFuture channelFuture =
+                handshaker.close(ctx.channel(), new CloseWebSocketFrame(closeCode, closeReason));
+        channelFuture.channel().close();
     }
 
     /* Get the URL of the given connection */

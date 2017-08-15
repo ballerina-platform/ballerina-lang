@@ -21,61 +21,62 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
-import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.net.ssl.SSLException;
 
 /**
- * Test cases for WebSocket pass-through scenarios.
+ * Test class to check the known properties of which should contain in a WebSocket message.
  */
-public class WebSocketPassthoughTestCase extends WebSocketTestCase {
+public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketMessagePropertiesTestCase.class);
 
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
 
-    private WebSocketClient webSocketClient = new WebSocketClient();
     private ServerConnector serverConnector;
+    private WebSocketConnectorListener connectorListener;
 
     @BeforeClass
-    public void setup() throws InterruptedException, ClientConnectorException {
+    public void setup() {
         log.info(System.lineSeparator() +
-                         "--------------------- WebSocket Pass Through Test Cases ---------------------");
-        remoteServer.run();
-
+                         "--------------------- WebSocket Server Test Cases ---------------------");
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(9009);
         serverConnector = httpConnectorFactory.getServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                   listenerConfiguration);
-        serverConnector.start().setWSConnectorListener(new WebSocketPassthroughServerConnectorListener());
+        connectorListener = new WebSocketMessagePropertiesConnectorListener();
+        serverConnector.start().setWSConnectorListener(connectorListener);
     }
 
     @Test
-    public void testTextPassthrough() throws InterruptedException, SSLException, URISyntaxException {
-        webSocketClient.handhshake();
-        String text = "hello-pass-through";
-        webSocketClient.sendText(text);
-        assertWebSocketClientTextMessage(webSocketClient, text);
-        Assert.assertEquals(webSocketClient.getTextReceived(), text);
+    public void testProperties() throws InterruptedException, SSLException, URISyntaxException {
+        String subProtocol = "xml";
+        Map<String, String> customHeaders = new HashMap<>();
+        customHeaders.put("check-sub-protocol", "true");
+        customHeaders.put("message-type", "websocket");
+        customHeaders.put("message-sender", "wso2");
+        WebSocketClient wsClient = new WebSocketClient(subProtocol, customHeaders);
+        wsClient.handhshake();
+        wsClient.sendText("Hi backend");
+        wsClient.shutDown();
     }
 
     @AfterClass
     public void cleaUp() throws ServerConnectorException, InterruptedException {
         serverConnector.stop();
-        remoteServer.stop();
     }
 }

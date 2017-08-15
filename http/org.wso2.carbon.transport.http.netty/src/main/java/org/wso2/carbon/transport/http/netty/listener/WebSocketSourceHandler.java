@@ -51,7 +51,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final String subProtocol;
     private final WebSocketSessionImpl channelSession;
     private final List<Session> clientSessionsList = new LinkedList<>();
-    private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> headers;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -86,7 +85,8 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
-                                  ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration,
+                                  Map<String, String> headers, ConnectionManager connectionManager,
+                                  ListenerConfiguration listenerConfiguration,
                                   ChannelHandlerContext ctx) throws Exception {
         super(connectionManager, listenerConfiguration, new HTTPServerConnectorFuture());
         this.connectorFuture = connectorFuture;
@@ -95,9 +95,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.channelSession = channelSession;
         this.ctx = ctx;
         this.target = httpRequest.uri();
-        httpRequest.headers().forEach(
-                header -> headers.put(header.getKey(), header.getValue())
-        );
+        this.headers = headers;
     }
 
     /**
