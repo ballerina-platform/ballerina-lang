@@ -18,7 +18,7 @@
 
 import _ from 'lodash';
 import Statement from './statement';
-import BallerinaASTFactory from './../ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 
 /**
  * Class for Failed Statement.
@@ -50,12 +50,12 @@ class FailedStatement extends Statement {
      * @param {boolean} generateId - generate id
      * */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false, generateId = false) {
-        if (BallerinaASTFactory.isRetry(child)) {
+        if (ASTFactory.isRetry(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
                 .addChild.call(this, child, this.getChildren().length, ignoreTreeModifiedEvent,
                 ignoreChildAddedEvent, generateId);
         } else {
-            const retryChild = this.filterChildren(retry => BallerinaASTFactory.isRetry(retry));
+            const retryChild = this.filterChildren(retry => ASTFactory.isRetry(retry));
             Object.getPrototypeOf(this.constructor.prototype)
                 .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
             if (retryChild.length !== 0) {
@@ -74,10 +74,10 @@ class FailedStatement extends Statement {
      * */
     canBeParentOf(child) {
         let canBeAParent = true;
-        if (BallerinaASTFactory.isRetry(child)) {
-            canBeAParent = this.filterChildren(retry => BallerinaASTFactory.isRetry(retry)).length === 0;
+        if (ASTFactory.isRetry(child)) {
+            canBeAParent = this.filterChildren(retry => ASTFactory.isRetry(retry)).length === 0;
         } else {
-            canBeAParent = this.getFactory().isStatement(child);
+            canBeAParent = ASTFactory.isStatement(child);
         }
         return canBeAParent;
     }
@@ -91,8 +91,8 @@ class FailedStatement extends Statement {
         let retryChild;
         let retryChildNode;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
-            if (BallerinaASTFactory.isRetry(child)) {
+            const child = ASTFactory.createFromJson(childNode);
+            if (ASTFactory.isRetry(child)) {
                 retryChild = child;
                 retryChildNode = childNode;
             } else {

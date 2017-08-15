@@ -20,6 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import constants from 'constants';
 import CommonUtils from '../utils/common-utils';
+import ASTFactory from './ast-factory.js';
 const STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME;
 const STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME;
 const STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE;
@@ -60,7 +61,7 @@ class StructDefinition extends ASTNode {
     getVariableDefinitionStatements() {
         const variableDefinitions = [];
 
-        _.forEach(this.filterChildren(this.getFactory().isVariableDefinitionStatement), (child) => {
+        _.forEach(this.filterChildren(ASTFactory.isVariableDefinitionStatement), (child) => {
             variableDefinitions.push(child);
         });
         return variableDefinitions;
@@ -93,7 +94,7 @@ class StructDefinition extends ASTNode {
             throw errorString;
         } else {
             // Creating new variable definition.
-            const newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
+            const newVariableDefinitionStatement = ASTFactory.createVariableDefinitionStatement();
             let stmtString = '';
             if (defaultValue == '') { stmtString = bType + ' ' + identifier; } else {
                 stmtString = bType + ' ' + identifier + ' = ' + defaultValue;
@@ -101,7 +102,7 @@ class StructDefinition extends ASTNode {
             newVariableDefinitionStatement.setStatementFromString(stmtString);
 
             // Get the index of the last definition.
-            const index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
+            const index = this.findLastIndexOfChild(ASTFactory.isVariableDefinitionStatement);
 
             this.addChild(newVariableDefinitionStatement, index + 1);
         }
@@ -126,7 +127,7 @@ class StructDefinition extends ASTNode {
         this.setStructName(jsonNode.struct_name, { doSilently: true });
 
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -139,7 +140,7 @@ class StructDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.getFactory().isVariableDefinition(node);
+        return ASTFactory.isVariableDefinition(node);
     }
 
     /**

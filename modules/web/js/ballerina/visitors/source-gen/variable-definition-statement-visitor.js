@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import FunctionDefinitionVisitor from './function-definition-visitor';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';

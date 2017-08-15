@@ -18,7 +18,8 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
-import BallerinaAstFactory from './ballerina-ast-factory';
+import BallerinaAstFactory from './ast-factory';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor GlobalVariableDefinition
@@ -65,7 +66,7 @@ class GlobalVariableDefinition extends ASTNode {
             pkgName: jsonNode.package_name,
             isArray: jsonNode.is_array_type,
         }
-        return this.getFactory().createVariableDefinition(args);
+        return ASTFactory.createVariableDefinition(args);
     }
 
     /**
@@ -84,7 +85,7 @@ class GlobalVariableDefinition extends ASTNode {
         this.addChild(this._createVarDef(jsonNode));
 
         for (const childNode of jsonNode.children) {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         }

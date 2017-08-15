@@ -20,7 +20,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
-import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import ASTFactory from 'ballerina/ast/ast-factory';
 import SourceGenVisitor from 'ballerina/visitors/source-gen/ballerina-ast-root-visitor';
 import File from 'workspace/file';
 import 'bootstrap';
@@ -176,21 +176,21 @@ const SwaggerImportDialog = Backbone.View.extend(
                             } else {
                                 swaggerParser = new SwaggerParser(data.content, true);
                             }
-                            const ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
+                            const ballerinaAstRoot = ASTFactory.createBallerinaAstRoot();
 
                             // Adding ballerina.net.http import.
-                            const httpImport = BallerinaASTFactory.createImportDeclaration();
+                            const httpImport = ASTFactory.createImportDeclaration();
                             httpImport.setPackageName('ballerina.net.http', { doSilently: true });
                             httpImport.setParent(ballerinaAstRoot, { doSilently: true });
                             ballerinaAstRoot.addImport(httpImport, { doSilently: true });
 
                             // Adding ballerina.net.http.swagger import.
-                            const swaggerImport = BallerinaASTFactory.createImportDeclaration();
+                            const swaggerImport = ASTFactory.createImportDeclaration();
                             swaggerImport.setPackageName('ballerina.net.http.swagger', { doSilently: true });
                             swaggerImport.setParent(ballerinaAstRoot, { doSilently: true });
                             ballerinaAstRoot.addImport(swaggerImport, { doSilently: true });
 
-                            const serviceDefinition = BallerinaASTFactory.createServiceDefinition();
+                            const serviceDefinition = ASTFactory.createServiceDefinition();
                             serviceDefinition.setProtocolPkgName('http');
                             serviceDefinition.setProtocolPkgPath('ballerina.net.http');
                             ballerinaAstRoot.addChild(serviceDefinition);

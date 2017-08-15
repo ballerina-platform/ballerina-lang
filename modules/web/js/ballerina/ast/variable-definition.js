@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
+import ASTFactory from './ast-factory.js';
 
 class VariableDefinition extends ASTNode {
     constructor(args) {
@@ -139,7 +140,7 @@ class VariableDefinition extends ASTNode {
         }
 
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

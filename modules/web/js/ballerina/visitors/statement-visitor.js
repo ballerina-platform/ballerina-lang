@@ -16,7 +16,7 @@
  * under the License.
  */
 import ASTVisitor from './ast-visitor';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class StatementVisitor extends ASTVisitor {
     constructor(args) {

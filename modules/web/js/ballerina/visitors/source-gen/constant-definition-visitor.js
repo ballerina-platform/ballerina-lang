@@ -18,6 +18,7 @@
 
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Visitor for a constant definition source generation
@@ -47,7 +48,7 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        constantDefinition.getChildrenOfType(constantDefinition.getFactory().isAnnotationAttachment).forEach(
+        constantDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

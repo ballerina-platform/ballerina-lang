@@ -20,7 +20,7 @@ import Statement from './statement';
 import ElseStatement from './else-statement';
 import ElseIfStatement from './else-if-statement';
 import IfStatement from './if-statement';
-import BallerinaASTFactory from './../ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 
 /**
  * Class for if conditions in ballerina.
@@ -41,7 +41,7 @@ class IfElseStatement extends Statement {
      * @return {IfStatement} if statement
      */
     getIfStatement() {
-        const stmtArray = this.getChildrenOfType(this.getFactory().isIfStatement);
+        const stmtArray = this.getChildrenOfType(ASTFactory.isIfStatement);
         return (!_.isNil(stmtArray) && !_.isEmpty(stmtArray))
                 ? _.nth(stmtArray, 0) : undefined ;
     }
@@ -51,7 +51,7 @@ class IfElseStatement extends Statement {
      * @return {ElseStatement} else statement
      */
     getElseStatement() {
-        const stmtArray = this.getChildrenOfType(this.getFactory().isElseStatement);
+        const stmtArray = this.getChildrenOfType(ASTFactory.isElseStatement);
         return (!_.isNil(stmtArray) && !_.isEmpty(stmtArray))
                 ? _.nth(stmtArray, 0) : undefined ;
     }
@@ -61,7 +61,7 @@ class IfElseStatement extends Statement {
      * @return {ElseIfStatement} else if statement
      */
     getElseIfStatements() {
-        return this.getChildrenOfType(this.getFactory().isElseIfStatement);
+        return this.getChildrenOfType(ASTFactory.isElseIfStatement);
     }
 
     /**
@@ -81,7 +81,7 @@ class IfElseStatement extends Statement {
      * @returns {ElseStatement} else statement
      */
     createElseStatement(args) {
-        const newElseStatement = this.getFactory().createElseStatement(args);
+        const newElseStatement = ASTFactory.createElseStatement(args);
         this.addChild(newElseStatement);
         return newElseStatement;
     }
@@ -92,12 +92,12 @@ class IfElseStatement extends Statement {
      * @returns {ElseIfStatement} Else if Statement
      */
     createElseIfStatement(args) {
-        const condition = this.getFactory().createBasicLiteralExpression({
+        const condition = ASTFactory.createBasicLiteralExpression({
             basicLiteralType: 'boolean',
             basicLiteralValue: true,
         });
         _.set(args, 'condition', condition);
-        const newElseIfStatement = this.getFactory().createElseIfStatement(args);
+        const newElseIfStatement = ASTFactory.createElseIfStatement(args);
         this.addChild(newElseIfStatement);
         return newElseIfStatement;
     }
@@ -119,7 +119,7 @@ class IfElseStatement extends Statement {
      */
     addElseIfStatement(elseIfStatement, index) {
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
-            return BallerinaASTFactory.isElseStatement(node);
+            return ASTFactory.isElseStatement(node);
         });
 
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(
@@ -137,10 +137,10 @@ class IfElseStatement extends Statement {
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
-            return BallerinaASTFactory.isElseStatement(node);
+            return ASTFactory.isElseStatement(node);
         });
 
-        if (BallerinaASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
+        if (ASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
             index = elseStatementIndex;
         }
 
@@ -161,14 +161,14 @@ class IfElseStatement extends Statement {
         // create if statement
         const ifStmtNode = jsonNode.if_statement;
         if (!_.isNil(ifStmtNode)) {
-            const ifStatement = this.getFactory().createFromJson(ifStmtNode);
+            const ifStatement = ASTFactory.createFromJson(ifStmtNode);
             this.addChild(ifStatement);
             ifStatement.initFromJson(ifStmtNode);
         }
         // create else statement
         const elseStmtNode = jsonNode.else_statement;
         if (!_.isNil(elseStmtNode)) {
-            const elseStatement = this.getFactory().createFromJson(elseStmtNode);
+            const elseStatement = ASTFactory.createFromJson(elseStmtNode);
             this.addChild(elseStatement);
             elseStatement.initFromJson(elseStmtNode);
         }
@@ -177,7 +177,7 @@ class IfElseStatement extends Statement {
         if (!_.isNil(jsonNode.else_if_statements) && _.isArray(jsonNode.else_if_statements)) {
             _.each(jsonNode.else_if_statements, (elseIfStmtNode) => {
                 if (!_.isNil(elseIfStmtNode)) {
-                    const elseIfStatement = this.getFactory().createFromJson(elseIfStmtNode);
+                    const elseIfStatement = ASTFactory.createFromJson(elseIfStmtNode);
                     this.addChild(elseIfStatement);
                     elseIfStatement.initFromJson(elseIfStmtNode);
                 }

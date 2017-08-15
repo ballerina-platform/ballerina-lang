@@ -20,6 +20,7 @@ import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import VariableDefinitionStatementVisitor from './variable-definition-statement-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source generation visitor for Struct definition
@@ -47,7 +48,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotationAttachment).forEach(
+        structDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

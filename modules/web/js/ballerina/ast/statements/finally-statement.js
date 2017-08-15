@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for finally statement in ballerina.
@@ -45,7 +46,7 @@ class FinallyStatement extends Statement {
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

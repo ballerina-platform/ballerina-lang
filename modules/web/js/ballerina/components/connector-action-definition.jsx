@@ -25,6 +25,7 @@ import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ConnectorActionAST from './../ast/connector-action';
 import ImageUtil from './image-util';
+import ASTFactory from '../ast/ast-factory.js';
 
 /**
  * React component for a connector action.
@@ -42,7 +43,7 @@ class ConnectorAction extends React.Component {
      * @memberof ConnectorAction
      */
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for worker and connector declarations only.
         // Statements should only be allowed on top of resource worker's dropzone.
@@ -73,7 +74,7 @@ class ConnectorAction extends React.Component {
             polygonClass: 'default-worker-life-line-polygon',
         };
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const titleComponentData = [{

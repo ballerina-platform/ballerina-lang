@@ -19,7 +19,7 @@
 import log from 'log';
 import _ from 'lodash';
 import * as PositioningUtils from './utils';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import PositionCalculatorVisitor from '../position-calculator-visitor';
 

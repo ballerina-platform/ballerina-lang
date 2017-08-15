@@ -24,7 +24,7 @@ import ConnectorDefinitionAST from './../ast/connector-definition';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 /**
  * React component for a connector definition.
@@ -54,7 +54,7 @@ class ConnectorDefinition extends React.Component {
      * @memberof ConnectorDefinition
      */
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for resource defs and connector declarations only.
         return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
@@ -91,13 +91,13 @@ class ConnectorDefinition extends React.Component {
         const bBox = model.viewState.bBox;
         const viewState = model.getViewState();
         const components = viewState.components;
-        const variables = model.filterChildren(child => BallerinaASTFactory.isVariableDefinitionStatement(child));
+        const variables = model.filterChildren(child => ASTFactory.isVariableDefinitionStatement(child));
 
         // get the connector name
         const title = model.getConnectorName();
 
         const childrenWithNoVariables = model.filterChildren(
-                                                    child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
+                                                    child => !ASTFactory.isVariableDefinitionStatement(child));
 
         /**
          * Here we skip rendering the variables

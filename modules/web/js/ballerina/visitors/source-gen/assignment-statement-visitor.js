@@ -18,7 +18,7 @@
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AssignmentStatement from '../../ast/statements/assignment-statement';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import FunctionDefinitionVisitor from './function-definition-visitor';
 import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
 import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor'

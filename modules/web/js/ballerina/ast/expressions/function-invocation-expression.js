@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for FunctionInvocationExpression
@@ -140,7 +141,7 @@ class FunctionInvocationExpression extends Expression {
         }
         this.setFunctionName(jsonNode.function_name, { doSilently: true });
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

@@ -24,7 +24,7 @@ import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
-import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
 import PackageDefinitionModel from '../ast/package-definition';
@@ -43,11 +43,11 @@ class PackageDefinition extends React.Component {
      * @return {string} the text displayed in the expanded view for the given node
      */
     static getDisplayValue(globalDef) {
-        if (BallerinaASTFactory.isGlobalVariableDefinition(globalDef)) {
+        if (ASTFactory.isGlobalVariableDefinition(globalDef)) {
             return globalDef.getGlobalVariableDefinitionAsString();
         }
 
-        if (BallerinaASTFactory.isConstantDefinition(globalDef)) {
+        if (ASTFactory.isConstantDefinition(globalDef)) {
             return globalDef.getConstantDefinitionAsString();
         }
 

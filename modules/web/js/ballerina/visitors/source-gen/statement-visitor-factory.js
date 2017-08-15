@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import TryCatchStatementVisitor from './try-catch-statement-visitor';
 import TryStatementVisitor from './try-statement-visitor';
 import CatchStatementVisitor from './catch-statement-visitor';
