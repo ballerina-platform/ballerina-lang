@@ -25,7 +25,6 @@ import com.intellij.ide.util.projectWizard.importSources.DetectedSourceRoot;
 import com.intellij.ide.util.projectWizard.importSources.ProjectFromSourcesBuilder;
 import com.intellij.ide.util.projectWizard.importSources.ProjectStructureDetector;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaModuleType;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
@@ -47,8 +46,9 @@ public class BallerinaProjectStructureDetector extends ProjectStructureDetector 
     @Override
     public DirectoryProcessingResult detectRoots(@NotNull File dir, @NotNull File[] children, @NotNull File base,
                                                  @NotNull List<DetectedProjectRoot> result) {
-
+        // We check all files in the dir.
         processDirectories(children, result);
+        // We add the "dir" as the project root.
         List<File> filesByMask = FileUtil.findFilesByMask(BAL_FILE_PATTERN, dir);
         if (!filesByMask.isEmpty()) {
             result.add(new DetectedProjectRoot(base) {
@@ -64,28 +64,41 @@ public class BallerinaProjectStructureDetector extends ProjectStructureDetector 
     }
 
     private void processDirectories(@NotNull File[] children, @NotNull List<DetectedProjectRoot> result) {
+        // Iterate through all files.
         for (File child : children) {
-            if ("src".equals(child.getName())) {
-                List<File> filesByMask = FileUtil.findFilesByMask(BAL_FILE_PATTERN, child);
-                if (filesByMask.isEmpty()) {
-                    continue;
-                }
-                result.add(new DetectedSourceRoot(child, "") {
-
-                    @NotNull
-                    @Override
-                    public String getRootTypeName() {
-                        return "Ballerina";
+            // We only want to check directories.
+            if (child.isDirectory()) {
+                // If the directory name is "src", it can contains source files.
+                if ("src".equals(child.getName())) {
+                    // We check whether there are any .bal files exists inside the directory or sub directory.
+                    List<File> filesByMask = FileUtil.findFilesByMask(BAL_FILE_PATTERN, child);
+                    // If there are no .bal file, continue with the next directory.
+                    if (filesByMask.isEmpty()) {
+                        continue;
                     }
-                });
-            } else {
-                List<File> filesByMask = FileUtil.findFilesOrDirsByMask(BAL_FILE_PATTERN, child);
-                if (filesByMask.isEmpty()) {
-                    continue;
-                }
-                File[] files = child.listFiles();
-                if (files != null) {
-                    processDirectories(files, result);
+                    // If there are .bal files, add the directory as a source root.
+                    result.add(new DetectedSourceRoot(child, "") {
+
+                        @NotNull
+                        @Override
+                        public String getRootTypeName() {
+                            return "Ballerina";
+                        }
+                    });
+                } else {
+                    // If the directory name is not "src", we check sub directories if the current directory or sub
+                    // directory contains .bal files.
+                    List<File> filesByMask = FileUtil.findFilesByMask(BAL_FILE_PATTERN, child);
+                    // If there are no .bal file, continue with the next directory.
+                    if (filesByMask.isEmpty()) {
+                        continue;
+                    }
+                    // Get the file list.
+                    File[] files = child.listFiles();
+                    if (files != null) {
+                        // Process files.
+                        processDirectories(files, result);
+                    }
                 }
             }
         }
@@ -95,17 +108,25 @@ public class BallerinaProjectStructureDetector extends ProjectStructureDetector 
     public void setupProjectStructure(@NotNull Collection<DetectedProjectRoot> roots,
                                       @NotNull ProjectDescriptor projectDescriptor,
                                       @NotNull ProjectFromSourcesBuilder builder) {
+        // If there are no roots detected, we don't need to process anything.
         if (roots.isEmpty()) {
             return;
         }
-        List<ModuleDescriptor> moduleDescriptors = new LinkedList<>();
-        ModuleDescriptor rootModuleDescriptor = null;
-        ModuleDescriptor moduleDescriptor;
+
+        // There can be multiple source roots in a module. So we keep all of them in the following list.
+        List<DetectedSourceRoot> detectedSourceRoots = new LinkedList<>();
+        // We need the project root to create a module descriptor.
+        DetectedProjectRoot projectRoot = null;
+
+        // Iterate through all DetectedProjectRoots.
         for (DetectedProjectRoot root : roots) {
+            // If the root is a DetectedSourceRoot, add it as a source root to the list.
             if (root instanceof DetectedSourceRoot) {
-                moduleDescriptor = new ModuleDescriptor(root.getDirectory().getParentFile(),
-                        BallerinaModuleType.getInstance(), ((DetectedSourceRoot) root));
+                detectedSourceRoots.add(((DetectedSourceRoot) root));
             } else if (root instanceof DetectedProjectRoot) {
+                projectRoot = root;
+                // If the root is a DetectedProjectRoot, we need to add it as a source as well since it might contain
+                // sources.
                 DetectedSourceRoot detectedSourceRoot = new DetectedSourceRoot(root.getDirectory(), "") {
 
                     @NotNull
@@ -114,23 +135,18 @@ public class BallerinaProjectStructureDetector extends ProjectStructureDetector 
                         return "Ballerina";
                     }
                 };
-                moduleDescriptor = new ModuleDescriptor(root.getDirectory(), BallerinaModuleType.getInstance(),
-                        detectedSourceRoot);
-                rootModuleDescriptor = moduleDescriptor;
-            } else {
-                moduleDescriptor = new ModuleDescriptor(root.getDirectory(), BallerinaModuleType.getInstance(),
-                        ContainerUtil.emptyList());
+                detectedSourceRoots.add(detectedSourceRoot);
             }
-            moduleDescriptors.add(moduleDescriptor);
         }
-        // Add root module as a dependency to all modules.
-        for (ModuleDescriptor descriptor : moduleDescriptors) {
-            if (descriptor.equals(rootModuleDescriptor)) {
-                continue;
-            }
-            descriptor.addDependencyOn(rootModuleDescriptor);
+
+        // If we find a project root, add a module descriptor.
+        if (projectRoot != null) {
+            ModuleDescriptor rootModuleDescriptor = new ModuleDescriptor(projectRoot.getDirectory(),
+                    BallerinaModuleType.getInstance(), detectedSourceRoots);
+            List<ModuleDescriptor> moduleDescriptors = new LinkedList<>();
+            moduleDescriptors.add(rootModuleDescriptor);
+            projectDescriptor.setModules(moduleDescriptors);
         }
-        projectDescriptor.setModules(moduleDescriptors);
     }
 
     @NotNull
