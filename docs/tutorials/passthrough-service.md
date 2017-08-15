@@ -2,7 +2,7 @@
 
 Now that you have [written your first program](../first-program.md) and [written a main program](../main-program.md) for an integration scenario, it is time to work with services.
 
-> This tutorial provides instructions on how to write a REST service that uses the Google Books API to get books about a given title. This scenario is demonstrated by querying books on WSO2.
+> This tutorial provides instructions on how to write a REST service that uses the Google Books API to get books about a given topic. This scenario is demonstrated by querying books on WSO2.
 
 This tutorial consists of the following main sections.
 
@@ -33,4 +33,5 @@ This is how resources and services can equate to the URL that you are calling.
     ![alt text](../images/AddService.gif)
 1. Select an HTTP identifier from the dropdown available. In this case, you can use GET since you are aiming to get the information using a URL. If you use both a GET and a POST, you need to add a new resource.
     ![alt text](../images/IdentifierHTTP.png)
-
+1. You can rename the service to an appropriate name.
+    ![alt text](../images/ServiceName.png)
