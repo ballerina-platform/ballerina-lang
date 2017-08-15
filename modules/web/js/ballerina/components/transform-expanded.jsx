@@ -682,7 +682,7 @@ class TransformExpanded extends React.Component {
             const { element, input } = this.sourceElements[key];
             if(element) {
                 input.id = key;
-                this.mapper.addSource(element, null, null, input);
+                this.mapper.addSource(element, input);
             } else {
                 // this source connect point is unmounted
                 this.mapper.remove(key);
@@ -694,7 +694,7 @@ class TransformExpanded extends React.Component {
             const { element, output } = this.targetElements[key];
             if(element) {
                 output.id = key;
-                this.mapper.addTarget(element, null, output);
+                this.mapper.addTarget(element, output);
             } else {
                 // this target connect point is unmounted
                 this.mapper.remove(key);
@@ -720,13 +720,13 @@ class TransformExpanded extends React.Component {
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
             const { element, input } = this.sourceElements[key];
-            this.mapper.addSource(element, null, null, input);
+            this.mapper.addSource(element, input);
         });
 
         const targetKeys = Object.keys(this.targetElements);
         targetKeys.forEach((key) => {
             const { element, output } = this.targetElements[key];
-            this.mapper.addTarget(element, null, output);
+            this.mapper.addTarget(element, output);
         });
 
         if (this.state.vertices.length > 0) {
