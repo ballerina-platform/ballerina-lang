@@ -62,7 +62,6 @@ class LayoutManagerPlugin extends Plugin {
      */
     activate(appContext) {
         super.activate(appContext);
-        this.render();
     }
 
     /**

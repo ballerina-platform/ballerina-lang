@@ -24,6 +24,7 @@ import { ACTIVATION_POLICIES, CONTRIBUTIONS } from './plugin/constants';
 import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
 import MenuManager from './menu/manager';
+import WorkspaceManager from './workspace/manager';
 
 /**
  * Composer Application
@@ -57,18 +58,16 @@ class Application {
         this.commandManager = new CommandManager();
         this.layoutManager = new LayoutManager();
         this.menuManager = new MenuManager();
+        this.workspaceManager = new WorkspaceManager();
 
         // Unless the necessities to keep direct references within app
         // & to be the very first set of plugins to be init/activate,
         // core plugins will be same as other plugins
-        this.plugins.push(this.commandManager);
-        this.plugins.push(this.layoutManager);
-        this.plugins.push(this.menuManager);
+        this.loadPlugin(this.commandManager);
+        this.loadPlugin(this.layoutManager);
+        this.loadPlugin(this.menuManager);
+        this.loadPlugin(this.workspaceManager);
 
-        // load core plugins first
-        this.plugins.forEach((plugin) => {
-            this.loadPlugin(plugin);
-        });
         // load plugins contributed via config
         this.loadOtherPlugins();
     }

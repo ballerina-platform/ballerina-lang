@@ -37,7 +37,7 @@ class ApplicationMenuPlugin extends Plugin {
 
     constructor() {
         super();
-        this.menu = {};
+        this.menuDefs = [];
     }
 
     /**
@@ -53,27 +53,51 @@ class ApplicationMenuPlugin extends Plugin {
      * @param {Object} menuDef Menu Definition
      */
     addMenu(menuDef) {
-        const { type, id, parent } = menuDef;
-        switch (type) {
-        case MENU_DEF_TYPES.ROOT :
-            if (!_.isNil(_.get(this.menu, id))) {
-                log.error('Duplicate menu-definition for menu ' + id);
-            } else {
-                this.menu[id] = menuDef;
-            }
-            break;
-        case MENU_DEF_TYPES.GROUP :
-            if (_.isNil(parent)) {
-                log.error('Parent is not defined for menu ' + id);
-            }
-            break;
-        case MENU_DEF_TYPES.ITEM :
-            if (_.isNil(parent)) {
-                log.error('Parent is not defined for menu ' + id);
-            }
-            break;
-        default :
+        if (!_.isNil(_.find(this.menuDefs, ['id', menuDef.id]))) {
+            log.error('Duplicate menu-definition for menu ' + menuDef.id);
+        } else {
+            this.menuDefs.push(menuDef);
         }
+    }
+
+    /**
+     * Generate menu from contributed menu definitions
+     *
+     */
+    generateMenuFromDefinitions() {
+        const roots = _.filter(this.menuDefs, ['type', MENU_DEF_TYPES.ROOT]);
+        const groups = _.filter(this.menuDefs, ['type', MENU_DEF_TYPES.GROUP]);
+        const items = _.filter(this.menuDefs, ['type', MENU_DEF_TYPES.ITEM]);
+
+        const findRoot = (id) => {
+            return _.find(roots, ['id', id]);
+        };
+
+        const findGroup = (id) => {
+            return _.find(groups, ['id', id]);
+        };
+
+        const nestMenuUnderParent = (menu) => {
+            const { id, parent } = menu;
+            if (_.isNil(parent)) {
+                log.error('Invalid parent-id provied for menu ' + id);
+            } else {
+                const parentNode = (findRoot(parent)) ? findRoot(parent) : findGroup(parent);
+                if (_.isNil(parentNode)) {
+                    log.error('Unable to find a parent menu with id ' + parent);
+                } else {
+                    if (_.isNil(parentNode.children)) {
+                        parentNode.children = [];
+                    }
+                    parentNode.children.push(menu);
+                }
+            }
+        };
+
+        groups.forEach(nestMenuUnderParent);
+        items.forEach(nestMenuUnderParent);
+
+        return roots;
     }
 
     /**
@@ -90,7 +114,7 @@ class ApplicationMenuPlugin extends Plugin {
                     component: AppMenuView,
                     propsProvider: () => {
                         return {
-                            menu: this.menuItems,
+                            menu: this.generateMenuFromDefinitions(),
                         };
                     },
                     region: REGIONS.HEADER,
