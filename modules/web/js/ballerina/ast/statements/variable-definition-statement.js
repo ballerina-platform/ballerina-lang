@@ -210,8 +210,9 @@ class VariableDefinitionStatement extends Statement {
                     const variableType = parsedJson.children[0].children[0].variable_type;
                     const defaultValueType = parsedJson.children[1].basic_literal_type;
                     if (variableType !== undefined) {
+                        // ToDo this should be done by the semantic parser
                         if (variableType !== defaultValueType &&
-                            !(variableType === 'float' && defaultValueType === 'int')) {
+                            (!(variableType === 'float' && defaultValueType === 'int') && !(variableType === 'any'))) {
                             state = false;
                             log.warn('Variable type and the default value type are not the same');
                             if (_.isFunction(callback)) {
