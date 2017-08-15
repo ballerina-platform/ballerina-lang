@@ -48,10 +48,9 @@ public class BallerinaConnectorManager {
     private static BallerinaConnectorManager instance = new BallerinaConnectorManager();
 
     private boolean connectorsInitialized = false;
-
     private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
 
-    private CarbonMessageProcessor messageProcessor;
+    CarbonMessageProcessor messageProcessor;
 
     private BallerinaConnectorManager() {
     }
