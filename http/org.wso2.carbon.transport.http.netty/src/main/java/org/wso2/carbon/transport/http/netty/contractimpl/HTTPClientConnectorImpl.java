@@ -71,7 +71,6 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
         }
 
         try {
-
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig);
             targetChannel.getChannel().eventLoop().execute(() -> {

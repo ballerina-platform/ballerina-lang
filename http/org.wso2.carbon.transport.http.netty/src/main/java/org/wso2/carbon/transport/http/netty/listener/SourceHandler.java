@@ -218,11 +218,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         }
         if (continueRequest) {
-//            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-//                        .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
             if (serverConnectorFuture != null) {
                 try {
-//                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx, cMsg));
                     ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
                     serverConnectorFuture.setHTTPConnectorListener(new HTTPResponseListener(this.ctx, httpRequestMsg));
                     this.serverConnectorFuture.notifyHTTPListener(httpRequestMsg);
