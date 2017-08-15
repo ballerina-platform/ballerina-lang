@@ -42,7 +42,7 @@ import javax.net.ssl.SSLException;
  */
 public class WebSocketPassthoughTestCase extends WebSocketTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTest.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
     private final int threadSleepTime = 100;
     private final int messageDeliveryCountdown = 40;

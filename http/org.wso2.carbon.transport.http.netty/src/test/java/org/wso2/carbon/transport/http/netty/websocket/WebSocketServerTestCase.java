@@ -42,9 +42,9 @@ import static org.testng.AssertJUnit.assertTrue;
 /**
  * Test class for WebSocket protocol.
  */
-public class WebSocketServerTest extends WebSocketTestCase {
+public class WebSocketServerTestCase extends WebSocketTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketServerTest.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketServerTestCase.class);
 
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
     private final int threadSleepTime = 100;

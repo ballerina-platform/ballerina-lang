@@ -43,9 +43,9 @@ import javax.websocket.Session;
 /**
  * Test cases for the WebSocket Client implementation.
  */
-public class WebSocketClientTest extends WebSocketTestCase {
+public class WebSocketClientTestCase extends WebSocketTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTest.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
     private final String url = "ws://localhost:8490/websocket";

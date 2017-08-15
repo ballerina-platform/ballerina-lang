@@ -21,12 +21,12 @@
 <suite name="Transport test Suite">
     <test name="Transport test">
         <classes>
-            <!--<class name="org.wso2.carbon.transport.http.netty.passthrough.PassThroughHttpTestCase" />-->
-            <!--<class name="org.wso2.carbon.transport.http.netty.contentaware.ContentAwareMessageProcessorTestCase" />-->
+            <class name="org.wso2.carbon.transport.http.netty.passthrough.PassThroughHttpTestCase" />
+            <class name="org.wso2.carbon.transport.http.netty.contentaware.ContentAwareMessageProcessorTestCase" />
             <!--<class name="org.wso2.carbon.transport.http.netty.http2.HTTP2RequestResponseTestCase" />-->
-            <!--<class name="org.wso2.carbon.transport.http.netty.encoding.ContentEncodingTestCase"></class>-->
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketServerTest"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketClientTest"></class>
+            <class name="org.wso2.carbon.transport.http.netty.encoding.ContentEncodingTestCase"></class>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketServerTestCase"></class>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketClientTestCase"></class>
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketPassthoughTestCase"></class>
         </classes>
     </test>
