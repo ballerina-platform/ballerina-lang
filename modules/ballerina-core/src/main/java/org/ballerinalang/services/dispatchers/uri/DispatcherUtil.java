@@ -25,6 +25,8 @@ import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,6 +35,10 @@ import java.util.stream.Stream;
  * Utilities related to dispatcher processing.
  */
 public class DispatcherUtil {
+
+    private static String[] allMethods = new String[]{Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
+            , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
+            , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS};
 
     public static boolean isMatchingMethodExist(ResourceInfo resourceInfo, String method) {
         String[] rHttpMethods = getHttpMethods(resourceInfo);
@@ -142,8 +148,15 @@ public class DispatcherUtil {
     }
 
     public static List<String> addAllMethods() {
-        return Stream.of(Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
-                , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
-                , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS).collect(Collectors.toList());
+        return Arrays.stream(allMethods).collect(Collectors.toList());
+    }
+
+    public static boolean isValidHTTPMethod(String reqMethod) {
+        for (String method : allMethods) {
+            if (reqMethod.equals(method)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

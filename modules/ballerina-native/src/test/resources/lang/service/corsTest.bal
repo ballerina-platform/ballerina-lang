@@ -81,4 +81,15 @@ service<http> echo3 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:resourceConfig {
+        methods:["POST"],
+        exposeHeaders: ["X-Content-Type-Options","X-PINGARUNER"]
+    }
+    resource info2 (message m) {
+        message response = {};
+        json responseJson = {"echo":"star"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }

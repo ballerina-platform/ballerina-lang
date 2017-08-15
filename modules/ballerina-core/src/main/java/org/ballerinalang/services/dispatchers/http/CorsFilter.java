@@ -20,6 +20,7 @@ package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -33,11 +34,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * CORSMatcher matches request CORS headers with service.
+ * CorsFilter provides both input and output filter for CORS following http://www.w3.org/TR/cors/.
  *
  * @since 0.92
  */
-public class CORSMatcher {
+public class CorsFilter {
     private static Map<String, List<String>> resourceCors;
     private static Map<String, String> responseCors = new HashMap<>();
     private static boolean isCorsResponseHeadersAvailable = false;
@@ -89,19 +90,35 @@ public class CORSMatcher {
     }
 
     private static boolean isPreflightRequest(String originValue, CarbonMessage cMsg) {
+        //6.2.1 - request must have origin, must have one origin.
         List<String> requestOrigins = getOriginValues(originValue);
-        if (requestOrigins != null && requestOrigins.size() == 1) {
-            String origin = requestOrigins.get(0);
-            List<String> requestMethodValues = getHeaderValues(Constants.AC_REQUEST_HEADERS, cMsg);
-            if (requestMethodValues != null && requestMethodValues.size() == 1) {
-                String requestMethod = requestMethodValues.get(0);
-            } else {
-
-            }
-        } else {
+        if (requestOrigins == null || requestOrigins.size() != 1) {
             return false;
         }
-        return true;
+        String origin = requestOrigins.get(0);
+
+        //6.2.3 - request must have access-control-request-method, must be single-valued
+        List<String> requestMethodValues = getHeaderValues(Constants.AC_REQUEST_METHODS, cMsg);
+        if (requestMethodValues == null && requestMethodValues.size() != 1) {
+            return false;
+        }
+        String requestMethod = requestMethodValues.get(0);
+        if (!DispatcherUtil.isValidHTTPMethod(requestMethod)) {
+            return false;
+        }
+
+        //6.2.2 - request origin must be on the list or match with *
+        if (!isEffectiveOrigin(origin, resourceCors.get(Constants.AC_ALLOW_ORIGIN))) {
+
+        }
+
+    return false;
+
+    }
+
+    private static boolean isEffectiveOrigin(String origin, List<String> strings) {
+        return false;
+
     }
 
     private static List<String> getHeaderValues(String key, CarbonMessage cMsg) {

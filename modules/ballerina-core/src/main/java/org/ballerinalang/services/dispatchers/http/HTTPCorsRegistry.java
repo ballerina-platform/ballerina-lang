@@ -39,7 +39,7 @@ public class HTTPCorsRegistry {
     private AnnAttributeValue attributeValue;
     private AnnAttachmentInfo configAnnotInfo;
     private static final HTTPCorsRegistry corsRegistry = new HTTPCorsRegistry();
-    private Map<ResourceInfo, Map<String, List<String>>> resourceCorsHolder = new ConcurrentHashMap<>();
+    private Map<String, Map<String, List<String>>> resourceCorsHolder = new ConcurrentHashMap<>();
     private String[] corsHeaders = {Constants.ALLOW_ORIGIN, Constants.MAX_AGE
             , Constants.ALLOW_CREDENTIALS, Constants.ALLOW_METHODS
             , Constants.ALLOW_HEADERS, Constants.EXPOSE_HEADERS};
@@ -61,9 +61,9 @@ public class HTTPCorsRegistry {
     public void processResourceCors(ResourceInfo resource, Map<String, List<String>> serviceCorsMap) {
         if (isHeadersAvailable(resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
                 , Constants.ANN_NAME_RESOURCE_CONFIG))) {
-            resourceCorsHolder.put(resource, populateCorsHeaders(resource));
+            resourceCorsHolder.put(getResourceKey(resource), populateCorsHeaders(resource));
         } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
-            resourceCorsHolder.put(resource, serviceCorsMap);
+            resourceCorsHolder.put(getResourceKey(resource), serviceCorsMap);
         }
     }
 
@@ -82,41 +82,6 @@ public class HTTPCorsRegistry {
         }
         return hasCorsHeaders;
     }
-
-//    public Map<String, List<String>> populateServiceCoresMap() {
-//
-//        Map<String, List<String>> serviceCorsMap = new HashMap<>();
-//        for (String header : corsHeaders) {
-//            attributeValue = configAnnotInfo.getAttributeValue(header);
-//            List<String> list = new ArrayList();
-//            if (attributeValue != null) {
-//                if (attributeValue.getAttributeValueArray() != null) {
-//                    for (AnnAttributeValue att : attributeValue.getAttributeValueArray()) {
-//                        list.add(att.getStringValue().trim());
-//                    }
-//                } else {
-//                    list.add(attributeValue.getStringValue().trim());
-//                }
-//            } else {
-//                switch (header) {
-//                    case Constants.ALLOW_ORIGIN:
-//                    case Constants.ALLOW_METHODS:
-//                        list.add("*");
-//                        break;
-//                    case Constants.ALLOW_CREDENTIALS:
-//                        list.add("false");
-//                        break;
-//                    case Constants.MAX_AGE:
-//                        list.add("-1");
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//            serviceCorsMap.put(header, list);
-//        }
-//        return serviceCorsMap;
-//    }
 
     public Map<String, List<String>> populateCorsHeaders(ResourceInfo resource) {
 
@@ -169,7 +134,11 @@ public class HTTPCorsRegistry {
         return "*";
     }
 
-    public Map<String,List<String>> getCorsHeaders(ResourceInfo resource) {
-        return resourceCorsHolder.get(resource);
+    public Map<String, List<String>> getCorsHeaders(ResourceInfo resource) {
+        return resourceCorsHolder.get(getResourceKey(resource));
+    }
+
+    private String getResourceKey(ResourceInfo resource) {
+        return resource.getServiceInfo().getName() + resource.getName();
     }
 }

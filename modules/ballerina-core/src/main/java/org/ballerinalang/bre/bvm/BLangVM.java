@@ -68,7 +68,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.services.dispatchers.http.CORSMatcher;
+import org.ballerinalang.services.dispatchers.http.CorsFilter;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -3423,7 +3423,7 @@ public class BLangVM {
         if (session != null) {
             session.generateSessionHeader(message);
         }
-        CORSMatcher.generateCORSHeaders(message);
+        CorsFilter.generateCORSHeaders(message);
     }
     
     private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {

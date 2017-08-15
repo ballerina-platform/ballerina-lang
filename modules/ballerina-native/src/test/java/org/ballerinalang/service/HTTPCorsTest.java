@@ -147,6 +147,21 @@ public class HTTPCorsTest {
         Assert.assertEquals(origin, "*");
     }
 
+    @Test(description = "Test for values with extra white spaces")
+    public void testSimpleReqwithWildcardOrigin() {
+        String path = "/hello3/info2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
+        cMsg.setHeader("Origin", "http://www.facebook.com");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "star"
+                , "Resource dispatched to wrong template");
+        String origin = response.getHeader(AC_ALLOW_ORIGIN);
+        Assert.assertEquals(origin, "*");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(programFile);
