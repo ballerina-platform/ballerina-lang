@@ -167,10 +167,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                 getHttpRoute().toString() + "</errorMessage>";
 
-        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
+//        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+//                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
 
-        if (carbonMessageProcessor != null) {
+        if (httpClientConnectorFuture != null) {
             try {
 //                HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
 //                        .getProperty(Constants.MESSAGE_PROCESSOR_ID))

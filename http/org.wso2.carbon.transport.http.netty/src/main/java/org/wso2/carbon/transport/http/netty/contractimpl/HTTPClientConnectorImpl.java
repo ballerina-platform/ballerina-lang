@@ -19,17 +19,27 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
+import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
+import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of the client connector.
@@ -91,8 +101,37 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
         }
 
         try {
-            connectionManager.executeTargetChannel(route, srcHandler, sslConfig,
-                            httpCarbonMessage, socketIdleTimeout, httpClientConnectorFuture);
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig);
+            targetChannel.getChannel().eventLoop().execute(() -> {
+                Util.prepareBuiltMessageForTransfer(httpCarbonMessage);
+                Util.setupTransferEncodingForRequest(httpCarbonMessage);
+                if (targetChannel.getChannel() != null) {
+                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
+                    targetChannel.setCorrelatedSource(srcHandler);
+                    targetChannel.setHttpRoute(route);
+                    TargetHandler targetHandler = targetChannel.getTargetHandler();
+                    targetHandler.setHttpClientConnectorFuture(httpClientConnectorFuture);
+                    targetHandler.setListener(httpCarbonMessage.getResponseListener());
+                    targetHandler.setIncomingMsg(httpCarbonMessage);
+                    targetHandler.setConnectionManager(connectionManager);
+                    targetHandler.setTargetChannel(targetChannel);
+                    targetChannel.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER,
+                            Constants.IDLE_STATE_HANDLER,
+                            new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
+                                    TimeUnit.MILLISECONDS));
+                    targetChannel.setRequestWritten(true);
+                    try {
+                        HttpRequest httpRequest = Util.createHttpRequest(httpCarbonMessage);
+                        ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, httpCarbonMessage);
+                    } catch (Exception e) {
+                        String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+                        log.error(msg, e);
+                        MessagingException messagingException = new MessagingException(msg, e, 101500);
+                        httpCarbonMessage.setMessagingException(messagingException);
+                        httpClientConnectorFuture.notifyHTTPListener(httpCarbonMessage);
+                    }
+                }
+            });
         } catch (Exception failedCause) {
             throw new ClientConnectorException(failedCause.getMessage(), failedCause);
         }
