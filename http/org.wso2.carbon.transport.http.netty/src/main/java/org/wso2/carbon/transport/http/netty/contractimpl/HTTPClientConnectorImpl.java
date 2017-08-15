@@ -78,7 +78,7 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
                 Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
                 Util.setupTransferEncodingForRequest(httpCarbonRequest);
 
-                targetChannel.configure(httpCarbonRequest, srcHandler);
+                targetChannel.configure(httpCarbonRequest, srcHandler, connectionManager);
                 targetChannel.setEndPointTimeout(socketIdleTimeout);
 
                 try {

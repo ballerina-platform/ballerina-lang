@@ -94,7 +94,7 @@ public class PassthroughMessageProcessorListener implements HTTPConnectorListene
                 });
                 clientConnector.send(httpRequestMessage);
             } catch (Exception e) {
-                logger.error("Error occurred during message processing: " + e.getMessage());
+                logger.error("Error occurred during message processing: ", e);
             }
         });
     }

@@ -163,7 +163,6 @@ public class ConnectionManager {
 
         TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
         targetChannel.setHttpRoute(httpRoute);
-        targetChannel.getTargetHandler().setConnectionManager(this);
         return targetChannel;
     }
 
