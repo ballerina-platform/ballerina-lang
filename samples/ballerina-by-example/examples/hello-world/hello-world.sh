@@ -7,7 +7,7 @@ Hello, World!
 # "ballerina build" command followed by
 # the ballerina source file or the package
 # which contains the main function.
-$ ballerina build main hello-world.bal
+$ ballerina build hello-world.bal
 $ ls
 hello-world.balx	hello-world.bal
 
