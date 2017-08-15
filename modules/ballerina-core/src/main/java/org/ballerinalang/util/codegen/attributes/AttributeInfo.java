@@ -40,7 +40,8 @@ public interface AttributeInfo {
         LOCAL_VARIABLES_ATTRIBUTE("LocalVariables"),
         VARIABLE_TYPE_COUNT_ATTRIBUTE("VariableTypeCount"),
         ERROR_TABLE("ErrorTable"),
-        LINE_NUMBER_TABLE_ATTRIBUTE("LineNumberTable");
+        LINE_NUMBER_TABLE_ATTRIBUTE("LineNumberTable"),
+        DEFAULT_VALUE_ATTRIBUTE("DefaultValue");
 
         private String name;
 

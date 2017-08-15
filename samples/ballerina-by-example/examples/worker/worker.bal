@@ -1,7 +1,7 @@
 import ballerina.lang.system;
 import ballerina.doc;
 
-@doc:Description {value:"Workers in ballerina allows users to delegate tasks to a new worker thread."}
+@doc:Description {value:"Workers in ballerina allow users to delegate tasks to a new worker thread."}
 function main (string[] args) {
     // Define variables within the default (main) worker.
     int i = 100;

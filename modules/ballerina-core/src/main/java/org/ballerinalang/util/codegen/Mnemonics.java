@@ -148,6 +148,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.GOTO] = "goto";
         mnemonics[InstructionCodes.HALT] = "halt";
+        mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
@@ -197,6 +198,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2XML] = "any2xml";
         mnemonics[InstructionCodes.ANY2MSG] = "any2msg";
+        mnemonics[InstructionCodes.ANY2TYPE] = "any2type";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
@@ -205,8 +207,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
 
         // Transactions
-        mnemonics[InstructionCodes.TRBGN] = "trbgn";
-        mnemonics[InstructionCodes.TREND] = "trend";
+        mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
+        mnemonics[InstructionCodes.TR_END] = "tr_end";
 
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";

@@ -62,6 +62,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     protected SymbolName symbolName;
     protected boolean isNative;
     protected boolean isLambda = false;
+    private boolean hasReturnsKeyword;
 
     private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
@@ -353,6 +354,14 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     public void setLambda(boolean lambda) {
         isLambda = lambda;
+    }
+
+    public boolean hasReturnsKeyword() {
+        return hasReturnsKeyword;
+    }
+
+    public void setHasReturnsKeyword(boolean hasReturnsKeyword) {
+        this.hasReturnsKeyword = hasReturnsKeyword;
     }
 
     /**

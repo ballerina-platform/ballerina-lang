@@ -16,6 +16,8 @@
 
 package org.ballerinalang.model.values;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -23,6 +25,10 @@ import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.namespace.QName;
 
 /**
  * {@code BXML} represents a XML in Ballerina. An XML could be one of:
@@ -212,6 +218,15 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public abstract BValue slice(long startIndex, long endIndex);
 
     /**
+     * Searches in children recursively for elements matching the name and returns a sequence containing them all.
+     * Does not search within a matched result.
+     * 
+     * @param qname Qualified name of the descendants to filter
+     * @return All the descendants that matches the given qualified name, as a sequence
+     */
+    public abstract BXML<?> descendants(BString qname);
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -260,6 +275,51 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
             throw new BallerinaException(message + t.getCause().getMessage());
         } else {
             throw new BallerinaException(message + t.getMessage());
+        }
+    }
+
+    /**
+     * Get the {@link QName} from {@link BString}.
+     *
+     * @param qname String representation of qname
+     * @return constructed {@link QName}
+     */
+    protected QName getQname(BString qname) {
+        String qNameStr = qname.stringValue();
+        String nsUri;
+        String localname;
+        int rParenIndex = qNameStr.indexOf('}');
+
+        if (qNameStr.startsWith("{") && rParenIndex > 0) {
+            localname = qNameStr.substring(rParenIndex + 1, qNameStr.length());
+            nsUri = qNameStr.substring(1, rParenIndex);
+        } else {
+            localname = qNameStr;
+            nsUri = "";
+        }
+
+        return new QName(nsUri, localname);
+    }
+
+    /**
+     * Recursively traverse and add the descendant with the given name to the descendants list.
+     * 
+     * @param descendants List to add descendants
+     * @param currentElement Current node
+     * @param qname Qualified name of the descendants to search
+     */
+    protected void addDescendants(List<BXML<?>> descendants, OMElement currentElement, String qname) {
+        Iterator<OMNode> childrenItr = currentElement.getChildren();
+        while (childrenItr.hasNext()) {
+            OMNode child = childrenItr.next();
+            if (child.getType() != OMNode.ELEMENT_NODE) {
+                continue;
+            }
+            if (qname.equals(((OMElement) child).getQName().toString())) {
+                descendants.add(new BXMLItem(child));
+                continue;
+            }
+            addDescendants(descendants, (OMElement) child, qname);
         }
     }
 }

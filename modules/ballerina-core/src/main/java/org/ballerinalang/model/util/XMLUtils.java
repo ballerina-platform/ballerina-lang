@@ -328,10 +328,10 @@ public class XMLUtils {
 
         String nsUri = startTagName.getUri();
         OMElement omElement;
-        if (nsUri.isEmpty()) {
-            if (defaultNsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-                defaultNsUri = XMLConstants.NULL_NS_URI;
-            }
+        if (nsUri.isEmpty() || nsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), XMLConstants.NULL_NS_URI,
+                    startTagName.getPrefix());
+        } else if (nsUri.equals(defaultNsUri)) {
             omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, startTagName.getPrefix());
         } else {
             QName qname = new QName(nsUri, startTagName.getLocalName(), startTagName.getPrefix());

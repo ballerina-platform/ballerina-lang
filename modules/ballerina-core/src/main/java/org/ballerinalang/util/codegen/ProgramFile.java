@@ -67,6 +67,8 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
+    private List<AnnAttributeValue> unresolvedAnnAttrValues = new ArrayList<>();
+
     public int getMagicValue() {
         return magicValue;
     }
@@ -197,5 +199,17 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     @Override
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
+    }
+
+    public List<AnnAttributeValue> getUnresolvedAnnAttrValues() {
+        return unresolvedAnnAttrValues;
+    }
+
+    public void setUnresolvedAnnAttrValues(List<AnnAttributeValue> unresolvedAnnAttrValues) {
+        this.unresolvedAnnAttrValues = unresolvedAnnAttrValues;
+    }
+
+    public void addUnresolvedAnnAttrValue(AnnAttributeValue annAttributeValue) {
+        unresolvedAnnAttrValues.add(annAttributeValue);
     }
 }
