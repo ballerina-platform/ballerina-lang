@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.BaseIncrementalValueStore;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -122,9 +123,12 @@ public class AggregationRuntime {
             throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
                     + " granularity cannot be provided since aggregation definition " + aggregationDefinition.getId()
                     + " does not contain " + perValue.toString() + " duration");
-        } 
+        }
+        TimePeriod.Duration rootDuration = TimePeriod.Duration.values()[incrementalDurations.get(0).ordinal()];
+        BaseIncrementalValueStore newestInMemoryEvent = incrementalExecutorMap.get(rootDuration).getNewestEvent();
+        BaseIncrementalValueStore oldestInMemoryEvent = incrementalExecutorMap.get(perValue).getOldestEvent();
         return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
-                incrementalExecutorMap.get(perValue).isRoot());
+                perValue == rootDuration, newestInMemoryEvent, oldestInMemoryEvent);
     }
 
     public IncrementalAggregateCompileCondition compileExpression(Expression expression, Within within, Expression per,
@@ -168,7 +172,7 @@ public class AggregationRuntime {
                     .equals(matchingMetaInfoHolder.getStoreDefinition().getId())) {
                 if (metaStreamEvent.getOutputData() == null || metaStreamEvent.getOutputData().isEmpty()) {
                     metaStreamEvent.getLastInputDefinition().getAttributeList().forEach(metaStreamEvent::addOutputData);
-                } // TODO: 8/11/17 get from aggregate parser
+                } // TODO: 8/11/17 get from aggregate parser (output gets populated at onCompileCondition only. try to do it before. try with renames)
                 finalOutputMetaStreamEvent = metaStreamEvent;
             }
         }

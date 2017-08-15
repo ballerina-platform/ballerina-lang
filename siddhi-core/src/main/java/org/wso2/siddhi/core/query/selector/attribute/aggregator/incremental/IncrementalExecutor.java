@@ -114,8 +114,58 @@ public class IncrementalExecutor implements Executor {
                                 : baseIncrementalValueStore;
     }
 
-    public boolean isRoot() {
-        return isRoot;
+    public BaseIncrementalValueStore getOldestEvent() {
+        if (isGroupBy) { // TODO: 8/15/17 check if this can cause problems
+            if (baseIncrementalValueGroupByStoreList != null) {
+                int oldestEventIndex = currentBufferIndex + 1;
+                if (oldestEventIndex > bufferSize) {
+                    oldestEventIndex -= bufferSize + 1;
+                }
+                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
+                        baseIncrementalValueGroupByStoreList.get(oldestEventIndex);
+                return baseIncrementalValueGroupByStore.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
+            } else {
+                return baseIncrementalValueStoreMap.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
+            }
+        } else {
+            if (baseIncrementalValueStoreList != null) {
+                int oldestEventIndex = currentBufferIndex + 1;
+                if (oldestEventIndex > bufferSize) {
+                    oldestEventIndex -= bufferSize + 1;
+                }
+                BaseIncrementalValueStore aBaseIncrementalValueStore =
+                        baseIncrementalValueStoreList.get(oldestEventIndex);
+                return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
+            } else {
+                return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
+            }
+        }
+    }
+
+    public BaseIncrementalValueStore getNewestEvent() {
+        if (isGroupBy) {
+            if (baseIncrementalValueGroupByStoreList != null) {
+                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
+                        baseIncrementalValueGroupByStoreList.get(currentBufferIndex);
+                return baseIncrementalValueGroupByStore.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
+                // Sometimes, there could be no in-memory aggregates, for event time based execution.
+                // Hence the null return.
+            } else {
+                return baseIncrementalValueStoreMap.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
+            }
+        } else {
+            if (baseIncrementalValueStoreList != null) {
+                BaseIncrementalValueStore aBaseIncrementalValueStore =
+                        baseIncrementalValueStoreList.get(currentBufferIndex);
+                return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
+            } else {
+                return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
+            }
+        }
     }
 
     @Override

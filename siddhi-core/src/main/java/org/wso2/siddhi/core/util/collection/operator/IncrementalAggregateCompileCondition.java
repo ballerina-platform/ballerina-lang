@@ -81,8 +81,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.resetEvent.setType(ComplexEvent.Type.RESET);
         this.storeEventCloner = new StreamEventCloner(internalMetaStreamEvent, streamEventPoolForInternalMeta);
         this.outputEventCloner = new StreamEventCloner(finalOutputMetaStreamEvent, streamEventPoolForFinalMeta);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors);
         this.baseExecutors = baseExecutors;
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors);
     }
 
     @Override
@@ -105,34 +105,41 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
-                            boolean perEqualsRootExecutorDuration) {
+                            boolean perEqualsRootExecutorDuration, BaseIncrementalValueStore newestInMemoryEvent,
+                            BaseIncrementalValueStore oldestInMemoryEvent) {
         ComplexEventChunk<StreamEvent> complexEventChunkToHoldMatches = new ComplexEventChunk<>(true);
         // TODO: 8/11/17 break long return
         StreamEvent matchFromPersistedEvents = aggregationTables.get(perValue).find(matchingEvent,
                 withinTableCompiledConditions.get(perValue));
         complexEventChunkToHoldMatches.add(matchFromPersistedEvents);
 
-        aggregateInMemoryData(inMemoryStoreMap.get(perValue), perValue);
+        //Optimization step.
+        //Get the newest and oldest events from in-memory (running) aggregates, and
+        //check whether at least one of those events is within the given time range. If it's not the case,
+        // there's no need to iterate through in-memory data.
+        if(requiresProcessingInMemoryData(newestInMemoryEvent, oldestInMemoryEvent, matchingEvent)) {
+            aggregateInMemoryData(inMemoryStoreMap.get(perValue), perValue);
 
-        if (!perEqualsRootExecutorDuration) {
-            // If the 'per' is for root executor, there would be no executors prior to that
-            for (int i = perValue.ordinal() - 1; i >= 0
-                    && incrementalDurations.contains(TimePeriod.Duration.values()[i]); i--) {
-                TimePeriod.Duration duration = TimePeriod.Duration.values()[i];
-                aggregateInMemoryData(inMemoryStoreMap.get(duration), perValue);
+            if (!perEqualsRootExecutorDuration) {
+                // If the 'per' is for root executor, there would be no executors prior to that
+                for (int i = perValue.ordinal() - 1; i >= incrementalDurations.get(0).ordinal(); i--) {
+                    TimePeriod.Duration duration = TimePeriod.Duration.values()[i];
+                    aggregateInMemoryData(inMemoryStoreMap.get(duration), perValue);
+                }
+            }// TODO: 8/11/17 add thrown error messages to my error message (e.getMessage)
+            ComplexEventChunk<StreamEvent> processedInMemoryEventChunk = new ComplexEventChunk<>(true);
+            for (Map.Entry<Long, Map<String, BaseIncrementalValueStore>> timeBucketEntry :
+                    inMemoryAggregateStoreMap.entrySet()) {
+                for (Map.Entry<String, BaseIncrementalValueStore> groupByEntry : timeBucketEntry.getValue().entrySet()) {
+                    processedInMemoryEventChunk.add(createStreamEvent(groupByEntry.getValue()));
+                }
             }
-        }// TODO: 8/11/17 add thrown error messages to my error message (e.getMessage)
-        ComplexEventChunk<StreamEvent> processedInMemoryEventChunk = new ComplexEventChunk<>(true);
-        for (Map.Entry<Long, Map<String, BaseIncrementalValueStore>> timeBucketEntry :
-                inMemoryAggregateStoreMap.entrySet()) {
-            for (Map.Entry<String, BaseIncrementalValueStore> groupByEntry : timeBucketEntry.getValue().entrySet()) {
-                processedInMemoryEventChunk.add(createStreamEvent(groupByEntry.getValue()));
-            }
+            StreamEvent matchFromInMemory = ((Operator) inMemoryStoreCompileCondition).find(matchingEvent,
+                    processedInMemoryEventChunk, storeEventCloner);
+            complexEventChunkToHoldMatches.add(matchFromInMemory); // TODO: 8/15/17 check this
+            inMemoryAggregateStoreMap.clear();
         }
-        ((Operator)inMemoryStoreCompileCondition).find(matchingEvent, processedInMemoryEventChunk, storeEventCloner);
-        inMemoryAggregateStoreMap.clear();
-
-        return executeFinalCompileConditionOnWithinData(matchingEvent, complexEventChunkToHoldMatches);
+        return executeOnCompileCondition(matchingEvent, complexEventChunkToHoldMatches);
     }
 
     private void aggregateInMemoryData(Object inMemoryStore, TimePeriod.Duration perValue) {
@@ -189,7 +196,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     private StreamEvent createStreamEvent(BaseIncrementalValueStore aBaseIncrementalValueStore) {
-        StreamEvent streamEvent = streamEventPoolForInternalMeta.borrowEvent(); // TODO: 8/11/17 same as table structre
+        // These borrowed events have the same structure as table data
+        StreamEvent streamEvent = streamEventPoolForInternalMeta.borrowEvent();
         streamEvent.setTimestamp(aBaseIncrementalValueStore.getTimestamp());
         aBaseIncrementalValueStore.setValue(aBaseIncrementalValueStore.getTimestamp(), 0);
         streamEvent.setOutputData(aBaseIncrementalValueStore.getValues()); // TODO: 8/11/17 dont write like this
@@ -229,8 +237,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         }
     }
 
-    private StreamEvent executeFinalCompileConditionOnWithinData(StateEvent matchingEvent,
-        ComplexEventChunk<StreamEvent> complexEventChunkToHoldMatches) {
+    private StreamEvent executeOnCompileCondition(StateEvent matchingEvent,
+                                                  ComplexEventChunk<StreamEvent> complexEventChunkToHoldMatches) {
         ComplexEventChunk<StreamEvent> finalComplexEventChunk = new ComplexEventChunk<>(true);
         while (complexEventChunkToHoldMatches.hasNext()) {
             StreamEvent streamEvent = complexEventChunkToHoldMatches.next();
@@ -247,5 +255,23 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             expressionExecutor.execute(resetEvent);
         }
         return ((Operator) onCompiledCondition).find(matchingEvent, finalComplexEventChunk, outputEventCloner);
+    }
+
+    private boolean requiresProcessingInMemoryData(BaseIncrementalValueStore newestInMemoryEvent,
+                                                   BaseIncrementalValueStore oldestInMemoryEvent,
+                                                   StateEvent matchingEvent) {
+        ComplexEventChunk<StreamEvent> newestAndOldestEventChunk = new ComplexEventChunk<>(true);
+        if (newestInMemoryEvent == null && oldestInMemoryEvent == null) {
+            return false;
+        }
+        if (newestInMemoryEvent != null) {
+            newestAndOldestEventChunk.add(createStreamEvent(newestInMemoryEvent));
+        }
+        if (oldestInMemoryEvent != null) {
+            newestAndOldestEventChunk.add(createStreamEvent(oldestInMemoryEvent));
+        }
+        return ((Operator) inMemoryStoreCompileCondition).find(matchingEvent, newestAndOldestEventChunk,
+                storeEventCloner) != null;
+
     }
 }

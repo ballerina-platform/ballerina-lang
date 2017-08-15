@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
-import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -148,7 +147,7 @@ public class AggregationTestCase {
                 "" +
                 "@info(name = 'query1') " +
                 "from barStream as b join test as a " +
-                "within 1496200000000L, 1596434877000L " +
+                "within 1496200000000L, 1496470076000L " +
                 "per \"days\" " +
                 "select a.avgPrice, a.totprice1 as sumPrice, a.mult, a.countPrice  " +
                 "insert all events into fooBar; ";
@@ -350,7 +349,8 @@ public class AggregationTestCase {
         String query = " define aggregation test " +
                 "from cseEventStream " +
                 "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
-                "group by symbol " + "aggregate every sec...hour ;";
+                "group by symbol " +
+                "aggregate every sec...hour ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
@@ -375,7 +375,7 @@ public class AggregationTestCase {
 //
 //        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496290016000L});
 //        Thread.sleep(60000);
-        Event[] events = siddhiAppRuntime.query("from test " + // TODO: 8/14/17 test as t not supported. ok?
+        Event[] events = siddhiAppRuntime.query("from test " +
                 "on symbol == \"IBM\" " +
                 "within \"2017-08-** **:**:**\" " +
                 "per \"seconds\"");
@@ -511,8 +511,10 @@ public class AggregationTestCase {
                 "@info(name = 'query1') " +
                 "from barStream as b join cseEventAggregation as a " +
                 "on a.s == b.symbol " +
-                "within \"2017-06-01 09:35:51 +05:30\" " +
-                "per b.perValue " +
+//                "within \"2017-06-01 09:35:51 +05:30\" " +
+//                "per b.perValue " +
+                "within \"2017-06-** **:**:**\" " + // TODO: 8/15/17 fix for zoned time
+                "per \"minutes\" " +
                 "select a.s, a.avgPrice, a.total as sumPrice, a.minVol, a.maxVol, b.value, a.countPrice " +
                 "insert all events into fooBar; ";
 

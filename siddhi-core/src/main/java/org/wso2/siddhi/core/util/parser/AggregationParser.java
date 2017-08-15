@@ -176,9 +176,6 @@ public class AggregationParser {
                     processVariableExpressionExecutors, siddhiAppContext, aggregatorName);
         }
 
-        // Create stream event pool
-        //  StreamEventPool processStreamEventPool = new StreamEventPool(processedMetaStreamEvent, 10);
-
         int bufferSize = 0;
         Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE, null,
                 aggregationDefinition.getAnnotations());
@@ -223,7 +220,7 @@ public class AggregationParser {
                 incomingExpressionExecutors, processedMetaStreamEvent));
 
         List<ExpressionExecutor> baseExecutors = cloneExpressionExecutors(processExpressionExecutors);
-
+        baseExecutors.remove(0); //Removing timeStamp executor
         return new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                 aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
                 siddhiAppContext, baseExecutors, processedMetaStreamEvent, outputExpressionExecutors);

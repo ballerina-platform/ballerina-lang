@@ -120,8 +120,7 @@ public class StoreQueryParser {
                 MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                         aggregation.getAggregationDefinition());
                 CompiledCondition compiledCondition = aggregation.compileExpression(onCondition, within, per,
-                        generateMatchingMetaInfoHolder(metaStreamEvent, aggregation.getAggregationDefinition()),
-                        variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
+                        metaStreamInfoHolder, variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
                 StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(aggregation, compiledCondition, queryName,
                         metaStreamEvent.getEventType());
                 pupulateStoreQueryRuntime(storeQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
