@@ -78,6 +78,13 @@ public class ProgramFileWriter {
                 writePackageInfo(dataOutStream, packageInfo);
             }
 
+            Map<Integer, Integer> methodTable = programFile.getMethodTableIndex();
+            dataOutStream.writeInt(methodTable.size());
+            for (Integer s : methodTable.keySet()) {
+                dataOutStream.writeInt(s);
+                dataOutStream.writeInt(methodTable.get(s));
+            }
+
             writeAttributeInfoEntries(dataOutStream, programFile.getAttributeInfoEntries());
 
             dataOutStream.flush();

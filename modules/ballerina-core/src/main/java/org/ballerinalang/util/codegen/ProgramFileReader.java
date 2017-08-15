@@ -138,9 +138,20 @@ public class ProgramFileReader {
         programFile.setEntryPackage(entryPkg);
         entryPkg.setProgramFile(programFile);
 
-        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-            resolveConnectorMethodTables(packageInfo);
+        Map<Integer, Integer> methodTableInteger = new HashMap<>();
+        int count = dataInStream.readInt();
+
+        for (int k = 0; k < count; k++) {
+            int key = dataInStream.readInt();
+            int value = dataInStream.readInt();
+            methodTableInteger.put(new Integer(key), new Integer(value));
         }
+
+        programFile.setMethodTableIndex(methodTableInteger);
+
+//        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
+//            resolveConnectorMethodTables(packageInfo);
+//        }
 
         // Read program level attributes
         readAttributeInfoEntries(dataInStream, programFile, programFile);
@@ -262,15 +273,20 @@ public class ProgramFileReader {
                         cpIndex, utf8CPEntry.getValue());
 
                 packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(utf8CPEntry.getValue());
-                if (structureTypeInfo == null) {
-                    // This must reference to the current package and the current package is not been read yet.
-                    // Therefore we add this to the unresolved CP Entry list.
+                if (packageInfo != null) {
+                    StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(utf8CPEntry.getValue());
+                    if (structureTypeInfo == null) {
+                        // This must reference to the current package and the current package is not been read yet.
+                        // Therefore we add this to the unresolved CP Entry list.
+                        unresolvedCPEntries.add(structureRefCPEntry);
+                        return structureRefCPEntry;
+                    }
+
+                    structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
+                } else {
                     unresolvedCPEntries.add(structureRefCPEntry);
                     return structureRefCPEntry;
                 }
-
-                structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
                 return structureRefCPEntry;
             case CP_ENTRY_TYPE_REF:
                 int typeSigCPIndex = dataInStream.readInt();
@@ -499,16 +515,16 @@ public class ProgramFileReader {
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
 
-        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
-            switch (cpEntry.getEntryType()) {
-                case CP_ENTRY_TYPE_REF:
-                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
-                    String typeSig = typeRefCPEntry.getTypeSig();
-                    BType bType = getBTypeFromDescriptor(typeSig);
-                    typeRefCPEntry.setType(bType);
-                    break;
-            }
-        }
+//        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
+//            switch (cpEntry.getEntryType()) {
+//                case CP_ENTRY_TYPE_REF:
+//                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
+//                    String typeSig = typeRefCPEntry.getTypeSig();
+//                    BType bType = getBTypeFromDescriptor(typeSig);
+//                    typeRefCPEntry.setType(bType);
+//                    break;
+//            }
+//        }
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
@@ -1548,9 +1564,8 @@ public class ProgramFileReader {
             Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
             for (Integer key : methodTableInteger.keySet()) {
                 int keyType = methodTableInteger.get(key);
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) programFile.getEntryPackage().getCPEntry(key);
-                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) programFile.getEntryPackage().
-                        getCPEntry(keyType);
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) programFile.getCPEntry(key);
+                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) programFile.getCPEntry(keyType);
                 ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
                 methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
             }
