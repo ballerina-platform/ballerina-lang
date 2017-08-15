@@ -13,4 +13,4 @@ $ ballerina run xml-literal.bal
                     <name>Sherlock Holmes</name>
                     <author>(Sir) Arthur Conan Doyle</author>
                     <!--Price: $ 12-->
-                  </newBook>
+                  </ns0:newBook>
