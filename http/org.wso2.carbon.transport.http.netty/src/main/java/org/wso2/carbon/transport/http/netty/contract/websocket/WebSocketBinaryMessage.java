@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 /**
  * This message contains the details of WebSocket binary message.
  */
-public interface WebSocketBinaryMessage extends WebSocketMessageContext, WebSocketMessageSessionContext {
+public interface WebSocketBinaryMessage extends WebSocketMessage {
 
     /**
      * Get the binary data as a byteBuffer.

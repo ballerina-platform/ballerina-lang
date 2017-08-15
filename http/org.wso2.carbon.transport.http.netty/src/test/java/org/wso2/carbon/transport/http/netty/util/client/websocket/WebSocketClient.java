@@ -30,9 +30,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
@@ -49,6 +49,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import javax.net.ssl.SSLException;
 
 /**
@@ -60,10 +62,26 @@ public class WebSocketClient {
 
     private final String url = System.getProperty("url", String.format("ws://%s:%d/%s",
                                                                 TestUtil.TEST_HOST, 9009, "test"));
+    private final String subProtocol;
+    private Map<String, String> customHeaders = new HashMap<>();
 
     private Channel channel = null;
     private WebSocketClientHandler handler;
-    EventLoopGroup group;
+    private EventLoopGroup group;
+    private boolean isHandshakeSuccessful = false;
+
+
+
+    public WebSocketClient() {
+        this.subProtocol = null;
+    }
+
+    public WebSocketClient(String subProtocol, Map<String, String> customHeaders) {
+        this.subProtocol = subProtocol;
+        if (customHeaders != null) {
+            this.customHeaders = customHeaders;
+        }
+    }
 
     /**
      * @return true if the handshake is done properly.
@@ -103,6 +121,11 @@ public class WebSocketClient {
         }
 
         group = new NioEventLoopGroup();
+
+        HttpHeaders headers = new DefaultHttpHeaders();
+        customHeaders.entrySet().forEach(
+                header -> headers.add(header.getKey(), header.getValue())
+        );
         try {
             // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
             // If you change it to V00, ping is not supported and remember to change
@@ -110,8 +133,8 @@ public class WebSocketClient {
             handler =
                     new WebSocketClientHandler(
                             WebSocketClientHandshakerFactory.newHandshaker(
-                                    uri, WebSocketVersion.V13, null,
-                                    true, new DefaultHttpHeaders()));
+                                    uri, WebSocketVersion.V13, subProtocol,
+                                    true, headers));
 
             Bootstrap b = new Bootstrap();
             b.group(group)
@@ -197,9 +220,17 @@ public class WebSocketClient {
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {
-        channel.writeAndFlush(new CloseWebSocketFrame());
-        channel.closeFuture().sync();
+        handler.shutDown();
         group.shutdownGracefully();
+    }
+
+    /**
+     * Check whether the handshake is successful of not.
+     *
+     * @return true if the handshake is successful.
+     */
+    public boolean isHandshakeSuccessful() {
+        return isHandshakeSuccessful;
     }
 
 }

@@ -28,8 +28,10 @@ import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketClientConnectorImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorBootstrap;
+import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -69,13 +71,25 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     }
 
     @Override
-    public WebSocketClientConnector getWSClientConnector(Map<String, String> connectorConfig) {
-        String subProtocol = connectorConfig.get(Constants.WEBSOCKET_SUBPROTOCOLS);
-        String remoteUrl = connectorConfig.get(Constants.REMOTE_ADDRESS);
-        String target = connectorConfig.get(Constants.TO);
+    public WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties) {
+        String subProtocol = (String) senderProperties.get(Constants.WEBSOCKET_SUBPROTOCOLS);
+        String remoteUrl = (String) senderProperties.get(Constants.REMOTE_ADDRESS);
+        String target = (String) senderProperties.get(Constants.TO);
 
-        // TODO: Allow extensions when any type is supported.
         boolean allowExtensions = true;
-        return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocol, allowExtensions);
+        Object allowExtensionsObj = senderProperties.get(Constants.WEBSOCKET_ALLOW_EXTENSIONS);
+        if (allowExtensionsObj != null) {
+            allowExtensions = (boolean) allowExtensionsObj;
+        }
+
+        WebSocketSourceHandler sourceHandler = null;
+        WebSocketMessageImpl webSocketMessage =
+                (WebSocketMessageImpl) senderProperties.get(Constants.WEBSOCKET_MESSAGE);
+        if (webSocketMessage != null) {
+            sourceHandler =
+                    (WebSocketSourceHandler) webSocketMessage.getProperty(Constants.SRC_HANDLER);
+        }
+
+        return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocol, allowExtensions, sourceHandler);
     }
 }

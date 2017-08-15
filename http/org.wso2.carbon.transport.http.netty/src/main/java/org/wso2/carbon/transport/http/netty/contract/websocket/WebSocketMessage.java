@@ -19,12 +19,16 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
+import java.util.List;
+import java.util.Map;
+import javax.websocket.Session;
+
 /**
  * This is the common interface for all WebSocket messages.
  * <b>Note: Use this interface in the application level only and only if the user needs only the channel details
  * of a WebSocket message otherwise use the extensions of this interface.</b>
  */
-public interface WebSocketMessageContext {
+public interface WebSocketMessage {
 
     /**
      * Retrieve negotiated sub-protocol.
@@ -61,4 +65,55 @@ public interface WebSocketMessageContext {
      * client connector.
      */
     boolean isServerMessage();
+
+    /**
+     * Retrieve the session of the connection.
+     *
+     * @return the session of the connection.
+     */
+    Session getChannelSession();
+
+    /**
+     * Retrieve the server session of the connection.
+     *
+     * @return the server session if exists.
+     */
+    Session getServerSession();
+
+    /**
+     * Retrieve the client session array relates to the listener channel.
+     *
+     * @return the client session array relates to the listener channel.
+     */
+    List<Session> getClientSessions();
+
+    /**
+     * Set header for the message.
+     *
+     * @param key key of the header.
+     * @param value value of the header.
+     */
+    void setHeader(String key, String value);
+
+    /**
+     * Set headers for the message.
+     *
+     * @param headers map of headers which should be added to the current headers.
+     */
+    void setHeaders(Map<String, String> headers);
+
+    /**
+     * Get the value of a header.
+     *
+     * @param key key of the header.
+     * @return the value of the header.
+     */
+    String getHeader(String key);
+
+    /**
+     * Get a map of all headers.
+     *
+     * @return a map of all headers.
+     */
+    Map<String, String> getHeaders();
 }

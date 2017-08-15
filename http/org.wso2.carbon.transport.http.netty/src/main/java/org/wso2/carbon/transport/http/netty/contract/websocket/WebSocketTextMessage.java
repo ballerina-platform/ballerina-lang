@@ -22,7 +22,7 @@ package org.wso2.carbon.transport.http.netty.contract.websocket;
 /**
  * This message contains the details of WebSocket text message.
  */
-public interface WebSocketTextMessage extends WebSocketMessageContext, WebSocketMessageSessionContext {
+public interface WebSocketTextMessage extends WebSocketMessage {
 
     /**
      * Retrieve the text from the message.

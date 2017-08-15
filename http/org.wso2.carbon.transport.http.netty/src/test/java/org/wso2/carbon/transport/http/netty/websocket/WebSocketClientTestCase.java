@@ -43,25 +43,26 @@ import javax.websocket.Session;
 /**
  * Test cases for the WebSocket Client implementation.
  */
-public class WebSocketClientTest {
+public class WebSocketClientTestCase extends WebSocketTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTest.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
     private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
     private final String url = "ws://localhost:8490/websocket";
-    private final int sleepTime = 500;
+    private final int threadSleepTime = 100;
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
 
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         log.info(System.lineSeparator() +
-                         "---------------------WebSocket Client Connector Test Cases---------------------");
+                         "--------------------- WebSocket Client Connector Test Cases ---------------------");
         remoteServer.run();
-        Map<String, String> props = new HashMap<>();
-        props.put(Constants.REMOTE_ADDRESS, url);
-        props.put(Constants.WEBSOCKET_SUBPROTOCOLS, null);
-        clientConnector = httpConnectorFactory.getWSClientConnector(props);
+        Map<String, Object> senderProperties = new HashMap<>();
+
+        senderProperties.put(Constants.REMOTE_ADDRESS, url);
+        senderProperties.put(Constants.WEBSOCKET_SUBPROTOCOLS, null);
+        clientConnector = httpConnectorFactory.getWSClientConnector(senderProperties);
     }
 
     @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
@@ -70,8 +71,7 @@ public class WebSocketClientTest {
         Session session = handshake(connectorListener);
         String text = "testText";
         session.getBasicRemote().sendText(text);
-        Thread.sleep(sleepTime);
-        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text);
+        assertWebSocketClientTextMessage(connectorListener, text);
         shutDownClient(session);
     }
 
@@ -82,8 +82,7 @@ public class WebSocketClientTest {
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         session.getBasicRemote().sendBinary(buffer);
-        Thread.sleep(sleepTime);
-        Assert.assertEquals(connectorListener.getReceivedByteBufferToClient(), buffer);
+        assertWebSocketClientBinaryMessage(connectorListener, buffer);
         shutDownClient(session);
     }
 
@@ -94,7 +93,7 @@ public class WebSocketClientTest {
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         session.getBasicRemote().sendPing(buffer);
-        Thread.sleep(sleepTime);
+        Thread.sleep(threadSleepTime);
         Assert.assertTrue(connectorListener.isPongReceived());
         shutDownClient(session);
     }
@@ -108,16 +107,13 @@ public class WebSocketClientTest {
         String text2 = "testText2";
 
         session1.getBasicRemote().sendText(text1);
-        Thread.sleep(sleepTime);
-        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text1);
+        assertWebSocketClientTextMessage(connectorListener, text1);
 
         session2.getBasicRemote().sendText(text2);
-        Thread.sleep(sleepTime);
-        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text2);
+        assertWebSocketClientTextMessage(connectorListener, text2);
 
-        session2.getBasicRemote().sendText(text2);
-        Thread.sleep(sleepTime);
-        Assert.assertEquals(connectorListener.getReceivedTextToClient(), text2);
+        session2.getBasicRemote().sendText(text1);
+        assertWebSocketClientTextMessage(connectorListener, text1);
 
         shutDownClient(session1);
         shutDownClient(session2);
@@ -129,7 +125,8 @@ public class WebSocketClientTest {
     }
 
     private Session handshake(WebSocketConnectorListener connectorListener) throws ClientConnectorException {
-        return clientConnector.connect(connectorListener);
+        Map<String, String> customHeaders = new HashMap<>();
+        return clientConnector.connect(connectorListener, customHeaders);
     }
 
     private void shutDownClient(Session session) throws ClientConnectorException, IOException {

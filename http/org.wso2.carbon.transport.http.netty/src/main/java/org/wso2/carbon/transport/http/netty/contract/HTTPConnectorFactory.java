@@ -49,9 +49,10 @@ public interface HTTPConnectorFactory {
             SenderConfiguration senderConfiguration);
 
     /**
-     * This method can be used to get websockets client connector.
-     * @param connectorConfig contains endpoint details.
-     * @return the client connection that represents the connection.
+     * This method is used to get WebSocket client connector.
+     *
+     * @param senderProperties Properties to create a client connector.
+     * @return WebSocketClientConnector.
      */
-    WebSocketClientConnector getWSClientConnector(Map<String, String> connectorConfig);
+    WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties);
 }

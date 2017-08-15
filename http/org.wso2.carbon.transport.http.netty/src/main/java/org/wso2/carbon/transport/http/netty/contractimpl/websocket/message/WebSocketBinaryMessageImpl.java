@@ -20,21 +20,19 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageContextImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 
 import java.nio.ByteBuffer;
 
 /**
  * Implementation of {@link WebSocketBinaryMessage}.
  */
-public class WebSocketBinaryMessageImpl extends WebSocketMessageContextImpl implements WebSocketBinaryMessage {
+public class WebSocketBinaryMessageImpl extends WebSocketMessageImpl implements WebSocketBinaryMessage {
 
     private final ByteBuffer buffer;
     private final boolean isFinalFragment;
 
-    public WebSocketBinaryMessageImpl(ByteBuffer buffer, boolean isFinalFragment,
-                                      WebSocketMessageContextImpl channelContext) {
-        super(channelContext.getChannelSession(), channelContext.getChannelContext());
+    public WebSocketBinaryMessageImpl(ByteBuffer buffer, boolean isFinalFragment) {
         this.buffer = buffer;
         this.isFinalFragment = isFinalFragment;
     }

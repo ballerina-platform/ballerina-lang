@@ -25,7 +25,7 @@ import javax.websocket.Session;
 /**
  * This Message is used to handle WebSocket handshake.
  */
-public interface WebSocketInitMessage extends WebSocketMessageContext {
+public interface WebSocketInitMessage extends WebSocketMessage {
 
     /**
      * Complete the handshake of a given request. There will not be a idle timeout for the connection if this
