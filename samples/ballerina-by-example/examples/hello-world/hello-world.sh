@@ -12,7 +12,7 @@ $ ls
 hello-world.balx	hello-world.bal
 
 # The output file can be specified with the -o flag.
-$ ballerina build main hello-world.bal -o hello.balx
+$ ballerina build hello-world.bal -o hello.balx
 
 # Here is how you can run the program file.
 $ ballerina run hello.balx
