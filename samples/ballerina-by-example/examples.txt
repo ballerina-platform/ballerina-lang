@@ -37,6 +37,7 @@ Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
+Fork/Join Variable Access
 Datatables
 SQL Connector
 Transactions
