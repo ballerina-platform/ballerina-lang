@@ -92,7 +92,7 @@ public class IndexOperator implements Operator {
     @Override
     public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
-                                                  InMemoryCompiledUpdateSet compiledUpdateSet,
+                                                    InMemoryCompiledUpdateSet compiledUpdateSet,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
                 (updatingOrAddingEventChunk.isBatch());
@@ -121,8 +121,8 @@ public class IndexOperator implements Operator {
         //to reduce number of passes needed to update the events
         boolean doDeleteUpdate = false;
         boolean fail = false;
-            for (Map.Entry<Integer, ExpressionExecutor> entry :
-                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+        for (Map.Entry<Integer, ExpressionExecutor> entry :
+                compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
             if (doDeleteUpdate || fail) {
                 break;
             }
@@ -130,8 +130,8 @@ public class IndexOperator implements Operator {
                 //Todo how much check we need to do before falling back to Delete and then Update
                 foundEventChunk.reset();
                 Set<Object> keys = null;
-                if (entry.getKey() == storeEvents
-                        .getPrimaryKeyAttributePosition()) {
+                if (storeEvents.getPrimaryKeyReferenceHolders().length == 1 &&
+                        entry.getKey() == storeEvents.getPrimaryKeyReferenceHolders()[0].getPrimaryKeyPosition()) {
                     keys = new HashSet<>(storeEvents.getAllPrimaryKeys());
                 }
                 while (foundEventChunk.hasNext()) {
@@ -140,7 +140,9 @@ public class IndexOperator implements Operator {
                     Object storeEventData = streamEvent.getOutputData()[entry.getKey()];
                     if (updatingData != null && storeEventData != null && !updatingData.equals(storeEventData)) {
                         doDeleteUpdate = true;
-                        if (keys != null) {
+                        if (keys == null || keys.size() == 0) {
+                            break;
+                        } else {
                             keys.remove(storeEventData);
                             if (!keys.add(updatingData)) {
                                 log.error("Update failed for event :" + overwritingOrAddingEvent + ", as there is " +
@@ -149,8 +151,6 @@ public class IndexOperator implements Operator {
                                 fail = true;
                                 break;
                             }
-                        } else {
-                            break;
                         }
                     }
                 }

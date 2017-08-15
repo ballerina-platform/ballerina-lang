@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of {@link CollectionExpression} which represent And expressions.
  */
@@ -29,6 +32,8 @@ public class AndCollectionExpression implements CollectionExpression {
     private final CollectionScope collectionScope;
     private CollectionExpression leftCollectionExpression;
     private CollectionExpression rightCollectionExpression;
+    private HashSet<String> multiPrimaryKeys = new HashSet<>();
+
 
     public AndCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
             leftCollectionExpression, CollectionExpression rightCollectionExpression) {
@@ -36,6 +41,8 @@ public class AndCollectionExpression implements CollectionExpression {
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;
         this.rightCollectionExpression = rightCollectionExpression;
+        multiPrimaryKeys.addAll(leftCollectionExpression.getMultiPrimaryKeys());
+        multiPrimaryKeys.addAll(rightCollectionExpression.getMultiPrimaryKeys());
     }
 
     public CollectionExpression getLeftCollectionExpression() {
@@ -55,4 +62,8 @@ public class AndCollectionExpression implements CollectionExpression {
         return collectionScope;
     }
 
+    @Override
+    public Set<String> getMultiPrimaryKeys() {
+        return multiPrimaryKeys;
+    }
 }

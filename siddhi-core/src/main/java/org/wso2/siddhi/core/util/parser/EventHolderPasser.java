@@ -21,8 +21,8 @@ package org.wso2.siddhi.core.util.parser;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.table.holder.IndexEventHolder;
 import org.wso2.siddhi.core.table.holder.ListEventHolder;
@@ -37,6 +37,8 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.wso2.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
+
 /**
  * Class to parse {@link EventHolder}
  */
@@ -46,73 +48,72 @@ public class EventHolderPasser {
     public static EventHolder parse(AbstractDefinition tableDefinition, StreamEventPool tableStreamEventPool) {
         ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
-        String primaryKeyAttribute = null;
-        int primaryKeyPosition = -1;
+        PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders = null;
 
         Map<String, Integer> indexMetaData = new HashMap<String, Integer>();
 
         // primaryKey.
         Annotation primaryKeyAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
-                                                                         tableDefinition.getAnnotations());
+                tableDefinition.getAnnotations());
         if (primaryKeyAnnotation != null) {
-            if (primaryKeyAnnotation.getElements().size() > 1) {
-                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation " +
-                                                                 "contains " +
-                                                                 primaryKeyAnnotation.getElements().size() +
-                                                                 " elements, Siddhi in-memory table only supports indexing based on a single attribute, " +
-                                                                 "at '" + tableDefinition.getId() + "'");
-            }
             if (primaryKeyAnnotation.getElements().size() == 0) {
                 throw new SiddhiAppValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation " +
-                                                                   "contains "
-                                                                   + primaryKeyAnnotation.getElements().size() + " element, at '" + tableDefinition.getId() + "'");
+                        "contains " + primaryKeyAnnotation.getElements().size() + " element, at '" +
+                        tableDefinition.getId() + "'");
             }
-            primaryKeyAttribute = primaryKeyAnnotation.getElements().get(0).getValue().trim();
-            primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
-
+            primaryKeyReferenceHolders = primaryKeyAnnotation.getElements().stream()
+                    .map(element -> element.getValue().trim())
+                    .map(key -> new PrimaryKeyReferenceHolder(key, tableDefinition.getAttributePosition(key)))
+                    .toArray(PrimaryKeyReferenceHolder[]::new);
         }
 
         // indexes.
         Annotation indexAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
-                                                                    tableDefinition.getAnnotations());
+                tableDefinition.getAnnotations());
         if (indexAnnotation != null) {
             if (indexAnnotation.getElements().size() == 0) {
                 throw new SiddhiAppValidationException(SiddhiConstants.ANNOTATION_INDEX + " annotation contains "
-                                                                   + indexAnnotation.getElements().size() + " element");
+                        + indexAnnotation.getElements().size() + " element");
             }
             for (Element element : indexAnnotation.getElements()) {
                 Integer previousValue = indexMetaData.put(element.getValue().trim(), tableDefinition
                         .getAttributePosition(element.getValue().trim()));
                 if (previousValue != null) {
                     throw new SiddhiAppCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " " +
-                                                                     "annotations defined with same attribute '" + element.getValue().trim() + "', at '" +
-                                                                     tableDefinition.getId() + "'");
+                            "annotations defined with same attribute '" + element.getValue().trim() + "', at '" +
+                            tableDefinition.getId() + "'");
                 }
             }
         }
 
         // not support indexBy.
         Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
-                                                                      tableDefinition.getAnnotations());
+                tableDefinition.getAnnotations());
         if (indexByAnnotation != null) {
             throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation is not " +
-                                                             "supported anymore, please use @PrimaryKey or @Index annotations instead," +
-                                                             " at '" + tableDefinition.getId() + "'");
+                    "supported anymore, please use @PrimaryKey or @Index annotations instead," +
+                    " at '" + tableDefinition.getId() + "'");
         }
 
-        if (primaryKeyAttribute != null || indexMetaData.size() > 0) {
+        if (primaryKeyReferenceHolders != null || indexMetaData.size() > 0) {
             boolean isNumeric = false;
-            if (primaryKeyAttribute != null) {
-                Attribute.Type type = tableDefinition.getAttributeType(primaryKeyAttribute);
-                if (type == Attribute.Type.DOUBLE || type == Attribute.Type.FLOAT || type == Attribute.Type.INT ||
-                        type == Attribute.Type.LONG) {
-                    isNumeric = true;
+            if (primaryKeyReferenceHolders != null) {
+                if (primaryKeyReferenceHolders.length == 1) {
+                    Attribute.Type type = tableDefinition.getAttributeType(
+                            primaryKeyReferenceHolders[0].getPrimaryKeyAttribute());
+                    if (type == Attribute.Type.DOUBLE || type == Attribute.Type.FLOAT || type == Attribute.Type.INT ||
+                            type == Attribute.Type.LONG) {
+                        isNumeric = true;
+                    }
                 }
+
             }
-            return new IndexEventHolder(tableStreamEventPool, eventConverter, primaryKeyPosition, primaryKeyAttribute,
-                                        isNumeric, indexMetaData);
+            return new IndexEventHolder(tableStreamEventPool, eventConverter, primaryKeyReferenceHolders, isNumeric,
+                    indexMetaData);
         } else {
             return new ListEventHolder(tableStreamEventPool, eventConverter);
         }
     }
+
+
 }

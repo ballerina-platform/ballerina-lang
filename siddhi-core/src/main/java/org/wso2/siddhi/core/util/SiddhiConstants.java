@@ -89,4 +89,8 @@ public final class SiddhiConstants {
     public static final String METRIC_DELIMITER = ".";
     public static final String METRIC_AGGREGATE_ANNOTATION = "[+]";
     public static final String EXTENSION_SEPARATOR = ":";
+
+    public static final String KEY_DELIMITER = ":-:";
+
+
 }

@@ -61,7 +61,7 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
                 case NON:
                 case INDEXED_ATTRIBUTE:
                 case INDEXED_RESULT_SET:
-                case OPTIMISED_RESULT_SET:
+                case OPTIMISED_INDEXED_RESULT_SET:
                     return collectionExecutor.findEvents(matchingEvent, indexedEventHolder);
                 case EXHAUSTIVE:
                     return null;

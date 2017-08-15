@@ -62,7 +62,7 @@ public class GroupByKeyGenerator {
         if (groupByExecutors != null) {
             StringBuilder sb = new StringBuilder();
             for (ExpressionExecutor executor : groupByExecutors) {
-                sb.append(executor.execute(event)).append("::");
+                sb.append(executor.execute(event)).append(SiddhiConstants.KEY_DELIMITER);
             }
             return sb.toString();
         } else {

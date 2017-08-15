@@ -20,17 +20,25 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of {@link CollectionExpression} which represent attribute expressions.
  */
 public class AttributeCollectionExpression implements CollectionExpression {
     private final Expression expression;
-    private final CollectionScope collectionScope = CollectionScope.INDEXED_ATTRIBUTE;
+    private final CollectionScope collectionScope;
+    private final HashSet<String> multiPrimaryKeys = new HashSet<>();
     private String attribute;
 
-    public AttributeCollectionExpression(Expression expression, String attribute) {
+    public AttributeCollectionExpression(Expression expression, String attribute, CollectionScope collectionScope) {
         this.expression = expression;
         this.attribute = attribute;
+        this.collectionScope = collectionScope;
+        if (collectionScope == CollectionScope.MULTI_PRIMARY_KEY_ATTRIBUTE) {
+            multiPrimaryKeys.add(attribute);
+        }
     }
 
     public Expression getExpression() {
@@ -44,4 +52,10 @@ public class AttributeCollectionExpression implements CollectionExpression {
     public String getAttribute() {
         return attribute;
     }
+
+    @Override
+    public Set<String> getMultiPrimaryKeys() {
+        return multiPrimaryKeys;
+    }
+
 }

@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of {@link CollectionExpression} which represent Not expressions.
  */
@@ -47,5 +50,10 @@ public class NotCollectionExpression implements CollectionExpression {
     @Override
     public CollectionScope getCollectionScope() {
         return collectionScope;
+    }
+
+    @Override
+    public Set<String> getMultiPrimaryKeys() {
+        return new HashSet<>();
     }
 }

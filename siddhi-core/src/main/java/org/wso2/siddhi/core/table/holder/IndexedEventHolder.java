@@ -49,8 +49,7 @@ public interface IndexedEventHolder extends EventHolder {
 
     Set<Object> getAllPrimaryKeys();
 
-    int getPrimaryKeyAttributePosition();
+    PrimaryKeyReferenceHolder[] getPrimaryKeyReferenceHolders();
 
-    String getPrimaryKeyAttribute();
-
+    boolean isMultiPrimaryKey(String attributeName);
 }

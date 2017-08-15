@@ -244,7 +244,6 @@ public class SimpleQueryTestCase {
                         select("avgPrice", Expression.variable("avgPrice"))
         );
         query.insertInto("IBMOutStockStream");
-
     }
 
 //    from StockStream[win.lengthBatch(50)][price >= 20]

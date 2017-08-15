@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,21 +24,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Implementation of {@link CollectionExpression} which represent Or expressions.
+ * Implementation of {@link CollectionExpression} which represent And expressions.
  */
-public class OrCollectionExpression implements CollectionExpression {
+public class AndMutiPrimaryKeyCollectionExpression implements CollectionExpression {
 
     private final Expression expression;
     private final CollectionScope collectionScope;
     private CollectionExpression leftCollectionExpression;
     private CollectionExpression rightCollectionExpression;
+    private HashSet<String> multiPrimaryKeys = new HashSet<>();
 
-    public OrCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
-            leftCollectionExpression, CollectionExpression rightCollectionExpression) {
+
+    public AndMutiPrimaryKeyCollectionExpression(Expression expression, CollectionScope collectionScope,
+                                                 CollectionExpression leftCollectionExpression,
+                                                 CollectionExpression rightCollectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;
         this.rightCollectionExpression = rightCollectionExpression;
+        multiPrimaryKeys.addAll(leftCollectionExpression.getMultiPrimaryKeys());
+        multiPrimaryKeys.addAll(rightCollectionExpression.getMultiPrimaryKeys());
     }
 
     public CollectionExpression getLeftCollectionExpression() {
@@ -60,7 +65,6 @@ public class OrCollectionExpression implements CollectionExpression {
 
     @Override
     public Set<String> getMultiPrimaryKeys() {
-        return new HashSet<>();
+        return multiPrimaryKeys;
     }
-
 }

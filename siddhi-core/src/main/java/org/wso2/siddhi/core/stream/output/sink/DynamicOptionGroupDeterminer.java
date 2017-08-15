@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.transport.Option;
 
 import java.util.List;
@@ -48,7 +49,8 @@ public class DynamicOptionGroupDeterminer implements OutputGroupDeterminer {
     public String decideGroup(Event event) {
         StringBuilder stringBuilder = new StringBuilder("");
         dynamicTransportOptions
-                .forEach(transportOption -> stringBuilder.append(transportOption.getValue(event)).append(":::"));
+                .forEach(transportOption -> stringBuilder.append(transportOption.getValue(event))
+                        .append(SiddhiConstants.KEY_DELIMITER));
         return stringBuilder.toString();
     }
 }

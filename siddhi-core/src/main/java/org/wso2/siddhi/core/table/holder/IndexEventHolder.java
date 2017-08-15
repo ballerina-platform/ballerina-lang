@@ -25,12 +25,14 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -44,29 +46,36 @@ public class IndexEventHolder implements IndexedEventHolder {
     private static final Logger log = Logger.getLogger(IndexEventHolder.class);
     private final Map<Object, StreamEvent> primaryKeyData;
     private final Map<String, TreeMap<Object, Set<StreamEvent>>> indexData;
+    private final PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders;
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
-    private int primaryKeyPosition = -1;
-    private String primaryKeyAttribute;
     private Map<String, Integer> indexMetaData;
+    private Map<String, Integer> multiPrimaryKeyMetaData = new LinkedHashMap<>();
     private Map<String, Integer> allIndexMetaData = new HashMap<>();
 
     public IndexEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter,
-                            int primaryKeyPosition, String primaryKeyAttribute,
+                            PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders,
                             boolean isPrimaryNumeric, Map<String, Integer> indexMetaData) {
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;
-        this.primaryKeyPosition = primaryKeyPosition;
-        this.primaryKeyAttribute = primaryKeyAttribute;
+        this.primaryKeyReferenceHolders = primaryKeyReferenceHolders;
         this.indexMetaData = indexMetaData;
 
-        if (primaryKeyAttribute != null) {
+        if (primaryKeyReferenceHolders != null) {
             if (isPrimaryNumeric) {
                 primaryKeyData = new TreeMap<Object, StreamEvent>();
             } else {
                 primaryKeyData = new HashMap<Object, StreamEvent>();
             }
-            allIndexMetaData.put(primaryKeyAttribute, primaryKeyPosition);
+            if (primaryKeyReferenceHolders.length == 1) {
+                allIndexMetaData.put(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute(),
+                        primaryKeyReferenceHolders[0].getPrimaryKeyPosition());
+            } else {
+                for (PrimaryKeyReferenceHolder primaryKeyReferenceHolder : primaryKeyReferenceHolders) {
+                    multiPrimaryKeyMetaData.put(primaryKeyReferenceHolder.getPrimaryKeyAttribute(),
+                            primaryKeyReferenceHolder.getPrimaryKeyPosition());
+                }
+            }
         } else {
             primaryKeyData = null;
         }
@@ -82,8 +91,33 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     }
 
-    public String getPrimaryKeyAttribute() {
-        return primaryKeyAttribute;
+    @Override
+    public Set<Object> getAllPrimaryKeys() {
+        if (primaryKeyData != null) {
+            return primaryKeyData.keySet();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public PrimaryKeyReferenceHolder[] getPrimaryKeyReferenceHolders() {
+        return primaryKeyReferenceHolders;
+    }
+
+    @Override
+    public boolean isMultiPrimaryKey(String attributeName) {
+        return multiPrimaryKeyMetaData.containsKey(attributeName);
+    }
+
+    @Override
+    public boolean isAttributeIndexed(String attribute) {
+        return allIndexMetaData.containsKey(attribute);
+    }
+
+    @Override
+    public boolean isAttributeIndexed(int position) {
+        return allIndexMetaData.containsValue(position);
     }
 
     @Override
@@ -101,11 +135,11 @@ public class IndexEventHolder implements IndexedEventHolder {
 
         StreamEvent existingValue = null;
         if (primaryKeyData != null) {
-            existingValue = primaryKeyData.putIfAbsent(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
+            Object primaryKey = constructPrimaryKey(streamEvent, primaryKeyReferenceHolders);
+            existingValue = primaryKeyData.putIfAbsent(primaryKey, streamEvent);
             if (existingValue != null) {
                 log.error("Drooping event :" + streamEvent + ", as there is already an event stored with primary key " +
-                                  "'" +
-                                  streamEvent.getOutputData()[primaryKeyPosition] + "'");
+                        "'" + primaryKey + "'");
             }
         }
 
@@ -126,11 +160,26 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     }
 
+    private Object constructPrimaryKey(StreamEvent streamEvent,
+                                       PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders) {
+        if (primaryKeyReferenceHolders.length == 1) {
+            return streamEvent.getOutputData()[primaryKeyReferenceHolders[0].getPrimaryKeyPosition()];
+        } else {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (PrimaryKeyReferenceHolder primaryKeyReferenceHolder : primaryKeyReferenceHolders) {
+                stringBuilder.append(streamEvent.getOutputData()[primaryKeyReferenceHolder.getPrimaryKeyPosition()])
+                        .append(SiddhiConstants.KEY_DELIMITER);
+            }
+            return stringBuilder.toString();
+        }
+    }
+
     @Override
     public void overwrite(StreamEvent streamEvent) {
         StreamEvent deletedEvent = null;
         if (primaryKeyData != null) {
-            deletedEvent = primaryKeyData.put(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
+            Object primaryKey = constructPrimaryKey(streamEvent, primaryKeyReferenceHolders);
+            deletedEvent = primaryKeyData.put(primaryKey, streamEvent);
         }
 
         if (indexData != null) {
@@ -157,30 +206,6 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public Set<Object> getAllPrimaryKeys() {
-        if (primaryKeyData != null) {
-            return primaryKeyData.keySet();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public int getPrimaryKeyAttributePosition() {
-        return primaryKeyPosition;
-    }
-
-    @Override
-    public boolean isAttributeIndexed(String attribute) {
-        return allIndexMetaData.containsKey(attribute);
-    }
-
-    @Override
-    public boolean isAttributeIndexed(int position) {
-        return allIndexMetaData.containsValue(position);
-    }
-
-    @Override
     public Collection<StreamEvent> getAllEvents() {
         if (primaryKeyData != null) {
             return primaryKeyData.values();
@@ -202,7 +227,8 @@ public class IndexEventHolder implements IndexedEventHolder {
     @Override
     public Collection<StreamEvent> findEvents(String attribute, Compare.Operator operator, Object value) {
 
-        if (primaryKeyData != null && attribute.equals(primaryKeyAttribute)) {
+        if (primaryKeyData != null && primaryKeyReferenceHolders.length == 1 &&
+                attribute.equals(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute())) {
             StreamEvent resultEvent;
             HashSet<StreamEvent> resultEventSet;
 
@@ -303,7 +329,8 @@ public class IndexEventHolder implements IndexedEventHolder {
     public void deleteAll(Collection<StreamEvent> storeEventSet) {
         for (StreamEvent streamEvent : storeEventSet) {
             if (primaryKeyData != null) {
-                StreamEvent deletedEvent = primaryKeyData.remove(streamEvent.getOutputData()[primaryKeyPosition]);
+                Object primaryKey = constructPrimaryKey(streamEvent, primaryKeyReferenceHolders);
+                StreamEvent deletedEvent = primaryKeyData.remove(primaryKey);
                 if (indexData != null) {
                     deleteFromIndexes(deletedEvent);
                 }
@@ -315,7 +342,8 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     @Override
     public void delete(String attribute, Compare.Operator operator, Object value) {
-        if (primaryKeyData != null && attribute.equals(primaryKeyAttribute)) {
+        if (primaryKeyData != null && primaryKeyReferenceHolders.length == 1 &&
+                attribute.equals(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute())) {
             switch (operator) {
 
                 case LESS_THAN:
@@ -428,8 +456,8 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     @Override
     public boolean containsEventSet(String attribute, Compare.Operator operator, Object value) {
-        if (primaryKeyData != null && attribute.equals(primaryKeyAttribute)) {
-
+        if (primaryKeyData != null && primaryKeyReferenceHolders.length == 1 &&
+                attribute.equals(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute())) {
             switch (operator) {
                 case LESS_THAN:
                     return ((TreeMap<Object, StreamEvent>) primaryKeyData).lowerKey(value) != null;
@@ -470,7 +498,8 @@ public class IndexEventHolder implements IndexedEventHolder {
     private void deleteFromIndexesAndPrimaryKey(String currentAttribute, Set<StreamEvent> deletedEventSet) {
         for (StreamEvent deletedEvent : deletedEventSet) {
             if (primaryKeyData != null) {
-                primaryKeyData.remove(deletedEvent.getOutputData()[primaryKeyPosition]);
+                Object primaryKey = constructPrimaryKey(deletedEvent, primaryKeyReferenceHolders);
+                primaryKeyData.remove(primaryKey);
             }
             for (Map.Entry<String, Integer> indexEntry : indexMetaData.entrySet()) {
                 if (!currentAttribute.equals(indexEntry.getKey())) {
@@ -499,4 +528,5 @@ public class IndexEventHolder implements IndexedEventHolder {
             }
         }
     }
+
 }

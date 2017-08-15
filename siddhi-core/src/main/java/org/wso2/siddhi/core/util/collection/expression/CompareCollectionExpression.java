@@ -21,6 +21,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of {@link CollectionExpression} which represent Compare expressions.
  */
@@ -28,9 +31,11 @@ public class CompareCollectionExpression implements CollectionExpression {
 
     private final Compare compareExpression;
     private final CollectionScope collectionScope;
+    private final HashSet<String> multiPrimaryKeys = new HashSet<>();
     private CollectionExpression attributeCollectionExpression;
     private Compare.Operator operator;
     private CollectionExpression valueCollectionExpression;
+
 
     public CompareCollectionExpression(Compare compareExpression, CollectionScope collectionScope,
                                        CollectionExpression attributeCollectionExpression, Compare.Operator operator,
@@ -40,6 +45,10 @@ public class CompareCollectionExpression implements CollectionExpression {
         this.attributeCollectionExpression = attributeCollectionExpression;
         this.operator = operator;
         this.valueCollectionExpression = valueCollectionExpression;
+        if (operator == Compare.Operator.EQUAL) {
+            multiPrimaryKeys.addAll(attributeCollectionExpression.getMultiPrimaryKeys());
+            multiPrimaryKeys.addAll(valueCollectionExpression.getMultiPrimaryKeys());
+        }
     }
 
     public CollectionExpression getAttributeCollectionExpression() {
@@ -61,5 +70,10 @@ public class CompareCollectionExpression implements CollectionExpression {
     @Override
     public CollectionScope getCollectionScope() {
         return collectionScope;
+    }
+
+    @Override
+    public Set<String> getMultiPrimaryKeys() {
+        return multiPrimaryKeys;
     }
 }
