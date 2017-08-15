@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -86,13 +85,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                             executeAtTargetResponseReceiving(cMsg);
                 }
-//                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-//                        .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
                 if (this.listener != null) {
                     try {
-//                        HTTPTransportContextHolder.getInstance()
-//                                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID))
-//                                .receive(cMsg, callback);
                         listener.onMessage(cMsg);
                     } catch (Exception e) {
                         LOG.error("Error while handover response to MessageProcessor ", e);
@@ -104,7 +98,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (cMsg != null) {
                     if (msg instanceof LastHttpContent) {
                         HttpContent httpContent = (LastHttpContent) msg;
-                        ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
+                        cMsg.addHttpContent(httpContent);
                         cMsg.setEndOfMsgAdded(true);
                         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
@@ -114,7 +108,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         connectionManager.returnChannel(targetChannel);
                     } else {
                         HttpContent httpContent = (DefaultHttpContent) msg;
-                        ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
+                        cMsg.addHttpContent(httpContent);
                     }
                 }
             }
@@ -166,17 +160,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private void sendBackTimeOutResponse() {
         String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                 getHttpRoute().toString() + "</errorMessage>";
-
-//        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-//                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-
         if (httpClientConnectorFuture != null) {
             try {
-//                HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
-//                        .getProperty(Constants.MESSAGE_PROCESSOR_ID))
-//                        .receive(createErrorMessage(payload), callback);
                 httpClientConnectorFuture.notifyHTTPListener(createErrorMessage(payload));
-
             } catch (Exception e) {
                 LOG.error("Error while handover response to MessageProcessor ", e);
             }

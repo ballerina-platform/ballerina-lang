@@ -163,7 +163,9 @@ public class ConnectionManager {
             }
         }
 
-        return (TargetChannel) trgHlrConnPool.borrowObject();
+        TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
+        targetChannel.setHttpRoute(httpRoute);
+        return targetChannel;
     }
 
     //Add connection to Pool back
