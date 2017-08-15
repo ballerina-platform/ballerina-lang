@@ -94,15 +94,13 @@ public class TargetChannel {
         this.isRequestWritten = isRequestWritten;
     }
 
-    public void configureTargetChannel(HTTPCarbonMessage httpCarbonMessage,
-            SourceHandler srcHandler, ConnectionManager connectionManager) {
+    public void configure(HTTPCarbonMessage httpCarbonMessage, SourceHandler srcHandler) {
         this.setTargetHandler(this.getHTTPClientInitializer().getTargetHandler());
         this.setCorrelatedSource(srcHandler);
         TargetHandler targetHandler = this.getTargetHandler();
         //                    targetHandler.setHttpClientConnectorFuture(httpClientConnectorFuture);
         targetHandler.setListener(httpCarbonMessage.getResponseListener());
         targetHandler.setIncomingMsg(httpCarbonMessage);
-        targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
     }
 

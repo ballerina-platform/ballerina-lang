@@ -150,12 +150,10 @@ public class ConnectionManager {
         } else {
             Class cl = NioSocketChannel.class;
             EventLoopGroup group = clientEventGroup;
-
             synchronized (this) {
                 if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(
-                                    httpRoute, group, cl, sslConfig);
+                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
@@ -165,6 +163,7 @@ public class ConnectionManager {
 
         TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
         targetChannel.setHttpRoute(httpRoute);
+        targetChannel.getTargetHandler().setConnectionManager(this);
         return targetChannel;
     }
 
