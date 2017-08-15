@@ -145,7 +145,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BValue copy() {
-        return new BMap<>(new LinkedHashMap(map));
+        BMap newMap = BTypes.typeMap.getEmptyValue();
+        for (Map.Entry<K, V> entry: map.entrySet()) {
+            BValue value = entry.getValue();
+            newMap.put(entry.getKey(), value == null ? null : value.copy());
+        }
+        return newMap;
     }
 
     @Override
