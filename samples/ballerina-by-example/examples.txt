@@ -47,6 +47,7 @@ Strings
 Blob Type
 Date Time
 File API
+Throw
 Try/Catch/Finally
 Base Path and Path
 Query and Path Param
