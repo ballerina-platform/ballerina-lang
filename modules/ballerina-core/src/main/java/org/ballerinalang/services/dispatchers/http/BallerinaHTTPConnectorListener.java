@@ -35,7 +35,6 @@ public class BallerinaHTTPConnectorListener implements HTTPConnectorListener {
 
     private static final Logger breLog = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
 
-
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
 

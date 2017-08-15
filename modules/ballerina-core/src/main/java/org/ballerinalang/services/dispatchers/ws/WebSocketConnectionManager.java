@@ -19,11 +19,9 @@
 package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
