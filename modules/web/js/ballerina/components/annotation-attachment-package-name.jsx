@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import AnnotationAttachment from './../ast/annotations/annotation-attachment';
 import AutoSuggestHtml from './utils/autosuggest-html';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 /**
  * React component for the package name of an annotation attachment.

@@ -20,6 +20,7 @@ import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for return statement in ballerina.
@@ -57,8 +58,8 @@ class ReturnStatement extends Statement {
                 this.initFromJson(parsedJson);
             } else if (_.has(parsedJson, 'type')) {
                 // user may want to change the statement type
-                const newNode = this.getFactory().createFromJson(parsedJson);
-                if (this.getFactory().isStatement(newNode)) {
+                const newNode = ASTFactory.createFromJson(parsedJson);
+                if (ASTFactory.isStatement(newNode)) {
                     // somebody changed the type of statement
                     const parent = this.getParent();
                     const index = parent.getIndexOfChild(this);
@@ -97,9 +98,9 @@ class ReturnStatement extends Statement {
      * @return {boolean} can be a child of status
      */
     canBeAChildOf(node) {
-        return this.getFactory().isFunctionDefinition(node) ||
-               this.getFactory().isConnectorAction(node) ||
-            this.getFactory().isStatement(node);
+        return ASTFactory.isFunctionDefinition(node) ||
+               ASTFactory.isConnectorAction(node) ||
+            ASTFactory.isStatement(node);
     }
 
     /**
@@ -129,7 +130,7 @@ class ReturnStatement extends Statement {
     initFromJson(jsonNode) {
         this.children.length = 0;
         jsonNode.children.forEach((childJsonNode) => {
-            const child = this.getFactory().createFromJson(childJsonNode);
+            const child = ASTFactory.createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
             this.addChild(child, undefined, true, true);
         });

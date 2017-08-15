@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for break statement in ballerina.
@@ -43,10 +44,10 @@ class BreakStatement extends Statement {
      * @return {boolean} true|false.
      */
     canBeAChildOf(node) {
-        let canBeChildOf = this.getFactory().isWhileStatement(node);
+        let canBeChildOf = ASTFactory.isWhileStatement(node);
         let nodeToBeParent = node;
         while (!canBeChildOf && !_.isEmpty(nodeToBeParent.getParent())) {
-            canBeChildOf = this.getFactory().isWhileStatement(nodeToBeParent);
+            canBeChildOf = ASTFactory.isWhileStatement(nodeToBeParent);
             nodeToBeParent = nodeToBeParent.getParent();
         }
         return canBeChildOf;

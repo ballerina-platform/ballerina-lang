@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTNode from './node';
+import ASTFactory from './ast-factory.js';
 
 class ArgumentParameterDefinitionHolder extends ASTNode {
 
@@ -37,7 +38,7 @@ class ArgumentParameterDefinitionHolder extends ASTNode {
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

@@ -20,6 +20,7 @@ import { util } from './../sizing-utils';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Dimension visitor class for assignment statement.
@@ -68,7 +69,7 @@ class AssignmentStatementDimensionCalculatorVisitor {
         const viewState = node.getViewState();
         util.populateSimpleStatementBBox(node.getStatementString(), viewState);
         const child = node.getRightExpression();
-        if (node.getFactory().isConnectorInitExpression(child)) {
+        if (ASTFactory.isConnectorInitExpression(child)) {
             AssignmentStatementDimensionCalculatorVisitor.calculateConnectorDeclarationDimension(node);
         }
         node.getLambdaChildren().forEach((f) => {

@@ -22,7 +22,7 @@ import CommonUtils from '../../utils/common-utils';
 import VariableDeclaration from './../variable-declaration';
 import FragmentUtils from '../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
-import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 import LambdaExpression from '../expressions/lambda-expression';
 
 /**
@@ -161,7 +161,7 @@ class VariableDefinitionStatement extends Statement {
         const parsedJson = FragmentUtils.parseFragment(fragment);
         if ((!_.has(parsedJson, 'error')
                || !_.has(parsedJson, 'syntax_errors'))) {
-            const child = this.getFactory().createFromJson(parsedJson);
+            const child = ASTFactory.createFromJson(parsedJson);
             child.initFromJson(parsedJson);
             this.children[1] = child;
             this.trigger('tree-modified', {
@@ -229,8 +229,8 @@ class VariableDefinitionStatement extends Statement {
                         this.initFromJson(parsedJson);
                     } else if (_.has(parsedJson, 'type')) {
                         // user may want to change the statement type
-                        const newNode = this.getFactory().createFromJson(parsedJson);
-                        if (this.getFactory().isStatement(newNode)) {
+                        const newNode = ASTFactory.createFromJson(parsedJson);
+                        if (ASTFactory.isStatement(newNode)) {
                             // somebody changed the type of statement to an assignment
                             // to capture retun value of function Invocation
                             const parent = this.getParent();
@@ -275,7 +275,7 @@ class VariableDefinitionStatement extends Statement {
         if (this.getBType() === 'message') {
             defaultValueName = 'm';
         }
-        if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)) {
+        if (ASTFactory.isResourceDefinition(this.parent) || ASTFactory.isConnectorAction(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
                 attributes: [{
@@ -301,7 +301,7 @@ class VariableDefinitionStatement extends Statement {
                     }],
                 }],
             });
-        } else if (this.getFactory().isFunctionDefinition(this.parent)) {
+        } else if (ASTFactory.isFunctionDefinition(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
                 attributes: [{
@@ -331,13 +331,13 @@ class VariableDefinitionStatement extends Statement {
     getLambdaChildren() {
         // TODO: remove after making connector expression a child of RHS
         const rightExpression = this.getRightExpression();
-        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)) {
-            return rightExpression.getArguments().filter(BallerinaASTFactory.isLambdaExpression)
+        if (ASTFactory.isActionInvocationExpression(rightExpression)) {
+            return rightExpression.getArguments().filter(ASTFactory.isLambdaExpression)
                 .map(l => l.getLambdaFunction());
         }
 
         const deepFilterChildren = x =>
-            (BallerinaASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
+            (ASTFactory.isLambdaExpression(x) ? x : x.children.map(deepFilterChildren));
         return _.flatMapDeep(deepFilterChildren(this)).map(l => l.getLambdaFunction());
     }
 
@@ -350,7 +350,7 @@ class VariableDefinitionStatement extends Statement {
     initFromJson(jsonNode) {
         this.children = [];
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for KeyValueExpression
@@ -42,7 +43,7 @@ class KeyValueExpression extends Expression {
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

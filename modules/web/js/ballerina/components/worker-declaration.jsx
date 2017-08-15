@@ -23,6 +23,7 @@ import StatementContainer from './statement-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import { util } from './../visitors/sizing-utils';
 import ImageUtil from './image-util';
+import ASTFactory from '../ast/ast-factory.js';
 
 class WorkerDeclaration extends React.Component {
 
@@ -52,7 +53,7 @@ class WorkerDeclaration extends React.Component {
         const workerScopeContainerBBox = this.props.model.viewState.components.workerScopeContainer;
         const workerBBox = {};
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         workerBBox.w = DesignerDefaults.lifeLine.width;

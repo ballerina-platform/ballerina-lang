@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeVisitor from './annotation-attribute-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source gen visitor for annotation attachment.
@@ -57,7 +58,7 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     beginVisitAnnotationAttachment(annotationAttachment) {
         const useDefaultWS = annotationAttachment.whiteSpace.useDefault;
-        this.isAttribValue = annotationAttachment.getFactory()
+        this.isAttribValue = ASTFactory
                                 .isAnnotationAttributeValue(annotationAttachment.getParent());
         if (useDefaultWS && !this._isFirstAnnotation && !this.isAttribValue) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
@@ -83,8 +84,7 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
     visitAnnotationAttachment(annotationAttachment) {
         // override default visit mechanism to keep track of no of attributes
         // this is needed for adding comma logic
-        const attributes = annotationAttachment.getChildrenOfType(annotationAttachment
-                                    .getFactory().isAnnotationAttribute);
+        const attributes = annotationAttachment.getChildrenOfType(ASTFactory.isAnnotationAttribute);
         if (_.isArray(attributes)) {
             attributes.forEach((attribute, index) => {
                 const mockParent = new AbstractSourceGenVisitor();

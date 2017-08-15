@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for Timeout clause in ballerina.
@@ -29,7 +30,7 @@ class TimeoutStatement extends Statement {
      */
     constructor(args) {
         super('TimeoutStatement');
-        const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
+        const parameterDefinition = ASTFactory.createParameterDefinition({ typeName: 'map', name: 'm' });
         this._timeoutParameter = _.get(args, 'timeoutParameter', parameterDefinition);
         this._expression = _.get(args, 'expression', '60');
     }
@@ -43,7 +44,7 @@ class TimeoutStatement extends Statement {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
         });
@@ -81,7 +82,7 @@ class TimeoutStatement extends Statement {
         const myRegexp = /^\s*(map\s*)([^\s\[\]]+)\s*$/g;
         const match = myRegexp.exec(str);
         if (match) {
-            const factory = this.getFactory();
+            const factory = ASTFactory;
             const typeName = match[1];
             const name = match[2];
             const parameterDefinition = factory.createParameterDefinition({ typeName, name });
@@ -125,17 +126,17 @@ class TimeoutStatement extends Statement {
     initFromJson(jsonNode) {
         const self = this;
         const expressionChildNode = jsonNode.expression;
-        const expressionChild = self.getFactory().createFromJson(expressionChildNode);
+        const expressionChild = ASTFactory.createFromJson(expressionChildNode);
         expressionChild.initFromJson(expressionChildNode);
         self.setExpression(expressionChild.getExpressionString());
 
         const paramJsonNode = jsonNode.timeout_parameter;
-        const paramChild = self.getFactory().createFromJson(paramJsonNode);
+        const paramChild = ASTFactory.createFromJson(paramJsonNode);
         paramChild.initFromJson(paramJsonNode);
         self.setParameter(paramChild);
 
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

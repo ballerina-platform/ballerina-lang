@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
+import ASTFactory from './ast-factory.js';
 
 class WorkerDeclaration extends ASTNode {
     constructor(args) {
@@ -124,7 +125,6 @@ class WorkerDeclaration extends ASTNode {
 
     initFromJson(jsonNode) {
         const self = this;
-        const BallerinaASTFactory = this.getFactory();
         this.setWorkerName(jsonNode.worker_name);
         const args = jsonNode.argument_declaration;
 
@@ -136,7 +136,7 @@ class WorkerDeclaration extends ASTNode {
 
         // TODO: check whether return types are allowed
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -185,7 +185,7 @@ class WorkerDeclaration extends ASTNode {
      * @param connectorName
      */
     getConnectorByName(connectorName) {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReference = _.find(this.getChildren(), (child) => {
             let connectorVariableName;
             if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
@@ -210,7 +210,7 @@ class WorkerDeclaration extends ASTNode {
      * Get the connectors in immediate scope
      */
     getConnectorsInImmediateScope() {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         return _.filter(this.getChildren(), (child) => {
             return factory.isConnectorDeclaration(child);
         });
@@ -224,7 +224,7 @@ class WorkerDeclaration extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConnectorDeclaration(child)) {
+            if (ASTFactory.isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
         });

@@ -21,7 +21,7 @@
  *
  * @class ArrowConflictResolver
  */
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class ConnectorDeclarationVisitor {
 

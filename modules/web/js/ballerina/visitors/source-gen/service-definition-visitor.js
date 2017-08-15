@@ -22,6 +22,7 @@ import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Service Definition source generation visitor
@@ -54,7 +55,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
 
         let constructedSourceSegment = '';
 
-        serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotationAttachment).forEach(
+        serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

@@ -17,7 +17,7 @@
  */
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import FunctionDefinitionVisitor from './function-definition-visitor';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Source generation for action invocation statement

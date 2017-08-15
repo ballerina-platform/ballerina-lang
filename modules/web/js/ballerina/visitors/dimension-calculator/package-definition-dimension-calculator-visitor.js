@@ -17,7 +17,7 @@
  */
 import { packageDefinition } from '../../configs/designer-defaults';
 import { util as SizingUtils } from '../sizing-utils';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Dimension visitor class for package definition.

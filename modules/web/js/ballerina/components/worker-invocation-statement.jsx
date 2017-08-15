@@ -22,7 +22,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
 import { util } from './../visitors/sizing-utils';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ArrowDecorator from './arrow-decorator';
 
 class WorkerInvocationStatement extends React.Component {
@@ -60,20 +60,20 @@ class WorkerInvocationStatement extends React.Component {
 
         const destinationWorkerName = model.getWorkerName();
         const topLevelParent = model.getTopLevelParent();
-        const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ? topLevelParent.getParent() : topLevelParent;
+        const workersParent = ASTFactory.isWorkerDeclaration(topLevelParent) ? topLevelParent.getParent() : topLevelParent;
         let workerDeclaration;
         if (destinationWorkerName === 'default') {
             workerDeclaration = workersParent;
         } else {
             workerDeclaration = _.find(workersParent.getChildren(), (child) => {
-                if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                if (ASTFactory.isWorkerDeclaration(child)) {
                     return child.getWorkerName() === destinationWorkerName;
                 }
 
                 return false;
             });
         }
-        const workerName = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+        const workerName = ASTFactory.isWorkerDeclaration(topLevelParent) ?
             topLevelParent.getWorkerName() : 'default';
         const workerReplyStatement = util.getWorkerReplyStatementTo(workerDeclaration, workerName);
 
@@ -162,7 +162,7 @@ class WorkerInvocationStatement extends React.Component {
              * (ie: resource definition, function definition, connector action definition)
              * For the top level elements, worker name is "default"
              */
-            if (BallerinaASTFactory.isWorkerDeclaration(destination)) {
+            if (ASTFactory.isWorkerDeclaration(destination)) {
                 workerName = destination.getWorkerName();
             } else {
                 workerName = 'default';
