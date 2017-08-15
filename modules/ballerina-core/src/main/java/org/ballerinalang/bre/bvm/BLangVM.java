@@ -2117,17 +2117,13 @@ public class BLangVM {
     public void debugging(int cp) {
         DebugInfoHolder holder = context.getDebugInfoHolder();
         LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
-        if (currentExecLine.equals(holder.getLastLine())) {
-            return;
-        }
-
-        holder.setLastLine(null);
-        if (debugPointCheck(currentExecLine, holder)) {
+        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
             return;
         }
 
         switch (holder.getCurrentCommand()) {
             case RESUME:
+                holder.setLastLine(null);
                 break;
             case STEP_IN:
                 debugHit(currentExecLine, holder);
