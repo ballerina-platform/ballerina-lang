@@ -93,6 +93,8 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
 import org.ballerinalang.plugins.idea.psi.StringTemplateLiteralNode;
+import org.ballerinalang.plugins.idea.psi.TypeCastNode;
+import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
@@ -377,6 +379,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new SourceNotationNode(node);
             case BallerinaParser.RULE_stringTemplateLiteral:
                 return new StringTemplateLiteralNode(node);
+            case BallerinaParser.RULE_typeCast:
+                return new TypeCastNode(node);
+            case BallerinaParser.RULE_typeConversion:
+                return new TypeConversionNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

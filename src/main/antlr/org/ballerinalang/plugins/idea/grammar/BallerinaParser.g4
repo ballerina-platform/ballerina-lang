@@ -492,8 +492,8 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS simpleExpression        # typeCastingExpression
-    |   LT typeName GT simpleExpression                                     # typeConversionExpression
+    |   typeCast                                                            # typeCastingExpression
+    |   typeConversion                                                      # typeConversionExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
@@ -507,6 +507,14 @@ expression
 
 simpleExpression
     :   expression
+    ;
+
+typeCast
+    :   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS simpleExpression
+    ;
+
+typeConversion
+    :   LT typeName GT simpleExpression
     ;
 
 //reusable productions

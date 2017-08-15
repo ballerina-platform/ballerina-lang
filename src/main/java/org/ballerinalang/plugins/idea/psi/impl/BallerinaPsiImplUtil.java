@@ -27,6 +27,7 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
@@ -59,6 +60,7 @@ import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
@@ -76,6 +78,8 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
+import org.ballerinalang.plugins.idea.psi.TypeCastNode;
+import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -1024,7 +1028,7 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<IdentifierPSINode> getVariablesFromVarAssignment(@NotNull AssignmentStatementNode
-                                                                                 assignmentStatementNode) {
+                                                                                assignmentStatementNode) {
         List<IdentifierPSINode> results = new LinkedList<>();
         VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(assignmentStatementNode,
                 VariableReferenceListNode.class);
@@ -1487,7 +1491,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
-    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement definitionNode) {
+    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
+                                                                                             definitionNode) {
         TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
@@ -1520,5 +1525,126 @@ public class BallerinaPsiImplUtil {
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    public static VirtualFile findFileInSDK(@NotNull IdentifierPSINode identifier, @NotNull String path) {
+        Project project = identifier.getProject();
+        PsiFile containingFile = identifier.getContainingFile();
+        PsiFile originalFile = containingFile.getOriginalFile();
+        VirtualFile virtualFile = originalFile.getVirtualFile();
+
+        // First we check the sources of module SDK.
+        VirtualFile file = findFileInModuleSDK(project, virtualFile, path);
+        if (file == null) {
+            // Then we check the sources of project SDK.
+            file = findFileInProjectSDK(project, path);
+        }
+        return file;
+    }
+
+    @Nullable
+    public static VirtualFile findFileInModuleSDK(@NotNull Project project, @NotNull VirtualFile virtualFile,
+                                                  @NotNull String path) {
+        Module module = ModuleUtilCore.findModuleForFile(virtualFile, project);
+        if (module == null) {
+            return null;
+        }
+
+        Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+        if (moduleSdk == null) {
+            return null;
+        }
+        VirtualFile[] roots = moduleSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+        VirtualFile file;
+        for (VirtualFile root : roots) {
+            file = VfsUtilCore.findRelativeFile(path, root);
+            if (file != null) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static VirtualFile findFileInProjectSDK(@NotNull Project project, @NotNull String path) {
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk == null) {
+            return null;
+        }
+        VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+        VirtualFile file;
+        for (VirtualFile root : roots) {
+            file = VfsUtilCore.findRelativeFile(path, root);
+            if (file != null) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+
+    @Nullable
+    public static StructDefinitionNode resolveToErrorStruct(@NotNull IdentifierPSINode identifier,
+                                                            @NotNull PsiElement resolvedElement,
+                                                            @NotNull PsiElement resolvedElementParent) {
+        AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(resolvedElementParent,
+                AssignmentStatementNode.class);
+        if (assignmentStatementNode == null) {
+            return null;
+        }
+        if (!BallerinaPsiImplUtil.isVarAssignmentStatement(assignmentStatementNode)) {
+            return null;
+        }
+
+        TypeCastNode typeCastNode;
+        TypeConversionNode typeConversionNode;
+
+        ExpressionNode expressionNode = PsiTreeUtil.getChildOfType(assignmentStatementNode,
+                ExpressionNode.class);
+        if (expressionNode == null) {
+            return null;
+        }
+        typeCastNode = PsiTreeUtil.getChildOfType(expressionNode, TypeCastNode.class);
+        typeConversionNode = PsiTreeUtil.getChildOfType(expressionNode, TypeConversionNode.class);
+        if (typeCastNode == null && typeConversionNode == null) {
+            return null;
+        }
+
+        List<IdentifierPSINode> variablesFromVarAssignment =
+                BallerinaPsiImplUtil.getVariablesFromVarAssignment(assignmentStatementNode);
+        if (variablesFromVarAssignment.size() < 2) {
+            return null;
+        }
+        IdentifierPSINode errorVariable = variablesFromVarAssignment.get(1);
+        if (!errorVariable.equals(resolvedElement)) {
+            return null;
+        }
+
+        VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(identifier, "/ballerina/lang/errors/error.bal");
+        if (errorFile == null) {
+            return null;
+        }
+        Project project = identifier.getProject();
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(errorFile);
+        if (psiFile == null) {
+            return null;
+        }
+
+        Collection<StructDefinitionNode> structDefinitionNodes = PsiTreeUtil.findChildrenOfType(psiFile,
+                StructDefinitionNode.class);
+        for (StructDefinitionNode definitionNode : structDefinitionNodes) {
+            IdentifierPSINode nameNode = PsiTreeUtil.getChildOfType(definitionNode, IdentifierPSINode.class);
+            if (nameNode != null) {
+                if (typeCastNode != null && "TypeCastError".equals(nameNode.getText())) {
+                    return definitionNode;
+                }
+                if (typeConversionNode != null && "TypeConversionError".equals(nameNode.getText())) {
+
+                    return definitionNode;
+                }
+            }
+        }
+        return null;
     }
 }

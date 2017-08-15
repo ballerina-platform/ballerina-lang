@@ -118,6 +118,9 @@ public class FieldReference extends BallerinaElementReference {
             // Then we need to get the 'firstName' field from that.
             structDefinitionNode =
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
+        } else if (resolvedElementParent instanceof NameReferenceNode) {
+            structDefinitionNode = BallerinaPsiImplUtil.resolveToErrorStruct(identifier, resolvedElement,
+                    resolvedElementParent);
         }
         if (structDefinitionNode == null) {
             return null;
@@ -158,6 +161,12 @@ public class FieldReference extends BallerinaElementReference {
         } else if (resolvedElementParent instanceof FieldDefinitionNode) {
             structDefinitionNode =
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
+        } else if (resolvedElementParent instanceof NameReferenceNode) {
+            structDefinitionNode = BallerinaPsiImplUtil.resolveToErrorStruct(identifier, resolvedElement,
+                    resolvedElementParent);
+            if (structDefinitionNode != null) {
+                resolvedElement = PsiTreeUtil.findChildOfType(structDefinitionNode, IdentifierPSINode.class);
+            }
         }
         if (structDefinitionNode == null) {
             return new LookupElement[0];
