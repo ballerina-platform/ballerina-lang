@@ -446,24 +446,15 @@ public class ServerInstance implements Server {
             //reading the process id from netstat
             Process tmp;
             try {
-                tmp = Runtime.getRuntime().exec("lsof -Pi tcp:" + httpServerPort);
+                String[] cmd = { "bash", "-c",
+                        "lsof -Pi tcp:" + httpServerPort + " | grep LISTEN | awk \'{print $2}\'" };
+                tmp = Runtime.getRuntime().exec(cmd);
             } catch (IOException e) {
                 throw new BallerinaTestException("Error retrieving netstat data", e);
             }
 
             String outPut = readProcessInputStream(tmp.getInputStream());
-            String[] lines = outPut.split(System.lineSeparator());
-            for (String line : lines) {
-                String[] column = line.trim().split("\\s+");
-                if (column.length < 10) {
-                    continue;
-                }
-                if (column[8].contains(":" + httpServerPort) && column[9].contains("LISTEN")) {
-                    log.info(line);
-                    pid = column[1];
-                    break;
-                }
-            }
+            pid = outPut.split(System.lineSeparator())[0];
             tmp.destroy();
         }
         log.info("Server process id in " + Utils.getOSName() + " : " + pid);
