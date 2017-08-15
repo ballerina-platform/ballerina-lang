@@ -5,7 +5,7 @@ import ballerina.doc;
 @http:configuration {basePath:"/foo"}
 service<http> echo {
     @doc:Description {value:"Post annotation constrains the resource only to accept post requests. Similarly, for each HTTP verb there are different annotations."}
-    @doc:Description {value:"Path annotation associates a sub-path to resource."}
+    @doc:Description {value:"Path attribute associates a sub-path to resource."}
     @http:resourceConfig {
         methods:["POST"],
         path:"/bar"

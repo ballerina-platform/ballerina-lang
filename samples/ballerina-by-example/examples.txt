@@ -37,6 +37,7 @@ Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
+Fork/Join Variable Access
 Datatables
 SQL Connector
 Transactions
@@ -46,6 +47,7 @@ Strings
 Blob Type
 Date Time
 File API
+Throw
 Try/Catch/Finally
 Base Path and Path
 Query and Path Param
@@ -56,6 +58,7 @@ HTTP Sessions
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
+Filter Connector
 Log API
 Function Pointers
 Lambda
