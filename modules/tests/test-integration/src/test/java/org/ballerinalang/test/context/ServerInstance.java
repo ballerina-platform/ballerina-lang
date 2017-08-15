@@ -23,7 +23,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -168,8 +167,11 @@ public class ServerInstance implements Server {
                     killServer.destroy();
                 }
             } catch (IOException e) {
+                log.error("Error getting process id for the server in port - " + httpServerPort
+                        + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error while getting the server process id", e);
             } catch (InterruptedException e) {
+                log.error("Error stopping the server in port - " + httpServerPort + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error waiting for services to stop", e);
             }
             process.destroy();
@@ -214,13 +216,13 @@ public class ServerInstance implements Server {
         try {
             if (Utils.getOSName().toLowerCase().contains("windows")) {
                 commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run", "main"};
+                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "main"};
+                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
@@ -441,33 +443,19 @@ public class ServerInstance implements Server {
             }
             tmp.destroy();
         } else {
-            BufferedReader bufferedReader = null;
-            FileReader fileReader = null;
-
+            //reading the process id from netstat
+            Process tmp;
             try {
-                //reading the pid form  carbon.pid file in server home dir
-                fileReader = new FileReader(serverHome + File.separator + Constant.SERVER_PID_FILE_NAME);
-                bufferedReader = new BufferedReader(fileReader);
-                pid = bufferedReader.readLine();
+                String[] cmd = { "bash", "-c",
+                        "lsof -Pi tcp:" + httpServerPort + " | grep LISTEN | awk \'{print $2}\'" };
+                tmp = Runtime.getRuntime().exec(cmd);
             } catch (IOException e) {
-                throw new BallerinaTestException("Error retrieving pid from " + Constant.SERVER_PID_FILE_NAME);
-            } finally {
-                if (fileReader != null) {
-                    try {
-                        fileReader.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
-                }
+                throw new BallerinaTestException("Error retrieving netstat data", e);
             }
 
+            String outPut = readProcessInputStream(tmp.getInputStream());
+            pid = outPut.split(System.lineSeparator())[0];
+            tmp.destroy();
         }
         log.info("Server process id in " + Utils.getOSName() + " : " + pid);
         return pid;
