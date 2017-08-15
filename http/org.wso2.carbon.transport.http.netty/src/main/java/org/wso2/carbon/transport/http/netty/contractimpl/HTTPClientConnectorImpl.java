@@ -22,17 +22,22 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.Locale;
+
 /**
- * HTTPClientConnectorImpl
+ * Implementation of the client connector.
  */
 public class HTTPClientConnectorImpl implements HTTPClientConnector {
 
@@ -54,9 +59,52 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
     }
 
     @Override
-    public HTTPClientConnectorFuture send(HTTPCarbonMessage httpCarbonMessage) throws Exception {
+    public HTTPClientConnectorFuture send(HTTPCarbonMessage httpCarbonRequest) throws Exception {
         HTTPClientConnectorFuture httpClientConnectorFuture = new HTTPClientConnectorFutureImpl();
 
+        SourceHandler srcHandler = (SourceHandler) httpCarbonRequest.getProperty(Constants.SRC_HANDLER);
+        if (srcHandler == null) {
+            if (log.isDebugEnabled()) {
+                log.debug(Constants.SRC_HANDLER + " property not found in the message."
+                        + " Message is not originated from the HTTP Server connector");
+            }
+        }
+
+        try {
+            final HttpRoute route = getTargetRoute(httpCarbonRequest);
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig);
+            targetChannel.getChannel().eventLoop().execute(() -> {
+
+                Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
+                Util.setupTransferEncodingForRequest(httpCarbonRequest);
+
+                targetChannel.configureTargetChannel(httpCarbonRequest, srcHandler, connectionManager);
+                targetChannel.setEndPointTimeout(socketIdleTimeout);
+
+                try {
+                    targetChannel.writeContent(httpCarbonRequest);
+                } catch (Exception e) {
+                    String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+                    log.error(msg, e);
+                    MessagingException messagingException = new MessagingException(msg, e, 101500);
+                    httpCarbonRequest.setMessagingException(messagingException);
+                    //                        httpClientConnectorFuture.notifyHTTPListener(httpCarbonMessage);
+                    httpCarbonRequest.getResponseListener().onMessage(httpCarbonRequest);
+                }
+            });
+        } catch (Exception failedCause) {
+            throw new ClientConnectorException(failedCause.getMessage(), failedCause);
+        }
+
+        return httpClientConnectorFuture;
+    }
+
+    @Override
+    public boolean close() {
+        return false;
+    }
+
+    private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
         // Fetch Host
         String host;
         Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
@@ -80,26 +128,6 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
             log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
 
-        final HttpRoute route = new HttpRoute(host, port);
-
-        SourceHandler srcHandler = (SourceHandler) httpCarbonMessage.getProperty(Constants.SRC_HANDLER);
-        if (srcHandler == null) {
-            log.debug("SRC_HANDLER property not found in the message." +
-                    " Message is not originated from the HTTP Server connector");
-        }
-
-        try {
-            connectionManager.executeTargetChannel(route, srcHandler, sslConfig,
-                            httpCarbonMessage, socketIdleTimeout, httpClientConnectorFuture);
-        } catch (Exception failedCause) {
-            throw new ClientConnectorException(failedCause.getMessage(), failedCause);
-        }
-
-        return httpClientConnectorFuture;
-    }
-
-    @Override
-    public boolean stop() {
-        return false;
+        return new HttpRoute(host, port);
     }
 }

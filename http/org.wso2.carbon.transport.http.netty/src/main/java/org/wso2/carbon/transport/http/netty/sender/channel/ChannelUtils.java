@@ -165,52 +165,6 @@ public class ChannelUtils {
             }
         }
 
-//        if (carbonMessage instanceof HTTPCarbonMessage) {
-//            HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) carbonMessage;
-//            while (true) {
-//                if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
-//                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//                    break;
-//                }
-//                HttpContent httpContent = nettyCMsg.getHttpContent();
-//                if (httpContent instanceof LastHttpContent) {
-//                    channel.writeAndFlush(httpContent);
-//                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                executeAtTargetRequestSending(carbonMessage);
-//                    }
-//                    break;
-//                }
-//                if (httpContent != null) {
-//                    channel.write(httpContent);
-//                }
-//
-//            }
-//        }
-//        else if (carbonMessage instanceof DefaultCarbonMessage || carbonMessage instanceof TextCarbonMessage
-//                || carbonMessage instanceof BinaryCarbonMessage) {
-//            if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
-//                channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//                return true;
-//            }
-//            while (true) {
-//                ByteBuffer byteBuffer = carbonMessage.getMessageBody();
-//                ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-//                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-//                channel.write(httpContent);
-//                if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
-//                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                executeAtTargetRequestSending(carbonMessage);
-//                    }
-//                    break;
-//                }
-//            }
-//        } else {
-//            throw new ClientConnectorException("Unsupported message type");
-//        }
-
         return true;
     }
 
