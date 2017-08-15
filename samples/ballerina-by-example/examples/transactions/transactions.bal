@@ -2,9 +2,9 @@ import ballerina.lang.system;
 import ballerina.data.sql;
 
 function main (string[] args) {
-    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
-                    "username":"root", "password":"root"};
-    sql:ClientConnector testDB = create sql:ClientConnector(props);
+    sql:ConnectionProperties Properties = {maximumPoolSize:5};
+    sql:ClientConnector testDB = create sql:ClientConnector(
+      sql:MYSQL, "localhost", 3306, "db", "sa", "root", Properties);
 
     //Here is the transaction block. You can use a Try catch here since update action can throw
     //errors due to SQL errors, connection pool errors etc.
@@ -12,14 +12,12 @@ function main (string[] args) {
 
         //This is the first action participate in the transaction.
         sql:Parameter[] parameters = [];
-        int count = sql:ClientConnector.update(testDB,
-                            "Insert into Customers(id,name) values
-                             (1, 'Anne')", parameters);
+        int count = testDB.update("Insert into Customers(id,name)
+                          values (1, 'Anne')", parameters);
 
         //This is the second action participate in the transaction.
-        count = sql:ClientConnector.update(testDB,
-                            "Insert into Salary (id, salary) values
-                            (1, 2500)", parameters);
+        count = testDB.update("Insert into Salary (id, salary)
+                       values (1, 2500)", parameters);
 
         system:println("Inserted count:" + count);
 
@@ -42,5 +40,5 @@ function main (string[] args) {
     }
 
     //Close the connection pool.
-    sql:ClientConnector.close(testDB);
+    testDB.close();
 }

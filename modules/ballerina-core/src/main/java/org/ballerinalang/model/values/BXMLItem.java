@@ -248,7 +248,8 @@ public final class BXMLItem extends BXML<OMNode> {
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                return;
+                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                        prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
             ns = new OMNamespaceImpl(namespaceUri, prefix);

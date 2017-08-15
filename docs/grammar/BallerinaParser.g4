@@ -195,6 +195,7 @@ xmlLocalName
 
  annotationAttributeValue
      :   simpleLiteral
+     |   nameReference
      |   annotationAttachment
      |   annotationAttributeArray
      ;
@@ -226,6 +227,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -241,7 +243,7 @@ transformStatementBody
     ;
 
 expressionAssignmentStatement
-    :   variableReferenceList ASSIGN expression SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
     ;
 
 expressionVariableDefinitionStatement
@@ -425,8 +427,12 @@ transactionStatement
     ;
 
 transactionHandlers
-    : abortedClause? committedClause?
-    | committedClause? abortedClause?
+    : failedClause? abortedClause? committedClause?
+    | failedClause? committedClause? abortedClause?
+    ;
+
+failedClause
+    :   FAILED LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortedClause
     :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
@@ -438,6 +444,10 @@ committedClause
 
 abortStatement
     :   ABORT SEMICOLON
+    ;
+
+retryStatement
+    :   RETRY expression SEMICOLON
     ;
 
 actionInvocation
