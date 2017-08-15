@@ -47,5 +47,12 @@ public interface HTTPConnectorFactory {
      */
     HTTPClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration);
+
+    /**
+     * This method is used to get WebSocket client connector.
+     *
+     * @param senderProperties Properties to create a client connector.
+     * @return WebSocketClientConnector.
+     */
     WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties);
 }
