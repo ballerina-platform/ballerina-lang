@@ -1,4 +1,4 @@
-# To start the service, put the code in "json-constraint.bal"
+# To start the service, put the code in "constrained-json.bal"
 # and use "ballerina run" command.
 $ ballerina run constrained-json.bal
 ballerina: deploying service(s) in 'constrained-json.bal'
