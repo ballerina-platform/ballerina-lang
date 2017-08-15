@@ -16,7 +16,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
@@ -163,8 +164,11 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/util/parser/*,**/${native.constructs.provider.class}.java,
-                                    **/${ballerina.package.repository.provider.class}.java</excludes>
+                                <excludes>**org/wso2/ballerinalang/compiler/parser/antlr4/*,
+                                    **/util/parser/*,
+                                    **/${native.constructs.provider.class}.java,
+                                    **/${ballerina.package.repository.provider.class}.java
+                                </excludes>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -212,6 +216,7 @@
     </properties>
 
     <modules>
+        <module>modules/ballerina-lang</module>
         <module>modules/ballerina-core</module>
         <module>modules/annotation-processor</module>
         <module>modules/ballerina-native</module>
