@@ -15,19 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.types;
 
 import org.ballerinalang.model.elements.Identifier;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
  * @since 0.94
  */
-public interface VariableNode extends Node {
-    TypeNode getType();
+public interface UserDefinedTypeNode extends ReferenceTypeNode {
+    Identifier getPackageIdentifier();
 
-    Identifier getName();
-
-    ExpressionNode getInitialExpression();
+    Identifier getTypeName();
 }

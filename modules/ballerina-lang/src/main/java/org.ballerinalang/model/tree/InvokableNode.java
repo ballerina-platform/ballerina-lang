@@ -18,8 +18,8 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.elements.Identifier;
-import org.ballerinalang.model.elements.Type;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public interface InvokableNode {
 
     List<? extends VariableNode> getReturnParamters();
 
-    List<? extends Type> getReturnTypes();
+    List<? extends TypeNode> getReturnTypes();
 
     BlockNode getBody();
 }
