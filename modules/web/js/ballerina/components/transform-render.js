@@ -33,22 +33,16 @@ const jsPlumb = jsPlumbLib.jsPlumb;
 class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback, container) {
         this.container = container;
-        this.references = [];
         this.placeHolderName = 'transformOverlay-content';
         this.viewId = container.attr('id').replace(this.placeHolderName + '-', '');
         this.contextMenu = 'transformContextMenu';
-        this.jsTreePrefix = 'jstree-container';
         this.viewIdSeperator = ':';
-        this.sourceTargetSeperator = '_--_';
         this.idNameSeperator = '.';
-        this.nameTypeSeperator = ':';
         this.onConnection = onConnectionCallback;
         this.midpoint = 0.1;
         this.midpointVariance = 0.01;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
-        this.connectionPool = [];
-        this.existingJsTrees = [];
         const self = this;
 
         this.jsPlumbInstance = jsPlumb.getInstance({
@@ -76,15 +70,7 @@ class TransformRender {
                     width: 6,
                     length: 6,
                     foldback: 1,
-                }],
-                ['Custom', {
-                    create(component) {
-                        return $('<select id=\'typeMapperList' + self.viewIdSeperator + self.viewId + '\'></select>');
-                    },
-                    location: 0.5,
-                    id: 'typeMapperDropdown',
-                    cssClass: 'typeMapperList',
-                }],
+                }]
             ],
         });
         this.container.find('#' + self.contextMenu).hide();
@@ -94,17 +80,8 @@ class TransformRender {
               const output = params.connection.getParameters().output;
               const sourceType = input.type;
               const targetType = output.type;
-              let isValidTypes;
-
-              if (sourceType === 'struct' || targetType === 'struct') {
-                  isValidTypes = input.typeName == output.typeName;
-              } else {
-                  isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
-                    || sourceType === 'json' || targetType === 'json';
-              }
-
               const connection = self.getConnectionObject(params.id, input, output);
-              if (isValidTypes) {
+              if (self.isValidTypes(input.typeName, output.typeName)) {
                   self.midpoint += self.midpointVariance;
                   self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
                   self.onConnection(connection);
@@ -165,7 +142,6 @@ class TransformRender {
             }
         });
     }
-
 
 /**
  * Disconnects all the connection created.
@@ -274,16 +250,13 @@ class TransformRender {
  * @param element
  * @param self
  */
-    addSource(element, self, maxConnections, input) {
+    addSource(element, input) {
         const connectionConfig = {
             anchor: ['Right'],
             parameters: {
                 input,
             },
         };
-        if (maxConnections) {
-            connectionConfig.maxConnections = 1;
-        }
         this.jsPlumbInstance.makeSource(element, connectionConfig);
     }
 /**
@@ -291,122 +264,35 @@ class TransformRender {
  * @param element
  * @param self
  */
-    addTarget(element, self, output) {
+    addTarget(element, output) {
+        const self = this;
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ['Left'],
             parameters: {
-                output,
+                output
             },
             beforeDrop: (params) => {
-                // Checks property types are equal or type is any
-                const input = params.connection.getParameters().input;
-                const sourceType = input.type;
-                const targetType = output.type;
-                let isValidTypes;
-                if (sourceType === 'struct' || targetType === 'struct') {
-                    isValidTypes = input.typeName == output.typeName;
-                } else {
-                    isValidTypes = sourceType === targetType || sourceType === 'any' || targetType === 'any'
-                      || sourceType === 'json' || targetType === 'json';
-                }
-                return isValidTypes;
-            },
-        });
-    }
-/**
- * Get list of connections for provided property of a source struct
- * @param {string} structName
- * @param {Array} property name hierarchy of the property
- * @returns {Array} List of connections
- */
-    getSourceConnectionsByProperty(structName, property, type) {
-        const self = this;
-        const connections = [];
-        for (var i = 0; i < property.length; i++) {
-            _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
-                if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
-                + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
-                    connections.push(self.getConnectionObject(connection.getParameter('id'),
-                connection.sourceId, connection.targetId));
-                }
-            });
-
-            _.forEach(connections, (connection) => {
-                self.jsPlumbInstance.detach(connection);
-            });
-        }
-
-        return connections;
-    }
-
-/**
- * Get list of connections for provided property of a target struct
- * @param {string} structName
- * @param {Array} property name hierarchy of the property
- * @returns {Array} List of connections
- */
-    getTargetConnectionsByProperty(structName, property, type) {
-        const self = this;
-        const connections = [];
-        for (var i = 0; i < property.length; i++) {
-            _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
-                if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
-                + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
-                    connections.push(self.getConnectionObject(connection.getParameter('id'),
-                connection.sourceId, connection.targetId));
-                }
-            });
-
-            _.forEach(connections, (connection) => {
-                self.jsPlumbInstance.detach(connection);
-            });
-        }
-        return connections;
-    }
-
-/**
- * Get list of connections for provided source struct
- * @param {string} structName
- * @returns {Array} List of connections
- */
-    getSourceConnectionsByStruct(structName) {
-        const self = this;
-        const connections = [];
-        _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
-            if (connection.sourceId.includes(structName)) {
-                connections.push(self.getConnectionObject(connection.getParameter('id'),
-            connection.sourceId, connection.targetId));
+                return self.isValidTypes(params.connection.getParameters().input.type, output.type);
             }
         });
-
-        _.forEach(connections, (connection) => {
-            self.jsPlumbInstance.detach(connection);
-        });
-
-        return connections;
     }
 
-/**
- * Get list of connections for provided target struct
- * @param {string} structName
- * @returns {Array} List of connections
- */
-    getTargetConnectionsByStruct(structName) {
-        const self = this;
-        const connections = [];
-        _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
-            if (connection.targetId.includes(structName)) {
-                connections.push(self.getConnectionObject(connection.getParameter('id'),
-            connection.sourceId, connection.targetId));
-            }
-        });
-
-        _.forEach(connections, (connection) => {
-            self.jsPlumbInstance.detach(connection);
-        });
-
-        return connections;
+    /**
+     * Checks given types are valid to connect
+     * @param  {string} sourceType type name of the source
+     * @param  {string} targetType type name of the target
+     * @return Boolean             is valid
+     */
+    isValidTypes(sourceType, targetType) {
+      let isValid;
+      if (sourceType === 'struct' || targetType === 'struct') {
+          isValid = input.typeName == output.typeName;
+      } else {
+          isValid = sourceType === targetType || sourceType === 'any' || targetType === 'any'
+            || sourceType === 'json' || targetType === 'json';
+      }
+      return isValid;
     }
 
 /**
@@ -417,13 +303,8 @@ class TransformRender {
     reposition(viewId) {
         this.viewId = viewId;
         const funcs = this.container.find('.middle-content  > .func');
-        const sourceStructs = this.container.find('.leftType').find('.jtk-droppable');
-        const targetStructs = this.container.find('.rightType').find('.jtk-droppable');
-        const xFunctionPointer = (this.container.find('.middle-content').width() - 300) / 2;
         let yFunctionPointer = 20;
-        const xSourcePointer = 0;
         let ySourcePointer = 0;
-        const xTargetPointer = 0;
         let yTargetPointer = 0;
         const functionGap = 0;
         const svgLines =   $('#'+this.placeHolderName+'-'+viewId+' > svg');
@@ -459,40 +340,6 @@ class TransformRender {
             cornerRadius: 5,
             alwaysRespectStubs: true,
         }];
-    }
-
-/**
- * Bind the onRemove click event and callback to given container
- * @param {string} unique identifier
- * @param {object} container information
- * @param {function} onRemoveFunction callback
- * @param {int} Reference AST Node id
- */
-    onRemove(id, container, removeFunction, reference) {
-        this.container.find('#' + id + '-button').on('click', () => {
-            const removedFunction = { name: container.name };
-            removedFunction.incomingConnections = [];
-            removedFunction.outgoingConnections = [];
-
-            _.forEach(this.jsPlumbInstance.getAllConnections(), (connection) => {
-                if (connection.target.id.includes(id)) {
-                    removedFunction.incomingConnections.push(
-            this.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
-                } else if (connection.source.id.includes(id)) {
-                    removedFunction.outgoingConnections.push(
-                        this.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
-                }
-            });
-
-            for (let i = 0; i < this.references.length; i++) {
-                if (this.references[i].name === id) {
-                    removedFunction.reference = this.references[i].refObj;
-                }
-            }
-
-            this.removeType(container.name);
-            removeFunction(reference);
-        });
     }
 
   /**
