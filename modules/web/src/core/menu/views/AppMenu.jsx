@@ -51,7 +51,7 @@ function renderMenuNode(item) {
         );
     case MENU_DEF_TYPES.ITEM:
         return (
-            <MenuItem disabled={!item.isActive()} key={id}>
+            <MenuItem disabled={!item.isActive()} key={id} menuDef={item}>
                 <div style={{ minWidth: '100px', display: 'inline' }}>
                     <i className={`fw fw-${item.icon}`} style={{ marginRight: '5px' }} />
                 </div>
@@ -73,6 +73,31 @@ class ApplicationMenu extends View {
     /**
      * @inheritdoc
      */
+    constructor(props) {
+        super(props);
+        this.onMenuItemClick = this.onMenuItemClick.bind(this);
+        this.state = {
+            activeKeys: [],
+        };
+    }
+
+    /**
+     * Click event handler for rc-menu
+     * @param {Object} evt
+     */
+    onMenuItemClick(evt) {
+        const { item: { props: { menuDef: { command, type } } } } = evt;
+        if (type === MENU_DEF_TYPES.ITEM) {
+            this.props.dispatch(command);
+            this.setState({
+                activeKeys: [],
+            });
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     getID() {
         return VIEW_IDS.APP_MENU;
     }
@@ -88,7 +113,17 @@ class ApplicationMenu extends View {
 
         return (
             <div className="application-menu">
-                <Menu mode="horizontal" openAnimation="slide-up">
+                <Menu
+                    mode="horizontal"
+                    onClick={this.onMenuItemClick}
+                    selectable={false}
+                    onOpenChange={(openKeys) => {
+                        this.setState({
+                            activeKeys: openKeys,
+                        });
+                    }}
+                    openKeys={this.state.activeKeys}
+                >
                     {roots}
                 </Menu>
             </div>
@@ -97,6 +132,7 @@ class ApplicationMenu extends View {
 }
 
 ApplicationMenu.propTypes = {
+    dispatch: PropTypes.func.isRequired,
     menu: PropTypes.arrayOf(Object).isRequired,
 };
 

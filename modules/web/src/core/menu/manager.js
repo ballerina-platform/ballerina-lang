@@ -103,6 +103,13 @@ class ApplicationMenuPlugin extends Plugin {
     /**
      * @inheritdoc
      */
+    activate(appContext) {
+        super.activate(appContext);
+    }
+    
+    /**
+     * @inheritdoc
+     */
     getContributions() {
         const { COMMANDS, HANDLERS, VIEWS } = CONTRIBUTIONS;
         return {
@@ -114,6 +121,9 @@ class ApplicationMenuPlugin extends Plugin {
                     component: AppMenuView,
                     propsProvider: () => {
                         return {
+                            dispatch: (...args) => {
+                                this.appContext.command.dispatch(args);
+                            },
                             menu: this.generateMenuFromDefinitions(),
                         };
                     },

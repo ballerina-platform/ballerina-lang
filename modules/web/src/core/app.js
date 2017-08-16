@@ -168,8 +168,8 @@ class Application {
      */
     render() {
         this.plugins.forEach((plugin) => {
-            if (plugin.getActivationPolicy() === ACTIVATION_POLICIES.APP_STARTUP) {
-                plugin.acivate(this.appContext);
+            if (plugin.getActivationPolicy().type === ACTIVATION_POLICIES.APP_STARTUP) {
+                plugin.activate(this.appContext);
             }
         });
         this.layoutManager.render();
