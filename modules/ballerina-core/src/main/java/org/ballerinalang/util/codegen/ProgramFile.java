@@ -67,7 +67,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
+    private MethodTable methodTable = MethodTable.getInstance();
 
     public int getMagicValue() {
         return magicValue;
@@ -121,16 +121,8 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         this.servicesAvailable = servicesAvailable;
     }
 
-    public Map<Integer, Integer> getMethodTableIndex() {
-        return methodTableIndex;
-    }
-
-    public void setMethodTableIndex(Map<Integer, Integer> methodTable) {
-        this.methodTableIndex = methodTable;
-    }
-
-    public void addMethodIndex(int methodNameCPIndex, int ip) {
-        methodTableIndex.put(methodNameCPIndex, new Integer(ip));
+    public MethodTable getMethodTable() {
+        return methodTable;
     }
 
     // CP

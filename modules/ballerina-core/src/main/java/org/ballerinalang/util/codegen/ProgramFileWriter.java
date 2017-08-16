@@ -78,7 +78,8 @@ public class ProgramFileWriter {
                 writePackageInfo(dataOutStream, packageInfo);
             }
 
-            Map<Integer, Integer> methodTable = programFile.getMethodTableIndex();
+            writeCP(dataOutStream, programFile.getMethodTable().getConstPoolEntries());
+            Map<Integer, Integer> methodTable = programFile.getMethodTable().getMethodTableIndices();
             dataOutStream.writeInt(methodTable.size());
             for (Integer s : methodTable.keySet()) {
                 dataOutStream.writeInt(s);
