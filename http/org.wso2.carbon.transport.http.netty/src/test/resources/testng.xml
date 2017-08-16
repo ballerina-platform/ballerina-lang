@@ -19,6 +19,11 @@
   -->
 
 <suite name="Transport test Suite">
+
+    <listeners>
+        <listener class-name="org.wso2.carbon.transport.http.netty.util.TestNGListener" />
+    </listeners>
+
     <test name="Transport test">
         <classes>
             <class name="org.wso2.carbon.transport.http.netty.passthrough.PassThroughHttpTestCase" />
