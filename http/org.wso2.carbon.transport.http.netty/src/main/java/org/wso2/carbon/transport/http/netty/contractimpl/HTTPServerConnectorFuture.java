@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -35,11 +35,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class HTTPServerConnectorFuture implements ServerConnectorFuture {
 
-    private HTTPConnectorListener httpConnectorListener;
+    private HttpConnectorListener httpConnectorListener;
     private WebSocketConnectorListener wsConnectorListener;
 
     @Override
-    public void setHTTPConnectorListener(HTTPConnectorListener httpConnectorListener) {
+    public void setHTTPConnectorListener(HttpConnectorListener httpConnectorListener) {
         this.httpConnectorListener = httpConnectorListener;
     }
 

@@ -42,7 +42,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPResponseListener;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
@@ -231,7 +231,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (serverConnectorFuture != null) {
                 try {
                     ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
-                    serverConnectorFuture.setHTTPConnectorListener(new HTTPResponseListener(this.ctx, httpRequestMsg));
+                    serverConnectorFuture.setHTTPConnectorListener(new HttpResponseListener(this.ctx, httpRequestMsg));
                     this.serverConnectorFuture.notifyHTTPListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);

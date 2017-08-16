@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Allows you create server and client connectors.
  */
-public interface HTTPConnectorFactory {
+public interface HttpWsConnectorFactory {
     /**
      * This method can be used to get new server connectors.
      * @param serverBootstrapConfiguration configure socket related stuff.
@@ -45,7 +45,7 @@ public interface HTTPConnectorFactory {
      * @param senderConfiguration contains SSL configuration and endpoint details.
      * @return
      */
-    HTTPClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
+    HttpClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration);
 
     /**

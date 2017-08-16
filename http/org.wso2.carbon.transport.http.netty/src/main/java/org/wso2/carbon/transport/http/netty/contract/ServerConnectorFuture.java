@@ -36,7 +36,7 @@ public interface ServerConnectorFuture {
      *
      * @param connectorListener Connector listener for HTTP.
      */
-    void setHTTPConnectorListener(HTTPConnectorListener connectorListener);
+    void setHTTPConnectorListener(HttpConnectorListener connectorListener);
 
     /**
      * Notify HTTP messages to the listener.

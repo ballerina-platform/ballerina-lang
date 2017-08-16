@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 /**
  * A Message Processor which respond in streaming manner without buffering.
  */
-public class ResponseStreamingWithoutBufferingListener implements HTTPConnectorListener {
+public class ResponseStreamingWithoutBufferingListener implements HttpConnectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
     private ExecutorService executor = Executors.newCachedThreadPool();

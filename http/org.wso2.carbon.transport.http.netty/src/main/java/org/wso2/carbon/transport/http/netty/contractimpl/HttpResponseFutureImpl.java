@@ -19,20 +19,30 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Implementation of the client connector future.
  */
-public class HTTPClientConnectorFutureImpl implements HTTPClientConnectorFuture {
+public class HttpResponseFutureImpl implements HttpResponseFuture {
 
-    private HTTPConnectorListener httpConnectorListener = null;
+    private HttpConnectorListener httpConnectorListener = null;
+    private HTTPCarbonMessage httpCarbonMessage;
+    private Throwable throwable;
 
     @Override
-    public void setHTTPConnectorListener(HTTPConnectorListener connectorListener) {
+    public void setHTTPConnectorListener(HttpConnectorListener connectorListener) {
         this.httpConnectorListener = connectorListener;
+        if (httpCarbonMessage != null) {
+            notifyHTTPListener(httpCarbonMessage);
+            httpCarbonMessage = null;
+        }
+        if (this.throwable != null) {
+            notifyHTTPListener(this.throwable);
+            this.throwable =  null;
+        }
     }
 
     @Override
@@ -42,6 +52,19 @@ public class HTTPClientConnectorFutureImpl implements HTTPClientConnectorFuture 
 
     @Override
     public void notifyHTTPListener(HTTPCarbonMessage httpMessage) {
-        httpConnectorListener.onMessage(httpMessage);
+        if (httpConnectorListener == null) {
+            httpCarbonMessage = httpMessage;
+        } else {
+            httpConnectorListener.onMessage(httpMessage);
+        }
+    }
+
+    @Override
+    public void notifyHTTPListener(Throwable throwable) {
+        if (httpConnectorListener == null) {
+            this.throwable = throwable;
+        } else {
+            httpConnectorListener.onError(throwable);
+        }
     }
 }

@@ -182,7 +182,7 @@ public class HTTPMessageUtil {
     /**
      * Method to build listener configuration using provided properties map.
      *
-     * @param id            HTTPConnectorListener id
+     * @param id            HttpConnectorListener id
      * @param properties    Property map
      * @return              listener config
      */

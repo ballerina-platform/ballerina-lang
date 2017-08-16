@@ -29,7 +29,7 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
@@ -44,7 +44,7 @@ public class WebSocketPassthoughTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
-    private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
+    private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
 
     private WebSocketClient webSocketClient = new WebSocketClient();

@@ -31,8 +31,13 @@ public interface ServerConnector {
 
     /**
      * Stop the server connector which actually closes the port.
-     * @return
+     * @return state of action.
      */
     boolean stop();
+
+    /**
+     * Returns the unique ID of the server-connector.
+     * @return the id.
+     */
     String getConnectorID();
 }

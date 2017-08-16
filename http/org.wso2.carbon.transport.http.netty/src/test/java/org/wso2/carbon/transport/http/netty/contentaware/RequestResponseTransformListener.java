@@ -25,11 +25,12 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Transform message in request and response path
  */
-public class RequestResponseTransformListener implements HTTPConnectorListener {
+public class RequestResponseTransformListener implements HttpConnectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformListener.class);
 
@@ -95,10 +96,11 @@ public class RequestResponseTransformListener implements HTTPConnectorListener {
 
                 SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
 
-                HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
-                HTTPClientConnector clientConnector =
-                        httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
-                httpRequest.setResponseListener(new HTTPConnectorListener() {
+                HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+                HttpClientConnector clientConnector =
+                        httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                HttpResponseFuture future = clientConnector.send(httpRequest);
+                future.setHTTPConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
@@ -135,7 +137,6 @@ public class RequestResponseTransformListener implements HTTPConnectorListener {
 
                     }
                 });
-                clientConnector.send(httpRequest);
             } catch (Exception e) {
                 logger.error("Error while reading stream", e);
             }

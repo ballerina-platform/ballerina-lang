@@ -24,12 +24,12 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 /**
  * Represents the future events and results of connectors.
  */
-public interface HTTPClientConnectorFuture {
+public interface HttpResponseFuture {
     /**
      * Set listener for the connector future.
      * @param connectorListener that receives events related to the connector.
      */
-    void setHTTPConnectorListener(HTTPConnectorListener connectorListener);
+    void setHTTPConnectorListener(HttpConnectorListener connectorListener);
 
     /**
      * Remove the listener set to the future.
@@ -41,4 +41,10 @@ public interface HTTPClientConnectorFuture {
      * @param httpMessage contains the data related to the event.
      */
     void notifyHTTPListener(HTTPCarbonMessage httpMessage);
+
+    /**
+     * Notify the listeners when there is an event
+     * @param throwable contains the data related to the error.
+     */
+    void notifyHTTPListener(Throwable throwable);
 }

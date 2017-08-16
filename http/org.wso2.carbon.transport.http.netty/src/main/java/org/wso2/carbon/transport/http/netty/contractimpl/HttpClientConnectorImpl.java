@@ -21,14 +21,13 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -39,28 +38,28 @@ import java.util.Locale;
 /**
  * Implementation of the client connector.
  */
-public class HTTPClientConnectorImpl implements HTTPClientConnector {
+public class HttpClientConnectorImpl implements HttpClientConnector {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTPClientConnector.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
 
-    public HTTPClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout) {
+    public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout) {
         this.connectionManager = connectionManager;
         this.sslConfig = sslConfig;
         this.socketIdleTimeout = socketIdleTimeout;
     }
 
     @Override
-    public HTTPClientConnectorFuture connect() {
+    public HttpResponseFuture connect() {
         return null;
     }
 
     @Override
-    public HTTPClientConnectorFuture send(HTTPCarbonMessage httpCarbonRequest) throws Exception {
-        HTTPClientConnectorFuture httpClientConnectorFuture = new HTTPClientConnectorFutureImpl();
+    public HttpResponseFuture send(HTTPCarbonMessage httpCarbonRequest) {
+        HttpResponseFuture httpResponseFuture = new HttpResponseFutureImpl();
 
         SourceHandler srcHandler = (SourceHandler) httpCarbonRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
@@ -78,7 +77,7 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
                 Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
                 Util.setupTransferEncodingForRequest(httpCarbonRequest);
 
-                targetChannel.configure(httpCarbonRequest, srcHandler, connectionManager);
+                targetChannel.configure(httpCarbonRequest, srcHandler, connectionManager, httpResponseFuture);
                 targetChannel.setEndPointTimeout(socketIdleTimeout);
 
                 try {
@@ -88,15 +87,15 @@ public class HTTPClientConnectorImpl implements HTTPClientConnector {
                     log.error(msg, e);
                     MessagingException messagingException = new MessagingException(msg, e, 101500);
                     httpCarbonRequest.setMessagingException(messagingException);
-                    //                        httpClientConnectorFuture.notifyHTTPListener(httpCarbonMessage);
+//                    httpResponseFuture.notifyHTTPListener(httpCarbonMessage);
                     httpCarbonRequest.getResponseListener().onMessage(httpCarbonRequest);
                 }
             });
         } catch (Exception failedCause) {
-            throw new ClientConnectorException(failedCause.getMessage(), failedCause);
+            httpResponseFuture.notifyHTTPListener(failedCause);
         }
 
-        return httpClientConnectorFuture;
+        return httpResponseFuture;
     }
 
     @Override

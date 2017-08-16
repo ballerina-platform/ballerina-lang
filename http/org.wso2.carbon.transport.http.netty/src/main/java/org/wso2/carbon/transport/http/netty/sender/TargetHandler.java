@@ -32,8 +32,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -55,8 +54,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
     private CarbonCallback callback;
-    private HTTPClientConnectorFuture httpClientConnectorFuture;
-    private HTTPConnectorListener listener;
+    private HttpResponseFuture httpResponseFuture;
+//    private HttpConnectorListener listener;
     private HTTPCarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
@@ -85,9 +84,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                             executeAtTargetResponseReceiving(cMsg);
                 }
-                if (this.listener != null) {
+                if (this.httpResponseFuture != null) {
                     try {
-                        listener.onMessage(cMsg);
+                        httpResponseFuture.notifyHTTPListener(cMsg);
                     } catch (Exception e) {
                         LOG.error("Error while handover response to MessageProcessor ", e);
                     }
@@ -133,17 +132,13 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         LOG.debug("Target channel closed.");
     }
 
-    public void setCallback(CarbonCallback callback) {
-        this.callback = callback;
+    public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
+        this.httpResponseFuture = httpResponseFuture;
     }
 
-    public void setHttpClientConnectorFuture(HTTPClientConnectorFuture httpClientConnectorFuture) {
-        this.httpClientConnectorFuture = httpClientConnectorFuture;
-    }
-
-    public void setListener(HTTPConnectorListener listener) {
-        this.listener = listener;
-    }
+//    public void setListener(HttpConnectorListener listener) {
+//        this.listener = listener;
+//    }
 
     public void setConnectionManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -160,9 +155,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private void sendBackTimeOutResponse() {
         String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                 getHttpRoute().toString() + "</errorMessage>";
-        if (httpClientConnectorFuture != null) {
+        if (httpResponseFuture != null) {
             try {
-                httpClientConnectorFuture.notifyHTTPListener(createErrorMessage(payload));
+                httpResponseFuture.notifyHTTPListener(createErrorMessage(payload));
             } catch (Exception e) {
                 LOG.error("Error while handover response to MessageProcessor ", e);
             }

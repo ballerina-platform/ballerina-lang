@@ -23,16 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * A Message Processor which creates Request and Response
  */
-public class RequestResponseCreationListener implements HTTPConnectorListener {
+public class RequestResponseCreationListener implements HttpConnectorListener {
     private Logger logger = LoggerFactory.getLogger(RequestResponseCreationListener.class);
 
     private String responseValue;
@@ -62,7 +62,7 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
         this.configuration = configuration;
     }
 
-    private class ClientConnectorListener implements HTTPConnectorListener {
+    private class ClientConnectorListener implements HttpConnectorListener {
         String requestValue = "test";
         HTTPCarbonMessage request;
 
@@ -147,12 +147,60 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
 
                     SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
 
-                    HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
-                    HTTPClientConnector clientConnector =
-                            httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                    HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+                    HttpClientConnector clientConnector =
+                            httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
 
                     HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
-                    httpCarbonMessage.setResponseListener(new HTTPConnectorListener() {
+//                    httpCarbonMessage.setResponseListener(new HttpConnectorListener() {
+//                        @Override
+//                        public void onMessage(HTTPCarbonMessage httpResponse) {
+//                            executor.execute(() -> {
+//                                int length = httpResponse.getFullMessageLength();
+//                                List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
+//
+//                                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+//                                byteBufferList.forEach(buf -> byteBuffer.put(buf));
+//                                String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+//                                if (requestValue != null) {
+//                                    byte[] array = new byte[0];
+//                                    try {
+//                                        array = responseValue.getBytes("UTF-8");
+//                                    } catch (UnsupportedEncodingException e) {
+//
+//                                    }
+//
+//                                    ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+//                                    byteBuff.put(array);
+//                                    byteBuff.flip();
+//                                    CarbonMessage carbonMessage = MessageUtil
+//                                            .cloneCarbonMessageWithOutData(httpResponse);
+//                                    if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+//                                        carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+//                                                String.valueOf(array.length));
+//                                    }
+//                                    carbonMessage.addMessageBody(byteBuff);
+//                                    carbonMessage.setEndOfMsgAdded(true);
+//
+//                                            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
+//                                                    .convertCarbonMessage(carbonMessage);
+//                                            try {
+//                                                httpRequest.respond(httpCarbonMessage);
+//                                            } catch (ServerConnectorException e) {
+//                                                logger.error("Error occurred during message notification: "
+//                                                                     + e.getMessage());
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//
+//                        @Override
+//                        public void onError(Throwable throwable) {
+//
+//                        }
+//                    });
+                    HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+                    future.setHTTPConnectorListener(new HttpConnectorListener() {
                         @Override
                         public void onMessage(HTTPCarbonMessage httpResponse) {
                             executor.execute(() -> {
@@ -182,28 +230,25 @@ public class RequestResponseCreationListener implements HTTPConnectorListener {
                                     carbonMessage.addMessageBody(byteBuff);
                                     carbonMessage.setEndOfMsgAdded(true);
 
-                                            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
-                                                    .convertCarbonMessage(carbonMessage);
-                                            try {
-                                                httpRequest.respond(httpCarbonMessage);
-                                            } catch (ServerConnectorException e) {
-                                                logger.error("Error occurred during message notification: "
-                                                                     + e.getMessage());
-                                            }
-                                        }
-                                    });
+                                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
+                                            .convertCarbonMessage(carbonMessage);
+                                    try {
+                                        httpRequest.respond(httpCarbonMessage);
+                                    } catch (ServerConnectorException e) {
+                                        logger.error("Error occurred during message notification: "
+                                                + e.getMessage());
+                                    }
                                 }
+                            });
+                        }
 
                         @Override
                         public void onError(Throwable throwable) {
 
                         }
                     });
-                    clientConnector.send(httpCarbonMessage);
                 } catch (UnsupportedEncodingException e) {
                     logger.error("Encoding is not supported", e);
-                } catch (ClientConnectorException e) {
-                    logger.error("MessageProcessor is not supported ", e);
                 } catch (Exception e) {
                     logger.error("Failed to send the message to the back-end", e);
                 } finally {

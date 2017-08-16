@@ -24,16 +24,16 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 /**
  * Allows to get notifications of connectors.
  */
-public interface HTTPConnectorListener {
+public interface HttpConnectorListener {
     /**
      * Each event triggered by connector ends up here.
-     * @param httpMessage
+     * @param httpMessage contains the state change information of the event.
      */
     void onMessage(HTTPCarbonMessage httpMessage);
 
     /**
      * Each error event triggered by connector ends up here.
-     * @param throwable
+     * @param throwable contains the error details of the event.
      */
     void onError(Throwable throwable);
 }

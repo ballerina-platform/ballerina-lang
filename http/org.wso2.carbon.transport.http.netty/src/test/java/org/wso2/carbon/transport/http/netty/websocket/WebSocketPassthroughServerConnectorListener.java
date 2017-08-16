@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -31,7 +31,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnecto
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import java.io.IOException;
 import java.net.ProtocolException;
@@ -47,7 +47,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
 
-    private final HTTPConnectorFactory connectorFactory = new HTTPConnectorFactoryImpl();
+    private final HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
     private final Map<String, Session> sessionsMap = new ConcurrentHashMap<>();
 
     @Override

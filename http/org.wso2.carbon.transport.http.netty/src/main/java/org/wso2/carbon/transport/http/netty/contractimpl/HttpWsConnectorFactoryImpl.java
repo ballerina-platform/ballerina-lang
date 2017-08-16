@@ -23,8 +23,8 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketClientConnectorImpl;
@@ -38,9 +38,9 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 import java.util.Map;
 
 /**
- * Implementation of HTTPConnectorFactory interface
+ * Implementation of HttpWsConnectorFactory interface
  */
-public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
+public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
 
     private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
 
@@ -58,7 +58,7 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
     }
 
     @Override
-    public HTTPClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
+    public HttpClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration) {
         SSLConfig sslConfig = senderConfiguration.getSslConfig();
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
@@ -67,7 +67,7 @@ public class HTTPConnectorFactoryImpl implements HTTPConnectorFactory {
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HTTPClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
+        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
     }
 
     @Override

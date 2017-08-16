@@ -96,7 +96,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline if user sent HTTP requests
      *
      * @param pipeline                    Channel
-     * @param listenerConfiguration HTTPConnectorListener Configuration
+     * @param listenerConfiguration HttpConnectorListener Configuration
      */
     public void configureHTTPPipeline(ChannelPipeline pipeline, ListenerConfiguration listenerConfiguration) {
         // Removed the default encoder since http/2 version upgrade already added to pipeline

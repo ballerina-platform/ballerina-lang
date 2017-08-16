@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
@@ -47,7 +47,7 @@ public class ContentAwareMessageProcessorTestCase {
     private static final Logger log = LoggerFactory.getLogger(ContentAwareMessageProcessorTestCase.class);
 
     private List<ServerConnector> serverConnectors;
-    private HTTPConnectorListener httpConnectorListener;
+    private HttpConnectorListener httpConnectorListener;
     private TransportsConfiguration configuration;
 
     private HTTPServer httpServer;

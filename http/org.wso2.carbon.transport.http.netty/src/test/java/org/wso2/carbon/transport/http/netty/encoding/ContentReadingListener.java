@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 /**
  * HTTP connector Listener for Content reading.
  */
-public class ContentReadingListener implements HTTPConnectorListener {
+public class ContentReadingListener implements HttpConnectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ContentReadingListener.class);
 

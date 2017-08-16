@@ -79,7 +79,7 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param channelSession session relates to the channel.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param connectionManager connection manager for WebSocket connection.
-     * @param listenerConfiguration HTTPConnectorListener configuration for WebSocket connection.
+     * @param listenerConfiguration HttpConnectorListener configuration for WebSocket connection.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
      * @throws Exception
      */

@@ -21,7 +21,7 @@ package org.wso2.carbon.transport.http.netty.listener;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 
 /**
- * HTTPConnectorListener Count Provider.
+ * HttpConnectorListener Count Provider.
  */
 public class ListenerCountProvider {
 

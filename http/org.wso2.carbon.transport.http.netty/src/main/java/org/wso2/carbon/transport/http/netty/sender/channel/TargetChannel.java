@@ -24,6 +24,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -95,12 +96,12 @@ public class TargetChannel {
     }
 
     public void configure(HTTPCarbonMessage httpCarbonMessage, SourceHandler srcHandler,
-            ConnectionManager connectionManager) {
+            ConnectionManager connectionManager, HttpResponseFuture httpResponseFuture) {
         this.setTargetHandler(this.getHTTPClientInitializer().getTargetHandler());
         this.setCorrelatedSource(srcHandler);
         TargetHandler targetHandler = this.getTargetHandler();
-        //                    targetHandler.setHttpClientConnectorFuture(httpClientConnectorFuture);
-        targetHandler.setListener(httpCarbonMessage.getResponseListener());
+        targetHandler.setHttpResponseFuture(httpResponseFuture);
+//        targetHandler.setListener(httpCarbonMessage.getResponseListener());
         targetHandler.setIncomingMsg(httpCarbonMessage);
         this.getTargetHandler().setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);

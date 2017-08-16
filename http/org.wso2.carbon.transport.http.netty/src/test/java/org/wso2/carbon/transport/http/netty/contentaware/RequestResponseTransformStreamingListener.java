@@ -26,11 +26,12 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Streaming processor which reads from same and write to same message
  */
-public class RequestResponseTransformStreamingListener implements HTTPConnectorListener {
+public class RequestResponseTransformStreamingListener implements HttpConnectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -81,10 +82,11 @@ public class RequestResponseTransformStreamingListener implements HTTPConnectorL
 
                 SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
 
-                HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
-                HTTPClientConnector clientConnector =
-                        httpConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
-                httpRequestMessage.setResponseListener(new HTTPConnectorListener() {
+                HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+                HttpClientConnector clientConnector =
+                        httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                HttpResponseFuture future = clientConnector.send(httpRequestMessage);
+                future.setHTTPConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
@@ -111,7 +113,6 @@ public class RequestResponseTransformStreamingListener implements HTTPConnectorL
 
                     }
                 });
-                clientConnector.send(httpRequestMessage);
             } catch (Exception e) {
                 logger.error("Error while reading stream", e);
             }

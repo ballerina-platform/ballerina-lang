@@ -30,7 +30,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
-    private HTTPConnectorFactoryImpl httpConnectorFactory = new HTTPConnectorFactoryImpl();
+    private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private final String url = "ws://localhost:8490/websocket";
     private final int threadSleepTime = 100;
     private WebSocketClientConnector clientConnector;

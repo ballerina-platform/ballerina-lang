@@ -100,7 +100,7 @@ public class HTTPTransportListener extends TransportListener {
 
     @Override
     public void start() {
-        log.info("Starting  HTTP Transport HTTPConnectorListener");
+        log.info("Starting  HTTP Transport HttpConnectorListener");
         startTransport();
     }
 
@@ -249,7 +249,7 @@ public class HTTPTransportListener extends TransportListener {
                 return true;
             }
         } else {
-            log.error("Cannot find defined HTTPConnectorListener interface  for HTTPConnectorListener id "
+            log.error("Cannot find defined HttpConnectorListener interface  for HttpConnectorListener id "
                               + interfaceId);
         }
         return false;
@@ -300,11 +300,11 @@ public class HTTPTransportListener extends TransportListener {
                 }
                 future.channel().close();
                 if (listenerConfiguration.getSslConfig() == null) {
-                    log.info("HTTP HTTPConnectorListener stopped on listening interface " +
+                    log.info("HTTP HttpConnectorListener stopped on listening interface " +
                                      interfaceId + " attached to host  " + listenerConfiguration.getHost() +
                                      " and port " + listenerConfiguration.getPort());
                 } else {
-                    log.info("HTTPS HTTPConnectorListener stopped on listening interface " + interfaceId +
+                    log.info("HTTPS HttpConnectorListener stopped on listening interface " + interfaceId +
                                      " attached to host " + listenerConfiguration.getHost() + " and port " +
                                      listenerConfiguration.getPort());
                 }
