@@ -47,10 +47,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         map =  new LinkedHashMap<>();
     }
 
-    public BMap(LinkedHashMap newMap) {
-        map = newMap;
-    }
-
     /**
      * Output stream to write message out to the socket.
      */
