@@ -22,7 +22,7 @@ import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
 import './transform-statement.css';
 /**
- * Renderer constructor for TypeMapper
+ * Renderer constructor for TransformRender
  * @param {function} onConnectionCallback call back function when connection made
  * @param {function} onDisconnectCallback call back function when connection removed
  * @param {object} typeConverterView Type Mapper View reference object
@@ -73,7 +73,6 @@ class TransformRender {
                 }]
             ],
         });
-        this.container.find('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('connection',function(params,ev){
             if (!_.isUndefined(ev)) {
               const input = params.connection.getParameters().input;
@@ -85,39 +84,9 @@ class TransformRender {
                   self.midpoint += self.midpointVariance;
                   self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
                   self.onConnection(connection);
+                  self.setConnectionMenu(params.connection)
               }
             }
-        });
-        this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
-            const contextMenuDiv = this.container.find('#' + self.contextMenu);
-            const anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
-            anchorTag.html($('<i>').addClass('fw fw-delete'));
-            anchorTag.html(anchorTag.html() + ' Remove');
-            contextMenuDiv.html(anchorTag);
-
-            document.addEventListener('click', (eClick) => {
-                if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path') {
-                    this.container.find('#' + self.contextMenu).hide();
-                }
-            }, false);
-
-            this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
-                this.container.find('#' + self.contextMenu).hide();
-            });
-
-            this.container.find('#typeMapperConRemove').click(() => {
-                self.disconnect(connection);
-                this.container.find('#' + self.contextMenu).hide();
-            });
-
-            contextMenuDiv.css({
-                top: e.pageY,
-                left: e.pageX,
-                zIndex: 1000,
-            });
-
-            contextMenuDiv.show();
-            e.preventDefault();
         });
     }
 
@@ -243,7 +212,44 @@ class TransformRender {
         });
         this.markConnected(sourceId);
         this.markConnected(targetId);
+        this.hideConnectContextMenu(this.container.find('#' + self.contextMenu));
+        this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source:sourceId, target:targetId})[0]);
     }
+
+setConnectionMenu(connection) {
+    let self = this;
+    connection.bind("mouseover", function(conn, e) {
+      if (!self.container.find('#' + self.contextMenu).is(":visible")) {
+        const contextMenuDiv = self.container.find('#' + self.contextMenu);
+        const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
+        anchorTag.html($('<i>').addClass('fw fw-delete'));
+        anchorTag.html(anchorTag.html() + ' Remove');
+        contextMenuDiv.html(anchorTag);
+        self.container.find('.leftType, .middle-content, .rightType').scroll(() => {
+            self.hideConnectContextMenu(self.container.find('#' + self.contextMenu));
+        });
+        self.container.find('#transformConRemove').click(() => {
+            self.disconnect(connection);
+            self.hideConnectContextMenu(self.container.find('#' + self.contextMenu));
+        });
+        contextMenuDiv.css({
+            top: e.pageY,
+            left: e.pageX,
+            zIndex: 1000,
+        });
+        self.showConnectContextMenu(contextMenuDiv);
+        self.container.mousemove(function(event ) {
+          const xDif = e.pageX - event.pageX;
+          const yDif = e.pageY - event.pageY;
+          if (xDif > 5 || xDif < -75 || yDif > 5 || yDif < -30) {
+            self.hideConnectContextMenu(self.container.find('#' + self.contextMenu));
+            self.container.unbind('mousemove');
+          }
+        });
+        }
+    });
+}
+
 /**
  * Make source property
  *
@@ -356,6 +362,22 @@ class TransformRender {
    */
   unmarkConnected(endpointId){
     this.container.find(document.getElementById(endpointId)).removeClass("fw-circle").addClass("fw-circle-outline");
+  }
+
+  /**
+   * show with fade in effect
+   * @param  {object} contextMenuDiv menu div to be shown
+   */
+  showConnectContextMenu(contextMenuDiv) {
+      contextMenuDiv.fadeIn(200);
+  }
+
+  /**
+   * hide with fade out effect
+   * @param  {object} contextMenuDiv menu div to be hidden
+   */
+  hideConnectContextMenu(contextMenuDiv) {
+      contextMenuDiv.fadeOut(200);
   }
 
 }
