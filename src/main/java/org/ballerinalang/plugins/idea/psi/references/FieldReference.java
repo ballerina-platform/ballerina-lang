@@ -96,7 +96,7 @@ public class FieldReference extends BallerinaElementReference {
         // Eg: user.name.firstName - If the current node is 'name', resolved element will be a struct definition. if
         // the current element is 'firstName', then the resolved element will be a field definition.
         PsiElement resolvedElement = variableReference.resolve();
-        if (resolvedElement == null) {
+        if (resolvedElement == null || !(resolvedElement instanceof IdentifierPSINode)) {
             return null;
         }
 
@@ -119,8 +119,7 @@ public class FieldReference extends BallerinaElementReference {
             structDefinitionNode =
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
         } else if (resolvedElementParent instanceof NameReferenceNode) {
-            structDefinitionNode = BallerinaPsiImplUtil.resolveToErrorStruct(identifier, resolvedElement,
-                    resolvedElementParent);
+            structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
         }
         if (structDefinitionNode == null) {
             return null;
@@ -162,10 +161,13 @@ public class FieldReference extends BallerinaElementReference {
             structDefinitionNode =
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
         } else if (resolvedElementParent instanceof NameReferenceNode) {
-            structDefinitionNode = BallerinaPsiImplUtil.resolveToErrorStruct(identifier, resolvedElement,
-                    resolvedElementParent);
+            structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
             if (structDefinitionNode != null) {
-                resolvedElement = PsiTreeUtil.findChildOfType(structDefinitionNode, IdentifierPSINode.class);
+                IdentifierPSINode structName = PsiTreeUtil.findChildOfType(structDefinitionNode,
+                        IdentifierPSINode.class);
+                if (structName != null) {
+                    resolvedElement = structName;
+                }
             }
         }
         if (structDefinitionNode == null) {
