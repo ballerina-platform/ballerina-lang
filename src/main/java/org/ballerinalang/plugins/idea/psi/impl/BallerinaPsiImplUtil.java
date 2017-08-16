@@ -72,14 +72,17 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
+import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -1583,7 +1586,6 @@ public class BallerinaPsiImplUtil {
         return null;
     }
 
-
     @Nullable
     public static StructDefinitionNode resolveToErrorStruct(@NotNull IdentifierPSINode identifier,
                                                             @NotNull PsiElement resolvedElement,
@@ -1608,43 +1610,144 @@ public class BallerinaPsiImplUtil {
         typeCastNode = PsiTreeUtil.getChildOfType(expressionNode, TypeCastNode.class);
         typeConversionNode = PsiTreeUtil.getChildOfType(expressionNode, TypeConversionNode.class);
         if (typeCastNode == null && typeConversionNode == null) {
-            return null;
-        }
+            PsiElement firstChild = expressionNode.getFirstChild();
+            if (firstChild instanceof VariableReferenceNode) {
 
-        List<IdentifierPSINode> variablesFromVarAssignment =
-                BallerinaPsiImplUtil.getVariablesFromVarAssignment(assignmentStatementNode);
-        if (variablesFromVarAssignment.size() < 2) {
-            return null;
-        }
-        IdentifierPSINode errorVariable = variablesFromVarAssignment.get(1);
-        if (!errorVariable.equals(resolvedElement)) {
-            return null;
-        }
+                PsiElement functionInvocationNode = firstChild.getFirstChild();
 
-        VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(identifier, "/ballerina/lang/errors/error.bal");
-        if (errorFile == null) {
-            return null;
-        }
-        Project project = identifier.getProject();
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(errorFile);
-        if (psiFile == null) {
-            return null;
-        }
+                //todo - chec type
+                boolean isFunctionInvocation = isFunctionInvocation(((VariableReferenceNode) functionInvocationNode));
+                if (isFunctionInvocation) {
 
-        Collection<StructDefinitionNode> structDefinitionNodes = PsiTreeUtil.findChildrenOfType(psiFile,
-                StructDefinitionNode.class);
-        for (StructDefinitionNode definitionNode : structDefinitionNodes) {
-            IdentifierPSINode nameNode = PsiTreeUtil.getChildOfType(definitionNode, IdentifierPSINode.class);
-            if (nameNode != null) {
-                if (typeCastNode != null && "TypeCastError".equals(nameNode.getText())) {
-                    return definitionNode;
+                    PsiElement functionName = firstChild.getFirstChild();
+                    PsiReference reference = functionName.findReferenceAt(functionName.getTextLength());
+
+                    if (reference != null) {
+                        PsiElement resolvedFunctionIdentifier = reference.resolve();
+                        if (resolvedFunctionIdentifier != null) {
+                            PsiElement parent = resolvedFunctionIdentifier.getParent();
+                            if (parent instanceof FunctionDefinitionNode) {
+
+                                int index = getVariableIndexFromVarAssignment(assignmentStatementNode,
+                                        (IdentifierPSINode) resolvedElement);
+                                if (index >= 0) {
+
+                                    List<PsiElement> returnTypes = getReturnTypes(((FunctionDefinitionNode) parent));
+
+                                    if (returnTypes.size() >= index + 1) {
+
+                                        PsiElement elementType = returnTypes.get(index);
+
+                                        PsiReference structReference = elementType.findReferenceAt(elementType
+                                                .getTextLength());
+
+                                        if (structReference != null) {
+
+                                            PsiElement resolvedStruct = structReference.resolve();
+                                            if (resolvedStruct != null && resolvedStruct.getParent() instanceof
+                                                    StructDefinitionNode) {
+
+                                                return ((StructDefinitionNode) resolvedStruct.getParent());
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                if (typeConversionNode != null && "TypeConversionError".equals(nameNode.getText())) {
+            }
+        } else {
+            List<IdentifierPSINode> variablesFromVarAssignment =
+                    BallerinaPsiImplUtil.getVariablesFromVarAssignment(assignmentStatementNode);
+            if (variablesFromVarAssignment.size() < 2) {
+                return null;
+            }
+            IdentifierPSINode errorVariable = variablesFromVarAssignment.get(1);
+            if (!errorVariable.equals(resolvedElement)) {
+                return null;
+            }
 
-                    return definitionNode;
+            VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(identifier, "/ballerina/lang/errors/error.bal");
+            if (errorFile == null) {
+                return null;
+            }
+            Project project = identifier.getProject();
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(errorFile);
+            if (psiFile == null) {
+                return null;
+            }
+
+            Collection<StructDefinitionNode> structDefinitionNodes = PsiTreeUtil.findChildrenOfType(psiFile,
+                    StructDefinitionNode.class);
+            for (StructDefinitionNode definitionNode : structDefinitionNodes) {
+                IdentifierPSINode nameNode = PsiTreeUtil.getChildOfType(definitionNode, IdentifierPSINode.class);
+                if (nameNode != null) {
+                    if (typeCastNode != null && "TypeCastError".equals(nameNode.getText())) {
+                        return definitionNode;
+                    }
+                    if (typeConversionNode != null && "TypeConversionError".equals(nameNode.getText())) {
+
+                        return definitionNode;
+                    }
                 }
             }
         }
         return null;
+    }
+
+    @NotNull
+    public static List<PsiElement> getReturnTypes(@NotNull FunctionDefinitionNode functionDefinitionNode) {
+        List<PsiElement> results = new LinkedList<>();
+        // Parameters are in the ReturnParametersNode. So we first get the ReturnParametersNode from the definition
+        // node.
+        ReturnParametersNode node = PsiTreeUtil.findChildOfType(functionDefinitionNode, ReturnParametersNode.class);
+        if (node == null) {
+            return results;
+        }
+        // But there can be two possible scenarios. The actual return types can be in either TypeListNode or
+        // ParameterListNode. This is because return types can be named parameters. In that case, ParameterListNode is
+        // available.
+
+        // First we check for TypeListNode.
+        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(node, TypeListNode.class);
+        // If it is available, that means the return types are not named parameters.
+        if (typeListNode != null) {
+            // Each parameter will be of type TypeNameNode. So we get all return types.
+            Collection<TypeNameNode> typeNameNodes =
+                    PsiTreeUtil.findChildrenOfType(typeListNode, TypeNameNode.class);
+            // Add each TypeNameNode to the result list.
+            results.addAll(typeNameNodes);
+            // Return the results.
+            return results;
+        }
+
+        // If there is no return type node, we check for ParameterListNode.
+        ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(node, ParameterListNode.class);
+        if (parameterListNode != null) {
+            // Actual parameters are in ParameterNodes.
+            Collection<ParameterNode> parameterNodes =
+                    PsiTreeUtil.findChildrenOfType(parameterListNode, ParameterNode.class);
+            // Add each ParameterNode to the result list.
+            results.addAll(parameterNodes);
+            // Return the results.
+            return results;
+        }
+        // Return empty list.
+        return results;
+    }
+
+    public static int getVariableIndexFromVarAssignment(@NotNull AssignmentStatementNode assignmentStatementNode,
+                                                        @NotNull IdentifierPSINode identifier) {
+        List<IdentifierPSINode> variablesFromVarAssignment =
+                BallerinaPsiImplUtil.getVariablesFromVarAssignment(assignmentStatementNode);
+
+        for (int i = 0; i < variablesFromVarAssignment.size(); i++) {
+            if (variablesFromVarAssignment.get(i).equals(identifier)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
