@@ -162,7 +162,6 @@ public class WebSocketClient {
         }
 
         logger.info("WebSocket Handshake successful : " + isDone);
-        Thread.sleep(5000);
         return isDone;
     }
 
