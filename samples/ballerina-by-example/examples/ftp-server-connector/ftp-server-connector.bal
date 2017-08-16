@@ -23,7 +23,7 @@ service<ftp> ftpServerConnector {
         files:File file = {path:url};
 
         // Read the specified file and get its string content.
-        blob txt = ftp:ClientConnector.read(c, file);
+        blob txt = c.read(file);
         string content = blobs:toString(txt, "UTF-8");
 
         // Print the content of the file to the console.
@@ -39,7 +39,7 @@ service<ftp> ftpServerConnector {
                              "ftp://127.0.0.1/another-dir/current-output.txt"};
 
         // Write that content to another remote location.
-        ftp:ClientConnector.write(c, output, target);
+        c.write(output, target);
 
         reply m;
     }

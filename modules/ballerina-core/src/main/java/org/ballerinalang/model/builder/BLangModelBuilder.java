@@ -98,6 +98,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -198,8 +199,8 @@ public class BLangModelBuilder {
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     protected SymbolScope packageScope = null;
 
-    // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
-    protected SymbolScope forkJoinScope = null;
+    // This variable stack keeps the fork-join scope when adding workers and resolve back to current scope once done
+    protected Stack<SymbolScope> forkJoinScopeStack = new Stack<>();
 
     // This variable keeps the current scope when adding workers and resolve back to current scope once done
     protected Stack<SymbolScope> workerOuterBlockScope = new Stack<>();
@@ -540,6 +541,21 @@ public class BLangModelBuilder {
         BValue value = basicLiteral.getBValue();
         annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName(), location,
                 whiteSpaceDescriptor));
+    }
+
+    /**
+     * Create a variable reference type attribute value.
+     *
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param nameReference     Name Reference value
+     */
+    public void createNameReferenceTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                      NameReference nameReference) {
+        validateAndSetPackagePath(location, nameReference);
+        SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
+        annotationAttributeValues.push(new AnnotationAttributeValue(simpleVarRefExpr, location, whiteSpaceDescriptor));
     }
 
     /**
@@ -1040,14 +1056,14 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(currentScope.getEnclosingScope());
         //setting workerOuterBlockScope if it is not a fork join statement
-        if (forkJoinScope == null) {
+        if (forkJoinScopeStack.empty()) {
             workerOuterBlockScope.push(currentScope);
         }
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
     public void addFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
-                            boolean isNative) {
+                            boolean isNative, boolean hasReturnsKeyword) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -1057,6 +1073,7 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setHasReturnsKeyword(hasReturnsKeyword);
         bFileBuilder.addFunction(function);
 
         currentScope = function.getEnclosingScope();
@@ -1127,7 +1144,7 @@ public class BLangModelBuilder {
             currentScope = workerOuterBlockScope.pop();
         } else {
             workerStack.peek().add(worker);
-            currentScope = forkJoinScope;
+            currentScope = forkJoinScopeStack.peek();
         }
 
         currentCUBuilder = parentCUBuilder.pop();
@@ -1585,7 +1602,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
-        forkJoinScope = currentScope;
+        forkJoinScopeStack.push(currentScope);
         workerStack.push(new ArrayList<>());
     }
 
@@ -1752,6 +1769,7 @@ public class BLangModelBuilder {
         }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
+        forkJoinScopeStack.pop();
 
     }
 
@@ -1860,6 +1878,27 @@ public class BLangModelBuilder {
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
+    public void startFailedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing failed clause.
+        TransactionStmt.FailedBlock failedBlock = new TransactionStmt.FailedBlock(currentScope);
+        transactionStmtBuilder.setFailedBlock(failedBlock);
+        currentScope = failedBlock;
+        BlockStmt.BlockStmtBuilder failedBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
+        blockStmtBuilderStack.push(failedBlockBuilder);
+        currentScope = failedBlockBuilder.getCurrentScope();
+    }
+
+    public void addFailedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder failedBlockBuilder = blockStmtBuilderStack.pop();
+        failedBlockBuilder.setLocation(location);
+        failedBlockBuilder.setBlockKind(StatementKind.FAILED_BLOCK);
+        BlockStmt failedBlock = failedBlockBuilder.build();
+        currentScope = failedBlock.getEnclosingScope();
+        transactionStmtBuilder.setFailedBlockStmt(failedBlock);
+    }
+
     public void addTransactionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
         transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
@@ -1870,6 +1909,14 @@ public class BLangModelBuilder {
 
     public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
+    }
+
+    public void createRetryStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        Expression countExpression = exprStack.pop();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        transactionStmtBuilder.setRetryCountExpression(countExpression);
+        RetryStmt retryStmt = new RetryStmt(location, whiteSpaceDescriptor, countExpression);
+        addToBlockStmt(retryStmt);
     }
 
     // Literal Values
@@ -2120,25 +2167,31 @@ public class BLangModelBuilder {
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof AssignStmt) {
-                for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
+                AssignStmt assignStmt = (AssignStmt) statement;
+                for (Expression lExpr : assignStmt.getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (Expression exp : varRefExpressions) {
                         String varName = ((SimpleVarRefExpr) exp).getVarName();
-                        if (inputs.get(varName) == null) {
-                            //if variable has not been used as an input before
-                            if (outputs.get(varName) == null) {
-                                List<Statement> stmtList = new ArrayList<>();
-                                stmtList.add(statement);
-                                outputs.put(varName, exp);
+                        if (!assignStmt.isDeclaredWithVar()) {
+                            // if lhs is declared with var, they not considered as output variables since they are
+                            // only available in transform statement scope
+                            if (inputs.get(varName) == null) {
+                                //if variable has not been used as an input before
+                                if (outputs.get(varName) == null) {
+                                    List<Statement> stmtList = new ArrayList<>();
+                                    stmtList.add(statement);
+                                    outputs.put(varName, exp);
+                                }
+                            } else {
+                                String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                     SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT,
+                                                                                            statement);
+                                errorMsgs.add(errMsg);
                             }
-                        } else {
-                            String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                  SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
-                            errorMsgs.add(errMsg);
                         }
                     }
                 }
-                Expression rExpr = ((AssignStmt) statement).getRExpr();
+                Expression rExpr = assignStmt.getRExpr();
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
                     String varName = ((SimpleVarRefExpr) exp).getVarName();

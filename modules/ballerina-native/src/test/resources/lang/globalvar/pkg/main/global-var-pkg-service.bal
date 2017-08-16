@@ -26,8 +26,10 @@ service<http> GlobalVar {
 
     string serviceVarString = varpkg:glbVarString;
 
-    @http:GET{}
-    @http:Path {value:"/defined"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/defined"
+    }
     resource accessGlobalVarFromOtherPkg (message m) {
         message response = {};
         int pkgInt = varpkg:glbVarInt;
@@ -38,8 +40,10 @@ service<http> GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/assign-from-other-pkg"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/assign-from-other-pkg"
+    }
     resource assignGlobalVarFromOtherPkg (message m) {
         message response = {};
 
@@ -48,8 +52,10 @@ service<http> GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/func-inv-from-same-pkg"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/func-inv-from-same-pkg"
+    }
     resource assignFuncInvocationToGlobalVarFromSamePkg (message m) {
         message response = {};
         json responseJson = {"glbVarFunc":glbVarFunc};
@@ -57,8 +63,10 @@ service<http> GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/func-inv-from-diff-pkg"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/func-inv-from-diff-pkg"
+    }
     resource assignFuncInvocationToGlobalVarFromDiffPkg (message m) {
         message response = {};
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
@@ -66,8 +74,10 @@ service<http> GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/assign-to-service-var-from-diff-pkg"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/assign-to-service-var-from-diff-pkg"
+    }
     resource assignGlobalVarToServiceVarFromDiffPkg (message m) {
         message response = {};
         json responseJson = {"serviceVarString":serviceVarString};
@@ -75,8 +85,10 @@ service<http> GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/change-global-var-diff-pkg"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/change-global-var-diff-pkg"
+    }
     resource changeGlobalVarInDiffPkg (message m) {
         message response = {};
 
@@ -93,8 +105,10 @@ service<http> GlobalVar {
 @http:configuration {basePath:"/globalvar-second-pkg"}
 service<http> GlobalVarSecond {
 
-    @http:GET{}
-    @http:Path {value:"/get-changed-resource-level"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/get-changed-resource-level"
+    }
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
         float changeVarFloat = varpkg:glbVarFloatChange;

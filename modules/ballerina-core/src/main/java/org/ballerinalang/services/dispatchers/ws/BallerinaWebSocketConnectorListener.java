@@ -102,7 +102,8 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
                 if (serviceUri == null) {
                     throw new BallerinaException("no Service found to handle the service request: " + serviceUri);
                 }
-                ServiceInfo service = WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
+                ServiceInfo service = WebSocketServicesRegistry.getInstance()
+                        .getServiceEndpoint(interfaceId, serviceUri);
 
                 if (service == null) {
                     throw new BallerinaException("no Service found to handle the service request: " + serviceUri);

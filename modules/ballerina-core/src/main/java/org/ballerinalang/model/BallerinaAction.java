@@ -96,6 +96,10 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return parameterDefs;
     }
 
+    public void setParameterDefs(ParameterDef[] parameterDefs) {
+        this.parameterDefs = parameterDefs;
+    }
+
     @Override
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;

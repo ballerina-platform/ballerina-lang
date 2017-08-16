@@ -5,9 +5,11 @@ import ballerina.lang.messages;
 
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {
-    
-    @http:POST{}
-    @http:Path {value:"/"}
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     resource cbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
@@ -16,11 +18,10 @@ service<http> contentBasedRouting {
         var nameString, _ = (string) jsonMsg.name;
         message response = {};
         if (nameString == nyseString) {
-            response = http:ClientConnector.post(nyseEP, "/stocks", m);
-            
-        } else {
-            response = http:ClientConnector.post(nasdaqEP, "/stocks", m);
-        
+            response = nyseEP.post("/stocks", m);
+        }
+        else {
+            response = nasdaqEP.post("/stocks", m);
         }
         reply response;
         

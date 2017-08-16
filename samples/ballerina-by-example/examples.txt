@@ -14,15 +14,18 @@ Var
 Any Type
 Type Casting
 Type Conversion
+Typeof
 Structs
 Maps
 Arrays
 Array of Arrays
+Lengthof
 Identifier Literals
 JSON
 JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
+Constrained JSON
 XML
 XML Namespaces
 XML Literal
@@ -34,13 +37,17 @@ Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
+Fork/Join Variable Access
 Datatables
 SQL Connector
 Transactions
+Transform Structs
+Transform JSON
 Strings
 Blob Type
 Date Time
 File API
+Throw
 Try/Catch/Finally
 Base Path and Path
 Query and Path Param
@@ -51,10 +58,13 @@ HTTP Sessions
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
-Websocket Basic Endpoint
-Websocket Basic Functions
-Websocket Connection Groups
-Websocket Connection Store
+Filter Connector
 Log API
 Function Pointers
 Lambda
+WebSocket Basic Endpoint
+WebSocket Basic Functions
+WebSocket Connection Store
+WebSocket Connection Groups
+WebSocket Client Connector
+Passthrough

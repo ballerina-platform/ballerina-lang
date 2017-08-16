@@ -34,3 +34,7 @@ native function getDateFormat (string format) (string);
 @doc:Param { value:"a: any value to be printed" }
 native function println (any a);
 
+@doc:Description { value:"Halt the current thread for the specified time period"}
+@doc:Param { value:"int: Sleep time in milliseconds" }
+native function sleep (int t);
+

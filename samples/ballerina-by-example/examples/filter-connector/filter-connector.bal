@@ -3,7 +3,7 @@ import ballerina.doc;
 
 @doc:Description {value:"This is the base connector we are going to decorate"}
 connector StockQuoteConnector (int i) {
-    action getStock (StockQuoteConnector stockConnector, string ID)(int stockPrice) {
+    action getStock (string ID)(int stockPrice) {
         // Here we return a default value from base connector. In real world, this will call the
         // actual back end service and get the result
         return 999;
@@ -13,7 +13,7 @@ connector StockQuoteConnector (int i) {
 @doc:Description {value:"This is the filter connector which will be decorating the base connector"}
 connector CacheConnector<StockQuoteConnector stockC> (string j) {
     map cachedKeys = {"IBM":350, "WSO2":300};
-    action getStock (CacheConnector cacheConnector, string ID)(int stockPrice) {
+    action getStock (string ID)(int stockPrice) {
         int result = -1;
         // If the ID is not present in the cache, call the action of the base connector.
         // Otherwise, return the value from the cache (map)

@@ -5,8 +5,10 @@ import ballerina.net.http;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
-    @http:GET{}
-    @http:Path {value:"/products/{productId}/{regId}"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/products/{productId}/{regId}"
+    }
     resource productsInfo1 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
         string orderId;
         json responseJson;
@@ -22,8 +24,10 @@ service<http> Ecommerce {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/products2/{productId}/{regId}/item"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/products2/{productId}/{regId}/item"
+    }
     resource productsInfo2 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
         json responseJson;
         message response = {};
@@ -35,8 +39,10 @@ service<http> Ecommerce {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/products3/{productId}/{regId}/*"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/products3/{productId}/{regId}/*"
+    }
     resource productsInfo3 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
         json responseJson;
         message response = {};
@@ -48,8 +54,10 @@ service<http> Ecommerce {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/products/{productId}"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/products/{productId}"
+    }
     resource productsInfo4 (message m, @http:PathParam {value:"productId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
         json responseJson;
         message response = {};
@@ -61,8 +69,10 @@ service<http> Ecommerce {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/products"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/products"
+    }
     resource productsInfo6 (message m, @http:QueryParam {value:"prodId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
         json responseJson;
         message response = {};
@@ -74,8 +84,10 @@ service<http> Ecommerce {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/products5/{productId}/reg"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/products5/{productId}/reg"
+    }
     resource productsInfo5 (message m, @http:PathParam {value:"productId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
         json responseJson;
         message response = {};
@@ -87,7 +99,9 @@ service<http> Ecommerce {
         reply response;
     }
 
-    @http:Path {value:""}
+    @http:resourceConfig {
+        path:""
+    }
     resource echo1 (message m, string foo) {
         message response = {};
         json responseJson = {"echo11":"echo11"};

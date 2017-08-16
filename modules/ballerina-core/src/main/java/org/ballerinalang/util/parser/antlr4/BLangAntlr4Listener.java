@@ -312,12 +312,19 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
-        String functionName = ctx.callableUnitSignature().Identifier().getText();
+        CallableUnitSignatureContext callableUnitSignatureContext = ctx.callableUnitSignature();
+        String functionName = callableUnitSignatureContext.Identifier().getText();
+        BallerinaParser.ReturnParametersContext returnParameters = callableUnitSignatureContext.returnParameters();
+        boolean hasReturnsKeyword = false;
+        if (returnParameters != null) {
+            hasReturnsKeyword = (returnParameters.RETURNS() != null);
+        }
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
         }
-        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName, isNative);
+        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName,
+                isNative, hasReturnsKeyword);
     }
 
     @Override
@@ -953,7 +960,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         SimpleTypeName[] returnParamTypes = new SimpleTypeName[0];
         String[] paramArgNames = new String[0];
         String[] returnParamArgNames = new String[0];
-        boolean isReturnWordAvailable = false;
+        boolean hasReturnsKeyword = false;
         if (ctx.parameterList() != null) {
             paramTypes = new SimpleTypeName[ctx.parameterList().parameter().size()];
             paramArgNames = new String[ctx.parameterList().parameter().size()];
@@ -977,7 +984,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             } else if (returnCtx.typeList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.typeList().typeName().size()];
             }
-            isReturnWordAvailable = "returns".equals(returnCtx.getChild(0).getText());
+            hasReturnsKeyword = "returns".equals(returnCtx.getChild(0).getText());
         }
 
         for (int i = returnParamTypes.length - 1; i >= 0; i--) {
@@ -990,7 +997,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         functionTypeName.setNodeLocation(getCurrentLocation(ctx));
         functionTypeName.setParamFieldNames(paramArgNames);
         functionTypeName.setReturnParamFieldNames(returnParamArgNames);
-        functionTypeName.setReturnWordAvailable(isReturnWordAvailable);
+        functionTypeName.setHasReturnsKeyword(hasReturnsKeyword);
         // TODO : Fix WhiteSpaces.
 //        if (isVerboseMode) {
 //            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
@@ -1096,6 +1103,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
         if (childContext instanceof SimpleLiteralContext) {
             modelBuilder.createLiteralTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        } else if (childContext instanceof NameReferenceContext) {
+            modelBuilder.createNameReferenceTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    nameReferenceStack.pop());
         } else if (childContext instanceof AnnotationAttachmentContext) {
             modelBuilder.createAnnotationTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
         } else if (childContext instanceof AnnotationAttributeArrayContext) {
@@ -1167,7 +1177,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
         }
-        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, false);
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, isVarDeclaration);
     }
 
     @Override
@@ -1593,7 +1607,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
-            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
+            modelBuilder.createAnyJoinCondition("some", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
                     whiteSpaceDescriptor);
             enterJoinWorkers(ctx.Identifier());
         }
@@ -2075,6 +2089,20 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startFailedClause();
+        }
+    }
+
+    @Override
+    public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addFailedClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
     public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startAbortedClause();
@@ -2117,6 +2145,23 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAbortStmtWS(tokenStream, ctx);
         }
         modelBuilder.createAbortStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getRetryStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createRetryStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
