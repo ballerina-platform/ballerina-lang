@@ -149,6 +149,23 @@ public class BMapValueTest   {
         Assert.assertEquals(returnVals[0].stringValue(), "item2", "Return value din't match.");
     }
 
+    @Test(dependsOnMethods = "testGrammar")
+    public void testMapOrder() {
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapOrder", new BValue[0]);
+        BMap m = (BMap) returnVals[0];
+        Set set = m.keySet();
+        Iterator i = set.iterator();
+        int counter = 0;
+        String[] values = {"Element 1", "Element 2", "Element 3"};
+        while (i.hasNext()) {
+            Assert.assertEquals(m.get(i.next()).stringValue(), values[counter]);
+            counter++;
+        }
+        String mapString = m.stringValue();
+        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\", \"key2\":\"Element 2\", \"key3\":\"Element 3\"}");
+
+    }
+
     @Test(description = "Testing map value access in variableDefStmt", expectedExceptions = SemanticException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be assigned to 'string'")
     void testInvalidGrammar1() {

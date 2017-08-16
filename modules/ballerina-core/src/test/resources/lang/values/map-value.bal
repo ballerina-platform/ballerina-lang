@@ -55,6 +55,16 @@ function testMapWithAnyFunctionInvocations() (string){
     return value;
 }
 
+function testMapOrder() (map)
+{
+  map m = {};
+  m["key1"] = "Element 1";
+  m["key2"] = "Element 2";
+  m["key3"] = "Element 3";
+    return m;
+
+}
+
 function testEcho(string value)(string){
     return value;
 }
