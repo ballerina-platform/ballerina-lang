@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ConditionalStatement from './conditional-statement';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for catch statement in ballerina.
@@ -92,7 +93,7 @@ class CatchStatement extends ConditionalStatement {
     initFromJson(jsonNode) {
         const self = this;
         const parameterDef = jsonNode.parameter_definition;
-        const paramDefNode = self.getFactory().createFromJson(parameterDef[0]);
+        const paramDefNode = ASTFactory.createFromJson(parameterDef[0]);
         paramDefNode.initFromJson(parameterDef[0]);
         this.setParameter(paramDefNode, { doSilently: true });
         this.setParameterDefString(paramDefNode.getParameterDefinitionAsString(), { doSilently: true });
@@ -100,9 +101,9 @@ class CatchStatement extends ConditionalStatement {
         _.each(jsonNode.children, (childNode) => {
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = this.getFactory().createConnectorDeclaration();
+                child = ASTFactory.createConnectorDeclaration();
             } else {
-                child = this.getFactory().createFromJson(childNode);
+                child = ASTFactory.createFromJson(childNode);
             }
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);

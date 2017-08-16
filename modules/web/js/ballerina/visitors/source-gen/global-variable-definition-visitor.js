@@ -18,6 +18,7 @@
 
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Visitor for a global variable definition.
@@ -49,7 +50,7 @@ class GlobalVariableDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        globalVariableDefinition.getChildrenOfType(globalVariableDefinition.getFactory().isAnnotationAttachment).forEach(
+        globalVariableDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

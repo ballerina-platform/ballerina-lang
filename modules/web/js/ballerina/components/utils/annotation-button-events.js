@@ -17,7 +17,7 @@
  */
 
 import AnnotationHelper from './../../env/helpers/annotation-helper';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import BallerinaEnvironment from '../../env/environment';
 
 /**
@@ -26,7 +26,7 @@ import BallerinaEnvironment from '../../env/environment';
  * @param {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue} node The node.
  */
 function deleteNode(node) {
-    const factory = node.getFactory();
+    const factory = ASTFactory;
     if (factory.isAnnotationAttachment(node)) {
         node.getParent().removeChild(node);
     } else if (factory.isAnnotationAttribute(node) && factory.isAnnotationAttachment(node.getParent())) {
@@ -43,7 +43,7 @@ function deleteNode(node) {
  * @returns {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue|BValue} New child.
  */
 function generateChildNode(node) {
-    const factory = node.getFactory();
+    const factory = ASTFactory;
     if (factory.isAnnotationAttachment(node)) {
         const bValue = factory.createBValue();
         const annotationAttributeValue = factory.createAnnotationAttributeValue();
@@ -79,7 +79,7 @@ function generateChildNode(node) {
  * @returns {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue|BValue} Newly added child.
  */
 function addChildNode(node, index) {
-    const factory = node.getFactory();
+    const factory = ASTFactory;
     if (factory.isAnnotationAttachment(node)) {
         const annotationAttribute = generateChildNode(node);
         node.addChild(annotationAttribute, index);
@@ -131,7 +131,7 @@ function addChildNodeBelow(node) {
  * @returns The newly added attribute.
  */
 function addAttribute(annotationAttachment) {
-    const factory = annotationAttachment.getFactory();
+    const factory = ASTFactory;
     const bValue = factory.createBValue();
     const annotationAttributeValue = factory.createAnnotationAttributeValue();
     const annotationAttribute = factory.createAnnotationAttribute();

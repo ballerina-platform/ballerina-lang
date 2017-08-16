@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import { util } from './../sizing-utils';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Dimension visitor class for Worker Reply Statement.
@@ -69,7 +69,7 @@ class WorkerReplyStatementDimensionCalculatorVisitor {
         const workerDeclaration = node.getDestination();
         if (!_.isUndefined(workerDeclaration)) {
             const heightFromTop = util.getStatementHeightBefore(node);
-            const workerReplyStatement = workerDeclaration.findChild(BallerinaASTFactory.isReplyStatement);
+            const workerReplyStatement = workerDeclaration.findChild(ASTFactory.isReplyStatement);
             if (!_.isUndefined(workerReplyStatement)) {
                 const workerHeightFromTop = util.getStatementHeightBefore(workerReplyStatement);
                 const heightDiff = heightFromTop - workerHeightFromTop;

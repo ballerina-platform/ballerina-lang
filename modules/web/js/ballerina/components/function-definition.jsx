@@ -23,6 +23,7 @@ import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
+import ASTFactory from '../ast/ast-factory.js';
 
 class FunctionDefinition extends React.Component {
 
@@ -31,7 +32,7 @@ class FunctionDefinition extends React.Component {
     }
 
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for worker and connector declarations only.
         // Statements should only be allowed on top of function worker's dropzone.
@@ -63,7 +64,7 @@ class FunctionDefinition extends React.Component {
 
         // filter children nodes and create components
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         // change icon for main function

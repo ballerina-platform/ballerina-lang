@@ -22,7 +22,7 @@ import AnnotationAttribute from './annotation-attribute';
 import { deleteNode, addAttribute } from './utils/annotation-button-events';
 import AnnotationHelper from '../env/helpers/annotation-helper';
 import AutoSuggestHtml from './utils/autosuggest-html';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import PopoutButton from './popout-button';
 
 /**

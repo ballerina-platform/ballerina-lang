@@ -21,7 +21,7 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 import SwaggerParser from './../../swagger-parser/swagger-parser';
 import { getSwaggerDefinition } from '../../api-client/api-client';

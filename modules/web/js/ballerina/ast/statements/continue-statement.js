@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class to represent an Continue statement.
@@ -70,9 +71,9 @@ class ContinueStatement extends Statement {
         if (node === undefined) {
             return false;
         }
-        if (this.getFactory().isBallerinaAstRoot(node)) {
+        if (ASTFactory.isBallerinaAstRoot(node)) {
             return false;
-        } else if (this.getFactory().isWhileStatement(node)) {
+        } else if (ASTFactory.isWhileStatement(node)) {
             return true;
         } else {
             return this.iterateOverParent(node.getParent());

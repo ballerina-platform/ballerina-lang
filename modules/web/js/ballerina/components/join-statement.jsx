@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './utils';
-import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import './join-statement.css';
 import JoinStatementAST from './../ast/statements/join-statement';
 
@@ -54,7 +54,7 @@ class JoinStatement extends React.Component {
      */
     addTimeout() {
         const parent = this.props.model.parent;
-        const newTimeoutStatement = BallerinaASTFactory.createTimeoutStatement();
+        const newTimeoutStatement = ASTFactory.createTimeoutStatement();
         parent.addChild(newTimeoutStatement);
     }
 

@@ -20,6 +20,7 @@ import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import SourceGenUtil from './source-gen-util';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Annotation Definition source generation
@@ -51,7 +52,7 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         annotationDefinition.setLineNumber(lineNumber, { doSilently: true });
 
         let constructedSourceSegment = '';
-        annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotationAttachment).forEach(
+        annotationDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

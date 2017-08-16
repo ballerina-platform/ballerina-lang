@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import ASTNode from './node';
 import FragmentUtils from '../utils/fragment-utils';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for VariableReferenceList
@@ -78,7 +79,7 @@ class VariableReferenceList extends ASTNode {
     initFromJson(jsonNode) {
         if (!_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childJsonNode) => {
-                const child = this.getFactory().createFromJson(childJsonNode);
+                const child = ASTFactory.createFromJson(childJsonNode);
                 child.initFromJson(childJsonNode);
                 this.addChild(child, undefined, true, true);
             });

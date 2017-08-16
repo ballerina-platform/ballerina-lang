@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import BallerinaASTFactory from '../ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 
 /**
  * Class to represent an Transform statement.
@@ -84,19 +84,19 @@ class TransformStatement extends Statement {
      */
     initFromJson(jsonNode) {
         _.each(jsonNode.transform_input, (childNode) => {
-            const inputVar = this.getFactory().createFromJson(childNode);
+            const inputVar = ASTFactory.createFromJson(childNode);
             inputVar.initFromJson(childNode);
             this.input.push(inputVar);
         });
 
         _.each(jsonNode.transform_output, (childNode) => {
-            const outputVar = this.getFactory().createFromJson(childNode);
+            const outputVar = ASTFactory.createFromJson(childNode);
             outputVar.initFromJson(childNode);
             this.output.push(outputVar);
         });
 
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });
@@ -141,19 +141,19 @@ class TransformStatement extends Statement {
       });
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
-           if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+           if(ASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
                _.forEach(child.getRightExpression().children, (expChild, index) => {
-                 if ((BallerinaASTFactory.isFieldBasedVarRefExpression(expChild)
+                 if ((ASTFactory.isFieldBasedVarRefExpression(expChild)
                               && expChild.getVarRoot().getVariableName()  == input.name) ||
-                     (BallerinaASTFactory.isSimpleVariableReferenceExpression(expChild)
+                     (ASTFactory.isSimpleVariableReferenceExpression(expChild)
                               && expChild.getVariableName()  == input.name)) {
                       this.getChildById(child.getID()).getRightExpression().children[index]
-                                                                    = BallerinaASTFactory.createNullLiteralExpression();
+                                                                    = ASTFactory.createNullLiteralExpression();
                  }
                });
-           } else if((BallerinaASTFactory.isFieldBasedVarRefExpression (child.getRightExpression())
+           } else if((ASTFactory.isFieldBasedVarRefExpression (child.getRightExpression())
                           && child.getRightExpression().getVarRoot().getVariableName() == input.name)||
-                        (BallerinaASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
+                        (ASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
                                                 && child.getRightExpression().getVariableName() == input.name)){
              this.removeChild(child, true, true);
            }
@@ -178,7 +178,7 @@ class TransformStatement extends Statement {
       });
 
       _.forEach(_.cloneDeep(this.getChildren()), (child) => {
-          if(BallerinaASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+          if(ASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
             if (child.getLeftExpression().children[0].getVarRoot().getVariableName()  == output.name) {
                 this.getChildById(child.getID()).getLeftExpression()
                           .removeChild(this.getChildById(child.getID()).getLeftExpression().children[0]);

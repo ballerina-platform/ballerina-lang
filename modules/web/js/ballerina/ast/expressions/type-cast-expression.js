@@ -19,6 +19,7 @@ import _ from 'lodash';
 import Expression from './expression';
 import log from 'log';
 import FragmentUtils from '../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 class TypeCastExpression extends Expression {
     constructor(args) {
@@ -46,13 +47,13 @@ class TypeCastExpression extends Expression {
 
     initFromJson(jsonNode) {
         this.children = [];
-        const targetType = this.getFactory().createFromJson(jsonNode.target_type);
+        const targetType = ASTFactory.createFromJson(jsonNode.target_type);
         this._isArray = jsonNode.is_array_type;
         this._dimensions = jsonNode.dimensions;
         targetType.initFromJson(jsonNode.target_type);
         this.setTargetType(targetType, { doSilently: true });
         _.each(jsonNode.children, (childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             child.initFromJson(childNode);
             this.addChild(child, undefined, true, true);
         });

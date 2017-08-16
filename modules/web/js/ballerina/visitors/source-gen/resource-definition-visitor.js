@@ -22,6 +22,7 @@ import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source generation visitor for Resource definition
@@ -53,7 +54,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         }
         let constructedSourceSegment = '';
         const annotationAttachments = resourceDefinition.getChildrenOfType(
-                                        resourceDefinition.getFactory().isAnnotationAttachment);
+                                        ASTFactory.isAnnotationAttachment);
         annotationAttachments.forEach(
             (annotationAttachment, index) => {
                 let annotationAttachmentVisitor;

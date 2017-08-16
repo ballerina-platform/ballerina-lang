@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import ASTNode from './node';
 import log from 'log';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Annotation Attribute Definition for defining an attribute definition
@@ -100,12 +101,12 @@ class AnnotationAttributeDefinition extends ASTNode {
         this.setAttributeName(jsonNode.annotation_attribute_name, { doSilently: true });
         this.setAttributeType(jsonNode.annotation_attribute_type, { doSilently: true });
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
         if (this.getChildren().length > 0) {
-            if (this.getFactory().isExpression(this.getChildren()[0])) {
+            if (ASTFactory.isExpression(this.getChildren()[0])) {
                 this.setAttributeValue(this.getChildren()[0].getExpressionString(), { doSilently: true });
             }
         }

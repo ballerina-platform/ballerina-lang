@@ -23,6 +23,7 @@ import TagController from './utils/tag-component';
 import { getComponentForNodeArray } from './utils';
 import FragmentUtils from './../utils/fragment-utils';
 import ReturnParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
+import ASTFactory from '../ast/ast-factory.js';
 
 /**
  * Component class for ReturnParameterDefinitionHolder.
@@ -65,7 +66,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
 
             if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
                 if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                    const parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
+                    const parameterDefinition = ASTFactory.createParameterDefinition(parsedJson);
                     parameterDefinition.initFromJson(parsedJson);
                     if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
                         this.props.model.addChild(parameterDefinition);

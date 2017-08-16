@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Expression from './expression';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for BasicLiteralExpression
@@ -37,7 +38,7 @@ class LambdaExpression extends Expression {
         this.getChildren().length = 0;
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

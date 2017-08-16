@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Class for try-catch statement in ballerina.
@@ -72,19 +73,19 @@ class TryCatchStatement extends Statement {
         const catchBlocks = jsonNode.catch_blocks;
         const finallyBlockNode = jsonNode.finally_block;
 
-        this._tryStatement = self.getFactory().createFromJson(tryBlockNode);
+        this._tryStatement = ASTFactory.createFromJson(tryBlockNode);
         this.addChild(this._tryStatement);
         this._tryStatement.initFromJson(tryBlockNode);
 
         _.each(catchBlocks, (catchBlock) => {
-            const catchNode = self.getFactory().createFromJson(catchBlock);
+            const catchNode = ASTFactory.createFromJson(catchBlock);
             this.getCatchStatements().push(catchNode);
             this.addChild(catchNode);
             catchNode.initFromJson(catchBlock);
         });
 
         if (!_.isNil(finallyBlockNode)) {
-            this._finallyStatement = self.getFactory().createFromJson(finallyBlockNode);
+            this._finallyStatement = ASTFactory.createFromJson(finallyBlockNode);
             this._finallyStatement.initFromJson(finallyBlockNode);
             this.addChild(this._finallyStatement);
         }
@@ -135,7 +136,7 @@ class TryCatchStatement extends Statement {
      */
     getCatchStatements() {
         return _.filter(this.getChildren(), (child) => {
-            return this.getFactory().isCatchStatement(child);
+            return ASTFactory.isCatchStatement(child);
         });
     }
 
@@ -145,7 +146,7 @@ class TryCatchStatement extends Statement {
      */
     getFinallyStatement() {
         const finallyStatements = _.filter(this.getChildren(), (child) => {
-            return this.getFactory().isFinallyStatement(child);
+            return ASTFactory.isFinallyStatement(child);
         });
 
         return (finallyStatements.length > 0) ? finallyStatements[0] : undefined;

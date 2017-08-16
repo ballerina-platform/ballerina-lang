@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import BValueVisitor from './b-value-visitor';
 
 /**
@@ -60,8 +60,7 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
     visitAnnotationAttributeValue(annotationAttributeValue) {
         // override default visit mechanism to keep track of no of children
         // this is needed for adding comma logic
-        const attributeValues = annotationAttributeValue.getChildrenOfType(annotationAttributeValue
-                                    .getFactory().isAnnotationAttributeValue);
+        const attributeValues = annotationAttributeValue.getChildrenOfType(ASTFactory.isAnnotationAttributeValue);
         if (_.isArray(attributeValues)) {
             attributeValues.forEach((attributeVal, index) => {
                 if (index !== 0) {

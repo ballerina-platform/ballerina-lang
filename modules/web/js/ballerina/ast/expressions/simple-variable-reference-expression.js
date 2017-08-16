@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from '../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for SimpleVariableReferenceExpression
@@ -98,7 +99,7 @@ class SimpleVariableReferenceExpression extends Expression {
         this.getChildren().length = 0;
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
