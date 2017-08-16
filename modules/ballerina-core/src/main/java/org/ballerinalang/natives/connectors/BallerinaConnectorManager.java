@@ -60,9 +60,7 @@ public class BallerinaConnectorManager {
     private ConnectorManager connectorManager = new ConnectorManager();
 
     private static BallerinaConnectorManager instance = new BallerinaConnectorManager();
-
     private boolean connectorsInitialized = false;
-
     private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
     private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
             startupDelayedHTTPServerConnectors = new HashMap<>();
