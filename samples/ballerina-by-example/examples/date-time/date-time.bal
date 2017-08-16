@@ -59,14 +59,15 @@ function main (string[] args) {
                    + milliSecond);
     //Add a given duration to the time. Here we are adding
     //one year, one month and one second to the current time
-    time:Time timeStructAdd = time:addDuration(currentTime, 1, 1, 0, 0, 0, 1, 0);
-    system:println("After add duration:" + time:toString(timeStructAdd));
+    time:Time tmAdd = time:addDuration(currentTime, 1, 1, 0, 0, 0, 1, 0);
+    system:println("After add duration:" + time:toString(tmAdd));
     //Subtract a given duration from the time. Here we are subtracting one year,
     //one month and one second from the current time.
-    time:Time timeStructSub = time:subtractDuration(currentTime, 1, 1, 0, 0, 0, 1, 0);
-    system:println("After subtract duration:" + time:toString(timeStructSub));
+    time:Time tmSub = time:subtractDuration(currentTime, 1, 1, 0, 0, 0, 1, 0);
+    system:println("After subtract duration:" + time:toString(tmSub));
     //Convert
-    time:Time t1 = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+    time:Time t1 = time:createTime(2017, 3, 28, 23, 42, 45, 554,
+                                                            "America/Panama");
     system:println("Before convert zone:" + time:toString(t1));
     time:Time t2 = time:toTimezone(t1, "Asia/Colombo");
     system:println("After convert zone:" + time:toString(t2));

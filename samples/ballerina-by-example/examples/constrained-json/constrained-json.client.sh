@@ -9,4 +9,8 @@ $ curl -H "Content-Type: application/json" -X POST -d '{"name": "John Bernes Gri
 
 // To view all persons
 $ curl http://localhost:9090/people/
-[{"name":"Ann Frank","age":30,"city":"London"},{"name":"Tim Yank","age":20,"city":"New York"},{"name":"John Grisham","age":25,"city":"Brisbane"},{"name":"Sarah Paulin","age":10,"city":"Chicago"},{"name":"Trevor Noah","age":45,"city":"Cape Town"}]
+[{"name":"Ann Frank","age":30,"city":"London"},
+{"name":"Tim Yank","age":20,"city":"New York"},
+{"name":"John Grisham","age":25,"city":"Brisbane"},
+{"name":"Sarah Paulin","age":10,"city":"Chicago"},
+{"name":"Trevor Noah","age":45,"city":"Cape Town"}]
