@@ -64,6 +64,7 @@ public class TypeLattice {
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
         TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex typeV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.TYPE_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex nullV = new TypeVertex(BTypes.typeNull);
@@ -83,6 +84,7 @@ public class TypeLattice {
         implicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
         implicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
         implicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
+        implicitCastLattice.addEdge(typeV, anyV, SAFE, InstructionCodes.NOP);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -92,6 +94,7 @@ public class TypeLattice {
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
         TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex typeV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.TYPE_TNAME)));
         TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
@@ -106,6 +109,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(stringV, false);
         explicitCastLattice.addVertex(booleanV, false);
         explicitCastLattice.addVertex(blobV, false);
+        explicitCastLattice.addVertex(typeV, false);
         explicitCastLattice.addVertex(xmlV, false);
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
@@ -126,6 +130,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
 
         explicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
+        explicitCastLattice.addEdge(typeV, anyV, SAFE, InstructionCodes.NOP);
 
         explicitCastLattice.addEdge(connectorV, anyV, SAFE, InstructionCodes.NOP);
 
@@ -141,6 +146,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, mapV, UNSAFE, InstructionCodes.ANY2MAP);
         explicitCastLattice.addEdge(anyV, messageV, UNSAFE, InstructionCodes.ANY2MSG);
         explicitCastLattice.addEdge(anyV, datatableV, UNSAFE, InstructionCodes.ANY2DT);
+        explicitCastLattice.addEdge(anyV, typeV, UNSAFE, InstructionCodes.ANY2TYPE);
 
         explicitCastLattice.addEdge(jsonV, anyV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, messageV, SAFE, InstructionCodes.ANY2MSG);

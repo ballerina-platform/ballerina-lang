@@ -91,8 +91,11 @@ public abstract class BType implements BLangSymbol {
 
             // If both package paths are null or both package paths are not null,
             //    then check their names. If not return false
-            return (this.pkgPath == null && other.getPackagePath() == null ||
-                    this.pkgPath != null && other.getPackagePath() != null) && namesEqual;
+            if (this.pkgPath == null && other.getPackagePath() == null) {
+                return namesEqual;
+            } else if (this.pkgPath != null && other.getPackagePath() != null) {
+                return this.pkgPath.equals(other.getPackagePath()) && namesEqual;
+            }
         }
         return false;
     }

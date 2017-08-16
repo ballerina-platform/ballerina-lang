@@ -530,22 +530,22 @@ public class ArrayTest {
     public void testArrayToString() {
         String[] strArray = { "aaa", "bbb", "ccc" };
         BStringArray bStringArray = new BStringArray(strArray);
-        Assert.assertEquals(bStringArray.stringValue(), "[\"aaa\",\"bbb\",\"ccc\"]");
+        Assert.assertEquals(bStringArray.stringValue(), "[\"aaa\", \"bbb\", \"ccc\"]");
 
         long[] longArray = { 6, 3, 8, 4 };
         BIntArray bIntArray = new BIntArray(longArray);
-        Assert.assertEquals(bIntArray.stringValue(), "[6,3,8,4]");
+        Assert.assertEquals(bIntArray.stringValue(), "[6, 3, 8, 4]");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
         BFloatArray bFloatArray = new BFloatArray(doubleArray);
-        Assert.assertEquals(bFloatArray.stringValue(), "[6.4,3.7,8.8,7.4]");
+        Assert.assertEquals(bFloatArray.stringValue(), "[6.4, 3.7, 8.8, 7.4]");
 
         int[] boolArray = { 1, 1, 0 };
         BBooleanArray bBooleanArray = new BBooleanArray(boolArray);
-        Assert.assertEquals(bBooleanArray.stringValue(), "[true,true,false]");
+        Assert.assertEquals(bBooleanArray.stringValue(), "[true, true, false]");
 
         BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
         BRefValueArray bXmlArray = new BRefValueArray(xmlArray);
-        Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>,<bar>hello</bar>]");
+        Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>, <bar>hello</bar>]");
     }
 }

@@ -73,6 +73,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private int tempStackFrameSize;
     private int accessibleStackFrameSize;
 
+    // Key -  workerDataChannelName
+    private Map<String, WorkerDataChannel> workerDataChannelMap = new HashMap<>();
+
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -247,12 +250,12 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     @Override
     public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-        //todo implement when there can be workers inside workers.
+        workerDataChannelMap.put(workerDataChannel.getChannelName(), workerDataChannel);
     }
 
     @Override
     public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return null;
+        return workerDataChannelMap;
     }
 
     @Override

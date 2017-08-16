@@ -24,7 +24,11 @@ import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.namespace.QName;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link BXMLItem}s in Ballerina.
@@ -186,10 +190,12 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public BXML<?> elements(BString qname) {
         BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        String qnameStr = getQname(qname).toString();
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem item = (BXMLItem) sequence.get(i);
-            if (item.getNodeType() == XMLNodeType.ELEMENT && item.getElementName().equals(qname)) {
+            if (item.getNodeType() == XMLNodeType.ELEMENT
+                    && item.getElementName().stringValue().equals(qnameStr)) {
                 elementsSeq.add(j++, item);
             }
         }
@@ -224,21 +230,18 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public BXML<?> children(BString qname) {
         BRefValueArray elementsSeq = new BRefValueArray();
+        QName name = getQname(qname);
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
 
-            Iterator<OMNode> childrenItr = ((OMElement) element.value()).getChildren();
+            Iterator<OMNode> childrenItr = ((OMElement) element.value()).getChildrenWithName(name);
             int j = 0;
             while (childrenItr.hasNext()) {
                 OMNode child = childrenItr.next();
-                // Add to the seq only if the name matches
-                if (child.getType() == OMNode.ELEMENT_NODE &&
-                    ((OMElement) child).getQName().toString().equals(qname.stringValue())) {
-                    elementsSeq.add(j++, new BXMLItem(child));
-                }
+                elementsSeq.add(j++, new BXMLItem(child));
             }
         }
         return new BXMLSequence(elementsSeq);
@@ -308,6 +311,28 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         
         return new BXMLSequence(elementsSeq);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BXML<?> descendants(BString qname) {
+        List<BXML<?>> descendants = new ArrayList<BXML<?>>();
+        for (int i = 0; i < sequence.size(); i++) {
+            BXMLItem element = (BXMLItem) sequence.get(i);
+            switch (element.getNodeType()) {
+                case ELEMENT:
+                    addDescendants(descendants, (OMElement) element.value(), getQname(qname).toString());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()])));
+    }
+
+    // Methods from Datasource impl
 
     /**
      * {@inheritDoc}

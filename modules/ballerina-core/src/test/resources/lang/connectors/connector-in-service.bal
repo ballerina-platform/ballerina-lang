@@ -9,29 +9,29 @@ connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
 
-    action action1(TestConnector testConnector) (boolean){
+    action action1() (boolean){
         return action2Invoked;
     }
 
-    action action2(TestConnector testConnector) {
+    action action2() {
         action2Invoked = true;
     }
 
-    action action3(TestConnector testConnector) (string) {
+    action action3() (string) {
         return param1;
     }
 
-    action action4(TestConnector testConnector, string actionParam) (string, string, int) {
+    action action4(string actionParam) (string, string, int) {
         return actionParam, param2, param3;
     }
 
-    action action5(TestConnector testConnector, string actionParam) (string) {
+    action action5(string actionParam) (string) {
         string s;
         s = EchoConnector.echoAction(echoConnector, actionParam);
         return s;
     }
 
-    action action6(TestConnector testConnector, string echoConnectorParam, string actionParam) (string) {
+    action action6(string echoConnectorParam, string actionParam) (string) {
         EchoConnector localEchoConnector = create EchoConnector(echoConnectorParam);
         string s;
 
@@ -42,7 +42,7 @@ connector TestConnector(string param1, string param2, int param3) {
 
 connector EchoConnector(string greeting) {
 
-    action echoAction(EchoConnector echoConnector, string name) (string) {
+    action echoAction(string name) (string) {
         return greeting + ", " + name;
     }
 
@@ -59,7 +59,7 @@ service actionInvokeService {
 
         string actionResponse;
 
-        actionResponse = TestConnector.action3(testConnector);
+        actionResponse = testConnector.action3();
         message response = {};
         messages:setStringPayload(response, actionResponse);
         reply response;
@@ -72,7 +72,7 @@ service actionInvokeService {
 
         boolean actionResponse;
 
-        actionResponse = TestConnector.action1(testConnector);
+        actionResponse = testConnector.action1();
         message response = {};
         messages:setStringPayload(response, strings:valueOf(actionResponse));
         reply response;
@@ -83,7 +83,7 @@ service actionInvokeService {
     @Path {value:"/action2"}
     resource action2Resource (message m) {
 
-        TestConnector.action2(testConnector);
+        testConnector.action2();
         reply m;
     }
 
@@ -93,7 +93,7 @@ service actionInvokeService {
 
         string actionResponse;
 
-        actionResponse = TestConnector.action5(testConnector, myConst);
+        actionResponse = testConnector.action5(myConst);
         message response = {};
         messages:setStringPayload(response, actionResponse);
         reply response;
@@ -105,7 +105,7 @@ service actionInvokeService {
 
         string actionResponse;
 
-        actionResponse = TestConnector.action6(testConnector, "Hello", "World");
+        actionResponse = testConnector.action6("Hello", "World");
         message response = {};
         messages:setStringPayload(response, actionResponse);
         reply response;

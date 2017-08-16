@@ -122,6 +122,28 @@ public class ServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), "hello");
     }
 
+    @Test(description = "Test accessing service level variable in resource")
+    public void testGetServiceLevelString() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "sample value");
+    }
+
+    @Test(description = "Test using constant as annotation attribute value")
+    public void testConstantValueAsAnnAttributeVal() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "constant path test");
+    }
+
     @Test
     public void testGetStringAfterSetString() {
         CarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");

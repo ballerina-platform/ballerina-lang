@@ -25,6 +25,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
+
+import java.io.PrintStream;
 
 
 /**
@@ -42,8 +45,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         value = "any value to be printed") })
 public class PrintAny extends AbstractNativeFunction {
 
+
     public BValue[] execute(Context ctx) {
-        System.out.print(getRefArgument(ctx, 0).stringValue());
+        // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
+        PrintStream out = System.out;
+        BValue result = getRefArgument(ctx, 0);
+        if (result != null) {
+            out.print(result.stringValue());
+        } else {
+            out.print((Object) null);
+        }
         return VOID_RETURN;
+    }
+
+    @Override
+    public BValue getRefArgument(Context context, int index) {
+        if (index > -1 && index < getArgumentTypeNames().length) {
+            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
     }
 }

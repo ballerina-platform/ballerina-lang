@@ -15,19 +15,19 @@ public class MethodTable implements ConstantPool {
 
     protected Map<Integer, Integer> methodTableIndices = new HashMap<>();
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
-    private static MethodTable instance;
-
-
-    public static MethodTable getInstance() {
-        if (instance == null) {
-            instance = new MethodTable();
-        }
-        return instance;
-    }
-
-    private MethodTable() {
-
-    }
+//    private MethodTable instance;
+//
+//
+//    public static MethodTable getInstance() {
+//        if (instance == null) {
+//            instance = new MethodTable();
+//        }
+//        return instance;
+//    }
+//
+//    private MethodTable() {
+//
+//    }
 
     @Override
     public int addCPEntry(ConstantPoolEntry cpEntry) {

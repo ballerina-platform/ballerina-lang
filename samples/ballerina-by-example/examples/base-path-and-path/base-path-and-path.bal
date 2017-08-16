@@ -5,9 +5,11 @@ import ballerina.doc;
 @http:configuration {basePath:"/foo"}
 service<http> echo {
     @doc:Description {value:"Post annotation constrains the resource only to accept post requests. Similarly, for each HTTP verb there are different annotations."}
-    @http:POST {}
-    @doc:Description {value:"Path annotation associates a sub-path to resource."}
-    @http:Path {value:"/bar"}
+    @doc:Description {value:"Path attribute associates a sub-path to resource."}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/bar"
+    }
     resource echo (message m) {
         // A util method that can convert the request to a response.
         http:convertToResponse(m);

@@ -33,6 +33,18 @@ function functionsInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
+function varInTransform() (string, int, string){
+    Person p = {first_name:"John", last_name:"Doe", age:30, city:"London"};
+    Employee e = {};
+    transform {
+        e.address = p.city;
+        var temp = getPrefixedName(p.first_name);
+        e.name = temp;
+        e.age = p.age;
+    }
+    return e.name, e.age, e.address;
+}
+
 function getPrefixedName(string name)(string){
     return "Mr." + name;
 }

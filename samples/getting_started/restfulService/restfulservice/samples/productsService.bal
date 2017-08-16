@@ -8,8 +8,10 @@ import ballerina.net.http;
 service<http> productmgt {
     map productsMap = populateSampleProducts();
 
-    @http:GET{}
-    @http:Path {value:"/{id}"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/{id}"
+    }
     resource product(message m, @http:PathParam{value:"id"} string prodId) {
         json payload;
         payload, _ = (json) productsMap[prodId];
@@ -19,8 +21,10 @@ service<http> productmgt {
 
     }
 
-    @http:POST{}
-    @http:Path {value:"/"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     resource addProduct (message m) {
         json jsonReq = messages:getJsonPayload(m);
         var productId,_ = (string) jsonReq.Product.ID;
