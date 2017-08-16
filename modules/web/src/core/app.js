@@ -20,6 +20,7 @@ import _ from 'lodash';
 import 'css/preloader.css';
 import Plugin from './plugin/plugin';
 import { ACTIVATION_POLICIES, CONTRIBUTIONS } from './plugin/constants';
+import { CONTEXT_NAMESPACES } from './constants';
 
 import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
@@ -37,7 +38,6 @@ class Application {
      * @param {Object} config configuration options for the application
      */
     constructor(config) {
-        // !!! IMPORTANT !!!
         // Make config object read only.
         // This is to prevent any subsequent changes
         // to config object from plugins, etc.
@@ -70,6 +70,24 @@ class Application {
 
         // load plugins contributed via config
         this.loadOtherPlugins();
+
+        // make contexts from core plugins
+        // available via shorter namespaces
+        this.appContext[CONTEXT_NAMESPACES.COMMAND] = this.appContext
+                    .pluginContexts[this.commandManager.getID()];
+        this.appContext[CONTEXT_NAMESPACES.LAYOUT] = this.appContext
+                    .pluginContexts[this.layoutManager.getID()];
+        this.appContext[CONTEXT_NAMESPACES.MENU] = this.appContext
+                    .pluginContexts[this.menuManager.getID()];
+        this.appContext[CONTEXT_NAMESPACES.WORKSPACE] = this.appContext
+                    .pluginContexts[this.workspaceManager.getID()];
+
+        // SInce now we have loaded all the plugins
+        // Make appContext object read only.
+        // This is to prevent any subsequent changes
+        // to it from plugins, etc.
+        Object.freeze(this.appContext);
+        Object.preventExtensions(this.appContext);
     }
 
     /**
@@ -96,10 +114,6 @@ class Application {
         this.plugins.push(plugin);
         this._initPlugin(plugin);
         this._discoverContributions(plugin);
-        if (plugin.getActivationPolicy().type ===
-                     ACTIVATION_POLICIES.APP_STARTUP) {
-            plugin.activate(this.appContext);
-        }
     }
 
     /**
@@ -153,6 +167,11 @@ class Application {
      * @memberof Application
      */
     render() {
+        this.plugins.forEach((plugin) => {
+            if (plugin.getActivationPolicy() === ACTIVATION_POLICIES.APP_STARTUP) {
+                plugin.acivate(this.appContext);
+            }
+        });
         this.layoutManager.render();
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.
