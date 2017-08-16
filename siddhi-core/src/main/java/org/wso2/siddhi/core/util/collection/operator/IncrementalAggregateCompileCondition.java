@@ -59,6 +59,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private final StreamEvent resetEvent;
     private final StreamEventCloner storeEventCloner;
     private final StreamEventCloner outputEventCloner;
+    private final ExpressionExecutor timeZoneExecutor;
 
     public IncrementalAggregateCompileCondition(Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions,
         CompiledCondition inMemoryStoreCompileCondition, CompiledCondition onCompiledCondition,
@@ -83,6 +84,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.outputEventCloner = new StreamEventCloner(finalOutputMetaStreamEvent, streamEventPoolForFinalMeta);
         this.baseExecutors = baseExecutors;
         this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors);
+        this.timeZoneExecutor = baseExecutors.get(0);
     }
 
     @Override
@@ -154,21 +156,23 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
                 if (inMemoryStoreElements.get(i) instanceof BaseIncrementalValueStore) {
                     // inMemory store is baseIncrementalValueStoreList (no group by, buffer > 0)
                     baseIncrementalValueStore = (BaseIncrementalValueStore) inMemoryStoreElements.get(i);
+                    streamEvent = createStreamEvent(baseIncrementalValueStore);
                     timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
-                            baseIncrementalValueStore.getTimestamp(), perValue);
+                            baseIncrementalValueStore.getTimestamp(), perValue,
+                            timeZoneExecutor.execute(streamEvent).toString());
                     groupByKey = null;
                     // TODO: 8/11/17 add logs wherever possible
-                    streamEvent = createStreamEvent(baseIncrementalValueStore);
                     updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
                 } else { // inMemory store is baseIncrementalValueGroupByStoreList (group by, buffer > 0)
                     assert inMemoryStoreElements.get(i) instanceof Map;
                     Map inMemoryMap = (Map) inMemoryStoreElements.get(i);
                     for (Object entry : inMemoryMap.entrySet()) {
                         baseIncrementalValueStore = (BaseIncrementalValueStore) ((Map.Entry) entry).getValue();
-                        timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
-                                baseIncrementalValueStore.getTimestamp(), perValue);
-                        groupByKey = (String) ((Map.Entry) entry).getKey();
                         streamEvent = createStreamEvent(baseIncrementalValueStore);
+                        timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                                baseIncrementalValueStore.getTimestamp(), perValue,
+                                timeZoneExecutor.execute(streamEvent).toString());
+                        groupByKey = (String) ((Map.Entry) entry).getKey();
                         updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
                     }
                 }
@@ -178,19 +182,21 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             Map inMemoryMap = (Map) inMemoryStore;
             for (Object entry : inMemoryMap.entrySet()) {
                 baseIncrementalValueStore = (BaseIncrementalValueStore) ((Map.Entry) entry).getValue();
-                timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
-                        baseIncrementalValueStore.getTimestamp(), perValue);
-                groupByKey = (String) ((Map.Entry) entry).getKey();
                 streamEvent = createStreamEvent(baseIncrementalValueStore);
+                timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                        baseIncrementalValueStore.getTimestamp(), perValue,
+                        timeZoneExecutor.execute(streamEvent).toString());
+                groupByKey = (String) ((Map.Entry) entry).getKey();
                 updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
             }
         } else {
             // inMemory store is baseIncrementalValueStore (no group by, buffer == 0)
             baseIncrementalValueStore = (BaseIncrementalValueStore) inMemoryStore;
-            timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
-                    baseIncrementalValueStore.getTimestamp(), perValue);
-            groupByKey = null;
             streamEvent = createStreamEvent(baseIncrementalValueStore);
+            timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                    baseIncrementalValueStore.getTimestamp(), perValue,
+                    timeZoneExecutor.execute(streamEvent).toString());
+            groupByKey = null;
             updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
         }
     }

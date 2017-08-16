@@ -32,6 +32,8 @@ import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +45,7 @@ import java.util.Map;
 public class IncrementalExecutor implements Executor {
     private final StreamEvent resetEvent;
     private final ExpressionExecutor timestampExpressionExecutor;
+    private final ExpressionExecutor timeZoneExpressionExecutor;
     private TimePeriod.Duration duration;
     private Table table;
     private GroupByKeyGenerator groupByKeyGenerator;
@@ -75,6 +78,7 @@ public class IncrementalExecutor implements Executor {
         this.streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
+        this.timeZoneExpressionExecutor = processExpressionExecutors.get(0);
         this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors);
 
         if (groupByKeyGenerator != null) {
@@ -107,67 +111,6 @@ public class IncrementalExecutor implements Executor {
         this.scheduler = scheduler;
     }
 
-    public Object getInMemoryStore() {
-        return (baseIncrementalValueGroupByStoreList != null) ? baseIncrementalValueGroupByStoreList
-                : (baseIncrementalValueStoreMap != null) ? baseIncrementalValueStoreMap
-                        : (baseIncrementalValueStoreList != null) ? baseIncrementalValueStoreList
-                                : baseIncrementalValueStore;
-    }
-
-    public BaseIncrementalValueStore getOldestEvent() {
-        if (isGroupBy) { // TODO: 8/15/17 check if this can cause problems
-            if (baseIncrementalValueGroupByStoreList != null) {
-                int oldestEventIndex = currentBufferIndex + 1;
-                if (oldestEventIndex > bufferSize) {
-                    oldestEventIndex -= bufferSize + 1;
-                }
-                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
-                        baseIncrementalValueGroupByStoreList.get(oldestEventIndex);
-                return baseIncrementalValueGroupByStore.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
-            } else {
-                return baseIncrementalValueStoreMap.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
-            }
-        } else {
-            if (baseIncrementalValueStoreList != null) {
-                int oldestEventIndex = currentBufferIndex + 1;
-                if (oldestEventIndex > bufferSize) {
-                    oldestEventIndex -= bufferSize + 1;
-                }
-                BaseIncrementalValueStore aBaseIncrementalValueStore =
-                        baseIncrementalValueStoreList.get(oldestEventIndex);
-                return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
-            } else {
-                return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
-            }
-        }
-    }
-
-    public BaseIncrementalValueStore getNewestEvent() {
-        if (isGroupBy) {
-            if (baseIncrementalValueGroupByStoreList != null) {
-                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
-                        baseIncrementalValueGroupByStoreList.get(currentBufferIndex);
-                return baseIncrementalValueGroupByStore.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
-                // Sometimes, there could be no in-memory aggregates, for event time based execution.
-                // Hence the null return.
-            } else {
-                return baseIncrementalValueStoreMap.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
-            }
-        } else {
-            if (baseIncrementalValueStoreList != null) {
-                BaseIncrementalValueStore aBaseIncrementalValueStore =
-                        baseIncrementalValueStoreList.get(currentBufferIndex);
-                return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
-            } else {
-                return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
-            }
-        }
-    }
-
     @Override
     public void execute(ComplexEventChunk streamEventChunk) {
         streamEventChunk.reset();
@@ -175,12 +118,14 @@ public class IncrementalExecutor implements Executor {
             StreamEvent streamEvent = (StreamEvent) streamEventChunk.next();
             streamEventChunk.remove();
 
-            long timestamp = getTimestamp(streamEvent);
+            String timeZone = getTimeZone(streamEvent);
+            long timestamp = getTimestamp(streamEvent, timeZone);
             if (timestamp >= nextEmitTime) {
-                nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration);
-                startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration);
+                nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone);
+                startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration,
+                        timeZone);
                 dispatchAggregateEvents(startTimeOfAggregates, timestamp);
-                sendTimerEvent(streamEvent, timestamp);
+                sendTimerEvent(streamEvent, timestamp, timeZone);
             }
 
             if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
@@ -189,24 +134,24 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-    private void sendTimerEvent(StreamEvent streamEvent, long timestamp) {
+    private void sendTimerEvent(StreamEvent streamEvent, long timestamp, String timeZone) {
         if (streamEvent.getType() == ComplexEvent.Type.TIMER && getNextExecutor() != null) {
             StreamEvent timerEvent = streamEventPool.borrowEvent();
             timerEvent.setType(ComplexEvent.Type.TIMER);
             timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(timestamp,
-                    this.duration, this.bufferSize));
+                    this.duration, this.bufferSize, timeZone));
             ComplexEventChunk<StreamEvent> timerStreamEventChunk = new ComplexEventChunk<>(true);
             timerStreamEventChunk.add(timerEvent);
             next.execute(timerStreamEventChunk);
         }
     }
 
-    private long getTimestamp(StreamEvent streamEvent) {
+    private long getTimestamp(StreamEvent streamEvent, String timeZone) {
         long timestamp;
         if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
             timestamp = (long) timestampExpressionExecutor.execute(streamEvent);
             if (isRoot && !isProcessingOnExternalTime && !timerStarted) {
-                scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration));
+                scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone));
                 timerStarted = true;
             }
         } else {
@@ -214,10 +159,21 @@ public class IncrementalExecutor implements Executor {
             timestamp = streamEvent.getTimestamp();
             if (isRoot) {
                 // Scheduling is done by root incremental executor only
-                scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration));
+                scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone));
             }
         }
         return timestamp;
+    }
+
+    private String getTimeZone(StreamEvent streamEvent) {
+        String timeZone;
+        if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
+            timeZone = timeZoneExpressionExecutor.execute(streamEvent).toString();
+        } else {
+            // TIMER event has arrived. // TODO: 8/16/17 can this cause problems?
+            timeZone = ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getId();
+        }
+        return timeZone;
     }
 
     @Override
@@ -342,6 +298,67 @@ public class IncrementalExecutor implements Executor {
         baseIncrementalValueStore.setProcessed(false);
         for (ExpressionExecutor expressionExecutor : baseIncrementalValueStore.getExpressionExecutors()) {
             expressionExecutor.execute(resetEvent);
+        }
+    }
+
+    public Object getInMemoryStore() {
+        return (baseIncrementalValueGroupByStoreList != null) ? baseIncrementalValueGroupByStoreList
+                : (baseIncrementalValueStoreMap != null) ? baseIncrementalValueStoreMap
+                : (baseIncrementalValueStoreList != null) ? baseIncrementalValueStoreList
+                : baseIncrementalValueStore;
+    }
+
+    public BaseIncrementalValueStore getOldestEvent() {
+        if (isGroupBy) { // TODO: 8/15/17 check if this can cause problems
+            if (baseIncrementalValueGroupByStoreList != null) {
+                int oldestEventIndex = currentBufferIndex + 1;
+                if (oldestEventIndex > bufferSize) {
+                    oldestEventIndex -= bufferSize + 1;
+                }
+                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
+                        baseIncrementalValueGroupByStoreList.get(oldestEventIndex);
+                return baseIncrementalValueGroupByStore.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
+            } else {
+                return baseIncrementalValueStoreMap.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
+            }
+        } else {
+            if (baseIncrementalValueStoreList != null) {
+                int oldestEventIndex = currentBufferIndex + 1;
+                if (oldestEventIndex > bufferSize) {
+                    oldestEventIndex -= bufferSize + 1;
+                }
+                BaseIncrementalValueStore aBaseIncrementalValueStore =
+                        baseIncrementalValueStoreList.get(oldestEventIndex);
+                return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
+            } else {
+                return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
+            }
+        }
+    }
+
+    public BaseIncrementalValueStore getNewestEvent() {
+        if (isGroupBy) {
+            if (baseIncrementalValueGroupByStoreList != null) {
+                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
+                        baseIncrementalValueGroupByStoreList.get(currentBufferIndex);
+                return baseIncrementalValueGroupByStore.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
+                // Sometimes, there could be no in-memory aggregates, for event time based execution.
+                // Hence the null return.
+            } else {
+                return baseIncrementalValueStoreMap.size() != 0 ?
+                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
+            }
+        } else {
+            if (baseIncrementalValueStoreList != null) {
+                BaseIncrementalValueStore aBaseIncrementalValueStore =
+                        baseIncrementalValueStoreList.get(currentBufferIndex);
+                return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
+            } else {
+                return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
+            }
         }
     }
 }

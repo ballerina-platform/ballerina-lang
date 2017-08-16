@@ -35,9 +35,9 @@ import java.util.regex.Pattern;
  * Executor class for retrieving the timezone from a string timeStamp.
  */
 public class IncrementalTimeGetTimeZone extends FunctionExecutor {
-    private Pattern nonGmtRegexPattern = Pattern
+    private static Pattern nonGmtRegexPattern = Pattern
             .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}\\s[+-][0-9]{2}[:][0-9]{2}");
-    private Pattern gmtRegexPattern = Pattern
+    private static Pattern gmtRegexPattern = Pattern
             .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}");
 
     @Override
@@ -94,7 +94,7 @@ public class IncrementalTimeGetTimeZone extends FunctionExecutor {
         //Nothing to be done
     }
 
-    public String getTimeZone(String stringTimeStamp) {
+    public static String getTimeZone(String stringTimeStamp) {
         stringTimeStamp = stringTimeStamp.trim();
         // stringTimeStamp must be of format "2017-06-01 04:05:50 +05:00 (not GMT) or 2017-06-01 04:05:50 (if in GMT)"
         if (gmtRegexPattern.matcher(stringTimeStamp).matches()) {

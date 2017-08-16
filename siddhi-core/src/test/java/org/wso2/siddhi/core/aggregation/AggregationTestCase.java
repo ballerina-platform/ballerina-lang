@@ -377,7 +377,7 @@ public class AggregationTestCase {
 //        Thread.sleep(60000);
         Event[] events = siddhiAppRuntime.query("from test " +
                 "on symbol == \"IBM\" " +
-                "within \"2017-08-** **:**:**\" " +
+                "within \"2017-08-** **:**:** +05:30\" " +
                 "per \"seconds\"");
         EventPrinter.print(events);
         Thread.sleep(50);
@@ -511,9 +511,7 @@ public class AggregationTestCase {
                 "@info(name = 'query1') " +
                 "from barStream as b join cseEventAggregation as a " +
                 "on a.s == b.symbol " +
-//                "within \"2017-06-01 09:35:51 +05:30\" " +
-//                "per b.perValue " +
-                "within \"2017-06-** **:**:**\" " + // TODO: 8/15/17 fix for zoned time
+                "within \"2017-06-** **:**:** +05:30\" " +
                 "per \"minutes\" " +
                 "select a.s, a.avgPrice, a.total as sumPrice, a.minVol, a.maxVol, b.value, a.countPrice " +
                 "insert all events into fooBar; ";

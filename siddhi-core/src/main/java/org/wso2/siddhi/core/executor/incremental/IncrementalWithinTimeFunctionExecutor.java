@@ -171,6 +171,7 @@ public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
     private Long[] getStartTimeEndTime(String singleWithinTimeAsString) {
         long startTime;
         long endTime;
+        String timeZone;
         List<Pattern> supportedPatterns = supportedGmtNonGmtRegexPatterns.get(singleWithinTimeAsString.length());
         if (supportedPatterns == null) {
             throw new SiddhiAppRuntimeException("Incorrect format provided for within clause. "
@@ -205,12 +206,18 @@ public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
                 case 4:
                     startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(
                             singleWithinTimeAsString.replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
-                    endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.MONTHS);
+                    timeZone = IncrementalTimeGetTimeZone.getTimeZone(
+                            singleWithinTimeAsString.replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
+                    endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.MONTHS,
+                            timeZone);
                     return new Long[] { startTime, endTime };
                 case 5:
                     startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString
                             .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
-                    endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.YEARS);
+                    timeZone = IncrementalTimeGetTimeZone.getTimeZone(singleWithinTimeAsString
+                            .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
+                    endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.YEARS,
+                            timeZone);
                     return new Long[] { startTime, endTime };
                 default:
                     // Won't occur since there are only 6 TimePeriod.Durations (sec, min, hour, day, month, year)
