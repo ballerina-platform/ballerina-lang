@@ -18,7 +18,8 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.InvokableNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.List;
 import java.util.Set;
@@ -26,25 +27,24 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class BLangService extends BLangNode implements ServiceNode {
+public class BLangInvokable extends BLangNode implements InvokableNode {
     public BLangIdentifier name;
-    public BLangIdentifier protocolPkgIdentifier;
-    public List<BLangVariable> vars;
-    public List<BLangResource> resources;
+    public List<BLangVariable> params;
+    public List<BLangVariable> retParams;
+    public BLangBlockStmt body;
     public long flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-
-    public BLangService(BLangIdentifier name,
-                        BLangIdentifier protocolPkgIdentifier,
-                        List<BLangVariable> vars,
-                        List<BLangResource> resources,
-                        long flags,
-                        List<BLangAnnotationAttachment> annAttachments) {
+    public BLangInvokable(BLangIdentifier name,
+                          List<BLangVariable> params,
+                          List<BLangVariable> retParams,
+                          BLangBlockStmt body,
+                          long flags,
+                          List<BLangAnnotationAttachment> annAttachments) {
         this.name = name;
-        this.protocolPkgIdentifier = protocolPkgIdentifier;
-        this.vars = vars;
-        this.resources = resources;
+        this.params = params;
+        this.retParams = retParams;
+        this.body = body;
         this.flags = flags;
         this.annAttachments = annAttachments;
     }
@@ -55,18 +55,18 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public BLangIdentifier getProtocolPackageIdentifier() {
-        return protocolPkgIdentifier;
+    public List<BLangVariable> getParameters() {
+        return params;
     }
 
     @Override
-    public List<BLangVariable> getVariables() {
-        return vars;
+    public List<BLangVariable> getReturnParameters() {
+        return retParams;
     }
 
     @Override
-    public List<BLangResource> getResources() {
-        return resources;
+    public BLangBlockStmt getBody() {
+        return body;
     }
 
     @Override

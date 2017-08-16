@@ -15,13 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.elements;
+package org.wso2.ballerinalang.compiler.tree;
+
+import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 
 /**
  * @since 0.94
  */
-public interface Identifier {
-    String getValue();
+public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
+    public BLangIdentifier namespaceURI;
+    public BLangIdentifier prefix;
 
-    boolean isLiteral();
+    public BLangXMLNS(BLangIdentifier namespaceURI, BLangIdentifier prefix) {
+        this.namespaceURI = namespaceURI;
+        this.prefix = prefix;
+    }
+
+    @Override
+    public BLangIdentifier getNamespaceURI() {
+        return namespaceURI;
+    }
+
+    @Override
+    public BLangIdentifier getPrefix() {
+        return prefix;
+    }
 }

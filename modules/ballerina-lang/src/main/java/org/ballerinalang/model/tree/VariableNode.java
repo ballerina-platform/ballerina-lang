@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.elements.Identifier;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 
@@ -27,7 +26,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 public interface VariableNode extends AnnotatableNode {
     TypeNode getType();
 
-    Identifier getName();
+    IdentifierNode getName();
 
     ExpressionNode getInitialExpression();
 }

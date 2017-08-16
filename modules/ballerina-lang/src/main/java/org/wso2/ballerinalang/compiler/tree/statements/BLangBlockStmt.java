@@ -15,19 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.wso2.ballerinalang.compiler.tree.statements;
+
+import org.ballerinalang.model.tree.statements.BlockNode;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode {
-    IdentifierNode getName();
+public class BLangBlockStmt extends BLangStatement implements BlockNode {
+    public List<BLangStatement> statements;
 
-    IdentifierNode getProtocolPackageIdentifier();
+    public BLangBlockStmt(List<BLangStatement> statements) {
+        this.statements = statements;
+    }
 
-    List<? extends VariableNode> getVariables();
-
-    List<? extends ResourceNode> getResources();
+    @Override
+    public List<BLangStatement> getStatements() {
+        return statements;
+    }
 }

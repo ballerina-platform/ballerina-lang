@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.StructNode;
 
 import java.util.List;
 import java.util.Set;
@@ -26,25 +26,18 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class BLangService extends BLangNode implements ServiceNode {
+public class BLangStruct extends BLangNode implements StructNode {
     public BLangIdentifier name;
-    public BLangIdentifier protocolPkgIdentifier;
-    public List<BLangVariable> vars;
-    public List<BLangResource> resources;
+    public List<BLangVariable> fields;
     public long flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-
-    public BLangService(BLangIdentifier name,
-                        BLangIdentifier protocolPkgIdentifier,
-                        List<BLangVariable> vars,
-                        List<BLangResource> resources,
-                        long flags,
-                        List<BLangAnnotationAttachment> annAttachments) {
+    public BLangStruct(BLangIdentifier name,
+                       List<BLangVariable> fields,
+                       long flags,
+                       List<BLangAnnotationAttachment> annAttachments) {
         this.name = name;
-        this.protocolPkgIdentifier = protocolPkgIdentifier;
-        this.vars = vars;
-        this.resources = resources;
+        this.fields = fields;
         this.flags = flags;
         this.annAttachments = annAttachments;
     }
@@ -55,18 +48,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public BLangIdentifier getProtocolPackageIdentifier() {
-        return protocolPkgIdentifier;
-    }
-
-    @Override
-    public List<BLangVariable> getVariables() {
-        return vars;
-    }
-
-    @Override
-    public List<BLangResource> getResources() {
-        return resources;
+    public List<BLangVariable> getFields() {
+        return fields;
     }
 
     @Override

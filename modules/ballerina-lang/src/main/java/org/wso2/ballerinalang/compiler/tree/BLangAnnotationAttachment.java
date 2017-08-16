@@ -15,19 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.wso2.ballerinalang.compiler.tree;
 
-import java.util.List;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode {
-    IdentifierNode getName();
-
-    IdentifierNode getProtocolPackageIdentifier();
-
-    List<? extends VariableNode> getVariables();
-
-    List<? extends ResourceNode> getResources();
+public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 }

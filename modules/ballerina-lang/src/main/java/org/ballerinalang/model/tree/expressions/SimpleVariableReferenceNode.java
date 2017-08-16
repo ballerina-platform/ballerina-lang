@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.elements.Identifier;
+import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
  * a
  * @since 0.94
  */
 public interface SimpleVariableReferenceNode extends VariableReferenceNode {
-    Identifier getPackageIdentifier();
+    IdentifierNode getPackageIdentifier();
 
-    Identifier getVariableName();
+    IdentifierNode getVariableName();
 }

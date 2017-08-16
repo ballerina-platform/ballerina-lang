@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.model.tree.types;
 
-import org.ballerinalang.model.elements.Identifier;
+import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
  * foo:Person
  * @since 0.94
  */
 public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    Identifier getPackageIdentifier();
+    IdentifierNode getPackageIdentifier();
 
-    Identifier getTypeName();
+    IdentifierNode getTypeName();
 }

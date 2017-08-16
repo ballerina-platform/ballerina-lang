@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.elements.Identifier;
 import org.ballerinalang.model.tree.statements.BlockNode;
 
 import java.util.List;
@@ -25,8 +24,8 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface InvokableNode extends Node {
-    Identifier getName();
+public interface InvokableNode extends AnnotatableNode {
+    IdentifierNode getName();
 
     List<? extends VariableNode> getParameters();
 

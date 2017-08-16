@@ -17,17 +17,11 @@
 */
 package org.ballerinalang.model.tree;
 
-import java.util.List;
-
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode {
-    IdentifierNode getName();
+public interface IdentifierNode {
+    String getValue();
 
-    IdentifierNode getProtocolPackageIdentifier();
-
-    List<? extends VariableNode> getVariables();
-
-    List<? extends ResourceNode> getResources();
+    boolean isLiteral();
 }

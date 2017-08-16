@@ -17,15 +17,13 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.elements.Identifier;
-
 import java.util.List;
 
 /**
  * @since 0.94
  */
 public interface StructNode extends AnnotatableNode {
-    Identifier getName();
+    IdentifierNode getName();
 
     List<? extends VariableNode> getFields();
 }

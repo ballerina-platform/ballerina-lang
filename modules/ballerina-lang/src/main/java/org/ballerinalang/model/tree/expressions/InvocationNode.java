@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.elements.Identifier;
+import org.ballerinalang.model.tree.IdentifierNode;
 
 import java.util.List;
 
@@ -27,9 +27,9 @@ import java.util.List;
  * @since 0.94
  */
 public interface InvocationNode extends ExpressionNode {
-    Identifier getPackageIdentifier();
+    IdentifierNode getPackageIdentifier();
 
-    Identifier getFunctionName();
+    IdentifierNode getFunctionName();
 
     List<? extends ExpressionNode> getArgumentExpressions();
 }

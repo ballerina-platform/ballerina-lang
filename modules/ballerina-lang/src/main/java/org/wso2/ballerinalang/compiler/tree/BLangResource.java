@@ -15,19 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.wso2.ballerinalang.compiler.tree;
+
+import org.ballerinalang.model.tree.ResourceNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode {
-    IdentifierNode getName();
+public class BLangResource extends BLangInvokable implements ResourceNode {
 
-    IdentifierNode getProtocolPackageIdentifier();
-
-    List<? extends VariableNode> getVariables();
-
-    List<? extends ResourceNode> getResources();
+    public BLangResource(BLangIdentifier name,
+                         List<BLangVariable> params,
+                         List<BLangVariable> retParams,
+                         BLangBlockStmt body,
+                         long flags,
+                         List<BLangAnnotationAttachment> annAttachments) {
+        super(name, params, retParams, body, flags, annAttachments);
+    }
 }

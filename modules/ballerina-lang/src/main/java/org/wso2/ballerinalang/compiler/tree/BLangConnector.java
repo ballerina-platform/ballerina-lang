@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.ConnectorNode;
 
 import java.util.List;
 import java.util.Set;
@@ -26,25 +26,24 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class BLangService extends BLangNode implements ServiceNode {
+public class BLangConnector extends BLangNode implements ConnectorNode {
     public BLangIdentifier name;
-    public BLangIdentifier protocolPkgIdentifier;
+    public List<BLangVariable> params;
     public List<BLangVariable> vars;
-    public List<BLangResource> resources;
+    public List<BLangAction> actions;
     public long flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-
-    public BLangService(BLangIdentifier name,
-                        BLangIdentifier protocolPkgIdentifier,
-                        List<BLangVariable> vars,
-                        List<BLangResource> resources,
-                        long flags,
-                        List<BLangAnnotationAttachment> annAttachments) {
+    public BLangConnector(BLangIdentifier name,
+                          List<BLangVariable> params,
+                          List<BLangVariable> vars,
+                          List<BLangAction> actions,
+                          long flags,
+                          List<BLangAnnotationAttachment> annAttachments) {
         this.name = name;
-        this.protocolPkgIdentifier = protocolPkgIdentifier;
+        this.params = params;
         this.vars = vars;
-        this.resources = resources;
+        this.actions = actions;
         this.flags = flags;
         this.annAttachments = annAttachments;
     }
@@ -55,8 +54,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public BLangIdentifier getProtocolPackageIdentifier() {
-        return protocolPkgIdentifier;
+    public List<BLangVariable> getParameters() {
+        return params;
     }
 
     @Override
@@ -65,8 +64,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public List<BLangResource> getResources() {
-        return resources;
+    public List<BLangAction> getActions() {
+        return actions;
     }
 
     @Override

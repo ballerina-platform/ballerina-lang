@@ -20,5 +20,8 @@ package org.ballerinalang.model.elements;
 /**
  * @since 0.94
  */
-public interface Flag {
+public enum Flag {
+    PUBLIC,
+    NATIVE,
+    CONST;
 }

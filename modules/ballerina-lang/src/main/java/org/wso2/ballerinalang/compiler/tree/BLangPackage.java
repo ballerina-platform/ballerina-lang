@@ -17,15 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.Identifier;
-import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.ConnectorNode;
-import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.StructNode;
-import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 
 import java.util.List;
 
@@ -33,53 +26,86 @@ import java.util.List;
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
-    @Override
-    public List<? extends Identifier> getNameComponents() {
-        return null;
+    public List<BLangIdentifier> nameComps;
+    public BLangIdentifier version;
+    public List<BLangImportPackage> imports;
+    public List<BLangXMLNS> xmlnsList;
+    public List<BLangVariable> globalVars;
+    public List<BLangService> services;
+    public List<BLangConnector> connectors;
+    public List<BLangFunction> functions;
+    public List<BLangStruct> structs;
+    public List<BLangAnnotation> annotations;
+
+    public BLangPackage(List<BLangIdentifier> nameComps,
+                        BLangIdentifier version,
+                        List<BLangImportPackage> imports,
+                        List<BLangXMLNS> xmlnsList,
+                        List<BLangVariable> globalVars,
+                        List<BLangService> services,
+                        List<BLangConnector> connectors,
+                        List<BLangFunction> functions,
+                        List<BLangStruct> structs,
+                        List<BLangAnnotation> annotations) {
+        this.nameComps = nameComps;
+        this.version = version;
+        this.imports = imports;
+        this.xmlnsList = xmlnsList;
+        this.globalVars = globalVars;
+        this.services = services;
+        this.connectors = connectors;
+        this.functions = functions;
+        this.structs = structs;
+        this.annotations = annotations;
     }
 
     @Override
-    public Identifier getVersion() {
-        return null;
+    public List<? extends IdentifierNode> getNameComponents() {
+        return nameComps;
     }
 
     @Override
-    public List<? extends ImportPackageNode> getImports() {
-        return null;
+    public IdentifierNode getVersion() {
+        return version;
     }
 
     @Override
-    public List<? extends XMLNSDeclarationNode> getNamespaceDeclarations() {
-        return null;
+    public List<BLangImportPackage> getImports() {
+        return imports;
     }
 
     @Override
-    public List<? extends VariableNode> getGlobalVariables() {
-        return null;
+    public List<BLangXMLNS> getNamespaceDeclarations() {
+        return xmlnsList;
+    }
+
+    @Override
+    public List<BLangVariable> getGlobalVariables() {
+        return globalVars;
     }
 
     @Override
     public List<BLangService> getServices() {
-        return null;
+        return services;
     }
 
     @Override
-    public List<? extends ConnectorNode> getConnectors() {
-        return null;
+    public List<BLangConnector> getConnectors() {
+        return connectors;
     }
 
     @Override
-    public List<? extends FunctionNode> getFunctions() {
-        return null;
+    public List<BLangFunction> getFunctions() {
+        return functions;
     }
 
     @Override
-    public List<? extends StructNode> getStructs() {
-        return null;
+    public List<BLangStruct> getStructs() {
+        return structs;
     }
 
     @Override
-    public List<? extends AnnotationNode> getAnnotations() {
-        return null;
+    public List<BLangAnnotation> getAnnotations() {
+        return annotations;
     }
 }

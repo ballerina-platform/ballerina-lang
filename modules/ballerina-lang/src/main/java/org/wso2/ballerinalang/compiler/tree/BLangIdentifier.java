@@ -15,19 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.wso2.ballerinalang.compiler.tree;
 
-import java.util.List;
+import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode {
-    IdentifierNode getName();
+public class BLangIdentifier extends BLangNode implements IdentifierNode {
+    public String value;
+    public boolean isLiteral;
 
-    IdentifierNode getProtocolPackageIdentifier();
+    public BLangIdentifier(String value, boolean isLiteral) {
+        this.value = value;
+        this.isLiteral = isLiteral;
+    }
 
-    List<? extends VariableNode> getVariables();
+    @Override
+    public String getValue() {
+        return value;
+    }
 
-    List<? extends ResourceNode> getResources();
+    @Override
+    public boolean isLiteral() {
+        return isLiteral;
+    }
 }
