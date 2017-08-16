@@ -39,7 +39,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMes
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
@@ -88,7 +88,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   Map<String, String> headers, ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
                                   ChannelHandlerContext ctx) throws Exception {
-        super(connectionManager, listenerConfiguration, new HTTPServerConnectorFuture());
+        super(connectionManager, listenerConfiguration, new HttpWsServerConnectorFuture());
         this.connectorFuture = connectorFuture;
         this.subProtocol = subProtocol;
         this.isSecured = isSecured;

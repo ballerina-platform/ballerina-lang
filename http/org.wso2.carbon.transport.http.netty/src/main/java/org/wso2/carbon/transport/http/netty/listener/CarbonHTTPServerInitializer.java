@@ -30,7 +30,7 @@ import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
@@ -100,7 +100,7 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         try {
 
             p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration,
-                    new HTTPServerConnectorFuture()));
+                    new HttpWsServerConnectorFuture()));
 
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);

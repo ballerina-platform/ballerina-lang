@@ -31,7 +31,7 @@ import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
 import java.net.InetSocketAddress;
@@ -128,7 +128,6 @@ public class ServerConnectorBootstrap {
     public ServerConnector getServerConnector(ListenerConfiguration listenerConfiguration) {
         HTTPServerConnector httpServerConnector = new HTTPServerConnector(listenerConfiguration.getId(), this,
                 listenerConfiguration.getHost(), listenerConfiguration.getPort());
-        httpServerChannelInitializer.setServerConnectorFuture(httpServerConnector.getServerConnectorFuture());
         return httpServerConnector;
     }
 
@@ -184,7 +183,6 @@ public class ServerConnectorBootstrap {
 
         public HTTPServerConnector(String id, ServerConnectorBootstrap serverConnectorBootstrap,
                 String host, int port) {
-            serverConnectorFuture = new HTTPServerConnectorFuture();
             this.serverConnectorBootstrap = serverConnectorBootstrap;
             this.host = host;
             this.port = port;
@@ -194,6 +192,8 @@ public class ServerConnectorBootstrap {
         @Override
         public ServerConnectorFuture start() {
             channelFuture = serverConnectorBootstrap.bindInterface(this);
+            serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
+            httpServerChannelInitializer.setServerConnectorFuture(serverConnectorFuture);
             return getServerConnectorFuture();
         }
 

@@ -115,15 +115,14 @@ public class TestUtil {
                     config);
             ServerConnectorFuture serverConnectorFuture = serverConnector.start();
             serverConnectorFuture.setHTTPConnectorListener(httpConnectorListener);
+            try {
+                serverConnectorFuture.sync();
+            } catch (InterruptedException e) {
+                log.error("Thread Interrupted while sleeping ", e);
+            }
             futures.add(serverConnectorFuture);
             connectors.add(serverConnector);
         });
-
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
 
         return connectors;
     }

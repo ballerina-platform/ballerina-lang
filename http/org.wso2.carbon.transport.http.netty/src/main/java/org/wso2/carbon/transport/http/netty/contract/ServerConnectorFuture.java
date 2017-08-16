@@ -99,4 +99,9 @@ public interface ServerConnectorFuture {
      * @throws ServerConnectorException if any error occurred during the notification.
      */
     void notifyWSListener(Throwable throwable) throws ServerConnectorException;
+
+    /**
+     * Waits till the port binding is completed.
+     */
+    void sync() throws InterruptedException;
 }
