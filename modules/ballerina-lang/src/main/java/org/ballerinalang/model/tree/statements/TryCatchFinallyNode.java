@@ -15,10 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree.statements;
+
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface FunctionInvocationNode extends ExpressionNode {
+public interface TryCatchFinalyNode extends StatementNode {
+    BlockNode getBody();
+
+    List<? extends CatchNode> getCatchBlocks();
+
+    BlockNode getFinallyBody();
 }

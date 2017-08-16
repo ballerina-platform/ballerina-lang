@@ -15,10 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.statements;
+
+import org.ballerinalang.model.tree.NamespaceDeclarationNode;
 
 /**
  * @since 0.94
  */
-public interface ConstantNode extends VariableNode, PackageLevelNode {
+public interface NamespaceDeclStatementNode extends StatementNode {
+    NamespaceDeclarationNode getNamespaceDeclaration();
 }

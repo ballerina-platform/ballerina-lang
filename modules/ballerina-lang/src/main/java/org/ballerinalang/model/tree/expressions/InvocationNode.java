@@ -15,10 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.expressions;
 
 /**
+ * i = foo:getName(a, b);
  * @since 0.94
  */
-public interface StructFieldNode extends VariableNode, AnnotatableNode {
+public interface FunctionInvocationNode extends ExpressionNode {
+    // package identifier
+    // function name
+    // argument expressions
 }

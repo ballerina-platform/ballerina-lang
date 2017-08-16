@@ -15,10 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.expressions;
+
+import org.ballerinalang.model.elements.Identifier;
 
 /**
  * @since 0.94
  */
-public interface NamespaceDeclStatementNode extends StatementNode {
+public interface VariableReferenceNode extends ExpressionNode {
+    Identifier getPackageIdentifier();
+
+    Identifier getVariableName();
 }

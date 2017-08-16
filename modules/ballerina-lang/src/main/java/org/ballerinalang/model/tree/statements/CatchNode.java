@@ -17,8 +17,14 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.VariableNode;
+
 /**
  * @since 0.94
  */
-public interface TryCatchFinalyNode extends StatementNode {
+public interface CatchNode extends Node {
+    VariableNode getParameter();
+
+    BlockNode getBody();
 }
