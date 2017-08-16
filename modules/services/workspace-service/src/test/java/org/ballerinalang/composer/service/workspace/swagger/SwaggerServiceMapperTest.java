@@ -17,20 +17,6 @@
 package org.ballerinalang.composer.service.workspace.swagger;
 
 import com.google.gson.JsonParser;
-import io.swagger.models.Contact;
-import io.swagger.models.Info;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.RefModel;
-import io.swagger.models.Response;
-import io.swagger.models.Scheme;
-import io.swagger.models.Swagger;
-import io.swagger.models.parameters.BodyParameter;
-import io.swagger.models.parameters.PathParameter;
-import io.swagger.models.parameters.QueryParameter;
-import io.swagger.models.properties.LongProperty;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -40,8 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test classes for swagger services.
@@ -51,120 +37,77 @@ public class SwaggerServiceMapperTest {
     
     /**
      * Data provider for swagger test cases.
+     *
      * @return List of swagger test cases.
      */
     @DataProvider(name = "SwaggerSamples")
-    public static Object[][] swaggerSamples() {
-        return new Object[][] { { "usecase-1", "Service1" },
-                                { "usecase-2", "Service1" },
-                                { "usecase-3", "Service3" },
-                                { "usecase-4", "Service4" },
-                                { "usecase-5", "Service5" } };
+    public Object[][] swaggerSamples() throws IOException {
+        String testFilesPath = "samples" + File.separator + "swagger" + File.separator + "ballerina-to-swagger" +
+                               File.separator;
+       ClassLoader classLoader = getClass().getClassLoader();
+        URL inputFolderUrl = classLoader.getResource(testFilesPath + "input" + File.separator);
+        List<String> fileNames = new ArrayList<>();
+        if (null != inputFolderUrl) {
+            File inputFolder = new File(inputFolderUrl.getFile());
+            if (null != inputFolder.listFiles()) {
+                for (File balFile : inputFolder.listFiles()) {
+                    fileNames.add(this.removeExtension(balFile.getName()));
+                }
+            }
+        }
+        
+        return fileNames.stream().map(fileName -> {
+            try {
+                URL inputBalUrl = classLoader.getResource(testFilesPath + "input" + File.separator + fileName + ".bal");
+                URL outputSwaggerUrl = classLoader.getResource(testFilesPath + "output" + File.separator + fileName +
+                                                               ".json");
+                if (null != inputBalUrl && null != outputSwaggerUrl) {
+                        String inputFileContent =
+                                FileUtils.readFileToString(new File(inputBalUrl.getFile()), Charset.defaultCharset());
+                        String outputFileContent =
+                            FileUtils.readFileToString(new File(outputSwaggerUrl.getFile()), Charset.defaultCharset());
+                    return new Object[]{inputFileContent, outputFileContent};
+                } else {
+                    return new Object[]{null, null};
+                }
+            } catch (IOException e) {
+                return new Object[]{null, null};
+            }
+        }).filter(i -> null != i[0])
+                .toArray(Object[][]::new);
     }
     
     /**
      * Execute tests converting ballerina source to swagger definitions.
-     * @param usecaseName The name of the file.
-     * @param serviceName The name of the service.
+     * @param ballerinaSource The ballerina source.
+     * @param expectedSwagger The swagger json.
      * @throws IOException When sample files cannot be read.
      */
     @Test(dataProvider = "SwaggerSamples")
-    public void testBallerinaToSwaggerConversion(String usecaseName, String serviceName) throws IOException {
-        String ballerinaSource = this.readFile("input/" + usecaseName + ".bal");
-        String generatedSwagger = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
+    public void testBallerinaToSwaggerConversion(String ballerinaSource, String expectedSwagger) throws IOException {
+        String generatedSwagger = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, null);
     
-        String expectedSwagger = readFile("output/" + usecaseName + ".json");
         Assert.assertTrue(parser.parse(generatedSwagger).equals(parser.parse(expectedSwagger)),
                 "Invalid Swagger definition generated.\nExpected: " + parser.parse(expectedSwagger).toString() +
                 "\nActual: " + parser.parse(generatedSwagger).toString());
     }
-
-
-    @Test
-    public void testSwaggerToBallerinaConversion() {
-        Swagger swaggerDefinition = new Swagger();
-        final Info info = new Info()
-                .version("1.0.0")
-                .title("Swagger Petstore");
-
-        final Contact contact = new Contact()
-                .name("Swagger API Team")
-                .email("foo@bar.baz")
-                .url("http://swagger.io");
-
-        info.setContact(contact);
-        final Map<String, Object> map = new HashMap<String, Object>();
-        map.put("name", "value");
-        info.setVendorExtension("x-test2", map);
-        info.setVendorExtension("x-test", "value");
-
-        final Swagger swagger = new Swagger()
-                .info(info)
-                .host("petstore.swagger.io")
-                .scheme(Scheme.HTTP)
-                .consumes("application/json")
-                .produces("application/json");
-
-        final Operation get = new Operation()
-                .produces("application/json")
-                .summary("finds pets in the system")
-                .description("a longer description")
-                .tag("Pet Operations")
-                .operationId("get pet by id")
-                .deprecated(true);
-
-        get.parameter(new QueryParameter()
-                              .name("tags")
-                              .description("tags to filter by")
-                              .required(false)
-                              .property(new StringProperty())
-        );
-
-        get.parameter(new PathParameter()
-                              .name("petId")
-                              .description("pet to fetch")
-                              .property(new LongProperty())
-        );
-
-        final Response response = new Response()
-                .description("pets returned")
-                .schema(new RefProperty().asDefault("Person"))
-                .example("application/json", "fun!");
-
-        final Response errorResponse = new Response()
-                .description("error response")
-                .schema(new RefProperty().asDefault("Error"));
-
-        get.response(200, response)
-                .defaultResponse(errorResponse);
-
-        final Operation post = new Operation()
-                .summary("adds a new pet")
-                .description("you can add a new pet this way")
-                .tag("Pet Operations")
-                .operationId("add pet")
-                .defaultResponse(errorResponse)
-                .parameter(new BodyParameter()
-                                   .description("the pet to add")
-                                   .schema(new RefModel().asDefault("Person")));
-
-        swagger.path("/pets", new Path().get(get).post(post));
-        //TODO get ballerina service and test it for all swagger attributes.
-        //Service ballrinaService = new SwaggerServiceMapper(swagger).getBallerinaService();
-        //TODO add complete logic to test all attributes present in swagger object
-        //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
-        //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
-
-    }
     
-    String readFile(String fileName) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL fileResource = classLoader.getResource("samples/swagger/ballerina-to-swagger/" + fileName);
-        if (null != fileResource) {
-            File file = new File(fileResource.getFile());
-            return FileUtils.readFileToString(file, Charset.defaultCharset());
+    /**
+     * Removes the extension of a file name.
+     * @param filename The name of the file.
+     * @return The file name without the extension.
+     */
+    private String removeExtension(String filename) {
+        int extensionPos = filename.lastIndexOf(".");
+        int lastUnixPos = filename.lastIndexOf("/");
+        int lastWindowsPos = filename.lastIndexOf("\\");
+        int lastSeparator = Math.max(lastUnixPos, lastWindowsPos);
+        int index = lastSeparator > extensionPos ? -1 : extensionPos;
+        
+        if (-1 == index) {
+            return filename;
         } else {
-            throw new IOException("Unable to find file:" + " samples/swagger/ballerina-to-swagger/" + fileName);
+            return filename.substring(0, index);
         }
     }
 }

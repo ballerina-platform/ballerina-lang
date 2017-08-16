@@ -17,6 +17,7 @@
  */
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor'
 
 /**
  * Source generation visitor for function invocation statement
@@ -50,12 +51,7 @@ class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
      * @param {FunctionInvocationExpression} functionInvocation - function invocation expression ASTNode
      */
     visitFuncInvocationExpression(functionInvocation) {
-        const constructedSourceSegment = functionInvocation.getExpressionString();
-        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
-
-        // Increase the total number of lines
-        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
-        this.appendSource(constructedSourceSegment);
+        functionInvocation.accept(new FunctionInvocationExpressionVisitor(this));
     }
 
     /**

@@ -40,11 +40,15 @@ class AbortedStatement extends React.Component {
     }
 
     /**
-     * Event handler for click add committed button.
+     * Event handler for click add committed and failed statement button.
      * */
     onAddCommittedClick() {
         const parent = this.props.model.parent;
-        parent.createCommittedStatement();
+        if (!parent.getCommittedStatement()) {
+            parent.createCommittedStatement();
+        } else if (!parent.getFailedStatement()) {
+            parent.createFailedStatement();
+        }
     }
 
     /**
@@ -55,7 +59,7 @@ class AbortedStatement extends React.Component {
         const model = this.props.model;
         const parent = model.parent;
         const bBox = model.viewState.bBox;
-        if (!parent.getCommittedStatement()) {
+        if (!parent.getCommittedStatement() || !parent.getFailedStatement()) {
             return (<g onClick={this.onAddCommittedClick}>
                 <rect
                     x={bBox.x + bBox.w + model.viewState.bBox.expansionW - 10}

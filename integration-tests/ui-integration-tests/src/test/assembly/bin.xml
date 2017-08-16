@@ -140,7 +140,6 @@
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>com.google.code.gson:gson</include>
-                <include>com.jayway.jsonpath:json-path</include>
                 <include>org.apache.ws.commons.axiom:axiom-api</include>
                 <include>org.apache.ws.commons.axiom:axiom-impl</include>
                 <include>jaxen:jaxen</include>

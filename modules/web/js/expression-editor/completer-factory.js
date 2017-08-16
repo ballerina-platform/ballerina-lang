@@ -218,6 +218,8 @@ class CompleterFactory {
                 const types = BallerinaEnvironment.getTypes();
                 let completions = types.map(item => ({ name: item, value: `${item} `, meta: 'type' }));
                 completions.push({ name: 'const', value: `const `, meta: 'type' });
+                completions.push({ name: 'function', caption: 'function', snippet: 'ƒ', meta: 'lambda' });
+                completions.push({ name: 'function', caption: 'lambda', snippet: 'ƒ', meta: 'lambda' });
                 const isAssignment = editor.getSession().getValue().trim().includes('=');
                 let packageName = editor.getSession().getValue().trim();
                 if (isAssignment) {

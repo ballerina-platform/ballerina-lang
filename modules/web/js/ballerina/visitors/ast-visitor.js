@@ -16,7 +16,7 @@
  * under the License.
  */
 import EventChannel from 'event_channel';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class ASTVisitor extends EventChannel {
     constructor() {
@@ -629,6 +629,13 @@ class ASTVisitor extends EventChannel {
 
     canVisitBValue(bValue) {
         return false;
+    }
+
+    canVisitVariableReferenceList() {
+        return false;
+    }
+
+    visitVariableReferenceList() {
     }
 
     beginVisitBValue(bValue) {

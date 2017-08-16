@@ -17,7 +17,7 @@
  */
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeValueVisitor from './annotation-attribute-value-visitor';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Source gen visitor for annotation attribute visitor.

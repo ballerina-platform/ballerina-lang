@@ -27,7 +27,7 @@ import ASTNode from './../ast/node';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import SuggestionsText from './suggestions-text2';
 import ImageUtil from './image-util';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
 
@@ -69,6 +69,11 @@ class StructDefinition extends React.Component {
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
         if (!bType) {
             const errorString = 'Struct Type Cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
+        if (!identifier || !identifier.length) {
+            const errorString = 'Identifier cannot be empty';
             Alerts.error(errorString);
             throw errorString;
         }
@@ -138,6 +143,9 @@ class StructDefinition extends React.Component {
      * @memberof StructDefinition
      */
     validateDefaultValue(type, value) {
+        if (!value) {
+            return;
+        }
         if (type === 'int' && /^[-]?\d+$/.test(value)) {
             return;
         } else if (type === 'float' && ((/\d*\.?\d+/.test(value) || parseFloat(value)))) {
@@ -260,7 +268,7 @@ class StructDefinition extends React.Component {
                     }}
                     editing={this.state.newIdentifierEditing}
                     onChange={ (e) => {
-                        if (this.validateIdentifierName(e.target.value)) {
+                        if (!e.target.value.length || this.validateIdentifierName(e.target.value)) {
                             this.setState({
                                 newIdentifier: e.target.value,
                             });
@@ -370,6 +378,7 @@ class StructDefinition extends React.Component {
                                         key={child.getIdentifier()}
                                         validateIdentifierName={this.validateIdentifierName}
                                         validateDefaultValue={this.validateDefaultValue}
+                                        addQuotesToString={this.addQuotesToString}
                                     />
                                 );
                             }

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import AnnotationContainer from '../components/utils/annotation-container';
 
 class AnnotationRenderingVisitor {

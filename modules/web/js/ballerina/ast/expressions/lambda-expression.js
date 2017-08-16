@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Expression from './expression';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for BasicLiteralExpression
@@ -37,10 +38,20 @@ class LambdaExpression extends Expression {
         this.getChildren().length = 0;
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
+    }
+
+    /**
+     * @param {string} statementString
+     * @param {[FunctionDefinition]} lambdaChildren
+     */
+    static replaceSymbol(statementString, lambdaChildren) {
+        let i = 0;
+        return statementString.replace(/ƒ/g,
+            () => (lambdaChildren.length > i ? lambdaChildren[i++].getViewState().source : 'function(){}'));
     }
 
     setExpressionFromString(expression, callback) {
@@ -51,7 +62,7 @@ class LambdaExpression extends Expression {
     }
 
     /**
-     * 
+     *
      * @return {FunctionDefinition}
      */
     getLambdaFunction() {

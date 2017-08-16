@@ -23,6 +23,7 @@ import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Visitor for connector action
@@ -64,7 +65,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 
         let constructedSourceSegment = '';
         const annotationAttachments = connectorAction.getChildrenOfType(
-                                            connectorAction.getFactory().isAnnotationAttachment);
+                                            ASTFactory.isAnnotationAttachment);
         annotationAttachments.forEach(
             (annotationAttachment, index) => {
                 let annotationAttachmentVisitor;

@@ -24,7 +24,7 @@ import { getComponentForNodeArray } from './utils';
 import ConnectorActivationContainer from './connector-activation-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import StatementDecorator from './statement-decorator';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import ImageUtil from './image-util';
 import { util } from './../visitors/sizing-utils';
 
@@ -101,8 +101,8 @@ class ConnectorDeclaration extends React.Component {
         let connectorInitializeStartY;
         let renderStatementBox = false;
 
-        if (!(BallerinaASTFactory.isConnectorDefinition(model.getParent())
-            || BallerinaASTFactory.isServiceDefinition(model.getParent()))) {
+        if (!(ASTFactory.isConnectorDefinition(model.getParent())
+            || ASTFactory.isServiceDefinition(model.getParent()))) {
             connectorInitializeStartY = model.viewState.components.statementViewState.bBox.y +
             ((model.getViewState().components.statementViewState.bBox.h
             + model.getViewState().components.statementViewState.components['drop-zone'].h) / 2);

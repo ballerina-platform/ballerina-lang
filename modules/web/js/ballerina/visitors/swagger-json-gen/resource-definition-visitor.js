@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * The {@link ResourceDefinition} visitor for generating its JSON swagger.
@@ -52,7 +53,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         const httpMethodJson = _.get(pathJson, httpMethodValue);
 
         // Creating annotations
-        let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
+        let existingAnnotations = resourceDefinition.getChildrenOfType(ASTFactory.isAnnotation);
         // Removing http:Path and http:<Method> annotations
         existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation =>
                     (!(!_.isUndefined(httpMethodAnnotation) &&
@@ -267,7 +268,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
             for (const [index, param] of resourceDefinition.getArguments().entries()) {
                 if (index > 0 && param.getChildren().length > 0 && param.getChildren()[0].getChildren().length > 0 &&
-                        resourceDefinition.getFactory().isAnnotationEntry(param.getChildren()[0].getChildren()[0])) {
+                        ASTFactory.isAnnotationEntry(param.getChildren()[0].getChildren()[0])) {
                     let paramAlreadyExists = false;
                     for (const existingParameter of parametersArray) {
                         // Check if parameter already exists.
@@ -282,7 +283,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                     if (!paramAlreadyExists) {
                         // Setting values by the type of the parameter.
                         const annotation = param.getChildren()[0];
-                        if (resourceDefinition.getFactory().isAnnotationAttachment(annotation)) {
+                        if (ASTFactory.isAnnotationAttachment(annotation)) {
                             const tempParameterObj = {};
                             const annotationValue = annotation.getChildren()[0].getRightValue();
 

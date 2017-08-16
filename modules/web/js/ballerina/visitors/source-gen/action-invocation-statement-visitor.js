@@ -17,7 +17,7 @@
  */
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import FunctionDefinitionVisitor from './function-definition-visitor';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 /**
  * Source generation for action invocation statement
@@ -60,24 +60,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         actionInvocationExpr.setLineNumber(lineNumber, { doSilently: true });
 
-        let argsString = '';
         const args = actionInvocationExpr.getArguments();
-
-        for (let itr = 0; itr < args.length; itr++) {
-            // TODO: we need to refactor actionInvocationExpr along with the action invocation argument types as well
-            if (ASTFactory.isExpression(args[itr])) {
-                argsString += args[itr].getExpressionString();
-            } else if (ASTFactory.isResourceParameter(args[itr])) {
-                argsString += args[itr].getParameterAsString();
-            }
-
-            if (itr !== args.length - 1) {
-                argsString += ', ';
-            }
-        }
-
-        let connectorRef = '';
-        const connectorExpression = actionInvocationExpr.getConnectorExpression();
 
         let constructedSourceSegment = '';
         if (!_.isUndefined(actionInvocationExpr.getActionPackageName()) &&
@@ -94,38 +77,23 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
             + '(' + actionInvocationExpr.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
 
-
-        // Get the Connector expression reference name
-        if (!_.isNil(actionInvocationExpr.getConnector())) {
-            const connector = actionInvocationExpr.getConnector();
-            if (ASTFactory.isAssignmentStatement(connector)) {
-                const variableReferenceList = [];
-
-                _.forEach(connector.getChildren()[0].getChildren(), (child) => {
-                    variableReferenceList.push(child.getExpressionString());
-                });
-                connectorRef = _.join(variableReferenceList, ', ');
-            } else {
-                connectorRef = actionInvocationExpr.getConnector().getConnectorVariable();
-            }
-        } else if (!_.isNil(connectorExpression)) {
-            if (ASTFactory.isLambdaExpression(connectorExpression)) {
-                const lambdaFn = connectorExpression.getLambdaFunction();
+        for (let itr = 0; itr < args.length; itr++) {
+            // TODO: we need to refactor actionInvocationExpr along with the action invocation argument types as well
+            if (ASTFactory.isLambdaExpression(args[itr])) {
+                const lambdaFn = args[itr].getLambdaFunction();
                 lambdaFn.accept(new FunctionDefinitionVisitor(this));
-            } else {
-                connectorRef = connectorExpression.getExpressionString();
+            } else if (ASTFactory.isResourceParameter(args[itr])) {
+                this.appendSource(args[itr].getParameterAsString());
+            } else if (ASTFactory.isExpression(args[itr])) {
+                this.appendSource(args[itr].getExpressionString());
+            }
+            if (itr !== args.length - 1) {
+                this.appendSource(', ');
             }
         }
 
-        // Append the connector reference expression name to the arguments string
-        if (!_.isEmpty(argsString)) {
-            argsString = connectorRef + ', ' + argsString;
-        } else {
-            argsString = connectorRef;
-        }
-        constructedSourceSegment = argsString + ')' + actionInvocationExpr.getWSRegion(5);
+        constructedSourceSegment = ')' + actionInvocationExpr.getWSRegion(5);
         this.appendSource(constructedSourceSegment);
-
     }
 
     endVisitActionInvocationExpression(expression) {

@@ -45,7 +45,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
             ArrayList<CompletionItem> completionItems = actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null), dataModel);
 
             prioritiesMap.put(ItemResolverConstants.FUNCTION_TYPE, ItemResolverConstants.PRIORITY_7);
             prioritiesMap.put(ItemResolverConstants.ACTION_TYPE, ItemResolverConstants.PRIORITY_6);

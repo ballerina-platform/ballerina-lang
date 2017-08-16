@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import { getComponentForNodeArray } from './utils';
 import AnnotationContainerUtil from '../components/utils/annotation-container';

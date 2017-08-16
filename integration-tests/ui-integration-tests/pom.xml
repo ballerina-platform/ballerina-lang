@@ -45,10 +45,6 @@
             <artifactId>gson</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>
@@ -391,6 +387,7 @@
                                 <argument>test</argument>
                                 <argument>skipTests=${maven.test.skip}</argument>
                             </arguments>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
                     <!--<execution>-->

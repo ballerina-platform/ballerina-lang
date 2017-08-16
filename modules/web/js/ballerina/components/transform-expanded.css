@@ -1,9 +1,11 @@
 .left-content {
     float: left;
+    height: calc(100% - 100px);
 }
 
 .right-content {
     float: right;
+    height: calc(100% - 100px);
 }
 
 .left-content, .right-content {

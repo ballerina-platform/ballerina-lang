@@ -19,7 +19,7 @@
 import React from 'react';
 import Tree from './tree.jsx';
 import './function.css';
-import BallerinaASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 export default class FunctionInv extends React.Component {
     render() {
@@ -27,10 +27,11 @@ export default class FunctionInv extends React.Component {
             func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
             parentFunc, funcInv,
         } = this.props;
-        const params = func.getParameters().map((paramObj) => {
+        const params = func.getParameters().map((paramObj, index) => {
             const param = paramObj.typeDef || paramObj;
             const paramDetails = {
                 name: paramObj.name,
+                index,
                 type: param.type,
                 typeName: param.typeName,
                 properties: param.properties,
@@ -47,7 +48,7 @@ export default class FunctionInv extends React.Component {
         const returns = func.getReturnParams().map((returnsObj, index) => {
             return {
                 name: returnsObj.name,
-                id: returnsObj.name || index,
+                index,
                 type: returnsObj.typeName || returnsObj.type,
                 paramName: `${funcInv.getID()}:${func.getName()}`,
                 enclosingAssignmentStatement,
@@ -60,14 +61,18 @@ export default class FunctionInv extends React.Component {
             // add children function invocations to the transform model so that only this function invocation
             // is removed from the view
             funcInv.getChildren().forEach(childFuncInv => {
-                if(!BallerinaASTFactory.isFunctionInvocationExpression(childFuncInv)){
+                if(!ASTFactory.isFunctionInvocationExpression(childFuncInv)){
                     return;
                 }
 
-                const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-                const varRefList = BallerinaASTFactory.createVariableReferenceList();
+                const assignmentStmt = ASTFactory.createAssignmentStatement();
+                const varRefList = ASTFactory.createVariableReferenceList();
+                const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
+                simpleVarRefExpression.setExpressionFromString('_temp');
+                varRefList.addChild(simpleVarRefExpression);
                 assignmentStmt.addChild(varRefList, 0);
                 assignmentStmt.addChild(childFuncInv, 1);
+                assignmentStmt.setIsDeclaredWithVar(true);
                 const transformModel = enclosingAssignmentStatement.getParent();
                 transformModel.addChild(assignmentStmt,
                     transformModel.getIndexOfChild(enclosingAssignmentStatement), true);

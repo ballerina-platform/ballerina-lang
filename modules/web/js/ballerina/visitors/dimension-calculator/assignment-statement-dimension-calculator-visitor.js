@@ -20,7 +20,7 @@ import { util } from './../sizing-utils';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Dimension visitor class for assignment statement.
@@ -54,17 +54,14 @@ class AssignmentStatementDimensionCalculatorVisitor {
      * @memberOf AssignmentStatementDimensionCalculatorVisitor
      * */
     visit(node) {
-        const child = node.getRightExpression();
-        if (ASTFactory.isActionInvocationExpression(child) &&
-            ASTFactory.isLambdaExpression(child.getConnectorExpression())) {
-            child.getConnectorExpression().getLambdaFunction().accept(new DimensionCalculatorVisitor());
-        }
+        // TODO: this visit can be removed making all lambdas children of the node.
+        node.getLambdaChildren().forEach(f => f.accept(new DimensionCalculatorVisitor()));
     }
 
     /**
      * visit the visitor at the end.
      *
-     * @param {ASTNode} node - Assignment statement node.
+     * @param {AssignmentStatement} node - Assignment statement node.
      *
      * @memberOf AssignmentStatementDimensionCalculatorVisitor
      * */
@@ -72,18 +69,14 @@ class AssignmentStatementDimensionCalculatorVisitor {
         const viewState = node.getViewState();
         util.populateSimpleStatementBBox(node.getStatementString(), viewState);
         const child = node.getRightExpression();
-        if (node.getFactory().isConnectorInitExpression(child)) {
+        if (ASTFactory.isConnectorInitExpression(child)) {
             AssignmentStatementDimensionCalculatorVisitor.calculateConnectorDeclarationDimension(node);
         }
-        if (ASTFactory.isActionInvocationExpression(child)) {
-            const connectorExpression = child.getConnectorExpression();
-            if (ASTFactory.isLambdaExpression(connectorExpression)) {
-                const lambdaFn = connectorExpression.getLambdaFunction();
-                const funcViewState = lambdaFn.getViewState();
-                viewState.bBox.h += funcViewState.bBox.h;
-                viewState.bBox.w = funcViewState.bBox.w;
-            }
-        }
+        node.getLambdaChildren().forEach((f) => {
+            const funcViewState = f.getViewState();
+            viewState.bBox.h += funcViewState.bBox.h;
+            viewState.bBox.w = Math.max(funcViewState.bBox.w, viewState.bBox.w);
+        });
     }
 
     /**

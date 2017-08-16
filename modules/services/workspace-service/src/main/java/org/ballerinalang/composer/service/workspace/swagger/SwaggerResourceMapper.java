@@ -17,10 +17,15 @@
 package org.ballerinalang.composer.service.workspace.swagger;
 
 import io.swagger.models.ExternalDocs;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
+import io.swagger.models.RefModel;
 import io.swagger.models.Response;
 import io.swagger.models.Scheme;
+import io.swagger.models.Swagger;
+import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
@@ -37,10 +42,13 @@ import org.ballerinalang.services.dispatchers.http.Constants;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -48,31 +56,18 @@ import javax.ws.rs.core.MediaType;
  */
 public class SwaggerResourceMapper {
 
-    private Resource resource;
     private static final String SWAGGER_PACKAGE_PATH = "ballerina.net.http.swagger";
     private static final String SWAGGER_PACKAGE = "swagger";
     private static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
     private static final String HTTP_PACKAGE = "http";
-
-    /**
-     * Get Ballerina Resource object associated with current resource
-     *
-     * @return Ballerina Resource object associated with current resource
-     */
-    public Resource getResource() {
-        return resource;
+    private static final String X_MULTI_OPERATIONS = "x-MULTI";
+    private static final String X_HTTP_METHODS = "x-METHODS";
+    
+    private final Swagger swaggerDefinition;
+    
+    SwaggerResourceMapper(Swagger swagger) {
+        this.swaggerDefinition = swagger;
     }
-
-
-    /**
-     * Set Ballerina Resource object associated with current resource
-     *
-     * @param resource Ballerina Resource object associated with current resource
-     */
-    public void setResource(Resource resource) {
-        this.resource = resource;
-    }
-
 
     /**
      * This method will convert ballerina resource to swagger path objects.
@@ -81,54 +76,105 @@ public class SwaggerResourceMapper {
      * @return map of string and swagger path objects.
      */
     protected Map<String, Path> convertResourceToPath(Resource[] resources) {
-        Map<String, Path> map = new HashMap<>();
-        for (Resource subResource : resources) {
-            OperationAdaptor operationAdaptor = this.convertResourceToOperation(subResource);
-            Path path = map.get(operationAdaptor.getPath());
-            //TODO this check need to be improve to avoid repetition checks and http head support need to add.
-            if (path == null) {
-                path = new Path();
-                map.put(operationAdaptor.getPath(), path);
-            }
-            String httpOperation = operationAdaptor.getHttpOperation();
-            Operation operation = operationAdaptor.getOperation();
-            switch (httpOperation) {
-                case Constants.ANNOTATION_METHOD_GET:
-                    path.get(operation);
-                    break;
-                case Constants.ANNOTATION_METHOD_PUT:
-                    path.put(operation);
-                    break;
-                case Constants.ANNOTATION_METHOD_POST:
-                    path.post(operation);
-                    break;
-                case Constants.ANNOTATION_METHOD_DELETE:
-                    path.delete(operation);
-                    break;
-                case Constants.ANNOTATION_METHOD_OPTIONS:
-                    path.options(operation);
-                    break;
-                case Constants.ANNOTATION_METHOD_PATCH:
-                    path.patch(operation);
-                    break;
-                case "HEAD":
-                    path.head(operation);
-                    break;
-                default:
-                    break;
+        Map<String, Path> pathMap = new HashMap<>();
+        for (Resource resource : resources) {
+            if (this.getHttpMethods(resource).size() > 1) {
+                useMultiResourceMapper(pathMap, resource);
+            } else {
+                useDefaultResourceMapper(pathMap, resource);
             }
         }
-        return map;
+        return pathMap;
     }
-
-
+    
+    /**
+     * Resource mapper when a resource has more than 1 http method.
+     * @param pathMap The map with paths that should be updated.
+     * @param resource The ballerina resource.
+     */
+    private void useMultiResourceMapper(Map<String, Path> pathMap, Resource resource) {
+        Set<String> httpMethods = this.getHttpMethods(resource);
+        String path = this.getPath(resource);
+        Operation operation = null;
+        boolean hasGetOnly = true;
+        for (String httpMethod : httpMethods) {
+            if (!httpMethod.equalsIgnoreCase("get")) {
+                hasGetOnly = false;
+                break;
+            }
+        }
+        
+        if (hasGetOnly) {
+            operation = this.convertResourceToOperation(resource, null).getOperation();
+        } else {
+            for (String httpMethod : httpMethods) {
+                if (!httpMethod.equalsIgnoreCase("get")) {
+                    operation = this.convertResourceToOperation(resource,
+                            httpMethod.toLowerCase(Locale.getDefault())).getOperation();
+                    break;
+                }
+            }
+        }
+    
+        if (operation != null) {
+            operation.setVendorExtension(X_HTTP_METHODS, httpMethods);
+        }
+    
+        Path pathObject = new Path();
+        pathObject.setVendorExtension(X_MULTI_OPERATIONS, operation);
+        pathMap.put(path, pathObject);
+    }
+    
+    /**
+     * Resource mapper when a resource has only one http method.
+     * @param pathMap The map with paths that should be updated.
+     * @param resource The ballerina resource.
+     */
+    private void useDefaultResourceMapper(Map<String, Path> pathMap, Resource resource) {
+        OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, null);
+        Path path = pathMap.get(operationAdaptor.getPath());
+        //TODO this check need to be improve to avoid repetition checks and http head support need to add.
+        if (path == null) {
+            path = new Path();
+            pathMap.put(operationAdaptor.getPath(), path);
+        }
+        String httpOperation = operationAdaptor.getHttpOperation();
+        Operation operation = operationAdaptor.getOperation();
+        switch (httpOperation) {
+            case Constants.ANNOTATION_METHOD_GET:
+                path.get(operation);
+                break;
+            case Constants.ANNOTATION_METHOD_PUT:
+                path.put(operation);
+                break;
+            case Constants.ANNOTATION_METHOD_POST:
+                path.post(operation);
+                break;
+            case Constants.ANNOTATION_METHOD_DELETE:
+                path.delete(operation);
+                break;
+            case Constants.ANNOTATION_METHOD_OPTIONS:
+                path.options(operation);
+                break;
+            case Constants.ANNOTATION_METHOD_PATCH:
+                path.patch(operation);
+                break;
+            case "HEAD":
+                path.head(operation);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    
     /**
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor
      *
      * @param resource Resource array to be convert.
      * @return @OperationAdaptor of string and swagger path objects.
      */
-    private OperationAdaptor convertResourceToOperation(Resource resource) {
+    private OperationAdaptor convertResourceToOperation(Resource resource, String httpMethod) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
             // Setting default values.
@@ -142,19 +188,70 @@ public class SwaggerResourceMapper {
             op.getOperation().setParameters(null);
     
             // Parsing annotations.
-            this.parsePathAnnotationAttachment(resource, op);
-            this.parseHttpMethodAnnotationAttachment(resource, op);
+            this.parseHttpResourceConfig(resource, op);
+            if (null != httpMethod) {
+                op.setHttpOperation(httpMethod);
+            }
+            
             this.parseResourceConfigAnnotationAttachment(resource, op.getOperation());
-            this.parseConsumesAnnotationAttachment(resource, op.getOperation());
-            this.parseProducesAnnotationAttachment(resource, op.getOperation());
             this.parseResourceInfoAnnotationAttachment(resource, op.getOperation());
-            this.addResourceParameters(resource, op.getOperation());
+            this.addResourceParameters(resource, op);
             this.parseParametersInfoAnnotationAttachment(resource, op.getOperation());
             this.parseResponsesAnnotationAttachment(resource, op.getOperation());
             
         }
         return op;
 
+    }
+    
+    /**
+     * Parses the 'http:resourceConfig' annotation attachment and build swagger operation.
+     * @param resource The ballerina resource definition.
+     * @param operationAdaptor The operation adaptor..
+     */
+    private void parseHttpResourceConfig(Resource resource, OperationAdaptor operationAdaptor) {
+        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
+                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getName()))
+                .findFirst();
+        if (responsesAnnotationAttachment.isPresent()) {
+            Map<String, AnnotationAttributeValue> resourceConfigAnnotationAttributes =
+                    responsesAnnotationAttachment.get().getAttributeNameValuePairs();
+            if (null != resourceConfigAnnotationAttributes.get("methods") &&
+                resourceConfigAnnotationAttributes.get("methods").getValueArray().length > 0) {
+                AnnotationAttributeValue[] methodsValues =
+                        resourceConfigAnnotationAttributes.get("methods").getValueArray();
+                // Since there is only one http method.
+                operationAdaptor.setHttpOperation(methodsValues[0].getLiteralValue().stringValue());
+            }
+            
+            if (null != resourceConfigAnnotationAttributes.get("path")) {
+                operationAdaptor.setPath((resourceConfigAnnotationAttributes.get("path")
+                                                  .getLiteralValue().stringValue()));
+            }
+            
+            if (null != resourceConfigAnnotationAttributes.get("produces") &&
+                resourceConfigAnnotationAttributes.get("produces").getValueArray().length > 0) {
+                List<String> produces = new LinkedList<>();
+                AnnotationAttributeValue[] producesValues =
+                        resourceConfigAnnotationAttributes.get("produces").getValueArray();
+                for (AnnotationAttributeValue consumesValue : producesValues) {
+                    produces.add(consumesValue.getLiteralValue().stringValue());
+                }
+                operationAdaptor.getOperation().setProduces(produces);
+            }
+            
+            if (null != resourceConfigAnnotationAttributes.get("consumes") &&
+                resourceConfigAnnotationAttributes.get("consumes").getValueArray().length > 0) {
+                List<String> consumes = new LinkedList<>();
+                AnnotationAttributeValue[] consumesValues =
+                        resourceConfigAnnotationAttributes.get("consumes").getValueArray();
+                for (AnnotationAttributeValue consumesValue : consumesValues) {
+                    consumes.add(consumesValue.getLiteralValue().stringValue());
+                }
+                
+                operationAdaptor.getOperation().setConsumes(consumes);
+            }
+        }
     }
     
     /**
@@ -237,9 +334,29 @@ public class SwaggerResourceMapper {
     /**
      * Creates parameters in the swagger operation using the parameters in the ballerina resource definition.
      * @param resource The ballerina resource definition.
-     * @param op The swagger operation.
+     * @param operationAdaptor The swagger operation.
      */
-    private void addResourceParameters(Resource resource, Operation op) {
+    private void addResourceParameters(Resource resource, OperationAdaptor operationAdaptor) {
+        if (!"get".equalsIgnoreCase(operationAdaptor.getHttpOperation())) {
+        
+            // Creating message body - required.
+            ModelImpl messageModel = new ModelImpl();
+            messageModel.setType("object");
+            Map<String, Model> definitions = new HashMap<>();
+            if (!definitions.containsKey("Message")) {
+                definitions.put("Message", messageModel);
+                this.swaggerDefinition.setDefinitions(definitions);
+            }
+        
+            // Creating "Message m" parameter
+            BodyParameter messageParameter = new BodyParameter();
+            messageParameter.setName(resource.getParameterDefs()[0].getName());
+            RefModel refModel = new RefModel();
+            refModel.setReference("Message");
+            messageParameter.setSchema(refModel);
+            operationAdaptor.getOperation().addParameter(messageParameter);
+        }
+        
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
             String typeName = parameterDef.getTypeName().getName();
             if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations() != null) {
@@ -267,9 +384,7 @@ public class SwaggerResourceMapper {
                         queryParameter.setType(typeName);
                     }
                     // Note: 'format' to be added using annotations, hence skipped here.
-                    queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterName);
-
-                    op.addParameter(queryParameter);
+                    operationAdaptor.getOperation().addParameter(queryParameter);
                 }
                 if (this.checkIfHttpAnnotation(parameterAnnotation) &&
                                                         parameterAnnotation.getName().equalsIgnoreCase("PathParam")) {
@@ -291,8 +406,7 @@ public class SwaggerResourceMapper {
                         pathParameter.setType(typeName);
                     }
                     // Note: 'format' to be added using annotations, hence skipped here.
-                    pathParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterName);
-                    op.addParameter(pathParameter);
+                    operationAdaptor.getOperation().addParameter(pathParameter);
                 }
             }
         }
@@ -398,89 +512,6 @@ public class SwaggerResourceMapper {
     }
     
     /**
-     * Parses the produces annotation attachments and updates the swagger operation.
-     * @param resource The ballerina resource definition.
-     * @param operation The swagger operation.
-     */
-    private void parseProducesAnnotationAttachment(Resource resource, Operation operation) {
-        Optional<AnnotationAttachment> producesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "Produces".equals(a.getName()))
-                .findFirst();
-        if (producesAnnotationAttachment.isPresent()) {
-            List<String> produces = new LinkedList<>();
-            AnnotationAttributeValue[] producesValues = producesAnnotationAttachment.get().getAttributeNameValuePairs()
-                    .get("value").getValueArray();
-            for (AnnotationAttributeValue consumesValue : producesValues) {
-                produces.add(consumesValue.getLiteralValue().stringValue());
-            }
-    
-            operation.setProduces(produces);
-        }
-    }
-    
-    /**
-     * Parses the consumes annotation attachments and updates the swagger operation.
-     * @param resource The ballerina resource definition.
-     * @param operation The swagger operation.
-     */
-    private void parseConsumesAnnotationAttachment(Resource resource, Operation operation) {
-        Optional<AnnotationAttachment> consumesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "Consumes".equals(a.getName()))
-                .findFirst();
-        if (consumesAnnotationAttachment.isPresent()) {
-            List<String> consumes = new LinkedList<>();
-            AnnotationAttributeValue[] consumesValues = consumesAnnotationAttachment.get().getAttributeNameValuePairs()
-                    .get("value").getValueArray();
-            for (AnnotationAttributeValue consumesValue : consumesValues) {
-                consumes.add(consumesValue.getLiteralValue().stringValue());
-            }
-    
-            operation.setConsumes(consumes);
-        }
-    }
-    
-    /**
-     * Parses the 'ballerina.net.http@path' annotation and update the operation adaptor.
-     * @param resource The ballerina resource definition.
-     * @param operationAdaptor The operation adaptor.
-     */
-    private void parsePathAnnotationAttachment(Resource resource, OperationAdaptor operationAdaptor) {
-        Optional<AnnotationAttachment> pathAnnotation = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "Path".equals(a.getName()))
-                .findFirst();
-    
-        if (pathAnnotation.isPresent()) {
-            if (null != pathAnnotation.get().getAttributeNameValuePairs().get("value")) {
-                operationAdaptor.setPath((pathAnnotation.get().getAttributeNameValuePairs().get("value")
-                        .getLiteralValue().stringValue()));
-            }
-        }
-    }
-    
-    /**
-     * Parse the http method and update the operation adaptor.
-     * @param resource The ballerina resource definition.
-     * @param operationAdaptor The operation adaptor which stored the http method.
-     */
-    private void parseHttpMethodAnnotationAttachment(Resource resource, OperationAdaptor operationAdaptor) {
-        Arrays.stream(resource.getAnnotations())
-                .filter(this::checkIfHttpAnnotation)
-                .forEach(annotationAttachment -> {
-                    if (Constants.HTTP_METHOD_GET.equals(annotationAttachment.getName())) {
-                        operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_GET);
-                    } else if (Constants.HTTP_METHOD_POST.equals(annotationAttachment.getName())) {
-                        operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_POST);
-                    } else if (Constants.HTTP_METHOD_PUT.equals(annotationAttachment.getName())) {
-                        operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_PUT);
-                    } else if (Constants.HTTP_METHOD_DELETE.equals(annotationAttachment.getName())) {
-                        operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_DELETE);
-                    } else if (Constants.HTTP_METHOD_HEAD.equals(annotationAttachment.getName())) {
-                        operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_HEAD);
-                    }
-                });
-    }
-    
-    /**
      * Parse 'ResourceConfig' annotation attachment and build a resource operation.
      * @param resource The ballerina resource definition.
      * @param operation The swagger operation.
@@ -524,5 +555,56 @@ public class SwaggerResourceMapper {
     private boolean checkIfHttpAnnotation(AnnotationAttachment annotationAttachment) {
         return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
                HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
+    }
+    
+    /**
+     * Gets the http methods of a resource.
+     * @param resource The ballerina resource.
+     * @return A list of http methods.
+     */
+    private Set<String> getHttpMethods(Resource resource) {
+        Set<String> httpMethods = new LinkedHashSet<>();
+        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
+                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getName()))
+                .findFirst();
+        if (responsesAnnotationAttachment.isPresent()) {
+            Map<String, AnnotationAttributeValue> resourceConfigAnnotationAttributes =
+                    responsesAnnotationAttachment.get().getAttributeNameValuePairs();
+            if (null != resourceConfigAnnotationAttributes.get("methods") &&
+                                        resourceConfigAnnotationAttributes.get("methods").getValueArray().length > 0) {
+                AnnotationAttributeValue[] methodsValues =
+                                                    resourceConfigAnnotationAttributes.get("methods").getValueArray();
+                for (AnnotationAttributeValue methodsValue : methodsValues) {
+                    httpMethods.add(methodsValue.getLiteralValue().stringValue());
+                }
+            }
+        }
+        
+        if (httpMethods.isEmpty()) {
+            // By default get is supported.
+            httpMethods.add("GET");
+        }
+        return httpMethods;
+    }
+    
+    /**
+     * Gets the path value of the @http:resourceConfig.
+     * @param resource The ballerina resource.
+     * @return The path value.
+     */
+    private String getPath(Resource resource) {
+        String path = "/" + resource.getName();
+        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
+                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getName()))
+                .findFirst();
+        if (responsesAnnotationAttachment.isPresent()) {
+            Map<String, AnnotationAttributeValue> resourceConfigAnnotationAttributes =
+                    responsesAnnotationAttachment.get().getAttributeNameValuePairs();
+            if (null != resourceConfigAnnotationAttributes.get("path")) {
+                path = resourceConfigAnnotationAttributes.get("path").getLiteralValue().stringValue();
+            }
+        }
+        
+        return path;
     }
 }

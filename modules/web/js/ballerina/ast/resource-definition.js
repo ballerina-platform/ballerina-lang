@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './ast-factory';
 
 /**
  * Constructor for ResourceDefinition
@@ -34,7 +34,6 @@ class ResourceDefinition extends ASTNode {
         super('ResourceDefinition');
         this._resourceName = _.get(args, 'resourceName');
 
-        this.BallerinaASTFactory = this.getFactory();
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
@@ -59,7 +58,7 @@ class ResourceDefinition extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isVariableDefinitionStatement(child)) {
+            if (ASTFactory.isVariableDefinitionStatement(child)) {
                 variableDefinitionStatements.push(child);
             }
         });
@@ -71,7 +70,7 @@ class ResourceDefinition extends ASTNode {
      * @return {ASTNode[]} namespace declaration statements
      * */
     getNamespaceDeclarationStatements() {
-        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+        return this.filterChildren(ASTFactory.isNamespaceDeclarationStatement).slice(0);
     }
 
     getArguments() {
@@ -89,14 +88,14 @@ class ResourceDefinition extends ASTNode {
         const self = this;
         // Get the index of the last variable declaration.
         let index = _.findLastIndex(this.getChildren(), (child) => {
-            return self.getFactory().isVariableDeclaration(child);
+            return ASTFactory.isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index === -1) {
             index = _.findLastIndex(this.getChildren(), (child) => {
-                return self.getFactory().isConnectorDeclaration(child);
+                return ASTFactory.isConnectorDeclaration(child);
             });
         }
 
@@ -110,7 +109,7 @@ class ResourceDefinition extends ASTNode {
         const self = this;
         // Removing the variable from the children.
         const variableDeclarationChild = _.find(this.getChildren(), (child) => {
-            return self.getFactory().isVariableDeclaration(child)
+            return ASTFactory.isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
@@ -155,7 +154,7 @@ class ResourceDefinition extends ASTNode {
             throw errorString;
         } else {
             // Creating resource parameter
-            const newParameter = this.getFactory().createResourceParameter();
+            const newParameter = ASTFactory.createResourceParameter();
             newParameter.setAnnotationType(annotationType);
             newParameter.setAnnotationText(annotationText);
             newParameter.setType(parameterType);
@@ -165,7 +164,7 @@ class ResourceDefinition extends ASTNode {
 
             // Get the index of the last resource parameter declaration.
             const index = _.findLastIndex(this.getChildren(), (child) => {
-                return self.getFactory().isResourceParameter(child);
+                return ASTFactory.isResourceParameter(child);
             });
 
             this.addChild(newParameter, index + 1);
@@ -180,7 +179,7 @@ class ResourceDefinition extends ASTNode {
         const self = this;
         // Deleting the variable from the children.
         const resourceParameter = _.find(this.getChildren(), (child) => {
-            return self.getFactory().isResourceParameter(child) && child.id === modelID;
+            return ASTFactory.isResourceParameter(child) && child.id === modelID;
         });
 
         this.removeChild(resourceParameter);
@@ -199,7 +198,7 @@ class ResourceDefinition extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConnectorDeclaration(child)) {
+            if (ASTFactory.isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
         });
@@ -213,7 +212,7 @@ class ResourceDefinition extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
         });
@@ -223,9 +222,9 @@ class ResourceDefinition extends ASTNode {
     }
 
     getArgumentParameterDefinitionHolder() {
-        let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        let argParamDefHolder = this.findChild(ASTFactory.isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
-            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            argParamDefHolder = ASTFactory.createArgumentParameterDefinitionHolder();
             this.addChild(argParamDefHolder, undefined, true);
         }
         return argParamDefHolder;
@@ -238,10 +237,10 @@ class ResourceDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.getFactory().isConnectorDeclaration(node)
-            || this.getFactory().isVariableDeclaration(node)
-            || this.getFactory().isWorkerDeclaration(node)
-            || this.getFactory().isStatement(node);
+        return ASTFactory.isConnectorDeclaration(node)
+            || ASTFactory.isVariableDeclaration(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isStatement(node);
     }
 
     /**
@@ -257,7 +256,7 @@ class ResourceDefinition extends ASTNode {
         this.setResourceName(jsonNode.resource_name, { doSilently: true });
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -269,9 +268,9 @@ class ResourceDefinition extends ASTNode {
      * @param {number|undefined} index
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        if (!BallerinaASTFactory.isWorkerDeclaration(child)) {
+        if (!ASTFactory.isWorkerDeclaration(child)) {
             const firstWorkerIndex = _.findIndex(
-                this.getChildren(), child => BallerinaASTFactory.isWorkerDeclaration(child));
+                this.getChildren(), child => ASTFactory.isWorkerDeclaration(child));
 
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
@@ -308,7 +307,7 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration} - Connector declaration with the given connector name
      */
     getConnectorByName(connectorName) {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReference = _.find(this.getChildren(), (child) => {
             let connectorVariableName;
             if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
@@ -334,7 +333,7 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration[]} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReferences = _.filter(this.getChildren(), (child) => {
             return factory.isConnectorDeclaration(child);
         });
@@ -343,87 +342,121 @@ class ResourceDefinition extends ASTNode {
     }
 
     /**
-     * Gets the @http:Path{value: '/abc'} annotation attachment AST.
-     * @param {boolean} ifNotExist - whether the path annotation exist or not
-     * @return {AnnotationAttachment|undefined} - annotation attachment
-     */
-    getPathAnnotation(ifNotExist = false) {
-        let pathAnnotation;
-        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
-            if (annotationAST.getFullPackageName().toLowerCase() === 'ballerina.net.http' &&
-                annotationAST.getPackageName().toLowerCase() === 'http' &&
-                annotationAST.getName() === 'Path') {
-                pathAnnotation = annotationAST;
-            }
-        });
-        // if path annotation is not define we will create one with default behaviour.
-        if (_.isNil(pathAnnotation) && ifNotExist) {
-            // Creating path annotation.
-            pathAnnotation = BallerinaASTFactory.createAnnotationAttachment({
-                fullPackageName: 'ballerina.net.http',
-                packageName: 'http',
-                name: 'Path',
-            });
-
-            const annotationAttributeValue = BallerinaASTFactory.createAnnotationAttributeValue();
-            annotationAttributeValue.addChild(BallerinaASTFactory.createBValue({
-                type: 'string',
-                stringValue: this.getResourceName(),
-            }));
-
-            const annotationAttribute = BallerinaASTFactory.createAnnotationAttribute({
-                key: 'value',
-            });
-            annotationAttribute.addChild(annotationAttributeValue);
-            pathAnnotation.addChild(annotationAttribute);
-            this.addChild(pathAnnotation, 1);
-        }
-
-        return pathAnnotation;
-    }
-
-    /**
-     * Gets the path value in the @http:Path annotation.
+     * Gets the path value in the @http:resourceConfig annotation.
      *
-     * @param {boolean} [ifNotExist=false] Creates if path annotation doesnt exists.
+     * @param {boolean} [ifNotExist=false] Creates if path value doesnt exists when true.
      * @returns {string} The path value.
      * @memberof ResourceDefinition
      */
     getPathAnnotationValue(ifNotExist = false) {
-        const pathAnnotationAttachment = this.getPathAnnotation(ifNotExist);
-        if (pathAnnotationAttachment) {
-            const annotationAttribute = pathAnnotationAttachment.getChildren()[0];
-            const annotationAttributeValue = annotationAttribute.getValue();
-            const bValue = annotationAttributeValue.getChildren()[0];
-            return bValue.getStringValue();
-        } else {
-            return undefined;
-        }
-    }
+        let pathValue;
+        _.forEach(this.getChildrenOfType(ASTFactory.isAnnotationAttachment), (annotationAST) => {
+            if (annotationAST.getFullPackageName() === 'ballerina.net.http' &&
+                annotationAST.getPackageName() === 'http' &&
+                annotationAST.getName() === 'resourceConfig') {
+                const resourceConfigAnnotation = annotationAST;
 
-    /**
-     * Gets the @http:GET{} annotation AST
-     * @return {Annotation|undefined} - Annotation AST model
-     */
-    getHttpMethodAnnotation() {
-        let httpMethodAnnotation;
-        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
-            if (annotationAST.isHttpMethod()) {
-                httpMethodAnnotation = annotationAST;
+                resourceConfigAnnotation.getChildren().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getKey() === 'path') {
+                        const pathAnnotationAttributeValue = annotationAttribute.getValue();
+                        if (pathAnnotationAttributeValue.getChildren() > 0) {
+                            pathValue = pathAnnotationAttributeValue[0].getStringValue();
+                        }
+                    }
+                });
             }
         });
 
         // Creating GET http method annotation.
-        if (_.isUndefined(httpMethodAnnotation)) {
-            httpMethodAnnotation = BallerinaASTFactory.createAnnotationAttachment({
+        if (pathValue === undefined && ifNotExist) {
+            const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
                 fullPackageName: 'ballerina.net.http',
                 packageName: 'http',
-                name: 'GET',
+                name: 'resourceConfig',
             });
-            this.addChild(httpMethodAnnotation, 0);
+            const pathAttribute = ASTFactory.createAnnotationAttribute({
+                key: 'path',
+            });
+
+            const pathAttributeValue = ASTFactory.createAnnotationAttributeValue();
+
+            const pathBValue = ASTFactory.createBValue({
+                stringValue: '/' + this.getResourceName(),
+            });
+
+            pathAttributeValue.addChild(pathBValue);
+            pathAttribute.addChild(pathAttributeValue);
+            resourceConfigAnnotation.addChild(pathAttribute);
+            this.addChild(resourceConfigAnnotation, 0);
+
+            pathValue = '/' + this.getResourceName();
         }
 
-        return httpMethodAnnotation;
+        return pathValue;
+    }
+
+    /**
+     * Gets the http methods for the resource.
+     * @returns {string[]} http methods.
+     * @memberof ResourceDefinition
+     */
+    getHttpMethodValues() {
+        const httpMethods = [];
+        this.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach((annotationAST) => {
+            if (annotationAST.getFullPackageName() === 'ballerina.net.http' &&
+                annotationAST.getPackageName() === 'http' &&
+                annotationAST.getName() === 'resourceConfig') {
+                const resourceConfigAnnotation = annotationAST;
+
+                resourceConfigAnnotation.getChildren().forEach((annotationAttribute) => {
+                    if (annotationAttribute.getKey() === 'methods') {
+                        const httpMethodsArray = annotationAttribute.getValue();
+                        httpMethodsArray.getChildren().forEach((httpMethod) => {
+                            httpMethods.push(httpMethod.getChildren()[0].getStringValue());
+                        });
+                    }
+                });
+            }
+        });
+
+        // Creating GET http method annotation.
+        if (httpMethods.length === 0) {
+            let resourceConfigAnnotation;
+            this.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach((annotationAST) => {
+                if (annotationAST.getFullPackageName() === 'ballerina.net.http' &&
+                    annotationAST.getPackageName() === 'http' &&
+                    annotationAST.getName() === 'resourceConfig') {
+                    resourceConfigAnnotation = annotationAST;
+                }
+            });
+            if (resourceConfigAnnotation === undefined) {
+                resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
+                    fullPackageName: 'ballerina.net.http',
+                    packageName: 'http',
+                    name: 'resourceConfig',
+                });
+            }
+            const httpMethodAttribute = ASTFactory.createAnnotationAttribute({
+                key: 'methods',
+            });
+
+            const httpMethodsAttributeValue = ASTFactory.createAnnotationAttributeValue();
+            const httpMethodsArray = ASTFactory.createAnnotationAttributeValue();
+
+            const getHttpValue = ASTFactory.createBValue({
+                stringValue: 'GET',
+            });
+
+            httpMethodsArray.addChild(getHttpValue);
+            httpMethodsAttributeValue.addChild(httpMethodsArray);
+            httpMethodAttribute.addChild(httpMethodsAttributeValue);
+            resourceConfigAnnotation.addChild(httpMethodAttribute);
+            this.addChild(resourceConfigAnnotation, 0);
+
+            httpMethods.push('GET');
+        }
+
+        return httpMethods;
     }
 }
 

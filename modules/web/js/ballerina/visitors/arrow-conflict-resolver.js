@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import SimpleBBox from './../ast/simple-bounding-box';
 
 /**
@@ -76,11 +76,6 @@ class ArrowConflictResolver {
         if (ASTFactory.isConnectorDeclaration(node)) {
             this.connectors.push(node.getIdentifire());
         }
-        // If the connector is declaired in the worker lets not mark it as an arrow.
-        if (ASTFactory.isActionInvocationStatement(node)||
-            ASTFactory.isVariableDefinitionStatement(node)) {
-            node.viewState.components['statement-box'].arrow = false;
-        }
         // if a worker is found init a new active line
         if (ASTFactory.isWorkerDeclaration(node)) {
             this.startWorker();
@@ -90,8 +85,8 @@ class ArrowConflictResolver {
         if (ASTFactory.isWorkerInvocationStatement(node) ||
             ASTFactory.isWorkerReplyStatement(node)) {
             if (_.includes(this.workerList, node.getWorkerName())) {
-               node.viewState.components['statement-box'].arrow = false;
-               node.viewState.components['statement-box'].setOpaque(false);
+                node.viewState.components['statement-box'].arrow = false;
+                node.viewState.components['statement-box'].setOpaque(false);
             }
         }
         // run conflict resolution logic.

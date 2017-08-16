@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import TryCatchStatementVisitor from './try-catch-statement-visitor';
 import TryStatementVisitor from './try-statement-visitor';
 import CatchStatementVisitor from './catch-statement-visitor';
@@ -47,6 +47,8 @@ import JoinStatementVisitor from './join-statement-visitor';
 import CommittedStatementVisitor from './committed-statement-visitor';
 import ContinueStatementVisitor from './continue-statement-visitor';
 import NamespaceDeclarationStatementVisitor from './namespace-declaration-statement-visitor';
+import FailedStatementVisitor from './failed-statement-visitor';
+import RetryStatementVisitor from './retry-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -112,6 +114,10 @@ class StatementVisitorFactor {
             return new ContinueStatementVisitor(parent);
         } else if (ASTFactory.isNamespaceDeclarationStatement(statement)) {
             return new NamespaceDeclarationStatementVisitor(parent);
+        } else if (ASTFactory.isFailedStatement(statement)) {
+            return new FailedStatementVisitor(parent);
+        } else if (ASTFactory.isRetry(statement)) {
+            return new RetryStatementVisitor(parent);
         }
 
         return undefined;

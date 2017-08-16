@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 
 /**
@@ -113,9 +113,9 @@ class WorkerInvocationStatement extends Statement {
     getStatementString() {
         let statementStr = '';
         for (let itr = 0; itr < this._expressionList.length; itr++) {
-            if (BallerinaASTFactory.isExpression(this.getExpressionList()[itr])) {
+            if (ASTFactory.isExpression(this.getExpressionList()[itr])) {
                 statementStr += this.getExpressionList()[itr].getExpressionString();
-            } else if (BallerinaASTFactory.isStatement(this.getExpressionList()[itr])) {
+            } else if (ASTFactory.isStatement(this.getExpressionList()[itr])) {
                 statementStr += this.getExpressionList()[itr].getStatementString();
             }
 
@@ -169,11 +169,11 @@ class WorkerInvocationStatement extends Statement {
      * @return {boolean} true|false.
      */
     canBeAChildOf(node) {
-        return this.getFactory().isResourceDefinition(node)
-            || this.getFactory().isFunctionDefinition(node)
-            || this.getFactory().isWorkerDeclaration(node)
-            || this.getFactory().isConnectorAction(node)
-            || this.getFactory().isStatement(node);
+        return ASTFactory.isResourceDefinition(node)
+            || ASTFactory.isFunctionDefinition(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isConnectorAction(node)
+            || ASTFactory.isStatement(node);
     }
 
     /**
@@ -187,7 +187,7 @@ class WorkerInvocationStatement extends Statement {
         this.getExpressionList().length = 0;
 
         for (let itr = 0; itr < expressionList.length; itr++) {
-            const expressionNode = BallerinaASTFactory.createFromJson(expressionList[itr].expression[0]);
+            const expressionNode = ASTFactory.createFromJson(expressionList[itr].expression[0]);
             expressionNode.initFromJson(expressionList[itr].expression[0]);
             self.addToExpressionList(expressionNode);
         }
@@ -195,7 +195,7 @@ class WorkerInvocationStatement extends Statement {
         let workerInstance;
         if (!_.isNil(this.getParent())) {
             workerInstance = _.find(this.getParent().getChildren(), (child) => {
-                return self.getFactory().isWorkerDeclaration(child)
+                return ASTFactory.isWorkerDeclaration(child)
                     && !child.isDefaultWorker() && child.getWorkerName() === workerName;
             });
         }
@@ -210,10 +210,10 @@ class WorkerInvocationStatement extends Statement {
      * @return {boolean} - whether message can be drawn to the target
      */
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isWorkerDeclaration(target)
-            || this.getFactory().isResourceDefinition(target)
-            || this.getFactory().isFunctionDefinition(target)
-            || this.getFactory().isConnectorAction(target);
+        return ASTFactory.isWorkerDeclaration(target)
+            || ASTFactory.isResourceDefinition(target)
+            || ASTFactory.isFunctionDefinition(target)
+            || ASTFactory.isConnectorAction(target);
     }
 
     /**

@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from '../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for BinaryExpression
@@ -45,13 +46,13 @@ class BinaryExpression extends Expression {
      */
     initFromJson(jsonNode) {
         if (!_.isNil(jsonNode.children[0])) {
-            const leftExpression = this.getFactory().createFromJson(jsonNode.children[0]);
+            const leftExpression = ASTFactory.createFromJson(jsonNode.children[0]);
             leftExpression.setParent(this, {doSilently: true});
             leftExpression.initFromJson(jsonNode.children[0]);
             this._leftExpression = leftExpression;
         }
         if (!_.isNil(jsonNode.children[1])) {
-            const rightExpression = this.getFactory().createFromJson(jsonNode.children[1]);
+            const rightExpression = ASTFactory.createFromJson(jsonNode.children[1]);
             rightExpression.setParent(this, {doSilently: true});
             rightExpression.initFromJson(jsonNode.children[1]);
             this._rightExpression = rightExpression;

@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import AbstractSymbolTableGenVisitor from './abstract-symbol-table-gen-visitor';
 import BallerinaEnvFactory from './../../env/ballerina-env-factory';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 
 class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
     constructor(pckg, model) {
@@ -36,9 +36,9 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             this.visit(child);
         }, this);
         this._model.on('child-removed', function (child) {
-            if (BallerinaASTFactory.isFunctionDefinition(child)) {
+            if (ASTFactory.isFunctionDefinition(child)) {
                 this.removeFunctionDefinition(child);
-            } else if (BallerinaASTFactory.isConnectorDefinition(child)) {
+            } else if (ASTFactory.isConnectorDefinition(child)) {
                 this.removeConnectorDefinition(child);
             }
         }, this);
@@ -105,7 +105,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             const attributeName = modifiedData.data.attributeName;
             const oldValue = modifiedData.data.oldValue;
             let newValue = modifiedData.data.newValue;
-            if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin)) {
+            if (ASTFactory.isFunctionDefinition(modifiedData.origin)) {
                 if (modifiedData.origin.isLambda()) {
                     return;
                 }
@@ -113,7 +113,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     newValue = undefined;
                 }
                 self.updateFunctionDefinition(modifiedData.origin, oldValue, newValue, modifiedData.data.child);
-            } else if (BallerinaASTFactory.isReturnParameterDefinitionHolder(modifiedData.origin)) {
+            } else if (ASTFactory.isReturnParameterDefinitionHolder(modifiedData.origin)) {
                 if (modifiedData.origin.parent.isLambda()) {
                     return;
                 }
@@ -166,14 +166,14 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 
         const self = this;
         connectorDefinition.on('tree-modified', (modifiedData) => {
-            if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin)) {
+            if (ASTFactory.isConnectorDefinition(modifiedData.origin)) {
                 self.updateConnectorDefinition(connector, modifiedData);
             }
         });
 
         // TODO : move this to the visit method
         _.each(connectorDefinition.getChildren(), (child) => {
-            if (BallerinaASTFactory.isConnectorAction(child)) {
+            if (ASTFactory.isConnectorAction(child)) {
                 const connectorAction = BallerinaEnvFactory.createConnectorAction();
                 connectorAction.initFromASTModel(child);
                 connector.addAction(connectorAction);
@@ -185,17 +185,17 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     const attributeName = modifiedData.data.attributeName;
                     const newValue = modifiedData.data.newValue;
                     const oldValue = modifiedData.data.oldValue;
-                    if (BallerinaASTFactory.isConnectorAction(modifiedData.origin)
+                    if (ASTFactory.isConnectorAction(modifiedData.origin)
                         && _.isEqual(attributeName, 'action_name')) {
                         self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                     }
                 });
-            } else if (BallerinaASTFactory.isResourceParameter(child)) {
+            } else if (ASTFactory.isResourceParameter(child)) {
                 connector.addParam(child);
             }
         });
         connectorDefinition.on('child-added', (child) => {
-            if (BallerinaASTFactory.isConnectorAction(child)) {
+            if (ASTFactory.isConnectorAction(child)) {
                 const connectorAction = BallerinaEnvFactory.createConnectorAction();
                 connectorAction.initFromASTModel(child);
                 connector.addAction(connectorAction);
@@ -204,7 +204,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     const attributeName = modifiedData.data.attributeName;
                     const newValue = modifiedData.data.newValue;
                     const oldValue = modifiedData.data.oldValue;
-                    if (BallerinaASTFactory.isConnectorAction(modifiedData.origin)
+                    if (ASTFactory.isConnectorAction(modifiedData.origin)
                         && _.isEqual(attributeName, 'action_name')) {
                         self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                     }
@@ -213,7 +213,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         }, this);
 
         connectorDefinition.on('child-removed', (child) => {
-            if (BallerinaASTFactory.isConnectorAction(child)) {
+            if (ASTFactory.isConnectorAction(child)) {
                 self.removeConnectorActionDefinition(connectorDefinition, child);
             }
         }, this);
@@ -226,14 +226,14 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         annotationDefinitionEnv.setAttachmentPoints(annotationDefinitionAST.getAttachmentPoints());
 
         annotationDefinitionAST.on('tree-modified', (modifiedData) => {
-            if (BallerinaASTFactory.isAnnotationDefinition(modifiedData.origin)) {
+            if (ASTFactory.isAnnotationDefinition(modifiedData.origin)) {
                 this.updateAnnotationDefinition(annotationDefinitionEnv, modifiedData);
             }
         });
 
 
         annotationDefinitionAST.getChildren().forEach((annotationAttrDefAST) => {
-            if (BallerinaASTFactory.isAnnotationAttributeDefinition(annotationAttrDefAST)) {
+            if (ASTFactory.isAnnotationAttributeDefinition(annotationAttrDefAST)) {
                 const annotationAttributeDefEnv = BallerinaEnvFactory.createAnnotationAttributeDefinition();
                 annotationAttributeDefEnv.setPackagePath(this.getPackage().getName());
                 annotationAttributeDefEnv.setIdentifier(annotationAttrDefAST.getAttributeName());
@@ -248,7 +248,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     const attributeName = modifiedData.data.attributeName;
                     const newValue = modifiedData.data.newValue;
                     const oldValue = modifiedData.data.oldValue;
-                    if (BallerinaASTFactory.isAnnotationAttributeDefinition(modifiedData.origin)) {
+                    if (ASTFactory.isAnnotationAttributeDefinition(modifiedData.origin)) {
                         this.updateAnnotationAttributeDefinition(annotationAttrDefAST.getParent().getAnnotationName(), attributeName, modifiedData.origin.getAttributeName(), oldValue, newValue);
                     }
                 });
@@ -256,7 +256,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         });
 
         annotationDefinitionAST.on('child-added', (child) => {
-            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+            if (ASTFactory.isAnnotationAttributeDefinition(child)) {
                 const annotationAttributeDefEnv = BallerinaEnvFactory.createAnnotationAttributeDefinition();
                 annotationAttributeDefEnv.setPackagePath(this.getPackage().getName());
                 annotationAttributeDefEnv.setIdentifier(child.getAttributeName());
@@ -268,7 +268,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     const attributeName = modifiedData.data.attributeName;
                     const newValue = modifiedData.data.newValue;
                     const oldValue = modifiedData.data.oldValue;
-                    if (BallerinaASTFactory.isAnnotationAttributeDefinition(modifiedData.origin)) {
+                    if (ASTFactory.isAnnotationAttributeDefinition(modifiedData.origin)) {
                         this.updateAnnotationAttributeDefinition(child.getParent().getAnnotationName(), attributeName, modifiedData.origin.getAttributeName(), oldValue, newValue);
                     }
                 });
@@ -276,7 +276,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         }, this);
 
         annotationDefinitionAST.on('child-removed', (child) => {
-            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+            if (ASTFactory.isAnnotationAttributeDefinition(child)) {
                 this.removeAnnotationAttributeDefinition(annotationDefinitionAST, child);
             }
         }, this);
@@ -367,7 +367,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             functionDef.setId(newValue);
         }
         if (child) {
-            if (BallerinaASTFactory.isReturnParameterDefinitionHolder(child)) {
+            if (ASTFactory.isReturnParameterDefinitionHolder(child)) {
                 const returnTypes = [];
                 _.forEach(functionDefinition.getReturnTypes(), (returnType) => {
                     returnTypes.push({
@@ -376,7 +376,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     });
                 });
                 functionDef.setReturnParams(returnTypes);
-            } else if (BallerinaASTFactory.createArgumentParameterDefinitionHolder(child)) {
+            } else if (ASTFactory.createArgumentParameterDefinitionHolder(child)) {
                 const args = [];
                 _.forEach(functionDefinition.getArguments(), (argument) => {
                     args.push({
@@ -397,7 +397,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
     updateConnectorDefinition(connectorDefinition, modifiedData) {
         if (modifiedData.type === 'child-added') {
             // child_added sends different format of data
-            if (BallerinaASTFactory.isArgument(modifiedData.data.child)) {
+            if (ASTFactory.isArgument(modifiedData.data.child)) {
                 connectorDefinition.addParam(modifiedData.data.child);
                 return;
             }

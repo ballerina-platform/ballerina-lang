@@ -18,6 +18,7 @@
 
 import log from 'log';
 import * as PositioningUtils from './utils';
+import PositionCalculatorVisitor from '../position-calculator-visitor';
 
 /**
  * Position visitor class for Variable Definition Statement.
@@ -55,8 +56,10 @@ class VariableDefinitionStatementPositionCalcVisitor {
      *
      * @memberOf VariableDefinitionStatementPositionCalcVisitor
      * */
-    visit() {
+    visit(node) {
         log.debug('visit VariableDefinitionStatementPositionCalc');
+        // TODO: this visit can be removed making all lambdas children of the node.
+        node.getLambdaChildren().forEach(f => f.accept(new PositionCalculatorVisitor()));
     }
 
     /**

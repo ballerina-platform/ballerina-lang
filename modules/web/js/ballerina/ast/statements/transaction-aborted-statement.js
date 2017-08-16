@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import BallerinaASTFactory from './../ballerina-ast-factory';
+import ASTFactory from '../ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 
@@ -35,11 +35,19 @@ class TransactionAbortedStatement extends Statement {
     }
 
     /**
+     * Get the failed statement associated with the transaction.
+     * @return {FailedStatement} failed statement.
+     * */
+    getFailedStatement() {
+        return this.children.find(child => (ASTFactory.isFailedStatement(child)));
+    }
+
+    /**
      * Get Aborted Statement associated with transaction.
      * @return {AbortedStatement} aborted statement
      * */
     getAbortedStatement() {
-        return this.children.find(c => (BallerinaASTFactory.isAbortedStatement(c)));
+        return this.children.find(child => (ASTFactory.isAbortedStatement(child)));
     }
 
     /**
@@ -47,7 +55,18 @@ class TransactionAbortedStatement extends Statement {
      * @return {CommittedStatement} committed statement
      * */
     getCommittedStatement() {
-        return this.children.find(c => (BallerinaASTFactory.isCommittedStatement(c)));
+        return this.children.find(child => (ASTFactory.isCommittedStatement(child)));
+    }
+
+    /**
+     * Create Failed Statement.
+     * @param {object} args - failed statement arguments.
+     * @return {FailedStatement} new failed statement.
+     * */
+    createFailedStatement(args) {
+        const failedStatement = ASTFactory.createFailedStatement(args);
+        this.addChild(failedStatement, 1);
+        return failedStatement;
     }
 
     /**
@@ -56,7 +75,7 @@ class TransactionAbortedStatement extends Statement {
      * @return {AbortedStatement} new aborted statement
      */
     createAbortedStatement(args) {
-        const abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
+        const abortedStatement = ASTFactory.createAbortedStatement(args);
         this.addChild(abortedStatement);
         return abortedStatement;
     }
@@ -67,7 +86,7 @@ class TransactionAbortedStatement extends Statement {
      * @return {CommittedStatement} new committed statement
      */
     createCommittedStatement(args) {
-        const committedStatement = BallerinaASTFactory.createCommittedStatement(args);
+        const committedStatement = ASTFactory.createCommittedStatement(args);
         this.addChild(committedStatement);
         return committedStatement;
     }
@@ -83,9 +102,9 @@ class TransactionAbortedStatement extends Statement {
         _.each(jsonNode.children, (childNode) => {
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = this.getFactory().createConnectorDeclaration();
+                child = ASTFactory.createConnectorDeclaration();
             } else {
-                child = this.getFactory().createFromJson(childNode);
+                child = ASTFactory.createFromJson(childNode);
             }
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
@@ -117,10 +136,15 @@ class TransactionAbortedStatement extends Statement {
             });
 
             if (_.isFunction(callback)) {
-                callback({ isValid: true });
+                callback({
+                    isValid: true,
+                });
             }
         } else if (_.isFunction(callback)) {
-            callback({ isValid: false, response: parsedJson });
+            callback({
+                isValid: false,
+                response: parsedJson,
+            });
         }
     }
 }

@@ -19,7 +19,7 @@ import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
 import { getComponentForNodeArray } from './utils';
-import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class ElseIfStatement extends React.Component {
     constructor() {
@@ -33,11 +33,11 @@ class ElseIfStatement extends React.Component {
     }
 
     onAddElseIfClick() {
-        const condition = BallerinaASTFactory.createBasicLiteralExpression({
+        const condition = ASTFactory.createBasicLiteralExpression({
             basicLiteralType: 'boolean',
             basicLiteralValue: true,
         });
-        const newElseIfStatement = BallerinaASTFactory.createElseIfStatement({
+        const newElseIfStatement = ASTFactory.createElseIfStatement({
             condition,
         });
         const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);

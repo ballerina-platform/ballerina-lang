@@ -25,7 +25,7 @@ import InitialTools from '../item-provider/initial-definitions';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import ToolGroup from './../tool-palette/tool-group';
-import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
+import DefaultASTFactory from '../ast/default-ast-factory';
 import BallerinaASTRoot from '../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 
@@ -315,7 +315,7 @@ class ToolPaletteView extends React.Component {
                     fullPackageName: pckg.getName(),
                 };
                 const connTool = {};
-                connTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
+                connTool.nodeFactoryMethod = DefaultASTFactory.createConnectorDeclaration;
                 connTool.meta = args;
                 // TODO : use a generic icon
                 connTool.title = connector.getName();
@@ -345,9 +345,9 @@ class ToolPaletteView extends React.Component {
                     actionTool.title = action.getName();
                     actionTool.name = action.getName();
                     actionTool.cssClass = 'icon fw fw-dgm-action';
-                    actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    actionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     if (action.getReturnParams().length > 0) {
-                        actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory
+                        actionTool.nodeFactoryMethod = DefaultASTFactory
                                                     .createAggregatedActionInvocationAssignmentStatement;
                     }
 
@@ -375,7 +375,7 @@ class ToolPaletteView extends React.Component {
                     if (functionDef.getReturnParams().length > 0) {
                         const functionTool = {};
                         functionTool.nodeFactoryMethod =
-                                               DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement;
+                                               DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement;
                         functionTool.meta = {
                             functionDef,
                             packageName,
@@ -392,7 +392,7 @@ class ToolPaletteView extends React.Component {
                 } else {
                     const packageName = _.last(_.split(pckg.getName(), '.'));
                     const functionTool = {};
-                    functionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                    functionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedFunctionInvocationStatement;
                     functionTool.meta = {
                         functionDef,
                         packageName,

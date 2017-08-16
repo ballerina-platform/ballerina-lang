@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import VariableDeclaration from './variable-declaration';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for constant declaration
@@ -85,7 +86,7 @@ class ConstantDefinition extends VariableDeclaration {
         this.setIdentifier(jsonNode.constant_definition_identifier, { doSilently: true });
 
         for (const childNode of jsonNode.children) {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         }

@@ -38,6 +38,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for variable reference list.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createVariableReferenceListFragment(sourceString) {
+        return {
+            expectedNodeType: 'variable_reference_list',
+            source: sourceString,
+        };
+    }
+
+    /**
      * Create fragment for statement.
      *
      * @param {string} sourceString - source fragment input.
@@ -90,6 +103,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for transaction failed statement.
+     *
+     *  @param {string} sourceString - source fragment input.
+     *  @return {object} fragment details to be sent to the fragment parser.
+     * */
+    static createTransactionFailedFragment(sourceString) {
+        return {
+            expectedNodeType: 'transaction_failed',
+            source: sourceString,
+        };
+    }
+
+    /**
      * parse fragment.
      *
      * @param {string} fragment - source fragment.
@@ -115,4 +141,5 @@ class FragmentUtils {
         return data;
     }
 }
+
 export default FragmentUtils;

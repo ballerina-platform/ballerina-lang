@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeVisitor from './annotation-attribute-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source gen visitor for annotation attachment.
@@ -57,7 +58,7 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     beginVisitAnnotationAttachment(annotationAttachment) {
         const useDefaultWS = annotationAttachment.whiteSpace.useDefault;
-        this.isAttribValue = annotationAttachment.getFactory()
+        this.isAttribValue = ASTFactory
                                 .isAnnotationAttributeValue(annotationAttachment.getParent());
         if (useDefaultWS && !this._isFirstAnnotation && !this.isAttribValue) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
@@ -83,18 +84,21 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
     visitAnnotationAttachment(annotationAttachment) {
         // override default visit mechanism to keep track of no of attributes
         // this is needed for adding comma logic
-        const attributes = annotationAttachment.getChildrenOfType(annotationAttachment
-                                    .getFactory().isAnnotationAttribute);
+        const attributes = annotationAttachment.getChildrenOfType(ASTFactory.isAnnotationAttribute);
         if (_.isArray(attributes)) {
             attributes.forEach((attribute, index) => {
-                if (index !== 0) {
+                const mockParent = new AbstractSourceGenVisitor();
+                const annotationAttributeVisitor = new AnnotationAttributeVisitor(mockParent, index === 0);
+                attribute.accept(annotationAttributeVisitor);
+                const genSource = annotationAttributeVisitor.getGeneratedSource();
+                if (index !== 0 && !_.isEmpty(genSource)) {
                     this.appendSource(',');
                     if (annotationAttachment.whiteSpace.useDefault) {
                         this.appendSource('\n');
                     }
                 }
-                const annotationAttributeVisitor = new AnnotationAttributeVisitor(this, index === 0);
-                attribute.accept(annotationAttributeVisitor);
+                this.appendSource(genSource);
+               
                 if (index === attributes.length - 1) {
                     if (annotationAttachment.whiteSpace.useDefault) {
                         this.appendSource('\n');

@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * The {@link ServiceDefinition} visitor for generating its JSON swagger.
@@ -31,7 +32,7 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
     beginVisitServiceDefinition(serviceDefinition) {
         const existingAnnotations =
-                            serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotationAttachment);
+                            serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
 
         _.forEach(existingAnnotations, (existingAnnotation) => {
             if (_.isEqual(existingAnnotation.getPackageName(), 'swagger')

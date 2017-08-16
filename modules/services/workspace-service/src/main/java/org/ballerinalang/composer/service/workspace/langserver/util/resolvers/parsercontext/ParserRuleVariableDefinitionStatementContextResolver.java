@@ -41,7 +41,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         if (isActionOrFunctionInvocationStatement(dataModel)) {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
             return actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null), dataModel);
         } else {
             // Add the create keyword
             CompletionItem createKeyword = new CompletionItem();

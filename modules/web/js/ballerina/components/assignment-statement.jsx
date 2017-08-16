@@ -24,7 +24,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
-import BallerinaASTFactory from './../../ballerina/ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import StatementDecorator from './statement-decorator';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ConnectorActivationContainer from './connector-activation-container';
@@ -98,6 +98,7 @@ class AssignmentStatement extends React.Component {
                                                                 actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
+            source.setActionConnectorName(destination.getConnectorVariable());
             source.setConnector(destination);
             model.getStatementString();
             model.trigger('tree-modified', { type: 'custom', title: 'action set' });
@@ -191,7 +192,7 @@ class AssignmentStatement extends React.Component {
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
         const rightExpression = model.getRightExpression();
-        const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(
+        const actionInvocation = ASTFactory.isActionInvocationExpression(
             rightExpression) ? rightExpression : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
@@ -199,7 +200,7 @@ class AssignmentStatement extends React.Component {
         const backArrowStart = { x: 0, y: 0 };
         const backArrowEnd = { x: 0, y: 0 };
         let connectorDeclaration;
-        if (BallerinaASTFactory.isConnectorInitExpression(rightExpression)) {
+        if (ASTFactory.isConnectorInitExpression(rightExpression)) {
             connectorDeclaration = this.renderConnectorDeclaration(model.getViewState().connectorDeclViewState);
         }
 
@@ -227,11 +228,8 @@ class AssignmentStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
-        let lambdaFunc = null;
-        if (BallerinaASTFactory.isActionInvocationExpression(rightExpression)
-            && BallerinaASTFactory.isLambdaExpression(rightExpression.getConnectorExpression())) {
-            lambdaFunc = rightExpression.getConnectorExpression().getLambdaFunction();
-        }
+        const lambdaFunc = model.getLambdaChildren().map(f =>
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
 
         return (
             <g>
@@ -259,9 +257,7 @@ class AssignmentStatement extends React.Component {
                     </g>
                     }
                 </StatementDecorator>
-                {lambdaFunc &&
-                <FunctionDefinition model={lambdaFunc} />
-                }
+                {lambdaFunc}
                 {connectorDeclaration}
             </g>);
     }

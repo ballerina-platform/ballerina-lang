@@ -17,6 +17,8 @@
  */
 import _ from 'lodash';
 import log from 'log';
+import ConnectorDeclarationVisitor from '../visitors/connector-declaration-visitor';
+import ASTFactory from '../ast/ast-factory';
 
 class CommonUtils {
     /**
@@ -37,6 +39,7 @@ class CommonUtils {
      * children returned from getChildrenFunc.
      */
     static generateUniqueIdentifier(genArgs) {
+
         _.forEach(genArgs.attributes, (attribute) => {
             if (_.isNil(attribute.getter.call(genArgs.node)) || attribute.checkEvenIfDefined) {
                 // To store all the identifiers of the parents.
@@ -61,6 +64,17 @@ class CommonUtils {
                 const currentAttributeValue = attribute.defaultValue;
                 while (true) {
                     const tempNewValue = currentAttributeValue + counter;
+                    // Generate unique
+                    if (ASTFactory.isConnectorDeclaration(genArgs.node)) {
+                        this.connectorDeclarationVisitor = new ConnectorDeclarationVisitor();
+                        let parent = genArgs.node.getParent();
+                        while (!ASTFactory.isBallerinaAstRoot(parent)) {
+                            parent = parent.getParent();
+                        }
+                        parent.accept(this.connectorDeclarationVisitor);
+                        counter = this.connectorDeclarationVisitor.connectorCount;
+                        break;
+                    }
                     if (!_.includes(existingIdentifiers, tempNewValue)) {
                         break;
                     }

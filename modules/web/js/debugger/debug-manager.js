@@ -135,10 +135,6 @@ class DebugManager extends EventChannel {
                     const programDir = debugStartedFilePath.split(`/${packagePath}`)[0];
                     const filePath = `${programDir}/${message.location.fileName}`;
                     this.application.commandManager.dispatch('open-file', filePath);
-                    const { tabController } = this.application;
-                    this.listenTo(tabController, 'active-tab-changed', () => {
-                        this.trigger('debug-hit', message);
-                    });
                 }
             }
             this.trigger('debug-hit', message);

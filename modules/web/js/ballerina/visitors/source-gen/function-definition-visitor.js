@@ -23,6 +23,7 @@ import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source generation function definition
@@ -53,14 +54,15 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         if (!_.isEmpty(functionDefinition.getReturnTypes())) {
             const prependSpace = _.first(functionDefinition.getReturnTypes()).whiteSpace.useDefault;
             // if there were no return types before, return type wrapper shold be prepended with a space
-            functionReturnTypesSource = (prependSpace ? ' ' : functionDefinition.getWSRegion(4));
+            functionReturnTypesSource = (prependSpace ? ' ' : functionDefinition.getWSRegion(4)) +
+                (functionDefinition.hasReturnsKeyword() ? 'returns ' : '');
             functionReturnTypesSource += '(' + functionDefinition.getWSRegion(5)
                                             + functionDefinition.getReturnTypesAsString() + ')';
         }
 
         let constructedSourceSegment = '';
         // generate source for annotation attachmments
-        functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotationAttachment).forEach(
+        functionDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment).forEach(
             (annotationAttachment) => {
                 const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 annotationAttachment.accept(annotationAttachmentVisitor);

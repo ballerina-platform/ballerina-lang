@@ -16,15 +16,15 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import StatementDecorator from './statement-decorator';
 import MessageManager from './../visitors/message-manager';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 import FunctionDefinition from './function-definition';
 import { statement } from './../configs/designer-defaults';
 
@@ -60,18 +60,18 @@ class VariableDefinitionStatement extends React.Component {
         const messageManager = this.context.messageManager;
         const model = this.props.model;
         const bBox = model.getViewState().bBox;
-        const statement_h = this.statementBox.h;
+        const statementH = this.statementBox.h;
         const messageStartX = bBox.x + bBox.w;
-        const messageStartY = this.statementBox.y + statement_h / 2;
-        let actionInvocation;
-        actionInvocation = model.getRightExpression();
+        const messageStartY = this.statementBox.y + (statementH / 2);
+        const actionInvocation = model.getRightExpression();
         messageManager.setSource(actionInvocation);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
-
-        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
+        messageManager.setTargetValidationCallback(destination =>
+            actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
+            source.setActionConnectorName(destination.getConnectorVariable());
             source.setConnector(destination);
             model.getStatementString();
             model.trigger('tree-modified', { type: 'custom', title: 'action set' });
@@ -122,15 +122,15 @@ class VariableDefinitionStatement extends React.Component {
         const backArrowStart = { x: 0, y: 0 };
         const backArrowEnd = { x: 0, y: 0 };
 
-        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation._connector)) {
-            connector = actionInvocation._connector;
+        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation.getConnector())) {
+            connector = actionInvocation.getConnector();
 
             // TODO: need a proper way to do this
             const isConnectorAvailable = !_.isEmpty(connector.getParent()
                 .filterChildren(child => child.id === connector.id));
 
             arrowStart.x = this.statementBox.x + this.statementBox.w;
-            arrowStart.y = this.statementBox.y + this.statementBox.h / 3;
+            arrowStart.y = this.statementBox.y + (this.statementBox.h / 3);
 
             if (!isConnectorAvailable) {
                 connector = undefined;
@@ -148,12 +148,8 @@ class VariableDefinitionStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
-        const lambdaChildren = this.props.model.filterChildren(child => ASTFactory.isLambdaExpression(child));
-        let lambdaFunc = null;
-        if (lambdaChildren.length > 0) {
-            lambdaFunc = lambdaChildren[0].getLambdaFunction();
-        }
-
+        const lambdaFunc = model.getLambdaChildren().map(f =>
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
 
         return (
             <StatementDecorator
@@ -178,10 +174,8 @@ class VariableDefinitionStatement extends React.Component {
                     {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
                     {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
                 </g>
-            }
-                { lambdaFunc &&
-                <FunctionDefinition model={lambdaFunc}/>
                 }
+                {lambdaFunc}
             </StatementDecorator>);
     }
 }

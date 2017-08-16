@@ -20,7 +20,7 @@ import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import MessageManager from './../visitors/message-manager';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 class ReplyStatement extends React.Component {
 

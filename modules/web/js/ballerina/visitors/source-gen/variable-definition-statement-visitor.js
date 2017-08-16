@@ -16,10 +16,12 @@
  * under the License.
  */
 
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import FunctionDefinitionVisitor from './function-definition-visitor';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
+import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor'
 
 /**
  * Source Generation visitor for Variable definition statement
@@ -48,6 +50,7 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         variableDefinitionStatement.setLineNumber(lineNumber, { doSilently: true });
+        const isIdentifierLiteral = variableDefinitionStatement.getChildren()[0].isIdentifierLiteral;
 
         let variableDefinitionStatementString =
             !_.isNil(((variableDefinitionStatement.getChildren()[0]).getChildren()[0]).getPkgName()) ?
@@ -59,15 +62,28 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
                 variableDefinitionStatementString += '[]';
             }
         }
-        variableDefinitionStatementString += variableDefinitionStatement.getWSRegion(0) +
-            variableDefinitionStatement.getIdentifier();
+
+        if (variableDefinitionStatement.getVariableDef().getTypeConstraint()) {
+            const constraint = variableDefinitionStatement.getVariableDef().getTypeConstraint();
+            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
+                                  + constraint.type + '>');
+            variableDefinitionStatementString += constraintStr;
+        }
+        variableDefinitionStatementString += variableDefinitionStatement.getWSRegion(0)
+                + (isIdentifierLiteral ? '|' : '') + variableDefinitionStatement.getIdentifier()
+                + (isIdentifierLiteral ? '|' : '');
+
         const child = variableDefinitionStatement.children[1];
         if (!_.isNil(child)) {
             variableDefinitionStatementString +=
                 variableDefinitionStatement.getWSRegion(1) + '=' + variableDefinitionStatement.getWSRegion(2);
             this.appendSource(variableDefinitionStatementString);
             if (ASTFactory.isLambdaExpression(child)) {
-                child.children[0].accept(new FunctionDefinitionVisitor(this));
+                child.getLambdaFunction().accept(new FunctionDefinitionVisitor(this));
+            } else if (ASTFactory.isActionInvocationExpression(child)) {
+                child.accept(new ActionInvocationStatementVisitor(this));
+            } else if (ASTFactory.isFunctionInvocationExpression(child)) {
+                // TODO: remove this by moving all visitors to functions.
             } else {
                 const expressionStr = child.getExpressionString();
                 this.appendSource(expressionStr);
@@ -82,6 +98,10 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
 
         // Increase total number of lines
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+    }
+
+    visitFuncInvocationExpression(node) {
+        node.accept(new FunctionInvocationExpressionVisitor(this));
     }
 
     /**

@@ -18,7 +18,7 @@
 
 import log from 'log';
 import _ from 'lodash';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import WorkerDeclaration from './../../ast/worker-declaration';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
@@ -125,6 +125,7 @@ class WorkerDeclarationPositionCalcVisitor {
 
         viewState.components.workerScopeContainer.x = x;
         viewState.components.workerScopeContainer.y = y - (DesignerDefaults.canvas.padding.top / 2);
+
         bBox.x = x + DesignerDefaults.lifeLine.gutter.h;
         bBox.y = y + DesignerDefaults.lifeLine.gutter.v;
         viewState.components.statementContainer.x = x;

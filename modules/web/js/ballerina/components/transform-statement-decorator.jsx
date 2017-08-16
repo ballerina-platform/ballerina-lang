@@ -26,6 +26,7 @@ import * as DesignerDefaults from '../configs/designer-defaults';
 import './statement-decorator.css';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
+import ASTFactory from '../ast/ast-factory.js';
 
 class TransformStatementDecorator extends React.Component {
 
@@ -87,7 +88,7 @@ class TransformStatementDecorator extends React.Component {
                     // IMPORTANT: override node's default validation logic
                     // This drop zone is for statements only.
                     // Statements should only be allowed here.
-                    return model.getFactory().isStatement(nodeBeingDragged);
+                    return ASTFactory.isStatement(nodeBeingDragged);
                 },
                 () => {
                     return dropTarget.getIndexOfChild(model);

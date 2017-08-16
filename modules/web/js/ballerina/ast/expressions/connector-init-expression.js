@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
+import ASTFactory from '../ast-factory.js';
 
 /**
  * Constructor for ConnectorInitExpression
@@ -118,23 +119,23 @@ class ConnectorInitExpression extends Expression {
         this.getChildren().length = 0;
         const self = this;
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
         const argExprs = [];
         _.each(jsonNode.arguments, (argNode) => {
-            const expr = self.getFactory().createFromJson(argNode);
+            const expr = ASTFactory.createFromJson(argNode);
             argExprs.push(expr);
             expr.initFromJson(argNode);
         });
         let connectorName;
         if (!_.isNil(jsonNode.connector_name)) {
-            connectorName = self.getFactory().createFromJson(jsonNode.connector_name);
+            connectorName = ASTFactory.createFromJson(jsonNode.connector_name);
             connectorName.initFromJson(jsonNode.connector_name);
         }
         if (!_.isNil(jsonNode.parent_connector_init_expr)) {
-            const parentConnectorInitExpression = self.getFactory().createFromJson(jsonNode.parent_connector_init_expr);
+            const parentConnectorInitExpression = ASTFactory.createFromJson(jsonNode.parent_connector_init_expr);
             parentConnectorInitExpression.initFromJson(jsonNode.parent_connector_init_expr);
             parentConnectorInitExpression.setIsFilterConnectorInitExpr(true);
             this.setParentConnectorInitExpression(parentConnectorInitExpression);

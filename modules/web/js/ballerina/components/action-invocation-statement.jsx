@@ -94,7 +94,10 @@ class ActionInvocationStatement extends React.Component {
                                                 destination => actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
+            source.setActionConnectorName(destination.getConnectorVariable());
             source.setConnector(destination, { doSilently: false });
+            model.getStatementString();
+            model.trigger('tree-modified', { type: 'custom', title: 'action set' });
         });
     }
 

@@ -23,6 +23,7 @@ import { statement, blockStatement } from './../configs/designer-defaults';
 import { getComponentForNodeArray } from './utils';
 import SimpleBBox from './../ast/simple-bounding-box';
 import ForkJoinStatementAST from './../ast/statements/fork-join-statement';
+import ASTFactory from '../ast/ast-factory.js';
 
 /**
  * React UI component to represent the the fork section and contain the timeout
@@ -36,7 +37,7 @@ class ForkJoinStatement extends React.Component {
      * @returns {Boolean} true if the node is a worker.
      */
     static isWorker(node) {
-        const factory = node.getFactory();
+        const factory = ASTFactory;
         return factory.isWorkerDeclaration(node);
     }
 

@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import ASTFactory from '../../ast/ast-factory.js';
 
 /**
  * Source generation for the Import declaration
@@ -77,11 +78,11 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
         const root = importDeclaration.getParent();
         const nextNode = _.nth(root.getChildren(), nodeIndex + 1);
         let tailingWS = importDeclaration.getWSRegion(4);
-        if (!_.isNil(nextNode) && root.getFactory().isImportDeclaration(nextNode)
+        if (!_.isNil(nextNode) && ASTFactory.isImportDeclaration(nextNode)
                 && nextNode.whiteSpace.useDefault) {
             tailingWS = '\n';
         } else if (importDeclaration.whiteSpace.useDefault &&
-                        !_.isNil(nextNode) && !root.getFactory().isImportDeclaration(nextNode)
+                        !_.isNil(nextNode) && !ASTFactory.isImportDeclaration(nextNode)
                         && !nextNode.whiteSpace.useDefault) {
             tailingWS = '\n\n';
         }

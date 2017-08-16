@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from '../../ast/ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
@@ -67,8 +67,11 @@ function getSimpleStatementPosition(node) {
     }
 
     // calculate the positions of sub components.
-    viewState.components['drop-zone'].x = x;
-    viewState.components['drop-zone'].y = y;
+    if (viewState.components['drop-zone']) {
+        viewState.components['drop-zone'].x = x;
+        viewState.components['drop-zone'].y = y;
+    }
+
     if (viewState.components['statement-box']) {
         viewState.components['statement-box'].x = x;
         viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
@@ -143,12 +146,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
          */
         const parentLevelConnectors = node.getParent().filterChildren(child =>
             ASTFactory.isConnectorDeclaration(child));
-        if (parentLevelConnectors.length > 0) {
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
-                DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
-        } else {
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
-        }
+        headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+        
 
         headerY += serviceVariablesHeightGap;
     } else if (currentResourceIndex > 0) {
@@ -169,8 +168,11 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
     statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
         DesignerDefaults.lifeLine.head.height;
-    workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
-    workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
+    // If more than one worker is present, then draw the worker scope container boundary around the workers
+    if ((node.filterChildren(ASTFactory.isWorkerDeclaration)).length >= 1) {
+        workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
+        workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
+    }
     bBox.x = x;
     bBox.y = y;
     headerBBox.x = headerX;

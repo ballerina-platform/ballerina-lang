@@ -23,14 +23,13 @@ import { getComponentForNodeArray } from './utils';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import ServiceDefinitionAST from './../ast/service-definition';
 import PanelDecoratorButton from './panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './image-util';
 import SimpleBBox from './../ast/simple-bounding-box';
 import EditableText from './editable-text';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from '../ast/ast-factory';
 
 /**
  * React component for a service definition.
@@ -67,7 +66,7 @@ class ServiceDefinition extends React.Component {
      * @memberof ServiceDefinition
      */
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
           // IMPORTANT: override default validation logic
           // Panel's drop zone is for resource defs and connector declarations only.
         return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
@@ -105,13 +104,13 @@ class ServiceDefinition extends React.Component {
         const viewState = model.getViewState();
         const components = viewState.components;
         const bBox = model.viewState.bBox;
-        const variables = model.filterChildren(child => BallerinaASTFactory.isVariableDefinitionStatement(child));
+        const variables = model.filterChildren(child => ASTFactory.isVariableDefinitionStatement(child));
 
         // get the service name
         const title = model.getServiceName();
 
         const childrenWithNoVariables = model.filterChildren(
-                                                child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
+                                                child => !ASTFactory.isVariableDefinitionStatement(child));
 
         /**
          * Here we skip rendering the variables

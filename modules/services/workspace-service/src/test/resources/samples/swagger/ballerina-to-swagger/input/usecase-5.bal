@@ -15,7 +15,7 @@ import ballerina.net.http.swagger;
         name: "MIT",
         url: "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
     },
-    externalDocs: @swagger:ExternalDoc {
+    externalDoc: @swagger:ExternalDoc {
         description: "find more info here",
         url: "https://swagger.io/about"
     },
@@ -34,11 +34,11 @@ import ballerina.net.http.swagger;
         url: "http://wwww.abc.com"
     },
     developers: [
-        @swagger:Developers {
+        @swagger:Developer {
             name: "John",
             email: "john@abc.com"
         },
-        @swagger:Developers {
+        @swagger:Developer {
             name: "Jane",
             email: "jane@abc.com"
         }
@@ -51,9 +51,11 @@ import ballerina.net.http.swagger;
 }
 service<http> Service5 {
 
-    @http:GET{}
-    @http:Path{value: "/pets/{id}"}
-    @http:Produces {value: ["application/json"]}
+    @http:resourceConfig{
+        methods: ["GET"],
+        path: "/pets/{id}",
+        produces: ["application/json"]
+    }
     @swagger:Responses {
         value:[
             @swagger:Response {

@@ -18,8 +18,9 @@
 import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
-import BallerinaAstFactory from './ballerina-ast-factory';
+import BallerinaAstFactory from './ast-factory';
 import SimpleBBox from './simple-bounding-box';
+import ASTFactory from './ast-factory.js';
 
 /**
  * Constructor for the ASTNode
@@ -74,7 +75,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Get the node's view state
-     * @return {{bBox: BBox}} node's view state
+     * @return {{bBox: SimpleBBox}} node's view state
      */
     getViewState() {
         return this.viewState;
@@ -268,7 +269,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Get factory.
-     * @return {BallerinaASTFactory}
+     * @return {ASTFactory}
      */
     getFactory() {
         return BallerinaAstFactory;
@@ -525,7 +526,10 @@ class ASTNode extends EventChannel {
      * @returns {number}
      */
     getLineNumber() {
-        return this.getAttribute('_lineNumber');
+        if (!this.getPosition()) {
+            return null;
+        }
+        return this.getPosition().startLine;
     }
 
     /**
@@ -558,12 +562,12 @@ class ASTNode extends EventChannel {
     }
 
     /** Gets the children of a specific type.
-     * @param  {function} typeCheckFunction The function thats used for type checking. Example: BallerinaASTFactory.isConnectorDeclaration
+     * @param  {function} typeCheckFunction The function thats used for type checking. Example: ASTFactory.isConnectorDeclaration
      * @return {ASTNode[]}                   An array of children.
      */
     getChildrenOfType(typeCheckFunction) {
         return _.filter(this.getChildren(), (child) => {
-            return typeCheckFunction.call(child.getFactory(), child);
+            return typeCheckFunction.call(ASTFactory, child);
         });
     }
 

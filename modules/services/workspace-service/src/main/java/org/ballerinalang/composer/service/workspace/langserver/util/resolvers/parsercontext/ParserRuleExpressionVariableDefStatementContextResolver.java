@@ -52,7 +52,7 @@ public class ParserRuleExpressionVariableDefStatementContextResolver extends Abs
         int equalSymbolTokenIndex = this.getTokenIndexOf(dataModel, "=");
         if (packageAccessingTokenIndex > 0) {
             completionItems.addAll(this.getFunctionCompletionItems(symbols,
-                    (dataModel.getTokenStream().get(packageAccessingTokenIndex - 1)).getText()));
+                    (dataModel.getTokenStream().get(packageAccessingTokenIndex - 1)).getText(), dataModel));
         } else if (equalSymbolTokenIndex > 0) {
             // Add the variable definitions, packages and the functions
             List<SymbolInfo> filteredSymbols =  symbols.stream()
@@ -101,7 +101,8 @@ public class ParserRuleExpressionVariableDefStatementContextResolver extends Abs
      * @param packageTokenStr package token string
      * @return {@link String}
      */
-    private List<CompletionItem> getFunctionCompletionItems(ArrayList<SymbolInfo> symbols, String packageTokenStr) {
+    private List<CompletionItem> getFunctionCompletionItems(ArrayList<SymbolInfo> symbols, String packageTokenStr,
+                                                            SuggestionsFilterDataModel dataModel) {
         List<SymbolInfo> searchList = symbols.stream()
                 .filter(symbolInfo -> !(symbolInfo.getSymbol() instanceof BType)).collect(Collectors.toList());
         List<SymbolInfo> filteredSymbolInfoList = searchList.stream()
@@ -124,7 +125,8 @@ public class ParserRuleExpressionVariableDefStatementContextResolver extends Abs
         });
 
         PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
-        List<CompletionItem> functionsAndActions =  actionAndFunctionFilter.getCompletionItems(packageSymbolInfos);
+        List<CompletionItem> functionsAndActions =  actionAndFunctionFilter.getCompletionItems(packageSymbolInfos,
+                dataModel);
         return functionsAndActions.stream()
                 .filter(completionItem -> completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE))
                 .collect(Collectors.toList());

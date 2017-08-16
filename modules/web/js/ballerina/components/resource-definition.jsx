@@ -23,13 +23,14 @@ import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
-import { lifeLine} from './../configs/designer-defaults';
+import { lifeLine } from './../configs/designer-defaults';
 import ImageUtil from './image-util';
+import ASTFactory from '../ast/ast-factory.js';
 
 class ResourceDefinition extends React.Component {
 
     canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
+        const nodeFactory = ASTFactory;
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for worker and connector declarations only.
         // Statements should only be allowed on top of resource worker's dropzone.
@@ -59,11 +60,9 @@ class ResourceDefinition extends React.Component {
 
 
         const children = getComponentForNodeArray(this.props.model.getChildren());
+        const nodeFactory = ASTFactory;
         // Check for connector declaration children
-        const nodeFactory = this.props.model.getFactory();
-        const connectorChildren = _.filter(this.props.model.getChildren(),
-            child => nodeFactory.isConnectorDeclaration(child));
-
+        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
@@ -98,20 +97,21 @@ class ResourceDefinition extends React.Component {
                             iconColor='#025482'
                         />
                         { connectorChildren.length > 0 &&
-                        <rect
-                            x={workerScopeContainerBBox.x}
-                            y={workerScopeContainerBBox.y}
-                            width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                            height={workerScopeContainerBBox.h}
-                            style={{ fill: 'none',
-                                stroke: '#67696d',
-                                strokeWidth: 2,
-                                strokeLinecap: 'round',
-                                strokeLinejoin: 'miter',
-                                strokeMiterlimit: 4,
-                                strokeOpacity: 1,
-                                strokeDasharray: 5 }}
-                        />}
+                        <g>
+                            <rect
+                                x={workerScopeContainerBBox.x}
+                                y={workerScopeContainerBBox.y}
+                                width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
+                                height={workerScopeContainerBBox.h}
+                                style={{ fill: 'none',
+                                    stroke: '#67696d',
+                                    strokeWidth: 2,
+                                    strokeLinecap: 'round',
+                                    strokeLinejoin: 'miter',
+                                    strokeMiterlimit: 4,
+                                    strokeOpacity: 1,
+                                    strokeDasharray: 5 }}
+                            /> </g> }
                         <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBoxClone}>
                             {children}
                         </StatementContainer>

@@ -19,7 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ASTFactory from './ast-factory';
 
 /**
  * Constructor for ConnectorAction
@@ -59,9 +59,9 @@ class ConnectorAction extends ASTNode {
     }
 
     getArgumentParameterDefinitionHolder() {
-        let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        let argParamDefHolder = this.findChild(ASTFactory.isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
-            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            argParamDefHolder = ASTFactory.createArgumentParameterDefinitionHolder();
             this.addChild(argParamDefHolder, undefined, true, true, false);
         }
         return argParamDefHolder;
@@ -98,7 +98,7 @@ class ConnectorAction extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isVariableDefinitionStatement(child)) {
+            if (ASTFactory.isVariableDefinitionStatement(child)) {
                 variableDefinitionStatements.push(child);
             }
         });
@@ -110,7 +110,7 @@ class ConnectorAction extends ASTNode {
      * @return {ASTNode[]} namespace declaration statements
      * */
     getNamespaceDeclarationStatements() {
-        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+        return this.filterChildren(ASTFactory.isNamespaceDeclarationStatement).slice(0);
     }
 
     /**
@@ -121,7 +121,7 @@ class ConnectorAction extends ASTNode {
         const self = this;
         // Removing the variable from the children.
         const variableDeclarationChild = _.find(this.getChildren(), (child) => {
-            return self.getFactory().isVariableDeclaration(child)
+            return ASTFactory.isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
@@ -135,14 +135,14 @@ class ConnectorAction extends ASTNode {
         const self = this;
         // Get the index of the last variable declaration.
         let index = _.findLastIndex(this.getChildren(), (child) => {
-            return self.getFactory().isVariableDeclaration(child);
+            return ASTFactory.isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index === -1) {
             index = _.findLastIndex(this.getChildren(), (child) => {
-                return self.getFactory().isConnectorDeclaration(child);
+                return ASTFactory.isConnectorDeclaration(child);
             });
         }
 
@@ -177,9 +177,9 @@ class ConnectorAction extends ASTNode {
     }
 
     getReturnParameterDefinitionHolder() {
-        let returnParamDefHolder = this.findChild(this.getFactory().isReturnParameterDefinitionHolder);
+        let returnParamDefHolder = this.findChild(ASTFactory.isReturnParameterDefinitionHolder);
         if (_.isUndefined(returnParamDefHolder)) {
-            returnParamDefHolder = this.getFactory().createReturnParameterDefinitionHolder();
+            returnParamDefHolder = ASTFactory.createReturnParameterDefinitionHolder();
             this.addChild(returnParamDefHolder, undefined, true, true, false);
         }
         return returnParamDefHolder;
@@ -195,7 +195,7 @@ class ConnectorAction extends ASTNode {
 
         // Adding return type mode if it doesn't exists.
         if (_.isUndefined(this.getReturnTypes())) {
-            this.addChild(this.getFactory().createReturnType());
+            this.addChild(ASTFactory.createReturnType());
         }
 
         // Check if there is already a return type with the same identifier.
@@ -225,7 +225,7 @@ class ConnectorAction extends ASTNode {
             throw errorStringWithIdentifiers;
         }
 
-        const paramDef = this.getFactory().createParameterDefinition({ typeName: type, name: identifier });
+        const paramDef = ASTFactory.createParameterDefinition({ typeName: type, name: identifier });
         returnParamDefHolder.addChild(paramDef, 0);
     }
 
@@ -261,7 +261,7 @@ class ConnectorAction extends ASTNode {
      */
     removeReturnType(modelID) {
         const removeChild = this.getReturnParameterDefinitionHolder()
-            .removeChildById(this.getFactory().isParameterDefinition, modelID);
+            .removeChildById(ASTFactory.isParameterDefinition, modelID);
 
         // Deleting the argument from the AST.
         if (_.isUndefined(removeChild)) {
@@ -296,7 +296,7 @@ class ConnectorAction extends ASTNode {
      */
     addArgument(type, identifier) {
         // creating argument
-        const newArgumentParamDef = this.getFactory().createParameterDefinition();
+        const newArgumentParamDef = ASTFactory.createParameterDefinition();
         newArgumentParamDef.setTypeName(type);
         newArgumentParamDef.setName(identifier);
 
@@ -312,7 +312,7 @@ class ConnectorAction extends ASTNode {
      */
     removeArgument(identifier) {
         const argParamDefHolder = this.getArgumentParameterDefinitionHolder();
-        argParamDefHolder.removeChildByName(this.getFactory().isParameterDefinition, identifier);
+        argParamDefHolder.removeChildByName(ASTFactory.isParameterDefinition, identifier);
     }
 
     /**
@@ -324,7 +324,7 @@ class ConnectorAction extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isConnectorDeclaration(child)) {
+            if (ASTFactory.isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
         });
@@ -338,7 +338,7 @@ class ConnectorAction extends ASTNode {
         const self = this;
 
         _.forEach(this.getChildren(), (child) => {
-            if (self.getFactory().isWorkerDeclaration(child)) {
+            if (ASTFactory.isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
         });
@@ -357,7 +357,7 @@ class ConnectorAction extends ASTNode {
         this.setActionName(jsonNode.action_name, { doSilently: true });
 
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -370,10 +370,10 @@ class ConnectorAction extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.getFactory().isConnectorDeclaration(node)
-            || this.getFactory().isVariableDeclaration(node)
-            || this.getFactory().isWorkerDeclaration(node)
-            || this.getFactory().isStatement(node);
+        return ASTFactory.isConnectorDeclaration(node)
+            || ASTFactory.isVariableDeclaration(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isStatement(node);
     }
 
     /**
@@ -385,12 +385,12 @@ class ConnectorAction extends ASTNode {
      * @param {boolean} generateId - generate id or not
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+        if (ASTFactory.isWorkerDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
               .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), (filteredChild) => {
-                return BallerinaASTFactory.isWorkerDeclaration(filteredChild);
+                return ASTFactory.isWorkerDeclaration(filteredChild);
             });
 
             if (firstWorkerIndex > -1 && _.isNil(index)) {
@@ -428,7 +428,7 @@ class ConnectorAction extends ASTNode {
      * @return {ConnectorDeclaration} - connector declaration matching the connector name
      */
     getConnectorByName(connectorName) {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReference = _.find(this.getChildren(), (child) => {
             let connectorVariableName;
             if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
@@ -454,7 +454,7 @@ class ConnectorAction extends ASTNode {
      * @return {Array} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        const factory = this.getFactory();
+        const factory = ASTFactory;
         const connectorReferences = _.filter(this.getChildren(), (child) => {
             return factory.isConnectorDeclaration(child);
         });

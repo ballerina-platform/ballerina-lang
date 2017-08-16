@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTNode from '../node';
+import ASTFactory from '../ast-factory.js';
 
 const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
@@ -137,7 +138,7 @@ class AnnotationAttachment extends ASTNode {
         this.setIsHttpMethod();
 
         jsonNode.children.forEach((childNode) => {
-            const child = this.getFactory().createFromJson(childNode);
+            const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });
