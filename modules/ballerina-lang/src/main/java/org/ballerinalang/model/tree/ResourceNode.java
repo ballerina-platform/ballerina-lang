@@ -20,6 +20,5 @@ package org.ballerinalang.model.tree;
 /**
  * @since 0.94
  */
-public interface ResourceNode extends Node, InvokableNode, AnnotatableNode {
-    ServiceNode getService();
+public interface ResourceNode extends InvokableNode, AnnotatableNode {
 }

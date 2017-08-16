@@ -30,15 +30,12 @@ public interface PackageNode extends Node {
     Identifier getVersion();
 
     // We also need to main the list of files..
-    List<? extends PackageLevelNode> getTopLevelConstructs();
 
     List<? extends ImportPackageNode> getImports();
 
-    List<? extends NamespaceDeclarationNode> getNamespaceDeclarations();
+    List<? extends XMLNSDeclarationNode> getNamespaceDeclarations();
 
-    List<? extends ConstantNode> getConstantDefinitions();
-
-    List<? extends GlobalVariableNode> getGlobalVariableDefinitions();
+    List<? extends VariableNode> getGlobalVariables();
 
     List<? extends ServiceNode> getServices();
 

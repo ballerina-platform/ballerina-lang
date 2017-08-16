@@ -17,8 +17,16 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.elements.Identifier;
+
+import java.util.Map;
+
 /**
+ * {key1:value1, key2:value2, string`key{{n}}`:value3, ...}
+ *
  * @since 0.94
  */
 public interface RecordTypeLiteralNode extends ExpressionNode {
+    // TODO Check whether we can string template literals
+    Map<Identifier, ExpressionNode> getKeyValuePairs();
 }

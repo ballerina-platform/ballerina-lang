@@ -18,7 +18,11 @@
 package org.ballerinalang.model.tree.statements;
 
 /**
+ * transform {
+ *
+ * }
  * @since 0.94
  */
 public interface TransformNode extends StatementNode {
+    BlockNode getBody();
 }

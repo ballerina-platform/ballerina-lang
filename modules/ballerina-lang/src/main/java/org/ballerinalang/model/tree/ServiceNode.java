@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ServiceNode extends PackageLevelNode {
+public interface ServiceNode extends AnnotatableNode {
 
     List<? extends VariableNode> getVariables();
 

@@ -17,8 +17,13 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import java.util.List;
+
 /**
+ * [1,2,3,4,5, d+b, a, foo()]
+ *
  * @since 0.94
  */
 public interface ArrayLiteralNode extends ExpressionNode {
+    List<? extends ExpressionNode> getExpressions();
 }

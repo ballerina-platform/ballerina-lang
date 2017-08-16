@@ -21,4 +21,5 @@ package org.ballerinalang.model.tree.statements;
  * @since 0.94
  */
 public interface CommentNode extends StatementNode {
+    String getComment();
 }

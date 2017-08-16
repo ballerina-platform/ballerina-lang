@@ -22,7 +22,7 @@ import org.ballerinalang.model.elements.Identifier;
 /**
  * @since 0.94
  */
-public interface NamespaceDeclarationNode extends PackageLevelNode {
+public interface XMLNSDeclarationNode extends Node {
     Identifier getNamespaceURI();
 
     Identifier getPrefix();

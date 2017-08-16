@@ -17,12 +17,19 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.elements.Identifier;
+
+import java.util.List;
+
 /**
  * i = foo:getName(a, b);
+ *
  * @since 0.94
  */
-public interface FunctionInvocationNode extends ExpressionNode {
-    // package identifier
-    // function name
-    // argument expressions
+public interface InvocationNode extends ExpressionNode {
+    Identifier getPackageIdentifier();
+
+    Identifier getFunctionName();
+
+    List<? extends ExpressionNode> getArgumentExpressions();
 }

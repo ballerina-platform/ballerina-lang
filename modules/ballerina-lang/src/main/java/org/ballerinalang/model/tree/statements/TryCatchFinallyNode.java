@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface TryCatchFinalyNode extends StatementNode {
+public interface TryCatchFinallyNode extends StatementNode {
     BlockNode getBody();
 
     List<? extends CatchNode> getCatchBlocks();

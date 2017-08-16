@@ -24,8 +24,8 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface StructNode extends PackageLevelNode {
+public interface StructNode extends AnnotatableNode {
     Identifier getName();
 
-    List<? extends StructFieldNode> getFields();
+    List<? extends VariableNode> getFields();
 }

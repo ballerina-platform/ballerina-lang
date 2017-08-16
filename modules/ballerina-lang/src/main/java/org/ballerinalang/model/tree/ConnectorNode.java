@@ -22,7 +22,9 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ConnectorNode extends PackageLevelNode {
+public interface ConnectorNode extends AnnotatableNode {
+    List<? extends VariableNode> getParameters();
+
     List<? extends VariableNode> getVariables();
 
     List<? extends ActionNode> getActions();

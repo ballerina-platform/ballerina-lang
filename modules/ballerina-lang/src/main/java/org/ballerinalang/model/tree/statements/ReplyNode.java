@@ -17,8 +17,11 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
 /**
  * @since 0.94
  */
 public interface ReplyNode extends StatementNode {
+    ExpressionNode getExpression();
 }

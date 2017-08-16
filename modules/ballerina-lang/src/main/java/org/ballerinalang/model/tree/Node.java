@@ -21,4 +21,6 @@ package org.ballerinalang.model.tree;
  * @since 0.94
  */
 public interface Node {
+
+    // TODO DD Visitor method..  location and whitespaces
 }

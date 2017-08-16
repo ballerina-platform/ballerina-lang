@@ -21,4 +21,7 @@ package org.ballerinalang.model.tree.statements;
  * @since 0.94
  */
 public interface ForkJoinNode extends StatementNode {
+    // workers
+    // join
+    // timeout..
 }

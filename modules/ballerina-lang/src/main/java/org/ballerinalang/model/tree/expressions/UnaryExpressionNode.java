@@ -18,7 +18,11 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
+ * -a
+ * !b
+ *
  * @since 0.94
  */
 public interface UnaryExpressionNode extends ExpressionNode {
+
 }

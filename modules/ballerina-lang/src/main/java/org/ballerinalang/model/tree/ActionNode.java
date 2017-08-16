@@ -20,6 +20,5 @@ package org.ballerinalang.model.tree;
 /**
  * @since 0.94
  */
-public interface ActionNode extends Node, InvokableNode, AnnotatableNode {
-    ConnectorNode getConnector();
+public interface ActionNode extends InvokableNode, AnnotatableNode {
 }

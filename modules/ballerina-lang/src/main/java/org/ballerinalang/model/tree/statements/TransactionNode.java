@@ -21,4 +21,12 @@ package org.ballerinalang.model.tree.statements;
  * @since 0.94
  */
 public interface TransactionNode extends StatementNode {
+    BlockNode getTransactionBody();
+
+    BlockNode getFailedBody();
+
+    BlockNode getCommittedBody();
+
+    BlockNode getAbortedBody();
+
 }

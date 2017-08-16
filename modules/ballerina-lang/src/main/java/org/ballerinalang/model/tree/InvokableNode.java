@@ -19,21 +19,18 @@ package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.elements.Identifier;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.types.TypeNode;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface InvokableNode {
+public interface InvokableNode extends Node {
     Identifier getName();
 
-    List<? extends VariableNode> getParamters();
+    List<? extends VariableNode> getParameters();
 
-    List<? extends VariableNode> getReturnParamters();
-
-    List<? extends TypeNode> getReturnTypes();
+    List<? extends VariableNode> getReturnParameters();
 
     BlockNode getBody();
 }

@@ -18,6 +18,8 @@
 package org.ballerinalang.model.tree.types;
 
 /**
+ * int[][][][]
+ *
  * @since 0.94
  */
 public interface ArrayTypeNode extends ReferenceTypeNode {

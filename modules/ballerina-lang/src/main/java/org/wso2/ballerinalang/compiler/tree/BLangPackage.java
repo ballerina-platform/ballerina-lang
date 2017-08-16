@@ -20,14 +20,12 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Identifier;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.ConnectorNode;
-import org.ballerinalang.model.tree.ConstantNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.GlobalVariableNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
-import org.ballerinalang.model.tree.NamespaceDeclarationNode;
-import org.ballerinalang.model.tree.PackageLevelNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 
 import java.util.List;
 
@@ -46,27 +44,17 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<? extends PackageLevelNode> getTopLevelConstructs() {
-        return null;
-    }
-
-    @Override
     public List<? extends ImportPackageNode> getImports() {
         return null;
     }
 
     @Override
-    public List<? extends NamespaceDeclarationNode> getNamespaceDeclarations() {
+    public List<? extends XMLNSDeclarationNode> getNamespaceDeclarations() {
         return null;
     }
 
     @Override
-    public List<? extends ConstantNode> getConstantDefinitions() {
-        return null;
-    }
-
-    @Override
-    public List<? extends GlobalVariableNode> getGlobalVariableDefinitions() {
+    public List<? extends VariableNode> getGlobalVariables() {
         return null;
     }
 

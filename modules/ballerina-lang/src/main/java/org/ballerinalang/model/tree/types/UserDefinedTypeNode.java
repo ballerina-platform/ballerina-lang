@@ -20,6 +20,7 @@ package org.ballerinalang.model.tree.types;
 import org.ballerinalang.model.elements.Identifier;
 
 /**
+ * foo:Person
  * @since 0.94
  */
 public interface UserDefinedTypeNode extends ReferenceTypeNode {

@@ -21,4 +21,7 @@ package org.ballerinalang.model.tree.expressions;
  * @since 0.94
  */
 public interface BinaryExpressionNode extends ExpressionNode {
+    ExpressionNode getLeftExpression();
+
+    ExpressionNode getRightExpression();
 }

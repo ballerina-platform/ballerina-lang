@@ -17,8 +17,19 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+
+import java.util.List;
+
 /**
+ * i = a + b;
+ * p.name, j[0], u = split();
+ *
  * @since 0.94
  */
-public interface AssignmentNode extends ExpressionStatementNode {
+public interface AssignmentNode extends StatementNode {
+    List<? extends VariableReferenceNode> getVariables();
+
+    ExpressionNode getExpression();
 }

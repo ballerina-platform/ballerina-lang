@@ -17,8 +17,28 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
 /**
+ * if(true) {
+ *    block
+ * } else {
+ *     block
+ * }
+ *
+ * if(true) {
+ *    block
+ * } else if(false) {
+ *     block
+ * } else {
+ *     block
+ * }
  * @since 0.94
  */
-public interface IFElseNode {
+public interface IfNode {
+    ExpressionNode getCondition();
+
+    BlockNode getBody();
+
+    StatementNode getElseStatement();
 }

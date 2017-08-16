@@ -20,9 +20,10 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.elements.Identifier;
 
 /**
+ * a
  * @since 0.94
  */
-public interface VariableReferenceNode extends ExpressionNode {
+public interface SimpleVariableReferenceNode extends VariableReferenceNode {
     Identifier getPackageIdentifier();
 
     Identifier getVariableName();

@@ -18,6 +18,8 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
+ * <string>i
+ *
  * @since 0.94
  */
 public interface TypeConversionNode extends ExpressionNode {

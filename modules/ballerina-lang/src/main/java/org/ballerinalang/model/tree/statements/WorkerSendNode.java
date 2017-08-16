@@ -18,6 +18,7 @@
 package org.ballerinalang.model.tree.statements;
 
 /**
+ * a,d -> w1
  * @since 0.94
  */
 public interface WorkerSendNode extends StatementNode {

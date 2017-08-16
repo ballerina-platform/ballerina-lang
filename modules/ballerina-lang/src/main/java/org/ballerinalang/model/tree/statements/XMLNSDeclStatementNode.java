@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.NamespaceDeclarationNode;
+import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 
 /**
  * @since 0.94
  */
-public interface NamespaceDeclStatementNode extends StatementNode {
-    NamespaceDeclarationNode getNamespaceDeclaration();
+public interface XMLNSDeclStatementNode extends StatementNode {
+    XMLNSDeclarationNode getNamespaceDeclaration();
 }

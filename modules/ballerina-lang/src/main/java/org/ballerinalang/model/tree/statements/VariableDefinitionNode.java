@@ -17,8 +17,13 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.VariableNode;
+
 /**
+ * int a = 5;
+ *
  * @since 0.94
  */
 public interface VariableDefinitionNode extends StatementNode {
+    VariableNode getVariable();
 }

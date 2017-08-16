@@ -20,9 +20,9 @@ package org.ballerinalang.model.tree.statements;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * foo:getName();
  * @since 0.94
  */
 public interface ExpressionStatementNode extends StatementNode {
-
     ExpressionNode getExpression();
 }

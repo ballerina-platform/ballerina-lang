@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public interface AnnotatableNode {
+public interface AnnotatableNode extends Node {
     Set<? extends Flag> getFlags();
 
     List<? extends AnnotationAttachmentNode> getAnnotationAttachments();
