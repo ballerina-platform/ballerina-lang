@@ -24,10 +24,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -57,7 +57,7 @@ public class WebSocketConnectionManager {
     // Map<serverSessionID, clientSessionList>
     private final Map<String, List<Session>> serverSessionToClientSessionsMap = new HashMap<>();
 
-    private final HTTPConnectorFactory connectorFactory = new HTTPConnectorFactoryImpl();
+    private final HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
 
     private WebSocketConnectionManager() {
