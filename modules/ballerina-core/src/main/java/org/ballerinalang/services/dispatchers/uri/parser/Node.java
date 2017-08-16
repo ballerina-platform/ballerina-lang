@@ -41,7 +41,6 @@ public abstract class Node {
     protected List<ResourceInfo> resource;
     protected boolean isFirstTraverse = true;
     protected List<Node> childNodesList = new LinkedList<>();
-    protected String[] httpMethods = {"GET", "PUT", "POST", "DELETE", "OPTIONS", "HEAD"};
 
     protected Node(String token) {
         this.token = token;
@@ -141,7 +140,7 @@ public abstract class Node {
         if (resource == null) {
             if (!isOptionsRequest) {
                 carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
-                carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+                carbonMessage.setHeader(Constants.ALLOW_HEADER, getAllowHeaderValues());
                 throw new BallerinaException();
             } else {
                 return null;
@@ -252,7 +251,7 @@ public abstract class Node {
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage carbonMessage) {
         if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+            carbonMessage.setHeader(Constants.ALLOW_HEADER, getAllowHeaderValues());
             return true;
         }
         return false;

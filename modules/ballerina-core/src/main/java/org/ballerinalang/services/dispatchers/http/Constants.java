@@ -44,6 +44,7 @@ public class Constants {
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String ACCEPT_HEADER = "Accept";
+    public static final String ALLOW_HEADER = "Allow";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
@@ -90,7 +91,4 @@ public class Constants {
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
-
-    public static final String ALLOW = "Allow";
-
 }
