@@ -32,15 +32,18 @@ function renderMenuNode(item) {
             <SubMenu
                 disabled={!item.isActive()}
                 title={
-                    <div style={{ display: 'iniline-block' }}>
-                        <div style={{ float: 'left', width: '33%' }}>
+                    <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
+                        <div style={{ position: 'absolute', left: '5px' }}>
                             <i className={`fw fw-${item.icon}`} />
                         </div>
-                        <div className="menu-label" style={{ display: 'inline-block', width: '33%' }}>
+                        <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
                             {label}
                         </div>
-                        <div style={{ float: 'right', width: '33%' }}>
+                        <div style={{ position: 'absolute', right: '0px' }}>
                             <i className={'fw fw-right'} style={{ marginRight: '5px' }} />
+                        </div>
+                        <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
+                            {label}
                         </div>
                     </div>
                 }
@@ -52,12 +55,17 @@ function renderMenuNode(item) {
     case MENU_DEF_TYPES.ITEM:
         return (
             <MenuItem disabled={!item.isActive()} key={id} menuDef={item}>
-                <div style={{ minWidth: '100px', display: 'inline' }}>
-                    <i className={`fw fw-${item.icon}`} style={{ marginRight: '5px' }} />
+                <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
+                    <div style={{ position: 'absolute', left: '5px' }}>
+                        <i className={`fw fw-${item.icon}`} />
+                    </div>
+                    <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
+                        {label}
+                    </div>
+                    <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
+                        {label}
+                    </div>
                 </div>
-                <span className="menu-label">
-                    {label}
-                </span>
             </MenuItem>
         );
     default:
