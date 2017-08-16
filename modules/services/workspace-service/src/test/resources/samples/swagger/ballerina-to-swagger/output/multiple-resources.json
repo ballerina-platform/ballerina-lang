@@ -3,20 +3,39 @@
   "info": {
     "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
     "version": "1.0.0",
-    "title": "Service5",
-    "termsOfService": "http://swagger.io/terms/"
+    "title": "Service9"
   },
-  "host": "localhost:4545",
   "basePath": "/api",
   "paths": {
     "/pets/{id}": {
-      "x-MULTI": {
-        "x-METHODS": [
-          "GET",
-          "POST"
-        ],
+      "get": {
         "operationId": "Resource1",
         "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "examples": {
+              "application/json": "Ok"
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "Resource2",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
           "application/json"
         ],
         "parameters": [
@@ -43,16 +62,9 @@
             }
           }
         }
-      }
-    },
-    "/pets/firstDoggy": {
-      "x-MULTI": {
-        "x-METHODS": [
-          "PUT",
-          "POST",
-          "DELETE"
-        ],
-        "operationId": "Resource2",
+      },
+      "delete": {
+        "operationId": "Resource4",
         "produces": [
           "application/json"
         ],
@@ -76,11 +88,21 @@
         }
       }
     },
-    "/pets/secondDoggy": {
-      "get": {
+    "/pets": {
+      "put": {
         "operationId": "Resource3",
-        "produces": [
+        "consumes": [
           "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "m",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          }
         ],
         "responses": {
           "200": {
