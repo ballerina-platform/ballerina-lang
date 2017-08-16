@@ -606,7 +606,9 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(XMLLiteral xmlLiteral) {
-        
+        StringBuffer buffer = new StringBuffer();
+        bufferStack.push(buffer);
+        buffer.append(xmlLiteral.getType().getName());
     }
     
     @Override

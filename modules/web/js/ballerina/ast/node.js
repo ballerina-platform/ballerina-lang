@@ -602,7 +602,8 @@ class ASTNode extends EventChannel {
     }
 
     /**
-     * This returns the top level parent (should be Resource, action definition, function definition or worker declaration
+     * This returns the top level parent (should be Resource, action definition,
+     * function definition or worker declaration
      * @returns {ASTNode} Parent Node
      */
     getTopLevelParent() {
@@ -617,7 +618,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Get the index of the node
-     * @returns {number} 
+     * @returns {number} return the index.
      */
     getNodeIndex() {
         return !_.isNil(this.getParent()) ? this.getParent().getIndexOfChild(this) : -1;

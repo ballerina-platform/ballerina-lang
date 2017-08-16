@@ -111,6 +111,10 @@ import XMLQNameExpression from './expressions/xml-qname-expression';
 import XMLAttributeReferenceExpression from './expressions/xml-attribute-reference-expression';
 import FailedStatement from './statements/failed-statement';
 import RetryStatement from './statements/retry-statement';
+import XMLElementLiteral from './expressions/xml-element-literal';
+import XMLSequenceLiteral from './expressions/xml-sequence-literal';
+import XMLTextLiteral from './expressions/xml-text-literal';
+import XMLCommentLiteral from './expressions/xml-comment-literal';
 
 /**
  * @class BallerinaASTFactory
@@ -549,7 +553,7 @@ BallerinaASTFactory.createResourceParameter = function (args) {
  * @param args
  * @returns {StructType}
  */
-BallerinaASTFactory.createStructType= function (args) {
+BallerinaASTFactory.createStructType = function (args) {
     return new structType(args);
 };
 
@@ -732,7 +736,7 @@ BallerinaASTFactory.createTransformStatement = function (args) {
  * @param {Object} args - argument for the creating retry statement.
  * @return {RetryStatement} retry statement.
  * */
-BallerinaASTFactory.createRetryStatement = function(args){
+BallerinaASTFactory.createRetryStatement = function (args) {
     return new RetryStatement(args);
 };
 
@@ -885,6 +889,33 @@ BallerinaASTFactory.createXMLQNameExpression = (args) => {
  * */
 BallerinaASTFactory.createXMLAttributeReferenceExpression = () => {
     return new XMLAttributeReferenceExpression();
+};
+
+/**
+ * Create new {@link XMLElementLiteral}
+ * @return {XMLElementLiteral} new XMLElementLiteral
+ * */
+BallerinaASTFactory.createXMLElementLiteral = () => {
+    return new XMLElementLiteral();
+};
+
+/**
+ * Create new {@link XMLSequenceLiteral}
+ * @return {XMLSequenceLiteral} new XMLSequenceLiteral
+ * */
+BallerinaASTFactory.createXMLSequenceLiteral = () => {
+    return new XMLSequenceLiteral();
+};
+
+/**
+ * Create new {@link XMLTextLiteral
+ * */
+BallerinaASTFactory.createXMLTextLiteral = () => {
+    return new XMLTextLiteral();
+};
+
+BallerinaASTFactory.createXMLCommentLiteral = () => {
+    return new XMLCommentLiteral();
 };
 
 /**
@@ -1109,7 +1140,7 @@ BallerinaASTFactory.isExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isKeyValueExpression= function (child) {
+BallerinaASTFactory.isKeyValueExpression = function (child) {
     return child instanceof keyValueExpression;
 };
 
@@ -1334,7 +1365,7 @@ BallerinaASTFactory.isReturnType = function (child) {
  * @param {ASTNode} child - object for instanceof check
  * @return {boolean} - true if same type, else false.
  * */
-BallerinaASTFactory.isRetry = function(child){
+BallerinaASTFactory.isRetry = function (child) {
     return child instanceof RetryStatement;
 };
 
@@ -1840,46 +1871,46 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             node = BallerinaASTFactory.createThenBody();
             break;
         case 'equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '==' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '=='});
             break;
         case 'greater_than_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '>' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '>'});
             break;
         case 'add_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '+' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '+'});
             break;
         case 'multiplication_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '*' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '*'});
             break;
         case 'division_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '/' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '/'});
             break;
         case 'mod_expression' :
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '%' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '%'});
             break;
         case 'and_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '&&' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '&&'});
             break;
         case 'subtract_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '-' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '-'});
             break;
         case 'or_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '||' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '||'});
             break;
         case 'greater_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '>=' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '>='});
             break;
         case 'less_than_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '<' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '<'});
             break;
         case 'less_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '<=' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '<='});
             break;
         case 'not_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ operator: '!=' });
+            node = BallerinaASTFactory.createBinaryExpression({operator: '!='});
             break;
         case 'unary_expression':
-            node = BallerinaASTFactory.createUnaryExpression({ operator: jsonNode.operator });
+            node = BallerinaASTFactory.createUnaryExpression({operator: jsonNode.operator});
             break;
         case 'connector_init_expr':
             node = BallerinaASTFactory.createConnectorInitExpression();
@@ -2013,29 +2044,41 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'retry_statement':
             node = BallerinaASTFactory.createRetryStatement();
             break;
+        case 'xml_element_literal':
+            node = BallerinaASTFactory.createXMLElementLiteral();
+            break;
+        case 'xml_sequence_literal':
+            node = BallerinaASTFactory.createXMLSequenceLiteral();
+            break;
+        case 'xml_text_literal':
+            node = BallerinaASTFactory.createXMLTextLiteral();
+            break;
+        case 'xml_comment-literal':
+            node = BallerinaASTFactory.createXMLCommentLiteral();
+            break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);
     }
     // handle special case of connector declaration
     if (jsonNode.type === 'variable_definition_statement' &&
-                !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
+        !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
         node = BallerinaASTFactory.createConnectorDeclaration();
-    } 
+    }
 
-    node.setLineNumber(jsonNode.line_number, { doSilently: true });
+    node.setLineNumber(jsonNode.line_number, {doSilently: true});
 
     if (!_.isNil(jsonNode.position_info)) {
-        const { start_line, start_offset, stop_line, stop_offset } = jsonNode.position_info;
+        const {start_line, start_offset, stop_line, stop_offset} = jsonNode.position_info;
         const position = {
             startLine: start_line,
             startOffset: start_offset,
             stopLine: stop_line,
             stopOffset: stop_offset
         };
-        node.setPosition(position, { doSilently: true });
+        node.setPosition(position, {doSilently: true});
     }
     if (jsonNode.is_identifier_literal) {
-        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, { doSilently: true });
+        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, {doSilently: true});
     }
 
     if (!_.isNil(jsonNode.whitespace_descriptor)) {
