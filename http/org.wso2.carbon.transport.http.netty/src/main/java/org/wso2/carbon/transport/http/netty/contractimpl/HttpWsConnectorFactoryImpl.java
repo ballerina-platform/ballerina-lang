@@ -42,8 +42,6 @@ import java.util.Map;
  */
 public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
 
-    private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
-
     @Override
     public ServerConnector getServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfig) {

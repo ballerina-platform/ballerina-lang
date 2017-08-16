@@ -37,7 +37,7 @@ public interface HttpWsConnectorFactory {
      * @return connector that represents the server socket and additional details.
      */
     ServerConnector getServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
-            ListenerConfiguration listenerConfiguration);
+            ListenerConfiguration listenerConfiguration) throws Exception;
 
     /**
      * This method can be used to get http client connectors.
