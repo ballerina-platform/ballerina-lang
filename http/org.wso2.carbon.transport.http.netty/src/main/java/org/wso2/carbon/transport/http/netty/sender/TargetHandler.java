@@ -53,7 +53,6 @@ import java.util.Map;
 public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
-    private CarbonCallback callback;
     private HttpResponseFuture httpResponseFuture;
 //    private HttpConnectorListener listener;
     private HTTPCarbonMessage cMsg;
@@ -174,7 +173,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
         HttpResponse httpResponse = (HttpResponse) msg;
 
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
@@ -189,7 +187,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    protected HTTPCarbonMessage createErrorMessage(String payload) {
+    private HTTPCarbonMessage createErrorMessage(String payload) {
         HTTPCarbonMessage response = new HTTPCarbonMessage();
 
         response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
@@ -205,7 +203,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         response.setProperty(Constants.HTTP_STATUS_CODE, 504);
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        response.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
         MessagingException messagingException = new MessagingException("read timeout", 101504);
         response.setMessagingException(messagingException);
         return response;
