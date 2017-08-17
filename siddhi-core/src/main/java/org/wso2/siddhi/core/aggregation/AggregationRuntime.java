@@ -30,7 +30,6 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.BaseIncrementalValueStore;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -61,12 +60,12 @@ public class AggregationRuntime {
     private final Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap;
     private final Map<TimePeriod.Duration, Table> aggregationTables;
     private final SiddhiAppContext siddhiAppContext;
-    private final MetaStreamEvent internalMetaStreamEvent;
+    private final MetaStreamEvent tableMetaStreamEvent;
+    private final MetaStreamEvent aggregateMetaSteamEvent;
     private List<TimePeriod.Duration> incrementalDurations;
     private SingleStreamRuntime singleStreamRuntime;
     private EntryValveExecutor entryValveExecutor;
     private ExpressionExecutor perExpressionExecutor;
-    private Map<TimePeriod.Duration, Object> inMemoryStoreMap = new HashMap<>();
     private List<ExpressionExecutor> baseExecutors;
     private List<ExpressionExecutor> outputExpressionExecutors;
 
@@ -75,7 +74,7 @@ public class AggregationRuntime {
             Map<TimePeriod.Duration, Table> aggregationTables, SingleStreamRuntime singleStreamRuntime,
             EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
             SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
-            MetaStreamEvent internalMetaStreamEvent, List<ExpressionExecutor> outputExpressionExecutors) {
+            MetaStreamEvent tableMetaStreamEvent, List<ExpressionExecutor> outputExpressionExecutors) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
         this.aggregationTables = aggregationTables;
@@ -84,8 +83,11 @@ public class AggregationRuntime {
         this.singleStreamRuntime = singleStreamRuntime;
         this.entryValveExecutor = entryValveExecutor;
         this.baseExecutors = baseExecutors;
-        this.internalMetaStreamEvent = internalMetaStreamEvent;
+        this.tableMetaStreamEvent = tableMetaStreamEvent;
         this.outputExpressionExecutors = outputExpressionExecutors;
+
+        aggregateMetaSteamEvent = new MetaStreamEvent();
+        aggregationDefinition.getAttributeList().forEach(aggregateMetaSteamEvent::addOutputData);
     }
 
     public Map<TimePeriod.Duration, IncrementalExecutor> getIncrementalExecutorMap() {
@@ -117,6 +119,8 @@ public class AggregationRuntime {
     }
 
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+
+        // Retrieve per value
         String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
         TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
         if (!incrementalExecutorMap.keySet().contains(perValue)) {
@@ -124,17 +128,23 @@ public class AggregationRuntime {
                     + " granularity cannot be provided since aggregation definition " + aggregationDefinition.getId()
                     + " does not contain " + perValue.toString() + " duration");
         }
-        TimePeriod.Duration rootDuration = TimePeriod.Duration.values()[incrementalDurations.get(0).ordinal()];
-        BaseIncrementalValueStore newestInMemoryEvent = incrementalExecutorMap.get(rootDuration).getNewestEvent();
-        BaseIncrementalValueStore oldestInMemoryEvent = incrementalExecutorMap.get(perValue).getOldestEvent();
+
+        Table tableForPerDuration = aggregationTables.get(perValue);
+
         return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
-                perValue == rootDuration, newestInMemoryEvent, oldestInMemoryEvent);
+                incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors,
+                outputExpressionExecutors);
     }
 
     public IncrementalAggregateCompileCondition compileExpression(Expression expression, Within within, Expression per,
             MatchingMetaInfoHolder matchingMetaInfoHolder, List<VariableExpressionExecutor> variableExpressionExecutors,
             Map<String, Table> tableMap, String queryName, SiddhiAppContext siddhiAppContext) {
+
         Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions = new HashMap<>();
+        CompiledCondition withinInMemoryCompileCondition;
+        CompiledCondition onCompiledCondition;
+
+        // Create per expression executor
         perExpressionExecutor = ExpressionParser.parseExpression(per, matchingMetaInfoHolder.getMetaStateEvent(),
                 matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext,
                 false, 0, queryName);
@@ -142,58 +152,63 @@ public class AggregationRuntime {
             throw new SiddhiAppCreationException("Query " + queryName + "'s per value expected a string but found "
                     + perExpressionExecutor.getReturnType());
         }
+
+        // Create within expression
         Expression withinExpression;
-        if (within.getTimeRange().size() == 1){
-            withinExpression = new AttributeFunction("incrementalAggregator", "within",
-                    within.getTimeRange().get(0), Expression.variable("_TIMESTAMP"));
+        if (within.getTimeRange().size() == 1) {
+            withinExpression = new AttributeFunction("incrementalAggregator", "within", within.getTimeRange().get(0),
+                    Expression.variable("_TIMESTAMP"));
         } else { // within.getTimeRange().size() == 2
-            withinExpression = new AttributeFunction("incrementalAggregator", "within",
-                    within.getTimeRange().get(0), within.getTimeRange().get(1), Expression.variable("_TIMESTAMP"));
+            withinExpression = new AttributeFunction("incrementalAggregator", "within", within.getTimeRange().get(0),
+                    within.getTimeRange().get(1), Expression.variable("_TIMESTAMP"));
         }
+
+        // Get table definition. Table definitions for all the tables used to persist aggregates are similar.
+        // Therefore it's enough to get the definition from one table.
+        AbstractDefinition tableDefinition = ((Table) aggregationTables.values().toArray()[0]).getTableDefinition();
+
+        // Create compile condition per each table used to persist aggregates.
+        // These compile conditions are used to check whether the aggregates in tables are within the given duration.
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
-            CompiledCondition tableCompileCondition = entry.getValue().compileCondition(withinExpression,
-                    aggregationTableMetaInfoHolder(matchingMetaInfoHolder, entry.getValue().getTableDefinition()),
-                    siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-            withinTableCompiledConditions.put(entry.getKey(), tableCompileCondition);
-            // TODO: 8/11/17 do this in the init 
-            inMemoryStoreMap.put(entry.getKey(), incrementalExecutorMap.get(entry.getKey()).getInMemoryStore());
+            CompiledCondition withinTableCompileCondition = entry.getValue().compileCondition(withinExpression,
+                    aggregationTableMetaInfoHolder(matchingMetaInfoHolder, tableDefinition), siddhiAppContext,
+                    variableExpressionExecutors, tableMap, queryName);
+            withinTableCompiledConditions.put(entry.getKey(), withinTableCompileCondition);
         }
-        CompiledCondition inMemoryStoreCompileCondition = OperatorParser.constructOperator(
-                new ComplexEventChunk<>(true), withinExpression,
-                aggregationTableMetaInfoHolder(matchingMetaInfoHolder,
-                        ((Table) aggregationTables.values().toArray()[0]).getTableDefinition()),
+
+        // Create compile condition for in-memory data.
+        // This compile condition is used to check whether the running aggregates (in-memory data)
+        // are within given duration
+        withinInMemoryCompileCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
+                withinExpression, aggregationTableMetaInfoHolder(matchingMetaInfoHolder, tableDefinition),
                 siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+
         // TODO: 8/11/17 optimize on and to retrieve group by
-        CompiledCondition onCompiledCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
-                expression, matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
-        MetaStreamEvent finalOutputMetaStreamEvent = null;
-        for (MetaStreamEvent metaStreamEvent : matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()) {
-            if (metaStreamEvent.getLastInputDefinition().getId()
-                    .equals(matchingMetaInfoHolder.getStoreDefinition().getId())) {
-                if (metaStreamEvent.getOutputData() == null || metaStreamEvent.getOutputData().isEmpty()) {
-                    metaStreamEvent.getLastInputDefinition().getAttributeList().forEach(metaStreamEvent::addOutputData);
-                } // TODO: 8/11/17 get from aggregate parser (output gets populated at onCompileCondition only. try to do it before. try with renames)
-                finalOutputMetaStreamEvent = metaStreamEvent;
-            }
-        }
-        return new IncrementalAggregateCompileCondition(withinTableCompiledConditions, inMemoryStoreCompileCondition,
-                onCompiledCondition, baseExecutors, aggregationTables, inMemoryStoreMap, internalMetaStreamEvent,
-                incrementalDurations, outputExpressionExecutors, finalOutputMetaStreamEvent);
+        // On compile condition.
+        // After finding all the aggregates belonging to within duration, the final on condition (given as
+        // "on stream1.name == aggregator.nickName ..." in the join query) must be executed on that data.
+        // This condition is used for that purpose.
+        onCompiledCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true), expression,
+                matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+
+        return new IncrementalAggregateCompileCondition(withinTableCompiledConditions, withinInMemoryCompileCondition,
+                onCompiledCondition, tableMetaStreamEvent, aggregateMetaSteamEvent);
     }
 
     private static MatchingMetaInfoHolder aggregationTableMetaInfoHolder(MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                                         AbstractDefinition tableDefinition) {
+            AbstractDefinition tableDefinition) {
         MetaStreamEvent metaStreamEventForTable = new MetaStreamEvent();
         metaStreamEventForTable.setEventType(MetaStreamEvent.EventType.TABLE);
         metaStreamEventForTable.addInputDefinition(tableDefinition);
         MetaStateEvent metaStateEvent;
         if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1) {
-            //Only store meta is passed via StoreQuery
+            // Only store meta is passed via StoreQuery.
+            // Hence the Meta state event would contain only one meta stream event.
             metaStateEvent = new MetaStateEvent(1);
             metaStateEvent.addEvent(metaStreamEventForTable);
-            return new MatchingMetaInfoHolder(metaStateEvent, 0, 0,  tableDefinition, tableDefinition, 0);
+            return new MatchingMetaInfoHolder(metaStateEvent, 0, 0, tableDefinition, tableDefinition, 0);
         } else {
-            //Both stream and store events appear for a join
+            // Both stream and store events appear for a join
             metaStateEvent = new MetaStateEvent(2);
             metaStateEvent.addEvent(matchingMetaInfoHolder.getMetaStateEvent()
                     .getMetaStreamEvent(matchingMetaInfoHolder.getMatchingStreamEventIndex()));
