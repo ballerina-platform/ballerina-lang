@@ -16,7 +16,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
@@ -24,6 +25,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-container-support</artifactId>
     <version>0.92.1-SNAPSHOT</version>
     <name>Ballerina - Container Support</name>
@@ -136,7 +138,8 @@
                     </filters>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                         </transformer>
                     </transformers>
                 </configuration>
@@ -186,7 +189,8 @@
                             <licenseFamilyCategory>WSO2</licenseFamilyCategory>
                             <licenseFamilyName>WSO2 License 1.0</licenseFamilyName>
                             <patterns>
-                                <pattern>Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.</pattern>
+                                <pattern>Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+                                </pattern>
                                 <pattern>Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.</pattern>
                             </patterns>
                         </license>
