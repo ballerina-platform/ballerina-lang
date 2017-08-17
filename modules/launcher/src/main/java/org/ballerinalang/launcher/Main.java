@@ -1,5 +1,6 @@
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -192,6 +194,9 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
+        @DynamicParameter(names = "-B", description = "Dynamic parameters for BVM")
+        private Map<String, String> params = new HashMap<>();
+
         public void execute() {
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
@@ -201,6 +206,12 @@ public class Main {
 
             if (argList == null || argList.size() == 0) {
                 throw LauncherUtils.createUsageException("no ballerina program given");
+            }
+
+            if (params != null) {
+                params.forEach((property, value) -> {
+                    System.setProperty(property, value);
+                });
             }
 
             // Enable remote debugging

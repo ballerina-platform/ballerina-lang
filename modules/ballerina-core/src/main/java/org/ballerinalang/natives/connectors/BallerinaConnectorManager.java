@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.natives.connectors;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
@@ -24,6 +26,8 @@ import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.services.dispatchers.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.framework.ConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
@@ -42,6 +46,7 @@ import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +54,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.logging.LogManager;
 
 /**
  * {@code BallerinaConnectorManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -56,6 +62,8 @@ import java.util.Set;
  * @since 0.89
  */
 public class BallerinaConnectorManager {
+
+    private static final Logger log = LoggerFactory.getLogger(BallerinaConnectorManager.class);
 
     private ConnectorManager connectorManager = new ConnectorManager();
 
@@ -83,9 +91,14 @@ public class BallerinaConnectorManager {
 
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-            serverConnector = httpConnectorFactory
-                    .createServerConnector(serverBootstrapConfiguration, listenerConfiguration);
-            addStartupDelayedHTTPServerConnector(listenerConfiguration.getId(), serverConnector);
+            try {
+                serverConnector = httpConnectorFactory
+                        .getServerConnector(serverBootstrapConfiguration, listenerConfiguration);
+
+                addStartupDelayedHTTPServerConnector(listenerConfiguration.getId(), serverConnector);
+            } catch (Exception e) {
+                throw new BallerinaException("Error in retrieving HTTP Server Connector", e);
+            }
         }
     }
 
@@ -140,6 +153,14 @@ public class BallerinaConnectorManager {
     createHTTPServerConnector(String id, Map<String, String> parameters) {
 
         ListenerConfiguration listenerConfig = HTTPMessageUtil.buildListenerConfig(id, parameters);
+        if (System.getProperty("wirelog") != null) {
+            try {
+                ((BLogManager) LogManager.getLogManager()).setWirelogHandler(System.getProperty("wirelog"));
+            } catch (IOException e) {
+                throw new BallerinaException("Error in initializing HTTP trace logs", e);
+            }
+            listenerConfig.setHttpTraceLog(true);
+        }
         ServerBootstrapConfiguration serverBootstrapConfiguration = HTTPMessageUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
@@ -147,7 +168,12 @@ public class BallerinaConnectorManager {
             return startupDelayedHTTPServerConnectors.get(id);
         }
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
-                httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
+                null;
+        try {
+            serverConnector = httpConnectorFactory.getServerConnector(serverBootstrapConfiguration, listenerConfig);
+        } catch (Exception e) {
+            throw new BallerinaException("Error in retrieving HTTP Server Connector", e);
+        }
         return serverConnector;
     }
 
@@ -295,6 +321,14 @@ public class BallerinaConnectorManager {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig);
-        return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
+        if (System.getProperty("wirelog") != null) {
+            try {
+                ((BLogManager) LogManager.getLogManager()).setWirelogHandler(System.getProperty("wirelog"));
+            } catch (IOException e) {
+                throw new BallerinaException("Error in initializing HTTP trace logs", e);
+            }
+            System.setProperty("wirelog.enabled", Boolean.TRUE.toString());
+        }
+        return httpConnectorFactory.getHTTPClientConnector(properties, senderConfiguration);
     }
 }
