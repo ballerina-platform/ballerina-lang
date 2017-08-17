@@ -26,6 +26,7 @@ import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
 import MenuManager from './menu/manager';
 import WorkspaceManager from './workspace/manager';
+import { makeImutable } from './utils/object-utils';
 
 /**
  * Composer Application
@@ -41,8 +42,7 @@ class Application {
         // Make config object read only.
         // This is to prevent any subsequent changes
         // to config object from plugins, etc.
-        Object.freeze(config);
-        Object.preventExtensions(config);
+        makeImutable(config);
         this.config = config;
 
         // init plugins collection
@@ -82,12 +82,11 @@ class Application {
         this.appContext[CONTEXT_NAMESPACES.WORKSPACE] = this.appContext
                     .pluginContexts[this.workspaceManager.getID()];
 
-        // SInce now we have loaded all the plugins
+        // Since now we have loaded all the plugins
         // Make appContext object read only.
         // This is to prevent any subsequent changes
         // to it from plugins, etc.
-        Object.freeze(this.appContext);
-        Object.preventExtensions(this.appContext);
+        makeImutable(this.appContext);
     }
 
     /**
@@ -138,6 +137,7 @@ class Application {
      */
     _discoverContributions(plugin) {
         const contributions = plugin.getContributions();
+
         const commands = _.get(contributions, CONTRIBUTIONS.COMMANDS, []);
         const handlers = _.get(contributions, CONTRIBUTIONS.HANDLERS, []);
         const views = _.get(contributions, CONTRIBUTIONS.VIEWS, []);

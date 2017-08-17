@@ -37,7 +37,7 @@ class ApplicationMenuPlugin extends Plugin {
 
     constructor() {
         super();
-        this.menuDefs = [];
+        this.menus = [];
     }
 
     /**
@@ -53,10 +53,10 @@ class ApplicationMenuPlugin extends Plugin {
      * @param {Object} menuDef Menu Definition
      */
     addMenu(menuDef) {
-        if (!_.isNil(_.find(this.menuDefs, ['id', menuDef.id]))) {
+        if (!_.isNil(_.find(this.menus, ['id', menuDef.id]))) {
             log.error('Duplicate menu-definition for menu ' + menuDef.id);
         } else {
-            this.menuDefs.push(menuDef);
+            this.menus.push(_.cloneDeep(menuDef));
         }
     }
 
@@ -65,9 +65,9 @@ class ApplicationMenuPlugin extends Plugin {
      *
      */
     generateMenuFromDefinitions() {
-        const roots = _.filter(this.menuDefs, ['type', MENU_DEF_TYPES.ROOT]);
-        const groups = _.filter(this.menuDefs, ['type', MENU_DEF_TYPES.GROUP]);
-        const items = _.filter(this.menuDefs, ['type', MENU_DEF_TYPES.ITEM]);
+        const roots = _.filter(this.menus, ['type', MENU_DEF_TYPES.ROOT]);
+        const groups = _.filter(this.menus, ['type', MENU_DEF_TYPES.GROUP]);
+        const items = _.filter(this.menus, ['type', MENU_DEF_TYPES.ITEM]);
 
         const findRoot = (id) => {
             return _.find(roots, ['id', id]);

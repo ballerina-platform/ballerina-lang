@@ -56,13 +56,14 @@ class CommandManager extends Plugin {
     /**
      * Register a command.
      *
-     * @param {Object} cmd command definition
-     * @param {String} cmd.id command ID
-     * @param {Object} [cmd.shortcut] keyboard shortcuts def for the command
-     * @param {Object} cmd.shortcut.default default shortcut
-     * @param {String} cmd.shortcut.mac shortcut for mac
+     * @param {Object} cmdDef command definition
+     * @param {String} cmdDef.id command ID
+     * @param {Object} [cmdDef.shortcut] keyboard shortcuts def for the command
+     * @param {Object} cmdDef.shortcut.default default shortcut
+     * @param {String} cmdDef.shortcut.mac shortcut for mac
      */
-    registerCommand(cmd) {
+    registerCommand(cmdDef) {
+        const cmd = _.cloneDeep(cmdDef);
         if (_.isEqual(_.findIndex(this.commands, ['id', cmd.id]), -1)) {
             this.commands.push(cmd);
             log.debug(`Command: ${cmd.id} is registered.`);
