@@ -141,7 +141,7 @@ public abstract class Node {
         if (resource == null) {
             if (!isOptionsRequest) {
                 carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
-                carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+                carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues(carbonMessage));
                 throw new BallerinaException();
             } else {
                 return null;
@@ -250,21 +250,24 @@ public abstract class Node {
         return null;
     }
 
-    private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage carbonMessage) {
+    private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage cMsg) {
         if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            carbonMessage.setHeader(Constants.ALLOW, getAllowHeaderValues());
+            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(cMsg));
             return true;
         }
         return false;
     }
 
-    private String getAllowHeaderValues() {
+    private String getAllowHeaderValues(CarbonMessage cMsg) {
         List<String> methods = new ArrayList<>();
+        List<ResourceInfo> resourceInfos = new ArrayList<>();
         for (ResourceInfo resourceInfo : this.resource) {
             methods.addAll(Arrays.stream(DispatcherUtil.getHttpMethods(resourceInfo)).collect(Collectors.toList()));
+            resourceInfos.add(resourceInfo);
         }
+        cMsg.setProperty(Constants.PREFLIGHT_RESOURCES, resourceInfos);
         DispatcherUtil.validateAllowMethods(methods);
-        return DispatcherUtil.concatValues(methods);
+        return DispatcherUtil.concatValues(methods, false);
     }
 
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {

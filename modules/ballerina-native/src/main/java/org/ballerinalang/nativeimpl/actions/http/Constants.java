@@ -66,9 +66,16 @@ public class Constants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
-
-
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
-
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
+
+    public static final String ORIGIN = "Origin";
+    public static final String AC_REQUEST_METHODS = "Access-Control-Request-Method";
+    public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
+    public static final String AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    public static final String AC_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    public static final String AC_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    public static final String AC_MAX_AGE = "Access-Control-Max-Age";
+    public static final String AC_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    public static final String AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 }

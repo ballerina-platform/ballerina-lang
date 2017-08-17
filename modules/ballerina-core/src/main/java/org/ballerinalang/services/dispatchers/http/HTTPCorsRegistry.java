@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * HTTPCorsRegistry loads CORS headers at service/resource level.
  *
- * @since 0.92
+ * @since 0.93
  */
 public class HTTPCorsRegistry {
 
@@ -84,7 +84,6 @@ public class HTTPCorsRegistry {
     }
 
     public Map<String, List<String>> populateCorsHeaders(ResourceInfo resource) {
-
         Map<String, List<String>> corsMap = new HashMap<>();
         for (String header : corsHeaders) {
             attributeValue = configAnnotInfo.getAttributeValue(header);
@@ -95,7 +94,11 @@ public class HTTPCorsRegistry {
                         list.add(att.getStringValue().trim());
                     }
                 } else {
-                    list.add(attributeValue.getStringValue().trim());
+                    if (header.equals(Constants.ALLOW_CREDENTIALS)) {
+                        list.add(String.valueOf(attributeValue.getBooleanValue()));
+                    } else if (header.equals(Constants.MAX_AGE)) {
+                        list.add(String.valueOf(attributeValue.getIntValue()));
+                    }
                 }
             } else {
                 switch (header) {
@@ -135,10 +138,15 @@ public class HTTPCorsRegistry {
     }
 
     public Map<String, List<String>> getCorsHeaders(ResourceInfo resource) {
-        return resourceCorsHolder.get(getResourceKey(resource));
+        Map<String, List<String>> corsheaders = resourceCorsHolder.get(getResourceKey(resource));
+        if (corsheaders != null) {
+            return corsheaders;
+        }
+        return null;
     }
 
     private String getResourceKey(ResourceInfo resource) {
-        return resource.getServiceInfo().getName() + resource.getName();
+        String separator = "%&$";
+        return resource.getServiceInfo().getName() + separator + resource.getName();
     }
 }

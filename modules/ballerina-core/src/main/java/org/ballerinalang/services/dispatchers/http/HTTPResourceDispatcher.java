@@ -62,7 +62,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                             .forEach((resourceArgumentValues::put));
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-                CorsFilter.process(HTTPCorsRegistry.getInstance().getCorsHeaders(resource), cMsg);
+                cMsg.setProperty(Constants.RESOURCES_CORS, HTTPCorsRegistry.getInstance().getCorsHeaders(resource));
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
@@ -101,13 +101,14 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
         } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
             if (!getAllResourceMethods(service).isEmpty()) {
-                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service)));
+                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service), false));
             }
         } else {
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("no matching resource found for path : "
                     + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + "OPTIONS");
         }
+        new CorsFilter(cMsg, response, false);
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
         response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);

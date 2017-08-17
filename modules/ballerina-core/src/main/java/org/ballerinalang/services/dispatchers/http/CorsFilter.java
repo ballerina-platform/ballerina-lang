@@ -19,168 +19,204 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
+import org.ballerinalang.util.codegen.ResourceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * CorsFilter provides both input and output filter for CORS following http://www.w3.org/TR/cors/.
  *
- * @since 0.92
+ * @since 0.93
  */
 public class CorsFilter {
-    private static Map<String, List<String>> resourceCors;
-    private static Map<String, String> responseCors = new HashMap<>();
-    private static boolean isCorsResponseHeadersAvailable = false;
-    private static final Pattern SPACE_PATTERN = Pattern.compile(" ");
-    private static final Pattern FIELD_COMMA_PATTERN = Pattern.compile(",");
-    private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
+    private Map<String, List<String>> resourceCors;
+    private Map<String, String> responseCors = new HashMap<>();
+    private final Pattern spacePattern = Pattern.compile(" ");
+    private final Pattern fieldCommaPattern = Pattern.compile(",");
+    private final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
+    private CarbonMessage requestMsg;
+    private CarbonMessage responseMsg;
 
-    public static void process(Map<String, List<String>> resourceCorsHeaders, CarbonMessage cMsg) {
-        resourceCors = resourceCorsHeaders;
-        String origin = cMsg.getHeader(Constants.ORIGIN);
-        if (origin != null && resourceCors != null) {
-            String httpMethod = cMsg.getProperty(Constants.HTTP_METHOD).toString();
-            if (Constants.HTTP_METHOD_OPTIONS.equals(httpMethod)) {
-                //isPreflightRequest(origin, cMsg);
-            } else {
-                if (isSimpleRequest(origin)) {
-                    isCorsResponseHeadersAvailable = true;
-                } else {
-                    //do not set headers.
-                }
-            }
-        }
+    public CorsFilter(CarbonMessage requestMsg, CarbonMessage responseMsg, boolean isSimpleRequest) {
+        this.requestMsg = requestMsg;
+        this.responseMsg = responseMsg;
+        generateCORSHeaders(isSimpleRequest);
     }
 
-    private static boolean isSimpleRequest(String origin) {
-        List<String> list = new ArrayList();
-        List<String> resourceOrigins = resourceCors.get(Constants.ALLOW_ORIGIN);
-        List<String> requestOrigins = getOriginValues(origin);
-        if (requestOrigins != null && requestOrigins.size() != 0) {
-            if (resourceOrigins.size() == 1 && resourceOrigins.get(0).equals("*")) {
-                //origin allowed.
-                list = requestOrigins;
-            } else {
-                List<String> matchedOrigins = resourceOrigins.stream().filter(requestOrigins::contains)
-                        .collect(Collectors.toList());
-                if (matchedOrigins.size() > 0) {
-                    list = matchedOrigins;
-                } else {
-                    return false;
+    public void generateCORSHeaders(boolean isSimpleRequest) {
+        boolean isCorsResponseHeadersAvailable = false;
+        if (isSimpleRequest) {
+            resourceCors = (Map<String, List<String>>) requestMsg.getProperty(Constants.RESOURCES_CORS);
+            String origin = requestMsg.getHeader(Constants.ORIGIN);
+            if (origin != null && resourceCors != null) {
+                if (isSimpleRequest(origin)) {
+                    isCorsResponseHeadersAvailable = true;
                 }
             }
         } else {
+            String origin = requestMsg.getHeader(Constants.ORIGIN);
+            if (origin != null) {
+                if (isPreflightRequest(origin, requestMsg)) {
+                    isCorsResponseHeadersAvailable = true;
+                }
+            }
+        }
+        if (isCorsResponseHeadersAvailable) {
+            responseCors.entrySet().stream().forEach(header -> {
+                responseMsg.setHeader(header.getKey(), header.getValue());
+            });
+            responseMsg.removeHeader(Constants.ALLOW);
+        }
+    }
+
+    private boolean isSimpleRequest(String origin) {
+        //6.1.1 - There should be an origin
+        List<String> requestOrigins = getOriginValues(origin);
+        if (requestOrigins == null || requestOrigins.size() == 0) {
             bLog.info("Origin header parsing failed");
             return false;
         }
-        setAllowOriginAndCredentials(list);
-        setExposedAllowedOrigins();
+        //6.1.2 - check all the origins
+        if (!isEffectiveOrigin(requestOrigins, resourceCors.get(Constants.ALLOW_ORIGIN))) {
+            return false;
+        }
+        //6.1.3 - set origin and credentials
+        setAllowOriginAndCredentials(requestOrigins);
+        //6.1.4 - set exposed headers
+        setExposedAllowedHeaders();
         return true;
     }
 
-    private static boolean isPreflightRequest(String originValue, CarbonMessage cMsg) {
+    private boolean isPreflightRequest(String originValue, CarbonMessage cMsg) {
         //6.2.1 - request must have origin, must have one origin.
         List<String> requestOrigins = getOriginValues(originValue);
         if (requestOrigins == null || requestOrigins.size() != 1) {
             return false;
         }
         String origin = requestOrigins.get(0);
-
         //6.2.3 - request must have access-control-request-method, must be single-valued
-        List<String> requestMethodValues = getHeaderValues(Constants.AC_REQUEST_METHODS, cMsg);
-        if (requestMethodValues == null && requestMethodValues.size() != 1) {
+        List<String> requestMethods = getHeaderValues(Constants.AC_REQUEST_METHODS, cMsg);
+        if (requestMethods == null && requestMethods.size() != 1) {
             return false;
         }
-        String requestMethod = requestMethodValues.get(0);
-        if (!DispatcherUtil.isValidHTTPMethod(requestMethod)) {
+        String requestMethod = requestMethods.get(0);
+        if (!hasResourceWithReqMethod(cMsg, requestMethod)) {
             return false;
         }
-
-        //6.2.2 - request origin must be on the list or match with *
-        if (!isEffectiveOrigin(origin, resourceCors.get(Constants.AC_ALLOW_ORIGIN))) {
-
+        if (resourceCors == null) {
+            return false;
         }
-
-    return false;
-
+        //6.2.2 - request origin must be on the list or match with *.
+        if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.get(Constants.ALLOW_ORIGIN))) {
+            return false;
+        }
+        //6.2.4 - get list of request headers.
+        List<String> requestHeaders = getHeaderValues(Constants.AC_REQUEST_HEADERS, cMsg);
+        if (!isEffectiveHeaders(requestHeaders, resourceCors.get(Constants.ALLOW_HEADERS))) {
+            return false;
+        }
+        //6.2.7 - set origin and credentials
+        setAllowOriginAndCredentials(Arrays.asList(origin));
+        //6.2.9 - set allow-methods
+        getResponseCors().put(Constants.AC_ALLOW_METHODS, requestMethod);
+        //6.2.10 - set allow-headers
+        getResponseCors().put(Constants.AC_ALLOW_HEADERS, DispatcherUtil.concatValues(requestHeaders, false));
+        //6.2.8 - set max-age
+        getResponseCors().put(Constants.AC_MAX_AGE, resourceCors.get(Constants.MAX_AGE).get(0));
+        return true;
     }
 
-    private static boolean isEffectiveOrigin(String origin, List<String> strings) {
+
+    private boolean isEffectiveOrigin(List<String> requestOrigins, List<String> resourceOrigins) {
+        if (resourceOrigins.size() == 1 && resourceOrigins.get(0).equals("*")) {
+            return true;
+        }
+        return resourceOrigins.containsAll(requestOrigins);
+    }
+
+    private boolean isEffectiveHeaders(List<String> requestHeaders, List<String> resourceHeaders) {
+        if (resourceHeaders.size() == 0) {
+            return true;
+        } else {
+            Set<String> headersSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            headersSet.addAll(resourceHeaders);
+            return headersSet.containsAll(requestHeaders);
+        }
+    }
+
+    private boolean hasResourceWithReqMethod(CarbonMessage cMsg, String requestMethod) {
+        List<ResourceInfo> resources = (List<ResourceInfo>) cMsg.getProperty(Constants.PREFLIGHT_RESOURCES);
+        if (resources == null) {
+            return false;
+        } else {
+            for (ResourceInfo resource : resources) {
+                for (String method : DispatcherUtil.getHttpMethods(resource)) {
+                    if (requestMethod.equals(method)) {
+                        resourceCors = HTTPCorsRegistry.getInstance().getCorsHeaders(resource);
+                        return true;
+                    }
+                }
+            }
+            if (requestMethod.equals(Constants.HTTP_METHOD_HEAD)) {
+                for (ResourceInfo resource : resources) {
+                    for (String method : DispatcherUtil.getHttpMethods(resource)) {
+                        if (method.equals(Constants.HTTP_METHOD_GET)) {
+                            resourceCors = HTTPCorsRegistry.getInstance().getCorsHeaders(resource);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
         return false;
-
     }
 
-    private static List<String> getHeaderValues(String key, CarbonMessage cMsg) {
+    private List<String> getHeaderValues(String key, CarbonMessage cMsg) {
         String value = cMsg.getHeader(key);
         if (value != null) {
-            String[] values = FIELD_COMMA_PATTERN.split(value);
+            String[] values = fieldCommaPattern.split(value);
             return Arrays.stream(values).collect(Collectors.toList());
         }
         return null;
     }
 
-    private static void setExposedAllowedOrigins() {
+    private void setExposedAllowedHeaders() {
         List<String> exposeHeaders = resourceCors.get(Constants.EXPOSE_HEADERS);
-        String exposeHeaderResponse = concatValues(exposeHeaders, false);
+        String exposeHeaderResponse = DispatcherUtil.concatValues(exposeHeaders, false);
         if (!exposeHeaderResponse.isEmpty()) {
             getResponseCors().put(Constants.AC_EXPOSE_HEADERS, exposeHeaderResponse);
         }
     }
 
-    private static void setAllowOriginAndCredentials(List<String> effectiveOrigins) {
+    private void setAllowOriginAndCredentials(List<String> effectiveOrigins) {
         String allowCreds = resourceCors.get(Constants.ALLOW_CREDENTIALS).get(0);
         getResponseCors().put(Constants.AC_ALLOW_CREDENTIALS, allowCreds);
         String originResponse;
         if (allowCreds.equals("false") && effectiveOrigins.size() != 0) {
             originResponse = "*";
         } else {
-            originResponse = concatValues(effectiveOrigins, true);
+            originResponse = DispatcherUtil.concatValues(effectiveOrigins, true);
         }
         getResponseCors().put(Constants.AC_ALLOW_ORIGIN, originResponse);
     }
 
-    private static String concatValues(List<String> values, boolean spaceSeparated) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int x = 0; x < values.size(); ++x) {
-            sb.append(values.get(x));
-            if (x != values.size() - 1) {
-                if (spaceSeparated) {
-                    sb.append(" ");
-                } else {
-                    sb.append(", ");
-                }
-            }
-        }
-
-        return sb.toString();
-    }
-
-    private static List<String> getOriginValues(String originValue) {
-        String[] origins = SPACE_PATTERN.split(originValue);
+    private List<String> getOriginValues(String originValue) {
+        String[] origins = spacePattern.split(originValue);
         return Arrays.stream(origins).filter(value -> (value.contains("://"))).collect(Collectors.toList());
     }
 
-    public static Map<String, String> getResponseCors() {
+    public Map<String, String> getResponseCors() {
         return responseCors;
-    }
-
-    public static void generateCORSHeaders(BMessage message) {
-        if (isCorsResponseHeadersAvailable) {
-            responseCors.entrySet().stream().forEach(header -> {
-                message.value().setHeader(header.getKey(), header.getValue());
-            });
-        }
     }
 }

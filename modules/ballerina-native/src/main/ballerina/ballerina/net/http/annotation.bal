@@ -11,10 +11,10 @@ annotation configuration attach service<>, service<ws> {
     string keyStorePass;
     string certPass;
     string[] allowOrigins;
-    string allowCredentials;
+    boolean allowCredentials;
     string[] allowMethods;
     string[] allowHeaders;
-    string maxAge;
+    int maxAge;
     string[] exposeHeaders;
 }
 
@@ -24,10 +24,10 @@ annotation resourceConfig attach resource {
     string[] consumes;
     string[] produces;
     string[] allowOrigins;
-    string allowCredentials;
+    boolean allowCredentials;
     string[] allowMethods;
     string[] allowHeaders;
-    string maxAge;
+    int maxAge;
     string[] exposeHeaders;
 }
 

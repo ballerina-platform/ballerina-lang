@@ -25,11 +25,9 @@ import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Utilities related to dispatcher processing.
@@ -124,13 +122,17 @@ public class DispatcherUtil {
         return basePath;
     }
 
-    public static String concatValues(List<String> values) {
+    public static String concatValues(List<String> values, boolean spaceSeparated) {
         StringBuilder sb = new StringBuilder();
 
         for (int x = 0; x < values.size(); ++x) {
             sb.append(values.get(x));
             if (x != values.size() - 1) {
-                sb.append(", ");
+                if (spaceSeparated) {
+                    sb.append(" ");
+                } else {
+                    sb.append(", ");
+                }
             }
         }
         return sb.toString();
@@ -149,14 +151,5 @@ public class DispatcherUtil {
 
     public static List<String> addAllMethods() {
         return Arrays.stream(allMethods).collect(Collectors.toList());
-    }
-
-    public static boolean isValidHTTPMethod(String reqMethod) {
-        for (String method : allMethods) {
-            if (reqMethod.equals(method)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

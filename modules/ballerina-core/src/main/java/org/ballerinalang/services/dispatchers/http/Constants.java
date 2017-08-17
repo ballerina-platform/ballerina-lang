@@ -91,6 +91,7 @@ public class Constants {
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
 
+    public static final String ALLOW = "Allow";
     public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHODS = "Access-Control-Request-Method";
     public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
@@ -107,8 +108,6 @@ public class Constants {
     public static final String MAX_AGE = "maxAge";
     public static final String ALLOW_HEADERS = "allowHeaders";
     public static final String EXPOSE_HEADERS = "exposeHeaders";
-
-
-    public static final String ALLOW = "Allow";
-
+    public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
+    public static final String RESOURCES_CORS = "resourceCors";
 }

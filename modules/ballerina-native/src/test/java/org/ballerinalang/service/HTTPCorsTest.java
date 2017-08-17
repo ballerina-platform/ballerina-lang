@@ -19,6 +19,7 @@
 package org.ballerinalang.service;
 
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
@@ -160,6 +161,22 @@ public class HTTPCorsTest {
                 , "Resource dispatched to wrong template");
         String origin = response.getHeader(AC_ALLOW_ORIGIN);
         Assert.assertEquals(origin, "*");
+    }
+
+    @Test(description = "Test for CORS override at two levels with preflight")
+    public void testPreFlightReqServiceResourceCorsOverride() {
+        String path = "/hello1/test1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHODS, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGARUNER");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        String origin = response.getHeader(AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
+        Assert.assertEquals(origin, "http://www.wso2.com");
+        Assert.assertEquals(cred, "true");
     }
 
     @AfterClass

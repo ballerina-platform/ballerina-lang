@@ -3423,7 +3423,10 @@ public class BLangVM {
         if (session != null) {
             session.generateSessionHeader(message);
         }
-        CorsFilter.generateCORSHeaders(message);
+        //Process cors if exists.
+        if (context.getCarbonMessage().getHeader("Origin") != null) {
+            new CorsFilter(context.getCarbonMessage(), message.value(), true);
+        }
     }
     
     private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
