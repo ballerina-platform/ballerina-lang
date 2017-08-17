@@ -67,11 +67,10 @@ public class WebSocketServicesRegistry {
 
                     // TODO: Add properties to propMap after adding config annotation to WebSocket.
 //                    Map<String, String> propMap = new HashMap<>();
-//
-//                    // Since WebSocket runs in the HTTP connector. Adding http connector.
-//                    ServerConnector connector = BallerinaConnectorManager.getInstance().createHTTPServerConnector(
-//                                listenerInterface, propMap);
-//
+
+                    // Since WebSocket runs in the HTTP connector. Adding http connector.
+//                    BallerinaConnectorManager.getInstance().createHTTPServerConnector(listenerInterface, propMap);
+
 //                    // Delay the startup until all services are deployed
 //                    BallerinaConnectorManager.getInstance().
 //                            addStartupDelayedHTTPServerConnector(listenerInterface, connector);

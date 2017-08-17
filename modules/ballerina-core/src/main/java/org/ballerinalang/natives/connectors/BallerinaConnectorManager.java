@@ -34,10 +34,10 @@ import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contractimpl.HTTPConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
@@ -72,7 +72,7 @@ public class BallerinaConnectorManager {
                                                               "conf" + File.separator + "transports" +
                                                                       File.separator + "netty-transports.yml");
 
-    HTTPConnectorFactory httpConnectorFactory = new HTTPConnectorFactoryImpl();
+    HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
 
     private BallerinaConnectorManager() {
@@ -138,7 +138,6 @@ public class BallerinaConnectorManager {
 
     public org.wso2.carbon.transport.http.netty.contract.ServerConnector
     createHTTPServerConnector(String id, Map<String, String> parameters) {
-        org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
 
         ListenerConfiguration listenerConfig = HTTPMessageUtil.buildListenerConfig(id, parameters);
         ServerBootstrapConfiguration serverBootstrapConfiguration = HTTPMessageUtil
@@ -147,8 +146,8 @@ public class BallerinaConnectorManager {
         if (startupDelayedHTTPServerConnectors.containsKey(id)) {
             return startupDelayedHTTPServerConnectors.get(id);
         }
-        serverConnector = httpConnectorFactory.getServerConnector(serverBootstrapConfiguration, listenerConfig);
-        startupDelayedHTTPServerConnectors.put(id, serverConnector);
+        org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
+                httpConnectorFactory.getServerConnector(serverBootstrapConfiguration, listenerConfig);
         return serverConnector;
     }
 
@@ -292,7 +291,7 @@ public class BallerinaConnectorManager {
         this.connectorManager.registerClientConnector(clientConnector);
     }
 
-    public HTTPClientConnector getHTTPHttpClientConnector() {
+    public HttpClientConnector getHTTPHttpClientConnector() {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig);

@@ -32,8 +32,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.HTTPClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
@@ -143,7 +143,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
-            HTTPClientConnector clientConnector =
+            HttpClientConnector clientConnector =
                     BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
             httpCarbonMessage.setResponseListener(new HTTPClientConnectorLister(balConnectorCallback));
@@ -165,8 +165,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             handleTransportException(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), context);
@@ -185,7 +183,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
         }
 
-        HTTPClientConnector clientConnector =
+        HttpClientConnector clientConnector =
                 BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
         HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
         httpCarbonMessage.setResponseListener(new HTTPClientConnectorLister(balConnectorCallback));
@@ -224,7 +222,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    private class HTTPClientConnectorLister implements HTTPConnectorListener {
+    private class HTTPClientConnectorLister implements HttpConnectorListener {
 
         private final BalConnectorCallback balConnectorCallback;
 

@@ -23,7 +23,7 @@ import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.HTTPConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -31,9 +31,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 /**
  * HTTP connector listener for Ballerina.
  */
-public class BallerinaHTTPConnectorListener implements HTTPConnectorListener {
+public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger breLog = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
+
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
