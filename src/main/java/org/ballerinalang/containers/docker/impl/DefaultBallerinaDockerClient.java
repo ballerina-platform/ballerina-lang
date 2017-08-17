@@ -153,15 +153,21 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
         DockerClient client = getDockerClient(dockerEnv);
         List<Image> images = client.image().list().filter(imageName).endImages();
 
-        if (images != null && images.size() > 0) {
-            for (Image image : images) {
-                if (image.getRepoTags() != null) {
-                    String currentImageName = image.getRepoTags().get(0);
-                    if (currentImageName.equals(imageName + ":" + Constants.IMAGE_VERSION_LATEST) ||
-                            currentImageName.equals(imageName)) {
-                        return currentImageName;
-                    }
-                }
+        // No images found?
+        if (images == null || images.size() < 1) {
+            return null;
+        }
+
+        for (Image image : images) {
+            // Invalid tags found?
+            if (image.getRepoTags() == null) {
+                return null;
+            }
+
+            String currentImageName = image.getRepoTags().get(0);
+            if (currentImageName.equals(imageName + ":" + Constants.IMAGE_VERSION_LATEST) ||
+                    currentImageName.equals(imageName)) {
+                return currentImageName;
             }
         }
 
