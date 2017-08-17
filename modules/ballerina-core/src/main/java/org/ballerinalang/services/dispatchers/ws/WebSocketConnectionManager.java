@@ -19,6 +19,7 @@
 package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -341,8 +342,8 @@ public class WebSocketConnectionManager {
         properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
         properties.put(Constants.TO, clientServiceName);
         properties.put(Constants.WEBSOCKET_MESSAGE, websocketMessage);
-        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(properties);
-
+        WebSocketClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                getWebSocketClientConnector(properties);
         Map<String, String> customHeaders = new HashMap<>();
         Headers headers = carbonMessage.getHeaders();
         headers.getAll().forEach(

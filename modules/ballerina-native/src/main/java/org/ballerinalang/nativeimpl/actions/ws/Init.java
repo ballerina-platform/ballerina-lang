@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
@@ -35,9 +36,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +68,6 @@ import javax.websocket.Session;
 public class Init extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
-        HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         String remoteUrl = bconnector.getStringField(0);
         String clientServiceName = bconnector.getStringField(1);
@@ -79,8 +77,8 @@ public class Init extends AbstractWebSocketAction {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
         properties.put(Constants.TO, clientServiceName);
-        WebSocketClientConnector clientConnector = httpConnectorFactory.createWsClientConnector(properties);
-
+        WebSocketClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                getWebSocketClientConnector(properties);
         Map<String, String> customHeaders = new HashMap<>();
         Session clientSession;
         try {
