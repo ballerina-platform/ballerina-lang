@@ -32,15 +32,17 @@ import java.util.Map;
 public interface HttpWsConnectorFactory {
     /**
      * This method can be used to get new server connectors.
+     *
      * @param serverBootstrapConfiguration configure socket related stuff.
      * @param listenerConfiguration contains SSL and socket bindings.
      * @return connector that represents the server socket and additional details.
      */
     ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
-            ListenerConfiguration listenerConfiguration) throws Exception;
+            ListenerConfiguration listenerConfiguration);
 
     /**
      * This method can be used to get http client connectors.
+     *
      * @param transportProperties configure stuff like global timeout, number of outbound connections, etc.
      * @param senderConfiguration contains SSL configuration and endpoint details.
      * @return HttpClientConnector.
