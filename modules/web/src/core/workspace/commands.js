@@ -16,28 +16,14 @@ export function getCommandDefinitions() {
         },
         {
             id: COMMANDS.SHOW_FILE_OPEN_WIZARD,
-            shortcuts: {
-                mac: {
-                    key: 'command+o',
-                    label: '\u2318O',
-                },
-                other: {
-                    key: 'ctrl+o',
-                    label: 'Ctrl+O',
-                },
+            shortcut: {
+                default: 'ctrl+o',
             },
         },
         {
             id: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
-            shortcuts: {
-                mac: {
-                    key: 'command+shift+o',
-                    label: '\u2318\u21E7O',
-                },
-                other: {
-                    key: 'ctrl+shift+o',
-                    label: 'Ctrl+Shift+O',
-                },
+            shortcut: {
+                default: 'ctrl+shift+o',
             },
         },
     ];

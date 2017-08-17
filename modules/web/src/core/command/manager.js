@@ -21,8 +21,8 @@ import log from 'log';
 import Mousetrap from 'mousetrap';
 import { PLUGIN_ID } from './constants';
 import CommandChannel from './channel';
-import { isClientOnMacOS } from './../utils/client-info';
 import Plugin from './../plugin/plugin';
+import { derriveShortcut, derriveShortcutLabel } from './shortcut-util';
 
 /**
  * Command Manager
@@ -58,22 +58,23 @@ class CommandManager extends Plugin {
      *
      * @param {Object} cmd command definition
      * @param {String} cmd.id command ID
-     * @param {Object} [cmd.shortcuts] keyboard shortcuts def for the command
-     * @param {Object} cmd.shortcut.mac shortcut for mac
-     * @param {String} cmd.shortcut.mac.key key combination for mac
-     * @param {String} cmd.shortcut.mac.label shortcut label for mac
-     * @param {String} cmd.shortcut.other.key key combination for other platforms
-     * @param {String} cmd.shortcut.other.label shortcut label for other platforms
-     *
+     * @param {Object} [cmd.shortcut] keyboard shortcuts def for the command
+     * @param {Object} cmd.shortcut.default default shortcut
+     * @param {String} cmd.shortcut.mac shortcut for mac
      */
     registerCommand(cmd) {
         if (_.isEqual(_.findIndex(this.commands, ['id', cmd.id]), -1)) {
             this.commands.push(cmd);
             log.debug(`Command: ${cmd.id} is registered.`);
             // key bindings
-            if (_.has(cmd, 'shortcuts')) {
-                const { shortcuts } = cmd;
-                const key = isClientOnMacOS() ? shortcuts.mac.key : shortcuts.other.key;
+            if (_.has(cmd, 'shortcut')) {
+                const { shortcut } = cmd;
+                const key = derriveShortcut(shortcut);
+                const label = derriveShortcutLabel(key);
+                cmd.shortcut.derrived = {
+                    key, label,
+                };
+                console.log(cmd);
                 Mousetrap.bind(key, (e) => {
                     this.commandChannel.trigger(cmd);
                     e.preventDefault();
