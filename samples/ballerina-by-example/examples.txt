@@ -55,6 +55,7 @@ Content Based Routing
 Header Based Routing
 Produces/Consumes
 HTTP Sessions
+HTTP Client Connector
 File System Server Connector
 FTP Client Connector
 FTP Server Connector

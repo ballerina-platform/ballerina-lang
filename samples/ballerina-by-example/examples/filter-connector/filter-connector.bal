@@ -30,7 +30,8 @@ connector CacheConnector<StockQuoteConnector stockC> (string j) {
 
 function main(string[] args) {
     // Create the 'StockQuoteConnector' with 'CacheConnector' as the filter connector
-    StockQuoteConnector stockQC = create StockQuoteConnector(5) with CacheConnector("Bob");
+    StockQuoteConnector stockQC = create StockQuoteConnector(5)
+                                            with CacheConnector("Bob");
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'WSO2'
     int price = stockQC.getStock("WSO2");
