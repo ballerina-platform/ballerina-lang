@@ -18,6 +18,8 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
 import java.util.ArrayList;
@@ -32,11 +34,14 @@ public class BaseIncrementalValueStore {
     private Object[] values;
     private List<ExpressionExecutor> expressionExecutors;
     private boolean isProcessed = false;
+    private StreamEventPool streamEventPool;
 
-    public BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors) {
+    public BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors,
+            StreamEventPool streamEventPool) {
         this.timestamp = timeStamp;
         this.values = new Object[expressionExecutors.size() + 1];
         this.expressionExecutors = expressionExecutors;
+        this.streamEventPool = streamEventPool;
     }
 
     public void clearValues() {
@@ -71,11 +76,19 @@ public class BaseIncrementalValueStore {
         return isProcessed;
     }
 
+    public StreamEvent createStreamEvent() {
+        StreamEvent streamEvent = streamEventPool.borrowEvent();
+        streamEvent.setTimestamp(timestamp);
+        setValue(timestamp, 0);
+        streamEvent.setOutputData(values);
+        return streamEvent;
+    }
+
     public BaseIncrementalValueStore cloneStore(String key, long timestamp) {
         List<ExpressionExecutor> newExpressionExecutors = new ArrayList<>(expressionExecutors.size());
         expressionExecutors
                 .forEach(expressionExecutor -> newExpressionExecutors.add(expressionExecutor.cloneExecutor(key)));
-        return new BaseIncrementalValueStore(timestamp, newExpressionExecutors);
+        return new BaseIncrementalValueStore(timestamp, newExpressionExecutors, streamEventPool);
     }
 
 }

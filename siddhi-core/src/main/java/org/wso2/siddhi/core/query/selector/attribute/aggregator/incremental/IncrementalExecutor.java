@@ -79,7 +79,7 @@ public class IncrementalExecutor implements Executor {
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
         this.timeZoneExpressionExecutor = processExpressionExecutors.get(0);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors, streamEventPool);
 
         if (groupByKeyGenerator != null) {
             this.groupByKeyGenerator = groupByKeyGenerator;
@@ -261,7 +261,7 @@ public class IncrementalExecutor implements Executor {
 
     private void dispatchEvent(long startTimeOfNewAggregates, BaseIncrementalValueStore aBaseIncrementalValueStore) {
         if (aBaseIncrementalValueStore.isProcessed()) {
-            StreamEvent streamEvent = createStreamEvent(aBaseIncrementalValueStore);
+            StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             eventChunk.add(streamEvent);
             table.addEvents(eventChunk);
@@ -274,21 +274,13 @@ public class IncrementalExecutor implements Executor {
         if (baseIncrementalValueGroupByStore.size() > 0) {
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             for (BaseIncrementalValueStore aBaseIncrementalValueStore : baseIncrementalValueGroupByStore.values()) {
-                StreamEvent streamEvent = createStreamEvent(aBaseIncrementalValueStore);
+                StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
                 eventChunk.add(streamEvent);
             }
             table.addEvents(eventChunk);
             next.execute(eventChunk);
         }
         baseIncrementalValueGroupByStore.clear();
-    }
-
-    private StreamEvent createStreamEvent(BaseIncrementalValueStore aBaseIncrementalValueStore) {
-        StreamEvent streamEvent = streamEventPool.borrowEvent();
-        streamEvent.setTimestamp(aBaseIncrementalValueStore.getTimestamp());
-        aBaseIncrementalValueStore.setValue(aBaseIncrementalValueStore.getTimestamp(), 0);
-        streamEvent.setOutputData(aBaseIncrementalValueStore.getValues());
-        return streamEvent;
     }
 
     private void cleanBaseIncrementalValueStore(long startTimeOfNewAggregates,
@@ -304,8 +296,8 @@ public class IncrementalExecutor implements Executor {
     public Object getInMemoryStore() {
         return (baseIncrementalValueGroupByStoreList != null) ? baseIncrementalValueGroupByStoreList
                 : (baseIncrementalValueStoreMap != null) ? baseIncrementalValueStoreMap
-                : (baseIncrementalValueStoreList != null) ? baseIncrementalValueStoreList
-                : baseIncrementalValueStore;
+                        : (baseIncrementalValueStoreList != null) ? baseIncrementalValueStoreList
+                                : baseIncrementalValueStore;
     }
 
     public BaseIncrementalValueStore getOldestEvent() {
@@ -317,11 +309,11 @@ public class IncrementalExecutor implements Executor {
                 }
                 Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
                         baseIncrementalValueGroupByStoreList.get(oldestEventIndex);
-                return baseIncrementalValueGroupByStore.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
+                return baseIncrementalValueGroupByStore.size() != 0
+                        ? (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
             } else {
-                return baseIncrementalValueStoreMap.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
+                return baseIncrementalValueStoreMap.size() != 0
+                        ? (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
             }
         } else {
             if (baseIncrementalValueStoreList != null) {
@@ -329,8 +321,8 @@ public class IncrementalExecutor implements Executor {
                 if (oldestEventIndex > bufferSize) {
                     oldestEventIndex -= bufferSize + 1;
                 }
-                BaseIncrementalValueStore aBaseIncrementalValueStore =
-                        baseIncrementalValueStoreList.get(oldestEventIndex);
+                BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
+                        .get(oldestEventIndex);
                 return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
             } else {
                 return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;
@@ -343,18 +335,18 @@ public class IncrementalExecutor implements Executor {
             if (baseIncrementalValueGroupByStoreList != null) {
                 Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
                         baseIncrementalValueGroupByStoreList.get(currentBufferIndex);
-                return baseIncrementalValueGroupByStore.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
+                return baseIncrementalValueGroupByStore.size() != 0
+                        ? (BaseIncrementalValueStore) baseIncrementalValueGroupByStore.values().toArray()[0] : null;
                 // Sometimes, there could be no in-memory aggregates, for event time based execution.
                 // Hence the null return.
             } else {
-                return baseIncrementalValueStoreMap.size() != 0 ?
-                        (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
+                return baseIncrementalValueStoreMap.size() != 0
+                        ? (BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0] : null;
             }
         } else {
             if (baseIncrementalValueStoreList != null) {
-                BaseIncrementalValueStore aBaseIncrementalValueStore =
-                        baseIncrementalValueStoreList.get(currentBufferIndex);
+                BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
+                        .get(currentBufferIndex);
                 return aBaseIncrementalValueStore.isProcessed() ? aBaseIncrementalValueStore : null;
             } else {
                 return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore : null;

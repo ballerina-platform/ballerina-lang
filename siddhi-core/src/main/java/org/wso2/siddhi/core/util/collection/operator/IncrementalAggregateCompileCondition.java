@@ -89,7 +89,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             List<ExpressionExecutor> baseExecutors, List<ExpressionExecutor> outputExpressionExecutors) {
 
         ComplexEventChunk<StreamEvent> complexEventChunkToHoldMatches = new ComplexEventChunk<>(true);
-        // TODO: 8/11/17 break long return
 
         // Get all the aggregates within the given duration, from table corresponding to "per" duration
         StreamEvent withinMatchFromPersistedEvents = tableForPerDuration.find(matchingEvent,
@@ -107,7 +106,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
         if (requiresAggregatingInMemoryData(newestInMemoryEvent, oldestInMemoryEvent, matchingEvent)) {
             ExpressionExecutor timeZoneExecutor = baseExecutors.get(0);
-            this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors);
+            this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors,
+                    streamEventPoolForTableMeta);
 
             // Aggregate in-memory data corresponding to "per" duration
             aggregateInMemoryData(incrementalExecutorMap.get(perValue).getInMemoryStore(), perValue, timeZoneExecutor);
@@ -149,7 +149,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
                 if (inMemoryStoreElements.get(i) instanceof BaseIncrementalValueStore) {
                     // inMemory store is baseIncrementalValueStoreList (no group by, buffer > 0)
                     baseIncrementalValueStore = (BaseIncrementalValueStore) inMemoryStoreElements.get(i);
-                    streamEvent = createStreamEvent(baseIncrementalValueStore);
+                    streamEvent = baseIncrementalValueStore.createStreamEvent();
                     timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
                             baseIncrementalValueStore.getTimestamp(), perValue,
                             timeZoneExecutor.execute(streamEvent).toString());
@@ -161,7 +161,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
                     Map inMemoryMap = (Map) inMemoryStoreElements.get(i);
                     for (Object entry : inMemoryMap.entrySet()) {
                         baseIncrementalValueStore = (BaseIncrementalValueStore) ((Map.Entry) entry).getValue();
-                        streamEvent = createStreamEvent(baseIncrementalValueStore);
+                        streamEvent = baseIncrementalValueStore.createStreamEvent();
                         timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
                                 baseIncrementalValueStore.getTimestamp(), perValue,
                                 timeZoneExecutor.execute(streamEvent).toString());
@@ -175,7 +175,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             Map inMemoryMap = (Map) inMemoryStore;
             for (Object entry : inMemoryMap.entrySet()) {
                 baseIncrementalValueStore = (BaseIncrementalValueStore) ((Map.Entry) entry).getValue();
-                streamEvent = createStreamEvent(baseIncrementalValueStore);
+                streamEvent = baseIncrementalValueStore.createStreamEvent();
                 timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
                         baseIncrementalValueStore.getTimestamp(), perValue,
                         timeZoneExecutor.execute(streamEvent).toString());
@@ -185,22 +185,12 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         } else {
             // inMemory store is baseIncrementalValueStore (no group by, buffer == 0)
             baseIncrementalValueStore = (BaseIncrementalValueStore) inMemoryStore;
-            streamEvent = createStreamEvent(baseIncrementalValueStore);
+            streamEvent = baseIncrementalValueStore.createStreamEvent();
             timeBucket = IncrementalTimeConverterUtil.getStartTimeOfAggregates(baseIncrementalValueStore.getTimestamp(),
                     perValue, timeZoneExecutor.execute(streamEvent).toString());
             groupByKey = null;
             updateInMemoryAggregateStoreMap(timeBucket, groupByKey, streamEvent);
         }
-    }
-
-    private StreamEvent createStreamEvent(BaseIncrementalValueStore aBaseIncrementalValueStore) {
-        // These borrowed events have the same structure as table data
-        StreamEvent streamEvent = streamEventPoolForTableMeta.borrowEvent();
-        streamEvent.setTimestamp(aBaseIncrementalValueStore.getTimestamp());
-        aBaseIncrementalValueStore.setValue(aBaseIncrementalValueStore.getTimestamp(), 0);
-        streamEvent.setOutputData(aBaseIncrementalValueStore.getValues()); // TODO: 8/11/17 dont write like this. check
-                                                                           // if correct time is set
-        return streamEvent;
     }
 
     private void process(StreamEvent streamEvent, BaseIncrementalValueStore baseIncrementalValueStore) {
@@ -266,10 +256,10 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             return false;
         }
         if (newestInMemoryEvent != null) {
-            newestAndOldestEventChunk.add(createStreamEvent(newestInMemoryEvent));
+            newestAndOldestEventChunk.add(newestInMemoryEvent.createStreamEvent());
         }
         if (oldestInMemoryEvent != null) {
-            newestAndOldestEventChunk.add(createStreamEvent(oldestInMemoryEvent));
+            newestAndOldestEventChunk.add(oldestInMemoryEvent.createStreamEvent());
         }
         return ((Operator) inMemoryStoreCompileCondition).find(matchingEvent, newestAndOldestEventChunk,
                 tableEventCloner) != null;
@@ -309,7 +299,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         for (Map.Entry<Long, Map<String, BaseIncrementalValueStore>> timeBucketEntry : inMemoryAggregateStoreMap
                 .entrySet()) {
             for (Map.Entry<String, BaseIncrementalValueStore> groupByEntry : timeBucketEntry.getValue().entrySet()) {
-                processedInMemoryEventChunk.add(createStreamEvent(groupByEntry.getValue()));
+                processedInMemoryEventChunk.add(groupByEntry.getValue().createStreamEvent());
             }
         }
         inMemoryAggregateStoreMap.clear();
