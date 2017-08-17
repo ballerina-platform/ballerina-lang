@@ -1653,14 +1653,18 @@ public class BallerinaPsiImplUtil {
         // count as a definition and does not resolve to it.
         if (assignmentStatementNode != null) {
             return getStructDefinition(assignmentStatementNode, resolvedElement);
-        } else {
-            // If the resolved element is not in an AssignmentStatement, we check for VariableDefinition parent node.
-            // If there is a VariableDefinition parent node, finding the type is quite straight forward.
-            VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(resolvedElement,
-                    VariableDefinitionNode.class);
-            if (variableDefinitionNode != null) {
-                return resolveStructFromDefinitionNode(variableDefinitionNode);
-            }
+        }
+        // If the resolved element is not in an AssignmentStatement, we check for VariableDefinition parent node.
+        // If there is a VariableDefinition parent node, finding the type is quite straight forward.
+        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(resolvedElement,
+                VariableDefinitionNode.class);
+        if (variableDefinitionNode != null) {
+            return resolveStructFromDefinitionNode(variableDefinitionNode);
+        }
+
+        ParameterNode parameterNode = PsiTreeUtil.getParentOfType(resolvedElement, ParameterNode.class);
+        if (parameterNode != null) {
+            return resolveStructFromDefinitionNode(parameterNode);
         }
         return null;
     }
