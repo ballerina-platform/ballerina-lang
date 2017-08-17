@@ -23,7 +23,7 @@ function renderMenuNode(item) {
     switch (type) {
     case MENU_DEF_TYPES.ROOT:
         return (
-            <SubMenu disabled={!item.isActive()} title={label} key={id}>
+            <SubMenu className="root-item" disabled={!item.isActive()} title={label} key={id}>
                 {children}
             </SubMenu >
         );

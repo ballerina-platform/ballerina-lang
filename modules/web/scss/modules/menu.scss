@@ -1,80 +1,62 @@
-.menu-item-toggle {
-    background: none;
-    border: none;
-    text-shadow: none;
-    color: white;
-    box-shadow: none;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+.menu-item-common {
+    color: #e2e2e2;
+    cursor: default;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.sub-menu-item-common {
+    .rc-menu-submenu-title {
+        @extend .menu-item-common;
+        padding: 7px 7px 7px 7px;
+    }
+    &.rc-menu-submenu-active {
+        > .rc-menu-submenu-title {
+            @extend .menu-active-common;
+        }
+    }
+}
+
+.menu-active-common {
+    background-color: #d4d4d4;
+    color: #565656;
 }
 
 .application-menu {
-    & .menu-label, .menu-label:hover, .rc-menu-submenu-title {
-        cursor: default;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -o-user-select: none;
-        user-select: none;
-    }
-    & .rc-menu {
+    .rc-menu {
+        margin-top: 0;
+        background-color: #565656;
         border: none;
         box-shadow: none;
         border-radius: 0;
-    }
-    & .rc-menu-item-active {
-        background-color: #f17b31;
-        color: white;
-    }
-    & .rc-menu-vertical {
+        &.rc-menu-root {
+            background: none;
+        }
+        .rc-menu-submenu.root-item {
+            @extend .sub-menu-item-common;
+            &.rc-menu-submenu-active {
+                & > .rc-menu-submenu-title {
+                    background-color: #f17b31;
+                    color: white;
+                }
+            }
+        }
+        .rc-menu-submenu {
+            @extend .sub-menu-item-common;
+        }
         .rc-menu-item {
             padding: 7px 7px 7px 7px;
-        }
-    } 
-    & .rc-menu-horizontal {
-        background: none;
-        & .rc-menu-submenu, .rc-menu-item {
             border-bottom: none;
-            & .rc-menu-submenu-title {
-                padding: 7px 7px 7px 7px;
-                cursor: default;
+            @extend .menu-item-common;
+            &.rc-menu-item-disabled {
+                color: #999;
             }
-        }
-        & .rc-menu-submenu-active {
-            color: white;
-            > .rc-menu-submenu-title {
-                background-color: #f17b31;
+            &.rc-menu-item-active {
+                @extend .menu-active-common;
             }
-        }
-    }
-    & .rc-menu-submenu-horizontal {
-        & .rc-menu {
-            margin-top: 0;
-        }
-    }
-    & .rc-menu-submenu-selected {
-        background: none;
-    }
-    & .dropdown-toggle.btn-default
-    {
-       @extend .menu-item-toggle;
-    }
-    & .dropdown-menu {
-        margin: 0;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-    }
-}
-
-.application-menu {
-    & .open {
-        & .dropdown-toggle.btn-default
-        {
-            @extend .menu-item-toggle;
-            background: grey;
         }
     }
 }
