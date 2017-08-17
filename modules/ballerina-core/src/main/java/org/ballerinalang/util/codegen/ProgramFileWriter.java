@@ -79,12 +79,17 @@ public class ProgramFileWriter {
                 writePackageInfo(dataOutStream, packageInfo);
             }
 
-            writeCP(dataOutStream, programFile.getMethodTable().getConstPoolEntries());
-            Map<Integer, Integer> methodTable = programFile.getMethodTable().getMethodTableIndices();
-            dataOutStream.writeInt(methodTable.size());
-            for (Integer s : methodTable.keySet()) {
-                dataOutStream.writeInt(s);
-                dataOutStream.writeInt(methodTable.get(s));
+            if (programFile.getMethodTable().getConstPoolEntries().length > 0) {
+                dataOutStream.writeBoolean(true);
+                writeCP(dataOutStream, programFile.getMethodTable().getConstPoolEntries());
+                Map<Integer, Integer> methodTable = programFile.getMethodTable().getMethodTableIndices();
+                dataOutStream.writeInt(methodTable.size());
+                for (Integer s : methodTable.keySet()) {
+                    dataOutStream.writeInt(s);
+                    dataOutStream.writeInt(methodTable.get(s));
+                }
+            } else {
+                dataOutStream.writeBoolean(false);
             }
 
             writeAttributeInfoEntries(dataOutStream, programFile.getAttributeInfoEntries());

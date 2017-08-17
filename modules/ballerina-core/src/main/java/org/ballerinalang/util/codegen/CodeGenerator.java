@@ -1839,29 +1839,30 @@ public class CodeGenerator implements NodeVisitor {
             String pkgPath = connectorDef.getPackagePath();
             pkgPath = (pkgPath != null) ? pkgPath : ".";
             UTF8CPEntry pkgNameCPEntry = new UTF8CPEntry(pkgPath);
-            int pkgNameIndex = programFile.getMethodTable().addCPEntry(pkgNameCPEntry);
+
+            MethodTable methodTable = programFile.getMethodTable();
+            int pkgNameIndex = methodTable.addCPEntry(pkgNameCPEntry);
 
             PackageRefCPEntry pkgCPEntry = new PackageRefCPEntry(pkgNameIndex, pkgPath);
-            // Cache Value.
             pkgCPEntry.setPackageInfo(programFile.getPackageInfo(pkgPath));
-            int pkgCPIndexPF = programFile.getMethodTable().addCPEntry(pkgCPEntry);
+            int pkgCPIndexPF = methodTable.addCPEntry(pkgCPEntry);
 
             UTF8CPEntry nameUTF8CPEntryPF = new UTF8CPEntry(connectorDef.getName());
-            int nameIndexPF = programFile.getMethodTable().addCPEntry(nameUTF8CPEntryPF);
+            int nameIndexPF = methodTable.addCPEntry(nameUTF8CPEntryPF);
 
             StructureRefCPEntry structureRefCPEntryPF = new StructureRefCPEntry(pkgCPIndexPF,
                     connectorDef.getPackagePath(), nameIndexPF, connectorDef.getName());
             structureRefCPEntryPF.setStructureTypeInfo(connectorInfo);
-            int structureRefCPIndexPF = programFile.getMethodTable().addCPEntry(structureRefCPEntryPF);
+            int structureRefCPIndexPF = methodTable.addCPEntry(structureRefCPEntryPF);
 
             TypeSignature typeSig = connectorInitExpr.getInheritedType().getSig();
             UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
-            int typeSigCPIndex = programFile.getMethodTable().addCPEntry(typeSigUTF8CPEntry);
+            int typeSigCPIndex = methodTable.addCPEntry(typeSigUTF8CPEntry);
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
             typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
-            int typeEntry = programFile.getMethodTable().addCPEntry(typeRefCPEntry);
+            int typeEntry = methodTable.addCPEntry(typeRefCPEntry);
 
-            programFile.getMethodTable().addMethodIndex(typeEntry, structureRefCPIndexPF);
+            methodTable.addMethodIndex(typeEntry, structureRefCPIndexPF);
             baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndexPF);
             baseConnectorInfo.addMethodType((BConnectorType) getVMTypeFromSig(typeSig), connectorInfo);
         }

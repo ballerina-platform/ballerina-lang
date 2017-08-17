@@ -138,21 +138,26 @@ public class ProgramFileReader {
         programFile.setEntryPackage(entryPkg);
         entryPkg.setProgramFile(programFile);
 
-        readMethodTable(dataInStream, programFile.getMethodTable());
-        Map<Integer, Integer> methodTableInteger = new HashMap<>();
-        int count = dataInStream.readInt();
-
-        for (int k = 0; k < count; k++) {
-            int key = dataInStream.readInt();
-            int value = dataInStream.readInt();
-            methodTableInteger.put(new Integer(key), new Integer(value));
-        }
-
-        programFile.getMethodTable().setMethodTableIndices(methodTableInteger);
-
-        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-            resolveConnectorMethodTables(packageInfo);
-        }
+        readMethodTable(dataInStream, programFile);
+//        boolean isMethodTablePresent = dataInStream.readBoolean();
+//
+//        if (isMethodTablePresent) {
+//            readMethodTable(dataInStream, programFile.getMethodTable());
+//            Map<Integer, Integer> methodTableInteger = new HashMap<>();
+//            int count = dataInStream.readInt();
+//
+//            for (int k = 0; k < count; k++) {
+//                int key = dataInStream.readInt();
+//                int value = dataInStream.readInt();
+//                methodTableInteger.put(new Integer(key), new Integer(value));
+//            }
+//
+//            programFile.getMethodTable().setMethodTableIndices(methodTableInteger);
+//
+//            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
+//                resolveConnectorMethodTables(packageInfo);
+//            }
+//        }
 
         // Read program level attributes
         readAttributeInfoEntries(dataInStream, programFile, programFile);
@@ -171,15 +176,32 @@ public class ProgramFileReader {
     }
 
     private void readMethodTable(DataInputStream dataInStream,
-                                  MethodTable methodTable) throws IOException {
-        int constantPoolSize = dataInStream.readInt();
-        for (int i = 0; i < constantPoolSize; i++) {
-            byte cpTag = dataInStream.readByte();
-            ConstantPoolEntry.EntryType cpEntryType = ConstantPoolEntry.EntryType.values()[cpTag - 1];
-            ConstantPoolEntry cpEntry = readCPEntry(dataInStream, methodTable, cpEntryType);
-            methodTable.addCPEntry(cpEntry);
+                                 ProgramFile programFile) throws IOException {
+        boolean isMethodTablePresent = dataInStream.readBoolean();
+        if (isMethodTablePresent) {
+            MethodTable methodTable = programFile.getMethodTable();
+            int constantPoolSize = dataInStream.readInt();
+            for (int i = 0; i < constantPoolSize; i++) {
+                byte cpTag = dataInStream.readByte();
+                ConstantPoolEntry.EntryType cpEntryType = ConstantPoolEntry.EntryType.values()[cpTag - 1];
+                ConstantPoolEntry cpEntry = readCPEntry(dataInStream, methodTable, cpEntryType);
+                methodTable.addCPEntry(cpEntry);
+            }
+            resolveCPEntries();
+
+            Map<Integer, Integer> methodTableInteger = new HashMap<>();
+            int count = dataInStream.readInt();
+            for (int k = 0; k < count; k++) {
+                int key = dataInStream.readInt();
+                int value = dataInStream.readInt();
+                methodTableInteger.put(new Integer(key), new Integer(value));
+            }
+            methodTable.setMethodTableIndices(methodTableInteger);
+
+            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
+                resolveConnectorMethodTables(packageInfo);
+            }
         }
-        resolveCPEntries();
     }
 
     private ConstantPoolEntry readCPEntry(DataInputStream dataInStream,
@@ -388,7 +410,7 @@ public class ProgramFileReader {
         // Resolve unresolved CP entries.
         resolveCPEntries();
 
-//        resolveConnectorMethodTables(packageInfo);
+        resolveConnectors(packageInfo);
 
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
@@ -1585,7 +1607,7 @@ public class ProgramFileReader {
         }
     }
 
-    private void resolveConnectorMethodTables(PackageInfo packageInfo) {
+    private void resolveConnectors(PackageInfo packageInfo) {
         ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
         for (ConnectorInfo connectorInfo : connectorInfoEntries) {
             BConnectorType connectorType = connectorInfo.getType();
@@ -1594,6 +1616,15 @@ public class ProgramFileReader {
                     connectorInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             connectorType.setFieldTypeCount(attributeInfo.getVarTypeCount());
 
+            for (ActionInfo actionInfo : connectorInfo.getActionInfoEntries()) {
+                setCallableUnitSignature(actionInfo, actionInfo.getSignature(), packageInfo);
+            }
+        }
+    }
+
+    private void resolveConnectorMethodTables(PackageInfo packageInfo) {
+        ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
+        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
             Map<Integer, Integer> methodTableInteger = connectorInfo.getMethodTableIndex();
             Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
             for (Integer key : methodTableInteger.keySet()) {
@@ -1604,12 +1635,7 @@ public class ProgramFileReader {
                 ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
                 methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
             }
-
             connectorInfo.setMethodTableType(methodTableType);
-
-            for (ActionInfo actionInfo : connectorInfo.getActionInfoEntries()) {
-                setCallableUnitSignature(actionInfo, actionInfo.getSignature(), packageInfo);
-            }
         }
     }
 
