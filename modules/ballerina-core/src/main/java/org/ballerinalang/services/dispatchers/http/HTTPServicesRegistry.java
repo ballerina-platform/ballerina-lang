@@ -289,11 +289,8 @@ public class HTTPServicesRegistry {
             if (servicesOnInterface.isEmpty()) {
                 servicesInfoMap.remove(listenerInterface);
 
-                // TODO: Add correct parameters
-                Map<String, String> parameters = new HashMap<>();
                 ServerConnector connector =
-                        BallerinaConnectorManager.getInstance().
-                                createHTTPServerConnector(listenerInterface, parameters);
+                        BallerinaConnectorManager.getInstance().getStartedHTTPServerConnector(listenerInterface);
                 if (connector != null) {
                     connector.stop();
                 }
