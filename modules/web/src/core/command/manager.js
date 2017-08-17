@@ -22,7 +22,7 @@ import Mousetrap from 'mousetrap';
 import { PLUGIN_ID } from './constants';
 import CommandChannel from './channel';
 import Plugin from './../plugin/plugin';
-import { derriveShortcut, derriveShortcutLabel } from './shortcut-util';
+import { deriveShortcut, deriveShortcutLabel } from './shortcut-util';
 
 /**
  * Command Manager
@@ -69,12 +69,11 @@ class CommandManager extends Plugin {
             // key bindings
             if (_.has(cmd, 'shortcut')) {
                 const { shortcut } = cmd;
-                const key = derriveShortcut(shortcut);
-                const label = derriveShortcutLabel(key);
-                cmd.shortcut.derrived = {
+                const key = deriveShortcut(shortcut);
+                const label = deriveShortcutLabel(key);
+                cmd.shortcut.derived = {
                     key, label,
                 };
-                console.log(cmd);
                 Mousetrap.bind(key, (e) => {
                     this.commandChannel.trigger(cmd);
                     e.preventDefault();

@@ -20,34 +20,34 @@ export const KEYS = {
 };
 
 /**
- * Derrive final shortcut from shortcut def.
+ * derive final shortcut from shortcut def.
  * Eg: convert ctrl to cmd on mac, etc.
  *
  * @param {Object} shorcutDef Shortcut definition from command
  * @param {Object} shorcutDef.default default shortcut
  * @param {String} shorcutDef.mac shortcut for mac
  *
- * @returns {String} derrived shortcut
+ * @returns {String} derived shortcut
  */
-export function derriveShortcut(shorcutDef) {
+export function deriveShortcut(shorcutDef) {
     const shortcut = isMacClient && shorcutDef.mac ? shorcutDef.mac : shorcutDef.default;
     const keys = shortcut.split('+');
-    const derrivedKeys = [];
+    const derivedKeys = [];
     keys.forEach((key, index) => {
-        let derrivedKey;
+        let derivedKey;
         switch (key) {
         case KEYS.CTRL:
-            derrivedKey = isMacClient && index === 0 ? KEYS.MAC.COMMAND : key;
+            derivedKey = isMacClient && index === 0 ? KEYS.MAC.COMMAND : key;
             break;
         case KEYS.ALT:
-            derrivedKey = isMacClient ? KEYS.MAC.OPTION : key;
+            derivedKey = isMacClient ? KEYS.MAC.OPTION : key;
             break;
         default:
-            derrivedKey = key;
+            derivedKey = key;
         }
-        derrivedKeys.push(derrivedKey);
+        derivedKeys.push(derivedKey);
     });
-    return derrivedKeys.join('+');
+    return derivedKeys.join('+');
 }
 
 /**
@@ -65,13 +65,13 @@ function getCapitalizedString(str) {
 }
 
 /**
- * Derrive shortcut key label
+ * derive shortcut key label
  *
  * @param {String} shortcut Eg: Ctrl+Alt+N
  *
- * @returns {String} derrived label
+ * @returns {String} derived label
  */
-export function derriveShortcutLabel(shortcut) {
+export function deriveShortcutLabel(shortcut) {
     const keys = shortcut.split('+');
     let label = '';
     keys.forEach((key, index) => {
