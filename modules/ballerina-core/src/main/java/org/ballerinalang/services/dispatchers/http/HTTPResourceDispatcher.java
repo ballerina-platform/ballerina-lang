@@ -108,7 +108,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             throw new BallerinaException("no matching resource found for path : "
                     + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + "OPTIONS");
         }
-        new CorsFilter(cMsg, response, false);
+        CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
         response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);

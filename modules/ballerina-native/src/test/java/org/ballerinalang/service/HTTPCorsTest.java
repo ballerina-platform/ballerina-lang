@@ -30,10 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import static org.ballerinalang.services.dispatchers.http.Constants.AC_ALLOW_CREDENTIALS;
-import static org.ballerinalang.services.dispatchers.http.Constants.AC_ALLOW_ORIGIN;
-import static org.ballerinalang.services.dispatchers.http.Constants.AC_EXPOSE_HEADERS;
-
 /**
  * Test cases related to HTTP CORS
  */
@@ -57,8 +53,8 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resCors"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
-        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(Constants.AC_ALLOW_CREDENTIALS);
         Assert.assertEquals(origin, "http://www.wso2.com");
         Assert.assertEquals(cred, "true");
     }
@@ -74,8 +70,8 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "serCors"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
-        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(Constants.AC_ALLOW_CREDENTIALS);
         Assert.assertEquals(origin, "http://www.hello.com");
         Assert.assertEquals(cred, "true");
     }
@@ -91,9 +87,9 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
-        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
-        String expoHead = response.getHeader(AC_EXPOSE_HEADERS);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(Constants.AC_ALLOW_CREDENTIALS);
+        String expoHead = response.getHeader(Constants.AC_EXPOSE_HEADERS);
         Assert.assertEquals(origin, "*");
         Assert.assertEquals(cred, "false");
         Assert.assertEquals(expoHead, "X-Content-Type-Options, X-PINGARUNER");
@@ -110,8 +106,8 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "moreOrigins"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
-        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(Constants.AC_ALLOW_CREDENTIALS);
         Assert.assertEquals(origin, "http://www.wso2.com http://www.amazon.com");
         Assert.assertEquals(cred, "true");
     }
@@ -127,8 +123,8 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resCors"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
-        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(Constants.AC_ALLOW_CREDENTIALS);
         Assert.assertNull(origin);
         Assert.assertNull(cred);
     }
@@ -144,7 +140,7 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
         Assert.assertEquals(origin, "*");
     }
 
@@ -159,7 +155,7 @@ public class HTTPCorsTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "star"
                 , "Resource dispatched to wrong template");
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
         Assert.assertEquals(origin, "*");
     }
 
@@ -173,10 +169,76 @@ public class HTTPCorsTest {
         CarbonMessage response = Services.invoke(cMsg);
 
         Assert.assertNotNull(response);
-        String origin = response.getHeader(AC_ALLOW_ORIGIN);
-        String cred = response.getHeader(AC_ALLOW_CREDENTIALS);
+        String origin = response.getHeader(Constants.AC_ALLOW_ORIGIN);
+        String cred = response.getHeader(Constants.AC_ALLOW_CREDENTIALS);
+        Assert.assertEquals(200, response.getProperty(Constants.HTTP_STATUS_CODE));
         Assert.assertEquals(origin, "http://www.wso2.com");
         Assert.assertEquals(cred, "true");
+    }
+
+    @Test(description = "Test for CORS override at two levels with preflight")
+    public void testPreFlightReqwithNoOrigin() {
+        String path = "/hello1/test1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.AC_REQUEST_METHODS, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGARUNER");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200, response.getProperty(Constants.HTTP_STATUS_CODE));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_HEADERS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_METHODS));
+    }
+
+    @Test(description = "Test for CORS override at two levels with preflight")
+    public void testPreFlightReqwithNoMethod() {
+        String path = "/hello1/test1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGARUNER");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200, response.getProperty(Constants.HTTP_STATUS_CODE));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_HEADERS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_METHODS));
+    }
+
+    @Test(description = "Test for CORS override at two levels with preflight")
+    public void testPreFlightReqwithInvalidHeaders() {
+        String path = "/hello1/test1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHODS, Constants.HTTP_METHOD_POST);
+        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "WSO2");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200, response.getProperty(Constants.HTTP_STATUS_CODE));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_HEADERS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_METHODS));
+    }
+
+    @Test(description = "Test for CORS override at two levels with preflight")
+    public void testPreFlightReqwithNoHeaders() {
+        String path = "/hello1/test1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHODS, Constants.HTTP_METHOD_POST);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200, response.getProperty(Constants.HTTP_STATUS_CODE));
+        Assert.assertEquals("http://www.wso2.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertEquals("true", response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_HEADERS));
+        Assert.assertEquals(Constants.HTTP_METHOD_POST, response.getHeader(Constants.AC_ALLOW_METHODS));
     }
 
     @AfterClass

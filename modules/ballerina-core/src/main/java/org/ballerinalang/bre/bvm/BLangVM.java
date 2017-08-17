@@ -68,7 +68,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.services.dispatchers.http.CorsFilter;
+import org.ballerinalang.services.dispatchers.http.CorsHeaderGenerator;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -3423,9 +3423,10 @@ public class BLangVM {
         if (session != null) {
             session.generateSessionHeader(message);
         }
-        //Process cors if exists.
-        if (context.getCarbonMessage().getHeader("Origin") != null) {
-            new CorsFilter(context.getCarbonMessage(), message.value(), true);
+        //Process CORS if exists.
+        if (context.getCarbonMessage() != null && context.getCarbonMessage().getHeader("Origin") != null) {
+            //new CorsHeaderGenerator(context.getCarbonMessage(), message.value(), true);
+            CorsHeaderGenerator.process(context.getCarbonMessage(), message.value(), true);
         }
     }
     
