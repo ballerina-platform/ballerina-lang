@@ -222,7 +222,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    private class HTTPClientConnectorLister implements HttpConnectorListener {
+    private static class HTTPClientConnectorLister implements HttpConnectorListener {
 
         private final BalConnectorCallback balConnectorCallback;
 

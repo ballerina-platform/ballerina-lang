@@ -79,7 +79,7 @@ public class Init extends AbstractWebSocketAction {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
         properties.put(Constants.TO, clientServiceName);
-        WebSocketClientConnector clientConnector = httpConnectorFactory.getWSClientConnector(properties);
+        WebSocketClientConnector clientConnector = httpConnectorFactory.createWsClientConnector(properties);
 
         Map<String, String> customHeaders = new HashMap<>();
         Session clientSession;

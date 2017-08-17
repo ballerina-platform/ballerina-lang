@@ -341,7 +341,7 @@ public class WebSocketConnectionManager {
         properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
         properties.put(Constants.TO, clientServiceName);
         properties.put(Constants.WEBSOCKET_MESSAGE, websocketMessage);
-        WebSocketClientConnector clientConnector = connectorFactory.getWSClientConnector(properties);
+        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(properties);
 
         Map<String, String> customHeaders = new HashMap<>();
         Headers headers = carbonMessage.getHeaders();
