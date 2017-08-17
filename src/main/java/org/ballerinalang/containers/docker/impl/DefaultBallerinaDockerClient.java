@@ -161,7 +161,7 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
         for (Image image : images) {
             // Invalid tags found?
             if (image.getRepoTags() == null) {
-                return null;
+                continue;
             }
 
             String currentImageName = image.getRepoTags().get(0);
