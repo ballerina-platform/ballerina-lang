@@ -34,6 +34,7 @@ import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
@@ -146,8 +147,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             HttpClientConnector clientConnector =
                     BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
-            httpCarbonMessage.setResponseListener(new HTTPClientConnectorLister(balConnectorCallback));
-            clientConnector.send(httpCarbonMessage);
+            HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+            future.setHTTPConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
 
             // Wait till Response comes
             long startTime = System.currentTimeMillis();
@@ -176,20 +177,19 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             throws ClientConnectorException {
         balConnectorCallback.setNonBlockingExecution(true);
 
-        Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
-        if (sourceHandler != null) {
-            context.setProperty(Constants.SRC_HANDLER, sourceHandler);
-        } else {
-            message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
-        }
-
-        HttpClientConnector clientConnector =
-                BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
-        HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
-        httpCarbonMessage.setResponseListener(new HTTPClientConnectorLister(balConnectorCallback));
-
         try {
-            clientConnector.send(httpCarbonMessage);
+            Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+            if (sourceHandler != null) {
+                context.setProperty(Constants.SRC_HANDLER, sourceHandler);
+            } else {
+                message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
+            }
+
+            HttpClientConnector clientConnector =
+                    BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
+            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+            HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+            future.setHTTPConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
         } catch (Exception e) {
             throw new BallerinaException("Failed to send message to the backend", e, context);
         }
