@@ -74,7 +74,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 clientConnector =
-                        httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHTTPConnectorListener(new HttpConnectorListener() {
                     @Override

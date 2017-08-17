@@ -98,7 +98,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpRequest);
                 future.setHTTPConnectorListener(new HttpConnectorListener() {
                     @Override

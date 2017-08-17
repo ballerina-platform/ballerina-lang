@@ -57,7 +57,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
             senderProperties.put(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
             senderProperties.put(Constants.TO, "myService");
             senderProperties.put(Constants.WEBSOCKET_MESSAGE, initMessage);
-            WebSocketClientConnector clientConnector = connectorFactory.getWSClientConnector(senderProperties);
+            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(senderProperties);
 
             WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
             Map<String, String> customHeaders = new HashMap<>();

@@ -36,7 +36,7 @@ public interface HttpWsConnectorFactory {
      * @param listenerConfiguration contains SSL and socket bindings
      * @return connector that represents the server socket and additional details.
      */
-    ServerConnector getServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
+    ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfiguration) throws Exception;
 
     /**
@@ -45,7 +45,7 @@ public interface HttpWsConnectorFactory {
      * @param senderConfiguration contains SSL configuration and endpoint details.
      * @return
      */
-    HttpClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
+    HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration);
 
     /**
@@ -54,5 +54,5 @@ public interface HttpWsConnectorFactory {
      * @param senderProperties Properties to create a client connector.
      * @return WebSocketClientConnector.
      */
-    WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties);
+    WebSocketClientConnector createWsClientConnector(Map<String, Object> senderProperties);
 }
