@@ -149,7 +149,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                     HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                     HttpClientConnector clientConnector =
-                            httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                            httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
 
                     HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
 //                    httpCarbonMessage.setResponseListener(new HttpConnectorListener() {

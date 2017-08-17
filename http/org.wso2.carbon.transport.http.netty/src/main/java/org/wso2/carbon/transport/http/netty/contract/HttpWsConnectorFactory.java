@@ -33,19 +33,19 @@ public interface HttpWsConnectorFactory {
     /**
      * This method can be used to get new server connectors.
      * @param serverBootstrapConfiguration configure socket related stuff.
-     * @param listenerConfiguration contains SSL and socket bindings
+     * @param listenerConfiguration contains SSL and socket bindings.
      * @return connector that represents the server socket and additional details.
      */
-    ServerConnector getServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
+    ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfiguration) throws Exception;
 
     /**
      * This method can be used to get http client connectors.
      * @param transportProperties configure stuff like global timeout, number of outbound connections, etc.
      * @param senderConfiguration contains SSL configuration and endpoint details.
-     * @return
+     * @return HttpClientConnector.
      */
-    HttpClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
+    HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration);
 
     /**
@@ -54,5 +54,5 @@ public interface HttpWsConnectorFactory {
      * @param senderProperties Properties to create a client connector.
      * @return WebSocketClientConnector.
      */
-    WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties);
+    WebSocketClientConnector createWsClientConnector(Map<String, Object> senderProperties);
 }

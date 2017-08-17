@@ -43,7 +43,7 @@ import java.util.Map;
 public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
 
     @Override
-    public ServerConnector getServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
+    public ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfig) {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(listenerConfig);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
@@ -56,7 +56,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     }
 
     @Override
-    public HttpClientConnector getHTTPClientConnector(Map<String, Object> transportProperties,
+    public HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration) {
         SSLConfig sslConfig = senderConfiguration.getSslConfig();
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
@@ -69,7 +69,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     }
 
     @Override
-    public WebSocketClientConnector getWSClientConnector(Map<String, Object> senderProperties) {
+    public WebSocketClientConnector createWsClientConnector(Map<String, Object> senderProperties) {
         String subProtocol = (String) senderProperties.get(Constants.WEBSOCKET_SUBPROTOCOLS);
         String remoteUrl = (String) senderProperties.get(Constants.REMOTE_ADDRESS);
         String target = (String) senderProperties.get(Constants.TO);

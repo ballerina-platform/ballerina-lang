@@ -111,7 +111,7 @@ public class TestUtil {
 
         HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
         listenerConfigurationSet.forEach(config -> {
-            ServerConnector serverConnector = httpConnectorFactory.getServerConnector(serverBootstrapConfiguration,
+            ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
                     config);
             ServerConnectorFuture serverConnectorFuture = serverConnector.start();
             serverConnectorFuture.setHTTPConnectorListener(httpConnectorListener);

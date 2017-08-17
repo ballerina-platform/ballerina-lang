@@ -67,7 +67,7 @@ public class HTTPServerConnectorProvider {
 //        serverConnectorBootstrap = new ServerConnectorBootstrap(trpConfig);
 //        serverConnectorBootstrap.initialize(bossGroup, workerGroup);
 //
-//        ServerConnector serverConnector = serverConnectorBootstrap.getServerConnector();
+//        ServerConnector serverConnector = serverConnectorBootstrap.createServerConnector();
 //
 ////        HTTPServerConnector connector = new HTTPServerConnector(config.getId());
 ////        connector.setListenerConfiguration(config);

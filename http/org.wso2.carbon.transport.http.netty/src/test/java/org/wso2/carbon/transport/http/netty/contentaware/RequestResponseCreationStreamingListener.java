@@ -91,7 +91,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.getHTTPClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
                 future.setHTTPConnectorListener(new HttpConnectorListener() {
                     @Override

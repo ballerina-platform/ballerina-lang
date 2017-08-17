@@ -56,7 +56,7 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(9009);
-        serverConnector = httpConnectorFactory.getServerConnector(ServerBootstrapConfiguration.getInstance(),
+        serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                   listenerConfiguration);
         connectorListener = new WebSocketMessagePropertiesConnectorListener();
         serverConnector.start().setWSConnectorListener(connectorListener);

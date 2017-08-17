@@ -62,7 +62,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
         senderProperties.put(Constants.REMOTE_ADDRESS, url);
         senderProperties.put(Constants.WEBSOCKET_SUBPROTOCOLS, null);
-        clientConnector = httpConnectorFactory.getWSClientConnector(senderProperties);
+        clientConnector = httpConnectorFactory.createWsClientConnector(senderProperties);
     }
 
     @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
