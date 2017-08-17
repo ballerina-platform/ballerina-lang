@@ -21,7 +21,5 @@ package org.ballerinalang.containers;
  * Constants.
  */
 public class Constants {
-    public static final String TYPE_BALLERINA_SERVICE = "BALLERINA_SERVICE";
-    public static final String TYPE_BALLERINA_FUNCTION = "BALLERINA_FUNCTION";
     public static final String IMAGE_VERSION_LATEST = "latest";
 }

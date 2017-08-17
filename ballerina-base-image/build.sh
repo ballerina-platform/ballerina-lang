@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 function showUsageAndExit() {
     echo "Invalid or insufficient options provided."
     echo
@@ -64,6 +66,7 @@ if [ ! -e $bal_dist_file ]; then
   exit 1
 fi
 
+build_version=$(grep -oPm1 "(?<=<version>)[^<]+" ../pom.xml)
 echo "Building Ballerina Base Docker image $image_name..."
 cp $bal_dist_file .
 bal_dist_file_name=$(basename $bal_dist_file)
@@ -72,6 +75,7 @@ docker build --no-cache=true \
              --build-arg BALLERINA_DIST=${bal_dist_file_name} \
              --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
              --build-arg VCS_REF=$(git rev-parse --short HEAD) \
+             --build-arg BUILD_VERSION=${build_version} \
              -t $image_name .
 
 echo "Cleaning..."

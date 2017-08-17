@@ -152,7 +152,18 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
     public String getImage(String imageName, String dockerEnv) {
         DockerClient client = getDockerClient(dockerEnv);
         List<Image> images = client.image().list().filter(imageName).endImages();
+
+        // No images found?
+        if (images == null || images.size() < 1) {
+            return null;
+        }
+
         for (Image image : images) {
+            // Invalid tags found?
+            if (image.getRepoTags() == null) {
+                continue;
+            }
+
             String currentImageName = image.getRepoTags().get(0);
             if (currentImageName.equals(imageName + ":" + Constants.IMAGE_VERSION_LATEST) ||
                     currentImageName.equals(imageName)) {
@@ -321,7 +332,7 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
             // Set Fabric8 docker-client temp directory since the default "/tmp" does not work on Windows
             System.setProperty(DOCKER_CLIENT_TMPDIR_SYSTEM_PROP, tmpDirLocation);
         }
-        
+
         if (ballerinaVersion == null) {
             throw new BallerinaDockerClientException(
                     "[ERROR] System Property '" + BALLERINA_VERSION_SYSTEM_PROP + "' is not defined. ");
@@ -335,7 +346,7 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
         Files.copy(in,
                 Paths.get(tmpDir.toString() + File.separator + PATH_DOCKERFILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        
+
         // Replace ${BALLERINA_VERSION} with ballerinaVersion
         Path path = Paths.get(tmpDir.toString() + File.separator + PATH_DOCKERFILE_NAME);
         Charset charset = StandardCharsets.UTF_8;
