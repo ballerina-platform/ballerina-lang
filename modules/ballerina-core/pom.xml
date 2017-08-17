@@ -139,6 +139,10 @@
             <groupId>org.atomikos.wso2</groupId>
             <artifactId>atomikos</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-logging</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
