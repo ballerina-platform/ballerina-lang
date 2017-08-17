@@ -67,6 +67,8 @@ public class BallerinaConnectorManager {
             startupDelayedHTTPServerConnectors = new HashMap<>();
     private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
             startedHTTPServerConnectors = new HashMap<>();
+    private Map<String, HttpServerConnectorContext>
+            serverConnectorPool = new HashMap<>();
     private ServerBootstrapConfiguration serverBootstrapConfiguration;
     private TransportsConfiguration trpConfig;
     private CarbonMessageProcessor messageProcessor;
@@ -86,8 +88,7 @@ public class BallerinaConnectorManager {
 
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-            serverConnector = httpConnectorFactory
-                    .getServerConnector(serverBootstrapConfiguration, listenerConfiguration);
+            serverConnector = createHTTPServerConnector(listenerConfiguration.getId(), listenerConfiguration);
             addStartupDelayedHTTPServerConnector(listenerConfiguration.getId(), serverConnector);
         }
     }
@@ -141,16 +142,35 @@ public class BallerinaConnectorManager {
 
     public org.wso2.carbon.transport.http.netty.contract.ServerConnector
     createHTTPServerConnector(String id, Map<String, String> parameters) {
-
         ListenerConfiguration listenerConfig = HTTPMessageUtil.buildListenerConfig(id, parameters);
-        ServerBootstrapConfiguration serverBootstrapConfiguration = HTTPMessageUtil
-                .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
+        return createHTTPServerConnector(id, listenerConfig);
+    }
+
+    private org.wso2.carbon.transport.http.netty.contract.ServerConnector
+    createHTTPServerConnector(String id, ListenerConfiguration listenerConfig) {
+        HttpServerConnectorContext httpServerConnectorContext =
+                serverConnectorPool.get(listenerConfig.getHost() + ":" + listenerConfig.getPort());
+        if (httpServerConnectorContext != null) {
+            if (checkForConflicts(listenerConfig, httpServerConnectorContext)) {
+                throw new BallerinaException("Conflicting configuration detected for listener configuration id "
+                        + listenerConfig.getId());
+            } else {
+                httpServerConnectorContext.incrementReferenceCount();
+                return httpServerConnectorContext.getServerConnector();
+            }
+        }
 
         if (startupDelayedHTTPServerConnectors.containsKey(id)) {
             return startupDelayedHTTPServerConnectors.get(id);
         }
+
+        ServerBootstrapConfiguration serverBootstrapConfiguration = HTTPMessageUtil
+                .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
-                httpConnectorFactory.getServerConnector(serverBootstrapConfiguration, listenerConfig);
+                httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
+
+        serverConnectorPool.put(serverConnector.getConnectorID(),
+                new HttpServerConnectorContext(serverConnector, listenerConfig));
         return serverConnector;
     }
 
@@ -303,10 +323,60 @@ public class BallerinaConnectorManager {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig);
-        return httpConnectorFactory.getHTTPClientConnector(properties, senderConfiguration);
+        return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
 
     public WebSocketClientConnector getWebSocketClientConnector(Map<String, Object> properties) {
-        return  httpConnectorFactory.getWSClientConnector(properties);
+        return  httpConnectorFactory.createWsClientConnector(properties);
+    }
+
+    private static class HttpServerConnectorContext {
+        private org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
+        private ListenerConfiguration listenerConfiguration;
+        private int referenceCount = 0;
+
+        public HttpServerConnectorContext(org.wso2.carbon.transport.http.netty.contract.ServerConnector
+                serverConnector, ListenerConfiguration listenerConfiguration) {
+            this.serverConnector = serverConnector;
+            this.listenerConfiguration = listenerConfiguration;
+            this.referenceCount++;
+        }
+
+        public void incrementReferenceCount() {
+            this.referenceCount++;
+        }
+
+        public void decrementReferenceCount() {
+            this.referenceCount--;
+        }
+
+        public org.wso2.carbon.transport.http.netty.contract.ServerConnector getServerConnector() {
+            return this.serverConnector;
+        }
+
+        public ListenerConfiguration getListenerConfiguration() {
+            return this.listenerConfiguration;
+        }
+
+        public int getReferenceCount() {
+            return this.referenceCount;
+        }
+    }
+
+    private boolean checkForConflicts(ListenerConfiguration listenerConfiguration,
+            HttpServerConnectorContext context) {
+        if (context != null) {
+            if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
+                ListenerConfiguration config = context.getListenerConfiguration();
+                if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
+                        || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
+                        || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 }
