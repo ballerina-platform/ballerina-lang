@@ -17,9 +17,7 @@ class Header extends React.Component {
             <header className="header header-default">
                 <div id="header-container" className="container-fluid">
                     <div className="pull-left brand">
-                        <a>
-                            <span>Ballerina</span><span className="appname">Composer </span>
-                        </a>
+                        <span>Ballerina</span><span className="appname">Composer </span>
                     </div>
                     <div className="pull-left">
                         { this.props.children }
