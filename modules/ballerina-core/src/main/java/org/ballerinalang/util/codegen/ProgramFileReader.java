@@ -139,25 +139,6 @@ public class ProgramFileReader {
         entryPkg.setProgramFile(programFile);
 
         readMethodTable(dataInStream, programFile);
-//        boolean isMethodTablePresent = dataInStream.readBoolean();
-//
-//        if (isMethodTablePresent) {
-//            readMethodTable(dataInStream, programFile.getMethodTable());
-//            Map<Integer, Integer> methodTableInteger = new HashMap<>();
-//            int count = dataInStream.readInt();
-//
-//            for (int k = 0; k < count; k++) {
-//                int key = dataInStream.readInt();
-//                int value = dataInStream.readInt();
-//                methodTableInteger.put(new Integer(key), new Integer(value));
-//            }
-//
-//            programFile.getMethodTable().setMethodTableIndices(methodTableInteger);
-//
-//            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-//                resolveConnectorMethodTables(packageInfo);
-//            }
-//        }
 
         // Read program level attributes
         readAttributeInfoEntries(dataInStream, programFile, programFile);
@@ -549,17 +530,6 @@ public class ProgramFileReader {
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
-
-//        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
-//            switch (cpEntry.getEntryType()) {
-//                case CP_ENTRY_TYPE_REF:
-//                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
-//                    String typeSig = typeRefCPEntry.getTypeSig();
-//                    BType bType = getBTypeFromDescriptor(typeSig);
-//                    typeRefCPEntry.setType(bType);
-//                    break;
-//            }
-//        }
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
