@@ -50,6 +50,10 @@ class CommandManager extends Plugin {
         this.commands = [];
         return {
             dispatch: this.dispatch,
+            findCommand: (cmdID) => {
+                const cmdIndex = _.findIndex(this.commands, ['id', cmdID]);
+                return cmdIndex !== -1 ? this.commands[cmdIndex] : undefined;
+            },
         };
     }
 

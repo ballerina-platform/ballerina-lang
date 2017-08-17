@@ -7,73 +7,6 @@ import { VIEW_IDS, MENU_DEF_TYPES } from './../constants';
 import 'rc-menu/assets/index.css';
 
 /**
- * Render a menu item
- * @param {Object} item Menu Definition
- * @returns {React.Component}
- */
-function renderMenuNode(item) {
-    const { type, id, label } = item;
-    const children = [];
-    if (!_.isNil(item.children) && !_.isEqual(type, MENU_DEF_TYPES.ITEM)) {
-        item.children.forEach((child) => {
-            children.push(renderMenuNode(child));
-        });
-    }
-
-    switch (type) {
-    case MENU_DEF_TYPES.ROOT:
-        return (
-            <SubMenu className="root-item" disabled={!item.isActive()} title={label} key={id}>
-                {children}
-            </SubMenu >
-        );
-    case MENU_DEF_TYPES.GROUP:
-        return (
-            <SubMenu
-                disabled={!item.isActive()}
-                title={
-                    <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
-                        <div style={{ position: 'absolute', left: '5px' }}>
-                            <i className={`fw fw-${item.icon}`} />
-                        </div>
-                        <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
-                            {label}
-                        </div>
-                        <div style={{ position: 'absolute', right: '0px' }}>
-                            <i className={'fw fw-right'} style={{ marginRight: '5px' }} />
-                        </div>
-                        <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
-                            {label}
-                        </div>
-                    </div>
-                }
-                key={id}
-            >
-                {children}
-            </SubMenu >
-        );
-    case MENU_DEF_TYPES.ITEM:
-        return (
-            <MenuItem disabled={!item.isActive()} key={id} menuDef={item}>
-                <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
-                    <div style={{ position: 'absolute', left: '5px' }}>
-                        <i className={`fw fw-${item.icon}`} />
-                    </div>
-                    <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
-                        {label}
-                    </div>
-                    <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
-                        {label}
-                    </div>
-                </div>
-            </MenuItem>
-        );
-    default:
-        return (<div />);
-    }
-}
-
-/**
  * Application Menu Controller
  */
 class ApplicationMenu extends View {
@@ -116,7 +49,7 @@ class ApplicationMenu extends View {
     render() {
         const roots = [];
         this.props.menu.forEach((root) => {
-            roots.push(renderMenuNode(root));
+            roots.push(this.renderMenuNode(root));
         });
 
         return (
@@ -137,10 +70,82 @@ class ApplicationMenu extends View {
             </div>
         );
     }
+
+    /**
+     * Render a menu item
+     * @param {Object} item Menu Definition
+     * @returns {React.Component}
+     */
+    renderMenuNode(item) {
+        const { type, id, label } = item;
+        const shortcutLabel = this.props.getLabelForCommand(item.command);
+        const children = [];
+        if (!_.isNil(item.children) && !_.isEqual(type, MENU_DEF_TYPES.ITEM)) {
+            item.children.forEach((child) => {
+                children.push(this.renderMenuNode(child));
+            });
+        }
+
+        switch (type) {
+        case MENU_DEF_TYPES.ROOT:
+            return (
+                <SubMenu className="root-item" disabled={!item.isActive()} title={label} key={id}>
+                    {children}
+                </SubMenu >
+            );
+        case MENU_DEF_TYPES.GROUP:
+            return (
+                <SubMenu
+                    disabled={!item.isActive()}
+                    title={
+                        <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
+                            <div style={{ position: 'absolute', left: '5px' }}>
+                                <i className={`fw fw-${item.icon}`} />
+                            </div>
+                            <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
+                                {label}
+                            </div>
+                            <div style={{ position: 'absolute', right: '0px' }}>
+                                <i className={'fw fw-right'} style={{ marginRight: '5px' }} />
+                            </div>
+                            <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
+                                {label}
+                            </div>
+                        </div>
+                    }
+                    key={id}
+                >
+                    {children}
+                </SubMenu >
+            );
+        case MENU_DEF_TYPES.ITEM:
+            return (
+                <MenuItem disabled={!item.isActive()} key={id} menuDef={item}>
+                    <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
+                        <div style={{ position: 'absolute', left: '7px' }}>
+                            <i className={`fw fw-${item.icon}`} />
+                        </div>
+                        <div className="menu-label" style={{ position: 'absolute', left: '27px' }}>
+                            {label}
+                        </div>
+                        <div className="menu-label" style={{ position: 'absolute', right: '7px' }}>
+                            {shortcutLabel}
+                        </div>
+                        <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
+                            {label} {shortcutLabel}
+                        </div>
+                    </div>
+                </MenuItem>
+            );
+        default:
+            return (<div />);
+        }
+    }
 }
 
 ApplicationMenu.propTypes = {
     dispatch: PropTypes.func.isRequired,
+    getLabelForCommand: PropTypes.func.isRequired,
     menu: PropTypes.arrayOf(Object).isRequired,
 };
 

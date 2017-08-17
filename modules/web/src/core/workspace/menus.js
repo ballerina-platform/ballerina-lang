@@ -36,7 +36,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: (appContext) => {
                 return true;
             },
-            command: COMMANDS.SHOW_FILE_OPEN_WIZARD,
+            command: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
             icon: 'folder-open',
             type: MENU_DEF_TYPES.ITEM,
         },

@@ -125,6 +125,10 @@ class ApplicationMenuPlugin extends Plugin {
                                 this.appContext.command.dispatch(args);
                             },
                             menu: this.generateMenuFromDefinitions(),
+                            getLabelForCommand: (cmdID) => {
+                                const cmd = this.appContext.command.findCommand(cmdID);
+                                return cmd ? cmd.shortcut.derived.label : '';
+                            },
                         };
                     },
                     region: REGIONS.HEADER,
