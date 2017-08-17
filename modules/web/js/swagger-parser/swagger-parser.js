@@ -86,24 +86,46 @@ class SwaggerParser {
                     // if the operation id does not match we will check if a resource exist with matching path and
                     // methods.
                     if (_.isNil(existingResource)) {
-                        existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
-                            const httpMethods = resourceDefinition.getHttpMethodValues();
-                            const pathValue = resourceDefinition.getPathAnnotationValue();
-                            return httpMethods.length > 0 && !_.isNil(pathValue) &&
-                                _.isEqual(pathString, pathValue.replace(/"/g, ''))
-                                 &&
-                                _.isEqual(httpMethodAsString, httpMethods[0].toLowerCase());
-                        });
-                        // if operationId exists set it as resource name.
-                        if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
-                            existingResource.setResourceName(operation.operationId.replace(/\s/g, ''));
+                        if (httpMethodAsString === 'x-MULTI') {
+                            const xMultiObj = operation;
+                            existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
+                                const httpMethods = resourceDefinition.getHttpMethodValues();
+                                let hasSameHttpMethods = false;
+                                if (httpMethods.length === xMultiObj['x-METHODS'].length) {
+                                    hasSameHttpMethods =
+                                    _.intersectionBy(httpMethods, xMultiObj['x-METHODS'], String.toLowerCase).length ===
+                                     httpMethods.length;
+                                }
+
+                                const pathValue = resourceDefinition.getPathAnnotationValue();
+                                return httpMethods.length > 0 && !_.isNil(pathValue) &&
+                                    _.isEqual(pathString, pathValue.replace(/"/g, ''))
+                                    && hasSameHttpMethods;
+                            });
+                            // if operationId exists set it as resource name.
+                            if (existingResource && xMultiObj.operationId && xMultiObj.operationId.trim() !== '') {
+                                existingResource.setResourceName(xMultiObj.operationId.replace(/\s/g, ''));
+                            }
+                        } else {
+                            existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
+                                const httpMethods = resourceDefinition.getHttpMethodValues();
+                                const pathValue = resourceDefinition.getPathAnnotationValue();
+                                return httpMethods.length > 0 && !_.isNil(pathValue) &&
+                                    _.isEqual(pathString, pathValue.replace(/"/g, ''))
+                                    &&
+                                    _.isEqual(httpMethodAsString, httpMethods[0].toLowerCase());
+                            });
+                            // if operationId exists set it as resource name.
+                            if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
+                                existingResource.setResourceName(operation.operationId.replace(/\s/g, ''));
+                            }
                         }
                     }
-
+                    
                     if (!_.isNil(existingResource)) {
                         this.mergeToResource(existingResource, pathString, httpMethodAsString, operation);
                     } else {
-                        this._createNewResource(serviceDefinition, pathString, httpMethodAsString, operation);
+                        this.createNewResource(serviceDefinition, pathString, httpMethodAsString, operation);
                     }
                 });
             });
@@ -464,7 +486,13 @@ class SwaggerParser {
         });
 
         const httpMethodsBValues = [];
-        httpMethodsBValues.push(ASTFactory.createBValue({ stringValue: httpMethodAsString.toUpperCase() }));
+        if (httpMethodAsString !== 'x-MULTI') {
+            httpMethodsBValues.push(ASTFactory.createBValue({ stringValue: httpMethodAsString.toUpperCase() }));
+        } else {
+            httpMethodJsonObject['x-METHODS'].forEach((httpMethod) => {
+                httpMethodsBValues.push(ASTFactory.createBValue({ stringValue: httpMethod.toUpperCase() }));
+            });
+        }
         SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'methods', httpMethodsBValues);
 
         if (!_.isNil(pathString)) {
@@ -771,14 +799,17 @@ class SwaggerParser {
      * @param {string} httpMethodAsString The http method value.
      * @param {object} httpMethodJsonObject http method object of the swagger JSON.
      */
-    _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
+    createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         const newResourceDefinition = DefaultASTFactory.createResourceDefinition();
 
         // if an operation id is defined set it as resource name.
         if (httpMethodJsonObject.operationId && httpMethodJsonObject.operationId.trim() !== '') {
             newResourceDefinition.setResourceName(httpMethodJsonObject.operationId.replace(/\s/g, ''));
-        } else {
+        } else if (httpMethodAsString !== 'x-MULTI') {
             newResourceDefinition.setResourceName(pathString.replace(/\W/g, '') + httpMethodAsString.toUpperCase());
+        } else {
+            const httpMethods = httpMethodJsonObject['x-METHODS'].join('_');
+            newResourceDefinition.setResourceName(pathString.replace(/\W/g, '') + httpMethods);
         }
 
         this.mergeToResource(newResourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject);
