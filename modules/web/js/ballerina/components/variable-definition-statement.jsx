@@ -26,7 +26,8 @@ import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ASTFactory from '../ast/ast-factory';
 import FunctionDefinition from './function-definition';
-import { statement } from './../configs/designer-defaults';
+import { statement, actionInvocationDelete } from './../configs/designer-defaults';
+import ImageUtil from './image-util';
 
 /**
  * Variable Definition Statement Decorator.
@@ -43,6 +44,10 @@ class VariableDefinitionStatement extends React.Component {
             getterMethod: this.props.model.getStatementString,
             setterMethod: this.props.model.setStatementFromString,
         };
+        this.state = { actionInvocationDelete: 'hidden' };
+        this.onDelete = this.onDelete.bind(this);
+        this.onDeleteConnectorActionMouseOut = this.onDeleteConnectorActionMouseOut.bind(this);
+        this.onDeleteConnectorActionMouseEnter = this.onDeleteConnectorActionMouseEnter.bind(this);
     }
 
     onArrowStartPointMouseOut(e) {
@@ -54,6 +59,28 @@ class VariableDefinitionStatement extends React.Component {
         e.target.style.fill = '#444';
         e.target.style.fillOpacity = 0.5;
         e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
+    }
+
+    onDeleteConnectorActionMouseOut() {
+        this.setState({
+            actionInvocationDelete: 'hidden',
+        });
+    }
+
+    onDeleteConnectorActionMouseEnter() {
+        this.setState({
+            actionInvocationDelete: 'visible',
+        });
+    }
+
+    onDelete() {
+        const model = this.props.model;
+        if ((!_.isNil(model.getRightExpression())
+            && ASTFactory.isActionInvocationExpression(model.getRightExpression()))) {
+            model.getRightExpression().setActionConnectorName('clientConnector', { doSilently: true });
+            model.getRightExpression().setConnector(undefined);
+        }
+        this.onDeleteConnectorActionMouseOut();
     }
 
     onMouseDown(e) {
@@ -171,8 +198,57 @@ class VariableDefinitionStatement extends React.Component {
                         onMouseDown={e => this.onMouseDown(e)}
                         onMouseUp={e => this.onMouseUp(e)}
                     />
-                    {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
-                    {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
+
+                    <g className="arrow-grouping">
+                        {connector && <ArrowDecorator
+                            start={arrowStart}
+                            end={arrowEnd}
+                            enable
+                        />}
+                        {connector && <BackwardArrowDecorator
+                            start={backArrowStart}
+                            end={backArrowEnd}
+                            enable
+                        />}
+                        {connector &&
+                        <g
+                            className='connector-message-delete'
+                            visibility={this.state.actionInvocationDelete}
+                        >
+                            <rect
+                                x={((arrowStart.x + arrowEnd.x) / 2) - actionInvocationDelete.iconSize.padding}
+                                y={arrowStart.y + (actionInvocationDelete.outerRect.height / 2)}
+                                width={(actionInvocationDelete.outerRect.height / 2)}
+                                height={(actionInvocationDelete.outerRect.height / 2)}
+                                rx="0"
+                                ry="0"
+                                className="property-pane-action-button-wrapper"
+                            />
+                            <image
+                                width={actionInvocationDelete.iconSize.width}
+                                height={actionInvocationDelete.iconSize.width}
+                                className="property-pane-action-button-delete"
+                                xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
+                                x={((arrowStart.x + arrowEnd.x) / 2) - actionInvocationDelete.iconSize.padding}
+                                y={arrowStart.y + (actionInvocationDelete.outerRect.height / 2)}
+                                onClick={this.onDelete}
+                            >
+                                <title>Delete</title> </image>
+                        </g>
+                    }
+                        <rect
+                            x={((arrowStart.x + arrowEnd.x) / 2) - (actionInvocationDelete.outerRect.width / 2)}
+                            y={arrowStart.y}
+                            width={actionInvocationDelete.outerRect.width}
+                            height={actionInvocationDelete.outerRect.height}
+                            rx="0"
+                            ry="0"
+                            fillOpacity="0.0"
+                            onMouseEnter={this.onDeleteConnectorActionMouseEnter}
+                            onMouseOut={this.onDeleteConnectorActionMouseOut}
+                            onClick={this.onDelete}
+                        />
+                    </g>
                 </g>
                 }
                 {lambdaFunc}
