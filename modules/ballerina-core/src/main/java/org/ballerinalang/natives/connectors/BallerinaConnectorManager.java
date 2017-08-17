@@ -37,6 +37,7 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
@@ -86,7 +87,7 @@ public class BallerinaConnectorManager {
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
             serverConnector = httpConnectorFactory
-                    .createServerConnector(serverBootstrapConfiguration, listenerConfiguration);
+                    .getServerConnector(serverBootstrapConfiguration, listenerConfiguration);
             addStartupDelayedHTTPServerConnector(listenerConfiguration.getId(), serverConnector);
         }
     }
@@ -149,7 +150,7 @@ public class BallerinaConnectorManager {
             return startupDelayedHTTPServerConnectors.get(id);
         }
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
-                httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
+                httpConnectorFactory.getServerConnector(serverBootstrapConfiguration, listenerConfig);
         return serverConnector;
     }
 
@@ -302,6 +303,10 @@ public class BallerinaConnectorManager {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig);
-        return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
+        return httpConnectorFactory.getHTTPClientConnector(properties, senderConfiguration);
+    }
+
+    public WebSocketClientConnector getWebSocketClientConnector(Map<String, Object> properties) {
+        return  httpConnectorFactory.getWSClientConnector(properties);
     }
 }
