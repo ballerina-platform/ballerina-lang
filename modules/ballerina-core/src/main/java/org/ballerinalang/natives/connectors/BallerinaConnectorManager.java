@@ -64,6 +64,8 @@ public class BallerinaConnectorManager {
     private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
     private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
             startupDelayedHTTPServerConnectors = new HashMap<>();
+    private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
+            startedHTTPServerConnectors = new HashMap<>();
     private ServerBootstrapConfiguration serverBootstrapConfiguration;
     private TransportsConfiguration trpConfig;
     private CarbonMessageProcessor messageProcessor;
@@ -151,6 +153,10 @@ public class BallerinaConnectorManager {
         return serverConnector;
     }
 
+    public org.wso2.carbon.transport.http.netty.contract.ServerConnector
+    getStartedHTTPServerConnector(String id) {
+        return startedHTTPServerConnectors.get(id);
+    }
     /**
      * Register the given server connector error handler instance with the manager. Protocol of the handler will be
      * used with registering the handler.
@@ -263,6 +269,7 @@ public class BallerinaConnectorManager {
             connectorFuture.setHTTPConnectorListener(new BallerinaHTTPConnectorListener());
             connectorFuture.setWSConnectorListener(new BallerinaWebSocketConnectorListener());
             startedConnectors.add(serverConnector);
+            startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
         startupDelayedServerConnectors.clear();
         return startedConnectors;
