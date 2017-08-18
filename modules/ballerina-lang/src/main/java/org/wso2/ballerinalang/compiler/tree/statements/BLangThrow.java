@@ -15,15 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.ThrowNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
- * foo:getName();
- *
  * @since 0.94
  */
-public interface ExpressionStatementNode extends StatementNode {
-    ExpressionNode getExpression();
+public class BLangThrow extends BLangStatement implements ThrowNode {
+    public BLangExpression expr;
+
+    public BLangThrow(BLangExpression expr) {
+        this.expr = expr;
+    }
+
+    @Override
+    public BLangExpression getExpressions() {
+        return expr;
+    }
 }

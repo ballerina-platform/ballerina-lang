@@ -15,15 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.WhileNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
- * foo:getName();
- *
  * @since 0.94
  */
-public interface ExpressionStatementNode extends StatementNode {
-    ExpressionNode getExpression();
+public class BLangWhile extends BLangStatement implements WhileNode {
+    public BLangExpression expr;
+    public BLangBlockStmt body;
+
+    public BLangWhile(BLangExpression expr, BLangBlockStmt body) {
+        this.expr = expr;
+        this.body = body;
+    }
+
+    @Override
+    public BLangExpression getCondition() {
+        return expr;
+    }
+
+    @Override
+    public BLangBlockStmt getBody() {
+        return body;
+    }
 }

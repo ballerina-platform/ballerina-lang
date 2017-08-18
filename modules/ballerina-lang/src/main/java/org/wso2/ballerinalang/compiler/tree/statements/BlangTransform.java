@@ -15,15 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.TransformNode;
 
 /**
- * foo:getName();
- *
  * @since 0.94
  */
-public interface ExpressionStatementNode extends StatementNode {
-    ExpressionNode getExpression();
+public class BlangTransform extends BLangStatement implements TransformNode {
+    public BLangBlockStmt body;
+
+    public BlangTransform(BLangBlockStmt body) {
+        this.body = body;
+    }
+
+    @Override
+    public BLangBlockStmt getBody() {
+        return body;
+    }
 }
