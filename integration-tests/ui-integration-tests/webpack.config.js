@@ -72,6 +72,10 @@ const config = [{
                 ignore: 'js/tests/**/*.*',
             },
         }),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+        }),
     ],
     devServer: {
         publicPath: '/dist/',
