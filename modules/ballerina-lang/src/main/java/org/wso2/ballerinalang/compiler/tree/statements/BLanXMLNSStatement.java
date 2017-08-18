@@ -15,15 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 
 /**
- * foo:getName();
- *
  * @since 0.94
  */
-public interface ExpressionStatementNode extends StatementNode {
-    ExpressionNode getExpression();
+public class BLanXMLNSStatement extends BLangStatement implements XMLNSDeclStatementNode {
+    public BLangXMLNS xmlnsDecl;
+
+    public BLanXMLNSStatement(BLangXMLNS xmlnsDecl) {
+        this.xmlnsDecl = xmlnsDecl;
+    }
+
+    @Override
+    public BLangXMLNS getNamespaceDeclaration() {
+        return xmlnsDecl;
+    }
 }

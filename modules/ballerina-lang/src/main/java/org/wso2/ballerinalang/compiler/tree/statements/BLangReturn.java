@@ -15,15 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.ReturnNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
+import java.util.List;
 
 /**
- * foo:getName();
- *
  * @since 0.94
  */
-public interface ExpressionStatementNode extends StatementNode {
-    ExpressionNode getExpression();
+public class BLangReturn extends BLangStatement implements ReturnNode {
+    public List<BLangExpression> exprs;
+
+    public BLangReturn(List<BLangExpression> exprs) {
+        this.exprs = exprs;
+    }
+
+    @Override
+    public List<BLangExpression> getExpressions() {
+        return exprs;
+    }
 }

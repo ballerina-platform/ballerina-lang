@@ -15,15 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 /**
- * foo:getName();
+ * int a = 5;
  *
  * @since 0.94
  */
-public interface ExpressionStatementNode extends StatementNode {
-    ExpressionNode getExpression();
+public class BLangVariableDef extends BLangStatement implements VariableDefinitionNode {
+    public BLangVariable var;
+
+    public BLangVariableDef(BLangVariable variable) {
+        this.var = variable;
+    }
+
+    @Override
+    public BLangVariable getVariable() {
+        return var;
+    }
 }
