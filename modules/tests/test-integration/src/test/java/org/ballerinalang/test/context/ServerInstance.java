@@ -449,7 +449,7 @@ public class ServerInstance implements Server {
                         "lsof -Pi tcp:" + httpServerPort};
                 Process tmp = Runtime.getRuntime().exec(cmd);
                 String outPut = readProcessInputStream(tmp.getInputStream());
-                log.info("Current 'lsof' out for server port - " + httpServerPort +" output - " + outPut);
+                log.info("Current 'lsof' output for server port - " + httpServerPort + " output - " + outPut);
                 tmp.destroy();
             } catch (Exception e) {
                 log.error("Error executing lsof command, error - " + e.getMessage(), e);
