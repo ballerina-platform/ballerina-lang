@@ -23,21 +23,44 @@ import org.slf4j.LoggerFactory;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 
+import java.io.PrintStream;
+
 /**
  * Test listener for HTTP transport test cases.
  */
 public class TestNGListener extends TestListenerAdapter {
 
     @Override
+    public void beforeConfiguration(ITestResult tr) {
+        if (tr.getMethod().isBeforeClassConfiguration()) {
+            PrintStream printStream = new PrintStream(System.out);
+            printStream.print("\n");
+            String testClassName = tr.getTestClass().getRealClass().getSimpleName();
+            String[] testClassWords = testClassName.split("(?<!^)(?=[A-Z])");
+            String testClassNameFull = "";
+            for (String wordOfName: testClassWords) {
+                testClassNameFull = testClassNameFull + wordOfName + " ";
+            }
+            printStream.println("Start running " + testClassNameFull + "..................");
+        }
+    }
+
+    @Override
     public void onTestStart(ITestResult result) {
         String testCase = result.getName();
-        LoggerFactory.getLogger(result.getTestClass().getRealClass()).info("Test start: " + testCase);
+        LoggerFactory.getLogger(result.getTestClass().getRealClass()).info("Test running: " + testCase);
     }
 
     @Override
     public void onTestSuccess(ITestResult tr) {
         String testCase = tr.getName();
         LoggerFactory.getLogger(tr.getTestClass().getRealClass()).info("Test successful: " + testCase);
+    }
+
+    @Override
+    public void onTestSkipped(ITestResult tr) {
+        String testCase = tr.getName();
+        LoggerFactory.getLogger(tr.getTestClass().getRealClass()).info("Test skipped: " + testCase);
     }
 
     @Override
