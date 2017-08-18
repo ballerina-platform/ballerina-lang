@@ -23,6 +23,7 @@ import $ from 'jquery';
 import alerts from 'alerts';
 import log from 'log';
 import TransformRender from '../../ballerina/components/transform-render';
+import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
 import ASTFactory from '../ast/ast-factory';
 import ASTNode from '../ast/node';
@@ -98,12 +99,12 @@ class TransformExpanded extends React.Component {
         let targetExpression;
 
         if (sourceStruct !== undefined) {
-            sourceExpression = this.getStructAccessNode(
+            sourceExpression = this.getVertexExpression(
                 connection.sourceStruct, connection.sourceProperty,
                       ((sourceStruct.type === 'struct') || (sourceStruct.type.startsWith('json'))));
         }
         if (targetStruct !== undefined) {
-            targetExpression = this.getStructAccessNode(
+            targetExpression = this.getVertexExpression(
                 connection.targetStruct, connection.targetProperty,
                       ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
         }
@@ -117,7 +118,6 @@ class TransformExpanded extends React.Component {
             assignmentStmt.addChild(varRefList, 0);
             assignmentStmt.addChild(sourceExpression, 1);
             this.props.model.addChild(assignmentStmt);
-            return assignmentStmt.id;
         }
 
         if (!_.isUndefined(sourceStruct) && connection.isTargetFunction) {
@@ -151,7 +151,6 @@ class TransformExpanded extends React.Component {
             } else {
                 funcNode.addChild(sourceExpression, index);
             }
-            return assignmentStmtTarget.id;
         }
 
         if (connection.isSourceFunction && !_.isUndefined(targetStruct)) {
@@ -163,7 +162,6 @@ class TransformExpanded extends React.Component {
             const lexpr = assignmentStmtSource.getLeftExpression();
             lexpr.removeChild(lexpr.getChildren()[connection.sourceIndex], true);
             lexpr.addChild(targetExpression, connection.sourceIndex);
-            return assignmentStmtSource.id;
         }
 
         // Connection source and target are not structs
@@ -187,7 +185,6 @@ class TransformExpanded extends React.Component {
         this.props.model.removeChild(assignmentStmtSource, true);
         funcNode.addChild(assignmentStmtSource.getRightExpression(), index);
 
-        return assignmentStmtTarget.id;
     }
 
 
@@ -265,7 +262,7 @@ class TransformExpanded extends React.Component {
         this.targetElements[id] = { element, output };
     }
 
-    getStructAccessNode(name, property, isStruct) {
+    getVertexExpression(name, property, isStruct) {
         if (!isStruct || !property) {
             const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString(name);
@@ -668,7 +665,8 @@ class TransformExpanded extends React.Component {
 
             const innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (!_.isUndefined(innerStruct) && typeName !== property.type) {
-                property.innerType = this.getStructType(property.name, property.type, innerStruct, true, property.fieldName);
+                property.innerType = this.getStructType(property.name, property.type,
+                    innerStruct, true, property.fieldName);
             }
 
             struct.properties.push(property);
@@ -680,7 +678,7 @@ class TransformExpanded extends React.Component {
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
             const { element, input } = this.sourceElements[key];
-            if(element) {
+            if (element) {
                 input.id = key;
                 this.mapper.addSource(element, input);
             } else {
@@ -692,7 +690,7 @@ class TransformExpanded extends React.Component {
         const targetKeys = Object.keys(this.targetElements);
         targetKeys.forEach((key) => {
             const { element, output } = this.targetElements[key];
-            if(element) {
+            if (element) {
                 output.id = key;
                 this.mapper.addTarget(element, output);
             } else {
@@ -716,6 +714,8 @@ class TransformExpanded extends React.Component {
     componentDidMount() {
         this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
             this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
+        this.transformNodeManager = new TransformNodeManager(
+            { typeLattice: this.context.environment.getTypeLattice() });
 
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
@@ -736,9 +736,9 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        $('.middle-content, .leftType, .rightType').scroll(e => {
+        $('.middle-content, .leftType, .rightType').scroll(() => {
             this.mapper.reposition(this.props.model.getID());
-        })
+        });
 
         this.mapper.reposition(this.props.model.getID());
     }
@@ -1040,8 +1040,6 @@ class TransformExpanded extends React.Component {
     }
 
     render() {
-        const sourceId = 'sourceStructs' + this.props.model.id;
-        const targetId = 'targetStructs' + this.props.model.id;
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.getInput();
         const outputNodes = this.props.model.getOutput();
@@ -1057,7 +1055,7 @@ class TransformExpanded extends React.Component {
                     // alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
                 }
-                _.remove(vertices, (vertex)=> { return vertex.name == sourceSelection.name})
+                _.remove(vertices, (vertex) => { return vertex.name === sourceSelection.name; });
                 inputs.push(sourceSelection);
             });
 
@@ -1068,7 +1066,7 @@ class TransformExpanded extends React.Component {
                     // alerts.error('Mapping target "' + name + '" cannot be found');
                     return;
                 }
-                _.remove(vertices, (vertex)=> { return vertex.name == targetSelection.name})
+                _.remove(vertices, (vertex) => { return vertex.name === targetSelection.name; });
                 outputs.push(targetSelection);
             });
 

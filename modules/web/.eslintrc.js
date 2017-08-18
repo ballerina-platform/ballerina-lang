@@ -24,7 +24,7 @@ module.exports = {
         "valid-jsdoc": ["warn", {
             "requireReturn": false
         }],
-        "indent": ["error", 4],
+        "indent": ["error", 4, {"SwitchCase": 1}],
         "import/no-extraneous-dependencies": ["off", { 
             "devDependencies": false, 
             "optionalDependencies": false, 
