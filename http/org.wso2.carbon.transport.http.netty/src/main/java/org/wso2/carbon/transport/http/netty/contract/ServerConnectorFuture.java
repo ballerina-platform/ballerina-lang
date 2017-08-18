@@ -102,6 +102,8 @@ public interface ServerConnectorFuture {
 
     /**
      * Waits till the port binding is completed.
+     *
+     * @throws InterruptedException if any interrupt occurred while waiting for port binding.
      */
     void sync() throws InterruptedException;
 }

@@ -33,6 +33,8 @@ public interface HttpClientConnector {
 
     /**
      * Send httpMessages to the back-end in asynchronous manner.
+     *
+     * @param httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
      * @return returns the status of the asynchronous send action.
      */
     HttpResponseFuture send(HTTPCarbonMessage httpCarbonMessage);
