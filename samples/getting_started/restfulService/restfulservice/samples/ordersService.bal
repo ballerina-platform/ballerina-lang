@@ -7,8 +7,9 @@ import ballerina.net.http;
 @http:configuration {basePath:"/orderservice"}
 service<http> OrderMgtService {
 
-    @http:GET{}
-    @http:POST{}
+    @http:resourceConfig {
+        methods:["GET", "POST"]
+    }
     resource orders (message m) {
         json payload = {};
         string httpMethod = http:getMethod(m);

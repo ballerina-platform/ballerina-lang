@@ -214,15 +214,12 @@ public class ConnectorActionTest {
 
     @Test(description = "Test invalid action invocation",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "invalid-action-invocation.bal:2: invalid action invocation expression")
+            expectedExceptionsMessageRegExp = "invalid-action-invocation.bal:2: undefined connector 'lk'")
     public void testInvalidActionInvocation() {
         BTestUtils.getProgramFile("lang/connectors/invalid-action-invocation.bal");
     }
 
-    @Test(description = "Test invalid action invocation",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "action-invocation-with-no-args.bal:14: undefined action 'action1' " +
-                    "in connector 'TestConnector'")
+    @Test(description = "Test action invocation with no arg")
     public void testActionInvocationWithNoArgs() {
         BTestUtils.getProgramFile("lang/connectors/action-invocation-with-no-args.bal");
     }

@@ -159,6 +159,12 @@ public class AnnotationTest {
         BTestUtils.parseBalFile("lang/annotations/pkg/valid");
     }
 
+    @Test(description = "Test constant as annotation attribute value")
+    public void testConstAsAttributeValue() {
+        BTestUtils.parseBalFile("lang/annotations/constant-as-attribute-value.bal");
+
+    }
+
     // Negative tests
     
     @Test(description = "Test child annotation from a wrong package",
@@ -224,15 +230,7 @@ public class AnnotationTest {
     public void testInvalidResourceAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-resource-annotation.bal");
     }
-    
-    @Test(description = "Test an invalid typemapper annotation",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "invalid-typemapper-annotation.bal:3: incompatible types: expected " +
-                "'string', found 'int'")
-    public void testInvalidTypeMapperAnnotation() {
-        BTestUtils.parseBalFile("lang/annotations/invalid-typemapper-annotation.bal");
-    }
-    
+
     @Test(description = "Test an invalid connector annotation",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "invalid-connector-annotation.bal:3: incompatible types: expected " +
@@ -283,7 +281,23 @@ public class AnnotationTest {
     public void testInvalidAttachmentInServiceWhenAttachPointIsDifferentPkg() {
         BTestUtils.parseBalFile("lang/annotations/pkg/error2");
     }
-    
+
+    @Test(description = "Test global variable as annotation attribute value",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "variable-as-attribute-value.bal:4: annotation attribute " +
+                    "value should be either constant reference or a basic literal")
+    public void testVariableAsAttributeValue() {
+        BTestUtils.parseBalFile("lang/annotations/variable-as-attribute-value.bal");
+    }
+
+    @Test(description = "Test type mismatch in annotation attribute value",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "attribute-value-type-mismatch.bal:4: incompatible types: " +
+                    "expected 'string', found 'int'")
+    public void testTypeMismatchInAttributeValue() {
+        BTestUtils.parseBalFile("lang/annotations/attribute-value-type-mismatch.bal");
+    }
+
     @Test(description = "Test default values for annotation")
     public void testDefaultValues() {
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/annotations/default-values.bal");

@@ -59,6 +59,15 @@ public class LocalVariableAttributeInfo implements AttributeInfo {
         return this.localVariables.get(index);
     }
 
+    public LocalVariableInfo getLocalVarialbeDetails(String varName) {
+        for (LocalVariableInfo localVariableInfo : localVariables) {
+            if (localVariableInfo.getVariableName().equals(varName)) {
+                return localVariableInfo;
+            }
+        }
+        return null;
+    }
+
     @Override
     public Kind getKind() {
         return Kind.LOCAL_VARIABLES_ATTRIBUTE;

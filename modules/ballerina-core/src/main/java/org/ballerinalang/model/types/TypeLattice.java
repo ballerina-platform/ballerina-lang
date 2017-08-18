@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -66,6 +64,7 @@ public class TypeLattice {
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
         TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex typeV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.TYPE_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex nullV = new TypeVertex(BTypes.typeNull);
@@ -85,6 +84,7 @@ public class TypeLattice {
         implicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
         implicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
         implicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
+        implicitCastLattice.addEdge(typeV, anyV, SAFE, InstructionCodes.NOP);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -94,6 +94,7 @@ public class TypeLattice {
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
         TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex typeV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.TYPE_TNAME)));
         TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
@@ -108,6 +109,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(stringV, false);
         explicitCastLattice.addVertex(booleanV, false);
         explicitCastLattice.addVertex(blobV, false);
+        explicitCastLattice.addVertex(typeV, false);
         explicitCastLattice.addVertex(xmlV, false);
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
@@ -128,6 +130,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
 
         explicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
+        explicitCastLattice.addEdge(typeV, anyV, SAFE, InstructionCodes.NOP);
 
         explicitCastLattice.addEdge(connectorV, anyV, SAFE, InstructionCodes.NOP);
 
@@ -143,6 +146,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, mapV, UNSAFE, InstructionCodes.ANY2MAP);
         explicitCastLattice.addEdge(anyV, messageV, UNSAFE, InstructionCodes.ANY2MSG);
         explicitCastLattice.addEdge(anyV, datatableV, UNSAFE, InstructionCodes.ANY2DT);
+        explicitCastLattice.addEdge(anyV, typeV, UNSAFE, InstructionCodes.ANY2TYPE);
 
         explicitCastLattice.addEdge(jsonV, anyV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, messageV, SAFE, InstructionCodes.ANY2MSG);
@@ -171,7 +175,7 @@ public class TypeLattice {
         TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
         TypeVertex xmlAttributesV = new TypeVertex(BTypes.typeXMLAttributes);
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
-        
+
         conversionLattice.addVertex(intV, false);
         conversionLattice.addVertex(floatV, false);
         conversionLattice.addVertex(booleanV, false);
@@ -202,7 +206,7 @@ public class TypeLattice {
         conversionLattice.addEdge(xmlV, jsonV, UNSAFE, InstructionCodes.XML2JSON);
         conversionLattice.addEdge(datatableV, xmlV, UNSAFE, InstructionCodes.DT2XML);
         conversionLattice.addEdge(datatableV, jsonV, UNSAFE, InstructionCodes.DT2JSON);
-        
+
         conversionLattice.addEdge(xmlAttributesV, mapV, SAFE, InstructionCodes.XMLATTRS2MAP);
     }
 
@@ -366,30 +370,28 @@ public class TypeLattice {
             return true;
         }
 
-        for (VariableDefStmt fieldDef : targetStructDef.getFieldDefStmts()) {
-            VariableDef targetFieldDef = fieldDef.getVariableDef();
-            BType targetFieldType = targetFieldDef.getType();
-            SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
-            VariableDef sourceFieldDef = (VariableDef) sourceStructDef
-                    .resolveMembers(new SymbolName(fieldSymbolName.getName(), sourceStructDef.getPackagePath()));
+        VariableDefStmt[] sourceFieldDefs = sourceStructDef.getFieldDefStmts();
+        VariableDefStmt[] targetFieldDefs = targetStructDef.getFieldDefStmts();
+        if (targetFieldDefs.length > sourceFieldDefs.length) {
+            return false;
+        }
 
-            // field has to exists
-            if (sourceFieldDef == null) {
-                return false;
-            }
+        for (int i = 0; i < targetFieldDefs.length; i++) {
+            BType sourceFieldType = sourceFieldDefs[i].getVariableDef().getType();
+            String sourceFieldName = sourceFieldDefs[i].getVariableDef().getName();
 
-            // struct memory index of both the fields has to be same. i.e: order of the fields
-            // must be same in the target and the source structs
-            if (((StructVarLocation) targetFieldDef.getMemoryLocation()).getStructMemAddrOffset() !=
-                    ((StructVarLocation) sourceFieldDef.getMemoryLocation()).getStructMemAddrOffset()) {
-                return false;
-            }
+            BType targetFieldType = targetFieldDefs[i].getVariableDef().getType();
+            String targetFieldName = targetFieldDefs[i].getVariableDef().getName();
 
-            BType sourceFieldType = sourceFieldDef.getType();
             if (!isCompatible(targetFieldType, sourceFieldType)) {
                 return false;
             }
+
+            if (!sourceFieldName.equals(targetFieldName)) {
+                return false;
+            }
         }
+
         return true;
     }
 

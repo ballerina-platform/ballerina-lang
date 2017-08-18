@@ -60,10 +60,6 @@ public class LocalVariableInfo {
         return varIndex;
     }
 
-    public String getVarName() {
-        return varName;
-    }
-
     public int getVarTypeSigCPIndex() {
         return varTypeSigCPIndex;
     }

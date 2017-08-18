@@ -17,13 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.MemoryLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
@@ -83,6 +76,7 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -112,6 +106,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -144,6 +139,7 @@ import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -216,6 +212,7 @@ public class CodeGenerator implements NodeVisitor {
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private LocalVariableAttributeInfo currentlGlobalVarAttribInfo;
     private LineNumberTableAttributeInfo lineNumberTableAttributeInfo;
     private CallableUnitInfo currentCallableUnitInfo;
     private int workerChannelCount = 0;
@@ -225,6 +222,8 @@ public class CodeGenerator implements NodeVisitor {
     private boolean varAssignment;
     private boolean arrayMapAssignment;
     private boolean structAssignment;
+
+    private int transactionIndex = 0;
 
     private Stack<Instruction> breakInstructions = new Stack<>();
     private Stack<Instruction> continueInstructions = new Stack<>();
@@ -294,6 +293,12 @@ public class CodeGenerator implements NodeVisitor {
         int lineNumberAttribNameIndex = currentPkgInfo.addCPEntry(lineNumberAttribUTF8CPEntry);
         lineNumberTableAttributeInfo = new LineNumberTableAttributeInfo(lineNumberAttribNameIndex);
 
+        UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(
+                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.toString());
+        int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+        currentlGlobalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, currentlGlobalVarAttribInfo);
+
         visitConstants(bLangPackage.getConsts());
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
@@ -317,14 +322,15 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+        currentlGlobalVarAttribInfo = null;
+        bLangPackage.setSymbolsDefined(true);
     }
 
     private void visitConstants(ConstDef[] constDefs) {
         for (ConstDef constDef : constDefs) {
             BType varType = constDef.getType();
-            int regIndex = getNextIndex(varType.getTag(), gvIndexes);
-            GlobalVarLocation globalVarLocation = new GlobalVarLocation(regIndex);
-            constDef.setMemoryLocation(globalVarLocation);
+            int gvIndex = getNextIndex(varType.getTag(), gvIndexes);
+            constDef.setVarIndex(gvIndex);
 
             UTF8CPEntry constNameUTF8Entry = new UTF8CPEntry(constDef.getName());
             int constNameCPIndex = currentPkgInfo.addCPEntry(constNameUTF8Entry);
@@ -335,6 +341,9 @@ public class CodeGenerator implements NodeVisitor {
             packageVarInfo.setType(varType);
             currentPkgInfo.addConstantInfo(constDef.getName(), packageVarInfo);
 
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(constDef.getVariableDefStmt().getVariableDef());
+            currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
+
             // TODO Populate annotation attribute
         }
     }
@@ -342,9 +351,8 @@ public class CodeGenerator implements NodeVisitor {
     private void visitGlobalVariables(GlobalVariableDef[] globalVariableDefs) {
         for (GlobalVariableDef varDef : globalVariableDefs) {
             BType varType = varDef.getType();
-            int regIndex = getNextIndex(varType.getTag(), gvIndexes);
-            GlobalVarLocation globalVarLocation = new GlobalVarLocation(regIndex);
-            varDef.setMemoryLocation(globalVarLocation);
+            int gvIndex = getNextIndex(varType.getTag(), gvIndexes);
+            varDef.setVarIndex(gvIndex);
 
             UTF8CPEntry globalVarNameUTF8Entry = new UTF8CPEntry(varDef.getName());
             int globalVarNameCPIndex = currentPkgInfo.addCPEntry(globalVarNameUTF8Entry);
@@ -354,6 +362,9 @@ public class CodeGenerator implements NodeVisitor {
                     typeSigCPIndex, typeSigUTF8Entry.getValue());
             packageVarInfo.setType(varType);
             currentPkgInfo.addPackageVarInfo(varDef.getName(), packageVarInfo);
+
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varDef.getVariableDefStmt().getVariableDef());
+            currentlGlobalVarAttribInfo.addLocalVarInfo(localVarInfo);
 
             // TODO Populate annotation attribute
         }
@@ -376,15 +387,13 @@ public class CodeGenerator implements NodeVisitor {
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<>();
 
-            // Assign field indexes for Connector variables
+            // Assign field indexes for Service variables
             for (VariableDefStmt varDefStmt : service.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
                 BType fieldType = varDef.getType();
 
-                int fieldIndex = getNextIndex(fieldType.getTag(), gvIndexes);
-                GlobalVarLocation globalVarLocation = new GlobalVarLocation(fieldIndex);
-                varDef.setMemoryLocation(globalVarLocation);
-
+                int gvIndex = getNextIndex(fieldType.getTag(), gvIndexes);
+                varDef.setVarIndex(gvIndex);
                 localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
@@ -444,14 +453,11 @@ public class CodeGenerator implements NodeVisitor {
 
             BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
             structInfo.setType(structType);
-
         }
 
         for (StructDef structDef : structDefs) {
             StructInfo structInfo = currentPkgInfo.getStructInfo(structDef.getName());
-
             VariableDefStmt[] fieldDefStmts = structDef.getFieldDefStmts();
-
             BStructType.StructField[] structFields = new BStructType.StructField[fieldDefStmts.length];
             for (int i = 0; i < fieldDefStmts.length; i++) {
                 VariableDefStmt fieldDefStmt = fieldDefStmts[i];
@@ -466,14 +472,22 @@ public class CodeGenerator implements NodeVisitor {
                 String fieldTypeSig = fieldDef.getType().getSig().toString();
                 UTF8CPEntry sigUTF8Entry = new UTF8CPEntry(fieldTypeSig);
                 int sigCPIndex = currentPkgInfo.addCPEntry(sigUTF8Entry);
+
                 StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldDef.getName(),
                         sigCPIndex, fieldTypeSig);
                 structFieldInfo.setFieldType(fieldType);
+
+                // Populate default values
+                Expression defaultValExpr = fieldDefStmt.getRExpr();
+                if (defaultValExpr != null) {
+                    DefaultValueAttributeInfo defaultVal = getStructFieldDefaultValue(defaultValExpr);
+                    structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+                }
+
                 structInfo.addFieldInfo(structFieldInfo);
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
-                StructVarLocation structVarLocation = new StructVarLocation(fieldIndex);
-                fieldDef.setMemoryLocation(structVarLocation);
+                fieldDef.setVarIndex(fieldIndex);
 
                 // Add struct field to the BStructType
                 BStructType.StructField structField = new BStructType.StructField(fieldType, fieldDef.getName());
@@ -506,8 +520,7 @@ public class CodeGenerator implements NodeVisitor {
                 sigBuilder.append(fieldType.getSig().toString());
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
-                ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
-                parameterDef.setMemoryLocation(connectorVarLocation);
+                parameterDef.setVarIndex(fieldIndex);
             }
 
             // Add Connector name as an UTFCPEntry to the constant pool
@@ -533,9 +546,7 @@ public class CodeGenerator implements NodeVisitor {
                 connectorFieldTypes[fieldTypeCount++] = fieldType;
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
-                ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
-                varDef.setMemoryLocation(connectorVarLocation);
-
+                varDef.setVarIndex(fieldIndex);
                 localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
@@ -649,6 +660,8 @@ public class CodeGenerator implements NodeVisitor {
             workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName());
             callableUnitInfo.addWorkerInfo(worker.getName(), workerInfo);
+
+            generateCallableUnitInfoDataChannelMap(worker, callableUnitInfo);
         }
     }
 
@@ -800,21 +813,16 @@ public class CodeGenerator implements NodeVisitor {
         if (rhsExpr != null) {
             rhsExpr.accept(this);
             rhsExprRegIndex = rhsExpr.getTempOffset();
-        } else {
-            // TODO get the default value;
         }
 
-        MemoryLocation stackVarLocation;
         VariableDef variableDef = varDefStmt.getVariableDef();
-
-        MemoryLocation memoryLocation = varDefStmt.getVariableDef().getMemoryLocation();
-        if (memoryLocation instanceof StackVarLocation || memoryLocation instanceof WorkerVarLocation) {
+        VariableDef.Kind variableKind = varDefStmt.getVariableDef().getKind();
+        if (variableKind == VariableDef.Kind.LOCAL_VAR) {
             OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableDef.getType().getTag(),
                     InstructionCodes.ISTORE, lvIndexes);
             opcode = opcodeAndIndex.opcode;
             lvIndex = opcodeAndIndex.index;
-            stackVarLocation = new StackVarLocation(lvIndex);
-            variableDef.setMemoryLocation(stackVarLocation);
+            variableDef.setVarIndex(lvIndex);
             if (rhsExpr != null) {
                 emit(opcode, rhsExpr.getTempOffset(), lvIndex);
             }
@@ -822,7 +830,7 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
             currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
         } else {
-            // TODO
+            throw new RuntimeException("Unsupported variable kind: " + variableKind.toString());
         }
     }
 
@@ -1023,7 +1031,6 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
-        resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
@@ -1050,7 +1057,7 @@ public class CodeGenerator implements NodeVisitor {
             // Define local variable index for Error.
             ParameterDef paramDef = catchBlock.getParameterDef();
             int lvIndex = ++lvIndexes[REF_OFFSET];
-            paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            paramDef.setVarIndex(lvIndex);
             emit(new Instruction(InstructionCodes.ERRSTORE, lvIndex));
 
             // Visit Catch Block.
@@ -1185,21 +1192,33 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TransactionStmt transactionStmt) {
+        ++transactionIndex;
+        Expression retryCountExpression = transactionStmt.getRetryCountExpression();
+        int retryCountAvailable = 0;
+        if (retryCountExpression != null) {
+            retryCountExpression.accept(this);
+            retryCountAvailable = 1;
+        }
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = new Instruction(InstructionCodes.GOTO, -1);
         Instruction gotoStartOfAbortedBlock = new Instruction(InstructionCodes.GOTO, -1);
         abortInstructions.push(gotoStartOfAbortedBlock);
 
         //start transaction
+        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
         int startIP = nextIP();
-        emit(new Instruction(InstructionCodes.TRBGN));
+        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+
+        //retry transaction
+        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
+        emit(retryInstruction);
 
         //process transaction statements
         transactionStmt.getTransactionBlock().accept(this);
 
         //end the transaction
         int endIP = nextIP();
-        emit(new Instruction(InstructionCodes.TREND, 0));
+        emit(new Instruction(InstructionCodes.TR_END, 0));
 
         //process committed block
         if (transactionStmt.getCommittedBlock() != null) {
@@ -1209,8 +1228,9 @@ public class CodeGenerator implements NodeVisitor {
             emit(gotoEndOfTransactionBlock);
         }
         abortInstructions.pop();
-        gotoStartOfAbortedBlock.setOperand(0, nextIP());
-        emit(new Instruction(InstructionCodes.TREND, -1));
+        int startOfAbortedIP = nextIP();
+        gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
+        emit(new Instruction(InstructionCodes.TR_END, -1));
 
         //process aborted block
         if (transactionStmt.getAbortedBlock() != null) {
@@ -1220,21 +1240,35 @@ public class CodeGenerator implements NodeVisitor {
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(new Instruction(InstructionCodes.TREND, -1));
+        emit(new Instruction(InstructionCodes.TR_END, -1));
+        if (transactionStmt.getFailedBlock() != null) {
+            transactionStmt.getFailedBlock().getFailedBlockStmt().accept(this);
+
+        }
+        emit(gotoInstruction);
+        int ifIP = nextIP();
+        retryInstruction.setOperand(1, ifIP);
         if (transactionStmt.getAbortedBlock() != null) {
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
         }
+
 
         emit(new Instruction(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
+        emit(new Instruction(InstructionCodes.TR_END, 1));
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
         generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+
     }
 
     @Override
@@ -1331,6 +1365,13 @@ public class CodeGenerator implements NodeVisitor {
         int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
         lambdaExpr.setTempOffset(nextIndex);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    @Override
+    public void visit(StringTemplateLiteral stringTemplateLiteral) {
+        Expression concatExpr = stringTemplateLiteral.getConcatExpr();
+        concatExpr.accept(this);
+        stringTemplateLiteral.setTempOffset(concatExpr.getTempOffset());
     }
 
     @Override
@@ -1805,8 +1846,6 @@ public class CodeGenerator implements NodeVisitor {
             baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
             baseConnectorInfo.addMethodType((BConnectorType) getVMTypeFromSig(typeSig), connectorInfo);
         }
-//        baseConnectorInfo.addMethodTypeStructure
-//                ((BConnectorType) connectorInitExpr.getFilterSupportedType(), structureRefCPEntry);
 
         if (connectorInitExpr.getParentConnectorInitExpr() == null && !connectorDef.isFilterConnector()) {
             connectorInitExpr.setTempOffset(connectorRegIndex);
@@ -1823,15 +1862,14 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             ParameterDef paramDef = connectorDef.getParameterDefs()[j];
-            int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
-
+            int fieldIndex = paramDef.getVarIndex();
             int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.getTempOffset());
         }
 
         if (connectorDef.isFilterConnector()) {
             ParameterDef paramDef = connectorDef.getParameterDefs()[0];
-            int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
+            int fieldIndex = paramDef.getVarIndex();
             emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, fieldIndex, baseConnectorIndex);
             lastFilterConnectorIndex = connectorRegIndex;
         }
@@ -1908,7 +1946,7 @@ public class CodeGenerator implements NodeVisitor {
         for (Expression expr : structInitExpr.getArgExprs()) {
             KeyValueExpr keyValueExpr = (KeyValueExpr) expr;
             SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) keyValueExpr.getKeyExpr();
-            int fieldIndex = ((StructVarLocation) varRefExpr.getMemoryLocation()).getStructMemAddrOffset();
+            int fieldIndex = varRefExpr.getVariableDef().getVarIndex();
 
             Expression valueExpr = keyValueExpr.getValueExpr();
             valueExpr.accept(this);
@@ -1925,7 +1963,7 @@ public class CodeGenerator implements NodeVisitor {
                 continue;
             }
 
-            int fieldIndex = ((StructVarLocation) varRefExpr.getMemoryLocation()).getStructMemAddrOffset();
+            int fieldIndex = varRefExpr.getVariableDef().getVarIndex();
             fieldDefStmt.getRExpr().accept(this);
 
             int opcode = getOpcode(varRefExpr.getType().getTag(), InstructionCodes.IFIELDSTORE);
@@ -2015,9 +2053,10 @@ public class CodeGenerator implements NodeVisitor {
         int exprRegIndex;
         boolean variableStore = varAssignment && simpleVarRefExpr.getParentVarRefExpr() == null;
 
-        MemoryLocation memoryLocation = simpleVarRefExpr.getVariableDef().getMemoryLocation();
-        if (memoryLocation instanceof StackVarLocation) {
-            int lvIndex = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+        VariableDef variableDef = simpleVarRefExpr.getVariableDef();
+        VariableDef.Kind variableKind = variableDef.getKind();
+        if (variableKind == VariableDef.Kind.LOCAL_VAR) {
+            int lvIndex = variableDef.getVarIndex();
             if (variableStore) {
                 opcode = getOpcode(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.ISTORE);
@@ -2032,8 +2071,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (memoryLocation instanceof StructVarLocation) {
-            int fieldIndex = ((StructVarLocation) memoryLocation).getStructMemAddrOffset();
+        } else if (variableKind == VariableDef.Kind.STRUCT_FIELD) {
+            int fieldIndex = variableDef.getVarIndex();
 
             // Since we are processing a struct field here, the struct reference must be stored in the current
             //  reference register index.
@@ -2053,8 +2092,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (memoryLocation instanceof ConnectorVarLocation) {
-            int fieldIndex = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
+        } else if (variableKind == VariableDef.Kind.CONNECTOR_VAR) {
+            int fieldIndex = variableDef.getVarIndex();
 
             // Since we are processing a connector field here, the connector reference must be stored in the current
             //  reference register index.
@@ -2077,8 +2116,9 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (memoryLocation instanceof GlobalVarLocation) {
-            int gvIndex = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
+        } else if (variableKind == VariableDef.Kind.GLOBAL_VAR || variableKind == VariableDef.Kind.CONSTANT
+                || variableKind == VariableDef.Kind.SERVICE_VAR) {
+            int gvIndex = variableDef.getVarIndex();
 
             if (variableStore) {
                 opcode = getOpcode(simpleVarRefExpr.getType().getTag(),
@@ -2132,7 +2172,7 @@ public class CodeGenerator implements NodeVisitor {
             int opcode;
             int fieldValRegIndex;
             VariableDef fieldDef = fieldBasedVarRefExpr.getFieldDef();
-            int fieldIndex = ((StructVarLocation) fieldDef.getMemoryLocation()).getStructMemAddrOffset();
+            int fieldIndex = fieldDef.getVarIndex();
             if (variableStore) {
                 opcode = getOpcode(fieldDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
                 emit(opcode, varRefRegIndex, fieldIndex, rhsExprRegIndex);
@@ -2244,7 +2284,7 @@ public class CodeGenerator implements NodeVisitor {
             int opcode;
             int fieldValRegIndex;
             VariableDef fieldDef = indexBasedVarRefExpr.getFieldDef();
-            int fieldIndex = ((StructVarLocation) fieldDef.getMemoryLocation()).getStructMemAddrOffset();
+            int fieldIndex = fieldDef.getVarIndex();
             if (variableStore) {
                 opcode = getOpcode(fieldDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
                 emit(opcode, varRefRegIndex, fieldIndex, rhsExprRegIndex);
@@ -2321,7 +2361,9 @@ public class CodeGenerator implements NodeVisitor {
         // Else, treat it as QName
 
         Expression namespaceUriLiteral = xmlQNameRefExpr.getNamepsaceUri();
-        namespaceUriLiteral.accept(this);
+        if (!namespaceUriLiteral.hasTemporaryValues()) {
+            namespaceUriLiteral.accept(this);
+        }
 
         BasicLiteral localNameLiteral =
                 new BasicLiteral(xmlQNameRefExpr.getNodeLocation(), null, new BString(xmlQNameRefExpr.getLocalname()));
@@ -2348,10 +2390,13 @@ public class CodeGenerator implements NodeVisitor {
         int xmlVarRegIndex = ++regIndexes[REF_OFFSET];
         xmlElementLiteral.setTempOffset(xmlVarRegIndex);
 
+        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
+        defaultNamespaceUri.accept(this);
+
         Expression startTagName = xmlElementLiteral.getStartTagName();
         startTagName.accept(this);
         int startTagNameRegIndex = startTagName.getTempOffset();
-        
+
         // If this is a string representation of element name
         if (!(startTagName instanceof XMLQNameExpr)) {
             int localNameRegIndex = ++regIndexes[STRING_OFFSET];
@@ -2368,13 +2413,13 @@ public class CodeGenerator implements NodeVisitor {
         if (endTagName != null) {
             endTagName.accept(this);
             endTagNameRegIndex = endTagName.getTempOffset();
-            
+
             // If this is a string representation of element name
             if (!(endTagName instanceof XMLQNameExpr)) {
                 int localNameRegIndex = ++regIndexes[STRING_OFFSET];
                 int uriRegIndex = ++regIndexes[STRING_OFFSET];
                 emit(InstructionCodes.S2QNAME, endTagNameRegIndex, localNameRegIndex, uriRegIndex);
-                
+
                 endTagNameRegIndex = ++regIndexes[REF_OFFSET];
                 generateUriLookupInstructions(xmlElementLiteral.getNamespaces(), localNameRegIndex, uriRegIndex,
                         endTagNameRegIndex, xmlElementLiteral.getNodeLocation());
@@ -2382,9 +2427,6 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             endTagNameRegIndex = startTagNameRegIndex;
         }
-
-        Expression defaultNamespaceUri = xmlElementLiteral.getDefaultNamespaceUri();
-        defaultNamespaceUri.accept(this);
 
         // Create an empty xml with the given QName
         emit(InstructionCodes.NEWXMLELEMENT, xmlVarRegIndex, startTagNameRegIndex, endTagNameRegIndex,
@@ -2492,6 +2534,7 @@ public class CodeGenerator implements NodeVisitor {
 
         resetIndexes(lvIndexes);
         resetIndexes(regIndexes);
+        resetIndexes(maxRegIndexes);
     }
 
     private void resetIndexes(int[] indexes) {
@@ -2857,6 +2900,7 @@ public class CodeGenerator implements NodeVisitor {
         int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         int[] lvIndexesCopy = lvIndexes.clone();
         int[] regIndexesCopy = regIndexes.clone();
+        int[] maxRegIndexesCopy = maxRegIndexes.clone();
         for (Worker worker : forkJoinStmt.getWorkers()) {
             WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.getName());
             workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
@@ -2871,6 +2915,7 @@ public class CodeGenerator implements NodeVisitor {
 
         lvIndexes = lvIndexesCopy;
         regIndexes = regIndexesCopy;
+        maxRegIndexes = maxRegIndexesCopy;
 
         int i = 0;
         int[] joinWrkrNameCPIndexes = new int[forkJoinStmt.getJoin().getJoinWorkers().length];
@@ -2896,7 +2941,7 @@ public class CodeGenerator implements NodeVisitor {
             visitForkJoinParameterDefs(join.getJoinResult());
         }
 
-        int joinMemOffset = ((StackVarLocation) join.getJoinResult().getMemoryLocation()).getStackFrameOffset();
+        int joinMemOffset = join.getJoinResult().getVarIndex();
         forkjoinInfo.setJoinMemOffset(joinMemOffset);
 
         if (join.getJoinBlock() != null) {
@@ -2918,7 +2963,7 @@ public class CodeGenerator implements NodeVisitor {
             visitForkJoinParameterDefs(timeout.getTimeoutResult());
         }
 
-        int timeoutMemOffset = ((StackVarLocation) join.getJoinResult().getMemoryLocation()).getStackFrameOffset();
+        int timeoutMemOffset = join.getJoinResult().getVarIndex();
         forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
 
         if (timeout.getTimeoutBlock() != null) {
@@ -3012,6 +3057,25 @@ public class CodeGenerator implements NodeVisitor {
             int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
             attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
 
+        } else if (attributeValue.getVarRefExpr() != null) {
+            String typeDesc = attributeValue.getType().getSig().toString();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+
+
+            String constPkg = attributeValue.getVarRefExpr().getVariableDef().getPackagePath();
+            UTF8CPEntry constPkgCPEntry = new UTF8CPEntry(constPkg);
+            int constPkgCPIndex = currentPkgInfo.addCPEntry(constPkgCPEntry);
+
+            String constName = attributeValue.getVarRefExpr().getVariableDef().getName();
+            UTF8CPEntry constNameCPEntry = new UTF8CPEntry(constName);
+            int constNameCPIndex = currentPkgInfo.addCPEntry(constNameCPEntry);
+
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkg, constNameCPIndex, constName);
+            attribValue.setConstVarExpr(true);
+
+            programFile.addUnresolvedAnnAttrValue(attribValue);
         } else {
             org.ballerinalang.model.AnnotationAttributeValue[] attributeValues = attributeValue.getValueArray();
             AnnAttributeValue[] annotationAttribValues = new AnnAttributeValue[attributeValues.length];
@@ -3031,7 +3095,7 @@ public class CodeGenerator implements NodeVisitor {
     private void visitForkJoinParameterDefs(ParameterDef parameterDef) {
         LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
         int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
-        parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+        parameterDef.setVarIndex(lvIndex);
         parameterDef.accept(this);
         LocalVariableInfo localVariableDetails = getLocalVarAttributeInfo(parameterDef);
         localVariableAttributeInfo.addLocalVarInfo(localVariableDetails);
@@ -3051,7 +3115,7 @@ public class CodeGenerator implements NodeVisitor {
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
             int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
-            parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            parameterDef.setVarIndex(lvIndex);
             parameterDef.accept(this);
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(parameterDef);
             localVarAttributeInfo.addLocalVarInfo(localVarInfo);
@@ -3106,7 +3170,7 @@ public class CodeGenerator implements NodeVisitor {
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
                 int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
-                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+                parameterDef.setVarIndex(lvIndex);
             }
 
             parameterDef.accept(this);
@@ -3130,7 +3194,6 @@ public class CodeGenerator implements NodeVisitor {
 
             // Set local variables and reg indexes and reset instance variables to defaults
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
-            resetIndexes(maxRegIndexes);
 
             // Now visit each Worker
             for (Worker worker : workers) {
@@ -3148,7 +3211,6 @@ public class CodeGenerator implements NodeVisitor {
 
                 //workerInfo.setWorkerEndIP(nextIP());
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
-                resetIndexes(maxRegIndexes);
 
                 // emit HALT instruction to finish the worker activity
                 emit(InstructionCodes.HALT);
@@ -3160,7 +3222,6 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
-            resetIndexes(maxRegIndexes);
         }
 
         currentlLocalVarAttribInfo = null;
@@ -3192,19 +3253,7 @@ public class CodeGenerator implements NodeVisitor {
     private LocalVariableInfo getLocalVarAttributeInfo(VariableDef variableDef) {
         UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(variableDef.getName());
         int varNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
-
-        // TODO Support other variable memory locations
-        MemoryLocation memLocation = variableDef.getMemoryLocation();
-        int memLocationOffset;
-        if (memLocation instanceof GlobalVarLocation) {
-            memLocationOffset = ((GlobalVarLocation) variableDef.getMemoryLocation()).getStaticMemAddrOffset();
-        } else if (memLocation instanceof ServiceVarLocation) {
-            memLocationOffset = ((ServiceVarLocation) variableDef.getMemoryLocation()).getStaticMemAddrOffset();
-        } else if (memLocation instanceof ConnectorVarLocation) {
-            memLocationOffset = ((ConnectorVarLocation) variableDef.getMemoryLocation()).getConnectorMemAddrOffset();
-        } else {
-            memLocationOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
-        }
+        int memLocationOffset = variableDef.getVarIndex();
 
         BType varType = variableDef.getType();
         String sig = varType.getSig().toString();
@@ -3215,11 +3264,10 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     private void assignVariableDefMemoryLocation(VariableDef variableDef) {
-        MemoryLocation memoryLocation = variableDef.getMemoryLocation();
-        if (memoryLocation instanceof StackVarLocation || memoryLocation instanceof WorkerVarLocation) {
+        VariableDef.Kind variableKind = variableDef.getKind();
+        if (variableKind == VariableDef.Kind.LOCAL_VAR) {
             int lvIndex = getNextIndex(variableDef.getType().getTag(), lvIndexes);
-            MemoryLocation stackVarLocation = new StackVarLocation(lvIndex);
-            variableDef.setMemoryLocation(stackVarLocation);
+            variableDef.setVarIndex(lvIndex);
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
             currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
         }
@@ -3287,15 +3335,15 @@ public class CodeGenerator implements NodeVisitor {
     /**
      * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
      * get the prefix of it as the prefix to be used.
-     * 
-     * @param namespaces namespace map
-     * @param localNameRegIndex Registry index of the local name
-     * @param uriRegIndex Registry index of the uri
+     *
+     * @param namespaces          namespace map
+     * @param localNameRegIndex   Registry index of the local name
+     * @param uriRegIndex         Registry index of the uri
      * @param targetQnameRegIndex Registry index of the target qname
-     * @param location Node location
+     * @param location            Node location
      */
     private void generateUriLookupInstructions(Map<String, Expression> namespaces, int localNameRegIndex,
-            int uriRegIndex, int targetQnameRegIndex, NodeLocation location) {
+                                               int uriRegIndex, int targetQnameRegIndex, NodeLocation location) {
         if (namespaces.isEmpty()) {
             createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
             return;
@@ -3364,14 +3412,14 @@ public class CodeGenerator implements NodeVisitor {
 
     /**
      * Generate instructions to add namespace declarations that are visible to the current scope.
-     * 
-     * @param namepsaces Namespaces that are visible to the current scope
-     * @param xmlVarRegIndex Registry index of the XML variable
+     *
+     * @param namepsaces         Namespaces that are visible to the current scope
+     * @param xmlVarRegIndex     Registry index of the XML variable
      * @param defaultNsUriOffset Registry offset of the default namespace URI
-     * @param location Node location
+     * @param location           Node location
      */
     private void addNamespacesToXML(Map<String, Expression> namepsaces, int xmlVarRegIndex, int defaultNsUriOffset,
-            NodeLocation location) {
+                                    NodeLocation location) {
         int qnameRegIndex = ++regIndexes[REF_OFFSET];
         String localname;
 
@@ -3396,6 +3444,47 @@ public class CodeGenerator implements NodeVisitor {
                     prefixLiteral.getTempOffset(), qnameRegIndex);
             emit(InstructionCodes.XMLATTRSTORE, xmlVarRegIndex, qnameRegIndex, valueLiteral.getTempOffset());
         }
+    }
+
+    private DefaultValueAttributeInfo getStructFieldDefaultValue(Expression defaultValueExpr) {
+        BasicLiteral defaultValLiteral = (BasicLiteral) defaultValueExpr;
+        String typeDesc = defaultValueExpr.getType().getSig().toString();
+        UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+        int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+        StructFieldDefaultValue defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+
+        int valueCPIndex;
+        int typeTag = defaultValueExpr.getType().getTag();
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                long intValue = defaultValLiteral.getBValue().intValue();
+                defaultValue.setIntValue(intValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(intValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.FLOAT_TAG:
+                double floatValue = defaultValLiteral.getBValue().floatValue();
+                defaultValue.setFloatValue(floatValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(floatValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.STRING_TAG:
+                String stringValue = defaultValLiteral.getBValue().stringValue();
+                defaultValue.setStringValue(stringValue);
+                valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(stringValue));
+                defaultValue.setValueCPIndex(valueCPIndex);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                boolean boolValue = defaultValLiteral.getBValue().booleanValue();
+                defaultValue.setBooleanValue(boolValue);
+                break;
+        }
+
+        UTF8CPEntry defaultValueAttribUTF8CPEntry =
+                new UTF8CPEntry(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE.toString());
+        int defaultValueAttribNameIndex = currentPkgInfo.addCPEntry(defaultValueAttribUTF8CPEntry);
+
+        return new DefaultValueAttributeInfo(defaultValueAttribNameIndex, defaultValue);
     }
 
     /**

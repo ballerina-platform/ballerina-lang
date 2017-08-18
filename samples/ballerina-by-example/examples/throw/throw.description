@@ -1,10 +1,6 @@
-//Thrown errors are just like exceptions and cause the call stack to be unwound
-//until a matching catcher is found.
-
-//In Ballerina, throwing an error means, something unexpected has happened that
-// shouldn’t occur during the normal operation, and the code that handles the thrown
-// error is not expected to be able to do much to recover from it. It may log the
-// error and abort the execution.
+//In Ballerina, throwing an error means, something unexpected has happened
+//that shouldn’t occur during the normal operation. A Thrown error causes
+//the call stack to be unwound until a matching catcher is found.
 
 //Ballerina encourages developers, NOT to use 'throw' for handling program related
 //errors (i.e header not found, Data mismatched error etc), but in an error situation

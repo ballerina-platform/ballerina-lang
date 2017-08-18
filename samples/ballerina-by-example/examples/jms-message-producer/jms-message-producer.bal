@@ -21,6 +21,6 @@ function jmsSender() (boolean) {
     // Set a string payload to the message.
     messages:setStringPayload(queueMessage, "Hello from Ballerina!");
     // Send the Ballerina message to the JMS provider.
-    jms:ClientConnector.send(jmsEP, "MyQueue", queueMessage);
+    jmsEP.send("MyQueue", queueMessage);
     return true;
 }

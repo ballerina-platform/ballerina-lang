@@ -89,11 +89,11 @@ public class HTTPServicesRegistry {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getName();
         AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIGURATION);
+                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
         if (annotationInfo != null) {
             AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
+                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annAttributeValue != null && annAttributeValue.getStringValue() != null) {
                 if (annAttributeValue.getStringValue().trim().isEmpty()) {
                     basePath = Constants.DEFAULT_BASE_PATH;
@@ -134,31 +134,31 @@ public class HTTPServicesRegistry {
             return;
         }
 
-        for (String listenerId : listenerProp.keySet()) {
-            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerId);
-            Map<String, String> propMap = listenerProp.get(listenerId);
+        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entry.getKey());
+            Map<String, String> propMap = entry.getValue();
             if (servicesOnInterface == null) {
                 // Assumption : this is always sequential, no two simultaneous calls can get here
                 servicesOnInterface = new HashMap<>();
-                servicesInfoMap.put(listenerId, servicesOnInterface);
+                servicesInfoMap.put(entry.getKey(), servicesOnInterface);
                 //It comes to here means, this is a new http configuration, in that case,
                 //shouldn't try to find a listener in connector manager, because, if there is already
                 //a listener for the given id, then we don't have a way to make sure that
                 //configuration are same in given configuration and existing listener
                 ServerConnector connector = BallerinaConnectorManager.getInstance()
-                            .createServerConnector(Constants.PROTOCOL_HTTP, listenerId, propMap);
-                listenerPropMap.put(listenerId, propMap);
+                            .createServerConnector(Constants.PROTOCOL_HTTP, entry.getKey(), propMap);
+                listenerPropMap.put(entry.getKey(), propMap);
                 if (connector == null) {
                     throw new BallerinaException(
-                            "ServerConnector interface not registered for : " + listenerId);
+                            "ServerConnector interface not registered for : " + entry.getKey());
                 }
                 // Delay the startup until all services are deployed
                 BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
             } else {
-                Map<String, String> existingMap = listenerPropMap.get(listenerId);
+                Map<String, String> existingMap = listenerPropMap.get(entry.getKey());
                 if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.SERVER_CONNECTOR_ALREADY_EXIST,
-                            propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
+                            propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
                 }
             }
             if (servicesOnInterface.containsKey(basePath)) {
@@ -186,38 +186,38 @@ public class HTTPServicesRegistry {
         Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
 
         AnnAttributeValue hostAttrVal = configInfo.getAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_HOST);
+                (Constants.ANN_CONFIG_ATTR_HOST);
         AnnAttributeValue portAttrVal = configInfo.getAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_PORT);
+                (Constants.ANN_CONFIG_ATTR_PORT);
         AnnAttributeValue httpsPortAttrVal = configInfo.getAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_HTTPS_PORT);
+                (Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
         AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE);
+                (Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
         AnnAttributeValue keyStorePassAttrVal = configInfo.getAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS);
+                (Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
         AnnAttributeValue certPassAttrVal = configInfo.getAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_CERT_PASS);
+                (Constants.ANN_CONFIG_ATTR_CERT_PASS);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.ANNOTATION_ATTRIBUTE_PORT, Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEME, Constants.PROTOCOL_HTTP);
+            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
+            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, hostAttrVal.getStringValue());
+                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
             } else {
-                httpPropMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, Constants.HTTP_DEFAULT_HOST);
+                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
             }
             listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
         }
 
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
             Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEME, Constants.PROTOCOL_HTTPS);
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, hostAttrVal.getStringValue());
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
             } else {
-                httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, Constants.HTTP_DEFAULT_HOST);
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
             }
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
@@ -231,9 +231,9 @@ public class HTTPServicesRegistry {
                 //TODO get from language pack, and add location
                 throw new BallerinaException("Certificate password value must be provided for protocol https");
             }
-            httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_CERT_PASS, certPassAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
         return listenerConfMap;
@@ -247,11 +247,11 @@ public class HTTPServicesRegistry {
      */
     private String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME));
+        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
         iName.append("_");
-        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_HOST));
+        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
         iName.append("_");
-        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
+        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
         return iName.toString();
     }
 

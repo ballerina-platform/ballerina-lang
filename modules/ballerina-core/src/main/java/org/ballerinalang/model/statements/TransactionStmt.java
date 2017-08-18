@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.Collections;
@@ -38,13 +39,17 @@ public class TransactionStmt extends AbstractStatement {
     private Statement transactionBlock;
     private AbortedBlock abortedBlock;
     private CommittedBlock committedBlock;
+    private FailedBlock failedBlock;
+    private Expression retryCountExpression;
 
     private TransactionStmt(NodeLocation location, Statement transactionBlock, AbortedBlock abortedBlock,
-                            CommittedBlock committedBlock) {
+                            CommittedBlock committedBlock, FailedBlock failedBlock, Expression retryCountExpression) {
         super(location);
         this.transactionBlock = transactionBlock;
         this.abortedBlock = abortedBlock;
         this.committedBlock = committedBlock;
+        this.failedBlock = failedBlock;
+        this.retryCountExpression = retryCountExpression;
     }
 
     public Statement getTransactionBlock() {
@@ -57,6 +62,14 @@ public class TransactionStmt extends AbstractStatement {
 
     public CommittedBlock getCommittedBlock() {
         return committedBlock;
+    }
+
+    public FailedBlock getFailedBlock() {
+        return failedBlock;
+    }
+
+    public Expression getRetryCountExpression() {
+        return retryCountExpression;
     }
 
     @Override
@@ -166,6 +179,54 @@ public class TransactionStmt extends AbstractStatement {
     }
 
     /**
+     * Represents Failed block of a Transaction statement.
+     */
+    public static class FailedBlock implements SymbolScope {
+
+        private final SymbolScope enclosingScope;
+        private Map<SymbolName, BLangSymbol> symbolMap;
+        private BlockStmt failedBlock;
+
+        public FailedBlock(SymbolScope enclosingScope) {
+            this.enclosingScope = enclosingScope;
+            this.symbolMap = new HashMap<>();
+        }
+
+        @Override
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
+        }
+
+        @Override
+        public SymbolScope getEnclosingScope() {
+            return this.enclosingScope;
+        }
+
+        @Override
+        public void define(SymbolName name, BLangSymbol symbol) {
+            symbolMap.put(name, symbol);
+        }
+
+        @Override
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
+        }
+
+        @Override
+        public Map<SymbolName, BLangSymbol> getSymbolMap() {
+            return Collections.unmodifiableMap(this.symbolMap);
+        }
+
+        public BlockStmt getFailedBlockStmt() {
+            return failedBlock;
+        }
+
+        void setFailedBlockStmt(BlockStmt abortedBlock) {
+            this.failedBlock = abortedBlock;
+        }
+    }
+
+    /**
      * Builds a {@code {@link TransactionStmt}} statement.
      *
      * @since 0.87
@@ -173,9 +234,11 @@ public class TransactionStmt extends AbstractStatement {
     public static class TransactionStmtBuilder {
         private Statement transactionBlock;
         private AbortedBlock abortedBlock;
+        private FailedBlock failedBlock;
         private CommittedBlock committedBlock;
         private NodeLocation location;
         private WhiteSpaceDescriptor whiteSpaceDescriptor;
+        private Expression retryCountExpression;
 
         public void setTransactionBlock(Statement transactionBlock) {
             this.transactionBlock = transactionBlock;
@@ -197,6 +260,14 @@ public class TransactionStmt extends AbstractStatement {
             this.committedBlock = committedBlock;
         }
 
+        public void setFailedBlockStmt(Statement statement) {
+            this.failedBlock.setFailedBlockStmt((BlockStmt) statement);
+        }
+
+        public void setFailedBlock(FailedBlock failedBlock) {
+            this.failedBlock = failedBlock;
+        }
+
         public NodeLocation getLocation() {
             return location;
         }
@@ -213,9 +284,17 @@ public class TransactionStmt extends AbstractStatement {
             this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
 
+        public void setRetryCountExpression(Expression expression) {
+            this.retryCountExpression = expression;
+        }
+
+        public Expression getRetryCountExpression() {
+            return retryCountExpression;
+        }
+
         public TransactionStmt build() {
             TransactionStmt transactionStmt = new TransactionStmt(location, transactionBlock,
-                    abortedBlock, committedBlock);
+                    abortedBlock, committedBlock, failedBlock, retryCountExpression);
             transactionStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
             transactionBlock.setParent(transactionStmt);
             if (abortedBlock != null) {

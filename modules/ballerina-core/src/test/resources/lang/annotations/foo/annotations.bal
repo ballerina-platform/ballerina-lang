@@ -53,7 +53,7 @@ typemapper customTypeMapper (int length) (boolean) {
 connector TestConnector (string url) {
     
     @doc:Description{value:"Test action of test connector"}
-    action testAction(TestConnector testConnector) (message) {
+    action testAction() (message) {
         message m = {};
         return m;
     }

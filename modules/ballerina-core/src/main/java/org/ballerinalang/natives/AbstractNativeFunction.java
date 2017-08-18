@@ -19,7 +19,6 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.Identifier;
@@ -116,9 +115,9 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * This will return a int variable defined in ballerina level.
      * In java level it would be a long value.
      *
-     * @param context   In which the variable reside.
-     * @param index     Index of the variable location.
-     * @return          Long value.
+     * @param context In which the variable reside.
+     * @param index   Index of the variable location.
+     * @return Long value.
      */
     public long getIntArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
@@ -138,9 +137,9 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * This will return a float variable defined in ballerina level.
      * In java level that would be a double value.
      *
-     * @param context   In which the variable reside.
-     * @param index     Index of the variable location.
-     * @return          Double value.
+     * @param context In which the variable reside.
+     * @param index   Index of the variable location.
+     * @return Double value.
      */
     public double getFloatArgument(Context context, int index) {
         if (index > -1 && index < this.argTypeNames.length) {
@@ -172,12 +171,21 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
-    public MemoryLocation getMemoryLocation() {
+    public Kind getKind() {
         return null;
     }
 
     @Override
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
+    public void setKind(Kind kind) {
+    }
+
+    @Override
+    public int getVarIndex() {
+        return 0;
+    }
+
+    @Override
+    public void setVarIndex(int index) {
     }
 
     @Override

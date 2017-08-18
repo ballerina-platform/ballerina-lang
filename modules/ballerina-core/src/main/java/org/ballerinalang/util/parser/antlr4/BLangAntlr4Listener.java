@@ -66,6 +66,9 @@ import org.ballerinalang.util.parser.BallerinaParser.ReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.StartTagContext;
+import org.ballerinalang.util.parser.BallerinaParser.StringTemplateContentContext;
+import org.ballerinalang.util.parser.BallerinaParser.StringTemplateLiteralContext;
+import org.ballerinalang.util.parser.BallerinaParser.StringTemplateTextContext;
 import org.ballerinalang.util.parser.BallerinaParser.StructBodyContext;
 import org.ballerinalang.util.parser.BallerinaParser.TextContext;
 import org.ballerinalang.util.parser.BallerinaParser.TypeConversionExpressionContext;
@@ -309,12 +312,19 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
-        String functionName = ctx.callableUnitSignature().Identifier().getText();
+        CallableUnitSignatureContext callableUnitSignatureContext = ctx.callableUnitSignature();
+        String functionName = callableUnitSignatureContext.Identifier().getText();
+        BallerinaParser.ReturnParametersContext returnParameters = callableUnitSignatureContext.returnParameters();
+        boolean hasReturnsKeyword = false;
+        if (returnParameters != null) {
+            hasReturnsKeyword = (returnParameters.RETURNS() != null);
+        }
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
         }
-        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName, isNative);
+        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName,
+                isNative, hasReturnsKeyword);
     }
 
     @Override
@@ -921,13 +931,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.nameReference() != null) {
             BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
             modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
-            if (nameReference != null) {
-                SimpleTypeName constraint =
-                        new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
-                                nameReference.getPackagePath());
-                simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
-                ((ConstraintTypeName) simpleTypeName).setConstraint(constraint);
-            }
+            SimpleTypeName constraint =
+                    new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
+                            nameReference.getPackagePath());
+            simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
+            ((ConstraintTypeName) simpleTypeName).setConstraint(constraint);
         }
 
         simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
@@ -952,7 +960,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         SimpleTypeName[] returnParamTypes = new SimpleTypeName[0];
         String[] paramArgNames = new String[0];
         String[] returnParamArgNames = new String[0];
-        boolean isReturnWordAvailable = false;
+        boolean hasReturnsKeyword = false;
         if (ctx.parameterList() != null) {
             paramTypes = new SimpleTypeName[ctx.parameterList().parameter().size()];
             paramArgNames = new String[ctx.parameterList().parameter().size()];
@@ -976,7 +984,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             } else if (returnCtx.typeList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.typeList().typeName().size()];
             }
-            isReturnWordAvailable = "returns".equals(returnCtx.getChild(0).getText());
+            hasReturnsKeyword = "returns".equals(returnCtx.getChild(0).getText());
         }
 
         for (int i = returnParamTypes.length - 1; i >= 0; i--) {
@@ -989,7 +997,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         functionTypeName.setNodeLocation(getCurrentLocation(ctx));
         functionTypeName.setParamFieldNames(paramArgNames);
         functionTypeName.setReturnParamFieldNames(returnParamArgNames);
-        functionTypeName.setReturnWordAvailable(isReturnWordAvailable);
+        functionTypeName.setHasReturnsKeyword(hasReturnsKeyword);
         // TODO : Fix WhiteSpaces.
 //        if (isVerboseMode) {
 //            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
@@ -1095,6 +1103,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
         if (childContext instanceof SimpleLiteralContext) {
             modelBuilder.createLiteralTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        } else if (childContext instanceof NameReferenceContext) {
+            modelBuilder.createNameReferenceTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    nameReferenceStack.pop());
         } else if (childContext instanceof AnnotationAttachmentContext) {
             modelBuilder.createAnnotationTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
         } else if (childContext instanceof AnnotationAttributeArrayContext) {
@@ -1166,7 +1177,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
         }
-        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, false);
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, isVarDeclaration);
     }
 
     @Override
@@ -1313,21 +1328,29 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
+            if (filterConnectorInitStack.size() > 0) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
+            } else {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
+            }
         }
 
         if (filterNameReferenceList.size() == 0) {
             modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
                     connectorTypeName, argsAvailable);
         } else {
-                WhiteSpaceDescriptor filterWhiteSpaceDescriptor = null;
-                if (isVerboseMode) {
-                    filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
-                }
+                List<WhiteSpaceDescriptor> filterInitWSDescriptors = new ArrayList<>();
                 List<Boolean> argExistenceList = new ArrayList<>();
                 int filterCount = filterConnectorInitStack.size();
                 for (int i = 0; i < filterCount; i++) {
                     BallerinaParser.ExpressionListContext expressionListContext = filterConnectorInitStack.pop();
+                    if (isVerboseMode) {
+                        BallerinaParser.FilterInitExpressionContext filterInitExpressionContext =
+                                ctx.filterInitExpressionList().filterInitExpression(i);
+                        WhiteSpaceDescriptor initExprWSDescriptor =
+                                WhiteSpaceUtil.getFilterInitExpressionWS(tokenStream, filterInitExpressionContext);
+                        filterInitWSDescriptors.add(initExprWSDescriptor);
+                    }
                     if (expressionListContext != null) {
                         argExistenceList.add(true);
                     } else {
@@ -1335,8 +1358,8 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
                     }
                 }
                 modelBuilder.createConnectorWithFilterInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                        connectorTypeName, argsAvailable, filterWhiteSpaceDescriptor, filterNameReferenceList,
-                        argExistenceList);
+                        connectorTypeName, argsAvailable, filterNameReferenceList,
+                        argExistenceList, filterInitWSDescriptors);
         }
 
     }
@@ -1584,7 +1607,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
-            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
+            modelBuilder.createAnyJoinCondition("some", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
                     whiteSpaceDescriptor);
             enterJoinWorkers(ctx.Identifier());
         }
@@ -1664,7 +1687,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTryCatchBlockStmt();
+        modelBuilder.addTryCatchBlockStmt(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1982,7 +2005,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
 
     }
-    
+
     @Override
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         if (ctx.exception == null) {
@@ -2057,12 +2080,26 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTransactionBlockStmt();
+        modelBuilder.addTransactionBlockStmt(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
 
+    }
+
+    @Override
+    public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startFailedClause();
+        }
+    }
+
+    @Override
+    public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addFailedClause(getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -2108,6 +2145,23 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAbortStmtWS(tokenStream, ctx);
         }
         modelBuilder.createAbortStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getRetryStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createRetryStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -2206,6 +2260,16 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
     @Override
     public void exitSimpleLiteralExpression(SimpleLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void enterStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx) {
 
     }
 
@@ -2678,6 +2742,79 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterStringTemplateLiteral(StringTemplateLiteralContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateLiteral(StringTemplateLiteralContext ctx) {
+
+    }
+
+    @Override
+    public void enterStringTemplateContent(StringTemplateContentContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateContent(StringTemplateContentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        // Calling StringTemplateExpressionStart will return all of the text sequences except for the last text
+        // sequence if there are multiple text sequences. If this is empty, that means there is only one text sequence
+        // and it can be retrieved using stringTemplateText method.
+        // Eg:- `Hello {{firstName}} {{lastName}} !!!`
+        // In here, nodes are "Hello ", " {{".
+        List<TerminalNode> nodes = ctx.StringTemplateExpressionStart();
+
+        // Get the last text sequence.
+        // Eg:- `Hello {{firstName}} {{lastName}} !!!`
+        // In here, last text sequence is " !!!".
+        StringTemplateTextContext endTextNode = ctx.stringTemplateText();
+
+        String endingText = null;
+        if (endTextNode != null) {
+            if (!isVerboseMode) {
+                endingText = StringEscapeUtils.unescapeJava(endTextNode.getText());
+            } else {
+                endingText = endTextNode.getText();
+            }
+        }
+
+        // If the node are empty, that means we only have a text sequence.
+        if (nodes.size() == 0) {
+            modelBuilder.createStringTemplateLiteral(getCurrentLocation(ctx), null, endingText);
+            return;
+        }
+
+        // If the nodes are not empty, we get all text sequences to an array.
+        String[] templateStrLiterals = nodes.stream().map(node -> {
+            // Note that all of the text sequences ends with '{{' and we need to remove that before concatenating. If
+            // there is not preceding text sequence, the result will be an empty string.
+            String text = node.getText();
+            text = text.substring(0, text.length() - 2);
+            if (!isVerboseMode) {
+                return StringEscapeUtils.unescapeJava(text);
+            } else {
+                return text;
+            }
+        }).toArray(String[]::new);
+
+        modelBuilder.createStringTemplateLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
+    }
+
+    @Override
+    public void enterStringTemplateText(StringTemplateTextContext ctx) {
+
+    }
+
+    @Override
+    public void exitStringTemplateText(StringTemplateTextContext ctx) {
+
+    }
+
+    @Override
     public void enterXmlQuotedString(XmlQuotedStringContext ctx) {
     }
 
@@ -2849,7 +2986,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (terminalNode != null) {
             String stringLiteral = terminalNode.getText();
             stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
-            stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
+            if (!isVerboseMode) {
+                stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
+            }
             modelBuilder.createStringLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, stringLiteral);
             return;
         }
@@ -2902,7 +3041,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         //      (a, b, c)       => childCount = 5, noOfArguments = 3;
         //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
         // Here childCount is always an odd number.
-        // noOfArguments = childCount mod 2 + 1
+        // noOfArguments = childCount div 2 + 1
         return childCountExprList / 2 + 1;
     }
 }

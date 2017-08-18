@@ -1,11 +1,12 @@
 import ballerina.lang.messages;
 import ballerina.lang.system;
 
-function testForkJoinAny(message m)(message[]) {
+function testForkJoinAny(message m)(message[], int) {
 
         message[] results = [null];
         json error;
         system:println("Airfare ");
+        int i = 0;
         fork {
             worker ABC_Airline {
                 json payload;
@@ -26,7 +27,8 @@ function testForkJoinAny(message m)(message[]) {
                 abc,_ = (any[]) airlineResponses["ABC_Airline"];
                 results[0], _ = (message) abc[0];
                 system:println(results[0]);
-                return results;
+                i = i + 1;
+                //return results, i;
             }
 
             if (airlineResponses["XYZ_Airline"] != null) {
@@ -34,9 +36,10 @@ function testForkJoinAny(message m)(message[]) {
                 xyz,_ = (any[]) airlineResponses["XYZ_Airline"];
                 results[0], _ = (message) xyz[0];
                 system:println(results[0]);
-                return results;
+                i = i + 1;
+                //return results;
             }
-            return results;
+            return results, i;
 
         } timeout (30000) (any[][] airlineResponses) {
             system:println("error occurred");
@@ -44,6 +47,6 @@ function testForkJoinAny(message m)(message[]) {
             message res = {};
             messages:setJsonPayload(res, error);
             results[0] = m;
-            return results;
+            return results, 0;
         }
 }

@@ -37,7 +37,9 @@ import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.XMLConstants;
@@ -148,8 +150,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BString getElementName() {
-        // TODO: check for comment, pi, etc
-        return new BString(((OMElement) omNode).getQName().toString());
+        if (nodeType == XMLNodeType.ELEMENT) {
+            return new BString(((OMElement) omNode).getQName().toString());
+        }
+        
+        return BTypes.typeString.getEmptyValue();
     }
     
     /**
@@ -243,7 +248,8 @@ public final class BXMLItem extends BXML<OMNode> {
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                return;
+                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                        prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
             ns = new OMNamespaceImpl(namespaceUri, prefix);
@@ -373,7 +379,7 @@ public final class BXMLItem extends BXML<OMNode> {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
-                if (getElementName().equals(qname)) {
+                if (getElementName().stringValue().equals(getQname(qname).toString())) {
                     elementsSeq.add(0, this);
                 }
                 break;
@@ -412,14 +418,11 @@ public final class BXMLItem extends BXML<OMNode> {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
-                Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
+                Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildrenWithName(getQname(qname));
                 int i = 0;
                 while (childrenItr.hasNext()) {
                     OMNode node = childrenItr.next();
-                    if (node.getType() == OMNode.ELEMENT_NODE &&
-                        qname.stringValue().equals(((OMElement) node).getQName().toString())) {
-                        elementsSeq.add(i++, new BXMLItem(node));
-                    }
+                    elementsSeq.add(i++, new BXMLItem(node));
                 }
                 break;
             default:
@@ -495,6 +498,23 @@ public final class BXMLItem extends BXML<OMNode> {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BXML<?> descendants(BString qname) {
+        List<BXML<?>> descendants = new ArrayList<BXML<?>>();
+        switch (nodeType) {
+            case ELEMENT:
+                addDescendants(descendants, (OMElement) omNode, getQname(qname).toString());
+                break;
+            default:
+                break;
+        }
+
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()])));
+    }
+    
     // Methods from Datasource impl
 
     /**

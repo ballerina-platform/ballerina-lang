@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         isPublic = true
 )
-public class GetKeys extends AbstractJSONFunction {
+public class GetKeys extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(GetKeys.class);
 
