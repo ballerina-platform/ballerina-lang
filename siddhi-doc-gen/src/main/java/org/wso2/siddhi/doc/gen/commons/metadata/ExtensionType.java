@@ -54,7 +54,7 @@ public enum ExtensionType {
     SOURCE_MAPPER("Source Mapper"),
     SINK_MAPPER("Sink Mapper"),
     STORE("Store"),
-    SCRIPT("Eval Script");
+    SCRIPT("Script");
 
     /**
      * Contains the name to be displayed as the extension type

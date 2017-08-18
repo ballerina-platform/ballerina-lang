@@ -57,8 +57,8 @@
 ```
 <#elseif extensionType == EXTENSION_TYPE.SCRIPT>
 ```
-define function <evalFunctionName>[${extension.name}] return <type> {
-    // Eval script code
+define function <FunctionName>[${extension.name}] return <type> {
+    // Script code
 };
 ```
 </#if>
