@@ -105,7 +105,7 @@ class TransformStatement extends Statement {
     /**
      * Override the removeChild function
      * @param {ASTNode} child - child node
-     * @param {boolean} ignoreModifiedTreeEvent - whether ignore th tree modified event
+     * @param {boolean} ignoreModifiedTreeEvent - whether to ignore the tree modified event
      * @param {boolean} willVisit - whether visit or not
      * @returns {void}
      */

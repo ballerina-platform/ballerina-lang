@@ -36,6 +36,7 @@ import org.ballerinalang.composer.service.workspace.rest.exception.DefaultExcept
 import org.ballerinalang.composer.service.workspace.rest.exception.FileNotFoundExceptionMapper;
 import org.ballerinalang.composer.service.workspace.rest.exception.ParseCancellationExceptionMapper;
 import org.ballerinalang.composer.service.workspace.rest.exception.SemanticExceptionMapper;
+import org.ballerinalang.composer.service.workspace.rest.typelattice.TypeLatticeService;
 import org.ballerinalang.composer.service.workspace.swagger.factories.ServicesApiServiceFactory;
 import org.ballerinalang.composer.service.workspace.utils.WorkspaceUtils;
 import org.slf4j.Logger;
@@ -184,6 +185,7 @@ public class WorkspaceServiceRunner {
                 .deploy(new PackagesApi())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
                 .deploy(new BallerinaProgramService())
+                .deploy(new TypeLatticeService())
                 .start();
 
 
