@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import GLRegion from './GLRegion';
+import SplitPane from 'react-split-pane';
+import LeftPanel from './LeftPanel';
+import EditorArea from './EditorArea';
+import RightPanel from './RightPanel';
+import BottomPanel from './BottomPanel';
 import Header from './Header';
 import ActivityBar from './ActivityBar';
 import { REGIONS } from './../constants';
@@ -45,7 +49,37 @@ class App extends React.Component {
                     {this.getHeaderViews()}
                 </Header>
                 <ActivityBar />
-                <GLRegion />
+                <SplitPane
+                    split="vertical"
+                    className="left-right-split-pane"
+                    minSize={300}
+                    maxSize={700}
+                >
+                    <LeftPanel />
+                    <SplitPane
+                        className="top-bottom-split-pane"
+                        split="horizontal"
+                        primary="second"
+                        minSize={300}
+                        maxSize={700}
+                    >
+                        <SplitPane
+                            split="vertical"
+                            className="editor-right-split-pane"
+                            primary="second"
+                            minSize={300}
+                            maxSize={700}
+                            onChange={() => {
+                                this.forceUpdate();
+                            }
+                            }
+                        >
+                            <EditorArea />
+                            <RightPanel />
+                        </SplitPane>
+                        <BottomPanel />
+                    </SplitPane>
+                </SplitPane>
             </div>
         );
     }
