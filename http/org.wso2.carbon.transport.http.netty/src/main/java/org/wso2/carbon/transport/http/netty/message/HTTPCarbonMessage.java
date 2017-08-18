@@ -237,10 +237,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         serverConnectorFuture.notifyHTTPListener(httpCarbonMessage);
     }
 
-    public void setResponseListener(HttpConnectorListener listener) {
-        this.listener = listener;
-    }
-
     public HttpConnectorListener getResponseListener() {
         return this.listener;
     }

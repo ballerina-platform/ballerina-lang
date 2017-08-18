@@ -126,7 +126,8 @@ public class ServerConnectorBootstrap {
     }
 
     public ServerConnector getServerConnector(ListenerConfiguration listenerConfiguration) {
-        HTTPServerConnector httpServerConnector = new HTTPServerConnector(listenerConfiguration.getId(), this,
+        HTTPServerConnector httpServerConnector = new HTTPServerConnector(
+                listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort(), this,
                 listenerConfiguration.getHost(), listenerConfiguration.getPort());
         return httpServerConnector;
     }
