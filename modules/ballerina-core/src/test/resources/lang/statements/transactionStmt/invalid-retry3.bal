@@ -1,13 +1,18 @@
-function testTransaction(int i) (string) {
+function testTransactionStmtVariableRetry() (string) {
+    int retryCount =  getRetryCount();
     string a = "start";
-    transaction {
+    transaction with retries(retryCount){
         a = a + " inTrx";
     } failed {
         a = a + " inFailed";
-        retry -4;
     } committed {
         a = a + " inTrx";
     }
     a = a + " end";
     return a;
 }
+
+function getRetryCount () (int) {
+    return 2;
+}
+

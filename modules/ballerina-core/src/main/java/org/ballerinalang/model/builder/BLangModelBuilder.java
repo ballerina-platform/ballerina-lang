@@ -98,7 +98,6 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
-import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -1909,14 +1908,6 @@ public class BLangModelBuilder {
 
     public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
-    }
-
-    public void createRetryStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        Expression countExpression = exprStack.pop();
-        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
-        transactionStmtBuilder.setRetryCountExpression(countExpression);
-        RetryStmt retryStmt = new RetryStmt(location, whiteSpaceDescriptor, countExpression);
-        addToBlockStmt(retryStmt);
     }
 
     public void addRetryCountExpression() {
