@@ -6,7 +6,7 @@ import ballerina.net.http;
 import ballerina.lang.messages;
 import ballerina.lang.system;
 
-connector MyConnector (string url) {
+connector MyClient (string url) {
 
     http:ClientConnector clientConnector = create http:ClientConnector(url);
 
@@ -18,7 +18,7 @@ connector MyConnector (string url) {
 }
 
 function main (string[] args) {
-    MyConnector myConnector = create MyConnector("http://example.com");
-    message response = myConnector.connect("");
+    MyClient myClient = create MyClient("http://example.com");
+    message response = myClient.connect("");
     system:println(messages:getStringPayload(response));
 }
