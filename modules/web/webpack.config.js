@@ -5,7 +5,7 @@ const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFi
 
 const extractThemes = new ExtractTextPlugin('./[name].css');
 const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
-var exportConfig = {};
+let exportConfig = {};
 const config = [{
     entry: {
         bundle: './index.js',
@@ -71,6 +71,10 @@ const config = [{
             globOptions: {
                 ignore: 'js/tests/**/*.*',
             },
+        }),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
         }),
     ],
     devServer: {
