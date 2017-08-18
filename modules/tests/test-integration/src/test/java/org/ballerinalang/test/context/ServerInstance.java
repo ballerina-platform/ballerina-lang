@@ -49,7 +49,7 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
-    private int httpServerPort = 9092; //Constant.DEFAULT_HTTP_PORT;
+    private int httpServerPort = 9100; //Constant.DEFAULT_HTTP_PORT;
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
