@@ -93,6 +93,15 @@ public class BallerinaConnectorManager {
             serverConnector = createHTTPServerConnector(listenerConfiguration.getId(), listenerConfiguration);
             addStartupDelayedHTTPServerConnector(listenerConfiguration.getId(), serverConnector);
         }
+
+        if (System.getProperty(BLogManager.HTTP_TRACE_LOG) != null) {
+            try {
+                ((BLogManager) BLogManager.getLogManager())
+                        .setWirelogHandler(System.getProperty(BLogManager.HTTP_TRACE_LOG));
+            } catch (IOException e) {
+                throw new BallerinaException("Error in configuring HTTP trace log");
+            }
+        }
     }
 
     public static BallerinaConnectorManager getInstance() {
@@ -162,15 +171,7 @@ public class BallerinaConnectorManager {
             }
         }
 
-        if (System.getProperty("wirelog") != null) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setWirelogHandler(System.getProperty("wirelog"));
-                listenerConfig.setHttpTraceLog(true);
-            } catch (IOException e) {
-                throw new BallerinaException(
-                        "Error in configuring HTTP trace log for listener configuration id " + listenerConfig.getId());
-            }
-        }
+        listenerConfig.setHttpTraceLogEnabled(true);
 
         if (startupDelayedHTTPServerConnectors.containsKey(id)) {
             return startupDelayedHTTPServerConnectors.get(id);
@@ -335,15 +336,7 @@ public class BallerinaConnectorManager {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig);
-        if(System.getProperty("wirelog") != null) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setWirelogHandler(System.getProperty("wirelog"));
-                senderConfiguration.setHttpTraceLog(true);
-            } catch (IOException e) {
-                throw new BallerinaException("Error in configuring HTTP trace log for sender configuration id " +
-                                                     senderConfiguration.getId());
-            }
-        }
+        senderConfiguration.setHttpTraceLogEnabled(true);
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
 

@@ -45,6 +45,10 @@ public class BLogManager extends LogManager {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
 
+    // Trace log related constants
+    public static final String HTTP_TRACE_LOG = "http-trace-log";
+    public static final String HTTP_TRACE_LOGGER = "tracelog.http";
+
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     private Logger httpTraceLogger;
@@ -61,19 +65,19 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
-    public void setWirelogHandler(String wirelogFlag) throws IOException {
+    public void setWirelogHandler(String traceLogDestination) throws IOException {
         Handler handler;
-        if ("console".equals(wirelogFlag)) {
+        if ("console".equals(traceLogDestination)) {
             handler = new ConsoleHandler();
             handler.setFormatter(new HTTPTraceLogFormatter());
         } else {
             File file;
 
-            if ("default".equals(wirelogFlag)) {
+            if ("default".equals(traceLogDestination)) {
                 file = new File(
                         System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
             } else {
-                file = Paths.get(wirelogFlag).toFile();
+                file = Paths.get(traceLogDestination).toFile();
             }
 
             if (!file.exists()) {
@@ -87,7 +91,7 @@ public class BLogManager extends LogManager {
 
         if (httpTraceLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
-            httpTraceLogger = Logger.getLogger("wirelog.http");
+            httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOGGER);
         }
 
         removeHandlers(httpTraceLogger);
