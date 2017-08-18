@@ -15,48 +15,52 @@
  */
 
 import _ from 'lodash';
+import DesignViewCompleterUtils from './design-view-completer-utils';
 /**
- * Class to represent source view completer factory
+ * Class to represent design view completer factory
  */
 class CompleterFactory {
-    /**
-     * Constructor for completer factory
-     * @constructor
-     */
-    constructor() {
-        this.variable_dec = /([a-z])+ .*/i;
-        this.package_dec = /([a-z0-9])+:.*/i;
-    }
 
     /**
-     * Return the Source view completer
+     * Return the Design view completer
      * @param {object} langserverController - language server controller
+     * @param {object} fileData - object holding file information
+     * @param {ASTNode} node - Relevant ASTNode
      * @return {*[]} - array
      */
-    getSourceViewCompleter(langserverController, fileData) {
+    getDesignViewCompleter(langserverController, fileData, node) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
-                const cursorPosition = editor.getCursorPosition();
-                const content = editor.getValue();
-                this.getCompletions(cursorPosition, content, fileData, langserverController, callback);
+                if (!_.isNil(node.getPosition())) {
+                    const cursorPosition = {
+                        row: node.getPosition().startLine,
+                        column: node.getContentStartCursorPosition() + editor.getValue().length,
+                    };
+                    this.getCompletions(cursorPosition, fileData, langserverController, callback, node,
+                        editor.getValue());
+                }
             },
         }];
     }
 
     /**
-     * Get the completions and call the given callback function with the completions
-     * @param {object} cursorPosition
-     * @param {string} content
-     * @param {object} fileData
-     * @param {object} langserverController
-     * @param {function} callback
+     * Get the completions
+     * @param {object} cursorPosition - current cursor position
+     * @param {object} fileData - file data options
+     * @param {LangServerClientController} langserverController - language server client controller instance
+     * @param {function} callback - callback function
+     * @param {ASTNode} node - ast node
+     * @param editorContent
      */
-    getCompletions(cursorPosition, content, fileData, langserverController, callback) {
+    getCompletions(cursorPosition, fileData, langserverController, callback, node, editorContent) {
         const completions = [];
+        const designViewCompleterUtils = new DesignViewCompleterUtils();
+        const content = designViewCompleterUtils.getCompletionContent(node, fileData.content, editorContent);
+
         const options = {
             textDocument: content,
             position: {
-                line: cursorPosition.row + 1,
+                line: cursorPosition.row,
                 character: cursorPosition.column,
             },
             fileName: fileData.fileName,

@@ -20,7 +20,8 @@ import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
 import '../ballerina/utils/ace-mode';
-import { completerFactory } from './completer-factory.js';
+import DesignViewCompleterFactory from './../ballerina/utils/design-view-completer-factory';
+import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range');
@@ -44,6 +45,7 @@ class ExpressionEditor {
         let didSemicolon = false;
         this.destroy();
         this.props = props;
+        this.file = props.model.getFile();
         const expression = _.isNil(props.getterMethod.call(props.model)) ? '' :
             props.getterMethod.call(props.model).replace(/(?:\r\n|\r|\n)/g, ' ');
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
@@ -89,12 +91,23 @@ class ExpressionEditor {
             this._editor.setFontSize('12pt');
         }
 
+        this.designViewCompleterFactory = new DesignViewCompleterFactory();
 
         langTools.setCompleters([]);
-        const completers = completerFactory.getCompleters(props.key, packageScope);
-        if (completers) {
-            langTools.setCompleters(completers);
-        }
+        getLangServerClientInstance()
+            .then((langserverClient) => {
+                // Set design view completer
+                const designViewCompleterFactory = this.designViewCompleterFactory;
+                const fileData = { fileName: this.file.getName(),
+                    filePath: this.file.getPath(),
+                    packageName: this.file.getPackageName(),
+                    content: this.file.getContent(),
+                };
+                const completer = designViewCompleterFactory.getDesignViewCompleter(langserverClient,
+                    fileData, props.model);
+                langTools.setCompleters(completer);
+            })
+            .catch(error => log.error(error));
 
         this._editor.setOptions({
             enableBasicAutocompletion: true,

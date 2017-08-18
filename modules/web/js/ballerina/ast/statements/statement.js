@@ -104,6 +104,30 @@ class Statement extends ASTNode {
             return connectorDeclaration.getConnectorVariable();
         }]);
     }
+
+    /**
+     * Get the content replace region on content suggestion at design view
+     * @returns {{startC: {number}, stopC: {number}}} - object containing start char and the stop char
+     */
+    getContentReplaceRegion() {
+        const segments = this.getFile().getContent().split(/\r?\n/);
+        const position = this.getPosition();
+        const joinedSegments = segments.slice(0, position.startLine - 1).join();
+        const start = joinedSegments.length + 1 + position.startOffset;
+        const stop = start + this.getStatementString().length + 1;
+        return {
+            startC: start,
+            stopC: stop,
+        };
+    }
+
+    /**
+     * Get the content start position for the statement
+     * @returns {number} - start position
+     */
+    getContentStartCursorPosition() {
+        return this.getPosition().startOffset;
+    }
 }
 
 export default Statement;

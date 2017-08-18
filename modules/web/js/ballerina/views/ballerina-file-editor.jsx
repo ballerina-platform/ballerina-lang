@@ -60,6 +60,8 @@ class BallerinaFileEditor extends React.Component {
      */
     constructor(props) {
         super(props);
+        const astRoot = new BallerinaASTRoot();
+        astRoot.setFile(this.props.file);
         this.state = {
             initialParsePending: true,
             isASTInvalid: false,
@@ -68,7 +70,7 @@ class BallerinaFileEditor extends React.Component {
             swaggerViewTargetService: undefined,
             parseFailed: true,
             syntaxErrors: [],
-            model: new BallerinaASTRoot(),
+            model: astRoot,
             activeView: DESIGN_VIEW,
         };
         this.skipLoadingOverlay = false;
@@ -328,7 +330,9 @@ class BallerinaFileEditor extends React.Component {
                         newState.parseFailed = true;
                         newState.syntaxErrors = errors;
                         newState.validatePending = false;
-                        newState.model = new BallerinaASTRoot();
+                        const astRoot = new BallerinaASTRoot();
+                        astRoot.setFile(this.props.file);
+                        newState.model = astRoot;
                         // Cannot proceed due to syntax errors.
                         // Hence resolve now.
                         resolve(newState);
@@ -361,14 +365,16 @@ class BallerinaFileEditor extends React.Component {
                                 newState.activeView = SOURCE_VIEW;
                                 newState.parseFailed = true;
                                 newState.isASTInvalid = true;
-                                newState.model = new BallerinaASTRoot();
+                                const astRoot = new BallerinaASTRoot();
+                                astRoot.setFile(this.props.file);
+                                newState.model = astRoot;
                                 resolve(newState);
                                 alerts.error('Seems to be there is a bug in back-end parser.'
                                         + 'Please report an issue attaching current source.');
                                 return;
                             }
                             // get ast from json
-                            const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
+                            const ast = BallerinaASTDeserializer.getASTModel(jsonTree, this.props.file);
                             this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
@@ -501,7 +507,11 @@ class BallerinaFileEditor extends React.Component {
                         </div>
                     }
                 </CSSTransitionGroup>
-                <DesignView model={this.state.model} show={showDesignView} />
+                <DesignView
+                    model={this.state.model}
+                    show={showDesignView}
+                    file={this.props.file}
+                />
                 <SourceView
                     displayErrorList={popupErrorListInSourceView}
                     parseFailed={this.state.parseFailed}

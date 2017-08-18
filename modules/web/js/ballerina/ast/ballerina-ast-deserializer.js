@@ -24,10 +24,12 @@ import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor'
 class BallerinaASTDeserializer {
     /**
      * deserialize to the AST model from source
-     * @returns {{}|*}
+     * @param {object} data - ast model data
+     * @param {object} file - file object
+     * @returns {BallerinaASTRoot} - ballerina ast root
      */
-    static getASTModel(data) {
-        const astRoot = deserializeNode(data.root);
+    static getASTModel(data, file) {
+        const astRoot = deserializeNode(data.root, file);
         if (!_.isNil(data.whitespace_descriptor)) {
             astRoot.setWhiteSpaceDescriptor(data.whitespace_descriptor);
             astRoot.whiteSpace.useDefault = false;
@@ -45,8 +47,9 @@ class BallerinaASTDeserializer {
     }
 }
 
-function deserializeNode(node) {
+function deserializeNode(node, file) {
     const astRoot = ASTFactory.createBallerinaAstRoot();
+    astRoot.setFile(file);
 
     _.each(node, (childNode) => {
         const child = ASTFactory.createFromJson(childNode);
