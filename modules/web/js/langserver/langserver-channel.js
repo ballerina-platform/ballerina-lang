@@ -32,10 +32,8 @@ class LangserverChannel extends EventChannel {
             throw 'Invalid Endpoint';
         }
         // assign provided ws close handler.
-        if (!_.isNil(args.clientController.options)){
-            if (!_.isNil(args.clientController.options.wsCloseEventHandler)) {
-                this.wsCloseEventHandler = args.clientController.options.wsCloseEventHandler;
-            }
+        if (!_.isNil(args.clientController.options) && !_.isNil(args.clientController.options.wsCloseEventHandler)) {
+            this.wsCloseEventHandler = args.clientController.options.wsCloseEventHandler;
         }
         _.assign(this, args);
 
@@ -63,11 +61,11 @@ class LangserverChannel extends EventChannel {
 
     onClose(event) {
         clearInterval(this.ping);
-        if(this.wsCloseEventHandler){
+        if (this.wsCloseEventHandler) {
             this.wsCloseEventHandler(event);
-        }else{
+        } else {
             // invoke default ws close event handler. 
-            this.defaultWsCloseEventHandler(event);    
+            this.defaultWsCloseEventHandler(event);
         }
     }
 
