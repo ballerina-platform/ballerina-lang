@@ -149,11 +149,6 @@ class SwaggerParser {
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathBValue);
         }
 
-        if (!_.isNil(this._swaggerJson.info.version)) {
-            const versionBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.version });
-            SwaggerParser.setAnnotationAttribute(configAnnotation, 'version', versionBValue);
-        }
-
         if (!_.isNil(this._swaggerJson.host)) {
             const hostAndPort = this._swaggerJson.host.split(':');
 
