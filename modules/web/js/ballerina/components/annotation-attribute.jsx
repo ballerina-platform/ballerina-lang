@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
 import AnnotationAttachment from './annotation-attachment';
 import AnnotationAttributeAST from './../ast/annotations/annotation-attribute';
 import AnnotationAttributeBValue from './annotation-attribute-b-value';
@@ -235,10 +236,6 @@ class AnnotationAttribute extends React.Component {
     render() {
         const key = this.renderKey();
         const attributeValue = this.props.model.getValue();
-        let errorClass;
-        if (this.state.hasError) {
-            errorClass = 'annotation-attribute-error';
-        }
         if (attributeValue.isBValue()) {
             const buttons = [];
             // Delete button.
@@ -258,7 +255,7 @@ class AnnotationAttribute extends React.Component {
                     <ul
                         className="attribute-value-bvalue"
                     >
-                        <li className={errorClass}>
+                        <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 <input
@@ -282,7 +279,10 @@ class AnnotationAttribute extends React.Component {
                     <ul
                         className="attribute-value-bvalue"
                     >
-                        <li className={errorClass} onClick={() => this.onBValueEdit(false)}>
+                        <li
+                            className={cn({ 'annotation-attribute-error': this.state.hasError })}
+                            onClick={() => this.onBValueEdit(false)}
+                        >
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 {bValue.getStringValue()}
@@ -296,7 +296,7 @@ class AnnotationAttribute extends React.Component {
                 <ul
                     className="attribute-value-bvalue"
                 >
-                    <li className={errorClass}>
+                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
                         {key}
                         <span className="annotation-attribute-value-wrapper" onClick={() => this.onBValueEdit(true)}>
                             {bValue.getStringValue()}
@@ -334,31 +334,16 @@ class AnnotationAttribute extends React.Component {
                 },
             };
             deletePopButton.push(deleteButton);
-            if (annotationAttachment.getChildren().length > 0) {
-                const attributes = this.renderAnnotationAttributes(annotationAttachment);
-                return (
-                    <ul
-                        className="attribute-value-annotation"
-                    >
-                        <li className={errorClass}>
-                            {key}
-                            <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
-                                @{packageName}
-                            </span>
-                            :{name}
-                            <PopoutButton buttons={addPopButton} />
-                            <PopoutButton buttons={deletePopButton} />
-                        </li>
-                        {attributes}
-                    </ul>
-                );
-            }
-
+            const attributes = this.renderAnnotationAttributes(annotationAttachment);
             return (
                 <ul
                     className="attribute-value-annotation"
                 >
-                    <li className={errorClass}>
+                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                        <i className={cn('fw fw-right expand-icon',
+                            { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                            { hide: annotationAttachment.getChildren().length === 0 })}
+                        />
                         {key}
                         <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
                             @{packageName}
@@ -367,6 +352,7 @@ class AnnotationAttribute extends React.Component {
                         <PopoutButton buttons={addPopButton} />
                         <PopoutButton buttons={deletePopButton} />
                     </li>
+                    {attributes}
                 </ul>
             );
         } else if (attributeValue.isArray()) {
@@ -390,34 +376,24 @@ class AnnotationAttribute extends React.Component {
             };
             addPopButton.push(addNewToArray);
             deletePopButton.push(deleteButton);
-            if (attributeValue.getChildren().length > 0) {
-                const arrayValues = [];
-                attributeValue.getChildren().forEach((annotationAttributeValue) => {
-                    arrayValues.push(this.renderAnnotationAttributeValue(annotationAttributeValue));
-                });
-                return (
-                    <ul
-                        className="attribute-value-array"
-                    >
-                        <li className={errorClass}>
-                            {key}
-                            <PopoutButton buttons={addPopButton} />
-                            <PopoutButton buttons={deletePopButton} />
-                        </li>
-                        {arrayValues}
-                    </ul>
-                );
-            }
-
+            const arrayValues = [];
+            attributeValue.getChildren().forEach((annotationAttributeValue) => {
+                arrayValues.push(this.renderAnnotationAttributeValue(annotationAttributeValue));
+            });
             return (
                 <ul
                     className="attribute-value-array"
                 >
-                    <li className={errorClass}>
+                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                        <i className={cn('fw fw-right expand-icon',
+                            { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                            { hide: attributeValue.getChildren().length === 0 })}
+                        />
                         {key}
                         <PopoutButton buttons={addPopButton} />
                         <PopoutButton buttons={deletePopButton} />
                     </li>
+                    {arrayValues}
                 </ul>
             );
         }
