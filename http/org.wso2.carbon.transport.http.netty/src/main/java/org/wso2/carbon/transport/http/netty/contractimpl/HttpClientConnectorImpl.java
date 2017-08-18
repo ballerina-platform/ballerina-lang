@@ -27,6 +27,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
@@ -45,11 +46,15 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
+    private SenderConfiguration senderConfiguration;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
 
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout) {
+    public HttpClientConnectorImpl(ConnectionManager connectionManager,
+                                   SenderConfiguration senderConfiguration,
+                                   SSLConfig sslConfig, int socketIdleTimeout) {
         this.connectionManager = connectionManager;
+        this.senderConfiguration = senderConfiguration;
         this.sslConfig = sslConfig;
         this.socketIdleTimeout = socketIdleTimeout;
     }
@@ -73,7 +78,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig);
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
+                                                                                senderConfiguration);
 
             ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
             if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {

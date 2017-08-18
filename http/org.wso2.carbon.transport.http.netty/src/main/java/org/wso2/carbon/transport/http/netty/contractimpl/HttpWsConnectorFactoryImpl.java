@@ -65,7 +65,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
+        return new HttpClientConnectorImpl(connectionManager, senderConfiguration, sslConfig, socketIdleTimeout);
     }
 
     @Override

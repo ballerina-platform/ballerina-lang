@@ -112,9 +112,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast("compressor", new HttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
-        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))) {
+        if (listenerConfiguration.isHttpTraceLogEnabled()) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                      new HTTPTraceLoggingHandler("wirelog.http.downstream", LogLevel.DEBUG));
+                      new HTTPTraceLoggingHandler("tracelog.http.downstream", LogLevel.DEBUG));
         }
 
         try {

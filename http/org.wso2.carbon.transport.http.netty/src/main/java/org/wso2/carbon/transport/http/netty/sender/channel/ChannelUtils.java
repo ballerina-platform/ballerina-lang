@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
@@ -51,11 +52,13 @@ public class ChannelUtils {
      * @param eventLoopClass      Event loop class if Inbound IO Workers
      * @param httpRoute           Http Route which represents BE connections
      * @param sslConfig           sender configuration
+     * @param senderConfiguration Configurations for the sender
      * @return ChannelFuture
      */
     @SuppressWarnings("unchecked")
     public static ChannelFuture getNewChannelFuture(TargetChannel targetChannel, EventLoopGroup eventLoopGroup,
-            Class eventLoopClass, HttpRoute httpRoute, SSLConfig sslConfig) {
+                                                    Class eventLoopClass, HttpRoute httpRoute, SSLConfig sslConfig,
+                                                    SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfiguration = BootstrapConfiguration.getInstance();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.channel(eventLoopClass);
@@ -75,7 +78,7 @@ public class ChannelUtils {
             sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
         }
 
-        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine);
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, senderConfiguration);
         targetChannel.setHTTPClientInitializer(httpClientInitializer);
         clientBootstrap.handler(httpClientInitializer);
         if (log.isDebugEnabled()) {

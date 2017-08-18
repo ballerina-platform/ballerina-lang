@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
@@ -38,13 +39,16 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private Class eventLoopClass;
     private HttpRoute httpRoute;
     private SSLConfig sslConfig;
+    private SenderConfiguration senderConfiguration;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-                                        Class eventLoopClass, SSLConfig sslConfig) {
+                                        Class eventLoopClass, SSLConfig sslConfig,
+                                        SenderConfiguration senderConfiguration) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
         this.sslConfig = sslConfig;
+        this.senderConfiguration = senderConfiguration;
     }
 
 
@@ -52,7 +56,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         TargetChannel targetChannel = new TargetChannel();
         ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
-                eventLoopGroup, eventLoopClass, httpRoute, this.sslConfig);
+                eventLoopGroup, eventLoopClass, httpRoute, this.sslConfig, senderConfiguration);
         Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
         log.debug("Created channel: {}", channel);
         targetChannel.setChannel(channel);
