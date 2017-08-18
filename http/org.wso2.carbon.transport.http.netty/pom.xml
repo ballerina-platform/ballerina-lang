@@ -181,7 +181,6 @@
             !org.wso2.carbon.transport.http.netty.internal,
             !org.wso2.carbon.transport.http.netty.message,
             org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
-
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
@@ -192,19 +191,14 @@
             io.netty.handler.*;version="${netty.package.import.version.range}",
             io.netty.bootstrap.*;version="${netty.package.import.version.range}",
             io.netty.channel.*;version="${netty.package.import.version.range}",
-            org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-            org.xml.sax.*;version="${org.xml.sax.import.version.range}",
             javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",
-            javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",
-            javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
             javax.websocket.*;version="${javax.websocket.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
-            com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",
         </import.package>
         <carbon.component>
             startup.connectorListener;componentName="netty-transports-mgt";
