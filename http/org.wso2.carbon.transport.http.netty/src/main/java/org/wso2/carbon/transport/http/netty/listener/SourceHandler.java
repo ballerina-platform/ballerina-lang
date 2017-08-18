@@ -122,7 +122,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HttpHeaders headers = httpRequest.headers();
             if (isConnectionUpgrade(headers) &&
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
-                log.info("Upgrading the connection from Http to WebSocket for " +
+                log.debug("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
                 handleWebSocketHandshake(httpRequest);
 
