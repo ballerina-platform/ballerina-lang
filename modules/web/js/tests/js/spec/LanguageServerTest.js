@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs';
 import { getLangServerClientInstance } from './../../../langserver/lang-server-client-controller';
-import { testCompletions } from './LanguageServerTestBase';
+import { testCompletions, close } from './LanguageServerTestBase';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
@@ -38,7 +38,11 @@ describe('Ballerina Composer Test Suite', () => {
                 .catch(beforeAllDone);
         });
 
-        it("Global level completions", function(done){
+        after((done) => {
+            close(done);
+        });
+
+        it("Global level completions", function (done) {
             this.timeout(0);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
             const testFile = 'echoService.js';
