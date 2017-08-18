@@ -31,6 +31,7 @@ import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-fa
  * @param {object} expectedFile 
  * @param {function} done 
  */
+
 export function testCompletions(cursorPosition, testFilePath, testFileName, expectedFile, done) {
     const completions = [];
     const testFile = path.resolve(path.join(testFilePath, testFileName));
@@ -39,17 +40,31 @@ export function testCompletions(cursorPosition, testFilePath, testFileName, expe
     const fileData = { "fileName": testFileName, "filePath": testFilePath, "packageName": '.' };
     const sourceViewCompleterFactory = new SourceViewCompleterFactory();
 
+
     // callback function to validate generated completions.
     const test = function (x, completions) {
         expect(expectedFileContent).to.equal(JSON.stringify(completions));
         done();
     }
 
-    getLangServerClientInstance()
+    let opts = {
+        wsCloseEventHandler: wsCloseEventHandler
+    }
+    getLangServerClientInstance(opts)
         .then((langserverClient) => {
             sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, test);
         })
         .catch(error => log.error(error));
+}
+
+/**
+ * Invoke the close function of language server client, eventually it will close the web socket connection.
+ */
+export function close() {
+    return getLangServerClientInstance()
+        .then((langserverClient) => {
+            langserverClient.close();
+        })
 }
 
 /**
@@ -58,5 +73,27 @@ export function testCompletions(cursorPosition, testFilePath, testFileName, expe
  */
 function readFile(filePath) {
     return fs.readFileSync(filePath, 'utf8');
+}
+
+/**
+ * web socket close event handler.
+ * @param {Object} event 
+ */
+function wsCloseEventHandler(event) {
+    this.clientController.active = false;
+    this.clientController.trigger('session-terminated');
+    let reason;
+    if (event.code === WS_NORMAL_CODE) {
+        reason = 'Normal closure';
+        this.trigger('session-ended');
+        this.debugger.active = false;
+        return;
+    } else if (event.code === WS_SSL_CODE) {
+        reason = 'Certificate Issue';
+    } else {
+        reason = `Unknown reason :${event.code}`;
+    }
+    log.debug(`Web socket closed, reason ${reason}`);
+    clearInterval(this.ping);
 }
 
