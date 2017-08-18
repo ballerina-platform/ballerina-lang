@@ -94,6 +94,5 @@ function wsCloseEventHandler(event) {
         reason = `Unknown reason :${event.code}`;
     }
     log.debug(`Web socket closed, reason ${reason}`);
-    clearInterval(this.ping);
 }
 

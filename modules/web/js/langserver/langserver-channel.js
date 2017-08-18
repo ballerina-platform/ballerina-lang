@@ -62,6 +62,7 @@ class LangserverChannel extends EventChannel {
     }
 
     onClose(event) {
+        clearInterval(this.ping);
         if(this.wsCloseEventHandler){
             this.wsCloseEventHandler(event);
         }else{
@@ -120,7 +121,6 @@ class LangserverChannel extends EventChannel {
         log.debug(`Web socket closed, reason ${reason}`);
         // After the internal server errors, websocket is being closed immediately and we re initialize the connection
         this.connect();
-        clearInterval(this.ping);
     }
 }
 
