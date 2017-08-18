@@ -443,32 +443,19 @@ public class ServerInstance implements Server {
             }
             tmp.destroy();
         } else {
-            //TODO below code block is temporary to check whether lsof command execute properly
-            try {
-                String[] cmd = { "bash", "-c",
-                        "lsof -Pi tcp:" + httpServerPort};
-                Process tmp = Runtime.getRuntime().exec(cmd);
-                String outPut = readProcessInputStream(tmp.getInputStream());
-                log.info("Current 'lsof' output for server port - " + httpServerPort + " output - " + outPut);
-                tmp.destroy();
-            } catch (Exception e) {
-                log.error("Error executing lsof command, error - " + e.getMessage(), e);
-            }
-            //end of temporary code
-
 
             //reading the process id from netstat
             Process tmp;
             try {
-                String[] cmd = { "bash", "-c",
-                        "lsof -Pi tcp:" + httpServerPort + " | grep LISTEN | awk \'{print $2}\'" };
+                String[] cmd = { "bash", "-c", "ss -ltnpH \'sport = :" + httpServerPort + "\' | awk \'{print $6}\'" };
                 tmp = Runtime.getRuntime().exec(cmd);
-            } catch (IOException e) {
-                throw new BallerinaTestException("Error retrieving lsof data", e);
+                String outPut = readProcessInputStream(tmp.getInputStream());
+                // The output of cmd command execution  is "users:(("java",pid=24522,fd=161))"
+                pid = outPut.split("pid=")[1].split(",")[0];
+            } catch (Exception e) {
+                throw new BallerinaTestException("Error retrieving the PID : ", e);
             }
 
-            String outPut = readProcessInputStream(tmp.getInputStream());
-            pid = outPut.split(System.lineSeparator())[0];
             tmp.destroy();
         }
         log.info("Server process id in " + Utils.getOSName() + " : " + pid);
