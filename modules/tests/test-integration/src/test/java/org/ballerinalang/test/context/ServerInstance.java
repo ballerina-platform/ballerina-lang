@@ -450,6 +450,7 @@ public class ServerInstance implements Server {
                 String[] cmd = { "bash", "-c", "ss -ltnpH \'sport = :" + httpServerPort + "\' | awk \'{print $6}\'" };
                 tmp = Runtime.getRuntime().exec(cmd);
                 String outPut = readProcessInputStream(tmp.getInputStream());
+                log.info("Output of the PID extraction command : " +outPut);
                 // The output of cmd command execution  is "users:(("java",pid=24522,fd=161))"
                 pid = outPut.split("pid=")[1].split(",")[0];
             } catch (Exception e) {
