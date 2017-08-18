@@ -174,12 +174,11 @@
 
     <properties>
         <bundle.activator>org.wso2.carbon.transport.http.netty.internal.HTTPTransportActivator</bundle.activator>
-        <private.package>org.wso2.carbon.transport.http.netty.internal,
-            org.wso2.carbon.transport.http.netty.message,
+        <private.package>
+            org.wso2.carbon.transport.http.netty.internal
         </private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.internal,
-            !org.wso2.carbon.transport.http.netty.message,
             org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
         </export.package>
         <import.package>
