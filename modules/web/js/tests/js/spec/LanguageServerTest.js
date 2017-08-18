@@ -60,14 +60,14 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
         });
 
-        it("Resource level completions", function (done) {
-            this.timeout(0);
-            const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
-            const testFile = 'echoService.js';
-            const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));
-            const cursorPosition = { row: 10, column: 0 };
-            testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
-        });
+        // it("Resource level completions", function (done) {
+        //     this.timeout(0);
+        //     const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
+        //     const testFile = 'echoService.js';
+        //     const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));
+        //     const cursorPosition = { row: 10, column: 0 };
+        //     testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
+        // });
 
     });
 
