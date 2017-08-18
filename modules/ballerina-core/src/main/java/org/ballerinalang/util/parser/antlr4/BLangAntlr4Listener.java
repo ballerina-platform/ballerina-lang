@@ -117,6 +117,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
     protected Stack<BLangModelBuilder.NameReference> nameReferenceStack = new Stack<>();
     protected Stack<BallerinaParser.ExpressionListContext> filterConnectorInitStack = new Stack<>();
+    protected Stack<BallerinaParser.ExpressionContext> transactionPropertyInitStack = new Stack<>();
 
     // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
     // to create parameter when there is a named parameter
@@ -2066,13 +2067,32 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
     @Override
     public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
-        if (ctx.exception == null) {
-            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-            if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getTransactionWS(tokenStream, ctx);
-            }
-            modelBuilder.addTransactionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTransactionWS(tokenStream, ctx);
+        }
+        modelBuilder.addTransactionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx) {
+    }
+
+    @Override
+    public void exitTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx) {
+    }
+
+    @Override
+    public void enterTransactionPropertyInitExpressionList(
+            BallerinaParser.TransactionPropertyInitExpressionListContext ctx) {
+    }
+
+    @Override
+    public void exitTransactionPropertyInitExpressionList(
+            BallerinaParser.TransactionPropertyInitExpressionListContext ctx) {
     }
 
     @Override
@@ -2162,6 +2182,18 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getRetryStmtWS(tokenStream, ctx);
         }
         modelBuilder.createRetryStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterRetriesStatement(BallerinaParser.RetriesStatementContext ctx) {
+    }
+
+    @Override
+    public void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addRetryCountExpression();
     }
 
     @Override

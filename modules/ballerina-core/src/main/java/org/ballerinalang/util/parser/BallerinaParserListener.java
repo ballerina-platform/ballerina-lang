@@ -1036,6 +1036,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpressionList}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransactionPropertyInitExpressionList(BallerinaParser.TransactionPropertyInitExpressionListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpressionList}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransactionPropertyInitExpressionList(BallerinaParser.TransactionPropertyInitExpressionListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#transactionHandlers}.
 	 * @param ctx the parse tree
 	 */
@@ -1095,6 +1115,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#retriesStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterRetriesStatement(BallerinaParser.RetriesStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#retriesStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocation}.
 	 * @param ctx the parse tree

@@ -1503,6 +1503,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(TransactionStmt transactionStmt) {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
+        Expression retryCountExpression = transactionStmt.getRetryCountExpression();
+        if (retryCountExpression != null) {
+            retryCountExpression.accept(this);
+        }
         transactionStmtCount--;
         TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
         if (failedBlock != null) {

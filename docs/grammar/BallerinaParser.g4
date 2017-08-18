@@ -423,7 +423,15 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    :   TRANSACTION (WITH transactionPropertyInitExpressionList)? LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    ;
+
+transactionPropertyInitExpression
+    : retriesStatement
+    ;
+
+transactionPropertyInitExpressionList
+    : transactionPropertyInitExpression (COMMA transactionPropertyInitExpression)*
     ;
 
 transactionHandlers
@@ -448,6 +456,10 @@ abortStatement
 
 retryStatement
     :   RETRY expression SEMICOLON
+    ;
+
+retriesStatement
+    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 actionInvocation

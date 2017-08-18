@@ -67,6 +67,7 @@ RETRY       : 'retry' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
+RETRIES     : 'retries';
 
 // Separators
 

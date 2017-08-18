@@ -1919,6 +1919,12 @@ public class BLangModelBuilder {
         addToBlockStmt(retryStmt);
     }
 
+    public void addRetryCountExpression() {
+        Expression countExpression = exprStack.pop();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        transactionStmtBuilder.setRetryCountExpression(countExpression);
+    }
+
     // Literal Values
 
     public void createIntegerLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
