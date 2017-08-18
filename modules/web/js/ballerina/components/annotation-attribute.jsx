@@ -73,6 +73,7 @@ class AnnotationAttribute extends React.Component {
         this.onBValueEdit = this.onBValueEdit.bind(this);
         this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
         this.onBValueKeyPress = this.onBValueKeyPress.bind(this);
+        this.toggleCollapse = this.toggleCollapse.bind(this);
     }
 
     /**
@@ -140,6 +141,11 @@ class AnnotationAttribute extends React.Component {
             const bValue = attributeValue.getChildren()[0];
             bValue.setStringValue(event.target.value);
         }
+    }
+
+    toggleCollapse() {
+        this.props.model.getViewState().collapsed = !this.props.model.getViewState().collapsed;
+        this.context.editor.update();
     }
 
     /**
@@ -334,15 +340,17 @@ class AnnotationAttribute extends React.Component {
                 },
             };
             deletePopButton.push(deleteButton);
-            const attributes = this.renderAnnotationAttributes(annotationAttachment);
+            const attributes = this.props.model.getViewState().collapsed ? [] : this.renderAnnotationAttributes(annotationAttachment);
             return (
                 <ul
                     className="attribute-value-annotation"
                 >
                     <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
-                        <i className={cn('fw fw-right expand-icon',
+                        <i
+                            className={cn('fw fw-right expand-icon',
                             { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
                             { hide: annotationAttachment.getChildren().length === 0 })}
+                            onClick={this.toggleCollapse}
                         />
                         {key}
                         <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
@@ -376,18 +384,20 @@ class AnnotationAttribute extends React.Component {
             };
             addPopButton.push(addNewToArray);
             deletePopButton.push(deleteButton);
-            const arrayValues = [];
-            attributeValue.getChildren().forEach((annotationAttributeValue) => {
-                arrayValues.push(this.renderAnnotationAttributeValue(annotationAttributeValue));
-            });
+            const arrayValues = this.props.model.getViewState().collapsed ? [] :
+                        attributeValue.getChildren().map((annotationAttributeValue) => {
+                            return this.renderAnnotationAttributeValue(annotationAttributeValue);
+                        });
             return (
                 <ul
                     className="attribute-value-array"
                 >
                     <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
-                        <i className={cn('fw fw-right expand-icon',
+                        <i 
+                            className={cn('fw fw-right expand-icon',
                             { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
                             { hide: attributeValue.getChildren().length === 0 })}
+                            onClick={this.toggleCollapse}
                         />
                         {key}
                         <PopoutButton buttons={addPopButton} />
@@ -413,6 +423,7 @@ AnnotationAttribute.defaultProps = {
 
 AnnotationAttribute.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttribute;

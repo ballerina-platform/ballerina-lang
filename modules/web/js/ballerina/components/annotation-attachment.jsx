@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationAttachmentAST from './../ast/annotations/annotation-attachment';
 import AnnotationAttribute from './annotation-attribute';
 import { deleteNode, addAttribute } from './utils/annotation-button-events';
@@ -71,6 +72,7 @@ class AnnotationAttachment extends React.Component {
         this.onPackageNameEditFinished = this.onPackageNameEditFinished.bind(this);
         this.onPackageNameSelected = this.onPackageNameSelected.bind(this);
         this.onNameSelected = this.onNameSelected.bind(this);
+        this.toggleCollapse = this.toggleCollapse.bind(this);
     }
 
     /**
@@ -152,6 +154,11 @@ class AnnotationAttachment extends React.Component {
      */
     onPackageNameEditFinished() {
         this.setState({ isPackageNameInEdit: false });
+    }
+
+    toggleCollapse() {
+        this.props.model.getViewState().collapsed = !this.props.model.getViewState().collapsed;
+        this.context.editor.update();
     }
 
     /**
@@ -302,20 +309,28 @@ class AnnotationAttachment extends React.Component {
         const addOperationButton = this.renderAddButton();
         const deleteOperationButton = this.renderDeleteButton();
 
-        const attributes = this.renderAttributes();
+        const attributes = this.props.model.getViewState().collapsed ? (null) : <li>{this.renderAttributes()}</li>;
         return (<ul className="annotation-attachment-ul">
             <li className={cn('annotation-attachment-text-li', { 'annotation-attachment-error': this.state.hasError })}>
-                <i className={cn('fw fw-right expand-icon',
-                    { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
-                    { hide: this.props.model.getChildren().length === 0 })}
-                />
+                <CSSTransitionGroup
+                    component="span"
+                    transitionName="annotation-expand"
+                    transitionEnterTimeout={300}
+                    transitionLeaveTimeout={300}
+                >
+                    <i
+                        key={`${this.props.model.getID()}-collapser`}
+                        className={cn('fw fw-right expand-icon',
+                        { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                        { hide: this.props.model.getChildren().length === 0 })}
+                        onClick={this.toggleCollapse}
+                    />
+                </CSSTransitionGroup>
                 {packageName}{name}
                 {addOperationButton}
                 {deleteOperationButton}
             </li>
-            <li>
-                {attributes}
-            </li>
+            {attributes}
         </ul>);
     }
 }
@@ -328,6 +343,7 @@ AnnotationAttachment.contextTypes = {
     // Used for accessing ast-root to add imports
     astRoot: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttachment;
