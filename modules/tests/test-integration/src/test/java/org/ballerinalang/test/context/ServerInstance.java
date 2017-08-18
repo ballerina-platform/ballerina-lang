@@ -443,6 +443,20 @@ public class ServerInstance implements Server {
             }
             tmp.destroy();
         } else {
+            //TODO below code block is temporary to check whether lsof command execute properly
+            try {
+                String[] cmd = { "bash", "-c",
+                        "lsof -Pi tcp:" + httpServerPort};
+                Process tmp = Runtime.getRuntime().exec(cmd);
+                String outPut = readProcessInputStream(tmp.getInputStream());
+                log.info("Current 'lsof' output for server port - " + httpServerPort + " output - " + outPut);
+                tmp.destroy();
+            } catch (Exception e) {
+                log.error("Error executing lsof command, error - " + e.getMessage(), e);
+            }
+            //end of temporary code
+
+
             //reading the process id from netstat
             Process tmp;
             try {
@@ -450,7 +464,7 @@ public class ServerInstance implements Server {
                         "lsof -Pi tcp:" + httpServerPort + " | grep LISTEN | awk \'{print $2}\'" };
                 tmp = Runtime.getRuntime().exec(cmd);
             } catch (IOException e) {
-                throw new BallerinaTestException("Error retrieving netstat data", e);
+                throw new BallerinaTestException("Error retrieving lsof data", e);
             }
 
             String outPut = readProcessInputStream(tmp.getInputStream());
