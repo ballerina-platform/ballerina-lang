@@ -22,18 +22,14 @@ import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.PackageSourceRepository;
 import org.ballerinalang.repository.UserPackageSourceRepository;
-import org.ballerinalang.model.tree.IdentifierNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
  * This represents a local file system based {@link PackageSourceRepository}.
@@ -155,16 +151,6 @@ public class FSPackageSourceRepository extends UserPackageSourceRepository {
             return FSPackageSourceRepository.this;
         }
         
-    }
-    
-    public static void main(String[] args) throws Exception {
-        PackageSourceRepository repo = new FSPackageSourceRepository(null, null, Paths.get("/home/laf/Desktop/test"));
-        List<IdentifierNode> nameComps = new ArrayList<>();
-        nameComps.add(new BLangIdentifier(".", false));
-        //nameComps.add(new BLangIdentifier("a", false));
-        //nameComps.add(new BLangIdentifier("b", false));
-        PackageSource pkg = repo.getPackageSource(new PackageID(nameComps, new BLangIdentifier("1.0.0", false)));
-        System.out.println(pkg.getPackageSourceEntry("z.bal").getCode().length);
     }
 
 }

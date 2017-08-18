@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.model.elements;
 
-import java.util.List;
-
 import org.ballerinalang.model.tree.IdentifierNode;
+
+import java.util.List;
 
 /**
  * This represents a specific package and its version.

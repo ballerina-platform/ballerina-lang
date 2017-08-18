@@ -27,5 +27,5 @@ public interface ImportPackageNode extends Node {
 
     IdentifierNode getVersion();
 
-    IdentifierNode getIdentifier();
+    IdentifierNode getAlias();
 }

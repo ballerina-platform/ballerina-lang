@@ -27,14 +27,14 @@ import java.util.List;
 public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public List<BLangIdentifier> nameComps;
     public BLangIdentifier version;
-    public BLangIdentifier identifier;
+    public BLangIdentifier alias;
 
     public BLangImportPackage(List<BLangIdentifier> nameComps,
                               BLangIdentifier version,
-                              BLangIdentifier identifier) {
+                              BLangIdentifier alias) {
         this.nameComps = nameComps;
         this.version = version;
-        this.identifier = identifier;
+        this.alias = alias;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     }
 
     @Override
-    public BLangIdentifier getIdentifier() {
-        return identifier;
+    public BLangIdentifier getAlias() {
+        return alias;
     }
 }
