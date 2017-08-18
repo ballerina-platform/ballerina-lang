@@ -32,6 +32,12 @@
             padding: 1px 5px 1px 5px;
             margin-right: 0;
             border-right: 1px solid black;
+            .tab-icon {
+                margin-right: 10px;
+                font-size: 10px;
+                position: relative;
+                bottom: 1px;
+            }
             &:hover{
                 color: #bebebe;
                 background-color: #3c3c3c;

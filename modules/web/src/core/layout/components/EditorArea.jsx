@@ -34,6 +34,7 @@ class EditorArea extends React.Component {
         };
         const tabTitle = file => (
             <div data-extra="tab-bar-title">
+                <i className="fw fw-ballerina tab-icon" />
                 {file}
                 <button
                     type="button"
