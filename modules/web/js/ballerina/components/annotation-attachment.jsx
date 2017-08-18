@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
 import AnnotationAttachmentAST from './../ast/annotations/annotation-attachment';
 import AnnotationAttribute from './annotation-attribute';
 import { deleteNode, addAttribute } from './utils/annotation-button-events';
@@ -300,39 +301,20 @@ class AnnotationAttachment extends React.Component {
         const name = this.renderName();
         const addOperationButton = this.renderAddButton();
         const deleteOperationButton = this.renderDeleteButton();
-        let errorClass = '';
-        if (this.state.hasError) {
-            errorClass = 'annotation-attachment-error';
-        }
 
-        const hasAttributes = this.props.model.getChildren().length > 0;
-        if (hasAttributes) {
-            const attributes = this.renderAttributes();
-            return (
-                <ul className="annotation-attachment-ul">
-                    <li className={`annotation-attachment-text-li ${errorClass}`}>
-                        {packageName}
-                        <span className='annotation-attachment-name'>{name}</span>
-                        <span className="annotations-open-bracket">{'{'}</span>
-                        {addOperationButton}
-                        {deleteOperationButton}
-                    </li>
-                    <li>
-                        {attributes}
-                    </li>
-                    <li>
-                        <span className="annotations-close-bracket">{'}'}</span>
-                    </li>
-                </ul>
-            );
-        }
+        const attributes = this.renderAttributes();
         return (<ul className="annotation-attachment-ul">
-            <li className={`annotation-attachment-text-li ${errorClass}`}>
+            <li className={cn('annotation-attachment-text-li', { 'annotation-attachment-error': this.state.hasError })}>
+                <i className={cn('fw fw-right expand-icon',
+                    { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                    { hide: this.props.model.getChildren().length === 0 })}
+                />
                 {packageName}{name}
-                <span className="annotations-open-bracket">{'{'}</span>
                 {addOperationButton}
-                <span className="annotations-close-bracket">{'}'}</span>
                 {deleteOperationButton}
+            </li>
+            <li>
+                {attributes}
             </li>
         </ul>);
     }

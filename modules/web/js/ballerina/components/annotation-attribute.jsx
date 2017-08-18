@@ -346,14 +346,10 @@ class AnnotationAttribute extends React.Component {
                                 @{packageName}
                             </span>
                             :{name}
-                            <span className="annotations-open-bracket">{'{'}</span>
                             <PopoutButton buttons={addPopButton} />
                             <PopoutButton buttons={deletePopButton} />
                         </li>
                         {attributes}
-                        <li>
-                            <span className="annotations-close-bracket">{'}'}</span>
-                        </li>
                     </ul>
                 );
             }
@@ -368,9 +364,7 @@ class AnnotationAttribute extends React.Component {
                             @{packageName}
                         </span>
                         :{name}
-                        <span className="annotations-open-bracket">{'{'}</span>
                         <PopoutButton buttons={addPopButton} />
-                        <span className="annotations-close-bracket">{'}'}</span>
                         <PopoutButton buttons={deletePopButton} />
                     </li>
                 </ul>
@@ -407,18 +401,10 @@ class AnnotationAttribute extends React.Component {
                     >
                         <li className={errorClass}>
                             {key}
-                            <span
-                                className="annotations-attribute-open-square-bracket annotation-attribute-value-wrapper"
-                            >
-                                [
-                            </span>
                             <PopoutButton buttons={addPopButton} />
                             <PopoutButton buttons={deletePopButton} />
                         </li>
                         {arrayValues}
-                        <li>
-                            <span className="annotations-attribute-close-square-bracket">]</span>
-                        </li>
                     </ul>
                 );
             }
@@ -429,13 +415,7 @@ class AnnotationAttribute extends React.Component {
                 >
                     <li className={errorClass}>
                         {key}
-                        <span
-                            className="annotations-attribute-open-square-bracket  annotation-attribute-value-wrapper"
-                        >
-                            [
-                        </span>
                         <PopoutButton buttons={addPopButton} />
-                        <span className="annotations-attribute-close-square-bracket">]</span>
                         <PopoutButton buttons={deletePopButton} />
                     </li>
                 </ul>
