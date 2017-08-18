@@ -67,7 +67,7 @@ class App extends React.Component {
                             split="vertical"
                             className="editor-right-split-pane"
                             primary="second"
-                            minSize={300}
+                            defaultSize={0}
                             maxSize={700}
                             onChange={() => {
                                 this.forceUpdate();

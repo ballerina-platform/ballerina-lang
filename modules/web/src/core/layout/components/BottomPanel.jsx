@@ -15,7 +15,6 @@ class BottomPanel extends React.Component {
     render() {
         return (
             <div className="bottom-panel">
-                BottomPanel
                 {this.props.children}
             </div>
         );

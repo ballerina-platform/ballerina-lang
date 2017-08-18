@@ -1,30 +1,64 @@
-.tab-container {
-    background-color: $tab-container-bgcolor;
-}
-
-.tab-headers {
-    background-color: $tab-header-bgcolor;
-    
-    & > ul > li {
-        min-width: 120px;
-        color: rgb(153, 153, 153);
-        font-weight: 100;
-        margin: 0;
-        padding-right: 17px;
-        padding-left: 5px;
-        border-right: 1px;
-        background: $tab-header-inactive-tab-bgcolor;
-        border-left: 1px solid #333;
-        
-        &.active {
-            background: $tab-header-active-tab-bgcolor;
-            color: #555;
-            border-left: 3px solid #f17b31;
-
-            &.inverse {
-                color: rgb(190, 190, 190);
-                background: $tab-header-active-inverse-tab-bgcolor;
+.editor-area {
+    .rc-tabs {
+        border-bottom: none;
+        .rc-tabs-bar {
+            border-bottom: none;
+            & .rc-tabs-nav-container {
+                background-color: #282828;
             }
+            & .rc-tabs-nav-container-scrolling {
+                & .rc-tabs-tab-next, .rc-tabs-tab-prev {
+                    background-color: #565656;
+                    color: #999999;
+                    height: 20px;
+                    padding: 2px 0 2px 0;
+                    border-left: 1px solid #3c3c3c;
+                    border-right: 1px solid #3c3c3c;
+                    line-height: 1;
+                    &.rc-tabs-tab-btn-disabled {
+                        color: #686868;
+                    }
+                }
+            }
+            & .rc-tabs-ink-bar {
+                display: none !important;
+            }
+        }
+        .rc-tabs-tab {
+            background-color: #565656;
+            color: #999999;
+            height: 20px;
+            min-width: 120px;
+            padding: 1px 5px 1px 5px;
+            margin-right: 0;
+            border-right: 1px solid black;
+            &:hover{
+                color: #bebebe;
+                background-color: #3c3c3c;
+            }
+            &.rc-tabs-tab-active {
+                &.inverse {
+                    color: #333;
+                    background: white;
+                }
+                color: #bebebe;
+                background-color: #3c3c3c;
+                border-left: 3px solid #f17b31;
+            }
+            .close-tab {
+                color: #999999;
+                top: 2px;
+                position: absolute;
+                right: 3px;
+                line-height: 15px;
+                text-shadow: none;
+                &:hover{
+                    color: #bebebe;
+                }
+            }
+        }
+        .rc-tabs-tabpane {
+    
         }
     }
 }

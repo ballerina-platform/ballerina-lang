@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tabs, { TabPane } from 'rc-tabs';
@@ -16,7 +17,44 @@ class EditorArea extends React.Component {
     /**
      * @inheritdoc
      */
+    constructor(props) {
+        super(props);
+        this.state = {
+            openedFiles: ['test.bal', 'test2.bal'],
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
     render() {
+        const onTabClose = (file) => {
+            _.remove(this.state.openedFiles, item => item === file);
+            this.forceUpdate();
+        };
+        const tabTitle = file => (
+            <div data-extra="tab-bar-title">
+                {file}
+                <button
+                    type="button"
+                    className="close close-tab pull-right"
+                    onClick={() => onTabClose(file)}
+                >
+                    ×
+                </button>
+            </div>
+        );
+        const makeTabPane = file => (
+            <TabPane tab={tabTitle(file)} data-extra="tabpane" key={`${file}`}>
+                    Tab for file {file}
+            </TabPane>
+        );
+
+        const tabs = [];
+        this.state.openedFiles.forEach((file) => {
+            tabs.push(makeTabPane(file));
+        });
+
         return (
             <div
                 className="editor-area"
@@ -26,7 +64,7 @@ class EditorArea extends React.Component {
                 }
             >
                 <Tabs
-                    defaultActiveKey="2"
+                    defaultActiveKey={this.state.openedFiles[0]}
                     onChange={() => {}}
                     renderTabBar={() =>
                         (
@@ -39,25 +77,7 @@ class EditorArea extends React.Component {
                         <TabContent />
                     }
                 >
-                    <TabPane tab='tab 1' key="1">TabContent</TabPane>
-                    <TabPane tab='tab 2' key="2">TabContent</TabPane>
-                    <TabPane tab='tab 3' key="3">TabContent</TabPane>
-                    <TabPane tab='tab 4' key="4">TabContent</TabPane>
-                    <TabPane tab='tab 5' key="5">TabContent</TabPane>
-                    <TabPane tab='tab 6' key="6">TabContent</TabPane>
-                    <TabPane tab='tab 7' key="7">TabContent</TabPane>
-                    <TabPane tab='tab 8' key="8">TabContent</TabPane>
-                    <TabPane tab='tab 9' key="9">TabContent</TabPane>
-                    <TabPane tab='tab 10' key="10">TabContent</TabPane>
-                    <TabPane tab='tab 11' key="11">TabContent</TabPane>
-                    <TabPane tab='tab 12' key="12">TabContent</TabPane>
-                    <TabPane tab='tab 13' key="13">TabContent</TabPane>
-                    <TabPane tab='tab 14' key="14">TabContent</TabPane>
-                    <TabPane tab='tab 15' key="15">TabContent</TabPane>
-                    <TabPane tab='tab 16' key="16">TabContent</TabPane>
-                    <TabPane tab='tab 17' key="17">TabContent</TabPane>
-                    <TabPane tab='tab 18' key="18">TabContent</TabPane>
-                    <TabPane tab='tab 19' key="19">TabContent</TabPane>
+                    {tabs}
                 </Tabs>
             </div>
         );

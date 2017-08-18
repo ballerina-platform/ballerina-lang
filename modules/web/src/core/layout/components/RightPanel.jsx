@@ -15,7 +15,6 @@ class RightPanel extends React.Component {
     render() {
         return (
             <div className="right-panel">
-                RightPanel
                 {this.props.children}
             </div>
         );
