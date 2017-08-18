@@ -60,10 +60,11 @@ export function testCompletions(cursorPosition, testFilePath, testFileName, expe
 /**
  * Invoke the close function of language server client, eventually it will close the web socket connection.
  */
-export function close() {
+export function close(callback) {
     return getLangServerClientInstance()
         .then((langserverClient) => {
             langserverClient.close();
+            callback();
         })
 }
 
@@ -80,19 +81,6 @@ function readFile(filePath) {
  * @param {Object} event 
  */
 function wsCloseEventHandler(event) {
-    this.clientController.active = false;
-    this.clientController.trigger('session-terminated');
-    let reason;
-    if (event.code === WS_NORMAL_CODE) {
-        reason = 'Normal closure';
-        this.trigger('session-ended');
-        this.debugger.active = false;
-        return;
-    } else if (event.code === WS_SSL_CODE) {
-        reason = 'Certificate Issue';
-    } else {
-        reason = `Unknown reason :${event.code}`;
-    }
-    log.debug(`Web socket closed, reason ${reason}`);
+    // no need to do anything specially as this is a close event handler for a test case.
 }
 

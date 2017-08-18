@@ -38,8 +38,8 @@ describe('Ballerina Composer Test Suite', () => {
                 .catch(beforeAllDone);
         });
 
-        after(() => {
-            close();
+        after((done) => {
+            close(done);
         });
 
         it("Global level completions", function (done) {
