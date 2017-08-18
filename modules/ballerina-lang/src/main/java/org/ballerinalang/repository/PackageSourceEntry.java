@@ -28,18 +28,21 @@ public interface PackageSourceEntry {
 
     /**
      * Returns the package this source entry belongs to.
+     * 
      * @return the package
      */
     PackageID getPackageID();
     
     /**
      * Returns the entry name, e.g. file name. 
+     * 
      * @return the entry name
      */
     String getEntryName();
     
     /**
      * Returns the source code this source entry represents.
+     * 
      * @return the source code binary encoded
      */
     byte[] getCode();

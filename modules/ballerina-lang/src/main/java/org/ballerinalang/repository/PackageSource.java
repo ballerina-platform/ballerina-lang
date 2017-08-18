@@ -30,18 +30,21 @@ public interface PackageSource {
 
     /**
      * Returns the package identifier package source belongs to.
+     * 
      * @return the package ID
      */
     PackageID getPackageID();
     
     /**
      * Returns the package source entry names this package holds.
+     * 
      * @return the package source entry names
      */
     List<String> getEntryNames();
     
     /**
      * Returns a specific {@link PackageSourceEntry}.
+     * 
      * @param name the package source entry name
      * @return the package source entry
      */
@@ -49,12 +52,14 @@ public interface PackageSource {
     
     /**
      * Returns all the package source entries this package holds.
+     * 
      * @return the package source entries iterator
      */
     List<PackageSourceEntry> getPackageSourceEntries();
     
     /**
      * Returns the package repository this package source was loaded from.
+     * 
      * @return the package repository
      */
     PackageSourceRepository getPackageRepository();

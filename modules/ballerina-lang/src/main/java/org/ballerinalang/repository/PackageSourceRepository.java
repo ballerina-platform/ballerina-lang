@@ -29,6 +29,7 @@ public interface PackageSourceRepository {
     
     /**
      * Looks up and returns a {@link PackageSource} given the package identifier.
+     * 
      * @param pkgID the package ID
      * @return The package source is returned if it's available, or else, null will be returned.
      */
