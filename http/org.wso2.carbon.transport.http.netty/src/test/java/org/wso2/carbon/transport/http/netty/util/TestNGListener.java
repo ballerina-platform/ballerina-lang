@@ -32,8 +32,8 @@ public class TestNGListener extends TestListenerAdapter {
 
     @Override
     public void beforeConfiguration(ITestResult tr) {
+        PrintStream printStream = new PrintStream(System.out);
         if (tr.getMethod().isBeforeClassConfiguration()) {
-            PrintStream printStream = new PrintStream(System.out);
             printStream.print("\n");
             String testClassName = tr.getTestClass().getRealClass().getSimpleName();
             String[] testClassWords = testClassName.split("(?<!^)(?=[A-Z])");
@@ -41,7 +41,7 @@ public class TestNGListener extends TestListenerAdapter {
             for (String wordOfName: testClassWords) {
                 testClassNameFull = testClassNameFull + wordOfName + " ";
             }
-            printStream.println("Start running " + testClassNameFull + "..................");
+            printStream.println("Start running " + testClassNameFull.trim() + "..................");
         }
     }
 
@@ -70,4 +70,6 @@ public class TestNGListener extends TestListenerAdapter {
         LoggerFactory.getLogger(tr.getTestClass().getRealClass()).error(
                 "Test failed: " + testCase + "-> " + e.getMessage());
     }
+
+
 }

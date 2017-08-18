@@ -18,6 +18,7 @@
   ~ under the License.
   -->
 
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="Transport test Suite">
 
     <listeners>
