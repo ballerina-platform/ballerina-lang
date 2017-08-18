@@ -30,22 +30,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * HTTPCorsRegistry loads CORS headers at service/resource level.
+ * CorsRegistry cache CORS headers at service/resource level during load time.
  *
  * @since 0.93
  */
-public class HTTPCorsRegistry {
+public class CorsRegistry {
 
     private AnnAttributeValue attributeValue;
     private AnnAttachmentInfo configAnnotInfo;
-    private static final HTTPCorsRegistry corsRegistry = new HTTPCorsRegistry();
+    private static final CorsRegistry corsRegistry = new CorsRegistry();
     private Map<String, Map<String, List<String>>> resourceCorsHolder = new ConcurrentHashMap<>();
     private String[] corsHeaders = {Constants.ALLOW_ORIGIN, Constants.MAX_AGE
             , Constants.ALLOW_CREDENTIALS, Constants.ALLOW_METHODS
             , Constants.ALLOW_HEADERS, Constants.EXPOSE_HEADERS};
 
 
-    public static HTTPCorsRegistry getInstance() {
+    public static CorsRegistry getInstance() {
         return corsRegistry;
     }
 

@@ -16,7 +16,7 @@ service<http> echo1 {
          path : "/test1",
          allowOrigins :["http://www.wso2.com", "http://www.facebook.com"],
          allowCredentials : true,
-         allowHeaders: ["X-Content-Type-Options", "X-PINGARUNER"]
+         allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
     }
     resource info1 (message m) {
         message response = {};
@@ -56,11 +56,25 @@ service<http> hello2 {
          methods:["POST"],
          path : "/test1",
          allowOrigins :["http://www.hello.com"," http://www.facebook.com  "],
-         exposeHeaders: ["X-Content-Type-Options","X-PINGARUNER"]
+         exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
     resource info1 (message m) {
         message response = {};
         json responseJson = {"echo":"resOnlyCors"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["PUT"],
+        path : "/test2",
+        allowMethods :["HEAD", "PUT"],
+        allowOrigins :["http://www.bbc.com"," http://www.amazon.com  "],
+        exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
+    }
+    resource info2 (message m) {
+        message response = {};
+        json responseJson = {"echo":"optionsOnly"};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -69,33 +83,28 @@ service<http> hello2 {
 @http:configuration {
     basePath:"/hello3",
     allowCredentials : true,
+    allowMethods :["GET", "PUT"],
     allowOrigins :["http://www.m3.com","http://www.facebook.com"],
-    allowHeaders: ["X-Content-Type-Options","X-PINGARUNER"],
+    allowHeaders: ["X-Content-Type-Options","X-PINGOTHER"],
     maxAge : 1
 }
 service<http> echo3 {
 
+    @http:resourceConfig {
+        methods:["POST", "PUT"]
+    }
     resource info1 (message m) {
         message response = {};
         json responseJson = {"echo":"cors"};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
-
-    @http:resourceConfig {
-        methods:["POST"],
-        exposeHeaders: ["X-Content-Type-Options","X-PINGARUNER"]
-    }
-    resource info2 (message m) {
-        message response = {};
-        json responseJson = {"echo":"star"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
-    }
 }
 
 service<http> echo4 {
-
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource info1 (message m) {
         message response = {};
         json responseJson = {"echo":"noCors"};

@@ -3425,7 +3425,6 @@ public class BLangVM {
         }
         //Process CORS if exists.
         if (context.getCarbonMessage() != null && context.getCarbonMessage().getHeader("Origin") != null) {
-            //new CorsHeaderGenerator(context.getCarbonMessage(), message.value(), true);
             CorsHeaderGenerator.process(context.getCarbonMessage(), message.value(), true);
         }
     }

@@ -62,7 +62,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                             .forEach((resourceArgumentValues::put));
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-                cMsg.setProperty(Constants.RESOURCES_CORS, HTTPCorsRegistry.getInstance().getCorsHeaders(resource));
+                cMsg.setProperty(Constants.RESOURCES_CORS, CorsRegistry.getInstance().getCorsHeaders(resource));
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {

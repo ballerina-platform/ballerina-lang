@@ -93,7 +93,7 @@ public class Constants {
 
     public static final String ALLOW = "Allow";
     public static final String ORIGIN = "Origin";
-    public static final String AC_REQUEST_METHODS = "Access-Control-Request-Method";
+    public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
     public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
     public static final String AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     public static final String AC_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";

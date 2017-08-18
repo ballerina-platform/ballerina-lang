@@ -43,6 +43,7 @@ public class CorsHeaderGenerator {
     private static final Pattern spacePattern = Pattern.compile(" ");
     private static final Pattern fieldCommaPattern = Pattern.compile(",");
     private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
+    private static final String action = "Failed to process CORS : ";
 
     public static void process(CarbonMessage requestMsg, CarbonMessage responseMsg, boolean isSimpleRequest) {
 
@@ -78,11 +79,12 @@ public class CorsHeaderGenerator {
         //6.1.1 - There should be an origin
         List<String> requestOrigins = getOriginValues(origin);
         if (requestOrigins == null || requestOrigins.size() == 0) {
-            bLog.info("Origin header parsing failed");
+            bLog.info(action + "origin header field parsing failed");
             return null;
         }
         //6.1.2 - check all the origins
         if (!isEffectiveOrigin(requestOrigins, resourceCors.get(Constants.ALLOW_ORIGIN))) {
+            bLog.info(action + "unallowed origin");
             return null;
         }
         //6.1.3 - set origin and credentials
@@ -97,26 +99,36 @@ public class CorsHeaderGenerator {
         //6.2.1 - request must have origin, must have one origin.
         List<String> requestOrigins = getOriginValues(originValue);
         if (requestOrigins == null || requestOrigins.size() != 1) {
+            bLog.info(action + "origin header field parsing failed");
             return null;
         }
         String origin = requestOrigins.get(0);
         //6.2.3 - request must have access-control-request-method, must be single-valued
-        List<String> requestMethods = getHeaderValues(Constants.AC_REQUEST_METHODS, cMsg);
+        List<String> requestMethods = getHeaderValues(Constants.AC_REQUEST_METHOD, cMsg);
         if (requestMethods == null || requestMethods.size() != 1) {
+            bLog.info(action + "unallowed request methods");
             return null;
         }
         String requestMethod = requestMethods.get(0);
         Map<String, List<String>> resourceCors;
         if ((resourceCors = getResourceCors(cMsg, requestMethod)) == null) {
+            bLog.info(action + "headers are not declared properly");
             return null;
         }
+        if (!isEffectiveMethod(requestMethod, resourceCors.get(Constants.ALLOW_METHODS))) {
+            bLog.info(action + "unallowed method");
+            return null;
+        }
+
         //6.2.2 - request origin must be on the list or match with *.
         if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.get(Constants.ALLOW_ORIGIN))) {
+            bLog.info(action + "unallowed origin");
             return null;
         }
         //6.2.4 - get list of request headers.
         List<String> requestHeaders = getHeaderValues(Constants.AC_REQUEST_HEADERS, cMsg);
-        if (!isEffectiveHeaders(requestHeaders, resourceCors.get(Constants.ALLOW_HEADERS))) {
+        if (!isEffectiveHeader(requestHeaders, resourceCors.get(Constants.ALLOW_HEADERS))) {
+            bLog.info(action + "header field parsing failed");
             return null;
         }
         //6.2.7 - set origin and credentials
@@ -140,7 +152,7 @@ public class CorsHeaderGenerator {
         return resourceOrigins.containsAll(requestOrigins);
     }
 
-    private static boolean isEffectiveHeaders(List<String> requestHeaders, List<String> resourceHeaders) {
+    private static boolean isEffectiveHeader(List<String> requestHeaders, List<String> resourceHeaders) {
         if (resourceHeaders.size() == 0 || requestHeaders == null) {
             return true;
         } else {
@@ -148,6 +160,18 @@ public class CorsHeaderGenerator {
             headersSet.addAll(resourceHeaders);
             return headersSet.containsAll(requestHeaders);
         }
+    }
+
+    private static boolean isEffectiveMethod(String requestMethod, List<String> resourceMethods) {
+        if (resourceMethods.size() == 1 && resourceMethods.get(0).equals("*")) {
+            return true;
+        }
+        for (String method : resourceMethods) {
+            if (requestMethod.equals(method)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Map<String, List<String>> getResourceCors(CarbonMessage cMsg, String requestMethod) {
@@ -158,7 +182,7 @@ public class CorsHeaderGenerator {
             for (ResourceInfo resource : resources) {
                 for (String method : DispatcherUtil.getHttpMethods(resource)) {
                     if (requestMethod.equals(method)) {
-                        return HTTPCorsRegistry.getInstance().getCorsHeaders(resource);
+                        return CorsRegistry.getInstance().getCorsHeaders(resource);
                     }
                 }
             }
@@ -166,7 +190,7 @@ public class CorsHeaderGenerator {
                 for (ResourceInfo resource : resources) {
                     for (String method : DispatcherUtil.getHttpMethods(resource)) {
                         if (method.equals(Constants.HTTP_METHOD_GET)) {
-                            return HTTPCorsRegistry.getInstance().getCorsHeaders(resource);
+                            return CorsRegistry.getInstance().getCorsHeaders(resource);
                         }
                     }
                 }
@@ -195,14 +219,10 @@ public class CorsHeaderGenerator {
     private static void setAllowOriginAndCredentials(List<String> effectiveOrigins, Map<String, List<String>> resCors
             , Map<String, String> responseHeaders) {
         String allowCreds = resCors.get(Constants.ALLOW_CREDENTIALS).get(0);
-        responseHeaders.put(Constants.AC_ALLOW_CREDENTIALS, allowCreds);
-        String originResponse;
-        if (allowCreds.equals("false") && effectiveOrigins.size() != 0) {
-            originResponse = "*";
-        } else {
-            originResponse = DispatcherUtil.concatValues(effectiveOrigins, true);
+        if (allowCreds.equals("true")) {
+            responseHeaders.put(Constants.AC_ALLOW_CREDENTIALS, allowCreds);
         }
-        responseHeaders.put(Constants.AC_ALLOW_ORIGIN, originResponse);
+        responseHeaders.put(Constants.AC_ALLOW_ORIGIN, DispatcherUtil.concatValues(effectiveOrigins, true));
     }
 
     private static List<String> getOriginValues(String originValue) {
