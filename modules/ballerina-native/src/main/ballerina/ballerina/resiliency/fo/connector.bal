@@ -25,7 +25,7 @@ connector ClientConnector(http:ClientConnector[] testConnectorArray) {
                         index = 0;
                     } else {
                         message errorMsg = {};
-                        messages:setStringPayload(errorMsg, "All the load balanced endpoints failed. Last error was " +
+                        messages:setStringPayload(errorMsg, "All the failover endpoints failed. Last error was " +
                                                             e.msg);
                         http:setStatusCode(errorMsg, 500);
                         return errorMsg;

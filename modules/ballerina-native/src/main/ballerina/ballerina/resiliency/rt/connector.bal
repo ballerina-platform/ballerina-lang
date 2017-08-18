@@ -5,14 +5,13 @@ import ballerina.lang.messages;
 import ballerina.lang.errors;
 import ballerina.lang.system;
 
-int errorCount = 1;
+int errorCount;
 
 connector ClientConnector<http:ClientConnector hc> (int maxRetryCount, int retryDuration) {
     action post (string path, message m) (message) {
         message response;
         string err;
         while (maxRetryCount > errorCount) {
-            system:println("Retry " + (errorCount+1));
             try {
                 response = hc.post(path, m);
             } catch (errors:Error e) {
