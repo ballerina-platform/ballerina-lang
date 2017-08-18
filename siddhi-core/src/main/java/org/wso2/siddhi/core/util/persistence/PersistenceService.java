@@ -76,12 +76,13 @@ public class PersistenceService {
         }
     }
 
-    public void restoreLastRevision() {
+    public String restoreLastRevision() {
         if (persistenceStore != null) {
             String revision = persistenceStore.getLastRevision(siddhiAppName);
             if (revision != null) {
                 restoreRevision(revision);
             }
+            return revision;
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
                     siddhiAppName);

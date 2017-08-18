@@ -154,6 +154,14 @@ public class SiddhiManager {
     }
 
     /**
+     * Method used to get all SiddhiAppRuntimes
+     * @return siddhiAppRuntimeMap
+     */
+    public ConcurrentMap<String, SiddhiAppRuntime> getSiddhiAppRuntimeMap() {
+        return siddhiAppRuntimeMap;
+    }
+
+    /**
      * Method to shutdown Siddhi Manager
      */
     public void shutdown() {
