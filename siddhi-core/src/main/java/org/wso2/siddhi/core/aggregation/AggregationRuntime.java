@@ -67,6 +67,7 @@ public class AggregationRuntime {
     private EntryValveExecutor entryValveExecutor;
     private ExpressionExecutor perExpressionExecutor;
     private List<ExpressionExecutor> baseExecutors;
+    private ExpressionExecutor timestampExecutor;
     private List<ExpressionExecutor> outputExpressionExecutors;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition,
@@ -74,7 +75,8 @@ public class AggregationRuntime {
             Map<TimePeriod.Duration, Table> aggregationTables, SingleStreamRuntime singleStreamRuntime,
             EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
             SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
-            MetaStreamEvent tableMetaStreamEvent, List<ExpressionExecutor> outputExpressionExecutors) {
+            ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
+            List<ExpressionExecutor> outputExpressionExecutors) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
         this.aggregationTables = aggregationTables;
@@ -83,6 +85,7 @@ public class AggregationRuntime {
         this.singleStreamRuntime = singleStreamRuntime;
         this.entryValveExecutor = entryValveExecutor;
         this.baseExecutors = baseExecutors;
+        this.timestampExecutor = timestampExecutor;
         this.tableMetaStreamEvent = tableMetaStreamEvent;
         this.outputExpressionExecutors = outputExpressionExecutors;
 
@@ -132,7 +135,7 @@ public class AggregationRuntime {
         Table tableForPerDuration = aggregationTables.get(perValue);
 
         return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
-                incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors,
+                incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors, timestampExecutor,
                 outputExpressionExecutors);
     }
 

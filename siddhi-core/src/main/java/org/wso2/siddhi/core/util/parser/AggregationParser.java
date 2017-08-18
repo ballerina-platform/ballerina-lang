@@ -208,7 +208,7 @@ public class AggregationParser {
                 aggregationDefinition.getAnnotations(), groupByVariableList);
 
         Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = buildIncrementalExecutors(
-                siddhiAppContext, aggregatorName, isProcessingOnExternalTime,
+                isProcessingOnExternalTime,
                 processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
                 bufferSize, incrementalDurations, aggregationTables);
 
@@ -223,15 +223,15 @@ public class AggregationParser {
                 incomingExpressionExecutors, processedMetaStreamEvent));
 
         List<ExpressionExecutor> baseExecutors = cloneExpressionExecutors(processExpressionExecutors);
-        baseExecutors.remove(0); //Removing timeStamp executor
+        ExpressionExecutor timestampExecutor = baseExecutors.remove(0);
         return new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                 aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
-                siddhiAppContext, baseExecutors, processedMetaStreamEvent, outputExpressionExecutors);
+                siddhiAppContext, baseExecutors, timestampExecutor, processedMetaStreamEvent, outputExpressionExecutors);
     }
 
     private static Map<TimePeriod.Duration, IncrementalExecutor> buildIncrementalExecutors(
-            SiddhiAppContext siddhiAppContext, String aggregatorName, boolean isProcessingOnExternalTime,
-            MetaStreamEvent processedMetaStreamEvent, List<ExpressionExecutor> processExpressionExecutors,
+            boolean isProcessingOnExternalTime, MetaStreamEvent processedMetaStreamEvent,
+            List<ExpressionExecutor> processExpressionExecutors,
             GroupByKeyGenerator groupByKeyGenerator, int bufferSize, List<TimePeriod.Duration> incrementalDurations,
             Map<TimePeriod.Duration, Table> aggregationTables) {
         Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = new HashMap<>();
@@ -248,8 +248,8 @@ public class AggregationParser {
             TimePeriod.Duration duration = incrementalDurations.get(i);
             IncrementalExecutor incrementalExecutor = new IncrementalExecutor(duration,
                     cloneExpressionExecutors(processExpressionExecutors),
-                    groupByKeyGenerator, processedMetaStreamEvent, bufferSize, aggregatorName, child, isRoot,
-                    aggregationTables.get(duration), siddhiAppContext, isProcessingOnExternalTime);
+                    groupByKeyGenerator, processedMetaStreamEvent, bufferSize, child, isRoot,
+                    aggregationTables.get(duration), isProcessingOnExternalTime);
             incrementalExecutorMap.put(duration, incrementalExecutor);
             root = incrementalExecutor;
 
@@ -413,10 +413,7 @@ public class AggregationParser {
     }
 
     private static List<ExpressionExecutor> cloneExpressionExecutors(List<ExpressionExecutor> expressionExecutors) {
-        List<ExpressionExecutor> arrayList = new ArrayList<>();
-        for (ExpressionExecutor expressionExecutor : expressionExecutors) {
-            arrayList.add(expressionExecutor.cloneExecutor(null));
-        }
+        List<ExpressionExecutor> arrayList = expressionExecutors.stream().map(expressionExecutor -> expressionExecutor.cloneExecutor(null)).collect(Collectors.toList());
         return arrayList;
     }
 
@@ -555,7 +552,7 @@ public class AggregationParser {
     }
 
     private static List<TimePeriod.Duration> sortedDurations(List<TimePeriod.Duration> durations) {
-        List<TimePeriod.Duration> copyDurations = new ArrayList<TimePeriod.Duration>(durations);
+        List<TimePeriod.Duration> copyDurations = new ArrayList<>(durations);
 
         Comparator periodComparator = new Comparator<TimePeriod.Duration>() {
             public int compare(TimePeriod.Duration firstDuration, TimePeriod.Duration secondDuration) {

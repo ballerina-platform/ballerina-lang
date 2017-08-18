@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -68,8 +67,7 @@ public class IncrementalExecutor implements Executor {
 
     public IncrementalExecutor(TimePeriod.Duration duration, List<ExpressionExecutor> processExpressionExecutors,
             GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent, int bufferSize,
-            String aggregatorName, IncrementalExecutor child, boolean isRoot, Table table,
-            SiddhiAppContext siddhiAppContext, boolean isProcessingOnExternalTime) {
+            IncrementalExecutor child, boolean isRoot, Table table, boolean isProcessingOnExternalTime) {
         this.duration = duration;
         this.next = child;
         this.isRoot = isRoot;
@@ -124,7 +122,7 @@ public class IncrementalExecutor implements Executor {
                 nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone);
                 startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration,
                         timeZone);
-                dispatchAggregateEvents(startTimeOfAggregates, timestamp);
+                dispatchAggregateEvents(startTimeOfAggregates);
                 sendTimerEvent(streamEvent, timestamp, timeZone);
             }
 
@@ -229,7 +227,7 @@ public class IncrementalExecutor implements Executor {
         baseIncrementalValueStore.setProcessed(true);
     }
 
-    private void dispatchAggregateEvents(long startTimeOfNewAggregates, long currentTimeStamp) {
+    private void dispatchAggregateEvents(long startTimeOfNewAggregates) {
 
         if (isGroupBy) {
             if (baseIncrementalValueGroupByStoreList != null) {
@@ -293,11 +291,20 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-    public Object getInMemoryStore() {
-        return (baseIncrementalValueGroupByStoreList != null) ? baseIncrementalValueGroupByStoreList
-                : (baseIncrementalValueStoreMap != null) ? baseIncrementalValueStoreMap
-                        : (baseIncrementalValueStoreList != null) ? baseIncrementalValueStoreList
-                                : baseIncrementalValueStore;
+    ArrayList<HashMap<String, BaseIncrementalValueStore>> getBaseIncrementalValueGroupByStoreList() {
+        return baseIncrementalValueGroupByStoreList;
+    }
+
+    Map<String, BaseIncrementalValueStore> getBaseIncrementalValueStoreMap() {
+        return baseIncrementalValueStoreMap;
+    }
+
+    ArrayList<BaseIncrementalValueStore> getBaseIncrementalValueStoreList() {
+        return baseIncrementalValueStoreList;
+    }
+
+    BaseIncrementalValueStore getBaseIncrementalValueStore() {
+        return baseIncrementalValueStore;
     }
 
     public BaseIncrementalValueStore getOldestEvent() {
