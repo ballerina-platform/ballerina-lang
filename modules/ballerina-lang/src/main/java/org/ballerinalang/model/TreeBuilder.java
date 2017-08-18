@@ -48,7 +48,7 @@ import java.util.List;
 public class TreeBuilder {
 
     @SuppressWarnings("unchecked")
-    PackageNode createPackageNode(List<? extends IdentifierNode> nameComps, IdentifierNode version, 
+    public static PackageNode createPackageNode(List<? extends IdentifierNode> nameComps, IdentifierNode version, 
             List<? extends ImportPackageNode> imports, List<? extends XMLNSDeclarationNode> xmlnsList,
             List<? extends VariableNode> globalVars, List<? extends ServiceNode> services,
             List<? extends ConnectorNode> connectors, List<? extends FunctionNode> functions,
@@ -59,18 +59,18 @@ public class TreeBuilder {
                 (List<BLangStruct>) structs, (List<BLangAnnotation>) annotations);
     }
     
-    IdentifierNode createIdentifierNode(String value, boolean isLiteral) {
+    public static IdentifierNode createIdentifierNode(String value, boolean isLiteral) {
         return new BLangIdentifier(value, isLiteral);
     }
     
     @SuppressWarnings("unchecked")
-    ImportPackageNode createImportPackageNode(List<? extends IdentifierNode> nameComps,
+    public static ImportPackageNode createImportPackageNode(List<? extends IdentifierNode> nameComps,
             IdentifierNode version, IdentifierNode alias) {
         return new BLangImportPackage((List<BLangIdentifier>) nameComps, 
                 (BLangIdentifier) version, (BLangIdentifier) alias);
     }
     
-    XMLNSDeclarationNode createXMLNSNode(IdentifierNode namespaceURI, IdentifierNode prefix) {
+    public static XMLNSDeclarationNode createXMLNSNode(IdentifierNode namespaceURI, IdentifierNode prefix) {
         return new BLangXMLNS((BLangIdentifier) namespaceURI, (BLangIdentifier) prefix);
     }
     
