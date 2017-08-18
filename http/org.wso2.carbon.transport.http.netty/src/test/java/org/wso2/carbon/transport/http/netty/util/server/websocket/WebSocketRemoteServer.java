@@ -53,12 +53,12 @@ public final class WebSocketRemoteServer {
          .childHandler(new WebSocketRemoteServerInitializer(sslCtx));
 
         b.bind(port).sync().channel();
-        logger.info("Started listening WebSocket remote server in port " + port);
+        logger.info("WebSocket remote server started listening on port " + port);
     }
 
     public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
-        logger.info("Stopped listening WebSocket remote server in port " + port);
+        logger.info("WebSocket remote server stopped listening  on port " + port);
     }
 }

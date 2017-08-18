@@ -41,7 +41,7 @@ public class TestNGListener extends TestListenerAdapter {
             for (String wordOfName: testClassWords) {
                 testClassNameFull = testClassNameFull + wordOfName + " ";
             }
-            printStream.println("Start running " + testClassNameFull.trim() + "..................");
+            printStream.println("Start Running " + testClassNameFull.trim() + "..................");
         }
     }
 
