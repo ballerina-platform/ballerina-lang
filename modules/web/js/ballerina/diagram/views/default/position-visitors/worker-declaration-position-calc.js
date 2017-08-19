@@ -18,9 +18,9 @@
 
 import log from 'log';
 import _ from 'lodash';
-import ASTFactory from '../../ast/ast-factory';
-import WorkerDeclaration from './../../ast/worker-declaration';
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import ASTFactory from '../../../../ast/ast-factory';
+import WorkerDeclaration from './../../../../ast/worker-declaration';
+import * as DesignerDefaults from './../../designer-defaults';
 
 /**
  * Position visitor class for Worker Declaration.

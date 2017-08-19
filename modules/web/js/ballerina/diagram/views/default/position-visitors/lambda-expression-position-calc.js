@@ -17,7 +17,6 @@
  */
 
 import log from 'log';
-import * as PositioningUtils from './utils';
 
 /**
  * Position visitor class for Lambda Expression.

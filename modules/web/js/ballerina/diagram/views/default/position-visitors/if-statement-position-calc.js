@@ -17,7 +17,7 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import * as DesignerDefaults from './../../designer-defaults';
 
 /**
  * Position visitor class for If Statement.

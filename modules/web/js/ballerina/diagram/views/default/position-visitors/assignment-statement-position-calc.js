@@ -19,9 +19,9 @@
 import log from 'log';
 import _ from 'lodash';
 import * as PositioningUtils from './utils';
-import ASTFactory from '../../ast/ast-factory';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import PositionCalculatorVisitor from '../position-calculator-visitor';
+import ASTFactory from './../../../../ast/ast-factory';
+import * as DesignerDefaults from './../../designer-defaults';
+import PositionCalculatorVisitor from './../../../position-visitor';
 
 /**
  * Position visitor class for Assignment Statement.

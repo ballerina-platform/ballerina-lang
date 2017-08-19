@@ -17,8 +17,8 @@
  */
 
 import log from 'log';
-import { blockStatement } from '../../configs/designer-defaults';
-import { util } from './../sizing-utils';
+import { blockStatement } from './../../designer-defaults';
+import { util } from './sizing-utils';
 
 /**
  * Position visitor class for Join Statement.

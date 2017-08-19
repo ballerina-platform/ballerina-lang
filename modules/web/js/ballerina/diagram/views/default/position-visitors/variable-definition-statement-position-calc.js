@@ -18,7 +18,7 @@
 
 import log from 'log';
 import * as PositioningUtils from './utils';
-import PositionCalculatorVisitor from '../position-calculator-visitor';
+import PositionCalculatorVisitor from '../../../position-visitor';
 
 /**
  * Position visitor class for Variable Definition Statement.

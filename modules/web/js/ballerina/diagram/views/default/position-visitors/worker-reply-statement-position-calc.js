@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import * as PositioningUtils from './utils';
-import { util } from './../sizing-utils';
+import { util } from './sizing-utils';
 
 /**
  * Position visitor class for Worker Reply Statement.

@@ -18,8 +18,8 @@
 
 import log from 'log';
 import _ from 'lodash';
-import ASTFactory from '../../ast/ast-factory';
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import ASTFactory from '../../../../ast/ast-factory';
+import * as DesignerDefaults from './../../designer-defaults';
 
 /**
  * Position visitor class for Fork Join Statement.

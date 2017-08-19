@@ -16,7 +16,7 @@
  * under the License.
  */
 import log from 'log';
-import { panel } from './../../configs/designer-defaults';
+import { panel } from './../../designer-defaults';
 
 /**
  * Position visitor class for Ballerina AST Root.
