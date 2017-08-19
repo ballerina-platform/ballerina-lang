@@ -201,4 +201,10 @@ public class HTTPMessageUtil {
         }
         return config;
     }
+
+    public static String getListenerInterface(Map<String, String> parameters) {
+        String host = parameters.get("host") != null ? parameters.get("host"):"0.0.0.0";
+        int port = Integer.parseInt(parameters.get("port"));
+        return host + ":" + port;
+    }
 }
