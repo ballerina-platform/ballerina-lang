@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CanvasDecorator from '../components/canvas-decorator';
 import PositionVisitor from './position-visitor';
-import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
+import DimensionCalcVisitor from './dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';

@@ -16,8 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
+import * as DesignerDefaults from './../../designer-defaults';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
 
 /**
  * Dimension visitor class for Transaction Aborted Statement.

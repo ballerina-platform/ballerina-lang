@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
+import * as DesignerDefaults from './../../designer-defaults';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
 import { util } from '../sizing-util';
 
 /**

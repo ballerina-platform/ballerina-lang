@@ -16,8 +16,8 @@
  * under the License.
  */
 import { util } from '../sizing-util';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
-import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
+import BallerinaASTFactory from './../../../../ast/ast-factory';
+import DimensionCalculatorVisitor from '../../../dimension-visitor';
 
 /**
  * Dimension visitor class for Variable Definition Statement.

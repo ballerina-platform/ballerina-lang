@@ -16,7 +16,7 @@
  * under the License.
  */
 import { util } from '../sizing-util';
-import { timeout } from '../../configs/designer-defaults';
+import { timeout } from '../../designer-defaults';
 
 /**
  * Dimension visitor class for timeout statement.

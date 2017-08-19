@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import Visitors from './dimension-calculator/components';
+import Visitors from './views/default/dimention-visitors/components';
 import log from 'log';
 
 class DimensionVisitor {

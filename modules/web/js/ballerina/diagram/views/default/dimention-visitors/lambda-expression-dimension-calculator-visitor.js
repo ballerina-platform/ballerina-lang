@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { util } from '../sizing-util';
 
 /**
  * Dimension calculator visitor class for Lambda Expression.

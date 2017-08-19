@@ -16,10 +16,10 @@
  * under the License.
  */
 import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
+import * as DesignerDefaults from './../../designer-defaults';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
 import { util } from '../sizing-util';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import BallerinaASTFactory from './../../../../ast/ast-factory';
 
 /**
  * Dimension visitor class for While Statement.

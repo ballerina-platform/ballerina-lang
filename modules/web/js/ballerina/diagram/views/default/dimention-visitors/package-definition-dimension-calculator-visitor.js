@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { packageDefinition } from '../../configs/designer-defaults';
+import { packageDefinition } from '../../designer-defaults';
 import { util as SizingUtils } from '../sizing-util';
-import ASTFactory from '../../ast/ballerina-ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 
 /**
  * Dimension visitor class for package definition.

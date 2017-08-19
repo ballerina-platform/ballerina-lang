@@ -16,9 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import ASTFactory from './../../ast/ballerina-ast-factory';
+import * as DesignerDefaults from './../../designer-defaults';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
+import ASTFactory from './../../../../ast/ast-factory';
 
 /**
  * Dimension visitor class for Fork Join.

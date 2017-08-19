@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import * as DesignerDefaults from './../../designer-defaults';
 import { util } from '../sizing-util';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import BallerinaASTFactory from './../../../../ast/ast-factory';
 
 /**
  * Dimension visitor class for Annotation definition.
