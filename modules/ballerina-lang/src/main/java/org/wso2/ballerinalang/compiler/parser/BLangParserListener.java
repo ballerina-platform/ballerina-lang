@@ -17,37 +17,49 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 
 /**
  * @since 0.94
  */
-public abstract class BLangParserListener extends BallerinaParserBaseListener {
+public class BLangParserListener extends BallerinaParserBaseListener {
 
-    @Override
-    public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
+    private BLangPackageBuilder pkgBuilder;
 
+    public BLangParserListener(PackageNode pkgNode) {
+        this.pkgBuilder = new BLangPackageBuilder(pkgNode);
     }
-
+    
     @Override
-    public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
-
+    public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
+        
     }
-
+    
+    @Override 
+    public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
+        
+    }
+    
+    @Override 
+    public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { 
+        
+    }
+    
     @Override
-    public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
-
+    public void enterParameterList(BallerinaParser.ParameterListContext ctx) { 
+        
     }
-
-
-    @Override
-    public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
-
+    
+    @Override 
+    public void exitParameter(BallerinaParser.ParameterContext ctx) {
+        
     }
-
-    @Override
-    public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
-
+    
+    @Override 
+    public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { 
+        this.pkgBuilder.addValueType(ctx.getChild(0).getText());
     }
+    
 }

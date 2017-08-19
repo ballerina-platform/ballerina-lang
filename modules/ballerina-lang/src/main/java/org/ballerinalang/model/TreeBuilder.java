@@ -18,21 +18,19 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -48,8 +46,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,15 +60,11 @@ import java.util.List;
 public class TreeBuilder {
 
     @SuppressWarnings("unchecked")
-    public static PackageNode createPackageNode(List<? extends IdentifierNode> nameComps, IdentifierNode version, 
-            List<? extends ImportPackageNode> imports, List<? extends XMLNSDeclarationNode> xmlnsList,
-            List<? extends VariableNode> globalVars, List<? extends ServiceNode> services,
-            List<? extends ConnectorNode> connectors, List<? extends FunctionNode> functions,
-            List<? extends StructNode> structs, List<? extends AnnotationNode> annotations) {
+    public static PackageNode createPackageNode(List<? extends IdentifierNode> nameComps, IdentifierNode version) {
         return new BLangPackage((List<BLangIdentifier>) nameComps, (BLangIdentifier) version, 
-                (List<BLangImportPackage>) imports, (List<BLangXMLNS>) xmlnsList, (List<BLangVariable>) globalVars, 
-                (List<BLangService>) services, (List<BLangConnector>) connectors, (List<BLangFunction>) functions, 
-                (List<BLangStruct>) structs, (List<BLangAnnotation>) annotations);
+                new ArrayList<BLangImportPackage>(), new ArrayList<BLangXMLNS>(), new ArrayList<BLangVariable>(), 
+                new ArrayList<BLangService>(), new ArrayList<BLangConnector>(), new ArrayList<BLangFunction>(), 
+                new ArrayList<BLangStruct>(), new ArrayList<BLangAnnotation>());
     }
     
     public static IdentifierNode createIdentifierNode(String value, boolean isLiteral) {
@@ -109,6 +105,14 @@ public class TreeBuilder {
     
     public static LiteralNode createLiteralExpression(Object value) {
         return new BLangLiteral(value);
+    }
+    
+    public static VariableDefinitionNode createVariableDefinitionNode(VariableNode variable) {
+        return new BLangVariableDef((BLangVariable) variable);
+    }
+    
+    public static ValueTypeNode createValueTypeNode(String valueType) {
+        return null;
     }
     
 }
