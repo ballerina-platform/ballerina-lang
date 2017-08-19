@@ -30,7 +30,7 @@ public class Constants {
     public static final String QUERY_STR = "QUERY_STR";
     public static final String RAW_QUERY_STR = "RAW_QUERY_STR";
 
-    public static final String DEFAULT_INTERFACE = "default";
+    public static final String DEFAULT_INTERFACE = "0.0.0.0:8080";
     public static final String DEFAULT_BASE_PATH = "/";
     public static final String DEFAULT_SUB_PATH = "/*";
 
