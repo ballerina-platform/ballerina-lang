@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import SimpleBBox from './../../../../ast/simple-bounding-box';
-import * as DesignerDefaults from './../../designer-defaults';
-import ASTFactory from './../../../../ast/ast-factory';
+import SimpleBBox from '../../../ast/simple-bounding-box';
+import * as DesignerDefaults from '../designer-defaults';
+import ASTFactory from '../../../ast/ast-factory';
 
 class SizingUtil {
     constructor() {

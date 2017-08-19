@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import { util } from './../sizing-utils';
+import { util } from '../sizing-util';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 /**

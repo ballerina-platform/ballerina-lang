@@ -16,7 +16,7 @@
  * under the License.
  */
 import { packageDefinition } from '../../configs/designer-defaults';
-import { util as SizingUtils } from '../sizing-utils';
+import { util as SizingUtils } from '../sizing-util';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 
 /**

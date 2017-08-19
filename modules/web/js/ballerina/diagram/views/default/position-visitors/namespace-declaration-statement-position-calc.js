@@ -16,7 +16,7 @@
  * under the License.
  */
 import log from 'log';
-import * as PositioningUtils from './utils';
+import * as PositioningUtils from '../positioning-util';
 
 /**
  * class for position calc visitor for namespace declaration statement.

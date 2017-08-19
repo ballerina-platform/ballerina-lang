@@ -19,7 +19,7 @@ import React from 'react';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import FragmentUtils from './../utils/fragment-utils';
+import FragmentUtils from '../positioning-util.js/fragment-utils';
 import ArgumentParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
 import TagController from './utils/tag-component';
 import { getComponentForNodeArray } from './utils';

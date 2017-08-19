@@ -21,7 +21,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import TagController from './utils/tag-component';
 import { getComponentForNodeArray } from './utils';
-import FragmentUtils from './../utils/fragment-utils';
+import FragmentUtils from '../positioning-util.js/fragment-utils';
 import ReturnParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
 import ASTFactory from '../ast/ast-factory.js';
 

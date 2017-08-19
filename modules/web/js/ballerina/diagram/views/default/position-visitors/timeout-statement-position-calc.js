@@ -18,7 +18,7 @@
 
 import log from 'log';
 import { blockStatement, timeout } from './../../designer-defaults';
-import { util } from './sizing-utils';
+import { util } from '../sizing-util';
 
 /**
  * Position visitor class for Timeout Statement.

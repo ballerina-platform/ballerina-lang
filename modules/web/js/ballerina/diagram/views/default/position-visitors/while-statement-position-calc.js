@@ -16,7 +16,7 @@
  * under the License.
  */
 import log from 'log';
-import * as Utils from './utils';
+import * as Utils from '../positioning-util';
 import * as DesignerDefaults from './../../designer-defaults';
 
 /**

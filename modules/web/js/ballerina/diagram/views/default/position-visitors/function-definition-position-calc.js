@@ -18,7 +18,7 @@
 
 import log from 'log';
 import * as DesignerDefaults from './../../designer-defaults';
-import * as PositioningUtils from './utils';
+import * as PositioningUtils from '../positioning-util';
 import ASTFactory from '../../../../ast/ast-factory';
 /**
  * Position visitor class for Function Definition.

@@ -16,7 +16,7 @@
  * under the License.
  */
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import { util } from './../sizing-utils';
+import { util } from '../sizing-util';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 /**

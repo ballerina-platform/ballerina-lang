@@ -16,8 +16,8 @@
  * under the License.
  */
 import log from 'log';
-import * as PositioningUtils from './utils';
-import { util } from './sizing-utils';
+import * as PositioningUtils from '../positioning-util';
+import { util } from '../sizing-util';
 
 /**
  * Position visitor class for Worker Invocation Statement.

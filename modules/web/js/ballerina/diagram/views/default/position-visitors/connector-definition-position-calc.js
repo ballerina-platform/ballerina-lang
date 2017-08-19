@@ -17,7 +17,7 @@
  */
 
 import log from 'log';
-import * as PositioningUtils from './utils';
+import * as PositioningUtils from '../positioning-util';
 
 /**
  * Position visitor class for Connector Definition.

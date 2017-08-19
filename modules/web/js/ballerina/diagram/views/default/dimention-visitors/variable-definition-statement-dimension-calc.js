@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { util } from './../sizing-utils';
+import { util } from '../sizing-util';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import DimensionCalculatorVisitor from '../dimension-calculator-visitor';
 

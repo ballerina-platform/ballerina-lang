@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import { util } from './../sizing-utils';
+import { util } from '../sizing-util';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import DimensionCalculatorVisitor from '../dimension-calculator-visitor';

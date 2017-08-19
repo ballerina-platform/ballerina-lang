@@ -17,7 +17,7 @@
  */
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import { util } from './../sizing-utils';
+import { util } from '../sizing-util';
 
 /**
  * Dimension visitor class for connector declaration.
