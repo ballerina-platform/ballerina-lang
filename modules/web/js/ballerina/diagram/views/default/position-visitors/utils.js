@@ -1,0 +1,362 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import _ from 'lodash';
+import ASTFactory from '../../ast/ast-factory';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import { util } from './../sizing-utils';
+
+/**
+ * get simple statement position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
+function getSimpleStatementPosition(node) {
+    const viewState = node.getViewState();
+    const bBox = viewState.bBox;
+    const parent = node.getParent();
+    const parentViewState = parent.getViewState();
+    const parentStatementContainer = parentViewState.components.statementContainer || {};
+
+    const parentStatements = parent.filterChildren(child =>
+    ASTFactory.isStatement(child) || ASTFactory.isExpression(child) || ASTFactory.isConnectorDeclaration(child));
+    const currentIndex = _.findIndex(parentStatements, node);
+    let y;
+
+    /**
+     * Here we center the statement based on the parent's statement container's dimensions
+     * Always the statement container's width should be greater than the statements/expressions
+     */
+    if (parentStatementContainer.w < bBox.w) {
+        const exception = {
+            message: 'Invalid statement container width found, statement width should be ' +
+            'greater than or equal to statement/ statement width ',
+        };
+        throw exception;
+    }
+    const x = parentStatementContainer.x + ((parentStatementContainer.w - bBox.w) / 2);
+    if (currentIndex === 0) {
+        y = parentStatementContainer.y;
+    } else if (currentIndex > 0) {
+        const previousChild = parentStatements[currentIndex - 1];
+        if (ASTFactory.isConnectorDeclaration(previousChild)) {
+            y = previousChild.getViewState().components.statementViewState.bBox.getBottom();
+        } else {
+            y = previousChild.getViewState().bBox.getBottom();
+        }
+    } else {
+        const exception = {
+            message: `Invalid Index found for ${node.getType()}`,
+        };
+        throw exception;
+    }
+
+    // calculate the positions of sub components.
+    if (viewState.components['drop-zone']) {
+        viewState.components['drop-zone'].x = x;
+        viewState.components['drop-zone'].y = y;
+    }
+
+    if (viewState.components['statement-box']) {
+        viewState.components['statement-box'].x = x;
+        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
+    }
+
+    bBox.x = x;
+    bBox.y = y;
+}
+
+/**
+ * get compound statement child position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
+function getCompoundStatementChildPosition(node) {
+    const viewState = node.getViewState();
+    const bBox = viewState.bBox;
+    const currentIndex = _.findIndex(node.getParent().getChildren(), node);
+    /**
+     * Current Index should be greater than 0
+     */
+    if (currentIndex <= 0) {
+        const exception = {
+            message: 'Invalid Current Index Found for Block Statement',
+        };
+        throw exception;
+    }
+    const previousStatement = node.getParent().getChildren()[currentIndex - 1];
+
+    const x = previousStatement.getViewState().bBox.x;
+    const y = previousStatement.getViewState().bBox.getBottom();
+    const statementContainerX = x;
+    const statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
+
+    bBox.x = x;
+    bBox.y = y;
+    viewState.components.statementContainer.x = statementContainerX;
+    viewState.components.statementContainer.y = statementContainerY;
+    viewState.components['block-header'].y = y;
+}
+
+/**
+ * populate inner panel decorator bounding box position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
+function populateInnerPanelDecoratorBBoxPosition(node) {
+    const parent = node.getParent();
+    const viewSate = node.getViewState();
+    const parentViewState = parent.getViewState();
+    const parentBBox = parentViewState.bBox;
+    const bBox = viewSate.bBox;
+    const statementContainerBBox = viewSate.components.statementContainer;
+    const workerScopeContainer = viewSate.components.workerScopeContainer;
+    const headerBBox = viewSate.components.heading;
+    const bodyBBox = viewSate.components.body;
+    const annotation = viewSate.components.annotation;
+    const resources = _.filter(parent.getChildren(), child =>
+    ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child));
+    let headerY;
+    const currentResourceIndex = _.findIndex(resources, node);
+
+    const headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+
+    if (currentResourceIndex === 0) {
+        const serviceVariablesHeightGap = node.getParent().getViewState().components.variablesPane.h +
+            DesignerDefaults.panel.body.padding.top;
+
+        /**
+         * If there are service level connectors, then we need to drop the first resource further down,
+         * in order to maintain a gap between the connector heading and the resource heading
+         */
+        const parentLevelConnectors = node.getParent().filterChildren(child =>
+            ASTFactory.isConnectorDeclaration(child));
+        headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+        
+
+        headerY += serviceVariablesHeightGap;
+    } else if (currentResourceIndex > 0) {
+        const previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
+        headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
+    } else {
+        const exception = {
+            message: 'Invalid Index for Resource Definition',
+        };
+        throw exception;
+    }
+
+    const x = headerX;
+    const y = headerY;
+    const bodyX = headerX;
+    const bodyY = headerY + headerBBox.h + annotation.h;
+
+    statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
+    statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
+        DesignerDefaults.lifeLine.head.height;
+    // If more than one worker is present, then draw the worker scope container boundary around the workers
+    if ((node.filterChildren(ASTFactory.isWorkerDeclaration)).length >= 1) {
+        workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
+        workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
+    }
+    bBox.x = x;
+    bBox.y = y;
+    headerBBox.x = headerX;
+    headerBBox.y = headerY;
+    bodyBBox.x = bodyX;
+    bodyBBox.y = bodyY;
+}
+
+/**
+ * populate outer panel decorator bounding box position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
+function populateOuterPanelDecoratorBBoxPosition(node) {
+    const viewSate = node.getViewState();
+    const bBox = viewSate.bBox;
+    const parent = node.getParent();
+    const panelChildren = parent.filterChildren(child => ASTFactory.isFunctionDefinition(child) ||
+           ASTFactory.isServiceDefinition(child) ||
+            ASTFactory.isConnectorDefinition(child) ||
+            ASTFactory.isAnnotationDefinition(child) ||
+            ASTFactory.isStructDefinition(child) ||
+            ASTFactory.isPackageDefinition(child));
+    const heading = viewSate.components.heading;
+    const body = viewSate.components.body;
+    const annotation = viewSate.components.annotation;
+    // FIXME
+    const transportLine = !_.isNil(viewSate.components.transportLine) ?
+        viewSate.components.transportLine : { x: 0, y: 0 };
+    const currentServiceIndex = _.findIndex(panelChildren, node);
+    let headerX;
+    let headerY;
+    if (currentServiceIndex === 0) {
+        headerX = DesignerDefaults.panel.wrapper.gutter.h;
+        headerY = DesignerDefaults.panel.wrapper.gutter.v;
+    } else if (currentServiceIndex > 0) {
+        const previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
+        headerX = DesignerDefaults.panel.wrapper.gutter.h;
+        headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
+    } else {
+        const exception = {
+            message: 'Invalid Index for Service Definition',
+        };
+        throw exception;
+    }
+
+    const x = headerX;
+    const y = headerY;
+    const bodyX = headerX;
+    const bodyY = headerY + heading.h + annotation.h;
+
+    bBox.x = x;
+    bBox.y = y;
+    heading.x = headerX;
+    heading.y = headerY;
+    body.x = bodyX;
+    body.y = bodyY;
+    transportLine.x = body.x + 25;
+    transportLine.y = body.y;
+
+    // here we need to re adjust resource width to match the service width.
+    const resources = node.filterChildren(child => ASTFactory.isResourceDefinition(child) ||
+            ASTFactory.isConnectorAction(child));
+    // make sure you substract the panel padding to calculate the min width of a resource.
+    const minWidth = node.getViewState().bBox.w -
+        (DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right);
+    let connectorWidthTotal = 0;
+    const connectors = node.filterChildren(child => ASTFactory.isConnectorDeclaration(child));
+
+    _.forEach(connectors, (connector) => {
+        connectorWidthTotal += connector.getViewState().bBox.w + DesignerDefaults.lifeLine.gutter.h;
+    });
+
+    resources.forEach((element) => {
+        const viewState = element.getViewState();
+        // if the service width is wider than resource width we will readjust.
+        if (viewState.bBox.w + connectorWidthTotal < minWidth) {
+            viewState.bBox.w = minWidth - connectorWidthTotal;
+        }
+    }, this);
+}
+
+/**
+ * populate panel heading positioning.
+ *
+ * @param {ASTNode} node - AST node.
+ * @param {func} createPositionForTitleNode - function to create position for title.
+ * */
+function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
+    const viewState = node.getViewState();
+
+    if (node.getArguments) {
+        const isLambda = node.isLambda && node.isLambda();
+        viewState.components.openingParameter.x = viewState.bBox.x + (isLambda ? 0 : (
+        viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
+        + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding));
+        viewState.components.openingParameter.y = viewState.bBox.y
+            + viewState.components.annotation.h;
+
+        // Positioning the resource parameters
+        let nextXPositionOfParameter = viewState.components.openingParameter.x
+            + viewState.components.openingParameter.w;
+        if (node.getArguments().length > 0) {
+            for (let i = 0; i < node.getArguments().length; i++) {
+                const argument = node.getArguments()[i];
+                nextXPositionOfParameter = createPositionForTitleNode(argument, nextXPositionOfParameter,
+                    (viewState.bBox.y + viewState.components.annotation.h));
+            }
+        }
+
+        // Positioning the closing bracket component of the parameters.
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 130;
+        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
+    }
+
+    if (node.getAttachmentPoints) {
+        // / Positioning parameters
+        // Setting positions of function parameters.
+        // Positioning the opening bracket component of the parameters.
+        viewState.components.openingParameter.x = viewState.bBox.x
+            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
+            + DesignerDefaults.panelHeading.iconSize.width
+            + DesignerDefaults.panelHeading.iconSize.padding + util.getTextWidth('attach', 80, 80).w;
+        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
+
+        viewState.attachments = {};
+        // Positioning the resource parameters
+        let nextXPositionOfParameter = viewState.components.openingParameter.x
+            + viewState.components.openingParameter.w;
+        if (node.getAttachmentPoints().length > 0) {
+            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
+                const attachment = {
+                    attachment: node.getAttachmentPoints()[i],
+                    model: node,
+                };
+                nextXPositionOfParameter = createPositionForTitleNode(attachment, nextXPositionOfParameter,
+                    (viewState.bBox.y + viewState.components.annotation.h));
+            }
+        }
+
+        // Positioning the closing bracket component of the parameters.
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 140;
+        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
+    }
+
+    if (node.getReturnTypes) {
+        // // Positioning return types
+        // Setting positions of return types.
+        // Positioning the Parameters text component.
+        viewState.components.returnTypesIcon.x = viewState.components.closingParameter.x
+            + viewState.components.closingParameter.w
+            + 10;
+        viewState.components.returnTypesIcon.y = viewState.bBox.y
+            + viewState.components.annotation.h
+            + 18;
+
+        // Positioning the opening bracket component of the return types.
+        viewState.components.openingReturnType.x = viewState.components.returnTypesIcon.x
+            + viewState.components.returnTypesIcon.w;
+        viewState.components.openingReturnType.y = viewState.bBox.y
+            + viewState.components.annotation.h;
+
+        // Positioning the resource parameters
+        let nextXPositionOfReturnType = viewState.components.openingReturnType.x
+            + viewState.components.openingReturnType.w;
+        if (node.getReturnTypes().length > 0) {
+            for (let i = 0; i < node.getReturnTypes().length; i++) {
+                const returnType = node.getReturnTypes()[i];
+                nextXPositionOfReturnType = createPositionForTitleNode(returnType, nextXPositionOfReturnType,
+                    (viewState.bBox.y + viewState.components.annotation.h));
+            }
+        }
+
+        // Positioning the closing bracket component of the parameters.
+        viewState.components.closingReturnType.x = nextXPositionOfReturnType + 130;
+        viewState.components.closingReturnType.y = viewState.bBox.y
+            + viewState.components.annotation.h;
+    }
+}
+
+export {
+    getSimpleStatementPosition,
+    getCompoundStatementChildPosition,
+    populateOuterPanelDecoratorBBoxPosition,
+    populateInnerPanelDecoratorBBoxPosition,
+    populatePanelHeadingPositioning,
+};

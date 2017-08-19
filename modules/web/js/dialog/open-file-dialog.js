@@ -23,7 +23,6 @@ import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
 import ASTFactory from 'ballerina/ast/ast-factory';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
-import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
 import File from 'workspace/file';
 import 'bootstrap';
 import './dialog.css';
@@ -61,7 +60,6 @@ const OpenFileDialog = Backbone.View.extend(
             const notification_container = this.notification_container;
             const ballerinaEditorOptions = this.ballerina_editor;
                 // var sourceViewContainer =  this.source_view_container;
-            const diagramRenderingContext = new DiagramRenderContext();
 
             if (!_.isNil(this._fileOpenModal)) {
                 this._fileOpenModal.remove();

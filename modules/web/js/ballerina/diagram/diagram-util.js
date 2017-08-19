@@ -14,7 +14,7 @@ function requireAll(requireContext) {
 }
 
 function getComponentForNodeArray(nodeArray) {
-    const components = requireAll(require.context('./', true, /\.jsx$/));
+    const components = requireAll(require.context('../components/', true, /\.jsx$/));
     return nodeArray.filter((child) => {
         const compName = child.constructor.name;
         if (components[compName]) {

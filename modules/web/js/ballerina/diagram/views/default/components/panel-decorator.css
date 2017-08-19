@@ -1,0 +1,62 @@
+.panel-slide-enter {
+  opacity: 0.01;
+}
+
+.panel-slide-enter.panel-slide-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.panel-slide-leave {
+  opacity: 1;
+}
+
+.panel-slide-leave.panel-slide-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.panel-body-rect {
+    fill: #d8d8d8;
+    fill-opacity: 0.4;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+    stroke: #d8d8d8;
+}
+
+.panel-header-controls-wrapper{
+    fill: #666769;
+}
+.panel .panel-body .panel-body-rect.drop-zone.active {
+    fill: green;
+    fill-opacity: 0.2;
+}
+
+.panel .panel-body .panel-body-rect.drop-zone.active.block {
+    fill: red;
+}
+.headingRectTitle{
+    fill: #666769;
+    stroke: #666769;
+    stroke-width: 0.5;
+}
+
+.panel-body-rect.drop-zone {
+    fill: green;
+    fill-opacity: 0;
+}
+
+.parameter-opening-brack-text{
+    margin-top:10px ;
+}
+.svg-container.drop-zone.active .panel-body .panel-body-rect.drop-zone,
+.panel-body.drop-zone.active .panel-body .panel-body-rect.drop-zone
+ {
+    fill: white;
+    fill-opacity: 1;
+}
+.test-color{background-color: red;}
+
+.protocol-rect-http{
+    fill: #3498db !important;
+}

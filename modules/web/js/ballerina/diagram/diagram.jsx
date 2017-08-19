@@ -18,15 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import CanvasDecorator from './canvas-decorator';
-import PositionCalcVisitor from '../visitors/position-calculator-visitor';
+import CanvasDecorator from '../components/canvas-decorator';
+import PositionVisitor from './position-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './diagram-util';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../components/active-arbiter';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
 
 /**
@@ -46,7 +46,7 @@ class Diagram extends React.Component {
         super(props);
         this.sourceGen = new SourceGenVisitor();
         this.dimentionCalc = new DimensionCalcVisitor();
-        this.positionCalc = new PositionCalcVisitor();
+        this.positionCalc = new PositionVisitor();
     }
 
     /**

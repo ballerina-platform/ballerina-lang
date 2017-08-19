@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import BallerinaDiagram from './../components/diagram';
+import BallerinaDiagram from './../diagram/diagram';
 import TransformExpanded from '../components/transform-expanded';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';

@@ -19,7 +19,7 @@
 import Visitors from './dimension-calculator/components';
 import log from 'log';
 
-class DimensionCalculatorVisitor {
+class DimensionVisitor {
 
     canVisit(node) {
         if (Visitors[`${node.getType()}DimensionCalculatorVisitor`]) {
@@ -59,4 +59,4 @@ class DimensionCalculatorVisitor {
     }
 }
 
-export default DimensionCalculatorVisitor;
+export default DimensionVisitor;
