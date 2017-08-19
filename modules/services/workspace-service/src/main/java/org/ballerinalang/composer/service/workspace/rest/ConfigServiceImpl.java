@@ -138,6 +138,9 @@ public class ConfigServiceImpl {
 
         JsonObject programPackages = new JsonObject();
         programPackages.addProperty("endpoint", apiPath + "/service/program/packages");
+
+        JsonObject typeLattice = new JsonObject();
+        typeLattice.addProperty("endpoint", apiPath + "/typelattice");
         
         JsonObject services = new JsonObject();
         services.add("workspace", workspace);
@@ -151,6 +154,7 @@ public class ConfigServiceImpl {
         services.add("langserver", langserver);
         services.add("programNativeTypes", programNativeTypes);
         services.add("programPackages", programPackages);
+        services.add("typeLattice", typeLattice);
 
         JsonObject config = new JsonObject();
         config.add("services", services);

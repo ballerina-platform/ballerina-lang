@@ -151,6 +151,17 @@ class TryCatchStatement extends Statement {
 
         return (finallyStatements.length > 0) ? finallyStatements[0] : undefined;
     }
+
+    /**
+     * Override the setfile function
+     * @param {object} file - file instance
+     */
+    setFile(file) {
+        this.file = file;
+        this.getChildren().forEach((child) => {
+            child.setFile(this.getFile());
+        });
+    }
 }
 
 export default TryCatchStatement;

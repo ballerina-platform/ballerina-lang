@@ -109,6 +109,33 @@ class CatchStatement extends ConditionalStatement {
             child.initFromJson(childNode);
         });
     }
+
+    /**
+     * Get the content replace region on content suggestion at design view
+     * @returns {{startC: {number}, stopC: {number}}} - object containing start char and the stop char
+     */
+    getContentReplaceRegion() {
+        const segments = this.getFile().getContent().split(/\r?\n/);
+        const position = this.getPosition();
+        const joinedSegments = segments.slice(0, position.startLine - 1).join();
+        const statementStartSegment = 'catch' + this.getWSRegion(1) + '(' + this.getWSRegion(2);
+        const start = joinedSegments.length + 1 + position.startOffset + statementStartSegment.length;
+        const conditionSegment = this.getParameterDefString() + this.getWSRegion(4);
+        const stop = start + conditionSegment.length;
+        return {
+            startC: start,
+            stopC: stop,
+        };
+    }
+
+    /**
+     * Get the content start position for the content suggestion
+     * @returns {number} content start position
+     */
+    getContentStartCursorPosition() {
+        const statementStartSegment = 'catch' + this.getWSRegion(1) + '(' + this.getWSRegion(2);
+        return this.getPosition().startOffset + statementStartSegment.length;
+    }
 }
 
 export default CatchStatement;

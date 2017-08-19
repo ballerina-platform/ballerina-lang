@@ -31,6 +31,7 @@ import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-fa
  * @param {object} expectedFile 
  * @param {function} done 
  */
+
 export function testCompletions(cursorPosition, testFilePath, testFileName, expectedFile, done) {
     const completions = [];
     const testFile = path.resolve(path.join(testFilePath, testFileName));
@@ -39,17 +40,32 @@ export function testCompletions(cursorPosition, testFilePath, testFileName, expe
     const fileData = { "fileName": testFileName, "filePath": testFilePath, "packageName": '.' };
     const sourceViewCompleterFactory = new SourceViewCompleterFactory();
 
+
     // callback function to validate generated completions.
     const test = function (x, completions) {
         expect(expectedFileContent).to.equal(JSON.stringify(completions));
         done();
     }
 
-    getLangServerClientInstance()
+    let opts = {
+        wsCloseEventHandler: wsCloseEventHandler
+    }
+    getLangServerClientInstance(opts)
         .then((langserverClient) => {
             sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, test);
         })
         .catch(error => log.error(error));
+}
+
+/**
+ * Invoke the close function of language server client, eventually it will close the web socket connection.
+ */
+export function close(callback) {
+    return getLangServerClientInstance()
+        .then((langserverClient) => {
+            langserverClient.close();
+            callback();
+        })
 }
 
 /**
@@ -58,5 +74,13 @@ export function testCompletions(cursorPosition, testFilePath, testFileName, expe
  */
 function readFile(filePath) {
     return fs.readFileSync(filePath, 'utf8');
+}
+
+/**
+ * web socket close event handler.
+ * @param {Object} event 
+ */
+function wsCloseEventHandler(event) {
+    // no need to do anything specially as this is a close event handler for a test case.
 }
 

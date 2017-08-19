@@ -117,7 +117,7 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
                 parserRuleVariableDefStatementContextResolver);
-        resolvers.put(BallerinaParser.TriggerWorkerContext.class, parserRuleTriggerWorkerContext);
+        resolvers.put(BallerinaParser.InvokeWorkerContext.class, parserRuleTriggerWorkerContext);
         resolvers.put(BallerinaParser.WorkerReplyContext.class, parserRuleWorkerReplyContext);
         resolvers.put(BallerinaParser.TypeNameContext.class, parserRuleTypeNameContextResolver);
         resolvers.put(BallerinaParser.ConstantDefinitionContext.class, parserRuleConstantDefinitionContextResolver);
