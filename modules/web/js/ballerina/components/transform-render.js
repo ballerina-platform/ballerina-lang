@@ -82,7 +82,7 @@ class TransformRender {
                 this.midpoint += this.midpointVariance;
                 this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
                 this.onConnection(connection);
-                this.setConnectionMenu(params.connection)
+                this.setConnectionMenu(params.connection);
             }
         });
     }
@@ -213,6 +213,9 @@ class TransformRender {
     }
 
     setConnectionMenu(connection) {
+        if (!connection) {
+            return;
+        }
         connection.bind('mouseover', (conn, e) => {
             if (!this.container.find('#' + this.contextMenu).is(':visible')) {
                 const contextMenuDiv = this.container.find('#' + this.contextMenu);
