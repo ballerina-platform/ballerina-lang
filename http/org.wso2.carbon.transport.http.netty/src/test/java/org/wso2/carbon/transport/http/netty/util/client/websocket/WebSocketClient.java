@@ -161,7 +161,7 @@ public class WebSocketClient {
             return false;
         }
 
-        logger.info("WebSocket Handshake successful : " + isDone);
+        logger.debug("WebSocket Handshake successful : " + isDone);
         return isDone;
     }
 

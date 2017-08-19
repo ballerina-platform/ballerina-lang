@@ -70,7 +70,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketTextMessage textMessage) {
         Session session = textMessage.getChannelSession();
         String receivedTextToClient = textMessage.getText();
-        log.info("text: " + receivedTextToClient);
+        log.debug("text: " + receivedTextToClient);
         try {
             session.getBasicRemote().sendText(receivedTextToClient);
         } catch (IOException e) {
@@ -82,7 +82,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         Session session = binaryMessage.getChannelSession();
         ByteBuffer receivedByteBufferToClient = binaryMessage.getByteBuffer();
-        log.info("text: " + receivedByteBufferToClient);
+        log.debug("ByteBuffer: " + receivedByteBufferToClient);
         try {
             session.getBasicRemote().sendBinary(receivedByteBufferToClient);
         } catch (IOException e) {

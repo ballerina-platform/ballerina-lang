@@ -23,14 +23,16 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple WebSocket server for Test cases.
  */
 public final class WebSocketRemoteServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketRemoteServer.class);
 
     private final int port;
     private EventLoopGroup bossGroup;
@@ -48,14 +50,15 @@ public final class WebSocketRemoteServer {
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
          .channel(NioServerSocketChannel.class)
-         .handler(new LoggingHandler(LogLevel.INFO))
          .childHandler(new WebSocketRemoteServerInitializer(sslCtx));
 
         b.bind(port).sync().channel();
+        logger.info("WebSocket remote server started listening on port " + port);
     }
 
     public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        logger.info("WebSocket remote server stopped listening  on port " + port);
     }
 }

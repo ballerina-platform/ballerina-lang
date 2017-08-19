@@ -51,8 +51,6 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
 
     @BeforeClass
     public void setup() {
-        log.info(System.lineSeparator() +
-                         "--------------------- WebSocket Server Test Cases ---------------------");
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(9009);
