@@ -2221,8 +2221,7 @@ public class BLangModelBuilder {
                     expression = ((IndexBasedVarRefExpr) expression).getVarRefExpr();
                 }
             }
-            return new Expression[]{expression};
-
+            return new Expression[] { expression };
         } else if (expression instanceof FunctionInvocationExpr) {
             Expression[] argExprs = ((FunctionInvocationExpr) expression).getArgExprs();
             List<Expression> expList = new ArrayList<>();
@@ -2231,10 +2230,12 @@ public class BLangModelBuilder {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new Expression[expList.size()]);
-
+        } else if (expression instanceof TypeConversionExpr) {
+            return getVariableReferencesFromExpression(((TypeConversionExpr) expression).getRExpr());
+        } else if (expression instanceof TypeCastExpression) {
+            return getVariableReferencesFromExpression(((TypeCastExpression) expression).getRExpr());
         } else if (expression instanceof SimpleVarRefExpr) {
             return new Expression[] { expression };
-
         }
         return new Expression[] {};
     }
