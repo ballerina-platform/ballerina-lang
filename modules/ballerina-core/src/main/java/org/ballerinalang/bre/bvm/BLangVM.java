@@ -258,6 +258,7 @@ public class BLangVM {
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
+        int transactionIndex;
 
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
@@ -1237,7 +1238,8 @@ public class BLangVM {
                 case InstructionCodes.TR_RETRY:
                     i = operands[0];
                     j = operands[1];
-                    retryTransaction(i, j);
+                    transactionIndex = (int) ((IntegerCPEntry) constPool[i]).getValue();
+                    retryTransaction(transactionIndex, j);
                     break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
@@ -1251,7 +1253,8 @@ public class BLangVM {
                 case InstructionCodes.TR_BEGIN:
                     i = operands[0];
                     j = operands[1];
-                    beginTransaction(i, j);
+                    transactionIndex = (int) ((IntegerCPEntry) constPool[i]).getValue();
+                    beginTransaction(transactionIndex, j);
                     break;
                 case InstructionCodes.TR_END:
                     i = operands[0];

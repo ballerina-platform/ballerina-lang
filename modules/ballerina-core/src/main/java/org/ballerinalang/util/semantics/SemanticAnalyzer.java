@@ -188,7 +188,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
-    private int failedBlockCount = 0;
     private boolean isWithinWorker = false;
     private SymbolScope currentScope;
     private SymbolScope currentPackageScope;
@@ -1504,9 +1503,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         transactionStmtCount--;
         TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
         if (failedBlock != null) {
-            failedBlockCount++;
             failedBlock.getFailedBlockStmt().accept(this);
-            failedBlockCount--;
         }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {

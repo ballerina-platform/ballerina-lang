@@ -1192,6 +1192,8 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(TransactionStmt transactionStmt) {
         ++transactionIndex;
+        IntegerCPEntry transactionIndexCPEntry = new IntegerCPEntry(transactionIndex);
+        int transactionIndexCPEntryIndex = currentPkgInfo.addCPEntry(transactionIndexCPEntry);
         Expression retryCountExpression = transactionStmt.getRetryCountExpression();
         int retryCountAvailable = 0;
         if (retryCountExpression != null) {
@@ -1204,12 +1206,12 @@ public class CodeGenerator implements NodeVisitor {
         abortInstructions.push(gotoStartOfAbortedBlock);
 
         //start transaction
-        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
+        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndexCPEntryIndex, retryCountAvailable));
         int startIP = nextIP();
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
 
         //retry transaction
-        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
+        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndexCPEntryIndex, -1);
         emit(retryInstruction);
 
         //process transaction statements
