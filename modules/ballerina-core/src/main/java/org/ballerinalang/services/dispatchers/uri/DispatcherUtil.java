@@ -122,20 +122,20 @@ public class DispatcherUtil {
         return basePath;
     }
 
-    public static String concatValues(List<String> values, boolean spaceSeparated) {
-        StringBuilder sb = new StringBuilder();
+    public static String concatValues(List<String> stringValues, boolean spaceSeparated) {
+        StringBuilder builder = new StringBuilder();
 
-        for (int x = 0; x < values.size(); ++x) {
-            sb.append(values.get(x));
-            if (x != values.size() - 1) {
+        for (int x = 0; x < stringValues.size(); ++x) {
+            builder.append(stringValues.get(x));
+            if (x != stringValues.size() - 1) {
                 if (spaceSeparated) {
-                    sb.append(" ");
+                    builder.append(" ");
                 } else {
-                    sb.append(", ");
+                    builder.append(", ");
                 }
             }
         }
-        return sb.toString();
+        return builder.toString();
     }
 
     public static List<String> validateAllowMethods(List<String> cachedMethods) {

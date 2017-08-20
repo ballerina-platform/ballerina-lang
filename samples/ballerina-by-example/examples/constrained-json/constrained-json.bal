@@ -6,7 +6,11 @@ import ballerina.doc;
 @doc:Description {
     value: "Defining people array"
 }
-Person[] people = [{name: "Ann Frank", age: 30, city: "London"}, {name: "Tim Yank", age: 20, city: "New York"}, {name: "John Grisham", age: 25, city: "Brisbane"}, {name: "Sarah Paulin", age: 10, city: "Chicago"}, {name: "Trevor Noah", age: 45, city: "Cape Town"}];
+Person[] people = [{name: "Ann Frank", age: 30, city: "London"},
+                   {name: "Tim Yank", age: 20, city: "New York"},
+                   {name: "John Grisham", age: 25, city: "Brisbane"},
+                   {name: "Sarah Paulin", age: 10, city: "Chicago"},
+                   {name: "Trevor Noah", age: 45, city: "Cape Town"}];
 
 
 @doc:Description {
@@ -29,19 +33,20 @@ struct Employee {
     basePath: "/people"
 }
 @doc:Description {
-    value: "Defining people management service which can be accessed with /people"
+    value: "Define people management service which can be accessed with /people"
 }
 service<http> PeopleManagementService {
 
-    @http:GET {}
-    @http:Path {
-        value: "/employee/"
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/employee/"
     }
     @doc:Description {
-        value: "Resource to get employee for the person by index which can be invoked with /people/employee?index={index}"
+        value: "Resource to get employee for the person by index which" +
+        " can be invoked with /people/employee?index={index}"
     }
-    resource getEmployee (message m, @http:QueryParam{value:"index"} int index) {
-
+    resource getEmployee (message m, @http:QueryParam {value:"index"}
+                                     int index) {
         //Define a struct constrained by Employee struct. With this constraint, the json, employeeJson can only
         // contain the fields of Employee struct
         json<Employee> employeeJson = {};
@@ -63,14 +68,16 @@ service<http> PeopleManagementService {
         reply m;
     }
 
-    @http:POST {}
-    @http:Path {
-        value: "/update"
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/update"
     }
     @doc:Description {
-        value: "Resource to update person by index which can be invoked with /people/update?index={index}"
+        value: "Resource to update person by index which can be invoked with " +
+        "/people/update?index={index}"
     }
-    resource updatePerson (message m, @http:QueryParam{value:"index"} int index) {
+    resource updatePerson (message m, @http:QueryParam{value:"index"}
+                                      int index) {
         //Get the json payload from the request message m
         json j = messages:getJsonPayload(m);
         var jsonPerson, _ = (json<Person>)j;
@@ -94,9 +101,9 @@ service<http> PeopleManagementService {
     }
 
 
-    @http:GET {}
-    @http:Path {
-        value: "/"
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/"
     }
     @doc:Description {
         value: "Get all people which can be invoked as /people/"

@@ -8,8 +8,8 @@ function divideBy10 (int d) (int quotient, int remainder) {
 
 @doc:Description {value:"If the return statement does not contain any argument then the named return values will be returned."}
 function divideBy5 (int d) (int quotient, int remainder) {
-    quotient = d / 10;
-    remainder = d % 10;
+    quotient = d / 5;
+    remainder = d % 5;
     return;
 }
 

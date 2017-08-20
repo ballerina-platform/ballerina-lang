@@ -24,7 +24,7 @@ function main (string[] args) {
 
     // Update an attribute.
     x1@[ns0:status] = "Not Available";
-    system:println(x1@[attributeName]);
+    system:println(x1@[ns0:status]);
 
     // Getting all the attributes at once, can be done. However this cannot be assigned to any variable.
     system:println(x1@);

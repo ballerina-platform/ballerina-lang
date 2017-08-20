@@ -23,14 +23,11 @@ service<http> headerBasedRouting {
         if (nameString == "location") {
         //"post" represent the POST action of HTTP connector. Route payload to relevant service.
             response = locationEP.post("/v2/594e12271100001f13d6d3a6", m);
-            //If requested resources needed some partial modifications, PATCH method will add them.
-            locationEP.patch("/v2/594e12271100001f13d6d3a6", m);
-
         } else {
-        //"execute" action can be used to invoke http call with any httpVerb by adding verb as parameter.
+        //"get" action can be used to make http GET call.
             message newMessage = {};
-            response = weatherEP.execute("GET","/data/2.5/weather?lat=35&lon=139&appid=b1b1",
-                                                    newMessage);
+            response = weatherEP.get
+              ("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newMessage);
         }
         reply response;
     }
