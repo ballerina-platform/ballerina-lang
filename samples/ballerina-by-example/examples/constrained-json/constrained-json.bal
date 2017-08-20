@@ -112,9 +112,9 @@ service<http> PeopleManagementService {
         // define empty json array
         json jsonResponse = [];
         int index = 0;
-        while (index < people.length ) {
+        while (index < lengthof people) {
             // convert each person from people array to a json and set to the array
-            jsonResponse[index], _ = <json> people[index];
+            jsonResponse[index], _ = <json>people[index];
             index = index + 1;
         }
 
