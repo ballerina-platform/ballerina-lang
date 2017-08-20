@@ -45,11 +45,11 @@ class CompleterFactory {
 
     /**
      * Get the completions and call the given callback function with the completions
-     * @param {object} cursorPosition 
-     * @param {string} content 
-     * @param {object} fileData 
-     * @param {object} langserverController 
-     * @param {function} callback 
+     * @param {object} cursorPosition
+     * @param {string} content
+     * @param {object} fileData
+     * @param {object} langserverController
+     * @param {function} callback
      */
     getCompletions(cursorPosition, content, fileData, langserverController, callback) {
         const completions = [];

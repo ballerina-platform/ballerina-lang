@@ -43,10 +43,9 @@ class TransformRender {
         this.midpointVariance = 0.01;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
-        const self = this;
 
         this.jsPlumbInstance = jsPlumb.getInstance({
-            Connector: self.getConnectorConfig(self.midpoint),
+            Connector: this.getConnectorConfig(this.midpoint),
             Container: container.attr('id'),
             PaintStyle: {
                 strokeWidth: 1,
@@ -70,63 +69,60 @@ class TransformRender {
                     width: 6,
                     length: 6,
                     foldback: 1,
-                }]
+                }],
             ],
         });
-        this.jsPlumbInstance.bind('connection',function(params,ev){
+        this.jsPlumbInstance.bind('connection', (params,ev) => {
             if (!_.isUndefined(ev)) {
-              const input = params.connection.getParameters().input;
-              const output = params.connection.getParameters().output;
-              const sourceType = input.type;
-              const targetType = output.type;
-              const connection = self.getConnectionObject(params.id, input, output);
-              if (self.isValidTypes(input.typeName, output.typeName)) {
-                  self.midpoint += self.midpointVariance;
-                  self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
-                  self.onConnection(connection);
-                  self.setConnectionMenu(params.connection)
-              }
+                const input = params.connection.getParameters().input;
+                const output = params.connection.getParameters().output;
+                const sourceType = input.type;
+                const targetType = output.type;
+                const connection = this.getConnectionObject(params.id, input, output);
+                this.midpoint += this.midpointVariance;
+                this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+                this.onConnection(connection);
+                this.setConnectionMenu(params.connection);
             }
         });
     }
 
-/**
- * Disconnects the connection created.
- *
- * @param connection
- */
+    /**
+    * Disconnects the connection created.
+    *
+    * @param connection
+    */
     disconnect(connection) {
-        const self = this;
         const propertyConnection = this.getConnectionObject(connection.getParameter('id'),
         connection.getParameter('input'), connection.getParameter('output'));
         this.midpoint = this.midpoint - this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
+        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.detach(connection);
         this.disconnectCallback(propertyConnection);
         this.unmarkConnected(connection.targetId);
         this.unmarkConnected(connection.sourceId);
         _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
-            if (con.sourceId == connection.sourceId) {
+            if (con.sourceId === connection.sourceId) {
                 this.markConnected(con.sourceId);
             }
         });
     }
 
-/**
- * Disconnects all the connection created.
- * This does not remove the associated children from the model
- */
+    /**
+    * Disconnects all the connection created.
+    * This does not remove the associated children from the model
+    */
     disconnectAll(connection) {
         this.midpoint = 0.1;
         this.jsPlumbInstance.detachEveryConnection();
     }
 
-/**
- * Created the connection object from the sourceId and targetId of the connection elements
- * @param sourceId Id of the source element of the connection
- * @param targetId Id of the target element of the connection
- * @returns connectionObject
- */
+    /**
+    * Created the connection object from the sourceId and targetId of the connection elements
+    * @param sourceId Id of the source element of the connection
+    * @param targetId Id of the target element of the connection
+    * @returns connectionObject
+    */
     getConnectionObject(id, source, target) {
         const sourceName = source.name;
         const targetName = target.name;
@@ -172,10 +168,10 @@ class TransformRender {
         };
     }
 
-/**
- * Remove a type from the mapper UI
- * @param {string} name identifier of the type
- */
+    /**
+    * Remove a type from the mapper UI
+    * @param {string} name identifier of the type
+    */
     removeType(name) {
         _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
             if (con.sourceId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
@@ -203,7 +199,7 @@ class TransformRender {
         jsPlumb.detach(elementId);
     }
 
-  addConnection(sourceId, targetId) {
+    addConnection(sourceId, targetId) {
         this.midpoint += this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.connect({
@@ -212,50 +208,52 @@ class TransformRender {
         });
         this.markConnected(sourceId);
         this.markConnected(targetId);
-        this.hideConnectContextMenu(this.container.find('#' + self.contextMenu));
-        this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source:sourceId, target:targetId})[0]);
+        this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+        this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source: sourceId, target: targetId })[0]);
     }
 
-setConnectionMenu(connection) {
-    let self = this;
-    connection.bind("mouseover", function(conn, e) {
-      if (!self.container.find('#' + self.contextMenu).is(":visible")) {
-        const contextMenuDiv = self.container.find('#' + self.contextMenu);
-        const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
-        anchorTag.html($('<i>').addClass('fw fw-delete'));
-        anchorTag.html(anchorTag.html() + ' Remove');
-        contextMenuDiv.html(anchorTag);
-        self.container.find('.leftType, .middle-content, .rightType').scroll(() => {
-            self.hideConnectContextMenu(self.container.find('#' + self.contextMenu));
-        });
-        self.container.find('#transformConRemove').click(() => {
-            self.disconnect(connection);
-            self.hideConnectContextMenu(self.container.find('#' + self.contextMenu));
-        });
-        contextMenuDiv.css({
-            top: e.pageY,
-            left: e.pageX,
-            zIndex: 1000,
-        });
-        self.showConnectContextMenu(contextMenuDiv);
-        self.container.mousemove(function(event ) {
-          const xDif = e.pageX - event.pageX;
-          const yDif = e.pageY - event.pageY;
-          if (xDif > 5 || xDif < -75 || yDif > 5 || yDif < -30) {
-            self.hideConnectContextMenu(self.container.find('#' + self.contextMenu));
-            self.container.unbind('mousemove');
-          }
-        });
+    setConnectionMenu(connection) {
+        if (!connection) {
+            return;
         }
-    });
-}
+        connection.bind('mouseover', (conn, e) => {
+            if (!this.container.find('#' + this.contextMenu).is(':visible')) {
+                const contextMenuDiv = this.container.find('#' + this.contextMenu);
+                const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
+                anchorTag.html($('<i>').addClass('fw fw-delete'));
+                anchorTag.html(anchorTag.html() + ' Remove');
+                contextMenuDiv.html(anchorTag);
+                this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
+                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                });
+                this.container.find('#transformConRemove').click(() => {
+                    this.disconnect(connection);
+                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                });
+                contextMenuDiv.css({
+                    top: e.pageY,
+                    left: e.pageX,
+                    zIndex: 1000,
+                });
+                this.showConnectContextMenu(contextMenuDiv);
+                this.container.mousemove((event) => {
+                    const xDif = e.pageX - event.pageX;
+                    const yDif = e.pageY - event.pageY;
+                    if (xDif > 5 || xDif < -75 || yDif > 5 || yDif < -30) {
+                        this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                        this.container.unbind('mousemove');
+                    }
+                });
+            }
+        });
+    }
 
-/**
- * Make source property
- *
- * @param element
- * @param self
- */
+    /**
+     * Make source property
+     * @param {any} element element
+     * @param {any} input input
+     * @memberof TransformRender
+     */
     addSource(element, input) {
         const connectionConfig = {
             anchor: ['Right'],
@@ -265,22 +263,19 @@ setConnectionMenu(connection) {
         };
         this.jsPlumbInstance.makeSource(element, connectionConfig);
     }
-/**
- * Make target property
- * @param element
- * @param self
- */
+
+    /**
+     * Make target property
+     * @param {any} element
+     * @param {any} output
+     */
     addTarget(element, output) {
-        const self = this;
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ['Left'],
             parameters: {
-                output
+                output,
             },
-            beforeDrop: (params) => {
-                return self.isValidTypes(params.connection.getParameters().input.type, output.type);
-            }
         });
     }
 
@@ -291,14 +286,14 @@ setConnectionMenu(connection) {
      * @return Boolean             is valid
      */
     isValidTypes(sourceType, targetType) {
-      let isValid;
-      if (sourceType === 'struct' || targetType === 'struct') {
-          isValid = input.typeName == output.typeName;
-      } else {
-          isValid = sourceType === targetType || sourceType === 'any' || targetType === 'any'
-            || sourceType === 'json' || targetType === 'json';
-      }
-      return isValid;
+        let isValid;
+        if (sourceType === 'struct' || targetType === 'struct') {
+            isValid = input.typeName == output.typeName;
+        } else {
+            isValid = sourceType === targetType || sourceType === 'any' || targetType === 'any'
+                || sourceType === 'json' || targetType === 'json';
+        }
+        return isValid;
     }
 
 /**

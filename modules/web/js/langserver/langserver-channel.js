@@ -31,6 +31,10 @@ class LangserverChannel extends EventChannel {
         if (_.isNil(args.endpoint)) {
             throw 'Invalid Endpoint';
         }
+        // assign provided ws close handler.
+        if (!_.isNil(args.clientController.options) && !_.isNil(args.clientController.options.wsCloseEventHandler)) {
+            this.wsCloseEventHandler = args.clientController.options.wsCloseEventHandler;
+        }
         _.assign(this, args);
 
         this.connect();
@@ -56,23 +60,13 @@ class LangserverChannel extends EventChannel {
     }
 
     onClose(event) {
-        // this.clientController.active = false;
-        // this.clientController.trigger('session-terminated');
-        let reason;
-        if (event.code === WS_NORMAL_CODE) {
-            reason = 'Normal closure';
-            this.trigger('session-ended');
-            this.debugger.active = false;
-            return;
-        } else if (event.code === WS_SSL_CODE) {
-            reason = 'Certificate Issue';
-        } else {
-            reason = `Unknown reason :${event.code}`;
-        }
-        log.debug(`Web socket closed, reason ${reason}`);
-        // After the internal server errors, websocket is being closed immediately and we re initialize the connection
-        this.connect();
         clearInterval(this.ping);
+        if (this.wsCloseEventHandler) {
+            this.wsCloseEventHandler(event);
+        } else {
+            // invoke default ws close event handler. 
+            this.defaultWsCloseEventHandler(event);
+        }
     }
 
     onError(error) {
@@ -88,6 +82,10 @@ class LangserverChannel extends EventChannel {
         this.startPing();
     }
 
+    close() {
+        this.websocket.close();
+    }
+
     /**
      * start a ping for the websocket.
      *
@@ -97,6 +95,30 @@ class LangserverChannel extends EventChannel {
         this.ping = setInterval(() => {
             this.sendMessage({ method: 'PING' });
         }, WS_PING_INTERVAL);
+    }
+
+    /**
+     * Default web socket close event handler. This will be called upon websocket onClose event, only if 
+     * there is no any other wscloseEventHandler is specified while LangserverChannel initialization.   
+     * @param {Object} event 
+     */
+    defaultWsCloseEventHandler(event) {
+        this.clientController.active = false;
+        this.clientController.trigger('session-terminated');
+        let reason;
+        if (event.code === WS_NORMAL_CODE) {
+            reason = 'Normal closure';
+            this.trigger('session-ended');
+            this.debugger.active = false;
+            return;
+        } else if (event.code === WS_SSL_CODE) {
+            reason = 'Certificate Issue';
+        } else {
+            reason = `Unknown reason :${event.code}`;
+        }
+        log.debug(`Web socket closed, reason ${reason}`);
+        // After the internal server errors, websocket is being closed immediately and we re initialize the connection
+        this.connect();
     }
 }
 

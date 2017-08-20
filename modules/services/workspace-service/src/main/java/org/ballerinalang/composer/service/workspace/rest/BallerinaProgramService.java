@@ -42,7 +42,7 @@ import javax.ws.rs.core.Response;
 @Path("/service/program")
 public class BallerinaProgramService {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkspaceService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaProgramService.class);
     private SymbolScope globalScope;
 
     public BallerinaProgramService() {

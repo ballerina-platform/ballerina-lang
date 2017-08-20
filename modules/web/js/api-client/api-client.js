@@ -207,3 +207,22 @@ export function getSwaggerDefinition(ballerinaSource, serviceName) {
             }).catch(error => reject(error));
     });
 }
+
+/**
+ * Get the type lattice
+ * @export
+ * @returns type lattice response
+ */
+export function getTypeLattice() {
+    const endpoint = getServiceEndpoint('typeLattice');
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}

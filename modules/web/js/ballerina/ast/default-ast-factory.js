@@ -466,4 +466,11 @@ DefaultASTFactory.createNamespaceDeclarationStatement = function (args) {
     return namespaceDeclarationStatement;
 };
 
+DefaultASTFactory.createIgnoreErrorVariableReference = function (args) {
+    const variableReferenceExpression = ASTFactory.createSimpleVariableReferenceExpression(args);
+    variableReferenceExpression.setExpressionFromString('_');
+    variableReferenceExpression.accept(new EnableDefaultWSVisitor());
+    return variableReferenceExpression;
+};
+
 export default DefaultASTFactory;
