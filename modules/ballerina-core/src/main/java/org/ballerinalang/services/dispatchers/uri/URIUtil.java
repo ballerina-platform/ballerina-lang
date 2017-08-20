@@ -18,7 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.uri;
 
-
 /**
  * Utilities related to URI processing.
  */
