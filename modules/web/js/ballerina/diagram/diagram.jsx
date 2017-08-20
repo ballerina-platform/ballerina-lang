@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CanvasDecorator from '../components/canvas-decorator';
 import PositionVisitor from './position-visitor';
-import DimensionCalcVisitor from './dimension-visitor';
+import DimensionVisitor from './dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
@@ -45,7 +45,7 @@ class Diagram extends React.Component {
     constructor(props) {
         super(props);
         this.sourceGen = new SourceGenVisitor();
-        this.dimentionCalc = new DimensionCalcVisitor();
+        this.dimentionVisitor = new DimensionVisitor();
         this.positionCalc = new PositionVisitor();
     }
 
@@ -71,7 +71,7 @@ class Diagram extends React.Component {
         // 1.1 First clear any offset values we have set.
         this.props.model.accept(new ClearOffset());
         // 1.2 Run the dimention calculator.
-        this.props.model.accept(this.dimentionCalc);
+        this.props.model.accept(this.dimentionVisitor);
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.getViewState();
@@ -85,7 +85,7 @@ class Diagram extends React.Component {
         // 2.1 Lets resolve arrow conflicts.
         this.props.model.accept(new ArrowConflictResolver());
         // we re run the dimention and possition calculator again there are any conflicts.
-        this.props.model.accept(this.dimentionCalc);
+        this.props.model.accept(this.dimentionVisitor);
         this.props.model.accept(this.positionCalc);
         // 3. Now we need to create component for each child of root node.
         let [others] = [undefined, [], [], []];
@@ -102,13 +102,13 @@ class Diagram extends React.Component {
                 otherNodes.push(child);
             }
         });
-        others = getComponentForNodeArray(otherNodes);
+        others = getComponentForNodeArray(otherNodes, this.props.mode);
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
         this.props.model.accept(annotationRenderer);
         let annotations = [];
         if (annotationRenderer.getAnnotations()) {
-            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations());
+            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
         }
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
@@ -127,6 +127,7 @@ class Diagram extends React.Component {
 
 Diagram.propTypes = {
     model: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    mode: PropTypes.string,
 };
 
 Diagram.contextTypes = {
@@ -137,6 +138,10 @@ Diagram.contextTypes = {
 Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+};
+
+Diagram.defaultProps = {
+    mode: 'action',
 };
 
 export default Diagram;

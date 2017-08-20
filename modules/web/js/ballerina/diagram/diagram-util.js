@@ -1,30 +1,43 @@
 import log from 'log';
 import React from 'react';
 
+const components = {};
+const diagramVisitors = {};
+
 // require all react components
 function requireAll(requireContext) {
-    const components = {};
-    requireContext.keys().map((item, index) => {
+    const comp = {};
+    requireContext.keys().map((item) => {
         const module = requireContext(item);
         if (module.default) {
-            components[module.default.name] = module.default;
+            comp[module.default.name] = module.default;
         }
     });
-    return components;
+    return comp;
 }
 
-function getComponentForNodeArray(nodeArray) {
-    const components = requireAll(require.context('../components/', true, /\.jsx$/));
+function getComponentForNodeArray(nodeArray, mode = 'default') {
+    // lets load the view components diffrent modes.
+    components.default = requireAll(require.context('./views/default/components/', true, /\.jsx$/));
+    components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
+
     return nodeArray.filter((child) => {
         const compName = child.constructor.name;
-        if (components[compName]) {
+        if (components['default'][compName]) {
             return true;
         }
         log.debug(`Unknown element type :${child.constructor.name}`);
         return false;
     }).map((child) => {
         const compName = child.constructor.name;
-        if (components[compName]) {
+        if (components[mode][compName]) {
+            return React.createElement(components[compName], {
+                model: child,
+                // set the key to prevent warning
+                // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
+                key: child.getID(),
+            }, null);
+        } else if (components.default[compName]) {
             return React.createElement(components[compName], {
                 model: child,
                 // set the key to prevent warning
@@ -33,6 +46,18 @@ function getComponentForNodeArray(nodeArray) {
             }, null);
         }
     });
+}
+
+function getDimentionVisitor(name, mode = 'default') {
+    // lets load the view components diffrent modes.
+    diagramVisitors.default = requireAll(require.context('./views/default/dimention-visitors/', true, /\.js$/));
+    diagramVisitors.action = requireAll(require.context('./views/action/position-visitors/', true, /\.js$/));
+
+    if (components[mode][name]) {
+        return components[mode][name];
+    } else if (components.default[name]) {
+        return components.default[name];
+    }
 }
 
 export {
