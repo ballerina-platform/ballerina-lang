@@ -93,6 +93,10 @@ class TypeCastExpression extends Expression {
                 + this.getWSRegion(2) + this.children[0].getExpressionString();
         return expString;
     }
+
+    getRightExpression() {
+        return this.children[0];
+    }
 }
 
 export default TypeCastExpression;
