@@ -118,16 +118,16 @@ public class DispatcherUtil {
         return basePath;
     }
 
-    public static String concatValues(List<String> values) {
-        StringBuilder sb = new StringBuilder();
+    public static String concatValues(List<String> stringValues) {
+        StringBuilder builder = new StringBuilder();
 
-        for (int x = 0; x < values.size(); ++x) {
-            sb.append(values.get(x));
-            if (x != values.size() - 1) {
-                sb.append(", ");
+        for (int x = 0; x < stringValues.size(); ++x) {
+            builder.append(stringValues.get(x));
+            if (x != stringValues.size() - 1) {
+                builder.append(", ");
             }
         }
-        return sb.toString();
+        return builder.toString();
     }
 
     public static List<String> validateAllowMethods(List<String> cachedMethods) {
