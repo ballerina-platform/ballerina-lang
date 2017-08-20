@@ -25,7 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
+import java.io.PrintStream;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 public class BLogManager extends LogManager {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
+    public static final PrintStream STD_OUT = System.out;
 
     // Trace log related constants
     public static final String HTTP_TRACE_LOG = "http-trace-log";
@@ -70,22 +71,32 @@ public class BLogManager extends LogManager {
         if ("console".equals(traceLogDestination)) {
             handler = new ConsoleHandler();
             handler.setFormatter(new HTTPTraceLogFormatter());
-        } else {
-            File file;
-
-            if ("default".equals(traceLogDestination)) {
-                file = new File(
-                        System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
-            } else {
-                file = Paths.get(traceLogDestination).toFile();
-            }
-
-            if (!file.exists()) {
-                createFile(file);
-            }
-
+        } else if ("default".equals(traceLogDestination)) {
+            File file = new File(
+                    System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
             handler = new HTTPTraceLogHandler(file.getAbsolutePath());
+        } else {
+            STD_OUT.println("Invalid trace log parameter. Defaulting to console");
+            handler = new ConsoleHandler();
+            handler.setFormatter(new HTTPTraceLogFormatter());
         }
+
+//        else {
+//            File file;
+//
+//            if ("default".equals(traceLogDestination)) {
+//                file = new File(
+//                        System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
+//            } else {
+//                file = Paths.get(traceLogDestination).toFile();
+//            }
+//
+//            if (!file.exists()) {
+//                createFile(file);
+//            }
+//
+//            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
+//        }
 
         handler.setLevel(Level.FINE);
 
@@ -99,22 +110,22 @@ public class BLogManager extends LogManager {
         httpTraceLogger.setLevel(Level.FINE);
     }
 
-    private static void createFile(File file) throws IOException {
-        if (!file.getParentFile().exists()) {
-            if (file.getParentFile().mkdirs()) {
-                if (!file.createNewFile()) {
-                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
-                }
-            } else {
-                throw new IOException(
-                        "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
-            }
-        } else {
-            if (!file.createNewFile()) {
-                throw new IOException("error in creating the file: " + file.getAbsolutePath());
-            }
-        }
-    }
+//    private static void createFile(File file) throws IOException {
+//        if (!file.getParentFile().exists()) {
+//            if (file.getParentFile().mkdirs()) {
+//                if (!file.createNewFile()) {
+//                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
+//                }
+//            } else {
+//                throw new IOException(
+//                        "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
+//            }
+//        } else {
+//            if (!file.createNewFile()) {
+//                throw new IOException("error in creating the file: " + file.getAbsolutePath());
+//            }
+//        }
+//    }
 
     private static void removeHandlers(Logger logger) {
         Handler[] handlers = logger.getHandlers();
