@@ -1,6 +1,6 @@
 .menu-item-common {
     @extend .unseletable-content;
-    color: #e2e2e2;
+    color: #c7c7c7;
     cursor: default;
 }
 
@@ -9,7 +9,9 @@
         @extend .menu-item-common;
         padding: 7px 7px 7px 7px;
     }
+    border-bottom: none;
     &.rc-menu-submenu-active {
+        border-bottom: none;
         > .rc-menu-submenu-title {
             @extend .menu-active-common;
         }
