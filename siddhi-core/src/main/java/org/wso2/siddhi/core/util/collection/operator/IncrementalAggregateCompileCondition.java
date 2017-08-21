@@ -98,9 +98,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         // check whether at least one of those events is within the given time range. If it's not the case,
         // there's no need to iterate through in-memory data.
         BaseIncrementalValueStore newestInMemoryEvent = getNewestInMemoryEvent(incrementalExecutorMap,
-                incrementalDurations);
+                incrementalDurations, perValue);
         BaseIncrementalValueStore oldestInMemoryEvent = getOldestInMemoryEvent(incrementalExecutorMap,
-                incrementalDurations);
+                incrementalDurations, perValue);
 
         if (requiresAggregatingInMemoryData(newestInMemoryEvent, oldestInMemoryEvent, matchingEvent)) {
             IncrementalDataAggregator incrementalDataAggregator = new IncrementalDataAggregator(incrementalDurations,
@@ -171,12 +171,15 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
     private BaseIncrementalValueStore getNewestInMemoryEvent(
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-            List<TimePeriod.Duration> incrementalDurations) {
+            List<TimePeriod.Duration> incrementalDurations, TimePeriod.Duration perValue) {
         BaseIncrementalValueStore newestEvent;
         for (TimePeriod.Duration incrementalDuration : incrementalDurations) {
             newestEvent = incrementalExecutorMap.get(incrementalDuration).getNewestEvent();
             if (newestEvent != null) {
                 return newestEvent;
+            }
+            if (incrementalDuration == perValue) {
+                break;
             }
         }
         return null;
@@ -184,10 +187,10 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
     private BaseIncrementalValueStore getOldestInMemoryEvent(
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-            List<TimePeriod.Duration> incrementalDurations) {
+            List<TimePeriod.Duration> incrementalDurations, TimePeriod.Duration perValue) {
         BaseIncrementalValueStore oldestEvent;
         TimePeriod.Duration incrementalDuration;
-        for (int i = incrementalDurations.size() - 1; i >= 0; i--) {
+        for (int i = perValue.ordinal(); i >= 0; i--) {
             incrementalDuration = TimePeriod.Duration.values()[i];
             oldestEvent = incrementalExecutorMap.get(incrementalDuration).getOldestEvent();
             if (oldestEvent != null) {

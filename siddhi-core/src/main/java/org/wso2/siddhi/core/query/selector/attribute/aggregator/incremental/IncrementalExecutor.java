@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -42,6 +43,8 @@ import java.util.Map;
  * Incremental executor class which is responsible for performing incremental aggregation
  */
 public class IncrementalExecutor implements Executor {
+    private static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
+
     private final StreamEvent resetEvent;
     private final ExpressionExecutor timestampExpressionExecutor;
     private final ExpressionExecutor timeZoneExpressionExecutor;
@@ -111,6 +114,7 @@ public class IncrementalExecutor implements Executor {
 
     @Override
     public void execute(ComplexEventChunk streamEventChunk) {
+        LOG.debug("Event Chunk received by " + this.duration + " incremental executor: " + streamEventChunk.toString());
         streamEventChunk.reset();
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = (StreamEvent) streamEventChunk.next();
@@ -168,7 +172,7 @@ public class IncrementalExecutor implements Executor {
         if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
             timeZone = timeZoneExpressionExecutor.execute(streamEvent).toString();
         } else {
-            // TIMER event has arrived. // TODO: 8/16/17 can this cause problems?
+            // TIMER event has arrived.
             timeZone = ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getId();
         }
         return timeZone;
@@ -262,6 +266,7 @@ public class IncrementalExecutor implements Executor {
             StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             eventChunk.add(streamEvent);
+            LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             table.addEvents(eventChunk);
             next.execute(eventChunk);
         }
@@ -275,6 +280,7 @@ public class IncrementalExecutor implements Executor {
                 StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
                 eventChunk.add(streamEvent);
             }
+            LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             table.addEvents(eventChunk);
             next.execute(eventChunk);
         }
@@ -308,7 +314,7 @@ public class IncrementalExecutor implements Executor {
     }
 
     public BaseIncrementalValueStore getOldestEvent() {
-        if (isGroupBy) { // TODO: 8/15/17 check if this can cause problems
+        if (isGroupBy) {
             if (baseIncrementalValueGroupByStoreList != null) {
                 int oldestEventIndex = currentBufferIndex + 1;
                 if (oldestEventIndex > bufferSize) {
