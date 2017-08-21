@@ -44,6 +44,7 @@ This is how resources and services can equate to the URL that you are calling.
     ![alt text](../images/ServiceName.png)
 1. You can also rename the resourse to something appropriate.
     ![alt text](../images/ResourceName.png)
+    
     You can start adding your integration logic.
 
 ### Add integration logic to your service
@@ -59,5 +60,5 @@ Now that you have added a service, you must set up this service so that it can b
     ![alt text](../images/ConfigIdentifier.png)
 1. Click the `+` sign and select `basePath` from the dropdown to select the basepath.
     ![alt text](../images/BasepathConfig.png)
-1. Enter the basepath as `/books` to set `http://localhost:9090/books` as the service.
+1. Enter the base path as `/books` to define `http://localhost:9090/books` as the service.
     ![alt text](../images/BasePathBooksService.png)
