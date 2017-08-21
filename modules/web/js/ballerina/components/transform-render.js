@@ -72,13 +72,13 @@ class TransformRender {
                 }],
             ],
         });
-        this.jsPlumbInstance.bind('connection', (params,ev) => {
+        this.jsPlumbInstance.bind('connection', (params, ev) => {
             if (!_.isUndefined(ev)) {
                 const input = params.connection.getParameters().input;
                 const output = params.connection.getParameters().output;
                 const sourceType = input.type;
                 const targetType = output.type;
-                const connection = this.getConnectionObject(params.id, input, output);
+                const connection = this.getConnectionObject(input, output);
                 this.midpoint += this.midpointVariance;
                 this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
                 this.onConnection(connection);
@@ -93,8 +93,8 @@ class TransformRender {
     * @param connection
     */
     disconnect(connection) {
-        const propertyConnection = this.getConnectionObject(connection.getParameter('id'),
-        connection.getParameter('input'), connection.getParameter('output'));
+        const propertyConnection = this.getConnectionObject(
+            connection.getParameter('input'), connection.getParameter('output'));
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.detach(connection);
@@ -123,48 +123,18 @@ class TransformRender {
     * @param targetId Id of the target element of the connection
     * @returns connectionObject
     */
-    getConnectionObject(id, source, target) {
-        const sourceName = source.name;
-        const targetName = target.name;
-
-        let sourceReference;
-        let rootSourceStructName;
-        if (source.parentFunc || source.enclosingAssignmentStatement) {
-            sourceReference = source.parentFunc || source.enclosingAssignmentStatement;
-        }
-        if (source.root) {
-            sourceReference = source.root.enclosingAssignmentStatement;
-            rootSourceStructName = source.root.name;
+    getConnectionObject(source, target) {
+        if(source.isField) {
+            source.endpointKind = source.root.endpointKind;
         }
 
-        let targetReference;
-        let rootTargetStructName;
-        if (target.parentFunc || target.enclosingAssignmentStatement) {
-            targetReference = target.parentFunc || target.enclosingAssignmentStatement;
-        }
-        if (target.root) {
-            targetReference = target.root.enclosingAssignmentStatement;
-            rootTargetStructName = target.root.name;
+        if(target.isField) {
+            target.endpointKind = target.root.endpointKind;
         }
 
         return {
-            id,
-            sourceStruct: rootSourceStructName || source.structName || sourceName,
-            sourceProperty: source.fieldName,
-            sourceIndex: source.index,
-            sourceType: source.type,
-            sourceFuncInv: source.funcInv,
-            sourceReference,
-            isSourceFunction: source.endpointKind.startsWith('function-'),
-            targetStruct: rootTargetStructName || target.structName || targetName,
-            targetProperty: target.fieldName,
-            targetIndex: target.index,
-            targetType: target.type,
-            targetFuncInv: target.funcInv,
-            targetReference,
-            isTargetFunction: target.endpointKind.startsWith('function-'),
-            isComplexMapping: false,
-            complexMapperName: null,
+            source,
+            target,
         };
     }
 
@@ -194,9 +164,7 @@ class TransformRender {
     }
 
     remove(elementId) {
-        jsPlumb.detachAllConnections(elementId);
-        jsPlumb.removeAllEndpoints(elementId);
-        jsPlumb.detach(elementId);
+        this.jsPlumbInstance.remove(elementId);
     }
 
     addConnection(sourceId, targetId) {

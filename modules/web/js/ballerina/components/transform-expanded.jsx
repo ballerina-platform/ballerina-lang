@@ -56,6 +56,7 @@ class TransformExpanded extends React.Component {
             typedTarget: '',
             selectedSource: '-1',
             selectedTarget: '-1',
+            foldedEndpoints: {},
         };
         this.sourceElements = {};
         this.targetElements = {};
@@ -78,19 +79,26 @@ class TransformExpanded extends React.Component {
         this.recordTargetElement = this.recordTargetElement.bind(this);
         this.removeSourceType = this.removeSourceType.bind(this);
         this.removeTargetType = this.removeTargetType.bind(this);
+        this.foldEndpoint = this.foldEndpoint.bind(this);
+        this.removeEndpoint = this.removeEndpoint.bind(this);
+    }
+
+    foldEndpoint(key) {
+        this.setState({foldedEndpoints: _.extend(
+            this.state.foldedEndpoints, {[key]: !this.state.foldedEndpoints[key]})}
+        )
+    }
+
+    removeEndpoint(key) {
+        this.mapper.remove(key);
     }
 
     onConnectionCallback(connection) {
-        const source = _.find(this.state.vertices, { name: connection.sourceStruct });
-        const target = _.find(this.state.vertices, { name: connection.targetStruct });
-        this.transformNodeManager.createStatementEdge(source, target, connection);
+        this.transformNodeManager.createStatementEdge(connection);
     }
 
     onDisconnectionCallback(connection) {
-        // on removing a connection
-        const source = _.find(this.state.vertices, { name: connection.sourceStruct });
-        const target = _.find(this.state.vertices, { name: connection.targetStruct });
-        this.transformNodeManager.removeStatementEdge(source, target, connection);
+        this.transformNodeManager.removeStatementEdge(connection);
     }
 
     recordSourceElement(element, id, input) {
@@ -122,73 +130,25 @@ class TransformExpanded extends React.Component {
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
-                const sourceId = `${rightExpression.getExpressionString().trim()}:${viewId}`;
+                let sourceId = `${rightExpression.getExpressionString().trim()}:${viewId}`;
+                if(!this.sourceElements[sourceId] || !this.sourceElements[sourceId].element){
+                    return;
+                }
+
                 const targetId = `${leftExpr.getExpressionString().trim()}:${viewId}`;
-                this.mapper.addConnection(sourceId, targetId);
+                this.drawConnection(sourceId, targetId);
             });
         }
 
         if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
-        this.mapper.reposition(this.props.model.getID());
-    }
-
-    drawFunctionDefinitionNodes(functionInvocationExpression, statement) {
-        const func = this.transformNodeManager.getFunctionDefinition(functionInvocationExpression);
-        if (_.isUndefined(func)) {
-            alerts.error(
-                'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
-            return;
-        }
-
-        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        } else {
-            _.forEach(functionInvocationExpression.getChildren(), (expression) => {
-                if (ASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionDefinitionNodes(functionInvocationExpression, expression, statement);
-                }
-            });
-        }
-
-        // Removing this node means removing the assignment statement from the transform statement,
-        // since this is the top most invocation.
-        // Hence passing the assignment statement as remove reference.
-        // this.mapper.addFunction(func, functionInvocationExpression,
-        //     statement.getParent().removeChild.bind(statement.getParent()), statement);
-    }
-
-    drawInnerFunctionDefinitionNodes(parentFunctionInvocationExpression, functionInvocationExpression, statement) {
-        const func = this.transformNodeManager.getFunctionDefinition(functionInvocationExpression);
-        if (_.isUndefined(func)) {
-            alerts.error(
-                    'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
-            return;
-        }
-
-        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        } else {
-            _.forEach(functionInvocationExpression.getChildren(), (expression) => {
-                if (ASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionDefinitionNodes(functionInvocationExpression, expression, statement);
-                }
-            });
-        }
-
-        // Removing this node means removing the function invocation from the parent function invocation.
-        // Hence passing the current function invocation as remove reference.
-        this.mapper.addFunction(
-            func, functionInvocationExpression,
-            parentFunctionInvocationExpression.removeChild.bind(parentFunctionInvocationExpression),
-            functionInvocationExpression);
     }
 
     drawInnerFunctionInvocationExpression(parentFunctionInvocationExpression, functionInvocationExpression,
                                           parentFunctionDefinition, parentParameterIndex, statement) {
         const viewId = this.props.model.getID();
-        const func = this.transformNodeManager.getFunctionDefinition(functionInvocationExpression);
+        const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error(
                 'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
@@ -199,8 +159,8 @@ class TransformExpanded extends React.Component {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
-        const params = func.getParameters();
-        const returnParams = func.getReturnParams();
+        const params = func.parameters;
+        const returnParams = func.returnParams;
         const functionInvID = functionInvocationExpression.getID();
         const funcName = functionInvocationExpression.getFunctionName();
 
@@ -211,7 +171,7 @@ class TransformExpanded extends React.Component {
             } else {
                 const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                 const targetId = `${functionInvID}:${funcName}:${params[i].name}:${viewId}`;
-                this.mapper.addConnection(sourceId, targetId);
+                this.drawConnection(sourceId, targetId);
             }
         });
 
@@ -227,24 +187,24 @@ class TransformExpanded extends React.Component {
 
         const targetId = `${parentFuncInvID}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
 
-        this.mapper.addConnection(sourceId, targetId);
+        this.drawConnection(sourceId, targetId);
         this.mapper.reposition(this.props.model.getID());
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
-        const func = this.transformNodeManager.getFunctionDefinition(functionInvocationExpression);
+        const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
         const viewId = this.props.model.getID();
         if (_.isUndefined(func)) {
             alerts.error(
                 'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
-        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
+        if (func.parameters.length !== functionInvocationExpression.getChildren().length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
-        const params = func.getParameters();
-        const returnParams = func.getReturnParams();
+        const params = func.parameters;
+        const returnParams = func.returnParams;
         const funcInvID = functionInvocationExpression.getID();
         const funcName = functionInvocationExpression.getFunctionName();
 
@@ -269,20 +229,24 @@ class TransformExpanded extends React.Component {
                     });
                 } else {
                     const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                    const targetId = `${funcInvID}:${funcName}:${params[i].name}:${viewId}`;
-                    this.mapper.addConnection(sourceId, targetId);
+                    const targetId = `${funcInvID}:${i}:${viewId}`;
+                    this.drawConnection(sourceId, targetId);
                 }
             }
         });
 
-        if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
+        if (func.returnParams.length !== argumentExpressions.getChildren().length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
+            if(!returnParams[i]){
+                return;
+            }
+
             const sourceId = `${funcInvID}:${funcName}:${returnParams[i].name || i}:${viewId}`;
             const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
-            this.mapper.addConnection(sourceId, targetId);
+            this.drawConnection(sourceId, targetId);
         });
         this.mapper.reposition(this.props.model.getID());
     }
@@ -325,38 +289,13 @@ class TransformExpanded extends React.Component {
         return con;
     }
 
-    drawConnection(id, source, target) {
-        let sourceProp;
-        let targetProp;
-        let sourceParent = source.sourceStruct;
-        let targetParent = target.targetStruct;
+    drawConnection(sourceId, targetId) {
+        // if source or target is not mounted then this draw request is ignored
+        if(!this.sourceElements[sourceId] || !this.targetElements[targetId]){
+            return;
+        }
 
-        if (source.sourceProperty.length > 1) {
-            sourceParent = source.sourceProperty[source.sourceProperty.length - 2];
-        }
-        if (target.targetProperty.length > 1) {
-            targetParent = target.targetProperty[target.targetProperty.length - 2];
-        }
-        _.forEach(this.state.vertices, (struct) => {
-            if (struct.name === sourceParent) {
-                sourceProp = _.find(struct.properties, (field) => {
-                    return field.name === source.sourceProperty[source.sourceProperty.length - 1];
-                });
-                if (_.isUndefined(sourceProp)) {
-                    sourceProp = struct;
-                }
-            } else if (struct.name === targetParent) {
-                targetProp = _.find(struct.properties, (field) => {
-                    return field.name === target.targetProperty[target.targetProperty.length - 1];
-                });
-                if (_.isUndefined(targetProp)) {
-                    targetProp = struct;
-                }
-            }
-        });
-        const con = { id, input: sourceProp, output: targetProp };
-        _.merge(con, source, target);
-        this.mapper.addConnection(con);
+        this.mapper.addConnection(sourceId, targetId);
     }
 
     createComplexProp(structName, expression) {
@@ -388,15 +327,14 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        this.transformNodeManager.setTransformStmt(this.props.model);
         const sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
             const { element, input } = this.sourceElements[key];
             if (element) {
-                input.id = key;
                 this.mapper.addSource(element, input);
             } else {
-                // this source connect point is unmounted
-                this.mapper.remove(key);
+                delete this.sourceElements[key];
             }
         });
 
@@ -404,11 +342,9 @@ class TransformExpanded extends React.Component {
         targetKeys.forEach((key) => {
             const { element, output } = this.targetElements[key];
             if (element) {
-                output.id = key;
                 this.mapper.addTarget(element, output);
             } else {
-                // this target connect point is unmounted
-                this.mapper.remove(key);
+                delete this.targetElements[key];
             }
         });
 
@@ -622,18 +558,19 @@ class TransformExpanded extends React.Component {
                     });
                 });
                 _.forEach(transformVars, (arg) => {
-                    let isStruct = false;
                     const structDef = this.transformNodeManager.getStructDefinition(arg.pkgName, arg.type);
-                    if (structDef !== undefined) {
+
+                    if (structDef) {
                         arg.type = ((arg.pkgName) ? (arg.pkgName + ':') : '') + arg.type;
-                        const structVar = this.transformNodeManager.getStructType(arg.name, arg.type, structDef);
+                        const structVar = this.transformNodeManager.getStructType(
+                            arg.name, arg.type, structDef);
                         vertices.push(structVar);
-                        isStruct = true;
                     }
-                    if (!isStruct) {
+
+                    if (!structDef) {
                         const variableType = {};
-                        variableType.id = arg.id;
                         variableType.name = arg.name;
+
                         if (arg.constraint !== undefined) {
                             variableType.type = arg.type + '<'
                                         + ((arg.constraint.packageName) ? arg.constraint.packageName + ':' : '')
@@ -642,7 +579,8 @@ class TransformExpanded extends React.Component {
                             const constraintDef = this.transformNodeManager.getStructDefinition(
                                 arg.constraint.packageName, arg.constraint.type);
                             if (constraintDef !== undefined) {
-                                const constraintVar = this.transformNodeManager.getStructType(arg.name, variableType.type, constraintDef);
+                                const constraintVar = this.transformNodeManager.getStructType(
+                                    arg.name, variableType.type, constraintDef, 'vertex');
                                 // For constraint types, the field types must be the same type as the variable and
                                 // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
                                 // type has to be json and not string. Hence converting all field types to variable
@@ -752,7 +690,7 @@ class TransformExpanded extends React.Component {
     }
 
     findFunctionInvocations(functionInvocationExpression, functions = [], parentFunc) {
-        const func = this.transformNodeManager.getFunctionDefinition(functionInvocationExpression);
+        const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error('Function definition for "' +
                 functionInvocationExpression.getFunctionName() + '" cannot be found');
@@ -783,6 +721,7 @@ class TransformExpanded extends React.Component {
                     // alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
                 }
+                sourceSelection.endpointKind = 'input';
                 _.remove(vertices, (vertex) => { return vertex.name === sourceSelection.name; });
                 inputs.push(sourceSelection);
             });
@@ -794,6 +733,7 @@ class TransformExpanded extends React.Component {
                     // alerts.error('Mapping target "' + name + '" cannot be found');
                     return;
                 }
+                targetSelection.endpointKind = 'output';
                 _.remove(vertices, (vertex) => { return vertex.name === targetSelection.name; });
                 outputs.push(targetSelection);
             });
@@ -846,6 +786,9 @@ class TransformExpanded extends React.Component {
                             type='source'
                             makeConnectPoint={this.recordSourceElement}
                             removeTypeCallbackFunc={this.removeSourceType}
+                            onEndpointRemove={this.removeEndpoint}
+                            foldEndpoint={this.foldEndpoint}
+                            foldedEndpoints={this.state.foldedEndpoints}
                         />
                     </div>
                 </div>
@@ -861,6 +804,7 @@ class TransformExpanded extends React.Component {
                                 recordSourceElement={this.recordSourceElement}
                                 recordTargetElement={this.recordTargetElement}
                                 viewId={this.props.model.getID()}
+                                onEndpointRemove={this.removeEndpoint}
                             />
                         ))
                     }
@@ -883,6 +827,9 @@ class TransformExpanded extends React.Component {
                             type='target'
                             makeConnectPoint={this.recordTargetElement}
                             removeTypeCallbackFunc={this.removeTargetType}
+                            foldEndpoint={this.foldEndpoint}
+                            foldedEndpoints={this.state.foldedEndpoints}
+                            onEndpointRemove={this.removeEndpoint}
                         />
                     </div>
                 </div>
