@@ -48,7 +48,8 @@ class AnnotationAttachment extends React.Component {
                 isPackageNameInEdit: true,
                 hasError: true,
             };
-        } else if (props.model.getFullPackageName() !== '.' && (props.model.getPackageName() === undefined || props.model.getPackageName() === '')) {
+        } else if (props.model.getFullPackageName() !== '.' && (props.model.getPackageName() === undefined ||
+                                                                                props.model.getPackageName() === '')) {
             this.state = {
                 isPackageNameInEdit: true,
                 hasError: true,
@@ -156,6 +157,10 @@ class AnnotationAttachment extends React.Component {
         this.setState({ isPackageNameInEdit: false });
     }
 
+    /**
+     * Event for collpasing the view.
+     * @memberof AnnotationAttachment
+     */
     toggleCollapse() {
         this.props.model.getViewState().collapsed = !this.props.model.getViewState().collapsed;
         this.context.editor.update();
@@ -239,6 +244,12 @@ class AnnotationAttachment extends React.Component {
         return <PopoutButton buttons={buttons} />;
     }
 
+    /**
+     * Renders the add annotation button.
+     *
+     * @returns {PopoutButton} The add button view.
+     * @memberof AnnotationAttachment
+     */
     renderAddButton() {
         const buttons = [];
         const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
@@ -329,6 +340,9 @@ class AnnotationAttachment extends React.Component {
                 {packageName}{name}
                 {addOperationButton}
                 {deleteOperationButton}
+                <span className='annotation-attachment-badge hide'>
+                    <i className="fw fw-annotation-badge" />
+                </span>
             </li>
             {attributes}
         </ul>);

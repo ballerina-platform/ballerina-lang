@@ -131,6 +131,12 @@ class AnnotationAttribute extends React.Component {
         this.props.model.getViewState().isInEdit = true;
     }
 
+    /**
+     * Event when a key is pressed on a b value edit.
+     *
+     * @param {Object} event The event.
+     * @memberof AnnotationAttribute
+     */
     onBValueKeyPress(event) {
         if (event.keyCode === 13 || event.which === 13) {
             this.setState({
@@ -144,6 +150,10 @@ class AnnotationAttribute extends React.Component {
         }
     }
 
+    /**
+     * Event when the collapse icon is clicked.
+     * @memberof AnnotationAttribute
+     */
     toggleCollapse() {
         this.props.model.getViewState().collapsed = !this.props.model.getViewState().collapsed;
         this.context.editor.update();
@@ -369,6 +379,9 @@ class AnnotationAttribute extends React.Component {
                         :{name}
                         <PopoutButton buttons={addPopButton} />
                         <PopoutButton buttons={deletePopButton} />
+                        <span className='annotation-attachment-badge hide'>
+                            <i className="fw fw-annotation-badge" />
+                        </span>
                     </li>
                     {attributes}
                 </ul>
@@ -419,6 +432,9 @@ class AnnotationAttribute extends React.Component {
                         {key}
                         <PopoutButton buttons={addPopButton} />
                         <PopoutButton buttons={deletePopButton} />
+                        <span className='annotation-attribute-array-badge hide'>
+                            <i className="fw fw-annotation-attribute-array-badge" />
+                        </span>
                     </li>
                     {arrayValues}
                 </ul>
