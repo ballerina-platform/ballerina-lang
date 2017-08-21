@@ -98,22 +98,33 @@ public class BallerinaUtil {
     public static String suggestPackageNameForDirectory(@Nullable PsiDirectory directory) {
         // If the directory is not null, get the package name
         if (directory != null) {
-            VirtualFile virtualFile = directory.getVirtualFile();
+            VirtualFile currentDirectory = directory.getVirtualFile();
+            Module module = ModuleUtilCore.findModuleForPsiElement(directory);
+            // Check directories in module content roots.
+            if (module != null) {
+                VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
+                for (VirtualFile contentRoot : contentRoots) {
+                    if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
+                        continue;
+                    }
+                    return getImportPath(currentDirectory, contentRoot);
+                }
+            }
+
             Project project = directory.getProject();
-            // Check directories in content roots.
+            // Check directories in project content roots.
             VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
             for (VirtualFile contentRoot : contentRoots) {
                 if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
                     continue;
                 }
-                return getImportPath(virtualFile, contentRoot);
+                return getImportPath(currentDirectory, contentRoot);
             }
 
-            // First we check the sources of module sdk.
-            Module module = ModuleUtilCore.findModuleForPsiElement(directory);
+            // Then we check the sources of module sdk.
             if (module != null) {
                 Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
-                String root = getImportPath(directory, virtualFile, moduleSdk);
+                String root = getImportPath(directory, currentDirectory, moduleSdk);
                 if (root != null) {
                     return root;
                 }
@@ -121,7 +132,7 @@ public class BallerinaUtil {
 
             // Then we check the sources of project sdk.
             Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-            String root = getImportPath(directory, virtualFile, projectSdk);
+            String root = getImportPath(directory, currentDirectory, projectSdk);
             if (root != null) {
                 return root;
             }
