@@ -444,15 +444,23 @@ public class ServerInstance implements Server {
             tmp.destroy();
         } else {
 
-            //reading the process id from netstat
+            //reading the process id from ss
             Process tmp;
             try {
-                String[] cmd = { "bash", "-c", "ss -ltnpH \'sport = :" + httpServerPort + "\' | awk \'{print $6}\'" };
+                String[] cmd = { "bash", "-c",
+                        "ss -ltnp \'sport = :" + httpServerPort + "\' | grep LISTEN | awk \'{print $6}\'" };
                 tmp = Runtime.getRuntime().exec(cmd);
                 String outPut = readProcessInputStream(tmp.getInputStream());
                 log.info("Output of the PID extraction command : " + outPut);
-                // The output of cmd command execution  is "users:(("java",pid=24522,fd=161))"
-                pid = outPut.split("pid=")[1].split(",")[0];
+                /* The output of ss command is "users:(("java",pid=24522,fd=161))" in latest ss versions
+                 But in older versions the output is users:(("java",23165,116))
+                 TODO : Improve this OS dependent logic */
+                if (outPut.contains("pid=")) {
+                    pid = outPut.split("pid=")[1].split(",")[0];
+                } else {
+                    pid = outPut.split(",")[1];
+                }
+
             } catch (Exception e) {
                 throw new BallerinaTestException("Error retrieving the PID : ", e);
             }
