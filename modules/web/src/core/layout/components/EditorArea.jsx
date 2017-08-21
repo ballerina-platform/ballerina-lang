@@ -20,7 +20,7 @@ class EditorArea extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            openedFiles: ['test.bal', 'test2.bal'],
+            openedFiles: _.times(20, i => `test${i}.bal`),
         };
     }
 
@@ -69,9 +69,7 @@ class EditorArea extends React.Component {
                     onChange={() => {}}
                     renderTabBar={() =>
                         (
-                            <ScrollableInkTabBar
-                                style={{ maxWidth: this.container ? this.container.clientWidth : '900px' }}
-                            />
+                            <ScrollableInkTabBar     />
                         )
                     }
                     renderTabContent={() =>
