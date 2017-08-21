@@ -18,12 +18,16 @@
 
 package org.ballerinalang.services.dispatchers.ws;
 
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -59,26 +63,18 @@ public class WebSocketServicesRegistry {
             registerClientService(service);
         } else {
             String upgradePath = findFullWebSocketUpgradePath(service);
-            String listenerInterface = getListenerInterface(service);
             if (upgradePath != null) {
-                if (serviceEndpoints.containsKey(listenerInterface)) {
-                    serviceEndpoints.get(listenerInterface).put(upgradePath, service);
-                } else {
+                // TODO: Add properties to propMap after adding config annotation to WebSocket.
+                Set<ListenerConfiguration> listenerConfigurationSet =
+                        BallerinaConnectorManager.getInstance().getDefaultListenerConfiugrationSet();
 
-                    // TODO: Add properties to propMap after adding config annotation to WebSocket.
-//                    Map<String, String> propMap = new HashMap<>();
-
-                    // Since WebSocket runs in the HTTP connector. Adding http connector.
-//                    BallerinaConnectorManager.getInstance().createHTTPServerConnector(listenerInterface, propMap);
-
-//                    // Delay the startup until all services are deployed
-//                    BallerinaConnectorManager.getInstance().
-//                            addStartupDelayedHTTPServerConnector(listenerInterface, connector);
-
-                    // Register service
-                    Map<String, ServiceInfo> servicesOnInterface = new ConcurrentHashMap<>();
+                for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+                    String entryListenerInterface = listenerConfiguration.getHost() + ":" +
+                            listenerConfiguration.getPort();
+                    Map<String, ServiceInfo> servicesOnInterface = serviceEndpoints
+                            .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
                     servicesOnInterface.put(upgradePath, service);
-                    serviceEndpoints.put(listenerInterface, servicesOnInterface);
+                    BallerinaConnectorManager.getInstance().createHttpServerConnector(listenerConfiguration);
                 }
             }
         }
