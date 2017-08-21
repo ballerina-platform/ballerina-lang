@@ -122,7 +122,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HttpHeaders headers = httpRequest.headers();
             if (isConnectionUpgrade(headers) &&
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
-                log.info("Upgrading the connection from Http to WebSocket for " +
+                log.debug("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
                 handleWebSocketHandshake(httpRequest);
 
@@ -231,13 +231,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (serverConnectorFuture != null) {
                 try {
                     ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
-                    serverConnectorFuture.setHTTPConnectorListener(new HttpResponseListener(this.ctx, httpRequestMsg));
-                    this.serverConnectorFuture.notifyHTTPListener(httpRequestMsg);
+                    serverConnectorFuture.setHttpConnectorListener(new HttpResponseListener(this.ctx, httpRequestMsg));
+                    this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {
-                    log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
+                    log.error("Error while notifying listeners", e);
                 }
             } else {
-                log.error("Cannot find registered MessageProcessor for forward the message");
+                log.error("Cannot find registered listener to forward the message");
             }
         }
 
@@ -276,6 +276,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
+        serverConnectorFuture.notifyErrorListener(cause);
     }
 
     protected CarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {

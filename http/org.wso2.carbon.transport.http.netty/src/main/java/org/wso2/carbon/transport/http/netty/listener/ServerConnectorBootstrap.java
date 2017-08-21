@@ -111,15 +111,9 @@ public class ServerConnectorBootstrap {
         if (future != null) {
             ChannelFuture channelFuture = future.channel().close();
             channelFuture.sync();
-            if (listenerConfiguration.getSslConfig() == null) {
-                log.info("HTTP HttpConnectorListener stopped on listening interface " +
-                         listenerConfiguration.getId() + " attached to host " +
-                         listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
-            } else {
-                log.info("HTTPS HttpConnectorListener stopped on listening interface " +
-                         listenerConfiguration.getId() + " attached to host " + listenerConfiguration.getHost() +
-                         " and port " + listenerConfiguration.getPort());
-            }
+            log.info("HTTP(S) HttpConnectorListener stopped on listening interface " +
+                    listenerConfiguration.getId() + " attached to host " +
+                    listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
             return true;
         }
         return false;

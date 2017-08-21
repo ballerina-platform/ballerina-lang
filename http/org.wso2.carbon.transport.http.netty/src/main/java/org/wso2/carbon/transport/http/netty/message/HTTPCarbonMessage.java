@@ -234,7 +234,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
     }
 
     public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
-        serverConnectorFuture.notifyHTTPListener(httpCarbonMessage);
+        serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
     }
 
     public HttpConnectorListener getResponseListener() {

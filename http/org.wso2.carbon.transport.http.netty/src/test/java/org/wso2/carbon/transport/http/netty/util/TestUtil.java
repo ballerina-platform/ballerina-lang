@@ -114,7 +114,7 @@ public class TestUtil {
             ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
                     config);
             ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-            serverConnectorFuture.setHTTPConnectorListener(httpConnectorListener);
+            serverConnectorFuture.setHttpConnectorListener(httpConnectorListener);
             try {
                 serverConnectorFuture.sync();
             } catch (InterruptedException e) {
@@ -205,7 +205,7 @@ public class TestUtil {
     }
 
     public static void updateMessageProcessor(HttpConnectorListener httpConnectorListener) {
-        futures.forEach(future -> future.setHTTPConnectorListener(httpConnectorListener));
+        futures.forEach(future -> future.setHttpConnectorListener(httpConnectorListener));
     }
 
     public static void handleException(String msg, Exception ex) {

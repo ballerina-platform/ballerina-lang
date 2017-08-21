@@ -19,7 +19,6 @@
 
 package org.wso2.carbon.transport.http.netty.util.server.websocket;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -53,8 +52,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             String text = ((TextWebSocketFrame) frame).text();
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof BinaryWebSocketFrame) {
-            ByteBuf buffer = ((BinaryWebSocketFrame) frame).content();
-            ctx.channel().writeAndFlush(new BinaryWebSocketFrame(buffer));
+            ctx.channel().writeAndFlush(frame.retain());
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.close();
         } else {

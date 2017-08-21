@@ -36,7 +36,7 @@ public interface ServerConnectorFuture {
      *
      * @param connectorListener Connector listener for HTTP.
      */
-    void setHTTPConnectorListener(HttpConnectorListener connectorListener);
+    void setHttpConnectorListener(HttpConnectorListener connectorListener);
 
     /**
      * Notify HTTP messages to the listener.
@@ -44,7 +44,7 @@ public interface ServerConnectorFuture {
      * @param httpMessage HTTP message.
      * @throws ServerConnectorException if any error occurred during the notification.
      */
-    void notifyHTTPListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
+    void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
 
     /**
      *  Set Connector listener for WebSocket.
@@ -101,7 +101,16 @@ public interface ServerConnectorFuture {
     void notifyWSListener(Throwable throwable) throws ServerConnectorException;
 
     /**
+     * Notify error messages to the listener.
+     *
+     * @param cause Reason for the error.
+     */
+    void notifyErrorListener(Throwable cause) throws ServerConnectorException;;
+
+    /**
      * Waits till the port binding is completed.
+     *
+     * @throws InterruptedException if any interrupt occurred while waiting for port binding.
      */
     void sync() throws InterruptedException;
 }

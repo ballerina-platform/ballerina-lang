@@ -23,15 +23,32 @@ import org.slf4j.LoggerFactory;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 
+import java.io.PrintStream;
+
 /**
  * Test listener for HTTP transport test cases.
  */
 public class TestNGListener extends TestListenerAdapter {
 
     @Override
+    public void beforeConfiguration(ITestResult tr) {
+        PrintStream printStream = new PrintStream(System.out);
+        if (tr.getMethod().isBeforeClassConfiguration()) {
+            printStream.print("\n");
+            String testClassName = tr.getTestClass().getRealClass().getSimpleName();
+            String[] testClassWords = testClassName.split("(?<!^)(?=[A-Z])");
+            String testClassNameFull = "";
+            for (String wordOfName: testClassWords) {
+                testClassNameFull = testClassNameFull + wordOfName + " ";
+            }
+            printStream.println("Start Running " + testClassNameFull.trim() + "..................");
+        }
+    }
+
+    @Override
     public void onTestStart(ITestResult result) {
         String testCase = result.getName();
-        LoggerFactory.getLogger(result.getTestClass().getRealClass()).info("Test start: " + testCase);
+        LoggerFactory.getLogger(result.getTestClass().getRealClass()).info("Test running: " + testCase);
     }
 
     @Override
@@ -41,10 +58,18 @@ public class TestNGListener extends TestListenerAdapter {
     }
 
     @Override
+    public void onTestSkipped(ITestResult tr) {
+        String testCase = tr.getName();
+        LoggerFactory.getLogger(tr.getTestClass().getRealClass()).info("Test skipped: " + testCase);
+    }
+
+    @Override
     public void onTestFailure(ITestResult tr) {
         String testCase = tr.getName();
         Throwable e = tr.getThrowable();
         LoggerFactory.getLogger(tr.getTestClass().getRealClass()).error(
                 "Test failed: " + testCase + "-> " + e.getMessage());
     }
+
+
 }

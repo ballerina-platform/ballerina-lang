@@ -55,8 +55,6 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
-        log.info(System.lineSeparator() +
-                         "--------------------- WebSocket Client Connector Test Cases ---------------------");
         remoteServer.run();
         Map<String, Object> senderProperties = new HashMap<>();
 

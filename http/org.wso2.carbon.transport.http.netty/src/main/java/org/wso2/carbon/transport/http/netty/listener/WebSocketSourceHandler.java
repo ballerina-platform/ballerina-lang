@@ -78,10 +78,11 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param isSecured indication of whether the connection is secured or not.
      * @param channelSession session relates to the channel.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
+     * @param headers Headers obtained from HTTP WebSocket upgrade request.
      * @param connectionManager connection manager for WebSocket connection.
      * @param listenerConfiguration HttpConnectorListener configuration for WebSocket connection.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
-     * @throws Exception
+     * @throws Exception if any error occurred during construction of {@link WebSocketSourceHandler}.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,

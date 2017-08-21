@@ -48,12 +48,12 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void setHTTPConnectorListener(HttpConnectorListener httpConnectorListener) {
+    public void setHttpConnectorListener(HttpConnectorListener httpConnectorListener) {
         this.httpConnectorListener = httpConnectorListener;
     }
 
     @Override
-    public void notifyHTTPListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException {
+    public void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException {
         if (httpConnectorListener == null) {
             throw new ServerConnectorException("HTTP connector listener is not set");
         }
@@ -116,5 +116,13 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     @Override
     public void sync() throws InterruptedException {
         channelFuture.sync();
+    }
+
+    @Override
+    public void notifyErrorListener(Throwable cause) throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
+        httpConnectorListener.onError(cause);
     }
 }
