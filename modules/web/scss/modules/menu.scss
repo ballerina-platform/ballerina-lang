@@ -1,11 +1,7 @@
 .menu-item-common {
+    @extend .unseletable-content;
     color: #e2e2e2;
     cursor: default;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    user-select: none;
 }
 
 .sub-menu-item-common {

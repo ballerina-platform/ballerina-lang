@@ -3,17 +3,13 @@
     min-height: $header-min-height;
 
     & .brand {
+        @extend .unseletable-content;
         font-size: 16px;
         cursor: default;
         color: $header-brand-color;
         padding: 0 10px;
         margin-right: 25px;
         line-height: 35px;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -o-user-select: none;
-        user-select: none;
         
         & a {
             color: $header-brand-color;
