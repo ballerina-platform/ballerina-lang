@@ -57,8 +57,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
                                                               customHeaders, sourceHandler, connectorListener);
         try {
-            webSocketClient.handshake();
-            return webSocketClient.getSession();
+            return webSocketClient.handshake();
         } catch (InterruptedException e) {
             throw new ClientConnectorException("Handshake interrupted", e);
         } catch (URISyntaxException e) {

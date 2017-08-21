@@ -94,11 +94,12 @@ public class WebSocketClient {
     /**
      * Handle the handshake with the server.
      *
+     * @return Session {@link Session} which is created for the channel.
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      * @throws SSLException throws if SSL exception occurred during protocol negotiation.
      */
-    public void handshake() throws InterruptedException, URISyntaxException, SSLException {
+    public Session handshake() throws InterruptedException, URISyntaxException, SSLException {
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
@@ -143,36 +144,30 @@ public class WebSocketClient {
         handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, subprotocol,
                                              connectorListener);
 
-        Bootstrap b = new Bootstrap();
-        b.group(group)
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ChannelPipeline p = ch.pipeline();
-                        if (sslCtx != null) {
-                            p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+        try {
+            Bootstrap b = new Bootstrap();
+            b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) {
+                            ChannelPipeline p = ch.pipeline();
+                            if (sslCtx != null) {
+                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                            }
+                            p.addLast(
+                                    new HttpClientCodec(),
+                                    new HttpObjectAggregator(8192),
+                                    WebSocketClientCompressionHandler.INSTANCE,
+                                    handler);
                         }
-                        p.addLast(
-                                new HttpClientCodec(),
-                                new HttpObjectAggregator(8192),
-                                WebSocketClientCompressionHandler.INSTANCE,
-                                handler);
-                    }
-                });
+                    });
 
-        channel = b.connect(uri.getHost(), port).sync().channel();
-        handler.handshakeFuture().sync();
-        handshakeDone = true;
+            channel = b.connect(uri.getHost(), port).sync().channel();
+            handler.handshakeFuture().sync();
+            return handler.getChannelSession();
+        } catch (Throwable t) {
+            throw new InterruptedException("Couldn't connect to the remote server.");
+        }
     }
-
-    /**
-     * Retrieve the relevant session of the client.
-     *
-     * @return Session of the client.
-     */
-    public Session getSession() {
-        return handler.getChannelSession();
-    }
-
 }
