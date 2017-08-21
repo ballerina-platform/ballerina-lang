@@ -513,12 +513,14 @@ class TransformExpanded extends React.Component {
         this.setState({
             selectedSource: suggestionValue,
         });
+        this.addSource(suggestionValue);
     }
 
     onTargetSelect(e, { suggestionValue }) {
         this.setState({
             selectedTarget: suggestionValue,
         });
+        this.addTarget(suggestionValue);
     }
 
     onSourceInputEnter() {
@@ -827,12 +829,6 @@ class TransformExpanded extends React.Component {
                             placeholder='Select Source'
                             onSuggestionSelected={this.onSourceSelect}
                         />
-                        <span
-                            className="btn-add-source fw-stack fw-lg btn btn-add"
-                            onClick={this.onSourceAdd}
-                        >
-                            <i className="fw fw-add fw-stack-1x" />
-                        </span>
                     </div>
                     <div className="leftType">
                         <Tree
@@ -870,12 +866,6 @@ class TransformExpanded extends React.Component {
                             placeholder='Select Target'
                             onSuggestionSelected={this.onTargetSelect}
                         />
-                        <span
-                            className="btn-add-source fw-stack fw-lg btn btn-add"
-                            onClick={this.onTargetAdd}
-                        >
-                            <i className='fw fw-add fw-stack-1x' />
-                        </span>
                     </div>
                     <div className='rightType'>
                         <Tree
