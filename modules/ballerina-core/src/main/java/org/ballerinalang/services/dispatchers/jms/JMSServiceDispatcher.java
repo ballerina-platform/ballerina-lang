@@ -77,7 +77,7 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
                 Constants.ANNOTATION_JMS_CONFIGURATION);
 
         if (jmsConfig == null) {
-            return;
+            throw new BallerinaException("Error jms 'configuration' annotation missing in " + service.getName());
         }
 
         Map<String, String> configParams = JMSUtils.preProcessJmsConfig(jmsConfig);
