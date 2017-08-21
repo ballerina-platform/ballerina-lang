@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import MessageManager from './../visitors/message-manager';
+import MessageManager from './../../../../visitors/message-manager';
 
 /**
  * React component for a backward arrow.

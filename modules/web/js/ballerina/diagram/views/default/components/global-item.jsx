@@ -19,9 +19,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './global-item.css';
-import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
-import { util } from './../visitors/sizing-utils';
-import * as DesignerDefaults from './../configs/designer-defaults';
+import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
+import { util } from './../../../../visitors/sizing-utils';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.

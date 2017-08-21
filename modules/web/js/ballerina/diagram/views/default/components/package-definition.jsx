@@ -18,17 +18,17 @@
 import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { packageDefinition } from '../configs/designer-defaults';
+import { packageDefinition } from '../../../../configs/designer-defaults';
 import './package-definition.css';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
-import ASTFactory from '../ast/ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
-import PackageDefinitionModel from '../ast/package-definition';
-import { parseContent } from './../../api-client/api-client';
+import PackageDefinitionModel from '../../../../ast/package-definition';
+import { parseContent } from './../../../../../api-client/api-client';
 
 /**
  * Class representing the package definition and other top level views.

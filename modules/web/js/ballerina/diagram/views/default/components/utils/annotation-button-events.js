@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import AnnotationHelper from './../../env/helpers/annotation-helper';
-import ASTFactory from '../../ast/ast-factory';
-import BallerinaEnvironment from '../../env/environment';
+import AnnotationHelper from './../../../../../env/helpers/annotation-helper';
+import ASTFactory from '../../../../../ast/ast-factory';
+import BallerinaEnvironment from '../../../../../env/environment';
 
 /**
  * Deletes a given node from the tree.

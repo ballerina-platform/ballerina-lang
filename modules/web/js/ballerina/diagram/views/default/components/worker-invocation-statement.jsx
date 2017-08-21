@@ -19,10 +19,10 @@ import React from 'react';
 import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import MessageManager from './../visitors/message-manager';
-import { util } from './../visitors/sizing-utils';
-import ASTFactory from '../ast/ast-factory';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import MessageManager from './../../../../visitors/message-manager';
+import { util } from './../../../../visitors/sizing-utils';
+import ASTFactory from '../../../../ast/ast-factory';
 import ArrowDecorator from './arrow-decorator';
 
 class WorkerInvocationStatement extends React.Component {

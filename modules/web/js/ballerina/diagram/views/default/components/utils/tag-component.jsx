@@ -21,10 +21,10 @@ import EditableText from './../editable-text';
 import SuggestionsText from './../suggestions-text';
 import ParameterDefinition from './../parameter-definition';
 import AnnotationDefinitionAttachment from './../annotation-definition-attachment';
-import ExpressionEditor from '../../../expression-editor/expression-editor-utils';
-import { util } from './../../visitors/sizing-utils';
+import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import { util } from './../../sizing-util';
 import './tag-component.css';
-import SimpleBBox from "../../ast/simple-bounding-box";
+import SimpleBBox from '../../../../../ast/simple-bounding-box';
 
 let defaultInputValue = '+ Add Value';
 

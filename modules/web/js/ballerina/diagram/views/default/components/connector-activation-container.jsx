@@ -18,8 +18,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ASTNode from '../ast/node';
-import MessageManager from './../visitors/message-manager';
+import ASTNode from '../../../../ast/node';
+import MessageManager from './../../../../visitors/message-manager';
 import './connector-activation-container.css';
 
 /**

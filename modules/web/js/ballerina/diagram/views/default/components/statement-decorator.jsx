@@ -18,18 +18,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import ASTNode from '../ast/node';
+import ASTNode from '../../../../ast/node';
 import ActionBox from './action-box';
-import DragDropManager from '../tool-palette/drag-drop-manager';
-import SimpleBBox from './../ast/simple-bounding-box';
-import { lifeLine, actionBox, statement } from '../configs/designer-defaults.js';
-import MessageManager from './../visitors/message-manager';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
+import { lifeLine, actionBox, statement } from '../../../../configs/designer-defaults.js';
+import MessageManager from './../../../../visitors/message-manager';
 import './statement-decorator.css';
-import ExpressionEditor from '../../expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
-import breakpointHOC from './../../debugger/breakpoint-hoc';
-import ASTFactory from '../ast/ast-factory.js';
+import breakpointHOC from './../../../../../debugger/breakpoint-hoc';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 /**
  * Wraps other UI elements and provide box with a heading.

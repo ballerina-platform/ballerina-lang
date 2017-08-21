@@ -20,8 +20,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './global-definitions.css';
 import ImageUtil from './image-util';
-import { util as SizingUtils } from '../visitors/sizing-utils';
-import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
+import { util as SizingUtils } from '../../../../visitors/sizing-utils';
+import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
 
 const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
     const headerHeight = variablesPaneDefaults.headerHeight;

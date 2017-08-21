@@ -31,14 +31,14 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     }).map((child) => {
         const compName = child.constructor.name;
         if (components[mode][compName]) {
-            return React.createElement(components[compName], {
+            return React.createElement(components[mode][compName], {
                 model: child,
                 // set the key to prevent warning
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
             }, null);
         } else if (components.default[compName]) {
-            return React.createElement(components[compName], {
+            return React.createElement(components.default[compName], {
                 model: child,
                 // set the key to prevent warning
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
@@ -48,19 +48,21 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     });
 }
 
+
 function getDimentionVisitor(name, mode = 'default') {
     // lets load the view components diffrent modes.
     diagramVisitors.default = requireAll(require.context('./views/default/dimention-visitors/', true, /\.js$/));
-    diagramVisitors.action = requireAll(require.context('./views/action/position-visitors/', true, /\.js$/));
+    diagramVisitors.action = requireAll(require.context('./views/action/dimention-visitors/', true, /\.js$/));
 
-    if (components[mode][name]) {
-        return components[mode][name];
-    } else if (components.default[name]) {
-        return components.default[name];
+    if (diagramVisitors[mode][name]) {
+        return diagramVisitors[mode][name];
+    } else if (diagramVisitors.default[name]) {
+        return diagramVisitors.default[name];
     }
 }
 
 export {
     getComponentForNodeArray,
     requireAll,
+    getDimentionVisitor,
 };

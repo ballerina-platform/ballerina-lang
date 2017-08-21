@@ -17,9 +17,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import FailedStatementAST from './../ast/statements/failed-statement';
+import FailedStatementAST from './../../../../ast/statements/failed-statement';
 import BlockStatementDecorator from './block-statement-decorator';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 
 /**
  * React component for Failed Statement.

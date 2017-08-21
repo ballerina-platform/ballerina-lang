@@ -22,9 +22,9 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Alerts from 'alerts';
 import './annotation-definition.css';
-import { util } from './../visitors/sizing-utils';
-import ExpressionEditor from '../../expression-editor/expression-editor-utils';
-import SimpleBBox from "../ast/simple-bounding-box";
+import { util } from './../sizing-util';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import SimpleBBox from "../../../../ast/simple-bounding-box";
 
 class AnnotationAttributeDefinition extends React.Component {
     /**

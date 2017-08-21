@@ -17,12 +17,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import AnnotationHelper from '../env/helpers/annotation-helper';
+import AnnotationHelper from '../../../../env/helpers/annotation-helper';
 import AutoSuggestHtml from './utils/autosuggest-html';
-import ASTFactory from '../ast/ast-factory';
-import AnnotationAttributeAST from './../ast/annotations/annotation-attribute';
-import EnvAnnotationDefinition from './../env/annotation-definition';
-import BallerinaEnvironment from '../env/environment';
+import ASTFactory from '../../../../ast/ast-factory';
+import AnnotationAttributeAST from './../../../../ast/annotations/annotation-attribute';
+import EnvAnnotationDefinition from './../../../../env/annotation-definition';
+import BallerinaEnvironment from '../../../../env/environment';
 
 /**
  * React component for the key of an annotation attribute.

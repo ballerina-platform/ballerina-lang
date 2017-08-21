@@ -17,12 +17,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import AnnotationAttachmentAST from './../ast/annotations/annotation-attachment';
+import AnnotationAttachmentAST from './../../../../ast/annotations/annotation-attachment';
 import AnnotationAttribute from './annotation-attribute';
 import { deleteNode, addAttribute } from './utils/annotation-button-events';
-import AnnotationHelper from '../env/helpers/annotation-helper';
+import AnnotationHelper from '../../../../env/helpers/annotation-helper';
 import AutoSuggestHtml from './utils/autosuggest-html';
-import ASTFactory from '../ast/ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 import PopoutButton from './popout-button';
 
 /**

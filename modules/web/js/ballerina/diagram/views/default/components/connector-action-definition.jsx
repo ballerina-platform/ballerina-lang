@@ -21,11 +21,11 @@ import PropTypes from 'prop-types';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import LifeLineDecorator from './lifeline.jsx';
-import { getComponentForNodeArray } from './utils';
-import { lifeLine } from './../configs/designer-defaults';
-import ConnectorActionAST from './../ast/connector-action';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import { lifeLine } from './../../../../configs/designer-defaults';
+import ConnectorActionAST from './../../../../ast/connector-action';
 import ImageUtil from './image-util';
-import ASTFactory from '../ast/ast-factory.js';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 /**
  * React component for a connector action.

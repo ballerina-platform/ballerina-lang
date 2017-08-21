@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 
 class TransactionStatement extends React.Component {
     constructor(props) {

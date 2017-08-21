@@ -17,10 +17,10 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { util } from './../visitors/sizing-utils';
+import { util } from './../sizing-util';
 import ImageUtil from './image-util';
-import ExpressionEditor from '../../expression-editor/expression-editor-utils';
-import SimpleBBox from "../ast/simple-bounding-box";
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import SimpleBBox from '../../../../ast/simple-bounding-box';
 
 class ParameterDefinition extends React.Component {
     /**

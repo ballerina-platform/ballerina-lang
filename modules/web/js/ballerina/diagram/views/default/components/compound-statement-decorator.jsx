@@ -18,12 +18,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { statement, lifeLine } from './../configs/designer-defaults';
-import ASTNode from '../ast/node';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import { statement, lifeLine } from './../../../../configs/designer-defaults';
+import ASTNode from '../../../../ast/node';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import './compound-statement-decorator.css';
-import SimpleBBox from '../ast/simple-bounding-box';
-import ASTFactory from '../ast/ast-factory.js';
+import SimpleBBox from '../../../../ast/simple-bounding-box';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 
 /**

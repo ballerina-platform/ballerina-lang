@@ -19,12 +19,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import ASTNode from '../ast/node';
+import ASTNode from '../../../../ast/node';
 import AnnotationContainer from './annotation-container';
-import DragDropManager from '../tool-palette/drag-drop-manager';
-import MessageManager from './../visitors/message-manager';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
+import MessageManager from './../../../../visitors/message-manager';
 import './canvas-decorator.css';
-import { setCanvasOverlay } from '../configs/app-context';
+import { setCanvasOverlay } from '../../../../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 

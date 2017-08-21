@@ -18,10 +18,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import BlockStatementDecorator from './block-statement-decorator';
-import CatchStatementAST from './../ast/statements/catch-statement';
-import ASTFactory from '../ast/ast-factory';
+import CatchStatementAST from './../../../../ast/statements/catch-statement';
+import ASTFactory from '../../../../ast/ast-factory';
 import './try-catch-statement.css';
 
 /**

@@ -18,14 +18,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import AnnotationAttachment from './annotation-attachment';
-import AnnotationAttributeAST from './../ast/annotations/annotation-attribute';
+import AnnotationAttributeAST from './../../../../ast/annotations/annotation-attribute';
 import AnnotationAttributeBValue from './annotation-attribute-b-value';
 import AnnotationAttributeKey from './annotation-attribute-key';
 import { addAttribute, deleteNode, getArrayValue } from './utils/annotation-button-events';
-import AnnotationHelper from '../env/helpers/annotation-helper';
-import EnvAnnotationDefinition from './../env/annotation-definition';
+import AnnotationHelper from '../../../../env/helpers/annotation-helper';
+import EnvAnnotationDefinition from './../../../../env/annotation-definition';
 import PopoutButton from './popout-button';
-import { util } from './../visitors/sizing-utils';
+import { util } from './../../../../visitors/sizing-utils';
 
 /**
  * React component for an annoation attribute.

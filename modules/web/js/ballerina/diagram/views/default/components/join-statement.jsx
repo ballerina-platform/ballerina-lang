@@ -19,10 +19,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import { getComponentForNodeArray } from './utils';
-import ASTFactory from '../ast/ast-factory';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import ASTFactory from '../../../../ast/ast-factory';
 import './join-statement.css';
-import JoinStatementAST from './../ast/statements/join-statement';
+import JoinStatementAST from './../../../../ast/statements/join-statement';
 
 /**
  * React UI component to represent the the join section of the

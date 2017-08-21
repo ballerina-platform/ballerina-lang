@@ -18,15 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import SimpleBBox from '../ast/simple-bounding-box';
-import { lifeLine } from '../configs/designer-defaults.js';
+import SimpleBBox from '../../../../ast/simple-bounding-box';
+import { lifeLine } from '../../../../configs/designer-defaults.js';
 import ExpressionEditor from 'expression_editor_utils';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import ReactDOM from 'react-dom';
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
-import { SOURCE_VIEW } from './../views/ballerina-file-editor.jsx';
+import { SOURCE_VIEW } from './../../../../views/ballerina-file-editor.jsx';
 import _ from 'lodash';
 
 class LifeLine extends React.Component {

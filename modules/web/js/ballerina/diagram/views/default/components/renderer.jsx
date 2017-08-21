@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { getCanvasOverlay } from '../configs/app-context';
+import { getCanvasOverlay } from '../../../../configs/app-context';
 import './text-input.css';
 
 class TextBox extends React.Component {

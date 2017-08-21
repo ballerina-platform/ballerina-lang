@@ -19,12 +19,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PanelDecorator from './panel-decorator';
-import { getComponentForNodeArray } from './utils';
-import ConnectorDefinitionAST from './../ast/connector-definition';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import ConnectorDefinitionAST from './../../../../ast/connector-definition';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import ASTFactory from '../ast/ast-factory';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import ASTFactory from '../../../../ast/ast-factory';
 
 /**
  * React component for a connector definition.

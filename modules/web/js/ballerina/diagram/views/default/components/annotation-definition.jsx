@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PanelDecorator from './panel-decorator';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import AnnotationAttributeDecorator from './annotation-attribute-decorator';
 import AnnotationDefinitionAttachment from './annotation-definition-attachment';
 import TagController from './utils/tag-component';

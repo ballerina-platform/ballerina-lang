@@ -22,9 +22,9 @@ import './annotation-definition.css';
 import Alerts from 'alerts';
 import PropTypes from 'prop-types';
 import EditableText from './editable-text';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import ExpressionEditor from '../../expression-editor/expression-editor-utils';
-import SimpleBBox from "../ast/simple-bounding-box";
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import SimpleBBox from "../../../../ast/simple-bounding-box";
 
 const DEFAULT_INPUT_VALUE = '+ Add Attribute';
 

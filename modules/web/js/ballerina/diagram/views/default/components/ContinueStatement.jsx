@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContinueStatementAST from './../ast/statements/continue-statement';
+import ContinueStatementAST from './../../../../ast/statements/continue-statement';
 import StatementDecorator from './statement-decorator';
 
 /**

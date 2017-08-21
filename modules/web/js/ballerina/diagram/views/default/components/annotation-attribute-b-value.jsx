@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import BValueAST from './../ast/b-value';
+import BValueAST from './../../../../ast/b-value';
 
 /**
  * React component of a b-value that is being used in an annotation attribute.

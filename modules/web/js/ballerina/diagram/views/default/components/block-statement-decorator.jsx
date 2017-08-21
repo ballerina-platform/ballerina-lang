@@ -17,17 +17,17 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { blockStatement, statement, actionBox } from '../configs/designer-defaults.js';
+import { blockStatement, statement, actionBox } from '../../../../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
-import ASTNode from '../ast/node';
-import SimpleBBox from '../ast/simple-bounding-box';
+import ASTNode from '../../../../ast/node';
+import SimpleBBox from '../../../../ast/simple-bounding-box';
 import './block-statement-decorator.css';
-import ExpressionEditor from '../../expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
-import breakpointHOC from './../../debugger/breakpoint-hoc';
+import breakpointHOC from './../../../../../debugger/breakpoint-hoc';
 
 
 const CLASS_MAP = {

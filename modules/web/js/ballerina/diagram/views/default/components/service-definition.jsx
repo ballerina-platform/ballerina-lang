@@ -19,17 +19,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PanelDecorator from './panel-decorator';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import ServiceDefinitionAST from './../ast/service-definition';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import ServiceDefinitionAST from './../../../../ast/service-definition';
 import PanelDecoratorButton from './panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './image-util';
-import SimpleBBox from './../ast/simple-bounding-box';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
 import EditableText from './editable-text';
-import ASTFactory from '../ast/ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 
 /**
  * React component for a service definition.

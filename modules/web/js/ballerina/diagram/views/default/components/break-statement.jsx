@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import BreakStatementAST from './../ast/statements/break-statement';
+import BreakStatementAST from './../../../../ast/statements/break-statement';
 import StatementDecorator from './statement-decorator';
 
 /**

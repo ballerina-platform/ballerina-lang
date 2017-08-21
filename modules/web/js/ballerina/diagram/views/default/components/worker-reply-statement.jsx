@@ -19,7 +19,7 @@ import React from 'react';
 import StatementDecorator from './statement-decorator';
 import StatementArrowConnection from './statement-arrow-connection';
 import PropTypes from 'prop-types';
-import ASTFactory from '../ast/ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 
 class WorkerReplyStatement extends React.Component {
 

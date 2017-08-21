@@ -18,15 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ConnectorDeclrationAST from './../ast/connector-declaration';
+import ConnectorDeclrationAST from './../../../../ast/connector-declaration';
 import LifeLine from './lifeline.jsx';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import ConnectorActivationContainer from './connector-activation-container';
-import * as DesignerDefaults from './../configs/designer-defaults';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
 import StatementDecorator from './statement-decorator';
-import ASTFactory from '../ast/ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 import ImageUtil from './image-util';
-import { util } from './../visitors/sizing-utils';
+import { util } from './../sizing-util';
 
 /**
  * Get all components.

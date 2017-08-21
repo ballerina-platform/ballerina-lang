@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import StatementDecorator from './statement-decorator';
-import AbortStatementAST from './../ast/statements/abort-statement';
+import AbortStatementAST from './../../../../ast/statements/abort-statement';
 
 /**
  * React component for an abort statement.

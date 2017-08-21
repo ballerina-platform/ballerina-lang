@@ -17,13 +17,13 @@
  */
 
 import log from 'log';
-import util from './diagram-util.js';
+import { getDimentionVisitor } from './diagram-util.js';
 
 class DimensionVisitor {
 
     canVisit(node) {
-        if (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
-            const nodeVisitor = new (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
+        if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
             return nodeVisitor.canVisit(node);
         }
         log.debug(`Unable to find Dimension Calculator for : ${node.getType()}`);
@@ -33,24 +33,24 @@ class DimensionVisitor {
     }
 
     visit(node) {
-        if (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
-            const nodeVisitor = new (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
+        if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
             return nodeVisitor.visit(node);
         }
         return undefined;
     }
 
     beginVisit(node) {
-        if (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
-            const nodeVisitor = new (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
+        if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
             return nodeVisitor.beginVisit(node);
         }
         return undefined;
     }
 
     endVisit(node) {
-        if (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
-            const nodeVisitor = new (util.getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
+        if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`)) {
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`))();
             return nodeVisitor.endVisit(node);
         }
         log.warn(`Unable to find Dimension Calculator for : ${node.getType()}`);

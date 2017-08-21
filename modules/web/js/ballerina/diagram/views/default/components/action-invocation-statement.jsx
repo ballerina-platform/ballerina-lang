@@ -18,11 +18,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import ActionInvocationStatementAST from './../ast/statements/action-invocation-statement';
+import ActionInvocationStatementAST from './../../../../ast/statements/action-invocation-statement';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
-import DragDropManager from '../tool-palette/drag-drop-manager';
-import MessageManager from './../visitors/message-manager';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
+import MessageManager from './../../../../visitors/message-manager';
 import StatementDecorator from './statement-decorator';
 
 /**

@@ -18,15 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ASTNode from '../ast/node';
+import ASTNode from '../../../../ast/node';
 import ActionBox from './action-box';
-import DragDropManager from '../tool-palette/drag-drop-manager';
-import SimpleBBox from '../ast/simple-bounding-box';
-import * as DesignerDefaults from '../configs/designer-defaults';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
+import SimpleBBox from '../../../../ast/simple-bounding-box';
+import * as DesignerDefaults from '../../../../configs/designer-defaults';
 import './statement-decorator.css';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
-import ASTFactory from '../ast/ast-factory.js';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 class TransformStatementDecorator extends React.Component {
 

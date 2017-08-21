@@ -23,11 +23,11 @@ import PropTypes from 'prop-types';
 import PanelDecorator from './panel-decorator';
 import './struct-definition.css';
 import Renderer from './renderer';
-import ASTNode from './../ast/node';
-import * as DesignerDefaults from './../configs/designer-defaults';
+import ASTNode from './../../../../ast/node';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
 import SuggestionsText from './suggestions-text2';
 import ImageUtil from './image-util';
-import ASTFactory from '../ast/ast-factory';
+import ASTFactory from '../../../../ast/ast-factory';
 import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
 

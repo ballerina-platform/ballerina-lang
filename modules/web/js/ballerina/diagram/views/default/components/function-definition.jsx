@@ -20,10 +20,10 @@ import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
-import { getComponentForNodeArray } from './utils';
-import { lifeLine } from './../configs/designer-defaults';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import { lifeLine } from './../../../../configs/designer-defaults';
 import ImageUtil from './image-util';
-import ASTFactory from '../ast/ast-factory.js';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 class FunctionDefinition extends React.Component {
 

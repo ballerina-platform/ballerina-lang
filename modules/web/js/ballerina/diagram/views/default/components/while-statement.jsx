@@ -18,12 +18,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import BlockStatementDecorator from './block-statement-decorator';
-import SimpleBBox from './../ast/simple-bounding-box';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import ASTNode from '../ast/node';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import SimpleBBox from './../../../../ast/simple-bounding-box';
+import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import ASTNode from '../../../../ast/node';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import './while-statement.css';
 import CompoundStatementDecorator from './compound-statement-decorator';
 

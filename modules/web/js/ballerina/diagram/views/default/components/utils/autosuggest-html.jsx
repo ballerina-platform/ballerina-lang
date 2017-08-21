@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { util } from './../../visitors/sizing-utils';
 
 /**
  * AutoSuggest wrapper for html

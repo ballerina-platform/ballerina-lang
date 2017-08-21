@@ -18,12 +18,12 @@
 
 import React from 'react';
 import LifeLine from './lifeline.jsx';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import StatementContainer from './statement-container';
-import * as DesignerDefaults from './../configs/designer-defaults';
-import { util } from './../visitors/sizing-utils';
+import * as DesignerDefaults from './../../designer-defaults';
+import { util } from './../sizing-util';
 import ImageUtil from './image-util';
-import ASTFactory from '../ast/ast-factory.js';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 class WorkerDeclaration extends React.Component {
 

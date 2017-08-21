@@ -18,8 +18,8 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
-import { getComponentForNodeArray } from './utils';
-import ASTFactory from '../ast/ast-factory';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import ASTFactory from '../../../../ast/ast-factory';
 import './if-statement.css';
 
 class IfStatement extends React.Component {

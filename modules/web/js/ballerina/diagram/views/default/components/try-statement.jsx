@@ -18,8 +18,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
-import ASTFactory from '../ast/ast-factory';
-import { getComponentForNodeArray } from './utils';
+import ASTFactory from '../../../../ast/ast-factory';
+import { getComponentForNodeArray } from './../../../diagram-util';
 import './try-catch-statement.css';
 
 class TryStatement extends React.Component {

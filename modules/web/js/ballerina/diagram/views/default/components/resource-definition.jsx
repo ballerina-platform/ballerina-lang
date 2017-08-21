@@ -22,10 +22,10 @@ import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
-import { getComponentForNodeArray } from './utils';
-import { lifeLine } from './../configs/designer-defaults';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import { lifeLine } from './../../../../configs/designer-defaults';
 import ImageUtil from './image-util';
-import ASTFactory from '../ast/ast-factory.js';
+import ASTFactory from '../../../../ast/ast-factory.js';
 
 class ResourceDefinition extends React.Component {
 

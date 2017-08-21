@@ -19,9 +19,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import { timeout } from './../configs/designer-defaults';
-import { getComponentForNodeArray } from './utils';
-import TimeoutStatementAST from './../ast/statements/timeout-statement';
+import { timeout } from './../../../../configs/designer-defaults';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import TimeoutStatementAST from './../../../../ast/statements/timeout-statement';
 
 /**
  * React UI component to represent the the timeout section of the

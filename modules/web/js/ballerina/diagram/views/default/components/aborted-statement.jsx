@@ -17,9 +17,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import AbortedStatementAST from './../ast/statements/aborted-statement';
+import AbortedStatementAST from './../../../../ast/statements/aborted-statement';
 import BlockStatementDecorator from './block-statement-decorator';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 
 /**
  * React component for Aborted Statement.

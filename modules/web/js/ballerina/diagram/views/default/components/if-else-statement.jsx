@@ -18,7 +18,7 @@
 import React from 'react';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
-import { getComponentForNodeArray } from './utils';
+import { getComponentForNodeArray } from './../../../diagram-util';
 
 class IfElseStatement extends React.Component {
 

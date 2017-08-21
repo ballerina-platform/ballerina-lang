@@ -17,8 +17,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { statement } from './../configs/designer-defaults';
-import { lifeLine } from './../configs/designer-defaults';
+import { statement } from './../../../../configs/designer-defaults';
+import { lifeLine } from './../../../../configs/designer-defaults';
 import ArrowDecorator from './arrow-decorator';
 
 const text_offset = 50;

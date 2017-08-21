@@ -18,8 +18,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import { getComponentForNodeArray } from './utils';
-import TransactionAbortedStatementAST from './../ast/statements/transaction-aborted-statement';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import TransactionAbortedStatementAST from './../../../../ast/statements/transaction-aborted-statement';
 
 class TransactionAbortedStatement extends React.Component {
     render() {

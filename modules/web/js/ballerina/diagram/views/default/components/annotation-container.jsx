@@ -18,11 +18,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import ASTFactory from '../ast/ast-factory';
-import BallerinaASTRoot from './../ast/ballerina-ast-root';
-import { getComponentForNodeArray } from './utils';
-import AnnotationContainerUtil from '../components/utils/annotation-container';
-import AnnotationHelper from './../env/helpers/annotation-helper';
+import ASTFactory from '../../../../ast/ast-factory';
+import BallerinaASTRoot from './../../../../ast/ballerina-ast-root';
+import { getComponentForNodeArray } from './../../../diagram-util';
+import AnnotationContainerUtil from '../../../../components/utils/annotation-container';
+import AnnotationHelper from './../../../../env/helpers/annotation-helper';
 
 /**
  * React component for the annotation container.

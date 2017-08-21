@@ -22,9 +22,9 @@ import PropTypes from 'prop-types';
 import SuggestionsText from './suggestions-text';
 import GlobalItem from './global-item';
 import EditableText from './editable-text';
-import BallerinaEnvironment from '../env/environment';
-import ExpressionEditor from '../../expression-editor/expression-editor-utils';
-import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
+import BallerinaEnvironment from '../../../../env/environment';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
 
 export default class GlobalExpanded extends React.Component {
     constructor() {

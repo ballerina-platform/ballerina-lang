@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import AnnotationAttachment from './../ast/annotations/annotation-attachment';
+import AnnotationAttachment from './../../../../ast/annotations/annotation-attachment';
 import AutoSuggestHtml from './utils/autosuggest-html';
 
 /**
