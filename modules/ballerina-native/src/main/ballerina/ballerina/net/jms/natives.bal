@@ -20,10 +20,9 @@ native function commit (message m);
 connector ClientConnector (map properties) {
 
     @doc:Description {value:"SEND action implementation of the JMS Connector"}
-    @doc:Param {value:"connector: Connector"}
     @doc:Param {value:"destinationName: Destination Name"}
     @doc:Param {value:"message: Message"}
-    native action send (ClientConnector jmsClientConnector, string destinationName, message m) (boolean);
+    native action send (string destinationName, message m) (boolean);
 
 }
 

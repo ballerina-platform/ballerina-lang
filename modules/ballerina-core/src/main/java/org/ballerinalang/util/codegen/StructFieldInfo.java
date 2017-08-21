@@ -18,13 +18,18 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a struct field in the compiled Ballerina program.
  *
  * @since 0.90
  */
-public class StructFieldInfo {
+public class StructFieldInfo implements AttributeInfoPool {
     private int nameCPIndex;
     private String name;
 
@@ -32,6 +37,8 @@ public class StructFieldInfo {
     private String typeSignature;
 
     private BType fieldType;
+
+    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     public StructFieldInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature) {
         this.nameCPIndex = nameCPIndex;
@@ -62,5 +69,20 @@ public class StructFieldInfo {
 
     public void setFieldType(BType fieldType) {
         this.fieldType = fieldType;
+    }
+
+    @Override
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
+    }
+
+    @Override
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
+    }
+
+    @Override
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 }

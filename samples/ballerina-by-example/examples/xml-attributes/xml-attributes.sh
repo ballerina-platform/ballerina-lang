@@ -1,4 +1,5 @@
 $ ballerina run xml-attributes.bal
+<ns0:book xmlns:ns0="http://ballerina.com/aa" ns0:status="available" count="5"></ns0:book>
 available
 available
 5

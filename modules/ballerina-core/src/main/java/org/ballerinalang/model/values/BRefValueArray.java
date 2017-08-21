@@ -69,6 +69,7 @@ public class BRefValueArray extends BNewArray {
     public BValue copy() {
         BRefValueArray refValueArray = new BRefValueArray(Arrays.copyOf(values, values.length));
         refValueArray.size = this.size;
+        refValueArray.arrayType = this.arrayType;
         return refValueArray;
     }
     

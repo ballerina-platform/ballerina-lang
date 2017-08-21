@@ -1,6 +1,6 @@
-import ballerina.doc;
 import ballerina.lang.strings;
 import ballerina.lang.system;
+import ballerina.doc;
 
 @doc:Description {value:"Defining Employee struct"}
 struct Employee {
@@ -19,7 +19,7 @@ struct Person {
 
 function main (string[] args) {
     //Initialize Person variable person
-    Person person = {first_name: "John",last_name: "Doe",age: 30,city: "London"};
+    Person person = {first_name:"John", last_name:"Doe", age:30, city:"London"};
 
     //Initialize an empty Employee as employee
     Employee employee = {};

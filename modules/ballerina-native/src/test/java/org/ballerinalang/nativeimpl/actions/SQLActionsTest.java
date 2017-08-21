@@ -97,7 +97,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest for int float types")
-    public void testSelectIntFloatData() {
+    public   void testSelectIntFloatData() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testSelectIntFloatData");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -339,64 +339,6 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
-    public void testLocalTransacton() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testLocalTransacton");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonRollback() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonRollback");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonAbort() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonAbort");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonThrow() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonErrorThrow");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonThrowAndCatch() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactionErrorThrowAndCatch");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonCommitted() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonCommitted");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonHandlerOrder() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonHandlerOrder");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testTransactonWithoutHandlers() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonWithoutHandlers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-    }
-
-    @Test(groups = "ConnectorTest")
     public void testInsertTimeData() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTimeInParameters");
         BIntArray retValue = (BIntArray) returns[0];
@@ -442,6 +384,12 @@ public class SQLActionsTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTimeOutParams", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error in sql connector configuration.*")
+    public void testInvalidDBType() {
+        BLangFunctions.invokeNew(bLangProgram, "testInvalidDBType");
     }
 
     @AfterSuite

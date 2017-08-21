@@ -1,6 +1,6 @@
 # To run the program, put the code in `websocket-client-connector`
-# and use `ballerina run service websocket-client-connector` command.
-$ ballerina run service websocket-client-connector.bal
+# and use `ballerina run websocket-client-connector` command.
+$ ballerina run websocket-client-connector.bal
 # Now that we can run this program using any WebSocket client with "ws://localhost:9090/client-connector/ws"
 
 # To check the sample, you can use Chrome or Firefox javascript console and run the below commands <br>

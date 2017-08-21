@@ -4,7 +4,9 @@ import ballerina.lang.messages;
 service<http> session {
 
     string key = "status";
-    @http:GET {}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource sayHello (message m) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
         http:Session session = http:createSessionIfAbsent(m);
@@ -22,7 +24,9 @@ service<http> session {
         reply response;
     }
 
-    @http:GET {}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource doTask (message m) {
         //getSession() returns an existing session for a valid session id. otherwise null.
         http:Session session = http:getSession(m);
@@ -38,7 +42,9 @@ service<http> session {
         reply response;
     }
 
-    @http:GET {}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource sayBye (message m) {
         http:Session session = http:getSession(m);
         message response = {};

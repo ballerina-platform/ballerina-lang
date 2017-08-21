@@ -1216,6 +1216,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1247,6 +1259,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

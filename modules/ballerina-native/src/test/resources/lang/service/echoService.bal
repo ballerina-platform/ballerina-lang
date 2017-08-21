@@ -10,22 +10,28 @@ service<http> echo {
 
     string serviceLevelStringVar = "sample value";
 
-    @http:GET {}
-    @http:Path {value : "/message"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/message"
+    }
     resource echo (message m) {
         reply m;
     }
 
-    @http:POST {}
-    @http:Path {value:"/setString"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/setString"
+    }
     resource setString (message m) {
         serviceLevelStr = messages:getStringPayload(m);
         http:convertToResponse(m);
         reply m;
     }
 
-    @http:GET {}
-    @http:Path {value:"/getString"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/getString"
+    }
     resource getString (message m) {
         message response = {};
         // TODO : Fix bellow line
@@ -34,26 +40,39 @@ service<http> echo {
         reply response;
     }
 
-    @http:GET {}
+    @http:resourceConfig {
+        methods:["GET"]
+    }
     resource removeHeaders (message m) {
         messages:removeAllHeaders(m);
         reply m;
     }
 
-    @http:GET {}
-    @http:Path {value:"/getServiceLevelString"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/getServiceLevelString"
+    }
     resource getServiceLevelString (message m) {
         message response = {};
         messages:setStringPayload(response, serviceLevelStringVar);
         reply response;
     }
 
-    @http:GET {}
-    @http:Path {value:constPath}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:constPath
+    }
     resource constValueAsAttributeValue (message m) {
         message response = {};
         messages:setStringPayload(response, "constant path test");
         reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/testEmptyResourceBody"
+    }
+    resource testEmptyResourceBody (message m) {
     }
 }
 

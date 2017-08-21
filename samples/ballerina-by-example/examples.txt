@@ -14,10 +14,12 @@ Var
 Any Type
 Type Casting
 Type Conversion
+Typeof
 Structs
 Maps
 Arrays
 Array of Arrays
+Lengthof
 Identifier Literals
 JSON
 JSON Literals
@@ -35,6 +37,7 @@ Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
+Fork/Join Variable Access
 Datatables
 SQL Connector
 Transactions
@@ -44,6 +47,7 @@ Strings
 Blob Type
 Date Time
 File API
+Throw
 Try/Catch/Finally
 Base Path and Path
 Query and Path Param
@@ -51,9 +55,11 @@ Content Based Routing
 Header Based Routing
 Produces/Consumes
 HTTP Sessions
+HTTP Client Connector
 File System Server Connector
 FTP Client Connector
 FTP Server Connector
+Filter Connector
 Log API
 Function Pointers
 Lambda
@@ -62,3 +68,4 @@ WebSocket Basic Functions
 WebSocket Connection Store
 WebSocket Connection Groups
 WebSocket Client Connector
+Passthrough

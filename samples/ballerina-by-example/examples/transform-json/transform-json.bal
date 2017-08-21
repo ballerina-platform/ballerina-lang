@@ -1,8 +1,8 @@
-import ballerina.doc;
 import ballerina.net.http;
 import ballerina.lang.messages;
 import ballerina.lang.errors;
 import ballerina.lang.system;
+import ballerina.doc;
 
 @doc:Description {
     value: "Defining Person struct"
@@ -21,8 +21,10 @@ struct Person {
 }
 service<http> PersonService {
 
-    @http:POST {}
-    @http:Path { value: "/"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
     @doc:Description {
         value: "Defining POST resource for the service to get person details"
     }

@@ -44,6 +44,7 @@ public class Constants {
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String ACCEPT_HEADER = "Accept";
+    public static final String ALLOW_HEADER = "Allow";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
@@ -62,19 +63,20 @@ public class Constants {
     public static final String HTTP_METHOD_HEAD = "HEAD";
 
     /* Annotations */
-    public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String ANNOTATION_NAME_CONFIGURATION = "configuration";
-    public static final String ANNOTATION_NAME_CONSUMES = "Consumes";
-    public static final String ANNOTATION_NAME_PRODUCES = "Produces";
-    public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
-    public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
-    public static final String ANNOTATION_ATTRIBUTE_HTTPS_PORT = "httpsPort";
-    public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
-    public static final String ANNOTATION_ATTRIBUTE_SCHEME = "scheme";
-    public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";
-    public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_PASS = "keyStorePass";
-    public static final String ANNOTATION_ATTRIBUTE_CERT_PASS = "certPass";
-    public static final String ANNOTATION_ATTRIBUTE_VERSION = "version";
+    public static final String ANN_NAME_RESOURCE_CONFIG = "resourceConfig";
+    public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
+    public static final String ANN_RESOURCE_ATTR_PATH = "path";
+    public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
+    public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
+    public static final String ANN_NAME_CONFIG = "configuration";
+    public static final String ANN_CONFIG_ATTR_HOST = "host";
+    public static final String ANN_CONFIG_ATTR_PORT = "port";
+    public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
+    public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
+    public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
+    public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
+    public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePass";
+    public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPass";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;

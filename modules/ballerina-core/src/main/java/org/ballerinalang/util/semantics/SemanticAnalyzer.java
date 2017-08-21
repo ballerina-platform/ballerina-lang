@@ -118,6 +118,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -188,6 +189,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
+    private int failedBlockCount = 0;
     private boolean isWithinWorker = false;
     private SymbolScope currentScope;
     private SymbolScope currentPackageScope;
@@ -428,7 +430,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Worker worker : resource.getWorkers()) {
-            addWorkerSymbol(worker);
             visit(worker);
         }
 
@@ -666,18 +667,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!function.isNative()) {
             for (Worker worker : function.getWorkers()) {
-                //addWorkerSymbol(worker);
                 worker.accept(this);
             }
 
             BlockStmt blockStmt = function.getCallableUnitBody();
             blockStmt.accept(this);
-
-            if (function.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
-                BLangExceptionHelper.throwSemanticError(function, SemanticErrors.MISSING_RETURN_STATEMENT);
-            }
-
-            checkAndAddReturnStmt(function.getReturnParamTypes().length, blockStmt);
+            checkAndAddReturnStmt(function);
         }
 
         resolveWorkerInteractions(function);
@@ -707,13 +702,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        // First parameter should be of type connector in which these actions are defined.
-        if (action.getParameterDefs().length < 1 ||
-                action.getParameterDefs()[0].getType() != action.getConnectorDef()) {
-            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.INVALID_ACTION_FIRST_PARAMETER,
-                    action.getConnectorDef());
-        }
-
         for (ParameterDef parameterDef : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -726,18 +714,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!action.isNative()) {
             for (Worker worker : action.getWorkers()) {
-                //addWorkerSymbol(worker);
                 worker.accept(this);
             }
 
             BlockStmt blockStmt = action.getCallableUnitBody();
             blockStmt.accept(this);
-
-            if (action.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
-                BLangExceptionHelper.throwSemanticError(action, SemanticErrors.MISSING_RETURN_STATEMENT);
-            }
-
-            checkAndAddReturnStmt(action.getReturnParameters().length, blockStmt);
+            checkAndAddReturnStmt(action);
         }
         resolveWorkerInteractions(action);
 
@@ -768,7 +750,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         // addWorkerSymbol(worker);
 
         for (Worker worker2 : worker.getWorkers()) {
-            addWorkerSymbol(worker2);
             worker2.accept(this);
         }
 
@@ -1198,6 +1179,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
             }
 
+            if (stmt instanceof RetryStmt && failedBlockCount < 1) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.RETRY_STMT_NOT_ALLOWED_HERE);
+            }
+
+
             if (isWithinWorker) {
                 if (stmt instanceof ReplyStmt) {
                     BLangExceptionHelper.throwSemanticError(stmt,
@@ -1210,7 +1197,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (stmt instanceof BreakStmt || stmt instanceof ContinueStmt || stmt instanceof ReplyStmt ||
-                    stmt instanceof AbortStmt) {
+                    stmt instanceof AbortStmt || stmt instanceof RetryStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
 
@@ -1517,6 +1504,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
         transactionStmtCount--;
+        TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
+        if (failedBlock != null) {
+            failedBlockCount++;
+            failedBlock.getFailedBlockStmt().accept(this);
+            failedBlockCount--;
+        }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {
             abortedBlock.getAbortedBlockStmt().accept(this);
@@ -1530,6 +1523,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AbortStmt abortStmt) {
 
+    }
+
+    @Override
+    public void visit(RetryStmt retryStmt) {
+        retryStmt.getRetryCountExpression().accept(this);
+        checkRetryStmtValidity(retryStmt);
     }
 
     @Override
@@ -1788,7 +1787,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionIExpr.setConnectorName(varDef.getTypeName().getName());
             actionIExpr.setPackageName(varDef.getTypeName().getPackageName());
             actionIExpr.setPackagePath(varDef.getTypeName().getPackagePath());
-        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
+        } else if (bLangSymbol instanceof BallerinaConnectorDef) {
             throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
                     SemanticErrors.INVALID_ACTION_INVOCATION);
         }
@@ -1986,20 +1985,29 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BType inheritedType = connectorInitExpr.getInheritedType();
+        boolean isFilterConnector = ((BallerinaConnectorDef) inheritedType).isFilterConnector();
         if (!(inheritedType instanceof BallerinaConnectorDef)) {
             BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED);
         }
         connectorInitExpr.setType(inheritedType);
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
 
-        for (Expression argExpr : connectorInitExpr.getArgExprs()) {
+        // if this is a normal connector, arguments count should match to the parameter defs count.
+        // if this is a filter connector, arguments count should be one less than the parameter defs count.
+        if ((!isFilterConnector && argExprs.length != parameterDefs.length)
+                || (isFilterConnector && argExprs.length != parameterDefs.length - 1)) {
+            BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.ARGUMENTS_COUNT_MISMATCH,
+                    parameterDefs.length, argExprs.length);
+        }
+
+        for (Expression argExpr : argExprs) {
             visitSingleValueExpr(argExpr);
         }
 
-        Expression[] argExprs = connectorInitExpr.getArgExprs();
-        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
         for (int i = 0; i < argExprs.length; i++) {
             int j = i;
-            if (((BallerinaConnectorDef) inheritedType).isFilterConnector()) {
+            if (isFilterConnector) {
                 j += 1;
             }
             SimpleTypeName simpleTypeName = parameterDefs[j].getTypeName();
@@ -2007,7 +2015,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDefs[j].setType(paramType);
 
             Expression argExpr = argExprs[i];
-            if (!(parameterDefs[j].getType().equals(argExpr.getType()))) {
+            AssignabilityResult result = performAssignabilityCheck(parameterDefs[j].getType(), argExpr);
+            if (result.expression != null) {
+                argExprs[i] = result.expression;
+            } else if (!result.assignable) {
                 BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         parameterDefs[j].getType(), argExpr.getType());
             }
@@ -3440,6 +3451,20 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void defineAction(BallerinaAction action, BallerinaConnectorDef connectorDef) {
+        //ConnectorDef is a reserved first parameter in any action
+        ParameterDef[] updatedParamDefs = new ParameterDef[action.getParameterDefs().length + 1];
+        ParameterDef connectorParamDef = new ParameterDef(connectorDef.getNodeLocation(), null,
+                new Identifier(TypeConstants.CONNECTOR_TNAME),
+                new SimpleTypeName(connectorDef.getName(), null, connectorDef.getPackagePath()),
+                new SymbolName(TypeConstants.CONNECTOR_TNAME, connectorDef.getPackagePath()),
+                action.getSymbolScope());
+        connectorParamDef.setType(connectorDef);
+        updatedParamDefs[0] = connectorParamDef;
+        for (int i = 0; i < action.getParameterDefs().length; i++) {
+            updatedParamDefs[i + 1] = action.getParameterDefs()[i];
+        }
+        action.setParameterDefs(updatedParamDefs);
+
         ParameterDef[] paramDefArray = action.getParameterDefs();
         BType[] paramTypes = new BType[paramDefArray.length];
         for (int i = 0; i < paramDefArray.length; i++) {
@@ -4058,33 +4083,35 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to add return statement if required.
      *
-     * @param returnParamCount No of return parameters.
-     * @param blockStmt        Block statement to which to add the return statement.
+     * @param callableUnit action/function.
      */
-    private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
-        if (returnParamCount != 0) {
+    private void checkAndAddReturnStmt(CallableUnit callableUnit) {
+        BlockStmt blockStmt = callableUnit.getCallableUnitBody();
+        ParameterDef[] retParams = callableUnit.getReturnParameters();
+        if (retParams.length > 0 && !blockStmt.isAlwaysReturns()) {
+            throw BLangExceptionHelper.getSemanticError(callableUnit.getNodeLocation(),
+                    SemanticErrors.MISSING_RETURN_STATEMENT);
+        } else if (blockStmt.isAlwaysReturns()) {
             return;
         }
 
         Statement[] statements = blockStmt.getStatements();
         int length = statements.length;
-        Statement lastStatement = statements[length - 1];
-        if (!(lastStatement instanceof ReturnStmt)) {
-            NodeLocation blockLocation = blockStmt.getNodeLocation();
-            NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
-                    blockLocation.getFileName(), blockLocation.stopLineNumber);
-            ReturnStmt returnStmt = new ReturnStmt(endOfBlock, null, new Expression[0]);
-            statements = Arrays.copyOf(statements, length + 1);
-            statements[length] = returnStmt;
-            blockStmt.setStatements(statements);
-        }
+        NodeLocation blockLocation = blockStmt.getNodeLocation();
+        NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
+                blockLocation.getFileName(), blockLocation.stopLineNumber);
+        ReturnStmt returnStmt = new ReturnStmt(endOfBlock, null, new Expression[0]);
+
+        int lengthWithReturn = length + 1;
+        statements = Arrays.copyOf(statements, lengthWithReturn);
+        statements[lengthWithReturn - 1] = returnStmt;
+        blockStmt.setStatements(statements);
     }
 
     private void checkAndAddReplyStmt(BlockStmt blockStmt) {
         Statement[] statements = blockStmt.getStatements();
         int length = statements.length;
-        Statement lastStatement = statements[length - 1];
-        if (!(lastStatement instanceof ReplyStmt)) {
+        if ((statements.length > 0 && !(statements[length - 1] instanceof ReplyStmt)) || statements.length == 0) {
             NodeLocation blockLocation = blockStmt.getNodeLocation();
             NodeLocation endOfBlock = new NodeLocation(blockLocation.getPackageDirPath(),
                     blockLocation.getFileName(), blockLocation.stopLineNumber);
@@ -4119,6 +4146,34 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
             parent = parent.getParent();
+        }
+    }
+
+    private static void checkRetryStmtValidity(RetryStmt stmt) {
+        //Check whether the retry statement is root level statement in the failed block
+        StatementKind parentStmtType = stmt.getParent().getKind();
+        if (StatementKind.FAILED_BLOCK != parentStmtType) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_STMT_LOCATION);
+        }
+        //Only non negative integer constants and integer literals are allowed as retry count;
+        Expression retryCountExpr = stmt.getRetryCountExpression();
+        boolean error = true;
+        if (retryCountExpr instanceof BasicLiteral) {
+            if (retryCountExpr.getType().getTag() == TypeTags.INT_TAG) {
+                if (((BasicLiteral) retryCountExpr).getBValue().intValue() >= 0) {
+                    error = false;
+                }
+            }
+        } else if (retryCountExpr instanceof VariableReferenceExpr) {
+            VariableDef variableDef = ((SimpleVarRefExpr) retryCountExpr).getVariableDef();
+            if (variableDef.getKind() == VariableDef.Kind.CONSTANT) {
+                if (variableDef.getType().getTag() == TypeTags.INT_TAG) {
+                    error = false;
+                }
+            }
+        }
+        if (error) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_COUNT);
         }
     }
 

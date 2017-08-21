@@ -17,14 +17,13 @@ struct Employee {
 function main (string[] args) {
     //Create a SQL connector by providing the required database connection
     //pool properties.
-    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
-                    "username":"root", "password":"root"};
-    sql:ClientConnector empDB = create sql:ClientConnector(props);
+    sql:ConnectionProperties properties = {maximumPoolSize:5};
+    sql:ClientConnector empDB = create sql:ClientConnector(
+      sql:MYSQL, "localhost", 3306, "db", "sa", "root", properties);
     //Query the table using SQL connector select action. Either select or call
     //action can return a datatable.
     sql:Parameter[] params = [];
-    datatable dt = sql:ClientConnector.select(empDB,
-                                              "SELECT * from employees", params);
+    datatable dt = empDB.select("SELECT * from employees", params);
 
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
@@ -39,17 +38,15 @@ function main (string[] args) {
     }
 
     //Convert a datatable to json.
-    dt = sql:ClientConnector.select(empDB,
-                                    "SELECT id,name from employees", params);
+    dt = empDB.select("SELECT id,name from employees", params);
     var jsonRes, _ = <json>dt;
     system:println(jsonRes);
 
     //Convert a datatable to xml.
-    dt = sql:ClientConnector.select(empDB,
-                                    "SELECT id,name from employees", params);
+    dt = empDB.select("SELECT id,name from employees", params);
     var xmlRes, _ = <xml>dt;
     system:println(xmlRes);
 
     //Finally close the DB connection.
-    sql:ClientConnector.close(empDB);
+    empDB.close();
 }

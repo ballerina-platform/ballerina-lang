@@ -73,6 +73,10 @@ function printNewline() {
     system:print("hello\n");
 }
 
+function testSleep(int timeoutv) {
+    system:sleep(timeoutv);
+}
+
 function getEnvVar(string varName) {
     string pathValue = system:getEnv(varName);
     system:print(pathValue);
