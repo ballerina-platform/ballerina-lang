@@ -20,7 +20,6 @@
 
 .left-right-split-pane {
   background-color: #333;
-  left: 60px !important;
 }
 
 .top-bottom-split-pane {
@@ -37,6 +36,10 @@
 .left-panel {
   color:white;
   background-color: #333;
+  & .tab-content {
+    left: $activity-bar-width !important;
+    position: fixed;
+  }
 }
 
 .right-panel {

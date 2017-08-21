@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import LeftPanel from './LeftPanel';
 import EditorArea from './EditorArea';
-import RightPanel from './RightPanel';
 import BottomPanel from './BottomPanel';
 import Header from './Header';
-import ActivityBar from './ActivityBar';
 import { REGIONS } from './../constants';
 
 /**
@@ -18,11 +16,12 @@ import { REGIONS } from './../constants';
 class App extends React.Component {
 
     /**
-     * Get views of Header Region
+     * Get views of given Region
+     *
      * @returns {Array<React.Component>}
      */
-    getHeaderViews() {
-        return this.props.layout[REGIONS.HEADER].map((viewDef) => {
+    getViewsForRegion(region) {
+        return this.props.layout[region].map((viewDef) => {
             return this.createViewFromViewDef(viewDef);
         });
     }
@@ -46,16 +45,17 @@ class App extends React.Component {
         return (
             <div className="">
                 <Header>
-                    {this.getHeaderViews()}
+                    {this.getViewsForRegion(REGIONS.HEADER)}
                 </Header>
-                <ActivityBar />
                 <SplitPane
                     split="vertical"
                     className="left-right-split-pane"
                     minSize={300}
                     maxSize={700}
                 >
-                    <LeftPanel />
+                    <LeftPanel>
+                        {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
+                    </LeftPanel>
                     <SplitPane
                         className="top-bottom-split-pane"
                         split="horizontal"

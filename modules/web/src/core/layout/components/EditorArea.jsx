@@ -20,7 +20,7 @@ class EditorArea extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            openedFiles: _.times(20, i => `test${i}.bal`),
+            openedFiles: _.times(2, i => `test${i}.bal`),
         };
     }
 

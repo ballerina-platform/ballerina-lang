@@ -23,7 +23,9 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS } from './constants';
+
+import WorkspaceExplorer from './views/WorkspaceExplorer';
 
 /**
  * Workspace Manager is responsible for managing workspace.
@@ -48,11 +50,23 @@ class WorkspaceManagerPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
             [MENUS]: getMenuDefinitions(this),
+            [VIEWS]: [
+                {
+                    id: VIEW_IDS.EXPLORER,
+                    component: WorkspaceExplorer,
+                    propsProvider: () => {
+                        return {
+                        };
+                    },
+                    region: REGIONS.LEFT_PANEL,
+                    displayOnLoad: true,
+                },
+            ],
         };
     }
 }
