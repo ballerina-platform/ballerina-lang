@@ -80,29 +80,12 @@ public class BallerinaBlock extends AbstractBlock {
 
                 Indent indent = Indent.getNoneIndent();
 
-                if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
-                        || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
-                        || childElementType == ANNOTATION_BODY) {
+                if (isInsideADefinitionElement(childElementType)) {
                     if (child.getFirstChildNode() != null && child.getLastChildNode() != null) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == STATEMENT) {
-                    if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
-                            || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
-                            || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
-                            || parentElementType == TRANSFORM_STATEMENT) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
                 } else if (childElementType == COMMENT_STATEMENT) {
-                    if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
-                            || parentElementType == RESOURCE_DEFINITION || parentElementType == CONNECTOR_DEFINITION
-                            || parentElementType == ACTION_DEFINITION || parentElementType == STRUCT_DEFINITION
-                            || parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
-                            || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
-                            || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
-                            || parentElementType == TRANSFORM_STATEMENT) {
+                    if (isADefinitionElement(parentElementType) || isACodeBlock(parentElementType)) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == ANNOTATION_ATTRIBUTE_LIST) {
@@ -126,14 +109,7 @@ public class BallerinaBlock extends AbstractBlock {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == CODE_BLOCK_BODY) {
-                    if (parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE
-                            || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == CATCH_CLAUSE || parentElementType == FINALLY_CLAUSE
-                            || parentElementType == JOIN_CLAUSE || parentElementType == TIMEOUT_CLAUSE
-                            || parentElementType == TRANSACTION_STATEMENT || parentElementType == FAILED_CLAUSE
-                            || parentElementType == ABORTED_CLAUSE || parentElementType == COMMITTED_CLAUSE) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
+                    indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == EXPRESSION_LIST) {
                     if (parentElementType == VARIABLE_REFERENCE) {
                         indent = Indent.getSpaceIndent(4);
@@ -156,6 +132,41 @@ public class BallerinaBlock extends AbstractBlock {
             child = child.getTreeNext();
         }
         return blocks;
+    }
+
+    private static boolean isADefinitionElement(@NotNull final IElementType parentElementType) {
+        if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
+                || parentElementType == RESOURCE_DEFINITION || parentElementType == CONNECTOR_DEFINITION
+                || parentElementType == ACTION_DEFINITION || parentElementType == STRUCT_DEFINITION) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
+        if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
+                || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
+                || childElementType == ANNOTATION_BODY) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isACodeBlock(@NotNull final IElementType parentElementType) {
+        if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
+                || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
+                || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
+                || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
+                || parentElementType == TRANSFORM_STATEMENT || parentElementType == IF_CLAUSE
+                || parentElementType == ELSE_IF_CLAUSE || parentElementType == ELSE_CLAUSE
+                || parentElementType == TRY_CATCH_STATEMENT || parentElementType == CATCH_CLAUSE
+                || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
+                || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
+                || parentElementType == FAILED_CLAUSE || parentElementType == ABORTED_CLAUSE
+                || parentElementType == COMMITTED_CLAUSE) {
+            return true;
+        }
+        return false;
     }
 
     @Override
