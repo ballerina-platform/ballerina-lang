@@ -29,29 +29,28 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
- * {@link IncrementalAttributeAggregator} to calculate sum based on an event attribute.
+ * {@link IncrementalAttributeAggregator} to calculate minimum value based on an event attribute.
  */
 @Extension(
-        name = "sum",
+        name = "min",
         namespace = "incrementalAggregator",
-        description = "Returns the sum for all the events, in incremental event processing",
+        description = "Returns the minimum value for all the events, in incremental event processing",
         parameters = {
                 @Parameter(name = "arg",
-                        description = "The value that needs to be summed.",
+                        description = "The value that needs to be compared to find the minimum value.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
         },
         returnAttributes = @ReturnAttribute(
-                description = "Returns long if the input parameter type is int or long, and returns double if the " +
-                        "input parameter type is float or double.",
-                type = {DataType.LONG, DataType.DOUBLE}),
+                description = "Returns the minimum value in the same data type as the input.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
         examples = @Example(
                 syntax = " define aggregation cseEventAggregation\n from cseEventStream\n" +
-                        " select sum(price) as totalPrice,\n aggregate by timeStamp every sec ... hour;",
-                description = "sum(price) returns the total price value for all the events based on their " +
-                        "arrival and expiry. The total is calculated for sec, min and hour durations."
+                        " select min(price) as minPrice,\n aggregate by timeStamp every sec ... hour;",
+                description = "min(price) returns the minimum price value for all the events based on their " +
+                        "arrival and expiry. The minimum value is calculated for sec, min and hour durations."
         )
 )
-public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
+public class MinIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
 
     private Attribute[] baseAttributes;
     private Expression[] baseAttributesInitialValues;
@@ -59,33 +58,23 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
 
     @Override
     public void init(String attributeName, Attribute.Type attributeType) {
-        Attribute sum;
-        Expression sumInitialValue;
 
         if (attributeName == null) {
-            throw new SiddhiAppCreationException("Sum incremental attribute aggregation cannot be executed " +
+            throw new SiddhiAppCreationException("Min incremental attribute aggregation cannot be executed " +
                     "when no parameters are given");
         }
 
-        if (attributeType.equals(Attribute.Type.FLOAT) || attributeType.equals(Attribute.Type.DOUBLE)) {
-            sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.DOUBLE);
-            sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
-                    Expression.value("double"));
-            returnType = Attribute.Type.DOUBLE;
-        } else if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG)) {
-            sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.LONG);
-            sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
-                    Expression.value("long"));
-            returnType = Attribute.Type.LONG;
+        if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG) ||
+                attributeType.equals(Attribute.Type.DOUBLE) || attributeType.equals(Attribute.Type.FLOAT)) {
+            this.baseAttributes = new Attribute[]{new Attribute("_MIN_".concat(attributeName), attributeType)};
+            this.baseAttributesInitialValues = new Expression[]{Expression.variable(attributeName)};
+            this.returnType = attributeType;
+
+            assert baseAttributes.length == baseAttributesInitialValues.length;
         } else {
             throw new SiddhiAppRuntimeException(
-                    "Sum aggregation cannot be executed on attribute type " + attributeType.toString());
+                    "Min aggregation cannot be executed on attribute type " + attributeType.toString());
         }
-        this.baseAttributes = new Attribute[]{sum};
-        this.baseAttributesInitialValues = new Expression[]{sumInitialValue}; // Original attribute names
-        // used for initial values, since those would be executed using original meta
-
-        assert baseAttributes.length == baseAttributesInitialValues.length;
     }
 
     @Override
@@ -105,13 +94,13 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
 
     @Override
     public Expression[] getBaseAggregators() {
-        Expression sumAggregator = Expression.function("sum",
+        Expression minAggregator = Expression.function("min",
                 Expression.variable(getBaseAttributes()[0].getName()));
-        return new Expression[]{sumAggregator};
+        return new Expression[]{minAggregator};
     }
 
     @Override
     public Attribute.Type getReturnType() {
-        return returnType;
+        return this.returnType;
     }
 }

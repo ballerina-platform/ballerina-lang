@@ -20,22 +20,35 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
- * Average incremental aggregation
+ * {@link IncrementalAttributeAggregator} to calculate average based on an event attribute.
  */
 @Extension(
         name = "avg",
         namespace = "incrementalAggregator",
-        description = "TBD",
+        description = "Defines the logic to calculate the average, in incremental event processing",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that needs to be averaged incrementally, for different durations.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the calculated average value as a double.",
+                type = {DataType.DOUBLE}),
         examples = @Example(
-                syntax = "TBD",
-                description = "TBD"
+                syntax = " define aggregation cseEventAggregation\n from cseEventStream\n" +
+                        " select avg(price) as avgPrice,\n aggregate by timeStamp every sec ... hour;",
+                description = "avg(price) returns the average price value for all the events based on their " +
+                        "arrival and expiry. The average is calculated for sec, min and hour durations."
         )
 )
-// TODO: 6/20/17 fix annotations
 public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
 
     private Attribute[] baseAttributes;
@@ -48,6 +61,11 @@ public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggre
         Attribute count;
         Expression sumInitialValue;
         Expression countInitialValue;
+
+        if (attributeName == null) {
+            throw new SiddhiAppCreationException("Average incremental attribute aggregation cannot be executed " +
+                    "when no parameters are given");
+        }
 
         SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator = new SumIncrementalAttributeAggregator();
         sumIncrementalAttributeAggregator.init(attributeName, attributeType);
@@ -70,23 +88,9 @@ public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggre
     }
 
     @Override
-    public Object aggregate(Object... results) {
-        if (results == null) {
-            throw new ArithmeticException("Cannot calculate average since sum and count expected "
-                    + "for calculation. Expected 2 base values sum and count. However, received no base values");
-        }
-        if (results.length != 2) {
-            throw new ArithmeticException("Cannot calculate average since sum and count expected "
-                    + "for calculation. Expected 2 base values sum and count. However, received " + results.length
-                    + " values");
-        }
-        Double sum = (Double) results[0];
-        Double count = (Double) results[1];
-        if (count != 0) {
-            return sum / count;
-        } else {
-            throw new ArithmeticException("Cannot calculate average since event count is 0");
-        }
+    public Expression aggregate() {
+        return Expression.divide(Expression.variable(baseAttributes[0].getName()),
+                Expression.variable(baseAttributes[1].getName()));
     }
 
     @Override

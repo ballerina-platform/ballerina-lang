@@ -22,13 +22,16 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 /**
  * Performs time conversions related to incremental aggregation
  */
 public class IncrementalTimeConverterUtil {
 
-    public static long getNextEmitTime(long currentTime, TimePeriod.Duration duration) {
+    public static long getNextEmitTime(long currentTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
         case SECONDS:
             return currentTime - currentTime % 1000 + 1000;
@@ -39,15 +42,15 @@ public class IncrementalTimeConverterUtil {
         case DAYS:
             return currentTime - currentTime % 86400000 + 86400000;
         case MONTHS:
-            return getNextEmitTimeForMonth(currentTime);
+            return getNextEmitTimeForMonth(currentTime, timeZone);
         case YEARS:
-            return getNextEmitTimeForYear(currentTime);
+            return getNextEmitTimeForYear(currentTime, timeZone);
         default:
             throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
-    public static long getStartTimeOfAggregates(long currentTime, TimePeriod.Duration duration) {
+    public static long getStartTimeOfAggregates(long currentTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
         case SECONDS:
             return currentTime - currentTime % 1000;
@@ -58,16 +61,16 @@ public class IncrementalTimeConverterUtil {
         case DAYS:
             return currentTime - currentTime % 86400000;
         case MONTHS:
-            return getStartTimeOfAggregatesForMonth(currentTime);
+            return getStartTimeOfAggregatesForMonth(currentTime, timeZone);
         case YEARS:
-            return getStartTimeOfAggregatesForYear(currentTime);
+            return getStartTimeOfAggregatesForYear(currentTime, timeZone);
         default:
             throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
     public static long getEmitTimeOfLastEventToRemove(long currentTime, TimePeriod.Duration duration,
-            int bufferCount) {
+            int bufferCount, String timeZone) {
         switch (duration) {
         case SECONDS:
             return currentTime - bufferCount * 1000L;
@@ -78,89 +81,75 @@ public class IncrementalTimeConverterUtil {
         case DAYS:
             return currentTime - bufferCount % 86400000L;
         case MONTHS:
-            return getEmitTimeOfLastEventToRemoveForMonth(currentTime, bufferCount);
+            return getEmitTimeOfLastEventToRemoveForMonth(currentTime, bufferCount, timeZone);
         case YEARS:
-            return getEmitTimeOfLastEventToRemoveForYear(currentTime, bufferCount);
+            return getEmitTimeOfLastEventToRemoveForYear(currentTime, bufferCount, timeZone);
         default:
             throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
-    private static long getNextEmitTimeForMonth(long currentTime) {
-        Instant timeFromEpochMillis = Instant.ofEpochMilli(currentTime);
-        // timeFromEpochMillis would be of "2010-01-01T12:00:00Z" format
-        String[] timeAsString = timeFromEpochMillis.toString().split("(-|T|:|Z)");
-        String startTimeOfNextMonth;
-        if (timeAsString[1].equals("12")) {
+    private static long getNextEmitTimeForMonth(long currentTime, String timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTime),
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
+        if (zonedDateTime.getMonthValue() == 12) {
             // For a time in December, emit time should be beginning of January next year
-            Integer nextYear = Integer.parseInt(timeAsString[0]) + 1;
-            startTimeOfNextMonth = nextYear.toString() + "-01-01T00:00:00Z";
-            return Instant.parse(startTimeOfNextMonth).toEpochMilli();
+            return ZonedDateTime.of(zonedDateTime.getYear() + 1, 1, 1, 0, 0, 0, 0,
+                    ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
         } else {
             // For any other month, the 1st day of next month must be considered
-            Integer nextMonth = Integer.parseInt(timeAsString[1]) + 1;
-            String nextMonthAsString = nextMonth.toString();
-            if (nextMonthAsString.length() == 1) {
-                nextMonthAsString = "0".concat(nextMonthAsString);
-            }
-            startTimeOfNextMonth = timeAsString[0] + "-" + nextMonthAsString + "-01T00:00:00Z";
-            return Instant.parse(startTimeOfNextMonth).toEpochMilli();
+            return ZonedDateTime.of(zonedDateTime.getYear(), zonedDateTime.getMonthValue() + 1, 1, 0, 0, 0, 0,
+                    ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
         }
     }
 
-    private static long getNextEmitTimeForYear(long currentTime) {
-        Instant timeFromEpochMillis = Instant.ofEpochMilli(currentTime);
-        String[] timeAsString = timeFromEpochMillis.toString().split("(-|T|:|Z)");
-        Integer nextYear = Integer.parseInt(timeAsString[0]) + 1;
-        String startTimeOfNextYear = nextYear.toString() + "-01-01T00:00:00Z";
-        return Instant.parse(startTimeOfNextYear).toEpochMilli();
+    private static long getNextEmitTimeForYear(long currentTime, String timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTime),
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
+        return ZonedDateTime.of(zonedDateTime.getYear() + 1, 1, 1, 0, 0, 0, 0,
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
     }
 
-    private static long getStartTimeOfAggregatesForMonth(long currentTime) {
-        Instant timeFromEpochMillis = Instant.ofEpochMilli(currentTime);
-        String[] timeAsString = timeFromEpochMillis.toString().split("-");
-        String startTimeOfThisMonth = timeAsString[0] + "-" + timeAsString[1] + "-01T00:00:00Z";
-        return Instant.parse(startTimeOfThisMonth).toEpochMilli();
+    private static long getStartTimeOfAggregatesForMonth(long currentTime, String timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTime),
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
+        return ZonedDateTime.of(zonedDateTime.getYear(), zonedDateTime.getMonthValue(), 1, 0, 0, 0, 0,
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
     }
 
-    private static long getStartTimeOfAggregatesForYear(long currentTime) {
-        Instant timeFromEpochMillis = Instant.ofEpochMilli(currentTime);
-        String[] timeAsString = timeFromEpochMillis.toString().split("-");
-        String startTimeOfThisYear = timeAsString[0] + "-01-01T00:00:00Z";
-        return Instant.parse(startTimeOfThisYear).toEpochMilli();
+    private static long getStartTimeOfAggregatesForYear(long currentTime, String timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTime),
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
+        return ZonedDateTime.of(zonedDateTime.getYear(), 1, 1, 0, 0, 0, 0,
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
     }
 
-    private static long getEmitTimeOfLastEventToRemoveForMonth(long currentEmitTime, int bufferCount) {
-        Instant timeFromEpochMillis = Instant.ofEpochMilli(currentEmitTime);
-        String[] timeAsString = timeFromEpochMillis.toString().split("-");
-        Integer givenMonth = Integer.parseInt(timeAsString[1]);
+    private static long getEmitTimeOfLastEventToRemoveForMonth(long currentEmitTime, int bufferCount, String timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentEmitTime),
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
+        int givenMonth = zonedDateTime.getMonthValue();
         int noOfYearsToReduce = bufferCount / 12;
         int noOfMonthsToReduce = bufferCount % 12;
-        Integer yearOfLastEventToRemove;
-        Integer monthOfLastEventToRemove;
+        int yearOfLastEventToRemove;
+        int monthOfLastEventToRemove;
         if (givenMonth <= noOfMonthsToReduce) {
             // Example: If given month is 2 (Feb) and noOfMonthsToReduce is 4, reduce one more year.
             // Result must return 10th month (Oct) of that calculated year.
-            yearOfLastEventToRemove = Integer.parseInt(timeAsString[0]) - ++noOfYearsToReduce;
+            yearOfLastEventToRemove = zonedDateTime.getYear() - ++noOfYearsToReduce;
             monthOfLastEventToRemove = givenMonth - bufferCount + 12;
         } else {
-            yearOfLastEventToRemove = Integer.parseInt(timeAsString[0]) - noOfYearsToReduce;
+            yearOfLastEventToRemove = zonedDateTime.getYear() - noOfYearsToReduce;
             monthOfLastEventToRemove = givenMonth - bufferCount;
         }
-        String monthOfLastEventToRemoveAsString = monthOfLastEventToRemove.toString();
-        if (monthOfLastEventToRemoveAsString.length() == 1) {
-            monthOfLastEventToRemoveAsString = "0".concat(monthOfLastEventToRemoveAsString);
-        }
-        return Instant
-                .parse(yearOfLastEventToRemove.toString() + "-" + monthOfLastEventToRemoveAsString + "-01T00:00:00Z")
-                .toEpochMilli();
+        return ZonedDateTime.of(yearOfLastEventToRemove, monthOfLastEventToRemove, 1, 0, 0, 0, 0,
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
 
     }
 
-    private static long getEmitTimeOfLastEventToRemoveForYear(long currentEmitTime, int bufferCount) {
-        Instant timeFromEpochMillis = Instant.ofEpochMilli(currentEmitTime);
-        String[] timeAsString = timeFromEpochMillis.toString().split("-");
-        Integer yearOfLastEventToRemove = Integer.parseInt(timeAsString[0]) - bufferCount;
-        return Instant.parse(yearOfLastEventToRemove.toString() + "-01-01T00:00:00Z").toEpochMilli();
+    private static long getEmitTimeOfLastEventToRemoveForYear(long currentEmitTime, int bufferCount, String timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentEmitTime),
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
+        return ZonedDateTime.of(zonedDateTime.getYear() - bufferCount, 1, 1, 0, 0, 0, 0,
+                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
     }
 }

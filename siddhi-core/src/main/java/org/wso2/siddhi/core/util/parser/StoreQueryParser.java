@@ -80,7 +80,7 @@ public class StoreQueryParser {
         if (inputStore instanceof AggregationInputStore) {
             AggregationInputStore aggregationInputStore = (AggregationInputStore) inputStore;
             if (aggregationInputStore.getPer() != null && aggregationInputStore.getWithin() != null) {
-                if (metaStreamEvent.getEventType() != EventType.AGGREGATE) {
+                if (aggregationMap.get(inputStore.getStoreId()) == null) {
                     throw new StoreQueryCreationException(inputStore.getStoreId() +
                             " is not an aggregation hence it cannot be processed with 'within' and 'per'.");
                 }
@@ -90,9 +90,13 @@ public class StoreQueryParser {
                 throw new StoreQueryCreationException(inputStore.getStoreId() +
                         " should either have both 'within' and 'per' defined or none.");
             }
-            onCondition = ((AggregationInputStore) inputStore).getOnCondition();
+            if (((AggregationInputStore) inputStore).getOnCondition() != null) {
+                onCondition = ((AggregationInputStore) inputStore).getOnCondition();
+            }
         } else if (inputStore instanceof ConditionInputStore) {
-            onCondition = ((ConditionInputStore) inputStore).getOnCondition();
+            if (((ConditionInputStore) inputStore).getOnCondition() != null) {
+                onCondition = ((ConditionInputStore) inputStore).getOnCondition();
+            }
         }
         List<VariableExpressionExecutor> variableExpressionExecutors = new ArrayList<>();
         Table table = tableMap.get(inputStore.getStoreId());
@@ -116,8 +120,7 @@ public class StoreQueryParser {
                 MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
                         aggregation.getAggregationDefinition());
                 CompiledCondition compiledCondition = aggregation.compileExpression(onCondition, within, per,
-                        generateMatchingMetaInfoHolder(metaStreamEvent, aggregation.getAggregationDefinition()),
-                        variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
+                        metaStreamInfoHolder, variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
                 StoreQueryRuntime storeQueryRuntime = new StoreQueryRuntime(aggregation, compiledCondition, queryName,
                         metaStreamEvent.getEventType());
                 pupulateStoreQueryRuntime(storeQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
