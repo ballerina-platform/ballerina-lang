@@ -278,7 +278,7 @@ div > .col-xs-12 {
 
 #frameAccordion .panel-body{
     margin-bottom: 10px;
-    padding-left:5px;
+    padding:0 20px;
 }
 
 #frameAccordion .panel-title{
