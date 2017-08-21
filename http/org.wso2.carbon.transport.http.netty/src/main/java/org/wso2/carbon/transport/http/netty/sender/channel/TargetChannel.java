@@ -108,6 +108,7 @@ public class TargetChannel {
     }
 
     public void setEndPointTimeout(int socketIdleTimeout) {
+        this.getChannel().pipeline().remove(Constants.TARGET_HANDLER);
         this.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER,
                 Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                         TimeUnit.MILLISECONDS));
