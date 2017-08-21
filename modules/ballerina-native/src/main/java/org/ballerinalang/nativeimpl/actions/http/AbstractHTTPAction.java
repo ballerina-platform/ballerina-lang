@@ -140,9 +140,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
 
             Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
-            if (sourceHandler != null) {
-                context.setProperty(Constants.SRC_HANDLER, sourceHandler);
-            } else {
+            if (sourceHandler == null) {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
@@ -184,9 +182,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
-        if (sourceHandler != null) {
-            context.setProperty(Constants.SRC_HANDLER, sourceHandler);
-        } else {
+        if (sourceHandler == null) {
             message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
         }
 
