@@ -33,6 +33,7 @@ import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -46,10 +47,10 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
     public List<SymbolInfo> filterItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                         HashMap<String, Object> properties) {
 
-        int currentTokenIndex = dataModel.getTokenIndex();
         TokenStream tokenStream = dataModel.getTokenStream();
-        String searchTokenString = tokenStream.get(currentTokenIndex).getText();
-        int delimiterIndex = currentTokenIndex + 1;
+        int delimiterIndex = this.getPackageDelimeterTokenIndex(dataModel);
+
+        String searchTokenString = tokenStream.get(delimiterIndex - 1).getText();
         String delimiter = tokenStream.get(delimiterIndex).getText();
         int colonTokenIndex;
 
@@ -110,7 +111,7 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         // in such cases we assume that the next token is for either : or .
         // TODO: Refactor after integrating the semantic analyzer
         if (!tokenStr.equals(":") || !tokenStr.equals(".")) {
-            tokenStr = dataModel.getTokenStream().get(dataModel.getTokenIndex() + 1).getText();
+            tokenStr = dataModel.getTokenStream().get(this.getPackageDelimeterTokenIndex(dataModel)).getText();
         }
         List<SymbolInfo> symbolInfos = new ArrayList<>();
         List<SymbolInfo> connectorActions = symbolInfoList.stream()
@@ -265,5 +266,29 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         }
 
         return resultTokenIndex;
+    }
+
+    private int getPackageDelimeterTokenIndex(SuggestionsFilterDataModel dataModel) {
+        int currentTokenIndex = dataModel.getTokenIndex();
+        int searchTokenIndex = currentTokenIndex + 1;
+        TokenStream tokenStream = dataModel.getTokenStream();
+        int delimiterIndex = -1;
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        while (true) {
+            if (searchTokenIndex >= tokenStream.size()) {
+                break;
+            }
+            String tokenString = tokenStream.get(searchTokenIndex).getText();
+            if (tokenString.equals(".") || tokenString.equals(":")) {
+                delimiterIndex = searchTokenIndex;
+                break;
+            } else if (terminalTokens.contains(tokenString)) {
+                break;
+            } else {
+                searchTokenIndex++;
+            }
+        }
+
+        return delimiterIndex;
     }
 }
