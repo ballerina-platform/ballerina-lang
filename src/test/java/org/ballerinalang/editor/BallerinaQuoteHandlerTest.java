@@ -23,7 +23,7 @@ public class BallerinaQuoteHandlerTest extends BallerinaCodeInsightFixtureTestCa
     public void testNewlineInStringLiteral() {
         myFixture.configureByText("test.bal", "function test () {\n    string s =\"abcd<caret>efgh\";\n}");
         myFixture.type('\n');
-        myFixture.checkResult("function test () {\n    string s =\"abcd\" +\n              \"efgh\";\n}");
+        myFixture.checkResult("function test () {\n    string s =\"abcd\n    efgh\";\n}");
     }
 
     public void testTypeDoubleQuote() {
