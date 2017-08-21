@@ -33,11 +33,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Enum for holding extension types supported by the doc generator
+ * Enum for holding extension types supported by the doc generator and the free marker templates
+ *
+ * The enum values should be changed to match the names used in the documentation
+ * The enum values will affect the names used in the documentation as well as the hyperlinks
+ *
+ * These enum values will be passed onto the freemarker templates as a map
+ * The other members of the enum class will not be accessible from the freemarker templates
+ * These can be accesses using the EXTENSION_TYPE variable
+ * eg:- EXTENSION_TYPE.FUNCTION
  */
 public enum ExtensionType {
     FUNCTION("Function"),
-    ATTRIBUTE_AGGREGATOR("Attribute Aggregator"),
+    ATTRIBUTE_AGGREGATOR("Aggregate Function"),
     WINDOW("Window"),
     STREAM_FUNCTION("Stream Function"),
     STREAM_PROCESSOR("Stream Processor"),

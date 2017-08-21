@@ -21,7 +21,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Constants used by the doc generator
+ * Constants used by the doc generator and the free marker templates
+ *
+ * These constants will be passed onto the freemarker templates as a map
+ * These can be accesses using the CONSTANTS variable
+ * eg:- CONSTANTS.DOCS_DIRECTORY
  */
 public class Constants {
     public static final String DOCS_DIRECTORY = "docs";
@@ -51,19 +55,28 @@ public class Constants {
 
     public static final String MKDOCS_COMMAND = "mkdocs";
     public static final String MKDOCS_GITHUB_DEPLOY_COMMAND = "gh-deploy";
-    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT = "--config-file";
+    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT = "-f";
+    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND_MESSAGE_ARGUMENT = "-m";
 
     public static final String GIT_COMMAND = "git";
     public static final String GIT_ADD_COMMAND = "add";
+    public static final String GIT_PUSH_COMMAND = "push";
+    public static final String GIT_PUSH_COMMAND_REMOTE = "origin";
+    public static final String GIT_PUSH_COMMAND_REMOTE_BRANCH = "master";
     public static final String GIT_COMMIT_COMMAND = "commit";
     public static final String GIT_COMMIT_COMMAND_FILES_ARGUMENT = "--";
     public static final String GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT = "-m";
     public static final String GIT_COMMIT_COMMAND_MESSAGE_FORMAT = "[WSO2-Release] [Release %s] " +
             "update documentation for release %s";
-    public static final String GIT_PUSH_COMMAND = "push";
-    public static final String GIT_PUSH_COMMAND_REMOTE = "origin";
-    public static final String GIT_PUSH_COMMAND_REMOTE_BRANCH = "master";
 
     public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     public static final String CORE_NAMESPACE = "core";
+    public static final String SNAPSHOT_VERSION_POSTFIX = "-SNAPSHOT";
+
+    /*
+     * Constants used by freemarker templates
+     */
+    public static final String FREEMARKER_FEATURES_HEADING = "## Features";
+    public static final String FREEMARKER_LATEST_API_DOCS_HEADING = "## Latest API Docs";
+    public static final String FREEMARKER_SIDDHI_HOME_PAGE = "https://wso2.github.io/siddhi";
 }

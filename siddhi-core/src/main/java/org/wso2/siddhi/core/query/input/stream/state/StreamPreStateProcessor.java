@@ -99,17 +99,17 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
                 "processAndReturn method is used for handling event chunks.");
     }
 
-    protected boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
+    protected boolean isExpired(StateEvent pendingStateEvent, long currentTimestamp) {
         for (Map.Entry<Long, Set<Integer>> withinEntry : withinStates) {
             for (Integer withinStateId : withinEntry.getValue()) {
                 if (withinStateId == SiddhiConstants.ANY) {
-                    if (Math.abs(pendingStateEvent.getTimestamp() - incomingStreamEvent.getTimestamp()) > withinEntry
+                    if (Math.abs(pendingStateEvent.getTimestamp() - currentTimestamp) > withinEntry
                             .getKey()) {
                         return true;
                     }
                 } else {
-                    if (Math.abs(pendingStateEvent.getStreamEvent(withinStateId).getTimestamp() - incomingStreamEvent
-                            .getTimestamp()) > withinEntry.getKey()) {
+                    if (Math.abs(pendingStateEvent.getStreamEvent(withinStateId).getTimestamp() - currentTimestamp) >
+                            withinEntry.getKey()) {
                         return true;
 
                     }
@@ -163,7 +163,10 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     }
 
     public void init() {
-        if (isStartState && (!initialized || this.thisStatePostProcessor.nextEveryStatePerProcessor != null)) {
+        if (isStartState && (!initialized || this.thisStatePostProcessor.nextEveryStatePerProcessor != null ||
+                (stateType == StateInputStream.Type.SEQUENCE &&
+                        this.thisStatePostProcessor.nextStatePerProcessor instanceof AbsentPreStateProcessor))) {
+            // For 'every' sequence, the 'thisStatePostProcessor.nextEveryStatePerProcessor != null' check is not enough
             StateEvent stateEvent = stateEventPool.borrowEvent();
             addState(stateEvent);
             initialized = true;
@@ -275,7 +278,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
             if (withinStates.size() > 0) {
-                if (isExpired(stateEvent, streamEvent)) {
+                if (isExpired(stateEvent, streamEvent.getTimestamp())) {
                     iterator.remove();
                     continue;
                 }

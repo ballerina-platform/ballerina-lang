@@ -15,6 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+<#import "utils.ftl" as utils>
 # API Docs
 
 <#list metaData as namespace>
@@ -22,47 +23,53 @@
 
 <#list namespace.extensionMap as extensionType, extensionsList>
 <#list extensionsList as extension>
-### ${extension.name} _(${extensionType})_
+### ${extension.name} *(<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>)*
 
 <p style="word-wrap: break-word">${formatDescription(extension.description)}</p>
 
-#### Syntax
+<@utils.renderHeadingFourWithStylesOnly heading="Syntax"/>
 
-<#if ["Function", "Attribute Aggregator"]?seq_index_of(extensionType) != -1>
+<#if [EXTENSION_TYPE.FUNCTION, EXTENSION_TYPE.ATTRIBUTE_AGGREGATOR]?seq_index_of(extensionType) != -1>
 ```
-<#if extension.returnAttributes??><#list extension.returnAttributes><<#items as returnAttribute>${returnAttribute.type?join("|", "")}</#items>> </#list></#if>${extension.name}(<#list extension.parameters><#items as parameter><${parameter.type?join("|", "")}> ${parameter.name}<#sep>, </#items></#list>)
+<#if extension.returnAttributes??><#list extension.returnAttributes><<#items as returnAttribute>${returnAttribute.type?join("|", "")}</#items>> </#list></#if><#if namespace.name != CONSTANTS.CORE_NAMESPACE>${namespace.name}:</#if>${extension.name}(<#list extension.parameters><#items as parameter><${parameter.type?join("|", "")}> ${parameter.name}<#sep>, </#items></#list>)
 ```
-<#elseif ["Stream Processor", "Stream Function", "Window"]?seq_index_of(extensionType) != -1>
+<#elseif [EXTENSION_TYPE.STREAM_PROCESSOR, EXTENSION_TYPE.STREAM_FUNCTION, EXTENSION_TYPE.WINDOW]?seq_index_of(extensionType) != -1>
 ```
-${extension.name}(<#list extension.parameters><#items as parameter><${parameter.type?join("|", "")}> ${parameter.name}<#sep>, </#items></#list>)
+<#if namespace.name != CONSTANTS.CORE_NAMESPACE>${namespace.name}:</#if>${extension.name}(<#list extension.parameters><#items as parameter><${parameter.type?join("|", "")}> ${parameter.name}<#sep>, </#items></#list>)
 ```
-<#elseif ["Source", "Sink"]?seq_index_of(extensionType) != -1>
+<#elseif [EXTENSION_TYPE.SOURCE, EXTENSION_TYPE.SINK]?seq_index_of(extensionType) != -1>
 ```
 @${extensionType?lower_case}(type="${extension.name}"<#list extension.parameters as parameter>, ${parameter.name}="<${parameter.type?join("|", "")}>"</#list>, @map(...)))
 ```
-<#elseif extensionType == "Source Mapper">
+<#elseif extensionType == EXTENSION_TYPE.SOURCE_MAPPER>
 ```
 @source(..., @map(type="${extension.name}"<#list extension.parameters as parameter>, ${parameter.name}="<${parameter.type?join("|", "")}>"</#list>)
 ```
-<#elseif extensionType == "Sink Mapper">
+<#elseif extensionType == EXTENSION_TYPE.SINK_MAPPER>
 ```
 @sink(..., @map(type="${extension.name}"<#list extension.parameters as parameter>, ${parameter.name}="<${parameter.type?join("|", "")}>"</#list>)
 ```
-<#elseif extensionType == "Store">
+<#elseif extensionType == EXTENSION_TYPE.STORE>
 ```
 @Store(type="${extension.name}"<#list extension.parameters as parameter>, ${parameter.name}="<${parameter.type?join("|", "")}>"</#list>)
 @PrimaryKey("PRIMARY_KEY")
 @Index("INDEX")
 ```
+<#elseif extensionType == EXTENSION_TYPE.SCRIPT>
+```
+define function <FunctionName>[${extension.name}] return <type> {
+    // Script code
+};
+```
 </#if>
-
 <#list extension.parameters>
-##### Query Parameters
+
+<@utils.renderHeadingFiveWithStylesOnly heading="Query Parameters"/>
 
 <table>
     <tr>
         <th>Name</th>
-        <th style="min-width:20em">Description</th>
+        <th style="min-width: 20em">Description</th>
         <th>Default Value</th>
         <th>Possible Data Types</th>
         <th>Optional</th>
@@ -80,14 +87,14 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
     </#items>
 </table>
 </#list>
-
 <#list extension.systemParameters>
-#### System Parameters
+
+<@utils.renderHeadingFourWithStylesOnly heading="System Parameters"/>
 
 <table>
     <tr>
         <th>Name</th>
-        <th style="min-width:20em">Description</th>
+        <th style="min-width: 20em">Description</th>
         <th>Default Value</th>
         <th>Possible Parameters</th>
     </tr>
@@ -101,15 +108,14 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
     </#items>
 </table>
 </#list>
-
-<#if ["Stream Processor", "Stream Function"]?seq_index_of(extensionType) != -1>
+<#if [EXTENSION_TYPE.STREAM_PROCESSOR, EXTENSION_TYPE.STREAM_FUNCTION]?seq_index_of(extensionType) != -1>
 <#list extension.returnAttributes>
-#### Extra Return Attributes
+<@utils.renderHeadingFourWithStylesOnly heading="Extra Return Attributes"/>
 
 <table>
     <tr>
         <th>Name</th>
-        <th style="min-width:20em">Description</th>
+        <th style="min-width: 20em">Description</th>
         <th>Possible Types</th>
     </tr>
     <#items as returnAttribute>
@@ -124,10 +130,10 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 </#if>
 
 <#list extension.examples>
-#### Examples
+<@utils.renderHeadingFourWithStylesOnly heading="Examples"/>
 
 <#items as example>
-##### Example ${example?index + 1}
+<@utils.renderHeadingFiveWithStylesOnly heading=("Example" + (example?index + 1))/>
 
 ```
 ${example.syntax}

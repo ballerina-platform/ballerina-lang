@@ -435,16 +435,18 @@ public class SiddhiAppRuntime {
         }
     }
 
-    public void restoreLastRevision() {
+    public String restoreLastRevision() {
+        String revision;
         try {
             // first, pause all the event sources
             sourceMap.values().forEach(list -> list.forEach(Source::pause));
             // start the restoring process
-            siddhiAppContext.getPersistenceService().restoreLastRevision();
+            revision = siddhiAppContext.getPersistenceService().restoreLastRevision();
         } finally {
             // at the end, resume the event sources
             sourceMap.values().forEach(list -> list.forEach(Source::resume));
         }
+        return revision;
     }
 
     private void monitorQueryMemoryUsage() {

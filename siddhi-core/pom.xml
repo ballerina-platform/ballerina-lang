@@ -21,7 +21,7 @@
     <parent>
         <artifactId>siddhi</artifactId>
         <groupId>org.wso2.siddhi</groupId>
-        <version>4.0.0-M37-SNAPSHOT</version>
+        <version>4.0.0-M44-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
 
     </parent>
@@ -118,9 +118,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>${argLine} -ea -Xmx512m</argLine>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
