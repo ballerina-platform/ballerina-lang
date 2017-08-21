@@ -71,6 +71,7 @@ class Diagram extends React.Component {
         // 1.1 First clear any offset values we have set.
         this.props.model.accept(new ClearOffset());
         // 1.2 Run the dimention calculator.
+        this.dimentionVisitor.setMode(this.props.mode);
         this.props.model.accept(this.dimentionVisitor);
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.

@@ -58,7 +58,7 @@ class BreakStatementDimensionCalculatorVisitor {
      * @memberOf BreakStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-
+        
     }
 }
 
