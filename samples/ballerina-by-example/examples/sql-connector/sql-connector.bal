@@ -10,7 +10,7 @@ function main (string[] args) {
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0
     sql:Parameter[] params = [];
-    int ret = testDB.update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT,
+    int ret = testDB.update("CREATE TABLE IF NOT EXISTS STUDENT(ID INT AUTO_INCREMENT,
                     AGE INT, NAME VARCHAR(255), PRIMARY KEY (ID))", params);
     system:println("Table creation status:" + ret);
 
