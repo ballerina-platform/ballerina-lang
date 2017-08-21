@@ -139,7 +139,7 @@ public class AggregationRuntime {
                 outputExpressionExecutors);
     }
 
-    public IncrementalAggregateCompileCondition compileExpression(Expression expression, Within within, Expression per,
+    public CompiledCondition compileExpression(Expression expression, Within within, Expression per,
             MatchingMetaInfoHolder matchingMetaInfoHolder, List<VariableExpressionExecutor> variableExpressionExecutors,
             Map<String, Table> tableMap, String queryName, SiddhiAppContext siddhiAppContext) {
 
