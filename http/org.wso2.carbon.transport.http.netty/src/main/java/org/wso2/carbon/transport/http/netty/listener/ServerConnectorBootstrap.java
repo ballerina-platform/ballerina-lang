@@ -30,7 +30,6 @@ import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
@@ -50,11 +49,9 @@ public class ServerConnectorBootstrap {
 
     private ServerBootstrap serverBootstrap;
     private HTTPServerChannelInitializer httpServerChannelInitializer;
-    private ListenerConfiguration listenerConfiguration;
     private boolean initialized = false;
 
-    public ServerConnectorBootstrap(ListenerConfiguration listenerConfiguration) {
-        this.listenerConfiguration = listenerConfiguration;
+    public ServerConnectorBootstrap() {
         serverBootstrap = new ServerBootstrap();
         httpServerChannelInitializer = new HTTPServerChannelInitializer();
         serverBootstrap.childHandler(httpServerChannelInitializer);
@@ -69,12 +66,12 @@ public class ServerConnectorBootstrap {
             return null;
         }
 
-        ChannelFuture future = serverBootstrap.bind(
-                new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
+        ChannelFuture future = serverBootstrap
+                .bind(new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
-                log.info("HTTP(S) Interface " + serverConnector.getConnectorID() + " starting on host  " +
-                        serverConnector.getHost() + " and port " + serverConnector.getPort());
+                log.info("HTTP(S) Interface starting on host " + serverConnector.getHost()
+                        + " and port " + serverConnector.getPort());
             } else {
                 log.error("Cannot bind port for host " + serverConnector.getHost() + " port "
                         + serverConnector.getPort());
@@ -98,22 +95,18 @@ public class ServerConnectorBootstrap {
     }
 
     public boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
-
         if (!initialized) {
             log.error("ServerConnectorBootstrap is not initialized");
             return false;
         }
-
-        ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
 
         //Remove cached channels and close them.
         ChannelFuture future = serverConnector.getChannelFuture();
         if (future != null) {
             ChannelFuture channelFuture = future.channel().close();
             channelFuture.sync();
-            log.info("HTTP(S) HttpConnectorListener stopped on listening interface " +
-                    listenerConfiguration.getId() + " attached to host " +
-                    listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+            log.info("HttpConnectorListener stopped listening on host " + serverConnector.getHost()
+                    + " and port " + serverConnector.getPort());
             return true;
         }
         return false;
@@ -147,7 +140,7 @@ public class ServerConnectorBootstrap {
 
     public void addSecurity(SSLConfig sslConfig) {
         if (sslConfig != null) {
-            SSLEngine sslEngine = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).build();
+            SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).build();
             httpServerChannelInitializer.setSslEngine(sslEngine);
         }
     }
@@ -183,6 +176,7 @@ public class ServerConnectorBootstrap {
             this.host = host;
             this.port = port;
             this.connectorID =  id;
+            httpServerChannelInitializer.setInterfaceId(Util.createServerConnectorID(host, port));
         }
 
         @Override
@@ -212,13 +206,9 @@ public class ServerConnectorBootstrap {
             return channelFuture;
         }
 
-        public ListenerConfiguration getListenerConfiguration() {
-            return listenerConfiguration;
-        }
-
         @Override
         public String toString() {
-            return listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort();
+            return this.host + "-" + this.port;
         }
 
         public ServerConnectorFuture getServerConnectorFuture() {

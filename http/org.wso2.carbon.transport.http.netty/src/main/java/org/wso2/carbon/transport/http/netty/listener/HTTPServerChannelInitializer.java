@@ -50,6 +50,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLEngine sslEngine;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
+    private String interfaceId;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -112,7 +113,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                             new SourceHandler(connectionManager, this.serverConnectorFuture));
+                             new SourceHandler(connectionManager, this.serverConnectorFuture, this.interfaceId));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
@@ -141,5 +142,13 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+    }
+
+    public String getInterfaceId() {
+        return interfaceId;
+    }
+
+    public void setInterfaceId(String interfaceId) {
+        this.interfaceId = interfaceId;
     }
 }
