@@ -42,6 +42,8 @@ This is how resources and services can equate to the URL that you are calling.
     A new resource is added automatically with the service. This happens because a resource is required if you need to invoke something or get something back from the service. 
 1. You can rename the service by providing an appropriate name.
     ![alt text](../images/ServiceName.png)
+1. You can also rename the resourse to something appropriate.
+    ![alt text](../images/ResourceName.png)
     You can start adding your integration logic.
 
 ### Add integration logic to your service
@@ -53,6 +55,7 @@ Now that you have added a service, you must set up this service so that it can b
 1. As mentioned in [About service URLs](#about-service-URLs), the path for the books service is `http://localhost:9090/books`. Add an annotation by clicking on the label in the service and selecting `ballerina.net.http` from the dropdown.
     ![alt text](../images/AddAnnotation.png)
 1. Once you add the annotation, you are asked to add an identifier. Select `config` as the identifier from the dropdown.
+
     ![alt text](../images/ConfigIdentifier.png)
 1. Click the `+` sign and select `basePath` from the dropdown to select the basepath.
     ![alt text](../images/BasepathConfig.png)
