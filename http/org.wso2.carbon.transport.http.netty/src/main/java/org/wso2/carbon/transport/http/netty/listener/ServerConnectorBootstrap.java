@@ -27,6 +27,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
@@ -71,13 +72,11 @@ public class ServerConnectorBootstrap {
                 new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
-                log.info("Started listener " +
-                        listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort());
-                log.info("HTTP(S) Interface " + listenerConfiguration.getId() + " starting on host  " +
-                        listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                log.info("HTTP(S) Interface " + serverConnector.getConnectorID() + " starting on host  " +
+                        serverConnector.getHost() + " and port " + serverConnector.getPort());
             } else {
-                log.error("Cannot bind port for host " + listenerConfiguration.getHost() + " port "
-                        + listenerConfiguration.getPort());
+                log.error("Cannot bind port for host " + serverConnector.getHost() + " port "
+                        + serverConnector.getPort());
             }
         });
 
@@ -119,11 +118,9 @@ public class ServerConnectorBootstrap {
         return false;
     }
 
-    public ServerConnector getServerConnector(ListenerConfiguration listenerConfiguration) {
-        HTTPServerConnector httpServerConnector = new HTTPServerConnector(
-                listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort(), this,
-                listenerConfiguration.getHost(), listenerConfiguration.getPort());
-        return httpServerConnector;
+    public ServerConnector getServerConnector(String host, int port) {
+        String serverConnectorId = host + ":" + port;
+        return new HTTPServerConnector(serverConnectorId, this, host, port);
     }
 
     public void addSocketConfiguration(ServerBootstrapConfiguration serverBootstrapConfiguration) {
@@ -147,15 +144,14 @@ public class ServerConnectorBootstrap {
         log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
     }
 
-    public void addSecurity(ListenerConfiguration listenerConfiguration) {
-        if (listenerConfiguration.getSslConfig() != null) {
+    public void addSecurity(SSLConfig sslConfig) {
+        if (sslConfig != null) {
             SSLEngine sslEngine = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).build();
             httpServerChannelInitializer.setSslEngine(sslEngine);
         }
     }
 
-    public void addIdleTimeout(ListenerConfiguration listenerConfiguration) {
-        int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(120000);
+    public void addIdleTimeout(int socketIdleTimeout) {
         httpServerChannelInitializer.setIdleTimeout(socketIdleTimeout);
     }
 
@@ -165,8 +161,8 @@ public class ServerConnectorBootstrap {
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
 
-    public void addHttpTraceLogHandler(ListenerConfiguration listenerConfig) {
-        httpServerChannelInitializer.setHttpTraceLogEnabled(listenerConfig.isHttpTraceLogEnabled());
+    public void addHttpTraceLogHandler(Boolean isHttpTraceLogEnabled) {
+        httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
     }
 
     class HTTPServerConnector implements ServerConnector {
