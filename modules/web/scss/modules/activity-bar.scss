@@ -8,6 +8,7 @@
     & > i {
         opacity: 0.4;
     }
+    outline-color: transparent;
 }
 .activity-bar {
     height: calc(100% - 27px);
@@ -22,6 +23,7 @@
     & .nav-tabs {
         border-bottom: none;
         & > li  {
+            margin-bottom: 0;
             width: $activity-bar-width;
             & > a {
                 @extend .activity-bar-nav-common;

@@ -14,6 +14,7 @@
         border-bottom: none;
         > .rc-menu-submenu-title {
             @extend .menu-active-common;
+            line-height: 21px;
         }
     }
 }
