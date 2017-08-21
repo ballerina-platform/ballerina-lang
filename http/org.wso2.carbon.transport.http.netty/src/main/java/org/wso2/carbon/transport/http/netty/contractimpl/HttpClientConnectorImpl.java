@@ -78,16 +78,15 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
                                                                                 httpTraceLogEnabled);
-
-            ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
-            if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-                HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
-                        Constants.HTTP_TRACE_LOG_HANDLER);
-                loggingHandler.setCorrelatedSourceId(
-                        srcHandler.getInboundChannelContext().channel().id().asShortText());
-            }
-
             targetChannel.getChannel().eventLoop().execute(() -> {
+
+                ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
+                if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
+                    HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
+                            Constants.HTTP_TRACE_LOG_HANDLER);
+                    loggingHandler.setCorrelatedSourceId(
+                            srcHandler.getInboundChannelContext().channel().id().asShortText());
+                }
 
                 Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
                 Util.setupTransferEncodingForRequest(httpCarbonRequest);
