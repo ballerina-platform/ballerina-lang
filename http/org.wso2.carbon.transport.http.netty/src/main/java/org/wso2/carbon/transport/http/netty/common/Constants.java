@@ -246,7 +246,7 @@ public final class Constants {
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String TARGET_HANDLER = "targetHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
-    public static final String HTTP_TRACE_LOGGING_HANDLER = "httpTraceLogger";
+    public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
 
     private Constants() {
     }

@@ -39,9 +39,11 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private SSLEngine sslEngine;
     private TargetHandler handler;
+    private boolean httpTraceLogEnabled;
 
-    public HTTPClientInitializer(SSLEngine sslEngine) {
+    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled) {
         this.sslEngine = sslEngine;
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
     @Override
@@ -56,10 +58,9 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
-        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))) {
-            log.debug("Adding logging handler");
-            ch.pipeline().addLast(Constants.HTTP_TRACE_LOGGING_HANDLER,
-                                  new HTTPTraceLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG));
+        if (httpTraceLogEnabled) {
+            ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+                                  new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
         handler = new TargetHandler();
         ch.pipeline().addLast(Constants.TARGET_HANDLER, handler);

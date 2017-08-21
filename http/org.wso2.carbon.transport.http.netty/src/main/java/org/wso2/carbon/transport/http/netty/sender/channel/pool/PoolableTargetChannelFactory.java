@@ -38,13 +38,16 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private Class eventLoopClass;
     private HttpRoute httpRoute;
     private SSLConfig sslConfig;
+    private boolean httpTraceLogEnabled;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-                                        Class eventLoopClass, SSLConfig sslConfig) {
+                                        Class eventLoopClass, SSLConfig sslConfig,
+                                        boolean httpTraceLogEnabled) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
         this.sslConfig = sslConfig;
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
 
@@ -52,7 +55,9 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         TargetChannel targetChannel = new TargetChannel();
         ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
-                eventLoopGroup, eventLoopClass, httpRoute, this.sslConfig);
+                                                                       eventLoopGroup, eventLoopClass, httpRoute,
+                                                                       this.sslConfig,
+                                                                       httpTraceLogEnabled);
         Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
         log.debug("Created channel: {}", channel);
         targetChannel.setChannel(channel);

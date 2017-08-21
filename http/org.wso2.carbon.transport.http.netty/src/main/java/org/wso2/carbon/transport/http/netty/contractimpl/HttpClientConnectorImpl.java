@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
+import io.netty.channel.ChannelPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
@@ -28,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -45,9 +47,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private ConnectionManager connectionManager;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
+    private boolean httpTraceLogEnabled;
 
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout) {
+    public HttpClientConnectorImpl(ConnectionManager connectionManager,
+                                   SSLConfig sslConfig, int socketIdleTimeout, boolean httpTraceLogEnabled) {
         this.connectionManager = connectionManager;
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.sslConfig = sslConfig;
         this.socketIdleTimeout = socketIdleTimeout;
     }
@@ -71,7 +76,17 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig);
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
+                                                                                httpTraceLogEnabled);
+
+            ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
+            if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
+                HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
+                        Constants.HTTP_TRACE_LOG_HANDLER);
+                loggingHandler.setCorrelatedSourceId(
+                        srcHandler.getInboundChannelContext().channel().id().asShortText());
+            }
+
             targetChannel.getChannel().eventLoop().execute(() -> {
 
                 Util.prepareBuiltMessageForTransfer(httpCarbonRequest);

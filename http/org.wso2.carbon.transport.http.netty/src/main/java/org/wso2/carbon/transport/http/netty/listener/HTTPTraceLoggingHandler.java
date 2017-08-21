@@ -72,7 +72,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
     }
 
     public void setCorrelatedSourceId(String correlatedSourceId) {
-        this.correlatedSourceId = correlatedSourceId;
+        this.correlatedSourceId = "0x" + correlatedSourceId;
     }
 
     @Override
