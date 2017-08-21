@@ -64,7 +64,7 @@ connector FilterConnector<TestConnector t> (string param1, string param2, int pa
           msg -> sampleWorker;
           result <- sampleWorker;
           json x;
-          x = TestConnector.action1(t, msg);
+          x = t.action1(msg);
           return x;
 
           worker sampleWorker {

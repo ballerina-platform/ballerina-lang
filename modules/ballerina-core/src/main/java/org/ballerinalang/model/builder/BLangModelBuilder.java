@@ -971,8 +971,10 @@ public class BLangModelBuilder {
         //int j = 0;
         for (int j = filterNameReferenceList.size() - 1; j >= 0; j--) {
             BLangModelBuilder.NameReference filterNameReference = filterNameReferenceList.get(j);
+            this.resolvePackageFromNameReference(filterNameReference);
+            this.createSimpleVarRefExpr(location, filterNameReference.getWhiteSpaceDescriptor(), filterNameReference);
             SimpleTypeName filterTypeName = new SimpleTypeName(filterNameReference.getName(),
-                    filterNameReference.getPackageName(), null);
+                    filterNameReference.getPackageName(), filterNameReference.getPackagePath());
             List<Expression> argExpr = filterArgExprList.get(j);
             filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
             WhiteSpaceDescriptor wsDescriptor = (filterInitWSDescriptors.size() == 0 ?
@@ -1177,6 +1179,7 @@ public class BLangModelBuilder {
 
         BallerinaAction action = currentCUBuilder.buildAction();
         currentCUGroupBuilder.addAction(action);
+        currentCUGroupBuilder.setNative(isNative);
 
         currentScope = action.getEnclosingScope();
         currentCUBuilder = null;

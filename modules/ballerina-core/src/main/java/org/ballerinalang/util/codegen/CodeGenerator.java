@@ -1836,14 +1836,34 @@ public class CodeGenerator implements NodeVisitor {
 
         if (baseConnectorInfo != null) {
 
+            String pkgPath = connectorDef.getPackagePath();
+            pkgPath = (pkgPath != null) ? pkgPath : ".";
+            UTF8CPEntry pkgNameCPEntry = new UTF8CPEntry(pkgPath);
+
+            MethodTable methodTable = programFile.getMethodTable();
+            int pkgNameIndex = methodTable.addCPEntry(pkgNameCPEntry);
+
+            PackageRefCPEntry pkgCPEntry = new PackageRefCPEntry(pkgNameIndex, pkgPath);
+            pkgCPEntry.setPackageInfo(programFile.getPackageInfo(pkgPath));
+            int pkgCPIndexPF = methodTable.addCPEntry(pkgCPEntry);
+
+            UTF8CPEntry nameUTF8CPEntryPF = new UTF8CPEntry(connectorDef.getName());
+            int nameIndexPF = methodTable.addCPEntry(nameUTF8CPEntryPF);
+
+            StructureRefCPEntry structureRefCPEntryPF = new StructureRefCPEntry(pkgCPIndexPF,
+                    connectorDef.getPackagePath(), nameIndexPF, connectorDef.getName());
+            structureRefCPEntryPF.setStructureTypeInfo(connectorInfo);
+            int structureRefCPIndexPF = methodTable.addCPEntry(structureRefCPEntryPF);
+
             TypeSignature typeSig = connectorInitExpr.getInheritedType().getSig();
             UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
-            int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+            int typeSigCPIndex = methodTable.addCPEntry(typeSigUTF8CPEntry);
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
             typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
-            int typeEntry = currentPkgInfo.addCPEntry(typeRefCPEntry);
+            int typeEntry = methodTable.addCPEntry(typeRefCPEntry);
 
-            baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
+            methodTable.addMethodIndex(typeEntry, structureRefCPIndexPF);
+            baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndexPF);
             baseConnectorInfo.addMethodType((BConnectorType) getVMTypeFromSig(typeSig), connectorInfo);
         }
 

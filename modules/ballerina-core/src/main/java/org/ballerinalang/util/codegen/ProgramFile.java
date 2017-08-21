@@ -67,6 +67,8 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
+    private MethodTable methodTable;
+
     private List<AnnAttributeValue> unresolvedAnnAttrValues = new ArrayList<>();
 
     public int getMagicValue() {
@@ -119,6 +121,13 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
+    }
+
+    public MethodTable getMethodTable() {
+        if (methodTable == null) {
+            methodTable = new MethodTable();
+        }
+        return methodTable;
     }
 
     // CP
