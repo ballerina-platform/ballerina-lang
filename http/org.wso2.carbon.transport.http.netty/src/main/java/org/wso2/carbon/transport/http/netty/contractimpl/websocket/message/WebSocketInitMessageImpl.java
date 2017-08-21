@@ -125,9 +125,9 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
 
     /* Get the URL of the given connection */
     private String getWebSocketURL(HttpRequest req) {
-        String protocol = "ws";
+        String protocol = Constants.WEBSOCKET_PROTOCOL;
         if (isConnectionSecured) {
-            protocol = "wss";
+            protocol = Constants.WEBSOCKET_PROTOCOL_SECURED;
         }
         String url =   protocol + "://" + req.headers().get("Host") + req.getUri();
         return url;
