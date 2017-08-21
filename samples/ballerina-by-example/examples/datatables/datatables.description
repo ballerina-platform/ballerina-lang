@@ -1,22 +1,4 @@
 //The datatable type is used to hold tabular data, such as those returned from
-//an SQL database query and provides cursor based access to the data.
-//Use the following sql scripts to create table and
-// sample data in a mysql database. Before run the sample copy the JDBC
-// driver to the BALLERINA_HOME/bre/lib folder.
-//
-//create table employees (
-//    id int,
-//    name varchar(25),
-//    salary double,
-//    status boolean,
-//    birthdate date,
-//    birthtime time,
-//    updated timestamp
-//);
-//
-//insert into employees values(1, 'John', 1050.50, false,
-//'1990-12-31', '11:30:45', '2007-05-23 09:15:28');
-//
-//insert into employees values(2, 'Anne', 4060.50, true, '1999-12-31',
-//'13:40:24', '2017-05-23 09:15:28');
-
+//an SQL database query and provides cursor based access to the data.This sample use
+//MySQL DB and before run the sample copy the MySQL JDBC driver to the
+// BALLERINA_HOME/bre/lib folder and change the DB connection properties in the ballerina sample.
