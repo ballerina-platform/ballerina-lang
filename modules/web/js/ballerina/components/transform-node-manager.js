@@ -387,6 +387,14 @@ class TransformNodeManager {
         return expression;
     }
 
+    addNewVariable(node) {
+      let varName = "tempVar";
+      const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
+      variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
+      node.addChild(variableDefinitionStatement);
+      return variableDefinitionStatement;
+    }
+
  }
 
 export default TransformNodeManager;

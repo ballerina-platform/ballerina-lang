@@ -510,10 +510,18 @@ class TransformExpanded extends React.Component {
     }
 
     onSourceSelect(e, { suggestionValue }) {
-        this.setState({
-            selectedSource: suggestionValue,
-        });
-        this.addSource(suggestionValue);
+        if(suggestionValue === "") {
+          let variableDefinitionStatement = this.transformNodeManager.addNewVariable(this.props.model);
+          this.state.vertices.push({name:variableDefinitionStatement.getVariableDef().getName(),
+                                              type: variableDefinitionStatement.getVariableDef().getTypeName()});
+          this.addSource(variableDefinitionStatement.getVariableDef().getName());
+        } else {
+          this.setState({
+              selectedSource: suggestionValue,
+          });
+          this.addSource(suggestionValue);
+        }
+
     }
 
     onTargetSelect(e, { suggestionValue }) {
