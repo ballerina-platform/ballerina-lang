@@ -3,17 +3,33 @@ xmlns "http://sample.com/wso2/a1" as ns0;
 function test () {
 
     iterate (string s:list) {
-
+        // test
     }
 
     while (a != null) {
-
+        // test
         if (a > 10) {
+            // test
             continue;
+        } else if (a == 10) {
+            // test
+            break;
         } else {
+            // test
             break;
         }
+        // test
+    }
 
+    try {
+        // test
+        string s = "10";
+        var i, _ = (string)s;
+        // test
+    } catch (errors:Error e) {
+        // test
+    } finally {
+        // test
     }
 
     throw exception;
