@@ -61,12 +61,13 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
             SenderConfiguration senderConfiguration) {
         SSLConfig sslConfig = senderConfiguration.getSslConfig();
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
+        boolean httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
 
         ConnectionManager.init(transportProperties);
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, senderConfiguration, sslConfig, socketIdleTimeout);
+        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled);
     }
 
     @Override

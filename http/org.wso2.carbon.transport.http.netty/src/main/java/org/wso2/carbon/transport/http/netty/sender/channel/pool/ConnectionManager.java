@@ -26,7 +26,6 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
@@ -109,11 +108,11 @@ public class ConnectionManager {
      * @param httpRoute           BE address
      * @param sourceHandler       Incoming channel
      * @param sslConfig           netty sender config
-     * @param senderConfiguration Configurations for the sender
+     * @param httpTraceLogEnabled Indicates whether HTTP trace logs are enabled
      * @throws Exception    to notify any errors occur during retrieving the target channel
      */
     public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler, SSLConfig sslConfig,
-                                             SenderConfiguration senderConfiguration)
+                                             boolean httpTraceLogEnabled)
             throws Exception {
         GenericObjectPool trgHlrConnPool;
 
@@ -129,7 +128,7 @@ public class ConnectionManager {
                 trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
                 if (trgHlrConnPool == null) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, senderConfiguration);
+                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
@@ -141,7 +140,7 @@ public class ConnectionManager {
                         if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                             PoolableTargetChannelFactory poolableTargetChannelFactory =
                                     new PoolableTargetChannelFactory(
-                                            httpRoute, group, cl, sslConfig, senderConfiguration);
+                                            httpRoute, group, cl, sslConfig, httpTraceLogEnabled);
                             trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                             this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                         }
@@ -157,7 +156,7 @@ public class ConnectionManager {
             synchronized (this) {
                 if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, senderConfiguration);
+                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                 }

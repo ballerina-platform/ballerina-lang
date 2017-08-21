@@ -26,7 +26,6 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 
 import javax.net.ssl.SSLEngine;
@@ -40,11 +39,11 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private SSLEngine sslEngine;
     private TargetHandler handler;
-    private SenderConfiguration senderConfiguration;
+    private boolean httpTraceLogEnabled;
 
-    public HTTPClientInitializer(SSLEngine sslEngine, SenderConfiguration senderConfiguration) {
+    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled) {
         this.sslEngine = sslEngine;
-        this.senderConfiguration = senderConfiguration;
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
     @Override
@@ -59,7 +58,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
-        if (senderConfiguration.isHttpTraceLogEnabled()) {
+        if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                                   new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
