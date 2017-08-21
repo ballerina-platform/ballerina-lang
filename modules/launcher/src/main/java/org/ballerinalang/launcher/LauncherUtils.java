@@ -22,6 +22,7 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -79,7 +80,12 @@ public class LauncherUtils {
         BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
         BLangProgramRunner.runMain(programFile, args);
+        //return;
+        //Runtime.getRuntime().exit(0);
+
+        ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
         Runtime.getRuntime().exit(0);
+
     }
 
     private static void runServices(ProgramFile programFile) {

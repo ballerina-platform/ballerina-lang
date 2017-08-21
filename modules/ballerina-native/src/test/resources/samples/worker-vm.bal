@@ -35,7 +35,6 @@ function foo(int x)(int) {
     int pp = 888;
     float gg = 99.999;
     pp, gg -> default;
-    return;
     }
 
     worker sampleWorker2 {
@@ -47,7 +46,6 @@ function foo(int x)(int) {
     int mm = 777;
     float nn = 44.444;
     mm, nn -> default;
-    return;
     }
 
 }

@@ -28,7 +28,9 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -126,6 +128,11 @@ public class BLangProgramRunner {
             arrayArgs.add(i, args[i]);
         }
 
+        BValue[] valueArgs = new BValue[args.length];
+        for (int i = 0; i < args.length; i++) {
+            valueArgs[i] = new BString(args[i]);
+        }
+
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;
         ControlStackNew controlStackNew = bContext.getControlStackNew();
@@ -138,7 +145,8 @@ public class BLangProgramRunner {
         int[] argRegs = {0};
 
         if (mainFuncInfo.getWorkerInfoEntries().length > 0) {
-            BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs, bContext, defaultWorkerInfo);
+            BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, bContext, defaultWorkerInfo,
+             valueArgs, new int[0]);
         } else {
             BLangVM bLangVM = new BLangVM(programFile);
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());

@@ -23,7 +23,6 @@ function testWorker()(int) {
   //r = changeMessage(m);
   system:println("after calling function");
   r -> default;
-  return;
 }
 
 }

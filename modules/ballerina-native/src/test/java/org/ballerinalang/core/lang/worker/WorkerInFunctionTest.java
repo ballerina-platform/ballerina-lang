@@ -63,7 +63,7 @@ public class WorkerInFunctionTest {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testParallelWorkers", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMessage);
+        Assert.assertTrue(returns[0] instanceof BInteger);
     }
 
     @Test(description = "Test worker accessing parameters passed into function")

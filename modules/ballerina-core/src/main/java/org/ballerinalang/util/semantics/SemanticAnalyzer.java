@@ -4089,8 +4089,26 @@ public class SemanticAnalyzer implements NodeVisitor {
         BlockStmt blockStmt = callableUnit.getCallableUnitBody();
         ParameterDef[] retParams = callableUnit.getReturnParameters();
         if (retParams.length > 0 && !blockStmt.isAlwaysReturns()) {
-            throw BLangExceptionHelper.getSemanticError(callableUnit.getNodeLocation(),
-                    SemanticErrors.MISSING_RETURN_STATEMENT);
+            boolean isWorkerReturning = false;
+            for (Worker worker : callableUnit.getWorkers()) {
+                if (worker.getCallableUnitBody().isAlwaysReturns()) {
+                    isWorkerReturning = true;
+                }
+            }
+//            if (isWorkerReturning) {
+//                return;
+//            }
+            if (!(callableUnit instanceof Worker) && !isWorkerReturning) {
+                throw BLangExceptionHelper.getSemanticError(callableUnit.getNodeLocation(),
+                        SemanticErrors.MISSING_RETURN_STATEMENT);
+            } else {
+                for (Worker worker : callableUnit.getWorkers()) {
+                    if (worker.getCallableUnitBody().isAlwaysReturns()) {
+                        checkAndAddReturnStmt(worker);
+                    }
+                }
+
+            }
         } else if (blockStmt.isAlwaysReturns()) {
             return;
         }

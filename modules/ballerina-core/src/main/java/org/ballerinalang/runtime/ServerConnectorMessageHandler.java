@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.interceptors.BLangVMInterceptors;
 import org.ballerinalang.runtime.interceptors.ServiceInterceptorCallback;
@@ -227,9 +228,11 @@ public class ServerConnectorMessageHandler {
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
 
+        BValue[] valueArgs = {new BMessage(resourceMessage)};
+
         if (resourceInfo.getWorkerInfoEntries().length > 0) {
             BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo,
-                    callerSF, retRegs, context, defaultWorkerInfo);
+                    callerSF, context, defaultWorkerInfo, valueArgs, retRegs);
         } else {
             BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
             if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {

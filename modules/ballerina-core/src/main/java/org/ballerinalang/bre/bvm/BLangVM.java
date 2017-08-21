@@ -2411,13 +2411,14 @@ public class BLangVM {
 
         if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
             //ControlStackNew controlStack = context.getControlStackNew();
-            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
-                    funcCallCPEntry.getRetRegs());
-            controlStack.pushFrame(workerCalleeSF);
-            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
+//            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
+//                    funcCallCPEntry.getRetRegs());
+//            controlStack.pushFrame(workerCalleeSF);
+//            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
 
             // Invoke other workers
-            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo);
+            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo,
+                    funcCallCPEntry.getRetRegs());
         } else {
 
             StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
@@ -2442,13 +2443,14 @@ public class BLangVM {
 
         if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
             //ControlStackNew controlStack = context.getControlStackNew();
-            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
-                    funcCallCPEntry.getRetRegs());
-            controlStack.pushFrame(workerCalleeSF);
-            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
+//            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
+//                    funcCallCPEntry.getRetRegs());
+//            controlStack.pushFrame(workerCalleeSF);
+//            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
 
             // Invoke other workers
-            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo);
+            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context,
+                    defaultWorkerInfo, funcCallCPEntry.getRetRegs());
         } else {
 
             StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
@@ -2786,6 +2788,7 @@ public class BLangVM {
         StackFrame currentSF = controlStack.popFrame();
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
+            callersSF.setCalleeReturned(true);
             // TODO Improve
             this.constPool = callersSF.packageInfo.getConstPoolEntries();
             this.code = callersSF.packageInfo.getInstructions();
