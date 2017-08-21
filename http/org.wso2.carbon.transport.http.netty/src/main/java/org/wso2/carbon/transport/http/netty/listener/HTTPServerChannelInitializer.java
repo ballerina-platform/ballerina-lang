@@ -21,6 +21,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -50,6 +51,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private ServerConnectorFuture serverConnectorFuture;
     private SSLEngine sslEngine;
     private int socketIdleTimeout;
+    private boolean httpTraceLogEnabled;
 
     public HTTPServerChannelInitializer(ListenerConfiguration listenerConfiguration) {
         this.listenerConfiguration = listenerConfiguration;
@@ -110,6 +112,12 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         }
         pipeline.addLast("compressor", new HttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
+
+        if (httpTraceLogEnabled) {
+            pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+                      new HTTPTraceLoggingHandler("tracelog.http.downstream", LogLevel.DEBUG));
+        }
+
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                              new SourceHandler(connectionManager, listenerConfiguration, this.serverConnectorFuture));
@@ -137,5 +145,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setIdleTimeout(int idleTimeout) {
         this.socketIdleTimeout = idleTimeout;
+    }
+
+    public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 }
