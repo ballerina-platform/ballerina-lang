@@ -6,7 +6,7 @@ Now that you have [written your first program](../first-program.md) and [written
 
 This tutorial consists of the following main sections.
 
-- [Add a service](add-a-service)
+- [Set up a service for integration](set-up-a-service-for-integration)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write your first program](../first-program.md) and [write a main program](../main-program.md) as some concepts are explored in detail in those tutorials.
 
@@ -18,7 +18,7 @@ A service is a container of `resources`, each of which defines the logic for han
 
 ### About service URLs
 
-In this tutorial, the service and the resource are also represented by the URL that you are calling. For example, the base path for a resource can be as follows: 
+In this tutorial, the service and the resource are also represented by the URL that you are calling. For example, the basepath for a resource can be as follows: 
 
 > http://localhost:9090/
 
@@ -52,3 +52,9 @@ Now that you have added a service, you must set up this service so that it can b
     ![alt text](../images/IdentifierHTTP.png)
 1. As mentioned in [About service URLs](#about-service-URLs), the path for the books service is `http://localhost:9090/books`. Add an annotation by clicking on the label in the service and selecting `ballerina.net.http` from the dropdown.
     ![alt text](../images/AddAnnotation.png)
+1. Once you add the annotation, you are asked to add an identifier. Select `config` as the identifier from the dropdown.
+    ![alt text](../images/ConfigIdentifier.png)
+1. Click the `+` sign and select `basePath` from the dropdown to select the basepath.
+    ![alt text](../images/BasepathConfig.png)
+1. Enter the basepath as `/books` to set `http://localhost:9090/books` as the service.
+    ![alt text](../images/BasePathBooksService.png)
