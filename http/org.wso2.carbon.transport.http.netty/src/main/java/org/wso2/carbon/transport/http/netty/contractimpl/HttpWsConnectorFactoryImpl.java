@@ -51,6 +51,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addIdleTimeout(listenerConfig);
         serverConnectorBootstrap.addThreadPools(Runtime.getRuntime().availableProcessors(),
                 Runtime.getRuntime().availableProcessors() * 2);
+        serverConnectorBootstrap.addHttpTraceLogHandler();
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig);
     }

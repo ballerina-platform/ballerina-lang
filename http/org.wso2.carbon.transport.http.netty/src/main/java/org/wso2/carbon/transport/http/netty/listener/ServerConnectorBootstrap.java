@@ -171,6 +171,10 @@ public class ServerConnectorBootstrap {
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
 
+    public void addHttpTraceLogHandler () {
+        httpServerChannelInitializer.setHttpTraceLogEnabled(listenerConfiguration.isHttpTraceLogEnabled());
+    }
+
     class HTTPServerConnector implements ServerConnector {
 
        private final Logger log = LoggerFactory.getLogger(HTTPServerConnector.class);

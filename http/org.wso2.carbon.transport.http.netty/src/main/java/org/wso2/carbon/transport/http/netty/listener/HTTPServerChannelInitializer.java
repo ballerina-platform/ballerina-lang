@@ -51,6 +51,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private ServerConnectorFuture serverConnectorFuture;
     private SSLEngine sslEngine;
     private int socketIdleTimeout;
+    private boolean httpTraceLogEnabled;
 
     public HTTPServerChannelInitializer(ListenerConfiguration listenerConfiguration) {
         this.listenerConfiguration = listenerConfiguration;
@@ -112,7 +113,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast("compressor", new HttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
-        if (listenerConfiguration.isHttpTraceLogEnabled()) {
+        if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                       new HTTPTraceLoggingHandler("tracelog.http.downstream", LogLevel.DEBUG));
         }
@@ -144,5 +145,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setIdleTimeout(int idleTimeout) {
         this.socketIdleTimeout = idleTimeout;
+    }
+
+    public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 }
