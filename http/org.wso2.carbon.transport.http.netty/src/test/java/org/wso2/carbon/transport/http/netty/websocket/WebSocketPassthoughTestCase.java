@@ -21,7 +21,6 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,6 +28,7 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
@@ -59,7 +59,9 @@ public class WebSocketPassthoughTestCase extends WebSocketTestCase {
         listenerConfiguration.setPort(9009);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                   listenerConfiguration);
-        serverConnector.start().setWSConnectorListener(new WebSocketPassthroughServerConnectorListener());
+        ServerConnectorFuture connectorFuture = serverConnector.start();
+        connectorFuture.setWSConnectorListener(new WebSocketPassthroughServerConnectorListener());
+        connectorFuture.sync();
     }
 
     @Test
@@ -68,7 +70,6 @@ public class WebSocketPassthoughTestCase extends WebSocketTestCase {
         String text = "hello-pass-through";
         webSocketClient.sendText(text);
         assertWebSocketClientTextMessage(webSocketClient, text);
-        Assert.assertEquals(webSocketClient.getTextReceived(), text);
     }
 
     @AfterClass

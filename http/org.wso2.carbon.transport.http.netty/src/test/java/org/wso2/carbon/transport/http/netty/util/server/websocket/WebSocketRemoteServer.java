@@ -52,7 +52,7 @@ public final class WebSocketRemoteServer {
          .channel(NioServerSocketChannel.class)
          .childHandler(new WebSocketRemoteServerInitializer(sslCtx));
 
-        b.bind(port).sync().channel();
+        b.bind(port).sync();
         logger.info("WebSocket remote server started listening on port " + port);
     }
 
