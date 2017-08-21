@@ -37,6 +37,10 @@ class TransformNodeManager {
         this._environment = _.get(args, 'environment');
     }
 
+    setTransformStmt(transformStmt) {
+        this._transformStmt = transformStmt;
+    }
+
     /**
      * Get compatibility of given source and target types
      * @param {any} source source type
@@ -50,42 +54,37 @@ class TransformNodeManager {
         return compatibility;
     }
 
-    getVertexExpression(name, property, isStruct) {
-        if (!isStruct || !property) {
-            const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-            simpleVarRefExpression.setExpressionFromString(name);
-            return simpleVarRefExpression;
+    getVertexExpression(name, isField) {
+        let expression;
+        if (isField) {
+            expression = BallerinaASTFactory.createFieldBasedVarRefExpression(name);
         } else {
-            const fieldVarRefExpression = BallerinaASTFactory.createFieldBasedVarRefExpression();
-            fieldVarRefExpression.setExpressionFromString(property);
-            return fieldVarRefExpression;
+            expression = BallerinaASTFactory.createSimpleVariableReferenceExpression(name);
         }
+
+        expression.setExpressionFromString(name);
+        return expression;
     }
 
-    createStatementEdge(source, target, connection) {
+    createStatementEdge(connection) {
+        const {source, target} = connection;
         let sourceExpression;
         let targetExpression;
 
-        if (source !== undefined) {
-            sourceExpression = this.getVertexExpression(
-                connection.sourceStruct, connection.sourceProperty,
-                      ((source.type === 'struct') || (source.type.startsWith('json'))));
-        }
-        if (target !== undefined) {
-            targetExpression = this.getVertexExpression(
-                connection.targetStruct, connection.targetProperty,
-                      ((target.type === 'struct') || (target.type.startsWith('json'))));
+        if (source.endpointKind === 'input') {
+            sourceExpression = this.getVertexExpression(source.name, source.isField);        }
+        if (target.endpointKind === 'output') {
+            targetExpression = this.getVertexExpression(target.name, target.isField);
         }
 
-        if (!_.isUndefined(source) && !connection.isSourceFunction &&
-            !_.isUndefined(target) && !connection.isTargetFunction) {
+        if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             // Connection is from source struct to target struct.
             const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
             const varRefList = BallerinaASTFactory.createVariableReferenceList();
             varRefList.addChild(targetExpression);
             assignmentStmt.addChild(varRefList, 0);
 
-            const compatibility = this.getCompatibility(connection.sourceType, connection.targetType);
+            const compatibility = this.getCompatibility(source.type, target.type);
 
             switch (compatibility.type) {
                 case 'explicit' : {
@@ -113,23 +112,21 @@ class TransformNodeManager {
             return;
         }
 
-        if (!_.isUndefined(source) && connection.isTargetFunction) {
+        if (source.endpointKind === 'input') {
             // Connection source is a struct and target is not a struct.
             // Target could be a function node.
-            const funcNode = connection.targetFuncInv;
-            const index = _.findIndex(this.getFunctionDefinition(connection.targetFuncInv).getParameters(), param => {
-                return param.name === connection.targetStruct;
-            });
+            const funcNode = connection.target.funcInv;
+            const index = connection.target.index;
 
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
-            if (connection.targetProperty &&
+            if (connection.target.isField &&
                 BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
             }
             funcNode.removeChild(funcNode.children[index], true);
             // check function parameter is a struct and mapping is a complex mapping
-            if (connection.targetProperty && _.find(this.state.vertices, (struct) => {
-                return struct.typeName === this.getFunctionDefinition(funcNode).getParameters()[index].type;
+            if (connection.target.isField && _.find(this.state.vertices, (struct) => {
+                return struct.typeName === this.getFunctionVertices(funcNode).parameters[index].type;
             })) {
                 const keyValEx = BallerinaASTFactory.createKeyValueExpression();
                 const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
@@ -147,7 +144,7 @@ class TransformNodeManager {
             return;
         }
 
-        if (connection.isSourceFunction && !_.isUndefined(target)) {
+        if (target.endpointKind === 'output') {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
@@ -180,22 +177,21 @@ class TransformNodeManager {
         funcNode.addChild(assignmentStmtSource.getRightExpression(), index);
     }
 
-    removeStatementEdge(source, target, connection) {
-        if (!_.isUndefined(source) && !connection.isSourceFunction &&
-            !_.isUndefined(target) && !connection.isTargetFunction) {
+    removeStatementEdge(connection) {
+        const {source, target} = connection;
+        if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             const assignmentStmt = _.find(this._transformStmt.getChildren(), (child) => {
                 return child.getLeftExpression().getChildren().find((leftExpression) => {
                     const leftExpressionStr = leftExpression.getExpressionString().trim();
                     const rightExpressionStr = this.getMappingRightExpression(child.getRightExpression()).getExpressionString().trim();
-                    return leftExpressionStr === (connection.targetProperty || connection.targetStruct) &&
-                        rightExpressionStr === (connection.sourceProperty || connection.sourceStruct);
+                    return (leftExpressionStr === target.name) && (rightExpressionStr === source.name);
                 });
             });
             this._transformStmt.removeChild(assignmentStmt);
             return;
         }
 
-        if (!_.isUndefined(source) && connection.isTargetFunction) {
+        if (source.endpointKind === 'input') {
             // Connection source is a struct and target is a function.
             // get the function invocation expression for nested and single cases.
             const funcInvocationExpression = connection.targetFuncInv;
@@ -214,7 +210,7 @@ class TransformNodeManager {
             return;
         }
 
-        if (connection.isSourceFunction && !_.isUndefined(target)) {
+        if (target.endpointKind === 'output') {
             // Connection target is not a struct and source is a struct.
             // Target could be a function node.
             const assignmentStmtTarget = connection.sourceReference;
@@ -308,16 +304,48 @@ class TransformNodeManager {
         }
     }
 
-    getFunctionDefinition(functionInvocationExpression) {
+    getFunctionVertices(functionInvocationExpression) {
         const funPackage = this._environment.getPackageByName(functionInvocationExpression.getFullPackageName());
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
-        _.forEach(funcDef.getParameters(), (param) => {
+        const parameters = [];
+        const returnParams = [];
+
+        _.forEach(funcDef.getParameters(), (param, index) => {
             const structDef = this.getStructDefinition(param.packageName, param.type);
+            let paramObj;
+            const paramName = `${functionInvocationExpression.getID()}:${index}`;
             if (structDef) {
-                param.typeDef = this.getStructType(param.name, param.type, structDef);
+                paramObj = this.getStructType(paramName, param.type, structDef);
+            } else {
+                paramObj = {
+                    name: paramName,
+                    type: param.type,
+                }
             }
+
+            paramObj.displayName = param.name;
+            paramObj.index = index;
+            paramObj.funcInv = functionInvocationExpression;
+
+            parameters.push(paramObj);
         });
-        return funcDef;
+
+        _.forEach(funcDef.getReturnParams(), (returnParam, index) => {
+            const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
+            const paramObj = {
+                name: returnParam.name,
+                type: returnParam.type,
+                index,
+                funcInv: functionInvocationExpression,
+            };
+
+            returnParams.push(paramObj);
+        });
+
+        return {
+            parameters,
+            returnParams,
+        };
     }
 
     getStructDefinition(packageIdentifier, structName) {
@@ -338,28 +366,32 @@ class TransformNodeManager {
         });
     }
 
-    getStructType(name, typeName, structDefinition, isInner, fieldName) {
+    getStructType(name, typeName, structDefinition, currentRoot) {
         const struct = {};
 
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
         struct.typeName = typeName;
-        struct.isInner = isInner;
+
+        const root = currentRoot || struct;
 
         _.forEach(structDefinition.getFields(), (field) => {
-            const property = {};
-            property.name = field.getName();
-            property.type = field.getType();
-            property.packageName = field.getPackageName();
-            property.structName = name;
-            property.fieldName = (fieldName || name) + `.${property.name}`;
+            let property = {};
+            const fieldName = `${name}.${field.getName()}`;
 
             const innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (!_.isUndefined(innerStruct) && typeName !== property.type) {
-                property.innerType = this.getStructType(property.name, property.type,
-                    innerStruct, true, property.fieldName);
+                property = this.getStructType(fieldName, field.getType(), innerStruct, root);
+            } else {
+                property.name = fieldName;
+                property.type = field.getType();
+                property.packageName = field.getPackageName();
+                property.structName = name;
             }
+
+            property.isField = true;
+            property.root = root;
 
             struct.properties.push(property);
         });
