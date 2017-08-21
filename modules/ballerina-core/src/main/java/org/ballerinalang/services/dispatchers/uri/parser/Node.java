@@ -133,7 +133,7 @@ public abstract class Node {
         }
         if (resource == null) {
             carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
-            throw new BallerinaException();
+            throw new BallerinaException("Method not allowed");
         }
         return resource;
     }
