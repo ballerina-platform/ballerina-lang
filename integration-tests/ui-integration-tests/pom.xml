@@ -5,11 +5,12 @@
     <parent>
         <artifactId>integration-tests</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.91.1-SNAPSHOT</version>
+        <version>0.92.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ui-integration-tests</artifactId>
-    <version>0.91.1-SNAPSHOT</version>
+    <version>0.92.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

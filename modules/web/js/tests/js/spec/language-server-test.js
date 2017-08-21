@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs';
 import { getLangServerClientInstance } from './../../../langserver/lang-server-client-controller';
-import { testCompletions } from './LanguageServerTestBase';
+import { testCompletions, close } from './language-server-test-base';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
@@ -38,30 +38,47 @@ describe('Ballerina Composer Test Suite', () => {
                 .catch(beforeAllDone);
         });
 
-        it("Global level completions", function(done){
-            this.timeout(0);
+        after((done) => {
+            close(done);
+        });
+
+        // General tests
+
+        it("Global level completions", function (done) {
+            this.timeout(10000);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
-            const testFile = 'echoService.js';
+            const testFile = 'echoService.bal';
             const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case1.js'));
             const cursorPosition = { row: 0, column: 0 };
             testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
         });
 
         it("Service level completions", function(done){
-            this.timeout(0);
+            this.timeout(10000);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
-            const testFile = 'echoService.js';
+            const testFile = 'echoService.bal';
             const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case2.js'));
             const cursorPosition = { row: 6, column: 4 };
             testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
         });
 
-        it("Resource level completions", function (done) {
-            this.timeout(0);
+        // it("Resource level completions", function (done) {
+        //     this.timeout(10000);
+        //     const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
+        //     const testFile = 'echoService.bal';
+        //     const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));
+        //     const cursorPosition = { row: 10, column: 0 };
+        //     testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
+        // });
+
+        // Import tests
+
+        it("Import level-0 completions", function (done) {
+            this.timeout(10000);
             const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
-            const testFile = 'echoService.js';
-            const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));
-            const cursorPosition = { row: 10, column: 0 };
+            const testFile = 'import.bal';
+            const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'import-case1.js'));
+            const cursorPosition = { row: 0, column: 7 };
             testCompletions(cursorPosition, testFilePath, testFile, expectedFile, done);
         });
 

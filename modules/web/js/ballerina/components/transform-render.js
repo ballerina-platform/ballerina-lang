@@ -22,7 +22,7 @@ import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
 import './transform-statement.css';
 /**
- * Renderer constructor for TypeMapper
+ * Renderer constructor for TransformRender
  * @param {function} onConnectionCallback call back function when connection made
  * @param {function} onDisconnectCallback call back function when connection removed
  * @param {object} typeConverterView Type Mapper View reference object
@@ -43,10 +43,9 @@ class TransformRender {
         this.midpointVariance = 0.01;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
-        const self = this;
 
         this.jsPlumbInstance = jsPlumb.getInstance({
-            Connector: self.getConnectorConfig(self.midpoint),
+            Connector: this.getConnectorConfig(this.midpoint),
             Container: container.attr('id'),
             PaintStyle: {
                 strokeWidth: 1,
@@ -70,94 +69,60 @@ class TransformRender {
                     width: 6,
                     length: 6,
                     foldback: 1,
-                }]
+                }],
             ],
         });
-        this.container.find('#' + self.contextMenu).hide();
-        this.jsPlumbInstance.bind('connection',function(params,ev){
+        this.jsPlumbInstance.bind('connection', (params,ev) => {
             if (!_.isUndefined(ev)) {
-              const input = params.connection.getParameters().input;
-              const output = params.connection.getParameters().output;
-              const sourceType = input.type;
-              const targetType = output.type;
-              const connection = self.getConnectionObject(params.id, input, output);
-              if (self.isValidTypes(input.typeName, output.typeName)) {
-                  self.midpoint += self.midpointVariance;
-                  self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
-                  self.onConnection(connection);
-              }
+                const input = params.connection.getParameters().input;
+                const output = params.connection.getParameters().output;
+                const sourceType = input.type;
+                const targetType = output.type;
+                const connection = this.getConnectionObject(params.id, input, output);
+                this.midpoint += this.midpointVariance;
+                this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+                this.onConnection(connection);
+                this.setConnectionMenu(params.connection);
             }
-        });
-        this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
-            const contextMenuDiv = this.container.find('#' + self.contextMenu);
-            const anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
-            anchorTag.html($('<i>').addClass('fw fw-delete'));
-            anchorTag.html(anchorTag.html() + ' Remove');
-            contextMenuDiv.html(anchorTag);
-
-            document.addEventListener('click', (eClick) => {
-                if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path') {
-                    this.container.find('#' + self.contextMenu).hide();
-                }
-            }, false);
-
-            this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
-                this.container.find('#' + self.contextMenu).hide();
-            });
-
-            this.container.find('#typeMapperConRemove').click(() => {
-                self.disconnect(connection);
-                this.container.find('#' + self.contextMenu).hide();
-            });
-
-            contextMenuDiv.css({
-                top: e.pageY,
-                left: e.pageX,
-                zIndex: 1000,
-            });
-
-            contextMenuDiv.show();
-            e.preventDefault();
         });
     }
 
-/**
- * Disconnects the connection created.
- *
- * @param connection
- */
+    /**
+    * Disconnects the connection created.
+    *
+    * @param connection
+    */
     disconnect(connection) {
-        const self = this;
         const propertyConnection = this.getConnectionObject(connection.getParameter('id'),
         connection.getParameter('input'), connection.getParameter('output'));
         this.midpoint = this.midpoint - this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
+        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.detach(connection);
         this.disconnectCallback(propertyConnection);
         this.unmarkConnected(connection.targetId);
         this.unmarkConnected(connection.sourceId);
         _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
-            if (con.sourceId == connection.sourceId) {
+            if (con.sourceId === connection.sourceId) {
                 this.markConnected(con.sourceId);
             }
         });
     }
 
-/**
- * Disconnects all the connection created.
- * This does not remove the associated children from the model
- */
+    /**
+    * Disconnects all the connection created.
+    * This does not remove the associated children from the model
+    */
     disconnectAll(connection) {
         this.midpoint = 0.1;
         this.jsPlumbInstance.detachEveryConnection();
     }
 
-/**
- * Created the connection object from the sourceId and targetId of the connection elements
- * @param sourceId Id of the source element of the connection
- * @param targetId Id of the target element of the connection
- * @returns connectionObject
- */
+    /**
+    * Created the connection object from the sourceId and targetId of the connection elements
+    * @param sourceId Id of the source element of the connection
+    * @param targetId Id of the target element of the connection
+    * @returns connectionObject
+    */
     getConnectionObject(id, source, target) {
         const sourceName = source.name;
         const targetName = target.name;
@@ -203,10 +168,10 @@ class TransformRender {
         };
     }
 
-/**
- * Remove a type from the mapper UI
- * @param {string} name identifier of the type
- */
+    /**
+    * Remove a type from the mapper UI
+    * @param {string} name identifier of the type
+    */
     removeType(name) {
         _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
             if (con.sourceId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
@@ -234,7 +199,7 @@ class TransformRender {
         jsPlumb.detach(elementId);
     }
 
-  addConnection(sourceId, targetId) {
+    addConnection(sourceId, targetId) {
         this.midpoint += this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.connect({
@@ -243,13 +208,52 @@ class TransformRender {
         });
         this.markConnected(sourceId);
         this.markConnected(targetId);
+        this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+        this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source: sourceId, target: targetId })[0]);
     }
-/**
- * Make source property
- *
- * @param element
- * @param self
- */
+
+    setConnectionMenu(connection) {
+        if (!connection) {
+            return;
+        }
+        connection.bind('mouseover', (conn, e) => {
+            if (!this.container.find('#' + this.contextMenu).is(':visible')) {
+                const contextMenuDiv = this.container.find('#' + this.contextMenu);
+                const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
+                anchorTag.html($('<i>').addClass('fw fw-delete'));
+                anchorTag.html(anchorTag.html() + ' Remove');
+                contextMenuDiv.html(anchorTag);
+                this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
+                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                });
+                this.container.find('#transformConRemove').click(() => {
+                    this.disconnect(connection);
+                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                });
+                contextMenuDiv.css({
+                    top: e.pageY,
+                    left: e.pageX,
+                    zIndex: 1000,
+                });
+                this.showConnectContextMenu(contextMenuDiv);
+                this.container.mousemove((event) => {
+                    const xDif = e.pageX - event.pageX;
+                    const yDif = e.pageY - event.pageY;
+                    if (xDif > 5 || xDif < -75 || yDif > 5 || yDif < -30) {
+                        this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                        this.container.unbind('mousemove');
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Make source property
+     * @param {any} element element
+     * @param {any} input input
+     * @memberof TransformRender
+     */
     addSource(element, input) {
         const connectionConfig = {
             anchor: ['Right'],
@@ -259,22 +263,19 @@ class TransformRender {
         };
         this.jsPlumbInstance.makeSource(element, connectionConfig);
     }
-/**
- * Make target property
- * @param element
- * @param self
- */
+
+    /**
+     * Make target property
+     * @param {any} element
+     * @param {any} output
+     */
     addTarget(element, output) {
-        const self = this;
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ['Left'],
             parameters: {
-                output
+                output,
             },
-            beforeDrop: (params) => {
-                return self.isValidTypes(params.connection.getParameters().input.type, output.type);
-            }
         });
     }
 
@@ -285,14 +286,14 @@ class TransformRender {
      * @return Boolean             is valid
      */
     isValidTypes(sourceType, targetType) {
-      let isValid;
-      if (sourceType === 'struct' || targetType === 'struct') {
-          isValid = input.typeName == output.typeName;
-      } else {
-          isValid = sourceType === targetType || sourceType === 'any' || targetType === 'any'
-            || sourceType === 'json' || targetType === 'json';
-      }
-      return isValid;
+        let isValid;
+        if (sourceType === 'struct' || targetType === 'struct') {
+            isValid = input.typeName == output.typeName;
+        } else {
+            isValid = sourceType === targetType || sourceType === 'any' || targetType === 'any'
+                || sourceType === 'json' || targetType === 'json';
+        }
+        return isValid;
     }
 
 /**
@@ -356,6 +357,22 @@ class TransformRender {
    */
   unmarkConnected(endpointId){
     this.container.find(document.getElementById(endpointId)).removeClass("fw-circle").addClass("fw-circle-outline");
+  }
+
+  /**
+   * show with fade in effect
+   * @param  {object} contextMenuDiv menu div to be shown
+   */
+  showConnectContextMenu(contextMenuDiv) {
+      contextMenuDiv.fadeIn(200);
+  }
+
+  /**
+   * hide with fade out effect
+   * @param  {object} contextMenuDiv menu div to be hidden
+   */
+  hideConnectContextMenu(contextMenuDiv) {
+      contextMenuDiv.fadeOut(200);
   }
 
 }

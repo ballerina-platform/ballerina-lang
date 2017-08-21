@@ -184,6 +184,17 @@ class IfElseStatement extends Statement {
             });
         }
     }
+
+    /**
+     * Set the file instance
+     * @param {object} file - current file instance
+     */
+    setFile(file) {
+        this.file = file;
+        this.getChildren().forEach((child) => {
+            child.setFile(this.getFile());
+        });
+    }
 }
 
 export default IfElseStatement;

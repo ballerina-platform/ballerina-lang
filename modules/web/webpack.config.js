@@ -2,10 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 const extractThemes = new ExtractTextPlugin('./[name].css');
 const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
-var exportConfig = {};
+let exportConfig = {};
 const config = [{
     entry: {
         bundle: './index.js',
@@ -72,9 +73,27 @@ const config = [{
                 ignore: 'js/tests/**/*.*',
             },
         }),
+        // https://github.com/fronteed/icheck/issues/322
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+        }),
+        /*
+        new CircularDependencyPlugin({
+            exclude: /a\.css|node_modules/,
+            failOnError: true,
+        }),
+        */
     ],
     devServer: {
         publicPath: '/dist/',
+    },
+    externals: {
+        'jsdom': 'window',
+        'react-addons-test-utils': true,
+        'react/addons': true,
+        'react/lib/ExecutionEnvironment': true,
+        'react/lib/ReactContext': true,
     },
     node: { module: 'empty', net: 'empty', fs: 'empty' },
     devtool: 'source-map',
@@ -180,7 +199,9 @@ if (process.env.NODE_ENV === 'production') {
   // uglyfying slows down webpack build so we avoid in when in development
     config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
-        mangle: { keep_fnames: true },
+        mangle: {
+            keep_fnames: true
+        },
     }));
 } else {
     config[0].plugins.push(new webpack.DefinePlugin({

@@ -39,6 +39,7 @@ class ASTNode extends EventChannel {
         // TODO : Rename this to bType.
         this.type = type;
         this.id = uuid();
+        this.file = undefined;
         this.on('tree-modified', function (event) {
             if (!_.isNil(this.parent)) {
                 this.parent.trigger('tree-modified', event);
@@ -110,6 +111,22 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Get the current file
+     * @returns {object} - current file
+     */
+    getFile() {
+        return this.file;
+    }
+
+    /**
+     * Set the current file
+     * @param {object} file - current file
+     */
+    setFile(file) {
+        this.file = file;
+    }
+
+    /**
      * Insert a given child to the children array for a given index or otherwise to the array normally
      * @param child
      * @param index
@@ -120,6 +137,8 @@ class ASTNode extends EventChannel {
      * @fires  ASTNode#tree-modified
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false, generateId = false) {
+        // set the file instance to the child
+        child.setFile(this.getFile());
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -638,6 +657,20 @@ class ASTNode extends EventChannel {
             return undefined;
         }
         return this.getParent().getChildren()[currentNodeIndex + 1];
+    }
+
+    /**
+     * Get the content replace region on content suggestion at design view
+     */
+    getContentReplaceRegion() {
+        log.warn('Method need to override in particular node');
+    }
+
+    /**
+     * Get the content start position for the content suggestion
+     */
+    getContentStartCursorPosition() {
+        log.warn('Method need to override in particular node');
     }
 }
 

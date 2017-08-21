@@ -72,6 +72,11 @@ const config = [{
                 ignore: 'js/tests/**/*.*',
             },
         }),
+        // https://github.com/fronteed/icheck/issues/322
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+        }),
     ],
     devServer: {
         publicPath: '/dist/',

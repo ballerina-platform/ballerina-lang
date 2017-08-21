@@ -176,27 +176,14 @@ const SwaggerImportDialog = Backbone.View.extend(
                             } else {
                                 swaggerParser = new SwaggerParser(data.content, true);
                             }
-                            const ballerinaAstRoot = ASTFactory.createBallerinaAstRoot();
+                            
+                            // Creating the source code.
+                            const { ballerinaAstRoot, serviceDefinition } = this.getNewAstSkeleton();
 
-                            // Adding ballerina.net.http import.
-                            const httpImport = ASTFactory.createImportDeclaration();
-                            httpImport.setPackageName('ballerina.net.http', { doSilently: true });
-                            httpImport.setParent(ballerinaAstRoot, { doSilently: true });
-                            ballerinaAstRoot.addImport(httpImport, { doSilently: true });
-
-                            // Adding ballerina.net.http.swagger import.
-                            const swaggerImport = ASTFactory.createImportDeclaration();
-                            swaggerImport.setPackageName('ballerina.net.http.swagger', { doSilently: true });
-                            swaggerImport.setParent(ballerinaAstRoot, { doSilently: true });
-                            ballerinaAstRoot.addImport(swaggerImport, { doSilently: true });
-
-                            const serviceDefinition = ASTFactory.createServiceDefinition();
-                            serviceDefinition.setProtocolPkgName('http');
-                            serviceDefinition.setProtocolPkgPath('ballerina.net.http');
-                            ballerinaAstRoot.addChild(serviceDefinition);
+                            // Merging the swagger definition.
                             swaggerParser.mergeToService(serviceDefinition);
 
-                            // Creating the source code.
+                            // Generate source.
                             const sourceGenVisitor = new SourceGenVisitor();
                             ballerinaAstRoot.accept(sourceGenVisitor);
 
@@ -232,6 +219,28 @@ const SwaggerImportDialog = Backbone.View.extend(
                     this._openFileWizardError.show();
                 },
             });
+        },
+        getNewAstSkeleton() {
+            const ballerinaAstRoot = ASTFactory.createBallerinaAstRoot();
+
+            // Adding ballerina.net.http import.
+            const httpImport = ASTFactory.createImportDeclaration();
+            httpImport.setPackageName('ballerina.net.http', { doSilently: true });
+            httpImport.setParent(ballerinaAstRoot, { doSilently: true });
+            ballerinaAstRoot.addImport(httpImport, { doSilently: true });
+
+            // Adding ballerina.net.http.swagger import.
+            const swaggerImport = ASTFactory.createImportDeclaration();
+            swaggerImport.setPackageName('ballerina.net.http.swagger', { doSilently: true });
+            swaggerImport.setParent(ballerinaAstRoot, { doSilently: true });
+            ballerinaAstRoot.addImport(swaggerImport, { doSilently: true });
+
+            const serviceDefinition = ASTFactory.createServiceDefinition();
+            serviceDefinition.setProtocolPkgName('http');
+            serviceDefinition.setProtocolPkgPath('ballerina.net.http');
+            ballerinaAstRoot.addChild(serviceDefinition);
+
+            return { ballerinaAstRoot, serviceDefinition };
         },
     });
 

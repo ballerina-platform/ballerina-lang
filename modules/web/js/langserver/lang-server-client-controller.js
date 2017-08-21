@@ -42,6 +42,7 @@ class LangServerClientController extends EventChannel {
         this.langserverChannel = undefined;
         this.requestSessions = [];
         this.isInitialized = false;
+        this.options = options;
     }
 
     /**
@@ -209,7 +210,6 @@ class LangServerClientController extends EventChannel {
         this.langserverChannel.sendMessage(message);
     }
 
-
     /**
      * Get built-in packages request processor
      */
@@ -289,14 +289,21 @@ class LangServerClientController extends EventChannel {
         return this.isInitialized;
     }
 
+    /**
+     * Invoke close function of the langserver channel. 
+     */
+    close() {
+        this.langserverChannel.close();
+    }
+
     // End language server response handlers
 }
 
 /**
  * Method to initialize the singleton of lang server client
  */
-function initLangServerClientInstance() {
-    instance = new LangServerClientController();
+function initLangServerClientInstance(options) {
+    instance = new LangServerClientController(options);
     return new Promise((resolve, reject) => {
         instance.init()
             .then(resolve)
@@ -310,12 +317,12 @@ function initLangServerClientInstance() {
 /**
  * method to fetch langserver client sigleton
  */
-export function getLangServerClientInstance() {
+export function getLangServerClientInstance(options) {
     return new Promise((resolve, reject) => {
         if (instance !== undefined) {
             resolve(instance);
         } else {
-            initLangServerClientInstance()
+            initLangServerClientInstance(options)
                 .then(() => { resolve(instance); })
                 .catch(reject);
         }

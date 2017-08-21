@@ -20,7 +20,9 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import { getBuiltInPackages } from './../../api-client/api-client';
+import { getBuiltInPackages, getTypeLattice } from './../../api-client/api-client';
+import TypeLattice from './../../type-lattice/type-lattice';
+
 
 /**
  * @class BallerinaEnvironment
@@ -34,6 +36,7 @@ class BallerinaEnvironment extends EventChannel {
         this.initialized = false;
         this.initPending = false;
         this._packages = _.get(args, 'packages', []);
+        this._typeLattice = _.get(args, 'typeLattice', new TypeLattice());
         this._types = _.get(args, 'types', []);
         this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
     }
@@ -50,22 +53,23 @@ class BallerinaEnvironment extends EventChannel {
             }
             if (!this.initialized) {
                 this.initPending = true;
+                this.initializeAnnotationAttachmentPoints();
+
                 getLangServerClientInstance()
                     .then((langServerClient) => {
                         langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
                             this.initializeBuiltinTypes(data.result);
-                            this.initializePackages()
-                                .then(() => {
-                                    this.initializeAnnotationAttachmentPoints();
-                                    this.initialized = true;
-                                    this.initPending = false;
-                                    this.trigger('initialized');
-                                    resolve();
-                                })
-                                .catch(reject);
+                            Promise.all([
+                                this.initializePackages(),
+                                this.initializeTypeLattice(),
+                            ]).then(() => {
+                                this.initialized = true;
+                                this.initPending = false;
+                                this.trigger('initialized');
+                                resolve();
+                            }).catch(reject);
                         });
-                    })
-                    .catch(reject);
+                    }).catch(reject);
             } else {
                 resolve();
             }
@@ -115,6 +119,15 @@ class BallerinaEnvironment extends EventChannel {
     }
 
     /**
+     * Get type lattice
+     * @returns {TypeLattice} type lattice
+     * @memberof BallerinaEnvironment
+     */
+    getTypeLattice() {
+        return this._typeLattice;
+    }
+
+    /**
      * Get annotation attachment types.
      * @return {[string]} annotationAttachmentTypes
      * */
@@ -138,6 +151,25 @@ class BallerinaEnvironment extends EventChannel {
                         resolve();
                     } else {
                         log.error('Error while fetching packages');
+                        resolve();
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    /**
+     * Initialize type lattice
+     */
+    initializeTypeLattice() {
+        return new Promise((resolve, reject) => {
+            getTypeLattice()
+                .then((typeLatticeJson) => {
+                    if (typeLatticeJson) {
+                        this._typeLattice.initFromJson(typeLatticeJson);
+                        resolve();
+                    } else {
+                        log.error('Error while fetching type lattice');
                         resolve();
                     }
                 })

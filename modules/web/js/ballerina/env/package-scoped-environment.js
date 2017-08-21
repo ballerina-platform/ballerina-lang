@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Package from './package';
 import Environment from './environment';
+import TypeLattice from './../../type-lattice/type-lattice';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
 
 class PackageScopedEnvironment {
@@ -25,6 +26,7 @@ class PackageScopedEnvironment {
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
         this._annotationAttachmentTypes = [];
+        this._typeLattice = _.get(args, 'typeLattice', new TypeLattice());
         this._initialized = false;
     }
 
@@ -36,7 +38,8 @@ class PackageScopedEnvironment {
         this._types = _.union(this._types, Environment.getTypes());
         this._currentPackage = new Package({ name: 'Current Package' });
         this._packages.push(this._currentPackage);
-        this.initializeAnnotationAttachmentPoints();
+        this._annotationAttachmentTypes = Environment.getAnnotationAttachmentTypes();
+        this._typeLattice = Environment.getTypeLattice();
         this._initialized = true;
     }
 
@@ -203,23 +206,21 @@ class PackageScopedEnvironment {
         return itemArray1.concat(itemArray2);
     }
 
-
-    /**
-     * Initialize annotation attachment points for Ballerina Program
-     * */
-    initializeAnnotationAttachmentPoints() {
-        this._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
-            'typemapper', 'struct', 'const', 'parameter', 'annotation'], [function (type) {
-            return type;
-        }]);
-    }
-
     /**
      * Get annotation attachment types.
      * @return {[string]} annotationAttachmentTypes
      * */
     getAnnotationAttachmentTypes() {
         return this._annotationAttachmentTypes;
+    }
+
+    /**
+     * Get type lattice.
+     * @returns {TypeLattice} type lattice
+     * @memberof PackageScopedEnvironment
+     */
+    getTypeLattice() {
+        return this._typeLattice;
     }
 }
 

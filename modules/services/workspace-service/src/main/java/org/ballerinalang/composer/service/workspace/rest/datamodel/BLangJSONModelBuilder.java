@@ -1205,6 +1205,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         String targetWorkerName = workerInvocationStmt.getName();
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, targetWorkerName);
         this.addWhitespaceDescriptor(workerInvokeStmtObj, workerInvocationStmt.getWhiteSpaceDescriptor());
+        this.addPosition(workerInvokeStmtObj, workerInvocationStmt.getNodeLocation());
         tempJsonArrayRef.push(new JsonArray());
         Expression[] expressions = workerInvocationStmt.getExpressionList();
         for (Expression expression : expressions) {
@@ -1229,6 +1230,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 .WORKER_REPLY_STATEMENT);
         workerReplyStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerReplyStmt.getWorkerName());
         this.addWhitespaceDescriptor(workerReplyStmtObj, workerReplyStmt.getWhiteSpaceDescriptor());
+        this.addPosition(workerReplyStmtObj, workerReplyStmt.getNodeLocation());
         tempJsonArrayRef.push(new JsonArray());
 
         Expression[] expressions = workerReplyStmt.getExpressionList();
