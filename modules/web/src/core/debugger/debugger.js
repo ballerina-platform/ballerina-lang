@@ -25,19 +25,14 @@ import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, VIEWS as VIEW_IDS } from './constants';
 
-import WorkspaceExplorer from './views/WorkspaceExplorer';
+import DebuggerPanel from './views/DebuggerPanel';
 
 /**
- * Workspace Manager is responsible for managing workspace.
+ * Debugger is responsible for debugging files.
  *
- * @class WorkspaceManagerPlugin
+ * @class DebuggerPlugin
  */
-class WorkspaceManagerPlugin extends Plugin {
-
-    constructor() {
-        super();
-        this.menuItems = [];
-    }
+class DebuggerPlugin extends Plugin {
 
     /**
      * @inheritdoc
@@ -57,8 +52,8 @@ class WorkspaceManagerPlugin extends Plugin {
             [MENUS]: getMenuDefinitions(this),
             [VIEWS]: [
                 {
-                    id: VIEW_IDS.EXPLORER,
-                    component: WorkspaceExplorer,
+                    id: VIEW_IDS.DEBUGGER_PANEL,
+                    component: DebuggerPanel,
                     propsProvider: () => {
                         return {
                         };
@@ -66,8 +61,8 @@ class WorkspaceManagerPlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'file-browse',
-                        panelTitle: 'Explorer',
+                        activityBarIcon: 'bug',
+                        panelTitle: 'Debug',
                         panelActions: [
                             {
                                 icon: '',
@@ -84,4 +79,4 @@ class WorkspaceManagerPlugin extends Plugin {
     }
 }
 
-export default WorkspaceManagerPlugin;
+export default DebuggerPlugin;

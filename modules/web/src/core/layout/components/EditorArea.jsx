@@ -47,7 +47,6 @@ class EditorArea extends React.Component {
         );
         const makeTabPane = file => (
             <TabPane tab={tabTitle(file)} data-extra="tabpane" key={`${file}`}>
-                    Tab for file {file}
             </TabPane>
         );
 

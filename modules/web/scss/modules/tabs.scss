@@ -9,6 +9,7 @@
             & .rc-tabs-nav-container-scrolling {
                 & .rc-tabs-tab-next, .rc-tabs-tab-prev {
                     @extend .unseletable-content;
+
                     background-color: #565656;
                     color: #999999;
                     height: 20px;
@@ -33,7 +34,7 @@
             min-width: 120px;
             padding: 1px 5px 1px 5px;
             margin-right: 0;
-            border-right: 1px solid black;
+            border-right: 1px solid #16191d;
             .tab-icon {
                 margin-right: 10px;
                 font-size: 10px;

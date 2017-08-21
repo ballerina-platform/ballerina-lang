@@ -4,15 +4,15 @@ import View from './../../view/view';
 import { VIEWS } from './../constants';
 
 /**
- * Woprkspace Explorer
+ * Debugger
  */
-class WorkspaceExplorer extends View {
+class DebuggerPanel extends View {
 
     /**
      * @inheritdoc
      */
     getID() {
-        return VIEWS.EXPLORER;
+        return VIEWS.DEBUGGER_PANEL;
     }
 
     /**
@@ -26,4 +26,4 @@ class WorkspaceExplorer extends View {
     }
 }
 
-export default WorkspaceExplorer;
+export default DebuggerPanel;

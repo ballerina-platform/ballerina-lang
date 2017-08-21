@@ -26,6 +26,7 @@ import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
 import MenuManager from './menu/manager';
 import WorkspaceManager from './workspace/manager';
+import Debugger from './debugger/debugger';
 import { makeImutable } from './utils/object-utils';
 
 /**
@@ -59,6 +60,7 @@ class Application {
         this.layoutManager = new LayoutManager();
         this.menuManager = new MenuManager();
         this.workspaceManager = new WorkspaceManager();
+        this.debugger = new Debugger();
 
         // Unless the necessities to keep direct references within app
         // & to be the very first set of plugins to be init/activate,
@@ -67,6 +69,7 @@ class Application {
         this.loadPlugin(this.layoutManager);
         this.loadPlugin(this.menuManager);
         this.loadPlugin(this.workspaceManager);
+        this.loadPlugin(this.debugger);
 
         // load plugins contributed via config
         this.loadOtherPlugins();

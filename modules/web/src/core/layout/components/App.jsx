@@ -34,7 +34,7 @@ class App extends React.Component {
         const { component, propsProvider } = viewDef;
         const View = component;
         return (
-            <View {...propsProvider()} key={viewDef.id} />
+            <View {...propsProvider()} key={viewDef.id} definition={viewDef} />
         );
     }
 

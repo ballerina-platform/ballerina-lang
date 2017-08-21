@@ -15,6 +15,34 @@ class LeftPanel extends React.Component {
      * @inheritdoc
      */
     render() {
+        const tabs = [];
+        const panes = [];
+        this.props.children.forEach((view) => {
+            const {
+                    props: {
+                        definition: {
+                            id,
+                            regionOptions: {
+                                activityBarIcon,
+                                panelTitle,
+                            },
+                        },
+                    },
+                  } = view;
+            tabs.push((
+                <NavItem key={id} eventKey={id}>
+                    <i className={`fw fw-${activityBarIcon} fw-lg`} />
+                </NavItem>
+            ));
+            panes.push((
+                <Tab.Pane key={id} eventKey={id}>
+                    <div>
+                        <div className="panel-title">{panelTitle}</div>
+                        <div className="panel-content">{view}</div>
+                    </div>
+                </Tab.Pane>
+            ));
+        });
         return (
             <div className="left-panel">
                 <div>
@@ -22,21 +50,11 @@ class LeftPanel extends React.Component {
                         <div>
                             <ActivityBar>
                                 <Nav bsStyle="tabs">
-                                    <NavItem eventKey="first">
-                                        <i className="fw-file-browse fw-lg" />
-                                    </NavItem>
-                                    <NavItem eventKey="second">
-                                        <i className="fw fw-start fw-lg" />
-                                    </NavItem>
+                                    {tabs}
                                 </Nav>
                             </ActivityBar>
                             <Tab.Content animation>
-                                <Tab.Pane eventKey="first">
-                                Tab 1 content
-                                </Tab.Pane>
-                                <Tab.Pane eventKey="second">
-                                Tab 2 content
-                                </Tab.Pane>
+                                {panes}
                             </Tab.Content>
                         </div>
                     </Tab.Container>
