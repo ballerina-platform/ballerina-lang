@@ -87,10 +87,8 @@ class TypeLattice {
                         }
                     });
                 }
-                edge.visited = true;
             }
         });
-
         this._typeLattice = typeLattice;
     }
 
@@ -102,7 +100,10 @@ class TypeLattice {
      * @memberof TypeLattice
      */
     getCompatibility(source, target) {
-        return this._typeLattice[source][target];
+        if (this._typeLattice[source]) {
+            return this._typeLattice[source][target];
+        }
+        return undefined;
     }
 }
 

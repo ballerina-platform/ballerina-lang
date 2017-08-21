@@ -10,6 +10,7 @@
     "dev-electron": "cross-env NODE_ENV=electron-dev webpack-dev-server --hot --inline --progress",
     "test-spec": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./js/tests/js/spec/ballerina-test.js;",
     "test": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js 'js/tests/js/spec/*test.js';",
+    "test-ui": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./react-test/__tests__/component-tests.js;",
     "test-debug": "cross-env NODE_ENV=test node --inspect ./node_modules/mocha-webpack/lib/cli --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js 'js/tests/js/spec/*test.js' --timeout 600000;",
     "lint": "eslint . --ext .jsx --ext .js",
     "lintfile": "eslint",
@@ -51,8 +52,16 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1",
+    "yargs": "^1.3.3",
+    "react-test-renderer": "^15.6.1",
+    "enzyme": "^2.9.1",
+    "uuid": "^3.1.0",
+    "babel-plugin-module-resolver": "^2.7.0",
     "ws": "^3.1.0",
-    "yargs": "^1.3.3"
+    "identity-obj-proxy": "^3.0.0",
+    "circular-dependency-plugin": "^3.0.0",
+    "chai-jest-snapshot": "^1.3.0",
+    "enzyme-to-json": "^1.5.1"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",
