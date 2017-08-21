@@ -104,6 +104,12 @@ public class SQLDatasource implements BValue {
             String username, String password) {
         try {
             HikariConfig config = new HikariConfig();
+            if (!username.isEmpty()) {
+                config.setUsername(username);
+            }
+            if (!password.isEmpty()) {
+                config.setPassword(password);
+            }
             String jdbcurl = options.getStringField(0);
             String dataSourceClassName = options.getStringField(1);
             if (!dataSourceClassName.isEmpty()) {
@@ -118,39 +124,27 @@ public class SQLDatasource implements BValue {
                     throw new BallerinaException("invalid database connection properties for db " + dbType);
                 }
             }
-            String user = options.getStringField(2);
-            if (!user.isEmpty()) {
-                config.setUsername(user);
-            } else if (!username.isEmpty()) {
-                config.setUsername(username);
-            }
-            String pass = options.getStringField(3);
-            if (!pass.isEmpty()) {
-                config.setPassword(pass);
-            } else if (!password.isEmpty()) {
-                config.setPassword(password);
-            }
-            String connectionTestQuery = options.getStringField(4);
+            String connectionTestQuery = options.getStringField(2);
             if (!connectionTestQuery.isEmpty()) {
                 config.setConnectionTestQuery(connectionTestQuery);
             }
-            String poolName = options.getStringField(5);
+            String poolName = options.getStringField(3);
             if (!poolName.isEmpty()) {
                 config.setPoolName(poolName);
             }
-            String catalog = options.getStringField(6);
+            String catalog = options.getStringField(4);
             if (!catalog.isEmpty()) {
                 config.setCatalog(catalog);
             }
-            String connectionInitSQL = options.getStringField(7);
+            String connectionInitSQL = options.getStringField(5);
             if (!connectionInitSQL.isEmpty()) {
                 config.setConnectionInitSql(connectionInitSQL);
             }
-            String driverClassName = options.getStringField(8);
+            String driverClassName = options.getStringField(6);
             if (!driverClassName.isEmpty()) {
                 config.setDriverClassName(driverClassName);
             }
-            String transactionIsolation = options.getStringField(9);
+            String transactionIsolation = options.getStringField(7);
             if (!transactionIsolation.isEmpty()) {
                 config.setTransactionIsolation(transactionIsolation);
             }
