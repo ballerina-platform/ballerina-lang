@@ -279,7 +279,7 @@ public class BallerinaConnectorManager {
             org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
                     serverConnectorEntry.getValue();
             ServerConnectorFuture connectorFuture = serverConnector.start();
-            connectorFuture.setHTTPConnectorListener(new BallerinaHTTPConnectorListener());
+            connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
             connectorFuture.setWSConnectorListener(new BallerinaWebSocketConnectorListener());
             startedConnectors.add(serverConnector);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);

@@ -148,7 +148,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
-            future.setHTTPConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
+            future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
 
             // Wait till Response comes
             long startTime = System.currentTimeMillis();
@@ -189,7 +189,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
-            future.setHTTPConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
+            future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
         } catch (Exception e) {
             throw new BallerinaException("Failed to send message to the backend", e, context);
         }
