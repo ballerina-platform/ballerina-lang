@@ -184,10 +184,12 @@ class TransformNodeManager {
         if (!_.isUndefined(source) && !connection.isSourceFunction &&
             !_.isUndefined(target) && !connection.isTargetFunction) {
             const assignmentStmt = _.find(this._transformStmt.getChildren(), (child) => {
-                const leftExpression = child.getLeftExpression().getExpressionString().trim();
-                const rightExpression = child.getRightExpression().getExpressionString().trim();
-                return leftExpression === (connection.targetProperty || connection.targetStruct) &&
-                    rightExpression === (connection.sourceProperty || connection.sourceStruct);
+                return child.getLeftExpression().getChildren().find((leftExpression) => {
+                    const leftExpressionStr = leftExpression.getExpressionString().trim();
+                    const rightExpressionStr = this.getMappingRightExpression(child.getRightExpression()).getExpressionString().trim();
+                    return leftExpressionStr === (connection.targetProperty || connection.targetStruct) &&
+                        rightExpressionStr === (connection.sourceProperty || connection.sourceStruct);
+                });
             });
             this._transformStmt.removeChild(assignmentStmt);
             return;
@@ -388,11 +390,11 @@ class TransformNodeManager {
     }
 
     addNewVariable(node) {
-      let varName = "tempVar";
-      const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
-      variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
-      node.addChild(variableDefinitionStatement);
-      return variableDefinitionStatement;
+        const varName = 'tempVar';
+        const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
+        variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
+        node.addChild(variableDefinitionStatement);
+        return variableDefinitionStatement;
     }
 
  }
