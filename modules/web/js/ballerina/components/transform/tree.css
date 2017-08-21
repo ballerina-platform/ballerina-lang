@@ -1,5 +1,6 @@
 .transform-endpoint-tree .variable {
     position: static;
+    padding: 4px;
 }
 
 .transform-endpoint-container {
