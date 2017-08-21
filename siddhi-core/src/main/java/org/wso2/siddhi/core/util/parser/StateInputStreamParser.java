@@ -295,12 +295,11 @@ public class StateInputStreamParser {
                         (), withinStateset));
             }
 
-            ReentrantLock lock = new ReentrantLock();
             LogicalPreStateProcessor logicalPreStateProcessor1;
             if (((LogicalStateElement) stateElement).getStreamStateElement1() instanceof AbsentStreamStateElement) {
                 logicalPreStateProcessor1 = new AbsentLogicalPreStateProcessor(type, stateType, clonewithinStates
                         (withinStates), ((AbsentStreamStateElement) ((LogicalStateElement) stateElement)
-                        .getStreamStateElement1()).getWaitingTime(), lock);
+                        .getStreamStateElement1()).getWaitingTime());
 
                 // Set the scheduler
                 siddhiAppContext.addEternalReferencedHolder((AbsentLogicalPreStateProcessor)
@@ -327,7 +326,7 @@ public class StateInputStreamParser {
                 logicalPreStateProcessor2 = new AbsentLogicalPreStateProcessor(type, stateType, clonewithinStates
                         (withinStates),
                         ((AbsentStreamStateElement) ((LogicalStateElement) stateElement).getStreamStateElement2())
-                                .getWaitingTime(), lock);
+                                .getWaitingTime());
                 siddhiAppContext.addEternalReferencedHolder((AbsentLogicalPreStateProcessor)
                         logicalPreStateProcessor2);
                 EntryValveProcessor entryValveProcessor = new EntryValveProcessor(siddhiAppContext);

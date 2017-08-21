@@ -55,5 +55,10 @@ public class AbsentStreamPostStateProcessor extends StreamPostStateProcessor {
         ((AbsentPreStateProcessor) thisStatePreProcessor).updateLastArrivalTime(streamEvent.getTimestamp());
     }
 
-
+    @Override
+    public PostStateProcessor cloneProcessor(String key) {
+        AbsentStreamPostStateProcessor streamPostStateProcessor = new AbsentStreamPostStateProcessor();
+        cloneProperties(streamPostStateProcessor);
+        return streamPostStateProcessor;
+    }
 }

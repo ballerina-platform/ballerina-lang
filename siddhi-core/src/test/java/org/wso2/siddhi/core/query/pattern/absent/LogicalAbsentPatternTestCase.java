@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 import java.util.ArrayList;
@@ -76,13 +77,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -117,14 +115,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -161,13 +156,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"IBM", 25.0f, 100});
@@ -202,14 +194,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -246,12 +235,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -286,12 +273,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -326,12 +311,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -367,13 +350,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -408,14 +388,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -452,13 +429,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -494,13 +468,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"IBM", 25.0f, 100});
@@ -535,14 +506,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -580,13 +548,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"IBM", 25.0f, 100});
@@ -621,14 +586,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -665,12 +627,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -706,12 +666,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -746,12 +704,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", null});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -784,12 +739,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -823,14 +775,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -868,13 +817,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -909,12 +855,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 25.0f, 100});
@@ -949,11 +893,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{null, "GOOGLE"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -987,11 +929,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
@@ -1024,13 +964,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1066,13 +1003,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1107,14 +1041,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1152,12 +1083,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1193,12 +1122,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1234,11 +1161,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1272,12 +1197,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1313,12 +1236,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1354,13 +1275,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1398,11 +1317,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1436,12 +1353,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1477,12 +1392,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1520,13 +1433,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1564,11 +1475,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -1605,12 +1514,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -1647,12 +1554,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -1689,13 +1594,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"ORACLE", 15.0f, 100});
@@ -1734,11 +1637,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -1773,12 +1674,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -1815,12 +1714,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -1857,13 +1754,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"ORACLE", 15.0f, 100});
@@ -1901,12 +1796,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1941,12 +1834,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", null});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
@@ -1979,12 +1870,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.0f, 100});
@@ -2019,7 +1908,6 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{null, "GOOGLE"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -2056,7 +1944,6 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -2094,13 +1981,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -2142,12 +2027,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"WSO2"}, new Object[]{"IBM"}, new
                 Object[]{"IBM"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1200);
@@ -2185,12 +2068,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"WSO2"}, new Object[]{"WSO2"}, new
                 Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(2100);
@@ -2226,11 +2107,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"IBM"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -2268,11 +2147,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(2100);
@@ -2308,13 +2185,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"}, new Object[]{"ORACLE", "MICROSOFT"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -2356,13 +2230,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -2404,13 +2276,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "IBM"},
                 new Object[]{"ORACLE", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1200);
@@ -2452,11 +2322,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(2100);
@@ -2492,13 +2360,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "GOOGLE"}, new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"ORACLE", 15.0f, 100});
@@ -2541,12 +2407,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"ORACLE", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1200);
@@ -2588,11 +2452,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -2628,13 +2490,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(500);
@@ -2676,13 +2536,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "IBM"},
                 new Object[]{"ORACLE", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1200);
@@ -2724,11 +2582,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(2100);
@@ -2764,13 +2620,11 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "GOOGLE"}, new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"ORACLE", 15.0f, 100});
@@ -2813,12 +2667,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"ORACLE", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1200);
@@ -2860,11 +2712,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -2901,13 +2751,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"GOOGLE", "ORACLE"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         InputHandler stream4 = siddhiAppRuntime.getInputHandler("Stream4");
-
-
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
@@ -2940,13 +2787,10 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
-
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"IBM", 15.0f, 100});
@@ -2966,7 +2810,7 @@ public class LogicalAbsentPatternTestCase {
 
     @Test
     public void testQueryAbsent66() throws InterruptedException {
-        log.info("Test the query not e1 and e2 -> e3 with e2 only");
+        log.info("Test the query not e1 and e2 with e2 only");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -2980,11 +2824,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
-
         siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"IBM", 25.0f, 100});
@@ -3002,7 +2844,7 @@ public class LogicalAbsentPatternTestCase {
 
     @Test
     public void testQueryAbsent67() throws InterruptedException {
-        log.info("Test the query not e1 and e2 -> e3 with e1 and e2");
+        log.info("Test the query not e1 and e2 with e1 only");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -3015,11 +2857,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
         addCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
-
         siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 50.0f, 100});
@@ -3033,6 +2873,61 @@ public class LogicalAbsentPatternTestCase {
         Assert.assertEquals("Number of success events", 0, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertFalse("Event arrived", eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test
+    public void testQueryAbsent68() throws InterruptedException {
+        log.info("Test the partitioned query e1 -> not e2 for 1 sec and not e3 for 1 sec");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); ";
+        String query = " " +
+                "partition with (symbol of Stream1) " +
+                "begin " +
+                "from e1=Stream1[price==10.0f] -> not Stream1[symbol == e1.symbol and price==20.0f] for 1 sec " +
+                "     and not Stream1[symbol == e1.symbol and price==20.0f] for 1 sec " +
+                "select e1.symbol as symbol " +
+                "insert into OutputStream; " +
+                "end ";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                eventArrived = true;
+
+                for (Event event : events) {
+                    inEventCount++;
+                    try {
+                        Assert.assertArrayEquals(new Object[]{"WSO2"}, event.getData());
+                    } catch (AssertionError e) {
+                        assertionErrors.add(e);
+                    }
+                }
+            }
+        });
+
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        siddhiAppRuntime.start();
+
+        stream1.send(new Object[]{"WSO2", 10.0f, 20});
+        stream1.send(new Object[]{"IBM", 10.0f, 21});
+        Thread.sleep(500);
+        stream1.send(new Object[]{"IBM", 20.0f, 15});
+        Thread.sleep(600);
+
+        for (AssertionError e : this.assertionErrors) {
+            throw e;
+        }
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

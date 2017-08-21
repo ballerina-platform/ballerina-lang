@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 import java.util.ArrayList;
@@ -1830,6 +1831,61 @@ public class AbsentPatternTestCase {
         Assert.assertFalse("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
+    }
+
+    @Test
+    public void testQueryAbsent43() throws InterruptedException {
+        log.info("Test the partitioned query e1 -> not e2 for 1 sec");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream CustomerStream (customerId string); ";
+        String query = "" +
+                "partition with (customerId of CustomerStream) " +
+                "begin " +
+                "from e1=CustomerStream -> not CustomerStream[customerId == e1.customerId] for 1 sec " +
+                "select e1.customerId " +
+                "insert into OutputStream; " +
+                "end ";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                eventArrived = true;
+
+                for (Event event : events) {
+                    inEventCount++;
+                    try {
+                        Assert.assertArrayEquals(new Object[]{"customerA"}, event.getData());
+                    } catch (AssertionError e) {
+                        assertionErrors.add(e);
+                    }
+                }
+            }
+        });
+
+        InputHandler customerStream = siddhiAppRuntime.getInputHandler("CustomerStream");
+
+        siddhiAppRuntime.start();
+
+        customerStream.send(new Object[]{"customerA"});
+        customerStream.send(new Object[]{"customerB"});
+        Thread.sleep(500);
+        customerStream.send(new Object[]{"customerB"});
+        Thread.sleep(600);
+
+        siddhiAppRuntime.shutdown();
+
+        for (AssertionError e : this.assertionErrors) {
+            throw e;
+        }
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertTrue("Event not arrived", eventArrived);
     }
 
     private void addCallback(SiddhiAppRuntime siddhiAppRuntime, String queryName, Object[]... expected) {
