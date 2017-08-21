@@ -53,7 +53,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
     private HttpResponseFuture httpResponseFuture;
-//    private HttpConnectorListener listener;
     private HTTPCarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
@@ -84,12 +83,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (this.httpResponseFuture != null) {
                     try {
-                        httpResponseFuture.notifyHTTPListener(cMsg);
+                        httpResponseFuture.notifyHttpListener(cMsg);
                     } catch (Exception e) {
-                        LOG.error("Error while handover response to MessageProcessor ", e);
+                        LOG.error("Error while notifying response to listener ", e);
                     }
                 } else {
-                    LOG.error("Cannot correlate callback with request callback is null ");
+                    LOG.error("Cannot correlate callback with request callback is null");
                 }
             } else {
                 if (cMsg != null) {
@@ -134,10 +133,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.httpResponseFuture = httpResponseFuture;
     }
 
-//    public void setListener(HttpConnectorListener listener) {
-//        this.listener = listener;
-//    }
-
     public void setConnectionManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
@@ -155,9 +150,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 getHttpRoute().toString() + "</errorMessage>";
         if (httpResponseFuture != null) {
             try {
-                httpResponseFuture.notifyHTTPListener(createErrorMessage(payload));
+                httpResponseFuture.notifyHttpListener(createErrorMessage(payload));
             } catch (Exception e) {
-                LOG.error("Error while handover response to MessageProcessor ", e);
+                LOG.error("Error while notifying response to listener ", e);
             }
         } else {
             LOG.error("Cannot correlate callback with request callback is null ");

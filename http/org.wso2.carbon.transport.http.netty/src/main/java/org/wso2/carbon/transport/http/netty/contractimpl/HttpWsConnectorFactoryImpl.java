@@ -47,12 +47,13 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
             ListenerConfiguration listenerConfig) {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(listenerConfig);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
-        serverConnectorBootstrap.addSecurity(listenerConfig);
-        serverConnectorBootstrap.addIdleTimeout(listenerConfig);
+        serverConnectorBootstrap.addSecurity(listenerConfig.getSslConfig());
+        serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
+        serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addThreadPools(Runtime.getRuntime().availableProcessors(),
                 Runtime.getRuntime().availableProcessors() * 2);
 
-        return serverConnectorBootstrap.getServerConnector(listenerConfig);
+        return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }
 
     @Override
@@ -60,12 +61,13 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
             SenderConfiguration senderConfiguration) {
         SSLConfig sslConfig = senderConfiguration.getSslConfig();
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
+        boolean httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
 
         ConnectionManager.init(transportProperties);
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout);
+        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled);
     }
 
     @Override

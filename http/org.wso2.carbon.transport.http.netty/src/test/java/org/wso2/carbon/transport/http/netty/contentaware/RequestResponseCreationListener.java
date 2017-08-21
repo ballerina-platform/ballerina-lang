@@ -153,7 +153,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                     HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
                     HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
-                    future.setHTTPConnectorListener(new HttpConnectorListener() {
+                    future.setHttpConnectorListener(new HttpConnectorListener() {
                         @Override
                         public void onMessage(HTTPCarbonMessage httpResponse) {
                             executor.execute(() -> {

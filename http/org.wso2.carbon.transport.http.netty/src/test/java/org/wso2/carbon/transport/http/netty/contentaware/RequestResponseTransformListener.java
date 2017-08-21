@@ -100,7 +100,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpRequest);
-                future.setHTTPConnectorListener(new HttpConnectorListener() {
+                future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {

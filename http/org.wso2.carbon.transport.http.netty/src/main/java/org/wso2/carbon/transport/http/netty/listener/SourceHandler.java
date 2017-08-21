@@ -231,13 +231,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (serverConnectorFuture != null) {
                 try {
                     ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
-                    serverConnectorFuture.setHTTPConnectorListener(new HttpResponseListener(this.ctx, httpRequestMsg));
-                    this.serverConnectorFuture.notifyHTTPListener(httpRequestMsg);
+                    serverConnectorFuture.setHttpConnectorListener(new HttpResponseListener(this.ctx, httpRequestMsg));
+                    this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {
-                    log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
+                    log.error("Error while notifying listeners", e);
                 }
             } else {
-                log.error("Cannot find registered MessageProcessor for forward the message");
+                log.error("Cannot find registered listener to forward the message");
             }
         }
 

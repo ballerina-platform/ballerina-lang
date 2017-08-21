@@ -83,6 +83,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private String messageProcessorId;
 
+    @XmlAttribute
+    private boolean httpTraceLogEnabled;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -208,5 +211,13 @@ public class ListenerConfiguration {
 
     public void setSocketIdleTimeout(int socketIdleTimeout) {
         this.socketIdleTimeout = socketIdleTimeout;
+    }
+
+    public boolean isHttpTraceLogEnabled() {
+        return httpTraceLogEnabled;
+    }
+
+    public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 }
