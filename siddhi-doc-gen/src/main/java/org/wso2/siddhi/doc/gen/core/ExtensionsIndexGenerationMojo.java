@@ -97,7 +97,7 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
             docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
-        // Setting the documentation output file name if not set by user
+        // Setting the extension index output file name if not set by user
         if (indexGenFileName == null) {
             indexGenFileName = Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE;
         }

@@ -151,63 +151,38 @@ public class DocumentationUtils {
     /**
      * Update the documentation home page
      *
-     * @param homePageTemplateFile       The path to the read me file
-     * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
-     * @param homePageFileName           The name of the documentation file that will be generated
-     * @param mkdocsConfigFile           The name of the mkdocs file
+     * @param inputFile                  The path to the input file
+     * @param outputFile                 The path to the output file
+     * @param extensionRepositoryName    The name of  the extension repository
      * @param latestDocumentationVersion The version of the latest documentation generated
      * @param namespaceMetaDataList      Metadata in this repository
-     * @param logger                     The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    public static void updateHomePage(File homePageTemplateFile, String documentationBaseDirectory,
-                                      String homePageFileName, File mkdocsConfigFile,
-                                      String latestDocumentationVersion, List<NamespaceMetaData> namespaceMetaDataList,
-                                      Log logger)
+    public static void updateHeadingsInMarkdownFile(File inputFile, File outputFile,
+                                                    String extensionRepositoryName,
+                                                    String latestDocumentationVersion,
+                                                    List<NamespaceMetaData> namespaceMetaDataList)
             throws MojoFailureException {
         // Retrieving the content of the README.md file
-        List<String> homePageTemplateFileLines = new ArrayList<>();
+        List<String> inputFileLines = new ArrayList<>();
         try {
-            homePageTemplateFileLines = Files.readLines(homePageTemplateFile, Constants.DEFAULT_CHARSET);
+            inputFileLines = Files.readLines(inputFile, Constants.DEFAULT_CHARSET);
         } catch (IOException ignored) {
-        }
-
-        // Retrieving the documentation file names
-        File documentationDirectory = new File(documentationBaseDirectory
-                + File.separator + Constants.API_SUB_DIRECTORY);
-        String[] documentationFiles = documentationDirectory.list(
-                (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
-        );
-
-        List<String> documentationFilesList;
-        if (documentationFiles == null) {
-            documentationFilesList = new ArrayList<>();
-        } else {
-            documentationFilesList = Arrays.asList(documentationFiles);
         }
 
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
-        rootDataModel.put("homePageTemplateFileLines", homePageTemplateFileLines);
-        rootDataModel.put("documentationFiles", documentationFilesList);
+        rootDataModel.put("inputFileLines", inputFileLines);
+        rootDataModel.put("extensionRepositoryName", extensionRepositoryName);
         rootDataModel.put("latestDocumentationVersion", latestDocumentationVersion);
         rootDataModel.put("metaData", namespaceMetaDataList);
         rootDataModel.put("formatDescription", new FormatDescriptionMethod());
 
         generateFileFromTemplate(
-                Constants.MARKDOWN_HOME_PAGE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
+                Constants.MARKDOWN_HEADINGS_UPDATE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
-                rootDataModel, documentationBaseDirectory,
-                homePageFileName + Constants.MARKDOWN_FILE_EXTENSION
+                rootDataModel, outputFile.getParent(), outputFile.getName()
         );
-
-        // Updating the links in the home page to the mkdocs config
-        try {
-            updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationFilesList);
-        } catch (FileNotFoundException e) {
-            logger.warn("Unable to find mkdocs configuration file: " + mkdocsConfigFile.getAbsolutePath()
-                    + ". Mkdocs configuration file not updated.");
-        }
     }
 
     /**
@@ -218,17 +193,14 @@ public class DocumentationUtils {
      * @param logger                     The maven plugin logger
      */
     public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String  documentationBaseDirectory, Log logger) {
+        // Retrieving the documentation file names
         File apiDocsDirectory = new File(documentationBaseDirectory
                 + File.separator + Constants.API_SUB_DIRECTORY);
-
-        // Retrieving the documentation file names
         String[] documentationFileNames = apiDocsDirectory.list(
                 (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
         );
 
         if (documentationFileNames != null) {
-            List<String> documentationFilesList = new ArrayList<>();
-
             // Removing snapshot files and creating a list of the files that are left out
             for (String documentationFileName : documentationFileNames) {
                 if (documentationFileName.endsWith(Constants.SNAPSHOT_VERSION_POSTFIX
@@ -240,14 +212,12 @@ public class DocumentationUtils {
                         logger.warn("Failed to delete SNAPSHOT documentation file "
                                 + documentationFile.getAbsolutePath());
                     }
-                } else {
-                    documentationFilesList.add(documentationFileName);
                 }
             }
 
             // Updating the links in the home page to the mkdocs config
             try {
-                updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationFilesList);
+                updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationBaseDirectory);
             } catch (FileNotFoundException e) {
                 logger.warn("Unable to find mkdocs configuration file: "
                         + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
@@ -258,12 +228,27 @@ public class DocumentationUtils {
     /**
      * This add a new page to the list of pages in the mkdocs configuration
      *
-     * @param mkdocsConfigFile    The mkdocs configuration file
-     * @param apiDirectoryContent The contents of the api directory
+     * @param mkdocsConfigFile           The mkdocs configuration file
+     * @param documentationBaseDirectory The base directory of the documentation
      * @throws FileNotFoundException If mkdocs configuration file is not found
      */
-    private static void updateAPIPagesInMkdocsConfig(File mkdocsConfigFile, List<String> apiDirectoryContent)
+    public static void updateAPIPagesInMkdocsConfig(File mkdocsConfigFile, String documentationBaseDirectory)
             throws FileNotFoundException {
+        // Retrieving the documentation file names
+        File documentationDirectory = new File(documentationBaseDirectory
+                + File.separator + Constants.API_SUB_DIRECTORY);
+        String[] documentationFiles = documentationDirectory.list(
+                (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
+        );
+
+        List<String> apiDirectoryContent;
+        if (documentationFiles == null) {
+            apiDirectoryContent = new ArrayList<>();
+        } else {
+            apiDirectoryContent = Arrays.asList(documentationFiles);
+            apiDirectoryContent.sort(String::compareTo);
+        }
+
         // Creating yaml parser
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -370,12 +355,12 @@ public class DocumentationUtils {
      *
      * @param docsDirectory    The docs drectory
      * @param mkdocsConfigFile The mkdocs configuration file
+     * @param readmeFile       The read me file
      * @param version          The version of the documentation
      * @param logger           The maven logger
      */
-    public static void updateDocumentationOnGitHub(String docsDirectory, File mkdocsConfigFile, String version,
-                                                   Log logger) {
-
+    public static void updateDocumentationOnGitHub(String docsDirectory, File mkdocsConfigFile, File readmeFile,
+                                                   String version, Log logger) {
         try {
             executeCommand(new String[] {Constants.GIT_COMMAND,
                     Constants.GIT_ADD_COMMAND,
@@ -385,8 +370,7 @@ public class DocumentationUtils {
                     Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
                     String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
                     Constants.GIT_COMMIT_COMMAND_FILES_ARGUMENT,
-                    docsDirectory,
-                    mkdocsConfigFile.getAbsolutePath()}, logger);
+                    docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
             executeCommand(new String[] {Constants.GIT_COMMAND,
                     Constants.GIT_PUSH_COMMAND,
                     Constants.GIT_PUSH_COMMAND_REMOTE,

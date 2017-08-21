@@ -17,6 +17,12 @@
   -->
 <#import "utils.ftl" as utils>
 <#assign skipMaxHeadingLevel = -1>
+<#if extensionRepositoryName == CONSTANTS.FREEMARKER_SIDDHI_REPOSITORY_ARTIFACT_ID>
+    <#assign repositoryOwner = "wso2">
+<#else>
+    <#assign repositoryOwner = "wso2-extensions">
+    <#assign extensionRepositoryName = extensionRepositoryName?replace(CONSTANTS.GITHUB_EXTENSION_REPOSITORY_PARENT_POSTFIX, "", "r")>
+</#if>
 <#macro renderLine line>
 ${line}
 <#if line?starts_with(CONSTANTS.FREEMARKER_FEATURES_HEADING)>
@@ -26,7 +32,7 @@ ${line}
 <#list metaData as namespace>
 <#list namespace.extensionMap as extensionType, extensionsList>
 <#list extensionsList as extension>
-* <a target="_blank" href="./api/${latestDocumentationVersion}/#<@utils.getHTMLIDForHeading heading=(extension.name + "-" + extensionType)/>">${extension.name}</a> *(<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>)*<br><div style="padding-left: 1em;"><p>${formatDescription(extension.description)}</p></div>
+* <a target="_blank" href="https://${repositoryOwner}.github.io/${extensionRepositoryName}/api/${latestDocumentationVersion}/#<@utils.getHTMLIDForHeading heading=(extension.name + "-" + extensionType)/>">${extension.name}</a> *(<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>)*<br><div style="padding-left: 1em;"><p>${formatDescription(extension.description)}</p></div>
 </#list>
 </#list>
 <#else>
@@ -37,15 +43,15 @@ No Features Currently Available
 <#elseif line?starts_with(CONSTANTS.FREEMARKER_LATEST_API_DOCS_HEADING)>
 <#assign skipMaxHeadingLevel = line?index_of(" ")>
 
-Latest API Docs is <a target="_blank" href="./api/${latestDocumentationVersion}">${latestDocumentationVersion}</a>.
+Latest API Docs is <a target="_blank" href="https://${repositoryOwner}.github.io/${extensionRepositoryName}/api/${latestDocumentationVersion}">${latestDocumentationVersion}</a>.
 
 </#if>
 </#macro>
-<#list homePageTemplateFileLines as homePageTemplateFileLine>
+<#list inputFileLines as inputFileLine>
 <#if skipMaxHeadingLevel == -1>
-<@renderLine line=homePageTemplateFileLine/>
-<#elseif homePageTemplateFileLine?starts_with("#") && skipMaxHeadingLevel gte homePageTemplateFileLine?index_of(" ")>
+<@renderLine line=inputFileLine/>
+<#elseif inputFileLine?starts_with("#") && skipMaxHeadingLevel gte inputFileLine?index_of(" ")>
 <#assign skipMaxHeadingLevel = -1>
-<@renderLine line=homePageTemplateFileLine/>
+<@renderLine line=inputFileLine/>
 </#if>
 </#list>

@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.doc.gen.core;
 
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -25,12 +24,10 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.wso2.siddhi.doc.gen.commons.metadata.NamespaceMetaData;
 import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Mojo for deploying mkdocs website on GitHub pages
@@ -62,25 +59,11 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
     private File docGenBaseDirectory;
 
     /**
-     * The path of the readme file in the base directory
+     * The readme file
      * Optional
      */
-    @Parameter(property = "home.page.template.file")
-    private File homePageTemplateFile;
-
-    /**
-     * The name of the index file
-     * Optional
-     */
-    @Parameter(property = "home.page.file.name")
-    private String homePageFileName;
-
-    /**
-     * The target module for which the files will be generated
-     * Optional
-     */
-    @Parameter(property = "module.target.directory")
-    private File moduleTargetDirectory;
+    @Parameter(property = "readme.file")
+    private File readmeFile;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -104,47 +87,18 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
             docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
-        // Setting the read me file path if not set by user
-        if (homePageTemplateFile == null) {
-            homePageTemplateFile = new File(rootMavenProject.getBasedir() + File.separator
+        // Setting the readme file name if not set by user
+        if (readmeFile == null) {
+            readmeFile = new File(rootMavenProject.getBasedir() + File.separator
                     + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
         }
 
-        // Setting the index file name if not set by user
-        if (homePageFileName == null) {
-            homePageFileName = Constants.MARKDOWN_HOME_PAGE_TEMPLATE;
-        }
-
-        // Setting the relevant modules target directory if not set by user
-        String moduleTargetPath;
-        if (moduleTargetDirectory != null) {
-            moduleTargetPath = moduleTargetDirectory.getAbsolutePath();
-        } else {
-            moduleTargetPath = mavenProject.getBuild().getDirectory();
-        }
-
-        // Retrieving metadata
-        List<NamespaceMetaData> namespaceMetaDataList;
-        try {
-            namespaceMetaDataList = DocumentationUtils.getExtensionMetaData(
-                    moduleTargetPath,
-                    mavenProject.getRuntimeClasspathElements(),
-                    getLog()
-            );
-        } catch (DependencyResolutionRequiredException e) {
-            throw new MojoFailureException("Unable to resolve dependencies of the project", e);
-        }
-
-        // Updating the documentation
+        // Updating the API Docs files
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
-        if (namespaceMetaDataList.size() > 0) {
-            DocumentationUtils.updateHomePage(homePageTemplateFile, docGenBasePath, homePageFileName, mkdocsConfigFile,
-                    mavenProject.getVersion(), namespaceMetaDataList, getLog());
-        }
 
         // Deploying the documentation
         DocumentationUtils.deployMkdocsOnGitHubPages(mkdocsConfigFile, mavenProject.getVersion(), getLog());
-        DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile,
+        DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
                 mavenProject.getVersion(), getLog());
     }
 }
