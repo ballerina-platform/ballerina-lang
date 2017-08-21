@@ -45,7 +45,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     @Override
     public ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfig) {
-        ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(listenerConfig);
+        ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap();
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
         serverConnectorBootstrap.addSecurity(listenerConfig.getSslConfig());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));

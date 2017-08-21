@@ -87,7 +87,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
                                   Map<String, String> headers, ConnectionManager connectionManager,
                                   ChannelHandlerContext ctx, String listenerInterface) throws Exception {
-        super(connectionManager, new HttpWsServerConnectorFuture());
+        super(connectionManager, new HttpWsServerConnectorFuture(), listenerInterface);
         this.connectorFuture = connectorFuture;
         this.subProtocol = subProtocol;
         this.isSecured = isSecured;

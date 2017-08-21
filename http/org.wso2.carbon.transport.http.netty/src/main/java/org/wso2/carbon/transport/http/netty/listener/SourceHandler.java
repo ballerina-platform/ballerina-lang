@@ -65,11 +65,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ConnectionManager connectionManager;
     private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     private ServerConnectorFuture serverConnectorFuture;
+    private String interfaceId;
 
-    public SourceHandler(ConnectionManager connectionManager, ServerConnectorFuture serverConnectorFuture)
+    public SourceHandler(ConnectionManager connectionManager, ServerConnectorFuture serverConnectorFuture,
+            String interfaceId)
             throws Exception {
         this.connectionManager = connectionManager;
         this.serverConnectorFuture = serverConnectorFuture;
+        this.interfaceId = interfaceId;
     }
 
     @Override
@@ -179,16 +182,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
         WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
 
-        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        String listenerInterface = Util.createServerConnectorID(localAddress.getHostName(), localAddress.getPort());
-
         Map<String, String> headers = new HashMap<>();
         httpRequest.headers().forEach(
                 header -> headers.put(header.getKey(), header.getValue())
         );
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           headers, connectionManager, ctx, listenerInterface);
+                                           headers, connectionManager, ctx, interfaceId);
         WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
                                                                             headers);
 
@@ -197,7 +197,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         initMessage.setChannelSession(channelSession);
         initMessage.setIsServerMessage(true);
         initMessage.setTarget(httpRequest.uri());
-        initMessage.setListenerInterface(listenerInterface);
+        initMessage.setListenerInterface(interfaceId);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
 
         serverConnectorFuture.notifyWSListener(initMessage);
@@ -290,8 +290,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID,
-                         Util.createServerConnectorID(localAddress.getHostName(), localAddress.getPort()));
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, interfaceId);
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_NAME);
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecuredConnection = true;
