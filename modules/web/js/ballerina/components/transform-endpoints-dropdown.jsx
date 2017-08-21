@@ -33,6 +33,7 @@ export default class SuggestionsDropdown extends React.Component {
                 matches.push(sug);
             }
         });
+        matches.push({type:"add new variable", name:""});
 
         this.setState({suggestions: matches});
     }
