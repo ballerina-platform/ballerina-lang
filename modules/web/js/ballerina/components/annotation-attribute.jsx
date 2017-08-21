@@ -266,6 +266,7 @@ class AnnotationAttribute extends React.Component {
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 <input
+                                    className='annotation-attribute-b-value-input'
                                     ref={(ref) => { this.bValueInput = ref; }}
                                     type="text"
                                     value={this.state.bValueText}

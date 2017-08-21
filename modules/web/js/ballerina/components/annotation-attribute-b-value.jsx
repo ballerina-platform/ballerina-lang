@@ -116,6 +116,7 @@ class AnnotationAttributeBValue extends React.Component {
     render() {
         if (this.state.isInEdit) {
             return (<input
+                className='annotation-attribute-b-value-input'
                 ref={(ref) => { this.bValueInput = ref; }}
                 type='text'
                 value={this.state.bValueText}
