@@ -60,9 +60,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector.
+ * {@code JMSListenerImpl} is responsible for bridging Ballerina Program and External Server Connector.
  *
- * @since 0.8.0
+ * @since 0.93
  */
 public class JMSListenerImpl implements JMSListener {
 
