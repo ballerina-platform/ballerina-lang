@@ -20,11 +20,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 
 import javax.net.ssl.SSLEngine;
 
@@ -54,6 +56,11 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
+        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("wirelog.enabled")))) {
+            log.debug("Adding logging handler");
+            ch.pipeline().addLast(Constants.HTTP_TRACE_LOGGING_HANDLER,
+                                  new HTTPTraceLoggingHandler("wirelog.http.upstream", LogLevel.DEBUG));
+        }
         handler = new TargetHandler();
         ch.pipeline().addLast(Constants.TARGET_HANDLER, handler);
     }
