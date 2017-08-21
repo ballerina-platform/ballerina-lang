@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -47,15 +46,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
 
     private ConnectionManager connectionManager;
-    private ListenerConfiguration listenerConfiguration;
     private ServerConnectorFuture serverConnectorFuture;
     private SSLEngine sslEngine;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
-
-    public HTTPServerChannelInitializer(ListenerConfiguration listenerConfiguration) {
-        this.listenerConfiguration = listenerConfiguration;
-    }
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -77,10 +71,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
             log.debug("Initializing source channel pipeline");
         }
 
-        ListenerConfiguration listenerConfiguration = this.listenerConfiguration;
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast("encoder", new HttpResponseEncoder());
-        configureHTTPPipeline(pipeline, listenerConfiguration);
+        configureHTTPPipeline(pipeline);
 
         if (socketIdleTimeout > 0) {
             pipeline.addBefore(
@@ -90,7 +83,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         if (sslEngine != null) {
-            pipeline.addFirst("ssl", new SslHandler(sslEngine));
+            pipeline.addFirst(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
     }
 
@@ -98,9 +91,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * Configure the pipeline if user sent HTTP requests
      *
      * @param pipeline                    Channel
-     * @param listenerConfiguration HttpConnectorListener Configuration
      */
-    public void configureHTTPPipeline(ChannelPipeline pipeline, ListenerConfiguration listenerConfiguration) {
+    public void configureHTTPPipeline(ChannelPipeline pipeline) {
         // Removed the default encoder since http/2 version upgrade already added to pipeline
         if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
             pipeline.addLast("decoder", new CustomHttpRequestDecoder());
@@ -120,7 +112,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                             new SourceHandler(connectionManager, listenerConfiguration, this.serverConnectorFuture));
+                             new SourceHandler(connectionManager, this.serverConnectorFuture));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

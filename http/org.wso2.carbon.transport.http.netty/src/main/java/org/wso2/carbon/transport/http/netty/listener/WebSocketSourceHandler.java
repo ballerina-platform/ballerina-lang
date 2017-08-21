@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -71,6 +70,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final WebSocketSessionImpl channelSession;
     private final List<Session> clientSessionsList = new LinkedList<>();
     private final Map<String, String> headers;
+    private final String listenerInterface;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -80,21 +80,20 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param headers Headers obtained from HTTP WebSocket upgrade request.
      * @param connectionManager connection manager for WebSocket connection.
-     * @param listenerConfiguration HttpConnectorListener configuration for WebSocket connection.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
      * @throws Exception if any error occurred during construction of {@link WebSocketSourceHandler}.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
                                   Map<String, String> headers, ConnectionManager connectionManager,
-                                  ListenerConfiguration listenerConfiguration,
-                                  ChannelHandlerContext ctx) throws Exception {
-        super(connectionManager, listenerConfiguration, new HttpWsServerConnectorFuture());
+                                  ChannelHandlerContext ctx, String listenerInterface) throws Exception {
+        super(connectionManager, new HttpWsServerConnectorFuture());
         this.connectorFuture = connectorFuture;
         this.subProtocol = subProtocol;
         this.isSecured = isSecured;
         this.channelSession = channelSession;
         this.ctx = ctx;
+        this.listenerInterface = listenerInterface;
         this.target = httpRequest.uri();
         this.headers = headers;
     }
@@ -209,7 +208,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketMessage) {
         webSocketMessage.setSubProtocol(subProtocol);
         webSocketMessage.setTarget(target);
-        webSocketMessage.setListenerInterface(listenerConfiguration.getId());
+        webSocketMessage.setListenerInterface(listenerInterface);
         webSocketMessage.setIsConnectionSecured(isSecured);
         webSocketMessage.setIsServerMessage(true);
         webSocketMessage.setChannelSession(channelSession);

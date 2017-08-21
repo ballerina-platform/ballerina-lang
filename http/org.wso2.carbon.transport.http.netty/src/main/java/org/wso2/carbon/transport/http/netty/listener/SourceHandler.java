@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.listener;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -40,7 +39,6 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
@@ -65,18 +63,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
-    protected ListenerConfiguration listenerConfiguration;
     private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     private ServerConnectorFuture serverConnectorFuture;
 
-    public ListenerConfiguration getListenerConfiguration() {
-        return listenerConfiguration;
-    }
-
-    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration,
-            ServerConnectorFuture serverConnectorFuture)
+    public SourceHandler(ConnectionManager connectionManager, ServerConnectorFuture serverConnectorFuture)
             throws Exception {
-        this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
         this.serverConnectorFuture = serverConnectorFuture;
     }
@@ -124,7 +115,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
                 log.debug("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
-                handleWebSocketHandshake(httpRequest);
+                handleWebSocketHandshake(httpRequest, ctx);
 
             } else {
                 cMsg = (HTTPCarbonMessage) setupCarbonMessage(httpRequest);
@@ -177,14 +168,19 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      *
      * @param httpRequest {@link HttpRequest} of the request.
      */
-    private void handleWebSocketHandshake(HttpRequest httpRequest) throws Exception {
+    private void handleWebSocketHandshake(HttpRequest httpRequest, ChannelHandlerContext ctx) throws Exception {
         boolean isSecured = false;
-        if (listenerConfiguration.getSslConfig() != null) {
+
+        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecured = true;
         }
+
         String uri = httpRequest.uri();
         String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
         WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
+
+        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        String listenerInterface = Util.createServerConnectorID(localAddress.getHostName(), localAddress.getPort());
 
         Map<String, String> headers = new HashMap<>();
         httpRequest.headers().forEach(
@@ -192,7 +188,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         );
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           headers, connectionManager, listenerConfiguration, ctx);
+                                           headers, connectionManager, ctx, listenerInterface);
         WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
                                                                             headers);
 
@@ -201,7 +197,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         initMessage.setChannelSession(channelSession);
         initMessage.setIsServerMessage(true);
         initMessage.setTarget(httpRequest.uri());
-        initMessage.setListenerInterface(listenerConfiguration.getId());
+        initMessage.setListenerInterface(listenerInterface);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
 
         serverConnectorFuture.notifyWSListener(initMessage);
@@ -287,24 +283,23 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
-        cMsg.setProperty(Constants.MESSAGE_PROCESSOR_ID, listenerConfiguration.getMessageProcessorId());
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         cMsg.setProperty(Constants.SRC_HANDLER, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
         cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
-                ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, listenerConfiguration.getId());
+
+        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID,
+                         Util.createServerConnectorID(localAddress.getHostName(), localAddress.getPort()));
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_NAME);
-        if (listenerConfiguration.getSslConfig() != null) {
+        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecuredConnection = true;
         }
         cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
         cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
 
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
-        ChannelHandler handler = ctx.handler();
-        cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
         cMsg.setProperty(Constants.TO, httpRequest.getUri());
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         //Added protocol name as a string
