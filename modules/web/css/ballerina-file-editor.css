@@ -1105,6 +1105,10 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     cursor: pointer;
 }
 
+.attribute-value-bvalue .annotation-attribute-key {
+    padding-left: 16px;
+}
+
 .popout-button-wrapper i {
     padding-top: 4px;
     font-size: 9px;
