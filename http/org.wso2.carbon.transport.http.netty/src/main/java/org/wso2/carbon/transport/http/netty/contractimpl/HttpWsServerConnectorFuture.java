@@ -117,4 +117,12 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     public void sync() throws InterruptedException {
         channelFuture.sync();
     }
+
+    @Override
+    public void notifyErrorListener(Throwable cause) throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
+        httpConnectorListener.onError(cause);
+    }
 }

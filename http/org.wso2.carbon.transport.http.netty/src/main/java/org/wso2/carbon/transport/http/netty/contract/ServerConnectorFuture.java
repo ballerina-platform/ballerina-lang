@@ -101,6 +101,13 @@ public interface ServerConnectorFuture {
     void notifyWSListener(Throwable throwable) throws ServerConnectorException;
 
     /**
+     * Notify error messages to the listener.
+     *
+     * @param cause Reason for the error.
+     */
+    void notifyErrorListener(Throwable cause) throws ServerConnectorException;;
+
+    /**
      * Waits till the port binding is completed.
      *
      * @throws InterruptedException if any interrupt occurred while waiting for port binding.

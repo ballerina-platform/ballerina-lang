@@ -276,6 +276,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
+        serverConnectorFuture.notifyErrorListener(cause);
     }
 
     protected CarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
