@@ -1097,6 +1097,14 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     /*border: 1px solid red;*/
 }
 
+.annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span {
+    padding-right: 7px;
+}
+
+.annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span :hover{
+    cursor: pointer;
+}
+
 .popout-button-wrapper i {
     padding-top: 4px;
     font-size: 9px;

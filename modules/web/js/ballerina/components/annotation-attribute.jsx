@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationAttachment from './annotation-attachment';
 import AnnotationAttributeAST from './../ast/annotations/annotation-attribute';
 import AnnotationAttributeBValue from './annotation-attribute-b-value';
@@ -340,18 +341,26 @@ class AnnotationAttribute extends React.Component {
                 },
             };
             deletePopButton.push(deleteButton);
-            const attributes = this.props.model.getViewState().collapsed ? [] : this.renderAnnotationAttributes(annotationAttachment);
+            const attributes = this.props.model.getViewState().collapsed ? [] :
+                                                                this.renderAnnotationAttributes(annotationAttachment);
             return (
                 <ul
                     className="attribute-value-annotation"
                 >
                     <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
-                        <i
-                            className={cn('fw fw-right expand-icon',
-                            { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
-                            { hide: annotationAttachment.getChildren().length === 0 })}
-                            onClick={this.toggleCollapse}
-                        />
+                        <CSSTransitionGroup
+                            component="span"
+                            transitionName="annotation-expand"
+                            transitionEnterTimeout={300}
+                            transitionLeaveTimeout={300}
+                        >
+                            <i
+                                className={cn('fw fw-right expand-icon',
+                                { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                                { hide: annotationAttachment.getChildren().length === 0 })}
+                                onClick={this.toggleCollapse}
+                            />
+                        </CSSTransitionGroup>
                         {key}
                         <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
                             @{packageName}
@@ -393,12 +402,19 @@ class AnnotationAttribute extends React.Component {
                     className="attribute-value-array"
                 >
                     <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
-                        <i 
-                            className={cn('fw fw-right expand-icon',
-                            { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
-                            { hide: attributeValue.getChildren().length === 0 })}
-                            onClick={this.toggleCollapse}
-                        />
+                        <CSSTransitionGroup
+                            component="span"
+                            transitionName="annotation-expand"
+                            transitionEnterTimeout={300}
+                            transitionLeaveTimeout={300}
+                        >
+                            <i
+                                className={cn('fw fw-right expand-icon',
+                                { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                                { hide: attributeValue.getChildren().length === 0 })}
+                                onClick={this.toggleCollapse}
+                            />
+                        </CSSTransitionGroup>
                         {key}
                         <PopoutButton buttons={addPopButton} />
                         <PopoutButton buttons={deletePopButton} />
