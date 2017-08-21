@@ -29,22 +29,22 @@ public interface HttpResponseFuture {
      * Set listener for the connector future.
      * @param connectorListener that receives events related to the connector.
      */
-    void setHTTPConnectorListener(HttpConnectorListener connectorListener);
+    void setHttpConnectorListener(HttpConnectorListener connectorListener);
 
     /**
      * Remove the listener set to the future.
      */
-    void removeHTTPListener();
+    void removeHttpListener();
 
     /**
      * Notify the listeners when there is an event
      * @param httpMessage contains the data related to the event.
      */
-    void notifyHTTPListener(HTTPCarbonMessage httpMessage);
+    void notifyHttpListener(HTTPCarbonMessage httpMessage);
 
     /**
      * Notify the listeners when there is an event
      * @param throwable contains the data related to the error.
      */
-    void notifyHTTPListener(Throwable throwable);
+    void notifyHttpListener(Throwable throwable);
 }

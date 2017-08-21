@@ -36,7 +36,7 @@ public interface ServerConnectorFuture {
      *
      * @param connectorListener Connector listener for HTTP.
      */
-    void setHTTPConnectorListener(HttpConnectorListener connectorListener);
+    void setHttpConnectorListener(HttpConnectorListener connectorListener);
 
     /**
      * Notify HTTP messages to the listener.
@@ -44,7 +44,7 @@ public interface ServerConnectorFuture {
      * @param httpMessage HTTP message.
      * @throws ServerConnectorException if any error occurred during the notification.
      */
-    void notifyHTTPListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
+    void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
 
     /**
      *  Set Connector listener for WebSocket.

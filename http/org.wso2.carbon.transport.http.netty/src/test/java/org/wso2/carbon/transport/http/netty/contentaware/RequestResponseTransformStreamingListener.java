@@ -86,7 +86,7 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
-                future.setHTTPConnectorListener(new HttpConnectorListener() {
+                future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {

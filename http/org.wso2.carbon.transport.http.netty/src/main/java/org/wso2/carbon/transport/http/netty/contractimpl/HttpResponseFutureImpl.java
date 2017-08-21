@@ -33,25 +33,25 @@ public class HttpResponseFutureImpl implements HttpResponseFuture {
     private Throwable throwable;
 
     @Override
-    public void setHTTPConnectorListener(HttpConnectorListener connectorListener) {
+    public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
         this.httpConnectorListener = connectorListener;
         if (httpCarbonMessage != null) {
-            notifyHTTPListener(httpCarbonMessage);
+            notifyHttpListener(httpCarbonMessage);
             httpCarbonMessage = null;
         }
         if (this.throwable != null) {
-            notifyHTTPListener(this.throwable);
+            notifyHttpListener(this.throwable);
             this.throwable =  null;
         }
     }
 
     @Override
-    public void removeHTTPListener() {
+    public void removeHttpListener() {
         this.httpConnectorListener = null;
     }
 
     @Override
-    public void notifyHTTPListener(HTTPCarbonMessage httpMessage) {
+    public void notifyHttpListener(HTTPCarbonMessage httpMessage) {
         if (httpConnectorListener == null) {
             httpCarbonMessage = httpMessage;
         } else {
@@ -60,7 +60,7 @@ public class HttpResponseFutureImpl implements HttpResponseFuture {
     }
 
     @Override
-    public void notifyHTTPListener(Throwable throwable) {
+    public void notifyHttpListener(Throwable throwable) {
         if (httpConnectorListener == null) {
             this.throwable = throwable;
         } else {

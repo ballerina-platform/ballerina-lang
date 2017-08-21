@@ -87,12 +87,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                     log.error(msg, e);
                     MessagingException messagingException = new MessagingException(msg, e, 101500);
                     httpCarbonRequest.setMessagingException(messagingException);
-//                    httpResponseFuture.notifyHTTPListener(httpCarbonMessage);
+//                    httpResponseFuture.notifyHttpListener(httpCarbonMessage);
                     httpCarbonRequest.getResponseListener().onMessage(httpCarbonRequest);
                 }
             });
         } catch (Exception failedCause) {
-            httpResponseFuture.notifyHTTPListener(failedCause);
+            httpResponseFuture.notifyHttpListener(failedCause);
         }
 
         return httpResponseFuture;
