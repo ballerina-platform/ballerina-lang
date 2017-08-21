@@ -27,6 +27,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -55,7 +56,7 @@ public class ServerConnectorBootstrap {
     public ServerConnectorBootstrap(ListenerConfiguration listenerConfiguration) {
         this.listenerConfiguration = listenerConfiguration;
         serverBootstrap = new ServerBootstrap();
-        httpServerChannelInitializer = new HTTPServerChannelInitializer(this.listenerConfiguration);
+        httpServerChannelInitializer = new HTTPServerChannelInitializer();
         serverBootstrap.childHandler(httpServerChannelInitializer);
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(new HandlerExecutor());
         initialized = true;
@@ -119,7 +120,7 @@ public class ServerConnectorBootstrap {
     }
 
     public ServerConnector getServerConnector(String host, int port) {
-        String serverConnectorId = host + ":" + port;
+        String serverConnectorId = Util.createServerConnectorID(host, port);
         return new HTTPServerConnector(serverConnectorId, this, host, port);
     }
 

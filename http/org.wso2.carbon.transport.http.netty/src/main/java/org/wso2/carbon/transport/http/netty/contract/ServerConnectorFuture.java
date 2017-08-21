@@ -104,6 +104,7 @@ public interface ServerConnectorFuture {
      * Notify error messages to the listener.
      *
      * @param cause Reason for the error.
+     * @throws ServerConnectorException if any error occurred during the error notification.
      */
     void notifyErrorListener(Throwable cause) throws ServerConnectorException;;
 

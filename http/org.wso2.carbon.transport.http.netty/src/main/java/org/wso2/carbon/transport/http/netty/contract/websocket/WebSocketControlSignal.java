@@ -21,7 +21,17 @@ package org.wso2.carbon.transport.http.netty.contract.websocket;
 
 /**
  * Control signals for WebSocket connection.
+ * These signals are the heartbeat signals of a WebSocket connection.
  */
 public enum WebSocketControlSignal {
-    PING, PONG;
+
+    /**
+     * Heartbeat request signal.
+     */
+    PING,
+
+    /**
+     * Heartbeat response signal.
+     */
+    PONG;
 }

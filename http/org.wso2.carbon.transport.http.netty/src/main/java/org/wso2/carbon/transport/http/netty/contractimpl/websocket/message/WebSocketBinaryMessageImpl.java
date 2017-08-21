@@ -46,7 +46,7 @@ public class WebSocketBinaryMessageImpl extends WebSocketMessageImpl implements 
     public byte[] getByteArray() {
         byte[] bytes;
         if (buffer.hasArray()) {
-            return buffer.array();
+            bytes = buffer.array();
         } else {
             int remaining = buffer.remaining();
             bytes = new byte[remaining];

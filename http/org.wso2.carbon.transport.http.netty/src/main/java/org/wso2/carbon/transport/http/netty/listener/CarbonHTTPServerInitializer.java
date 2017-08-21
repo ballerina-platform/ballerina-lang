@@ -77,7 +77,6 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         int port = ch.localAddress().getPort();
 
         String id = String.valueOf(port);
-        ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(id);
         if (sslConfigMap.get(id) != null) {
             SSLEngine sslEngine = new SSLHandlerFactory(sslConfigMap.get(id)).build();
             ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
@@ -99,8 +98,7 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
 
-            p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration,
-                    new HttpWsServerConnectorFuture()));
+            p.addLast("handler", new SourceHandler(connectionManager, new HttpWsServerConnectorFuture()));
 
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);

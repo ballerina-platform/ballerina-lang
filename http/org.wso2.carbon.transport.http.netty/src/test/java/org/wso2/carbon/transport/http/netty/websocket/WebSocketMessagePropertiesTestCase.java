@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
@@ -50,14 +51,15 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
     private WebSocketConnectorListener connectorListener;
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(9009);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                   listenerConfiguration);
-        connectorListener = new WebSocketMessagePropertiesConnectorListener();
-        serverConnector.start().setWSConnectorListener(connectorListener);
+        ServerConnectorFuture connectorFuture = serverConnector.start();
+        connectorFuture.setWSConnectorListener(new WebSocketMessagePropertiesConnectorListener());
+        connectorFuture.sync();
     }
 
     @Test

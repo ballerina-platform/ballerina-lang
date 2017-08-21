@@ -480,4 +480,15 @@ public class Util {
         }
         return value;
     }
+
+    /**
+     * Create ID for server connector.
+     *
+     * @param host host of the channel.
+     * @param port port of the channel.
+     * @return constructed ID for server connector.
+     */
+    public static String createServerConnectorID(String host, int port) {
+        return host + ":" + port;
+    }
 }

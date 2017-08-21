@@ -89,7 +89,7 @@ public class WebSocketClient {
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
     public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException {
-        boolean isDone = false;
+        boolean isDone;
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
@@ -156,13 +156,12 @@ public class WebSocketClient {
 
             channel = b.connect(uri.getHost(), port).sync().channel();
             isDone = handler.handshakeFuture().sync().isSuccess();
+            logger.debug("WebSocket Handshake successful : " + isDone);
+            return isDone;
         } catch (Exception e) {
             logger.error("Handshake unsuccessful : " + e.getMessage(), e);
             return false;
         }
-
-        logger.debug("WebSocket Handshake successful : " + isDone);
-        return isDone;
     }
 
     /**
