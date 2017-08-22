@@ -69,7 +69,6 @@ public enum SemanticErrors {
     REDECLARED_IMPORT_PACKAGE("redeclared.import.package", "SEMANTIC_0044"),
     UNSUPPORTED_OPERATOR("unsupported.operator", "SEMANTIC_0045"),
     ACTION_INVOCATION_NOT_ALLOWED_HERE("action.invocation.not.allowed.here", "SEMANTIC_0046"),
-    REF_TYPE_MESSAGE_ALLOWED("ref.type.message.allowed", "SEMANTIC_0047"),
     UNDEFINED_PACKAGE_NAME("undefined.package.name", "SEMANTIC_0048"),
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
