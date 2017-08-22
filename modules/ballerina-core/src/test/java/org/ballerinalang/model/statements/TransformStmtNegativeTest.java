@@ -44,4 +44,46 @@ public class TransformStmtNegativeTest {
     public void testInvalidInputOutput () {
         BTestUtils.getProgramFile("lang/statements/transformStmt/transform-stmt-invalid-input-output.bal");
     }
+
+    @Test(description = "Test invalid input and output combinations with cast and conversions",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output-with-cast-and-conversion.bal:22: " +
+                    "input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutputWithCastAndConversion () {
+        BTestUtils.getProgramFile("lang/statements/transformStmt/" +
+                                  "transform-stmt-invalid-input-output-with-cast-and-conversion.bal");
+    }
+
+    @Test(description = "Test invalid input and output combinations with function invocations",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output-with-function-invocations.bal:20: " +
+                    "input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutputWithFunctionInvocation () {
+        BTestUtils.getProgramFile("lang/statements/transformStmt/" +
+                                  "transform-stmt-invalid-input-output-with-function-invocations.bal");
+    }
+
+    @Test(description = "Test invalid input and output combinations with var",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output-with-var.bal:21: " +
+                    "input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutputWithVar () {
+        BTestUtils.getProgramFile("lang/statements/transformStmt/transform-stmt-invalid-input-output-with-var.bal");
+    }
+
+    @Test(description = "Test invalid input and output combinations with variable def statements",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output-with-var-def.bal:21: " +
+                    "input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutputWithVarDef () {
+        BTestUtils.getProgramFile("lang/statements/transformStmt/transform-stmt-invalid-input-output-with-var-def.bal");
+    }
 }

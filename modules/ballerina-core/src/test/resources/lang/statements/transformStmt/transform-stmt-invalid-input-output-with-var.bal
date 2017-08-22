@@ -11,10 +11,15 @@ struct Employee {
     string address;
 }
 
-function emptyTransform() (string, int, string){
+function varInTransform() (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
+        e.address = p.city;
+        var temp = getPrefixedName(p.firstName);
+        e.name = temp;
+        temp = p.firstName;
+        e.age = p.age;
     }
     return e.name, e.age, e.address;
 }

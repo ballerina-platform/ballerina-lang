@@ -1301,11 +1301,6 @@ public class BLangModelBuilder {
 
     public void createReplyStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression argExpr = exprStack.pop();
-        if (!(argExpr instanceof SimpleVarRefExpr)) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REF_TYPE_MESSAGE_ALLOWED);
-            errorMsgs.add(errMsg);
-        }
         ReplyStmt replyStmt = new ReplyStmt(location, whiteSpaceDescriptor, argExpr);
         addToBlockStmt(replyStmt);
     }
@@ -2166,6 +2161,27 @@ public class BLangModelBuilder {
     private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
+            if (statement instanceof VariableDefStmt) {
+                VariableDefStmt variableDefStmt = (VariableDefStmt) statement;
+                Expression varRefExpression = variableDefStmt.getLExpr();
+                String varName = ((SimpleVarRefExpr) varRefExpression).getVarName();
+                //variables defined in transform scope, cannot be used as output
+                if (outputs.get(varName) != null) {
+                    String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                 SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                    errorMsgs.add(errMsg);
+                    continue;
+                }
+
+                //if variable has not been used as an output before
+                if (inputs.get(varName) == null) {
+                    List<Statement> stmtList = new ArrayList<>();
+                    stmtList.add(statement);
+                    inputs.put(varName, varRefExpression);
+                }
+                continue;
+            }
+
             if (statement instanceof AssignStmt) {
                 AssignStmt assignStmt = (AssignStmt) statement;
                 for (Expression lExpr : assignStmt.getLExprs()) {
@@ -2175,18 +2191,17 @@ public class BLangModelBuilder {
                         if (!assignStmt.isDeclaredWithVar()) {
                             // if lhs is declared with var, they not considered as output variables since they are
                             // only available in transform statement scope
-                            if (inputs.get(varName) == null) {
-                                //if variable has not been used as an input before
-                                if (outputs.get(varName) == null) {
-                                    List<Statement> stmtList = new ArrayList<>();
-                                    stmtList.add(statement);
-                                    outputs.put(varName, exp);
-                                }
-                            } else {
+                            if (inputs.get(varName) != null) {
                                 String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                     SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT,
-                                                                                            statement);
+                                                   SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                                 errorMsgs.add(errMsg);
+                                continue;
+                            }
+                            //if variable has not been used as an input before
+                            if (outputs.get(varName) == null) {
+                                List<Statement> stmtList = new ArrayList<>();
+                                stmtList.add(statement);
+                                outputs.put(varName, exp);
                             }
                         }
                     }
@@ -2195,17 +2210,17 @@ public class BLangModelBuilder {
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
                     String varName = ((SimpleVarRefExpr) exp).getVarName();
-                    if (outputs.get(varName) == null) {
-                        //if variable has not been used as an output before
-                        if (inputs.get(varName) == null) {
-                            List<Statement> stmtList = new ArrayList<>();
-                            stmtList.add(statement);
-                            inputs.put(varName, exp);
-                        }
-                    } else {
+                    if (outputs.get(varName) != null) {
                         String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                                                 SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                         errorMsgs.add(errMsg);
+                        continue;
+                    }
+                    //if variable has not been used as an output before
+                    if (inputs.get(varName) == null) {
+                        List<Statement> stmtList = new ArrayList<>();
+                        stmtList.add(statement);
+                        inputs.put(varName, exp);
                     }
                 }
             }
@@ -2221,8 +2236,7 @@ public class BLangModelBuilder {
                     expression = ((IndexBasedVarRefExpr) expression).getVarRefExpr();
                 }
             }
-            return new Expression[]{expression};
-
+            return new Expression[] { expression };
         } else if (expression instanceof FunctionInvocationExpr) {
             Expression[] argExprs = ((FunctionInvocationExpr) expression).getArgExprs();
             List<Expression> expList = new ArrayList<>();
@@ -2231,10 +2245,12 @@ public class BLangModelBuilder {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new Expression[expList.size()]);
-
+        } else if (expression instanceof TypeConversionExpr) {
+            return getVariableReferencesFromExpression(((TypeConversionExpr) expression).getRExpr());
+        } else if (expression instanceof TypeCastExpression) {
+            return getVariableReferencesFromExpression(((TypeCastExpression) expression).getRExpr());
         } else if (expression instanceof SimpleVarRefExpr) {
             return new Expression[] { expression };
-
         }
         return new Expression[] {};
     }
