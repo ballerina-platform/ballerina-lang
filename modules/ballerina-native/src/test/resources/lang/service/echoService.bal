@@ -74,22 +74,21 @@ service<http> echo {
     }
     resource testEmptyResourceBody (message m) {
     }
-}
-
-function getConstPath() (string) {
-    return "/constantPath";
 
     @http:resourceConfig {
         methods:["POST"]
     }
     resource getFormParams (message m) {
         message response = {};
-        map params = {};
-        params = http:getFormParams(m);
+        map params = http:getFormParams(m);
         var name,_ = (string)params.firstName;
         var team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+}
+
+function getConstPath() (string) {
+    return "/constantPath";
 }
