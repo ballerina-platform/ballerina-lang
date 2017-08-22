@@ -1,23 +1,25 @@
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import React from 'react';
 import Autosuggest from 'react-autosuggest';
 
 const getSuggestionValue = suggestion => suggestion.name;
 
 const renderSuggestion = suggestion => (
-  <div>
-    {suggestion.name}<span style={{color: '#a8a8a8'}}>{` ${suggestion.typeName || suggestion.type}`}</span>
-  </div>
+    <div>
+        { suggestion.name }<span style={{ color: '#a8a8a8' }}>{` ${suggestion.typeName || suggestion.type}`}</span>
+    </div>
 );
 
-const shouldRenderSuggestions = () => true
+const shouldRenderSuggestions = () => true;
 
-export default class SuggestionsDropdown extends React.Component {
+class SuggestionsDropdown extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             value: '',
             suggestions: this.props.suggestionsPool,
-        }
+        };
 
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
@@ -26,10 +28,10 @@ export default class SuggestionsDropdown extends React.Component {
 
     onSuggestionsFetchRequested(query) {
         const matches = [];
-        const substrRegex = new RegExp(query.value, 'i');
+        const substrRegex = new RegExp(_.escapeRegExp(query.value), 'i');
 
         this.props.suggestionsPool.forEach((sug) => {
-            if (substrRegex.test(sug.name + sug.type)) {
+            if (substrRegex.test(sug.name + (sug.typeName || sug.type))) {
                 matches.push(sug);
             }
         });
@@ -51,7 +53,6 @@ export default class SuggestionsDropdown extends React.Component {
     }
 
     render() {
-        const { suggestions } = this.state;
         const { placeholder, value, onChange } = this.props;
 
         const inputProps = {
@@ -75,3 +76,14 @@ export default class SuggestionsDropdown extends React.Component {
         );
     }
 }
+
+SuggestionsDropdown.propTypes = {
+    placeholder: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onSuggestionSelected: PropTypes.instanceOf(Object).isRequired,
+    suggestionsPool: PropTypes.instanceOf(Object).isRequired,
+    onEnter: PropTypes.func.isRequired,
+};
+
+export default SuggestionsDropdown;
