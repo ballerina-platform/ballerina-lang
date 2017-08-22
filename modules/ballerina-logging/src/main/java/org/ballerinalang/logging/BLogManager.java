@@ -66,36 +66,13 @@ public class BLogManager extends LogManager {
     }
 
     public void setTraceLogHandler(String traceLogDestination) throws IOException {
-        Handler handler;
-        if (LOG_DEST_CONSOLE.equals(traceLogDestination)) {
-            handler = new ConsoleHandler();
-            handler.setFormatter(new HTTPTraceLogFormatter());
-        } else {
+        if (!LOG_DEST_CONSOLE.equals(traceLogDestination)) {
             STD_OUT.println("Invalid parameter encountered while configuring trace logs.");
             return;
         }
-        //TODO: Add the code below in a future release after finalizing the design
-//        else if ("default".equals(traceLogDestination)) {
-//            File file = new File(
-//                    System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
-//            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
-//        } else {
-//            File file;
-//
-//            if ("default".equals(traceLogDestination)) {
-//                file = new File(
-//                        System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
-//            } else {
-//                file = Paths.get(traceLogDestination).toFile();
-//            }
-//
-//            if (!file.exists()) {
-//                createFile(file);
-//            }
-//
-//            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
-//        }
 
+        Handler handler = new ConsoleHandler();
+        handler.setFormatter(new HTTPTraceLogFormatter());
         handler.setLevel(Level.FINE);
 
         if (httpTraceLogger == null) {
@@ -107,23 +84,6 @@ public class BLogManager extends LogManager {
         httpTraceLogger.addHandler(handler);
         httpTraceLogger.setLevel(Level.FINE);
     }
-
-//    private static void createFile(File file) throws IOException {
-//        if (!file.getParentFile().exists()) {
-//            if (file.getParentFile().mkdirs()) {
-//                if (!file.createNewFile()) {
-//                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
-//                }
-//            } else {
-//                throw new IOException(
-//                        "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
-//            }
-//        } else {
-//            if (!file.createNewFile()) {
-//                throw new IOException("error in creating the file: " + file.getAbsolutePath());
-//            }
-//        }
-//    }
 
     private static void removeHandlers(Logger logger) {
         Handler[] handlers = logger.getHandlers();
