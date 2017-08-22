@@ -21,7 +21,6 @@ import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
 import MenuBar from './menu-bar/menu-bar';
-import BreadcrumbController from './breadcrumbs/breadcrumbs';
 import TabController from './tab/file-tab-list';
 import CommandManager from './command/command';
 import BrowserStorage from './workspace/browser-storage';
@@ -32,6 +31,7 @@ import DebugManager from './debugger/debug-manager';
 import LaunchManager from './launcher/launch-manager';
 import Launcher from './launcher/launcher';
 import BallerinaEnvironment from './ballerina/env/environment';
+import renderToolView from './ballerina/toolbar/toolbar-view';
 // importing for side effects only
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/themes/base/draggable.css';
@@ -68,11 +68,6 @@ class Application {
         // init workspace manager
         this.workspaceManager = new WorkspaceManager(this);
 
-        const breadCrumbsOpts = _.get(this.config, 'breadcrumbs');
-        _.set(breadCrumbsOpts, 'application', this);
-        // init breadcrumbs controller
-        this.breadcrumbController = new BreadcrumbController(breadCrumbsOpts);
-
         // init tab controller
         const tabControlOpts = _.get(this.config, 'tab_controller');
         _.set(tabControlOpts, 'application', this);
@@ -101,6 +96,8 @@ class Application {
 
         DebugManager.init(debuggerOpts);
 
+        // Render the toolbar view
+        renderToolView(this);
         // handle resize events
         // this is to resize the diagrams when the browser window is resized.
         jQuery(window).on('resize', _.debounce(_.bind(this.reRender, this), 150));
@@ -117,9 +114,6 @@ class Application {
             // disable ajax appender
             // log.initAjaxAppender(_.get(config, 'services.workspace.endpoint'));
         }
-        if (!_.has(config, 'breadcrumbs')) {
-            log.error('breadcrumbs configuration is not provided.');
-        }
         if (!_.has(config, 'workspace_explorer')) {
             log.error('Workspace explorer configuration is not provided.');
         }
@@ -132,10 +126,6 @@ class Application {
         log.debug('start: rendering menu_bar control');
         this.menuBar.render();
         log.debug('end: rendering menu_bar control');
-
-        log.debug('start: rendering breadcrumbs control');
-        this.breadcrumbController.render();
-        log.debug('end: rendering breadcrumbs control');
 
         log.debug('start: rendering workspace explorer control');
         this.workspaceExplorer.render();

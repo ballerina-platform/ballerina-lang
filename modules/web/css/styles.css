@@ -168,14 +168,6 @@ ol#breadcrumbList {
     background-color: #131313;
 }
 
-#breadcrumb-container {
-    background-color: #282b2f;
-    height: 28px;
-    overflow: hidden;
-    line-height: 15px;
-
-}
-
 #icon-toggle-source {
     height: 100%;
     width: 100%;

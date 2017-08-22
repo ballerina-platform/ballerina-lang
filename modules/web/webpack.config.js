@@ -133,7 +133,6 @@ const config = [{
             context_menu: 'context-menu/context-menu',
             tool_bar: 'tool-bar/tool-bar',
             alerts: 'utils/alerts',
-            breadcrumbs: 'breadcrumbs/breadcrumbs',
             property_pane_utils: 'property-pane/property-pane-utils',
             expression_editor_utils: 'expression-editor/expression-editor-utils',
             constants: 'constants/constants',

@@ -293,6 +293,17 @@ export const connectorDeclaration = {
     },
 };
 
+export const actionInvocationDelete = {
+    iconSize: {
+        width: 14,
+        padding: 5,
+    },
+    outerRect: {
+        width: 50,
+        height: 30,
+    },
+};
+
 export const variablesPane = {
     headerHeight: 35,
     topBarHeight: 25,
