@@ -81,6 +81,7 @@ class TransformExpanded extends React.Component {
         this.removeTargetType = this.removeTargetType.bind(this);
         this.foldEndpoint = this.foldEndpoint.bind(this);
         this.removeEndpoint = this.removeEndpoint.bind(this);
+        this.updateVariable = this.updateVariable.bind(this);
     }
 
     foldEndpoint(key) {
@@ -483,6 +484,7 @@ class TransformExpanded extends React.Component {
                 name: variableDefinitionStatement.getVariableDef().getName(),
                 displayName: variableDefinitionStatement.getVariableDef().getName(),
                 type: variableDefinitionStatement.getVariableDef().getTypeName(),
+                varDeclarationString: variableDefinitionStatement.getStatementString()
             });
             this.state.vertices.push(varVertex);
             this.addSource(variableDefinitionStatement.getVariableDef().getName());
@@ -590,6 +592,7 @@ class TransformExpanded extends React.Component {
                         constraint: typeData.constraint,
                     });
                 });
+                const varDefinations = this.props.model.filterChildren(ASTFactory.isVariableDefinitionStatement);
                 _.forEach(transformVars, (arg) => {
                     const structDef = this.transformNodeManager.getStructDefinition(arg.pkgName, arg.type);
 
@@ -604,6 +607,12 @@ class TransformExpanded extends React.Component {
                         const variableType = {};
                         variableType.name = arg.name;
                         variableType.displayName = arg.name;
+                        variableType.varDeclarationString = false;
+                        _.forEach(varDefinations, (varDef) => {
+                            if(variableType.name  == varDef.getLeftExpression().getVariableName()) {
+                               variableType.varDeclarationString =  varDef.getStatementString();
+                            }
+                        });
 
                         if (arg.constraint !== undefined) {
                             variableType.type = arg.type + '<'
@@ -732,6 +741,11 @@ class TransformExpanded extends React.Component {
         return functions;
     }
 
+    updateVariable(varName, statementString) {
+      this.transformNodeManager.updateVariable(this.props.model, varName, statementString);
+      this.loadVertices();
+    }
+
     render() {
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.getInput();
@@ -813,6 +827,7 @@ class TransformExpanded extends React.Component {
                             type='source'
                             makeConnectPoint={this.recordSourceElement}
                             removeTypeCallbackFunc={this.removeSourceType}
+                            updateVariable={this.updateVariable}
                             onEndpointRemove={this.removeEndpoint}
                             foldEndpoint={this.foldEndpoint}
                             foldedEndpoints={this.state.foldedEndpoints}
@@ -854,6 +869,7 @@ class TransformExpanded extends React.Component {
                             type='target'
                             makeConnectPoint={this.recordTargetElement}
                             removeTypeCallbackFunc={this.removeTargetType}
+                            updateVariable={this.updateVariable}
                             foldEndpoint={this.foldEndpoint}
                             foldedEndpoints={this.state.foldedEndpoints}
                             onEndpointRemove={this.removeEndpoint}
