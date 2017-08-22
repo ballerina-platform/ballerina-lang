@@ -127,7 +127,7 @@ class ApplicationMenuPlugin extends Plugin {
                             menu: this.generateMenuFromDefinitions(),
                             getLabelForCommand: (cmdID) => {
                                 const cmd = this.appContext.command.findCommand(cmdID);
-                                return cmd ? cmd.shortcut.derived.label : '';
+                                return _.get(cmd, 'shortcut.derived.label', '');
                             },
                         };
                     },

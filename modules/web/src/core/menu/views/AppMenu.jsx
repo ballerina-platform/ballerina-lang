@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Menu, { SubMenu, MenuItem } from 'rc-menu';
+import Menu, { SubMenu, MenuItem, Divider } from 'rc-menu';
 import View from './../../view/view';
 import { VIEW_IDS, MENU_DEF_TYPES } from './../constants';
 import 'rc-menu/assets/index.css';
@@ -82,7 +82,13 @@ class ApplicationMenu extends View {
         const children = [];
         if (!_.isNil(item.children) && !_.isEqual(type, MENU_DEF_TYPES.ITEM)) {
             item.children.forEach((child) => {
+                if (_.get(child, 'divider.before', false)) {
+                    children.push((<Divider key={`${child.id}.divider.before`} />));
+                }
                 children.push(this.renderMenuNode(child));
+                if (_.get(child, 'divider.after', false)) {
+                    children.push((<Divider key={`${child.id}.divider.after`} />));
+                }
             });
         }
 

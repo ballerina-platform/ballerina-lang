@@ -6,6 +6,7 @@ export const ACTIVATION_POLICIES = {
 };
 
 export const CONTRIBUTIONS = {
+    DIALOGS: 'dialogs',
     COMMANDS: 'commands',
     HANDLERS: 'handlers',
     MENUS: 'menus',

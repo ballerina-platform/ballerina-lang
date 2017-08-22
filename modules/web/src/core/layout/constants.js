@@ -1,4 +1,5 @@
 export const COMMANDS = {
+    SHOW_DIALOG: 'show-dialog',
     SHOW_VIEW: 'show-view',
     HIDE_VIEW: 'hide-view',
 };

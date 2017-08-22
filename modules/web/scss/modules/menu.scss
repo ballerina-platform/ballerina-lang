@@ -43,6 +43,9 @@
                 }
             }
         }
+        .rc-menu-item-divider {
+            background-color: #4c4c4c;
+        }
         .rc-menu-submenu {
             @extend .sub-menu-item-common;
         }
