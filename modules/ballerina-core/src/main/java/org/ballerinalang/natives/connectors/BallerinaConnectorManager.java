@@ -89,7 +89,7 @@ public class BallerinaConnectorManager {
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOG) != null) {
             try {
-                ((BLogManager) BLogManager.getLogManager()).setTraceLogHandler();
+                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
             } catch (IOException e) {
                 throw new BallerinaException("Error in configuring HTTP trace log");
             }

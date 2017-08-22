@@ -65,7 +65,7 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
-    public void setTraceLogHandler() throws IOException {
+    public void setHttpTraceLogHandler() throws IOException {
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new HTTPTraceLogFormatter());
         handler.setLevel(Level.FINE);

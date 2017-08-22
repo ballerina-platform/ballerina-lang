@@ -211,7 +211,7 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
-        //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander
+        //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander. Github issue #3245
         @Parameter(names = "-Bhttp-trace-log", hidden = true, description = "enable HTTP trace logging")
         private boolean httpTraceLogEnabled;
 
