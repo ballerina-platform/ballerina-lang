@@ -41,6 +41,11 @@ native function delete (File target);
 @doc:Param { value:"file: Path of the file" }
 native function write (blob content, File file);
 
+@doc:Description { value:"Writes a new line to a file using the given blob"}
+@doc:Param { value:"blob: Content to be written" }
+@doc:Param { value:"file: Path of the file" }
+native function writeln (blob content, File file);
+
 struct File {
     string path;
 }
