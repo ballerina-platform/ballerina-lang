@@ -2166,7 +2166,24 @@ public class BLangModelBuilder {
     private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
-            if (statement instanceof AssignStmt) {
+            if (statement instanceof VariableDefStmt) {
+                VariableDefStmt variableDefStmt = (VariableDefStmt) statement;
+                Expression varRefExpression = variableDefStmt.getLExpr();
+                String varName = ((SimpleVarRefExpr) varRefExpression).getVarName();
+                //variables defined in transform scope, cannot be used as output
+                if (outputs.get(varName) == null) {
+                    //if variable has not been used as an output before
+                    if (inputs.get(varName) == null) {
+                        List<Statement> stmtList = new ArrayList<>();
+                        stmtList.add(statement);
+                        inputs.put(varName, varRefExpression);
+                    }
+                } else {
+                    String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                               SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                    errorMsgs.add(errMsg);
+                }
+            } else if (statement instanceof AssignStmt) {
                 AssignStmt assignStmt = (AssignStmt) statement;
                 for (Expression lExpr : assignStmt.getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);

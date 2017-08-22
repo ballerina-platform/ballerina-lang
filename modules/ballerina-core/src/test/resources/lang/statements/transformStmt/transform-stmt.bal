@@ -45,6 +45,22 @@ function varInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
+function varDefInTransform() (string, int, string){
+    Person p = {first_name:"John", last_name:"Doe", age:30, city:"London"};
+    Employee e = {};
+    transform {
+        string prefix = "Ms.";
+        e.address = p.city;
+        e.name = getNameWithPrefix(prefix, p.first_name);
+        e.age = p.age;
+    }
+    return e.name, e.age, e.address;
+}
+
 function getPrefixedName(string name)(string){
     return "Mr." + name;
+}
+
+function getNameWithPrefix(string prefix, string name)(string){
+    return prefix + name;
 }
