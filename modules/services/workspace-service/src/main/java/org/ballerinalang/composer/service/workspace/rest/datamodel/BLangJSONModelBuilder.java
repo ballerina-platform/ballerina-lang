@@ -605,7 +605,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 annotationAttachment.getAttributeNameValuePairs().entrySet()
                         .stream()
                         .sorted(Map.Entry.comparingByValue((o1, o2) ->
-                                    compareNodeLocations(o1.getNodeLocation(), o2.getNodeLocation())));
+                                compareNodeLocations(o1.getNodeLocation(), o2.getNodeLocation())));
         sortedAttributes.collect(Collectors.toList()).forEach(this::visitAnnotationAttribute);
         jsonAnnotation.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
@@ -1654,27 +1654,121 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(XMLElementLiteral xmlElementLiteral) {
+        JsonObject xmlElementLiteralObj = new JsonObject();
+        xmlElementLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.XML_ELEMENT_LITERAL);
+        this.addPosition(xmlElementLiteralObj, xmlElementLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(xmlElementLiteralObj, xmlElementLiteral.getWhiteSpaceDescriptor());
+        if (xmlElementLiteral.getType() != null) {
+            xmlElementLiteralObj.addProperty(BLangJSONModelConstants.TYPE_NAME, xmlElementLiteral.getType().getName());
+        }
 
+        tempJsonArrayRef.push(new JsonArray());
+        if (xmlElementLiteral.getStartTagName() != null) {
+            xmlElementLiteral.getStartTagName().accept(this);
+        }
+
+        if (xmlElementLiteral.getContent() != null) {
+            xmlElementLiteral.getContent().accept(this);
+        }
+
+        if (xmlElementLiteral.getEndTagName() != null) {
+            xmlElementLiteral.getEndTagName().accept(this);
+        }
+
+        xmlElementLiteralObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        if (xmlElementLiteral.getAttributes() != null) {
+            for (KeyValueExpr expression : xmlElementLiteral.getAttributes()) {
+                expression.accept(this);
+            }
+        }
+        xmlElementLiteralObj.add(BLangJSONModelConstants.XML_ATTRIBUTES, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(xmlElementLiteralObj);
     }
 
     @Override
     public void visit(XMLCommentLiteral xmlCommentLiteral) {
-
+        JsonObject xmlCommentLiteralObj = new JsonObject();
+        xmlCommentLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.XML_COMMENT_LITERAL);
+        this.addPosition(xmlCommentLiteralObj, xmlCommentLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(xmlCommentLiteralObj, xmlCommentLiteral.getWhiteSpaceDescriptor());
+        if (xmlCommentLiteral.getType() != null) {
+            xmlCommentLiteralObj.addProperty(BLangJSONModelConstants.TYPE_NAME, xmlCommentLiteral.getType().getName());
+        }
+        tempJsonArrayRef.push(new JsonArray());
+        if (xmlCommentLiteral.getContent() != null) {
+            xmlCommentLiteral.getContent().accept(this);
+        }
+        xmlCommentLiteralObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(xmlCommentLiteralObj);
     }
 
     @Override
     public void visit(XMLTextLiteral xmlTextLiteral) {
-
+        JsonObject xmlTextLiteralObj = new JsonObject();
+        xmlTextLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.XML_TEXT_LITERAL);
+        this.addPosition(xmlTextLiteralObj, xmlTextLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(xmlTextLiteralObj, xmlTextLiteral.getWhiteSpaceDescriptor());
+        if (xmlTextLiteral.getType() != null) {
+            xmlTextLiteralObj.addProperty(BLangJSONModelConstants.TYPE_NAME, xmlTextLiteral.getType().getName());
+        }
+        tempJsonArrayRef.push(new JsonArray());
+        if (xmlTextLiteral.getContent() != null) {
+            xmlTextLiteral.getContent().accept(this);
+        }
+        xmlTextLiteralObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(xmlTextLiteralObj);
     }
 
     @Override
     public void visit(XMLPILiteral xmlpiLiteral) {
-
+        JsonObject xmlpiLiteralObj = new JsonObject();
+        xmlpiLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.XML_PI_LITERAL);
+        this.addPosition(xmlpiLiteralObj, xmlpiLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(xmlpiLiteralObj, xmlpiLiteral.getWhiteSpaceDescriptor());
+        if (xmlpiLiteral.getType() != null) {
+            xmlpiLiteralObj.addProperty(BLangJSONModelConstants.TYPE_NAME, xmlpiLiteral.getType().getName());
+        }
+        tempJsonArrayRef.push(new JsonArray());
+        if (xmlpiLiteral.getTarget() != null) {
+            xmlpiLiteral.getTarget().accept(this);
+        }
+        if (xmlpiLiteral.getData() != null) {
+            xmlpiLiteral.getData().accept(this);
+        }
+        xmlpiLiteralObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(xmlpiLiteralObj);
     }
 
     @Override
     public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
-
+        JsonObject xmlSequenceLiteralObj = new JsonObject();
+        xmlSequenceLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.XML_SEQUENCE_LITERAL);
+        this.addPosition(xmlSequenceLiteralObj, xmlSequenceLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(xmlSequenceLiteralObj, xmlSequenceLiteral.getWhiteSpaceDescriptor());
+        xmlSequenceLiteralObj.addProperty(BLangJSONModelConstants.TYPE_NAME, xmlSequenceLiteral.getType().getName());
+        if (xmlSequenceLiteral.getConcatExpr() != null) {
+            xmlSequenceLiteral.getConcatExpr().accept(this);
+        }
+        tempJsonArrayRef.push(new JsonArray());
+        if (xmlSequenceLiteral.getItems() != null) {
+            for (Expression expression : xmlSequenceLiteral.getItems()) {
+                expression.accept(this);
+            }
+        }
+        xmlSequenceLiteralObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(xmlSequenceLiteralObj);
     }
 
     @Override
@@ -2193,7 +2287,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(StringTemplateLiteral stringTemplateLiteral) {
-
+        JsonObject stringTemplateLiteralObj = new JsonObject();
+        tempJsonArrayRef.peek().add(stringTemplateLiteralObj);
     }
 
     private String generateTypeSting(SimpleTypeName typename) {

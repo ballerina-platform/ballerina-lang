@@ -392,4 +392,18 @@ public class BLangJSONModelConstants {
     public static final String RETRY_STATEMENT = "retry_statement";
 
     public static final String HAS_RETURNS_KEYWORD = "has_returns_keyword";
+
+    public static final String XML_ELEMENT_LITERAL = "xml_element_literal";
+
+    public static final String XML_TEXT_LITERAL = "xml_text_literal";
+
+    public static final String XML_SEQUENCE_LITERAL = "xml_sequence_literal";
+
+    public static final String XML_ATTRIBUTES = "attributes";
+
+    public static final String CONCAT_EXPR = "concat_expr";
+
+    public static final String XML_COMMENT_LITERAL = "xml_comment_literal";
+
+    public static final String XML_PI_LITERAL = "xml_pi_literal";
 }
