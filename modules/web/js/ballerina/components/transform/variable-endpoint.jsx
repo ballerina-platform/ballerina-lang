@@ -40,7 +40,7 @@ export default class VariableEndpoint extends React.Component {
                     <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
-                    <span className='variable-content' onClick={e => {onClick ? onClick(variable.name) : onRemove(id)}}>
+                    <span className='variable-content' onClick={e => {onClick && onClick(variable.name)}}>
                         {variable.name &&
                             <span className='property-name'>
                                 {variable.displayName || variable.name}:
