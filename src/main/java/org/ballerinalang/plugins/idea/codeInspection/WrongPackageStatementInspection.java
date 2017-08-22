@@ -23,6 +23,8 @@ import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -36,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +59,11 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
             return new ProblemDescriptor[0];
         }
         if (!(file instanceof BallerinaFile)) {
+            return new ProblemDescriptor[0];
+        }
+        Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
+        boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
+        if (!isBallerinaModule) {
             return new ProblemDescriptor[0];
         }
         if (FileTypeUtils.isInServerPageFile(file)) {
