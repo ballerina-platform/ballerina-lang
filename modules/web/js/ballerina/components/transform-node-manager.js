@@ -147,12 +147,12 @@ class TransformNodeManager {
         if (target.endpointKind === 'output') {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
+            const assignmentStmtSource = this.getParentAssignmentStmt(connection.source.funcInv);
             assignmentStmtSource.setIsDeclaredWithVar(false);
 
             const lexpr = assignmentStmtSource.getLeftExpression();
-            lexpr.removeChild(lexpr.getChildren()[connection.sourceIndex], true);
-            lexpr.addChild(targetExpression, connection.sourceIndex);
+            lexpr.removeChild(lexpr.getChildren()[connection.source.index], true);
+            lexpr.addChild(targetExpression, connection.source.index);
             return;
         }
 
@@ -333,7 +333,8 @@ class TransformNodeManager {
         _.forEach(funcDef.getReturnParams(), (returnParam, index) => {
             const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
             const paramObj = {
-                name: returnParam.name,
+                name: paramName,
+                displayName: returnParam.name || " ",
                 type: returnParam.type,
                 index,
                 funcInv: functionInvocationExpression,
