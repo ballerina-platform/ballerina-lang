@@ -25,7 +25,6 @@ import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.context.Utils;
-import org.ballerinalang.test.service.http2.sample.EchoServiceSampleTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
