@@ -64,9 +64,10 @@ class LeftPanel extends React.Component {
                         id="activity-bar-tabs"
                         activeKey={this.state.activeView}
                         onSelect={(key) => {
-                            this.context.history.put(HISTORY.ACTIVE_VIEW, key);
+                            const activeView = this.state.activeView !== key ? key : '';
+                            this.context.history.put(HISTORY.ACTIVE_VIEW, activeView);
                             this.setState({
-                                activeView: key,
+                                activeView,
                             });
                         }}
                     >

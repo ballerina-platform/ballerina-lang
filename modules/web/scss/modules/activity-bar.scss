@@ -36,6 +36,7 @@
             }
             &.active > a {
                 @extend .activity-bar-nav-common;
+                cursor: pointer;
                 border-left: 3px solid #f17b31 !important;
                 padding-left: 12px;
                 background-color: #333;
