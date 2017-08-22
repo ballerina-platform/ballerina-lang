@@ -156,6 +156,9 @@ class TransformStatement extends Statement {
                             || (ASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
                                                     && child.getRightExpression().getVariableName() === input.name)) {
                 this.removeChild(child, true, true);
+            } else if (ASTFactory.isVariableDefinitionStatement(child)
+                            && child.getLeftExpression().getVariableName() === input.name) {
+                this.removeChild(child, true, true);
             }
         });
 
