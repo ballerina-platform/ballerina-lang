@@ -115,12 +115,11 @@ under the License.
         </classes>
     </test>
 
-    <!-- TODO : Fix This -->
-    <!--<test name="ballerina-identifier-literal-test-suite">
+    <test name="ballerina-identifier-literal-test-suite">
         <classes>
             <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
         </classes>
-    </test>-->
+    </test>
 
     <test name="ballerina-error-test-suite">
         <classes>

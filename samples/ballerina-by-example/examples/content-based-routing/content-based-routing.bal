@@ -20,20 +20,13 @@ service<http> contentBasedRouting {
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
 
-        //Additionally HTTP HEAD request can be executed to verify the accessibility.
-        locationEP.head("/v2/594e018c1100002811d6d39a", m);
-
         message response = {};
         if (nameString == "sanFrancisco") {
         //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
             response = locationEP.post("/v2/594e018c1100002811d6d39a", m);
-            //Additionally, If the payload needed to be stored under requested resource path, PUT action will help as follows.
-            locationEP.put("/v2/594e018c1100002811d6d39a", m);
 
         } else {
             response = locationEP.post("/v2/594e026c1100004011d6d39c", m);
-            //Requested resources can be deleted using DELETE action.
-            locationEP.delete("/v2/594e026c1100004011d6d39c", m);
         }
 
         reply response;
