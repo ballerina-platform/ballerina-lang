@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import LifeLineDecorator from './lifeline.jsx';
@@ -34,6 +35,11 @@ import ASTFactory from '../../../../ast/ast-factory.js';
  * @extends {React.Component}
  */
 class ConnectorAction extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
 
     /**
      * Validating method that decides what can be dropped.
@@ -73,7 +79,7 @@ class ConnectorAction extends React.Component {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
         };
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));

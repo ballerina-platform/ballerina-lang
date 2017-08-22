@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import StatementContainer from './statement-container';
@@ -37,6 +38,7 @@ class WorkerDeclaration extends React.Component {
             getterMethod: props.model.getWorkerDeclarationStatement,
             setterMethod: props.model.setWorkerDeclarationStatement,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     onDelete() {
@@ -52,7 +54,7 @@ class WorkerDeclaration extends React.Component {
         statementContainerBBoxClone.w += connectorOffset;
         const workerScopeContainerBBox = this.props.model.viewState.components.workerScopeContainer;
         const workerBBox = {};
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         const nodeFactory = ASTFactory;
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;

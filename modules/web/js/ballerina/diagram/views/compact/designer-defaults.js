@@ -16,33 +16,18 @@
  * under the License.
  */
 
-export const iconForTool = {
-    height: 300,
-    width: 300,
-    padding: {
-        left: 5,
-    },
-};
-
-export const connectorDeclaration = {
-    gutter: {
-        v: 400,
-        h: 400,
-    },
-};
-
 export const statement = {
-    width: 120,
+    width: 300,
     height: 20,
     gutter: {
         v: 10,
         h: 0,
     },
     padding: {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+        top: 2,
+        right: 5,
+        bottom: 2,
+        left: 5,
     },
     maxWidth: 300,
 };

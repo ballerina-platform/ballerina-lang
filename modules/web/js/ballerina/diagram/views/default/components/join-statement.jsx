@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
@@ -33,8 +34,9 @@ class JoinStatement extends React.Component {
     /**
      * Construct the join ui, set the bound methods to improve performance.
      */
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
         this.thisAddTimeout = this.addTimeout.bind(this);
         this.thisOnDelete = this.onDelete.bind(this);
     }
@@ -65,7 +67,7 @@ class JoinStatement extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         const props = this.props;
         const parameterBbox = this.props.model.viewState.components.param;
 

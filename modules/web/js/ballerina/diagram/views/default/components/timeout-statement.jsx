@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import PropTypes from 'prop-types';
 import React from 'react';
+import _ from 'lodash';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { timeout } from './../../../../configs/designer-defaults';
@@ -30,13 +32,21 @@ import TimeoutStatementAST from './../../../../ast/statements/timeout-statement'
 class TimeoutStatement extends React.Component {
 
     /**
+     * Construct the timeout ui, set the bound methods to improve performance.
+     */
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
+
+    /**
      * Rendering logic.
      * @returns {XML} rendered component.
      */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         const props = this.props;
         const parameterBbox = this.props.model.viewState.components.param;
 

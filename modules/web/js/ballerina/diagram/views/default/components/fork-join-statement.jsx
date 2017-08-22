@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { statement, blockStatement } from './../../../../configs/designer-defaults';
@@ -30,6 +31,11 @@ import ASTFactory from '../../../../ast/ast-factory.js';
  * and join children of the fork-join language construct.
  */
 class ForkJoinStatement extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
 
     /**
      * Is the node a worker. This is used to identify the node under drag, second arg (target) is not used.
@@ -49,7 +55,7 @@ class ForkJoinStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const bodyBBox = model.viewState.components.body;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
 
         const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bodyBBox.h
             + blockStatement.heading.height);

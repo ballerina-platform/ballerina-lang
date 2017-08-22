@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import StatementDecorator from './statement-decorator';
 import AbortStatementAST from './../../../../ast/statements/abort-statement';
 
@@ -28,6 +29,11 @@ import AbortStatementAST from './../../../../ast/statements/abort-statement';
  */
 class AbortStatement extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
+
     /**
      * Renders the view for an abort statement.
      *
@@ -38,7 +44,13 @@ class AbortStatement extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                designer={this.designer}
+            />);
     }
 }
 

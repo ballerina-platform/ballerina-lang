@@ -16,8 +16,9 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import StatementDecorator from './statement-decorator';
 
 /**
  * Class for namespace declaration statement component.
@@ -37,6 +38,7 @@ class NamespaceDeclarationStatement extends React.Component {
             getterMethod: this.props.model.getStatementString,
             setterMethod: this.props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -46,8 +48,14 @@ class NamespaceDeclarationStatement extends React.Component {
     render() {
         let model = this.props.model;
         const expression = model.getViewState().expression;
-        return (<StatementDecorator viewState={model.viewState} model={model} expression={expression}
-                                    editorOptions={this.editorOptions}/>)
+        return (
+            <StatementDecorator
+                viewState={model.viewState}
+                model={model}
+                expression={expression}
+                editorOptions={this.editorOptions}
+                designer={this.designer}
+            />);
     }
 }
 

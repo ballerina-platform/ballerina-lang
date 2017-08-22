@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import StatementDecorator from './statement-decorator';
 
 /**
@@ -33,6 +34,7 @@ class RetryStatement extends React.Component {
             getterMethod: this.props.model.getStatementString,
             setterMethod: this.props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -47,6 +49,7 @@ class RetryStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
+                designer={this.designer}
             />
         );
     }

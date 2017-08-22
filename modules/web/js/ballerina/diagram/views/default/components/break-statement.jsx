@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import BreakStatementAST from './../../../../ast/statements/break-statement';
 import StatementDecorator from './statement-decorator';
 
@@ -27,6 +28,12 @@ import StatementDecorator from './statement-decorator';
  * @extends {React.Component}
  */
 class BreakStatement extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
+
     /**
      * Render function for the break statement.
      *
@@ -36,7 +43,13 @@ class BreakStatement extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                designer={this.designer}
+            />);
     }
 }
 
