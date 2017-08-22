@@ -24,4 +24,4 @@ If you want to build Ballerina from the source code:
 
 ## Running samples
 
-The website http://ballerinalang.org has several samples you can try out right there in the page. Or go to the [Samples](samples/getting_started) in Github to view all the Ballerina samples. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. 
+The website http://ballerinalang.org has several samples you can try out right there in the page. Or go to the [Samples](https://ballerinalang.org/docs/by-example/) website to view the Ballerina by examples. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. 
