@@ -18,7 +18,7 @@
 
 import log from 'log';
 import _ from 'lodash';
-import * as DesignerDefaults from './../../designer-defaults';
+import * as DesignerDefaults from '../designer-defaults';
 import ASTFactory from './../../../../ast/ast-factory';
 
 /**

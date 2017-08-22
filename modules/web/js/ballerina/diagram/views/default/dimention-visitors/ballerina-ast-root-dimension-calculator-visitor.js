@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { canvas, panel } from './../../designer-defaults';
+import { canvas, panel } from '../designer-defaults';
 
 /**
  * Dimension visitor class for ballerina ast root.

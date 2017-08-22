@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import { util } from '../sizing-util';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
-import * as DesignerDefaults from './../../designer-defaults';
+import * as DesignerDefaults from '../designer-defaults';
 import DimensionCalculatorVisitor from '../../../dimension-visitor';
 
 /**

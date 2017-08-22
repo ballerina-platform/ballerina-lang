@@ -59,7 +59,6 @@ class ReplyStatementDimensionCalculatorVisitor {
      * @memberOf ReplyStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-        const DesignerDefaults = this.getOptions().designer;
         util.populateSimpleStatementBBox(node.getReplyExpression(), node.getViewState());
         // lets hide the element.
         node.viewState.hidden = true;

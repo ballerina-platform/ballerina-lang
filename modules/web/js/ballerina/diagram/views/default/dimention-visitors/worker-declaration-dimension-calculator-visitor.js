@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import * as DesignerDefaults from './../../designer-defaults';
+import * as DesignerDefaults from '../designer-defaults';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../../../ast/ast-factory';
 

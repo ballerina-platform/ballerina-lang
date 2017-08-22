@@ -17,7 +17,7 @@
  */
 
 import log from 'log';
-import { blockStatement, timeout } from './../../designer-defaults';
+import { blockStatement, timeout } from '../designer-defaults';
 import { util } from '../sizing-util';
 
 /**

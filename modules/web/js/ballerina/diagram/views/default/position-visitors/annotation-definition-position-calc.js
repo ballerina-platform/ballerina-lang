@@ -17,7 +17,7 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../designer-defaults';
+import * as DesignerDefaults from '../designer-defaults';
 import { util } from '../sizing-util';
 import * as PositioningUtils from '../positioning-util';
 

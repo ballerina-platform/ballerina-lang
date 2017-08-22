@@ -20,7 +20,7 @@ import log from 'log';
 import _ from 'lodash';
 import * as PositioningUtils from '../positioning-util';
 import ASTFactory from './../../../../ast/ast-factory';
-import * as DesignerDefaults from './../../designer-defaults';
+import * as DesignerDefaults from '../designer-defaults';
 import PositionCalculatorVisitor from './../../../position-visitor';
 
 /**

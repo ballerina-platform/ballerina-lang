@@ -65,7 +65,7 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
-        const designer = getDesigner(['compact']);
+        const designer = getDesigner([this.props.mode]);
         // Following is how we render the diagram.
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.

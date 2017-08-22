@@ -18,7 +18,7 @@
 
 import _ from 'lodash';
 import ASTFactory from '../../../ast/ast-factory';
-import * as DesignerDefaults from '../designer-defaults';
+import * as DesignerDefaults from '../default/designer-defaults';
 import { util } from './sizing-util';
 
 /**

@@ -16,7 +16,7 @@
  * under the License.
  */
 import { util } from '../sizing-util';
-import { blockStatement } from '../../designer-defaults';
+import { blockStatement } from '../designer-defaults';
 
 /**
  * Dimension visitor class for Join Statement.

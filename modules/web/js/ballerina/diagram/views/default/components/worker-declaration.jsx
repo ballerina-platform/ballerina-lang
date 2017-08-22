@@ -21,7 +21,7 @@ import _ from 'lodash';
 import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import StatementContainer from './statement-container';
-import * as DesignerDefaults from './../../designer-defaults';
+import * as DesignerDefaults from '../designer-defaults';
 import { util } from './../sizing-util';
 import ImageUtil from './image-util';
 import ASTFactory from '../../../../ast/ast-factory.js';

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { packageDefinition } from '../../designer-defaults';
+import { packageDefinition } from '../designer-defaults';
 import { util as SizingUtils } from '../sizing-util';
 import ASTFactory from '../../../../ast/ast-factory';
 

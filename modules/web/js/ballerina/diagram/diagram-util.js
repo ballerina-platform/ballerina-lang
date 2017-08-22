@@ -1,6 +1,6 @@
 import log from 'log';
 import React from 'react';
-import * as DesignerDefaults from './views/designer-defaults';
+import * as DesignerDefaults from './views/default/designer-defaults';
 import * as DesignerAction from './views/compact/designer-defaults';
 
 const components = {};
@@ -79,8 +79,10 @@ function getDesigner(modes) {
     Object.assign(designer, DesignerDefaults);
     if (!_.isNil(modes)) {
         modes.forEach((mode) => {
-            const modeDesigner = require('./views/' + mode + '/designer-defaults');
-            Object.assign(designer, modeDesigner);
+            if (mode !== 'default') {
+                const modeDesigner = require('./views/' + mode + '/designer-defaults');
+                Object.assign(designer, modeDesigner);
+            }
         });
     }
     return designer;

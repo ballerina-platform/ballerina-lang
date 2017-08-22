@@ -17,7 +17,7 @@
  */
 
 import log from 'log';
-import { blockStatement } from './../../designer-defaults';
+import { blockStatement } from '../designer-defaults';
 import { util } from '../sizing-util';
 
 /**
