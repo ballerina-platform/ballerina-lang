@@ -227,7 +227,9 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        ctx.channel().writeAndFlush(new CloseWebSocketFrame(1011,
+                                                            "Encountered an unexpected condition"));
+        ctx.close();
         connectorFuture.notifyWSListener(cause);
     }
 }
