@@ -20,28 +20,30 @@ import React from 'react';
 import './variable-endpoint.css';
 
 export default class VariableEndpoint extends React.Component {
-    render() {
-        const { variable, makeConnectPoint, type, endpointKind, level, id, removeTypeCallbackFunc } = this.props;
+    componentWillUnmount() {
+        const { id, onRemove } = this.props;
+        onRemove(id);
+    }
 
+    render() {
+        const { variable, makeConnectPoint, type, level, id, removeTypeCallbackFunc, onClick, onRemove } = this.props;
         let iconType = 'fw-variable';
 
         if (variable.type === 'struct') {
             iconType = 'fw-struct';
         }
 
-        variable.endpointKind = endpointKind;
-
         return (
-            <div className='transform-endpoint variable'>
-                <span style={{ paddingLeft: level > 0 ? ((level - 1) * 20) : 0 }}>
-                    {(level > 0) && <span className='tree-view-icon'>└</span>}
-                    <span className='variable-icon btn'>
+            <div className='transform-endpoint variable' style={{ paddingLeft: level > 0 ? ((level - 1) * 13) : 0 }}>
+                <span >
+                    {(level > 0) && <span className='tree-view-icon'></span>}
+                    <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
-                    <span className='variable-content'>
-                        {variable.name &&
+                    <span className='variable-content' onClick={e => {onClick && onClick(variable.name)}}>
+                        {variable.displayName &&
                             <span className='property-name'>
-                                {variable.name}:
+                                {variable.displayName}:
                             </span>
                         }
                         <span className='property-type'>

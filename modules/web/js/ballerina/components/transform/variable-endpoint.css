@@ -6,13 +6,60 @@
 }
 
 .transform-endpoint .variable-icon {
-    width: 20px;
+    width: 30px;
+    height: 30px;
+    float: left;
+    padding: 3px;
+    margin-left: 4px;
+    line-height: 27px;
 }
 
 .transform-endpoint .tree-view-icon {
     width: 20px;
     display: inline-block;
+    border-right: 2px solid #8a8a8a;
+    height: 15px;
+    margin-left: -7px;
+    float: left;
+    position: relative;
 }
+
+.transform-endpoint .tree-view-icon:after {
+    content: " ";
+    width: 7px;
+    position: absolute;
+    height: 17px;
+    border-bottom: 2px solid #8c8c8c;
+    margin-left: 9px;
+}
+
+.transform-endpoint .tree-view-icon:before {
+    content: " ";
+    width: 11px;
+    position: absolute;
+    height: 17px;
+    border-right: 2px solid #8c8c8c;
+    margin-top: -17px;
+}
+
+.transform-endpoint .connect-point> i[class*="jtk-connected"]::after {
+    content: " ";
+    width: 14px;
+    position: absolute;
+    top: 8px;
+    height: 14px;
+    left: 8px;
+    border-radius: 7px;
+    color: #3d3d3d;
+    z-index: 999;
+    border: 1px solid;
+}
+
+.transform-endpoint:nth-child(2) .tree-view-icon:before {
+    margin-top: -9px;
+    height: 10px;
+}
+
 
 .transform-endpoint .connect-point {
     position: absolute;
@@ -50,6 +97,7 @@
     position: relative;
     height: 30px;
     white-space: nowrap;
+    float: left;
 }
 
 .tree-view-icon {

@@ -33,15 +33,16 @@ export default class SuggestionsDropdown extends React.Component {
                 matches.push(sug);
             }
         });
+        matches.push({ type: 'add new variable', name: '' });
 
-        this.setState({suggestions: matches});
+        this.setState({ suggestions: matches });
     }
 
     onSuggestionsClearRequested() {
         this.setState({
-            suggestions: []
+            suggestions: [],
         });
-    };
+    }
 
     onKeyDown(event) {
         if (event.keyCode === 13) {
