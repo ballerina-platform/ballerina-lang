@@ -116,6 +116,10 @@ class TransformExpanded extends React.Component {
             return;
         }
 
+        if (ASTFactory.isVariableDefinitionStatement(statement)) {
+            return;
+        }
+
         if (!ASTFactory.isAssignmentStatement(statement)) {
             log.error('Invalid statement type in transform statement');
             return;
@@ -447,11 +451,12 @@ class TransformExpanded extends React.Component {
 
     onSourceSelect(e, { suggestionValue }) {
         if (suggestionValue === '') {
-            const variableDefinitionStatement = this.transformNodeManager.addNewVariable(this.props.model);
-            this.state.vertices.push({
+            const variableDefinitionStatement = this.transformNodeManager.addNewVariable();
+            const varVertex = ({
                 name: variableDefinitionStatement.getVariableDef().getName(),
                 type: variableDefinitionStatement.getVariableDef().getTypeName(),
             });
+            this.state.vertices.push(varVertex);
             this.addSource(variableDefinitionStatement.getVariableDef().getName());
         } else {
             this.setState({
@@ -497,7 +502,7 @@ class TransformExpanded extends React.Component {
     addSource(selectedSource) {
         const inputDef = ASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
-        if (this.setSource(selectedSource, this.state.vertices, this.props.model, inputDef.id)) {
+        if (this.isVertexExist(selectedSource)) {
             const inputs = this.props.model.getInput();
             inputs.push(inputDef);
             this.props.model.setInput(inputs);
@@ -508,7 +513,7 @@ class TransformExpanded extends React.Component {
     addTarget(selectedTarget) {
         const outDef = ASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
-        if (this.setTarget(selectedTarget, this.state.vertices, this.props.model, outDef.id)) {
+        if (this.isVertexExist(selectedTarget)) {
             const outputs = this.props.model.getOutput();
             outputs.push(outDef);
             this.props.model.setOutput(outputs);
@@ -535,8 +540,8 @@ class TransformExpanded extends React.Component {
             const options = {
                 textDocument: fileData.content,
                 position: {
-                    line: position.startLine,
-                    character: position.startOffset,
+                    line: position.stopLine,
+                    character: position.stopOffset,
                 },
                 fileName: fileData.name,
                 filePath: fileData.path,
@@ -626,19 +631,10 @@ class TransformExpanded extends React.Component {
         }
     }
 
-    setSource(currentSelection) {
+    isVertexExist(currentSelection) {
         const sourceSelection = _.find(this.state.vertices, { name: currentSelection });
         if (_.isUndefined(sourceSelection)) {
             // alerts.error('Mapping source "' + currentSelection + '" cannot be found');
-            return false;
-        }
-        return true;
-    }
-
-    setTarget(currentSelection) {
-        const targetSelection = _.find(this.state.vertices, { name: currentSelection });
-        if (_.isUndefined(targetSelection)) {
-            // alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
         }
         return true;

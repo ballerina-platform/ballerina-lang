@@ -421,14 +421,13 @@ class TransformNodeManager {
         return expression;
     }
 
-    addNewVariable(node) {
-        const varName = 'tempVar';
+    addNewVariable() {
+        const varName = 'tempVar' + this._transformStmt.getChildren().length;
         const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
         variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
-        node.addChild(variableDefinitionStatement);
+        this._transformStmt.addChild(variableDefinitionStatement, 0);
         return variableDefinitionStatement;
     }
-
  }
 
 export default TransformNodeManager;
