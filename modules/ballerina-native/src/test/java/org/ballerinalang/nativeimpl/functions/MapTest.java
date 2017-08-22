@@ -44,14 +44,14 @@ public class MapTest {
     @BeforeClass
     public void setup() {
         programFile = BTestUtils.getProgramFile("samples/mapTest.bal");
-        dataSet = new BMap<>();
-        dataSet.put("country", new BString("US"));
-        dataSet.put("currency", new BString("Dollar"));
-        dataSet.put("states", new BInteger(50));
     }
 
     @Test
     public void testLength() {
+        dataSet = new BMap<>();
+        dataSet.put("country", new BString("US"));
+        dataSet.put("currency", new BString("Dollar"));
+        dataSet.put("states", new BInteger(50));
         BValue[] args = {dataSet};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -62,6 +62,10 @@ public class MapTest {
 
     @Test
     public void testGetKeys() {
+        dataSet = new BMap<>();
+        dataSet.put("country", new BString("US"));
+        dataSet.put("currency", new BString("Dollar"));
+        dataSet.put("states", new BInteger(50));
         BValue[] args = {dataSet};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testGetKeys", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -79,6 +83,10 @@ public class MapTest {
 
     @Test
     public void testRemove() {
+        dataSet = new BMap<>();
+        dataSet.put("country", new BString("US"));
+        dataSet.put("currency", new BString("Dollar"));
+        dataSet.put("states", new BInteger(50));
         BValue[] args = {dataSet, new BString("country")};
         BLangFunctions.invokeNew(programFile, "testRemove", args);
         Assert.assertTrue(dataSet.size() == 2);
