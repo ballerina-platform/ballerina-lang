@@ -65,12 +65,7 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
-    public void setTraceLogHandler(String traceLogDestination) throws IOException {
-        if (!LOG_DEST_CONSOLE.equals(traceLogDestination)) {
-            STD_OUT.println("Invalid parameter encountered while configuring trace logs.");
-            return;
-        }
-
+    public void setTraceLogHandler() throws IOException {
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new HTTPTraceLogFormatter());
         handler.setLevel(Level.FINE);
