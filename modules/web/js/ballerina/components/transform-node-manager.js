@@ -67,7 +67,7 @@ class TransformNodeManager {
     }
 
     createStatementEdge(connection) {
-        const {source, target} = connection;
+        const { source, target } = connection;
         let sourceExpression;
         let targetExpression;
 
@@ -89,13 +89,13 @@ class TransformNodeManager {
             switch (compatibility.type) {
                 case 'explicit' : {
                     const typeCastingExp = this.createTypeCastExpression(
-                        connection.targetType, sourceExpression);
+                        target.type, sourceExpression);
                     assignmentStmt.addChild(typeCastingExp, 1);
                     break;
                 }
                 case 'conversion' : {
                     const typeConversionExp = this.createTypeConversionExpression(
-                        connection.targetType, sourceExpression);
+                        target.type, sourceExpression);
                     assignmentStmt.addChild(typeConversionExp, 1);
                     break;
                 }
