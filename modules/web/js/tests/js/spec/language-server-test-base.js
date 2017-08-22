@@ -28,31 +28,22 @@ import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-fa
  * @param {object} cursorPosition 
  * @param {object} testFilePath 
  * @param {string} testFileName 
- * @param {object} expectedFile 
  * @param {function} done 
  */
 
-export function testCompletions(cursorPosition, testFilePath, testFileName, expectedFile, done) {
+export function testCompletions(cursorPosition, testFilePath, testFileName, done, compareCallback) {
     const completions = [];
     const testFile = path.resolve(path.join(testFilePath, testFileName));
-    const expectedFileContent = readFile(expectedFile);
     const testFileContent = readFile(testFile);
     const fileData = { "fileName": testFileName, "filePath": testFilePath, "packageName": '.' };
     const sourceViewCompleterFactory = new SourceViewCompleterFactory();
-
-
-    // callback function to validate generated completions.
-    const test = function (x, completions) {
-        expect(expectedFileContent).to.equal(JSON.stringify(completions));
-        done();
-    }
 
     let opts = {
         wsCloseEventHandler: wsCloseEventHandler
     }
     getLangServerClientInstance(opts)
         .then((langserverClient) => {
-            sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, test);
+            sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, compareCallback);
         })
         .catch(error => log.error(error));
 }
