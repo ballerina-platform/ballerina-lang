@@ -43,7 +43,8 @@ import java.nio.charset.Charset;
 )
 public class Writeln extends AbstractNativeFunction {
 
-    @Override public BValue[] execute(Context context) {
+    @Override
+    public BValue[] execute(Context context) {
 
         byte[] content = getBlobArgument(context, 0);
         byte[] newLine = System.lineSeparator().getBytes(Charset.defaultCharset());
