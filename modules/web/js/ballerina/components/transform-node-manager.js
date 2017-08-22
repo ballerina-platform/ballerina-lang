@@ -153,7 +153,7 @@ class TransformNodeManager {
 
         const funcNode = assignmentStmtTarget.getRightExpression();
 
-        const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), (param) => {
+        const index = _.findIndex(this.getFunctionVertices(funcNode).getParameters(), (param) => {
             return (param.name === target.name);
         });
 
@@ -213,16 +213,14 @@ class TransformNodeManager {
 
         // Connection source and target are not structs
         // Source and target could be function nodes.
-        const targetFuncInvocationExpression = target.funcInv;
-        const sourceFuncInvocationExpression = source.funcInv;
+        const newIndex = this._transformStmt.getIndexOfChild(
+            this.findEnclosingAssignmentStatement(target.funcInv)) + 1;
 
-        targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression, true);
+        (target.funcInv).removeChild(source.funcInv, true);
 
-        const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-        const varRefList = BallerinaASTFactory.createVariableReferenceList();
-        assignmentStmt.addChild(varRefList, 0);
-        assignmentStmt.addChild(sourceFuncInvocationExpression, 1);
-        this._transformStmt.addChild(assignmentStmt, this._transformStmt.getIndexOfChild(connection.targetReference));
+        const newAssignmentStmt = DefaultBallerinaASTFactory
+            .createTransformAssignmentFunctionInvocationStatement({ funcInv: source.funcInv });
+        this._transformStmt.addChild(newAssignmentStmt, newIndex);
     }
 
     /**
@@ -260,34 +258,19 @@ class TransformNodeManager {
      *
      * @memberof TransformStatementDecorator
      */
-    findEnclosingAssignmentStatement(id) {
-        const assignmentStmts = this.props.model.getChildren();
-        const assignmentStmt = this.transformNodeManager.findExistingAssignmentStatement(id);
-        if (assignmentStmt === undefined) {
-            return _.find(assignmentStmts, (assignmentStmt) => {
-                const expression = this.findFunctionInvocationById(assignmentStmt, id);
-                if (expression !== undefined) {
-                    return assignmentStmt;
-                }
-            });
-        } else {
-            return assignmentStmt;
-        }
+    findEnclosingAssignmentStatement(funcInv) {
+        return _.find(this._transformStmt.getChildren(), (assignmentStmt) => {
+            return this.findFunctionInvocationById(assignmentStmt.getRightExpression(), funcInv.id);
+        });
     }
 
     findFunctionInvocationById(expression, id) {
-        let found = expression.getChildById(id);
-        if (found !== undefined) {
-            return found;
-        } else {
-            _.forEach(expression.getChildren(), (child) => {
-                found = this.findFunctionInvocationById(child, id);
-                if (found !== undefined) {
-                    return found;
-                }
-            });
-            return found;
+        if (expression.getChildById(id)) {
+            return expression.getChildById(id);
         }
+        return expression.getChildren().find((child) => {
+            return (this.findFunctionInvocationById(child, id));
+        });
     }
 
     getFunctionVertices(functionInvocationExpression) {
