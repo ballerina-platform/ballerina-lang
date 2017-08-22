@@ -22,7 +22,7 @@ class ActivityBar extends React.Component {
 }
 
 ActivityBar.propTypes = {
-    children: PropTypes.arrayOf(PropTypes.element),
+    children: PropTypes.node,
 };
 
 export default ActivityBar;

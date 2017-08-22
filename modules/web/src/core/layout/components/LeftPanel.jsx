@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import ActivityBar from './ActivityBar';
 
+const HISTORY = {
+    ACTIVE_VIEW: 'active-left-view',
+};
+
 /**
  * React component for LeftPanel Region.
  *
@@ -10,6 +14,16 @@ import ActivityBar from './ActivityBar';
  * @extends {React.Component}
  */
 class LeftPanel extends React.Component {
+
+    /**
+     * @inheritdoc
+     */
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            activeView: context.history.get(HISTORY.ACTIVE_VIEW) || '',
+        };
+    }
 
     /**
      * @inheritdoc
@@ -46,7 +60,16 @@ class LeftPanel extends React.Component {
         return (
             <div className="left-panel">
                 <div>
-                    <Tab.Container id="activity-bar-tabs" defaultActiveKey="first">
+                    <Tab.Container
+                        id="activity-bar-tabs"
+                        activeKey={this.state.activeView}
+                        onSelect={(key) => {
+                            this.context.history.put(HISTORY.ACTIVE_VIEW, key);
+                            this.setState({
+                                activeView: key,
+                            });
+                        }}
+                    >
                         <div>
                             <ActivityBar>
                                 <Nav bsStyle="tabs">
