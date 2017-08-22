@@ -441,6 +441,43 @@ class TransformNodeManager {
                 return sourceExpression;
         }
     }
+
+    updateVariable(node, varName, statementString) {
+        const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
+        variableDefinitionStatement.setStatementFromString(statementString);
+        if(variableDefinitionStatement.children.length > 0) {
+          const newVarName = statementString.split(' ')[1];
+              _.forEach(node.getChildren(), (child) => {
+                  if(BallerinaASTFactory.isVariableDefinitionStatement(child)
+                      && child.getLeftExpression().getVariableName() == varName) {
+                     const index = node.getIndexOfChild(child);
+                     node.removeChild(child, true);
+                     node.addChild(variableDefinitionStatement, index, true);
+                  } else if(BallerinaASTFactory.isAssignmentStatement(child)
+                              && child.getRightExpression().getVariableName() == varName) {
+                      child.removeChild(child.children[1], true);
+                      const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                      variableReferenceExpression.setExpressionFromString(newVarName);
+                      child.addChild(variableReferenceExpression, 1, true);
+                  }
+              });
+              const inputs  = node.getInput();
+              _.forEach(node.getInput(), (input, i) => {
+                  if(input.getVariableName() == varName) {
+                    const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                    variableReferenceExpression.setExpressionFromString(newVarName);
+                    inputs[i] = variableReferenceExpression;
+                  }
+              });
+              node.setInput(inputs);
+              node.trigger('tree-modified', {
+                  origin: this,
+                  type: 'variable-update',
+                  title: `Variable update ${varName}`,
+                  data: {},
+              });
+        }
+    }
  }
 
 export default TransformNodeManager;
