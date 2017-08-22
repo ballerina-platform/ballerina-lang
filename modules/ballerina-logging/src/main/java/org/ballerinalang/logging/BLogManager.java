@@ -17,12 +17,21 @@
  */
 package org.ballerinalang.logging;
 
+import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.handlers.HTTPTraceLogHandler;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +47,8 @@ public class BLogManager extends LogManager {
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
+    private Logger httpTraceLogger;
+
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
         Properties properties = new Properties();
@@ -48,6 +59,64 @@ public class BLogManager extends LogManager {
         });
 
         super.readConfiguration(propertiesToInputStream(properties));
+    }
+
+    public void setWirelogHandler(String wirelogFlag) throws IOException {
+        Handler handler;
+        if ("--console".equals(wirelogFlag)) {
+            handler = new ConsoleHandler();
+            handler.setFormatter(new HTTPTraceLogFormatter());
+        } else {
+            File file;
+
+            if ("--default".equals(wirelogFlag)) {
+                file = new File(
+                        System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
+            } else {
+                file = Paths.get(wirelogFlag).toFile();
+            }
+
+            if (!file.exists()) {
+                createFile(file);
+            }
+
+            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
+        }
+
+        handler.setLevel(Level.FINE);
+
+        if (httpTraceLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
+            httpTraceLogger = Logger.getLogger("wirelog.http");
+        }
+
+        removeHandlers(httpTraceLogger);
+        httpTraceLogger.addHandler(handler);
+        httpTraceLogger.setLevel(Level.FINE);
+    }
+
+    private static void createFile(File file) throws IOException {
+        if (!file.getParentFile().exists()) {
+            if (file.getParentFile().mkdirs()) {
+                if (!file.createNewFile()) {
+                    throw new IOException("error in creating the file: " + file.getAbsolutePath());
+                }
+            } else {
+                throw new IOException(
+                        "error in creating the parent directories: " + file.getParentFile().getAbsolutePath());
+            }
+        } else {
+            if (!file.createNewFile()) {
+                throw new IOException("error in creating the file: " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    private static void removeHandlers(Logger logger) {
+        Handler[] handlers = logger.getHandlers();
+        for (Handler handler : handlers) {
+            logger.removeHandler(handler);
+        }
     }
 
     private String substituteVariables(String value) {
