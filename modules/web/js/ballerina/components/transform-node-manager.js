@@ -423,7 +423,19 @@ class TransformNodeManager {
     }
 
     addNewVariable() {
-        const varName = 'tempVar' + this._transformStmt.getChildren().length;
+        const varNameRegex = new RegExp('tempVar[\\d]*');
+        const varDefStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isVariableDefinitionStatement);
+        const tempVarIdentifiers = varDefStmts.filter((varDef) => {
+            return varNameRegex.test(varDef.getIdentifier());
+        }).map((varDef) => {
+            return varDef.getIdentifier();
+        }).sort();
+
+        let index = 0;
+        if (tempVarIdentifiers.length > 0) {
+            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(7), 10) + 1;
+        }
+        const varName = 'tempVar' + index;
         const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
         variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
         this._transformStmt.addChild(variableDefinitionStatement, 0);
