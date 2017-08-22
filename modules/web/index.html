@@ -598,12 +598,15 @@
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
               <div class="form-group debug-connection-group">
                 <label class="sr-only" for="debugUrl">Server URL</label>
+                <span class="help-block">Add <strong>--ballerina.debug PORT_NUMBER </strong> to your ballerina command to enable remote debugging</span>
+                <div class="help-block">Example: </span>
+                <span class="help-block">ballerina run helloWorld.bal --ballerina.debug 5006</span>
                 <div class="input-group">
                   <div class="input-group-addon">ws://</div>
-                  <input type="text" class="form-control" id="debugUrl" placeholder="localhost:5006" value="localhost:5006" />
+                  <input type="text" class="form-control" id="debugUrl" placeholder="Remote debug URL" value="" />
                 </div>
                 <span class="help-block debug-connection-error hide"><i class="fw fw-alert"></i> Connection error please check provided URL.</span>
-              </div>
+            </div>
               <div class='form-group'>
                     <button type='button' class='btn pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
                     <button type='button' class='btn btn-primary pull-right btn-file-dialog debug-connect-button'>Debug</button>
