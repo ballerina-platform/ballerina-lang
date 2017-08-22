@@ -93,6 +93,8 @@ public class HTTPServicesRegistry {
             String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
             Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap
                     .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
+
+            BallerinaConnectorManager.getInstance().createHttpServerConnector(listenerConfiguration);
             // Assumption : this is always sequential, no two simultaneous calls can get here
             if (servicesOnInterface.containsKey(basePath)) {
                 throw new BallerinaException(
@@ -100,7 +102,6 @@ public class HTTPServicesRegistry {
                                 + entryListenerInterface);
             }
             servicesOnInterface.put(basePath, service);
-            BallerinaConnectorManager.getInstance().createHttpServerConnector(listenerConfiguration);
         }
 
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
