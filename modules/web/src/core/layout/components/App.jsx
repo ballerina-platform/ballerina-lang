@@ -62,10 +62,6 @@ class App extends React.Component {
                         primary="second"
                         minSize={300}
                         maxSize={700}
-                        onChange={() => {
-                            this.forceUpdate();
-                        }
-                        }
                     >
                         <EditorArea />
                         <BottomPanel />
