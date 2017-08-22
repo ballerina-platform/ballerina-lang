@@ -87,6 +87,8 @@ class Application {
                     .pluginContexts[this.menuManager.getID()];
         this.appContext[CONTEXT_NAMESPACES.WORKSPACE] = this.appContext
                     .pluginContexts[this.workspaceManager.getID()];
+        this.appContext[CONTEXT_NAMESPACES.PREFERENCES] = this.appContext
+                    .pluginContexts[this.preferencesManager.getID()];
 
         // Since now we have loaded all the plugins
         // Make appContext object read only.

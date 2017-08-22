@@ -7,6 +7,11 @@ import BottomPanel from './BottomPanel';
 import Header from './Header';
 import { REGIONS } from './../constants';
 
+const HISTORY = {
+    LEFT_PANEL_SIZE: 'left-split-pane-size',
+    BOTTOM_PANEL_SIZE: 'bottom-split-pane-size',
+};
+
 /**
  * React component for App.
  *
@@ -14,6 +19,15 @@ import { REGIONS } from './../constants';
  * @extends {React.Component}
  */
 class App extends React.Component {
+
+    /**
+     * @inheritdoc
+     */
+    getChildContext() {
+        return {
+            history: this.props.appContext.pref.history,
+        };
+    }
 
     /**
      * Get views of given Region
@@ -52,6 +66,13 @@ class App extends React.Component {
                     className="left-right-split-pane"
                     minSize={300}
                     maxSize={700}
+                    defaultSize={
+                        parseInt(this.props.appContext
+                                .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10) || 300
+                    }
+                    onChange={
+                        size => this.props.appContext.pref.history.put(HISTORY.LEFT_PANEL_SIZE, size)
+                    }
                 >
                     <LeftPanel>
                         {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
@@ -62,6 +83,13 @@ class App extends React.Component {
                         primary="second"
                         minSize={300}
                         maxSize={700}
+                        defaultSize={
+                            parseInt(this.props.appContext
+                                    .pref.history.get(HISTORY.BOTTOM_PANEL_SIZE), 10) || 300
+                        }
+                        onChange={
+                            size => this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, size)
+                        }
                     >
                         <EditorArea />
                         <BottomPanel />
@@ -73,7 +101,15 @@ class App extends React.Component {
 }
 
 App.propTypes = {
+    appContext: PropTypes.objectOf(Object).isRequired,
     layout: PropTypes.objectOf(Object).isRequired,
+};
+
+App.childContextTypes = {
+    history: PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
 };
 
 export default App;

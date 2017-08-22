@@ -23,8 +23,10 @@ import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { PLUGIN_ID, DIALOGS as DIALOG_IDS } from './constants';
 
-
 import PreferencesDialog from './views/PreferencesDialog';
+
+const PREF_KEY_PREFIX = 'composer-preferences';
+const HISTORY_KEY_PREFIX = 'composer-history';
 
 /**
  * Plugin for handling user preferences.
@@ -46,6 +48,20 @@ class PreferencesManagerPlugin extends Plugin {
     init(config) {
         super.init(config);
         return {
+            put: (key, value) => {
+                localStorage.setItem(`${PREF_KEY_PREFIX}-${key}`, value);
+            },
+            get: (key) => {
+                return localStorage.getItem(`${PREF_KEY_PREFIX}-${key}`);
+            },
+            history: {
+                put: (key, value) => {
+                    localStorage.setItem(`${HISTORY_KEY_PREFIX}-${key}`, value);
+                },
+                get: (key) => {
+                    return localStorage.getItem(`${HISTORY_KEY_PREFIX}-${key}`);
+                },
+            },
         };
     }
 

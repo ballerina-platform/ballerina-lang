@@ -68,4 +68,11 @@ LeftPanel.propTypes = {
     children: PropTypes.arrayOf(PropTypes.element),
 };
 
+LeftPanel.contextTypes = {
+    history: PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
+};
+
 export default LeftPanel;

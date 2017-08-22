@@ -77,8 +77,8 @@ class LayoutManagerPlugin extends Plugin {
      * Render layout.
      */
     render() {
-        const layout = this.layout;
-        const root = React.createElement(App, { layout }, null);
+        const { layout, appContext } = this;
+        const root = React.createElement(App, { layout, appContext }, null);
         ReactDOM.render(root, document.getElementById(this.config.container));
     }
 
