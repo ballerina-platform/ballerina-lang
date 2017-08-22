@@ -155,7 +155,7 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
+        if (func.parameters.length !== functionInvocationExpression.getChildren().length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
@@ -170,7 +170,7 @@ class TransformExpanded extends React.Component {
                     functionInvocationExpression, expression, func, i, statement);
             } else {
                 const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                const targetId = `${functionInvID}:${funcName}:${params[i].name}:${viewId}`;
+                const targetId = `${functionInvID}:${i}:${viewId}`;
                 this.drawConnection(sourceId, targetId);
             }
         });
@@ -179,13 +179,13 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        const sourceId = `${functionInvID}:${funcName}:${returnParams[0].name || 0}:${viewId}`;
+        const sourceId = `${functionInvID}:0:return:${viewId}`;
 
-        const parentParams = parentFunctionDefinition.getParameters();
+        const parentParams = parentFunctionDefinition.parameters;
         const parentFuncInvID = parentFunctionInvocationExpression.getID();
         const parentFuncName = parentFunctionInvocationExpression.getFunctionName();
 
-        const targetId = `${parentFuncInvID}:${parentFuncName}:${parentParams[parentParameterIndex].name}:${viewId}`;
+        const targetId = `${parentFuncInvID}:${parentParameterIndex}:${viewId}`;
 
         this.drawConnection(sourceId, targetId);
         this.mapper.reposition(this.props.model.getID());
@@ -238,13 +238,12 @@ class TransformExpanded extends React.Component {
         if (func.returnParams.length !== argumentExpressions.getChildren().length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
-
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
             if(!returnParams[i]){
                 return;
             }
 
-            const sourceId = `${funcInvID}:${funcName}:${returnParams[i].name || i}:${viewId}`;
+            const sourceId = `${funcInvID}:${i}:return:${viewId}`;
             const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             this.drawConnection(sourceId, targetId);
         });
