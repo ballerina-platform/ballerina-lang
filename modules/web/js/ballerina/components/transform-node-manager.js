@@ -334,7 +334,6 @@ class TransformNodeManager {
             const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
             const paramObj = {
                 name: paramName,
-                displayName: returnParam.name || " ",
                 type: returnParam.type,
                 index,
                 funcInv: functionInvocationExpression,
@@ -370,6 +369,7 @@ class TransformNodeManager {
     getStructType(name, typeName, structDefinition, currentRoot) {
         const struct = {};
         struct.name = name;
+        struct.displayName = name;
         struct.properties = [];
         struct.type = 'struct';
         struct.typeName = typeName;
@@ -392,6 +392,7 @@ class TransformNodeManager {
 
             property.isField = true;
             property.root = root;
+            property.displayName = field.getName();
 
             struct.properties.push(property);
         });
