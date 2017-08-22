@@ -144,7 +144,7 @@ Diagram.childContextTypes = {
 };
 
 Diagram.defaultProps = {
-    mode: 'action',
+    mode: 'default',
 };
 
 export default Diagram;
