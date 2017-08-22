@@ -369,7 +369,6 @@ class TransformNodeManager {
 
     getStructType(name, typeName, structDefinition, currentRoot) {
         const struct = {};
-
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
@@ -381,7 +380,7 @@ class TransformNodeManager {
             let property = {};
             const fieldName = `${name}.${field.getName()}`;
 
-            const innerStruct = this.getStructDefinition(property.packageName, property.type);
+            const innerStruct = this.getStructDefinition(field.getPackageName(), field.getType());
             if (!_.isUndefined(innerStruct) && typeName !== property.type) {
                 property = this.getStructType(fieldName, field.getType(), innerStruct, root);
             } else {
