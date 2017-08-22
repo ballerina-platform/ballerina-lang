@@ -23,16 +23,16 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,9 +47,6 @@ public class HTTPServicesRegistry {
 
     // Outer Map key=interface, Inner Map key=basePath
     private final Map<String, Map<String, ServiceInfo>> servicesInfoMap = new ConcurrentHashMap<>();
-    //Outer map key = interface, Inner map = listener property map
-    private final Map<String, Map<String, String>> listenerPropMap = new ConcurrentHashMap<>();
-
     private static final HTTPServicesRegistry servicesRegistry = new HTTPServicesRegistry();
 
     private HTTPServicesRegistry() {
@@ -86,11 +83,74 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(ServiceInfo service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getName();
         AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
+        String basePath = discoverBasePathFrom(service, annotationInfo);
+        Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotationInfo);
+
+        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap
+                    .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
+
+            BallerinaConnectorManager.getInstance().createHttpServerConnector(listenerConfiguration);
+            // Assumption : this is always sequential, no two simultaneous calls can get here
+            if (servicesOnInterface.containsKey(basePath)) {
+                throw new BallerinaException(
+                        "service with base path :" + basePath + " already exists in listener : "
+                                + entryListenerInterface);
+            }
+            servicesOnInterface.put(basePath, service);
+        }
+
+        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+    }
+
+    /**
+     * Removing service from the service registry.
+     * @param service requested service to be removed.
+     */
+    public void unregisterService(ServiceInfo service) {
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+
+        String basePath = discoverBasePathFrom(service, annotationInfo);
+        Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotationInfo);
+
+        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entryListenerInterface);
+            if (servicesOnInterface != null) {
+                servicesOnInterface.remove(basePath);
+                if (servicesOnInterface.isEmpty()) {
+                    servicesInfoMap.remove(entryListenerInterface);
+                    BallerinaConnectorManager.getInstance().closeIfLast(entryListenerInterface);
+                }
+            }
+        }
+    }
+
+    private Set<ListenerConfiguration> getListenerConfigurationsFrom(Map<String, Map<String, String>> listenerProp) {
+        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
+        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
+            Map<String, String> propMap = entry.getValue();
+            String entryListenerInterface = getListenerInterface(propMap);
+            ListenerConfiguration listenerConfiguration = HTTPMessageUtil
+                    .buildListenerConfig(entryListenerInterface, propMap);
+            listenerConfigurationSet.add(listenerConfiguration);
+        }
+        return listenerConfigurationSet;
+    }
+
+    private String getListenerInterface(Map<String, String> parameters) {
+        String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
+        int port = Integer.parseInt(parameters.get("port"));
+        return host + ":" + port;
+    }
+
+    private String discoverBasePathFrom(ServiceInfo service, AnnAttachmentInfo annotationInfo) {
+        String basePath = service.getName();
         if (annotationInfo != null) {
             AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
                     (Constants.ANN_CONFIG_ATTR_BASE_PATH);
@@ -102,72 +162,23 @@ public class HTTPServicesRegistry {
                 }
             }
         }
-
         if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
-        //key - listenerId, value - listener config property map
+        return basePath;
+    }
+
+    private Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(AnnAttachmentInfo annotationInfo) {
         Map<String, Map<String, String>> listenerProp = buildListerProperties(annotationInfo);
 
+        Set<ListenerConfiguration> listenerConfigurationSet;
         if (listenerProp == null || listenerProp.isEmpty()) {
-            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerInterface);
-            if (servicesOnInterface == null) {
-                // Assumption : this is always sequential, no two simultaneous calls can get here
-                servicesOnInterface = new HashMap<>();
-                servicesInfoMap.put(listenerInterface, servicesOnInterface);
-                ServerConnector connector = BallerinaConnectorManager.getInstance()
-                        .getServerConnector(listenerInterface);
-
-                if (connector == null) {
-                    throw new BallerinaException(
-                            "ServerConnector interface not registered for : " + listenerInterface);
-                }
-                // Delay the startup until all services are deployed
-                BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
-            }
-            if (servicesOnInterface.containsKey(basePath)) {
-                throw new BallerinaException(
-                        "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
-            }
-            servicesOnInterface.put(basePath, service);
-            logger.info("Service deployed : " + service.getName() + " with context " + basePath);
-            return;
+            listenerConfigurationSet =
+                    BallerinaConnectorManager.getInstance().getDefaultListenerConfiugrationSet();
+        } else {
+            listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
         }
-
-        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
-            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entry.getKey());
-            Map<String, String> propMap = entry.getValue();
-            if (servicesOnInterface == null) {
-                // Assumption : this is always sequential, no two simultaneous calls can get here
-                servicesOnInterface = new HashMap<>();
-                servicesInfoMap.put(entry.getKey(), servicesOnInterface);
-                //It comes to here means, this is a new http configuration, in that case,
-                //shouldn't try to find a listener in connector manager, because, if there is already
-                //a listener for the given id, then we don't have a way to make sure that
-                //configuration are same in given configuration and existing listener
-                ServerConnector connector = BallerinaConnectorManager.getInstance()
-                            .createServerConnector(Constants.PROTOCOL_HTTP, entry.getKey(), propMap);
-                listenerPropMap.put(entry.getKey(), propMap);
-                if (connector == null) {
-                    throw new BallerinaException(
-                            "ServerConnector interface not registered for : " + entry.getKey());
-                }
-                // Delay the startup until all services are deployed
-                BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
-            } else {
-                Map<String, String> existingMap = listenerPropMap.get(entry.getKey());
-                if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.SERVER_CONNECTOR_ALREADY_EXIST,
-                            propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
-                }
-            }
-            if (servicesOnInterface.containsKey(basePath)) {
-                throw new BallerinaException(
-                        "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
-            }
-            servicesOnInterface.put(basePath, service);
-        }
-        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+        return listenerConfigurationSet;
     }
 
     /**
@@ -253,47 +264,5 @@ public class HTTPServicesRegistry {
         iName.append("_");
         iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
         return iName.toString();
-    }
-
-    /**
-     * Removing service from the service registry.
-     * @param service requested service to be removed.
-     */
-    public void unregisterService(ServiceInfo service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getName();
-        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.BASE_PATH);
-
-        if (annotationInfo != null) {
-            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
-                    (Constants.VALUE_ATTRIBUTE);
-            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
-                    !annAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annAttributeValue.getStringValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerInterface);
-        if (servicesOnInterface != null) {
-            servicesOnInterface.remove(basePath);
-            if (servicesOnInterface.isEmpty()) {
-                servicesInfoMap.remove(listenerInterface);
-                ServerConnector connector =
-                        BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-                if (connector != null) {
-                    try {
-                        connector.stop();
-                    } catch (ServerConnectorException e) {
-                        throw new BallerinaException("Cannot stop the connector for the interface : " +
-                                listenerInterface, e);
-                    }
-                }
-            }
-        }
     }
 }
