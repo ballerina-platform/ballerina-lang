@@ -631,7 +631,7 @@ class TransformExpanded extends React.Component {
                             }
                         } else {
                             variableType.type = arg.type;
-                            vertices.push({ name: variableType.name, type: variableType.type });
+                            vertices.push(variableType);
                         }
                     }
                 });
