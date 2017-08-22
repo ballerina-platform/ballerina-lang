@@ -25,8 +25,9 @@ export default class FunctionInv extends React.Component {
     render() {
         const {
             func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv,
+            parentFunc, funcInv, onEndpointRemove
         } = this.props;
+
         func.parameters.forEach((param, index) => {
             param.endpointKind = 'param';
         });
@@ -79,6 +80,7 @@ export default class FunctionInv extends React.Component {
                             makeConnectPoint={recordTargetElement}
                             endpoints={func.parameters}
                             viewId={viewId}
+                            onEndpointRemove={onEndpointRemove}
                         />
                     </div>
                     <div className='func-output'>
@@ -87,6 +89,7 @@ export default class FunctionInv extends React.Component {
                             makeConnectPoint={recordSourceElement}
                             endpoints={func.returnParams}
                             viewId={viewId}
+                            onEndpointRemove={onEndpointRemove}
                         />
                     </div>
                 </div>
