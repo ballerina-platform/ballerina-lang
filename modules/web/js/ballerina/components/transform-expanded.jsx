@@ -490,6 +490,7 @@ class TransformExpanded extends React.Component {
             const variableDefinitionStatement = this.transformNodeManager.addNewVariable();
             const varVertex = ({
                 name: variableDefinitionStatement.getVariableDef().getName(),
+                displayName: variableDefinitionStatement.getVariableDef().getName(),
                 type: variableDefinitionStatement.getVariableDef().getTypeName(),
             });
             this.state.vertices.push(varVertex);
@@ -611,6 +612,7 @@ class TransformExpanded extends React.Component {
                     if (!structDef) {
                         const variableType = {};
                         variableType.name = arg.name;
+                        variableType.displayName = arg.name;
 
                         if (arg.constraint !== undefined) {
                             variableType.type = arg.type + '<'
