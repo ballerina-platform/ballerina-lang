@@ -65,7 +65,7 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
                 req = (HttpRequest) msg;
             } else if (msg instanceof LastHttpContent) {
                 if (is100ContinueExpected(req)) {
-                    ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
+                    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
                 }
                 boolean keepAlive = isKeepAlive(req);
                 HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
@@ -76,9 +76,12 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
 
                 if (!keepAlive) {
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                    logger.debug("Writing response with data to client-connector");
+                    logger.debug("Closing the client-connector connection");
                 } else {
                     response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                     ctx.writeAndFlush(response);
+                    logger.debug("Writing response with data to client-connector");
                 }
             }
 
@@ -101,16 +104,21 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
                 response.headers().set(TRANSFER_ENCODING, "chunked");
 
                 if (!keepAlive) {
-                    ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                    logger.debug("Writing response to client-connector");
                 } else {
                     response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                    ctx.write(response);
+                    ctx.writeAndFlush(response);
+                    logger.debug("Writing response to client-connector");
                 }
             } else if (msg instanceof HttpContent) {
                 if (msg instanceof LastHttpContent) {
                     ctx.writeAndFlush(msg);
+                    ctx.close();
+                    logger.debug("Closing the client-connector connection");
                 } else {
-                    ctx.write(msg);
+                    ctx.writeAndFlush(msg);
+                    logger.debug("Writing data to client-connector");
                 }
             }
         }
