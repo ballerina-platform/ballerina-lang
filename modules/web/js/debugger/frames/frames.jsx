@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import TreeView from 'react-treeview';
 import ReactJson from 'react-json-view';
 import JSON5 from 'json5';
+import HTMLTree from 'react-htmltree';
 import 'react-treeview/react-treeview.css';
 import './frames.css';
 /**
@@ -91,6 +92,15 @@ class Frames extends React.Component {
                                     collapsed={1}
                                     displayObjectSize={false}
                                 />
+                            </TreeView>
+                        );
+                    } else if (type.toLowerCase().includes('xml')) {
+                        return (
+                            <TreeView key={j} nodeLabel={label} defaultCollapsed>
+                                <div className="node">Type: {type}</div>
+                                <div className="node">Scope: {scope}</div>
+                                <div className="node">Value:</div>
+                                <HTMLTree source={variable.value} theme="firefox-devtools.dark" />
                             </TreeView>
                         );
                     } else {

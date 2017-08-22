@@ -18,3 +18,8 @@
 .debug-frames-container .tree-view .tree-view_item{
     padding-top: 8px;
 }
+
+.debug-frames-container .HTMLTree{
+    background-color: inherit;
+    font-size: 14px;
+}
