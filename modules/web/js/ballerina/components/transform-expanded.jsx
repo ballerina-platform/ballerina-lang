@@ -129,22 +129,22 @@ class TransformExpanded extends React.Component {
         // E.g. : e.name, e.username = p.first_name;
         const leftExpression = statement.getLeftExpression();
         const rightExpression = this.transformNodeManager
-                                    .getMappingRightExpression(statement.getRightExpression());
+                                    .getMappingExpression(statement.getRightExpression());
 
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
-                let sourceExprString = rightExpression.getExpressionString().trim();
+                const sourceExprString = rightExpression.getExpressionString().trim();
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
-                if(!this.sourceElements[sourceId]) {
+                if (!this.sourceElements[sourceId]) {
                     folded = true;
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
 
-                let targetExprString = leftExpression.getExpressionString().trim();
+                const targetExprString = leftExpr.getExpressionString().trim();
                 let targetId = `${targetExprString}:${viewId}`;
-                if(!this.targetElements[targetId]) {
+                if (!this.targetElements[targetId]) {
                     folded = true;
                     targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
                 }
@@ -158,13 +158,13 @@ class TransformExpanded extends React.Component {
         }
     }
 
-    getFoldedEndpointId(exprString, viewId, type='source') {
+    getFoldedEndpointId(exprString, viewId, type = 'source') {
         let currentExprString = exprString;
         let endpointId = `${currentExprString}:${viewId}`;
 
-        while(exprString.includes('.') && !this[`${type}Elements`][endpointId]) {
+        while (exprString.includes('.') && !this[`${type}Elements`][endpointId]) {
             const newExprString = currentExprString.slice(0, currentExprString.lastIndexOf('.'));
-            if(newExprString === currentExprString){
+            if (newExprString === currentExprString) {
                 break;
             }
             currentExprString = newExprString;
@@ -179,8 +179,8 @@ class TransformExpanded extends React.Component {
         const viewId = this.props.model.getID();
         const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
         if (_.isUndefined(func)) {
-            alerts.error(
-                'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            // alerts.error(
+            //     'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
 
@@ -188,10 +188,7 @@ class TransformExpanded extends React.Component {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
-        const params = func.parameters;
-        const returnParams = func.returnParams;
         const functionInvID = functionInvocationExpression.getID();
-        const funcName = functionInvocationExpression.getFunctionName();
 
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
             if (ASTFactory.isFunctionInvocationExpression(expression)) {
@@ -209,11 +206,7 @@ class TransformExpanded extends React.Component {
         }
 
         const sourceId = `${functionInvID}:0:return:${viewId}`;
-
-        const parentParams = parentFunctionDefinition.parameters;
         const parentFuncInvID = parentFunctionInvocationExpression.getID();
-        const parentFuncName = parentFunctionInvocationExpression.getFunctionName();
-
         const targetId = `${parentFuncInvID}:${parentParameterIndex}:${viewId}`;
 
         this.drawConnection(sourceId, targetId);
@@ -224,18 +217,16 @@ class TransformExpanded extends React.Component {
         const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
         const viewId = this.props.model.getID();
         if (_.isUndefined(func)) {
-            alerts.error(
-                'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            // alerts.error(
+            //     'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
         if (func.parameters.length !== functionInvocationExpression.getChildren().length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
 
-        const params = func.parameters;
         const returnParams = func.returnParams;
         const funcInvID = functionInvocationExpression.getID();
-        const funcName = functionInvocationExpression.getFunctionName();
 
         _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
             if (ASTFactory.isFunctionInvocationExpression(expression)) {
@@ -244,12 +235,12 @@ class TransformExpanded extends React.Component {
             } else {
                 let target;
                 let source;
+                expression = this.transformNodeManager.getMappingExpression(expression);
                 if (ASTFactory.isKeyValueExpression(expression.children[0])) {
                 // if parameter is a key value expression, iterate each expression and draw connections
                     _.forEach(expression.children, (propParam) => {
                         source = this.getConnectionProperties('source', propParam.children[1]);
                         target = this.getConnectionProperties('target', func.getParameters()[i]);
-                        _.merge(target, funcTarget); // merge parameter props with function props
                         target.targetProperty.push(propParam.children[0].getVariableName());
                         const typeDef = _.find(this.state.vertices, { typeName: func.getParameters()[i].type });
                         const propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName() });
@@ -259,7 +250,7 @@ class TransformExpanded extends React.Component {
                 } else {
                     let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                     let folded = false;
-                    if(!this.sourceElements[sourceId]) {
+                    if (!this.sourceElements[sourceId]) {
                         folded = true;
                         sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
                     }
@@ -274,14 +265,14 @@ class TransformExpanded extends React.Component {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
-            if(!returnParams[i]){
+            if (!returnParams[i]) {
                 return;
             }
 
             const sourceId = `${funcInvID}:${i}:return:${viewId}`;
             let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             let folded = false;
-            if(!this.targetElements[targetId]) {
+            if (!this.targetElements[targetId]) {
                 folded = true;
                 targetId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'target');
             }
@@ -331,7 +322,7 @@ class TransformExpanded extends React.Component {
 
     drawConnection(sourceId, targetId, folded) {
         // if source or target is not mounted then this draw request is ignored
-        if(!this.sourceElements[sourceId] || !this.targetElements[targetId]){
+        if (!this.sourceElements[sourceId] || !this.targetElements[targetId]) {
             return;
         }
 
@@ -347,12 +338,12 @@ class TransformExpanded extends React.Component {
             const fieldName = expression.getFieldName();
             const structDef = _.find(this.state.vertices, { name: structName });
             if (_.isUndefined(structDef)) {
-                alerts.error('Struct definition for variable "' + structName + '" cannot be found');
+                // alerts.error('Struct definition for variable "' + structName + '" cannot be found');
                 return;
             }
             const structField = _.find(structDef.properties, { name: fieldName });
             if (_.isUndefined(structField)) {
-                alerts.error('Struct field "' + fieldName + '" cannot be found in variable "' + structName + '"');
+                // alerts.error('Struct field "' + fieldName + '" cannot be found in variable "' + structName + '"');
                 return;
             }
             const structFieldType = structField.type;
@@ -649,7 +640,9 @@ class TransformExpanded extends React.Component {
                     this.setState({ vertices });
                 }
             });
-        }).catch(error => alerts.error('Could not initialize transform statement view ' + error));
+        }).catch((error) => {
+            // alerts.error('Could not initialize transform statement view ' + error);
+        });
     }
 
     /**
@@ -726,8 +719,8 @@ class TransformExpanded extends React.Component {
     findFunctionInvocations(functionInvocationExpression, functions = [], parentFunc) {
         const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
         if (_.isUndefined(func)) {
-            alerts.error('Function definition for "' +
-                functionInvocationExpression.getFunctionName() + '" cannot be found');
+            // alerts.error('Function definition for "' +
+            //     functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
         functionInvocationExpression.getChildren().forEach((child) => {
