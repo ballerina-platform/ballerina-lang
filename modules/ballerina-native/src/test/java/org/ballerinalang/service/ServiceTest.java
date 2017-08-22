@@ -192,7 +192,7 @@ public class ServiceTest {
                 , "Team variable not set properly.");
     }
 
-    @Test(description = "Test GetFormParams with undefined key and empty payloads")
+    @Test(description = "Test GetFormParams with undefined key")
     public void testGetFormParamsForUndefinedKey() {
         String path = "/echo/getFormParams";
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
@@ -203,15 +203,31 @@ public class ServiceTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("Team").asText(), ""
                 , "Team variable not set properly.");
+    }
 
-        cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
+    @Test(description = "Test GetFormParams empty payloads")
+    public void testGetFormParamsEmptyPayload() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        response = Services.invoke(cMsg);
+        CarbonMessage response = Services.invoke(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue().substring(86, 107), "empty message payload");
+    }
+
+    @Test(description = "Test GetFormParams with unsupported media type")
+    public void testGetFormParamsWithUnsupportedMediaType() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue().substring(86, 108), "unsupported media type");
     }
 
     @AfterClass

@@ -39,7 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 /**
- * Get the Form params from HTTP the Message and return as map.
+ * Get the Form params from HTTP message and return a map.
  *
  * @since 0.93
  */
@@ -77,11 +77,12 @@ public class GetFormParams extends AbstractNativeFunction {
                 } else {
                     throw new BallerinaException("empty message payload");
                 }
+            } else {
+                throw new BallerinaException("unsupported media type");
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving form param from message: " + e.getMessage());
         }
-        return new BValue[0];
     }
 
     private BMap<String, BString> processFormParams(String payload) throws UnsupportedEncodingException {
