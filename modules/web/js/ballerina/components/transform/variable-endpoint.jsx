@@ -38,16 +38,32 @@ export default class VariableEndpoint extends React.Component {
     }
 
     render() {
-        const { variable, makeConnectPoint, type, level, id, removeTypeCallbackFunc, onClick, onRemove, updateVariable } = this.props;
+        const { variable, makeConnectPoint, level, id, removeTypeCallbackFunc, onClick, onRemove,
+            updateVariable, isFolded, } = this.props;
         let iconType = 'fw-variable';
+        let className = 'transform-endpoint variable';
 
         if (variable.type === 'struct') {
             iconType = 'fw-struct';
+            className += ' transform-endpoint-struct'
+
+            if(isFolded){
+                className += '-folded'
+            }
+        }
+
+        let folderLeft =  level*13 + 2;
+
+        const variableRoot = variable.root || variable;
+        if(variableRoot.endpointKind === 'output' ) {
+            folderLeft += 30;
         }
 
         return (
-            <div className='transform-endpoint variable' style={{ paddingLeft: level > 0 ? ((level - 1) * 13) : 0 }}>
+            <div className={className} style={{ paddingLeft: level > 0 ? ((level - 1) * 13) + 7 : 7 }}>
                 <span >
+                    {(variable.type === 'struct' || variable.isField) && <span className='folder'
+                        style={{ left: folderLeft }} onClick={e => {onClick && onClick(variable.name)}}/>}
                     {(level > 0) && <span className='tree-view-icon'></span>}
                     <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />

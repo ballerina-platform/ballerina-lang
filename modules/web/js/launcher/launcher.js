@@ -22,6 +22,7 @@ import Backbone from 'backbone';
 import _ from 'lodash';
 import alerts from 'alerts';
 import LaunchManager from './launch-manager';
+import * as toolbarFunctions from './../ballerina/toolbar/toolbar-callback-functions';
 
 const Launcher = Backbone.View.extend({
     /**
@@ -112,8 +113,14 @@ const Launcher = Backbone.View.extend({
         this._$parent_el.on('click', '#reploy-program', () => { this.reDeployProgram(); });
         this._$parent_el.on('click', '#try_it_service', () => { this.showSwaggerView(); });
 
-        LaunchManager.on('execution-started', () => { this.renderBody(); });
-        LaunchManager.on('execution-ended', () => { this.renderBody(); });
+        LaunchManager.on('execution-started', () => {
+            this.renderBody();
+            toolbarFunctions.addStopApplication();
+        });
+        LaunchManager.on('execution-ended', () => {
+            this.renderBody();
+            toolbarFunctions.removeStopApplication();
+        });
         LaunchManager.on('try-it-url-received', () => { this.renderBody(); });
         LaunchManager.on('session-terminated', () => { this.renderBody(); });
 
@@ -174,7 +181,6 @@ const Launcher = Backbone.View.extend({
         LaunchManager.stopProgram();
         this.application.commandManager.dispatch('try-it-url-received', undefined);
         this.application.commandManager.dispatch('hide-try-it-view');
-        
     },
     /**
      * Redeploy currently running application or service

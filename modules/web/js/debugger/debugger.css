@@ -299,3 +299,12 @@ div > .col-xs-12 {
 #form-run-application-with-args{
 
 }
+
+#modalDebugConnection .help-block{
+    color: #e8e8e8;
+}
+
+#modalDebugConnection .close{
+    top: 0;
+    right: 25px;
+}

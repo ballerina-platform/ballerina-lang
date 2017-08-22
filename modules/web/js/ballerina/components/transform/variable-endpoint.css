@@ -6,7 +6,7 @@
 }
 
 .transform-endpoint .variable-icon {
-    width: 30px;
+    width: 23px;
     height: 30px;
     float: left;
     padding: 3px;
@@ -33,6 +33,13 @@
     margin-left: 9px;
 }
 
+.transform-endpoint-struct .tree-view-icon:after {
+    border-bottom: none;
+}
+.transform-endpoint-struct-folded .tree-view-icon:after {
+    border-bottom: none;
+}
+
 .transform-endpoint .tree-view-icon:before {
     content: " ";
     width: 11px;
@@ -53,6 +60,23 @@
     color: #3d3d3d;
     z-index: 999;
     border: 1px solid;
+}
+
+.transform-endpoint .folder {
+    position: absolute;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    z-index: 1;
+    font-size: 17px
+}
+
+.transform-endpoint-struct .folder::after {
+    content: '▾'
+}
+
+.transform-endpoint-struct-folded .folder::after {
+    content: '▸'
 }
 
 .transform-endpoint:nth-child(2) .tree-view-icon:before {
