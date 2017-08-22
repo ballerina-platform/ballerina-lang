@@ -20,13 +20,25 @@ import React from 'react';
 import './variable-endpoint.css';
 
 export default class VariableEndpoint extends React.Component {
+   constructor(props, context) {
+      super(props, context);
+      this.state = {
+          onEdit: false,
+          statement: this.props.variable.varDeclarationString
+      };
+
+        this.handleChange = this.handleChange.bind(this);
+        this.onEdit = this.onEdit.bind(this);
+        this.onComplete = this.onComplete.bind(this);
+    }
+
     componentWillUnmount() {
         const { id, onRemove } = this.props;
         onRemove(id);
     }
 
     render() {
-        const { variable, makeConnectPoint, type, level, id, removeTypeCallbackFunc, onClick, onRemove } = this.props;
+        const { variable, makeConnectPoint, type, level, id, removeTypeCallbackFunc, onClick, onRemove, updateVariable } = this.props;
         let iconType = 'fw-variable';
 
         if (variable.type === 'struct') {
@@ -41,14 +53,29 @@ export default class VariableEndpoint extends React.Component {
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
                     <span className='variable-content' onClick={e => {onClick && onClick(variable.name)}}>
-                        {variable.displayName &&
+                        {!this.state.onEdit && variable.displayName &&
                             <span className='property-name'>
                                 {variable.displayName}:
                             </span>
                         }
-                        <span className='property-type'>
-                            {variable.typeName || variable.type}
-                        </span>
+                        {!this.state.onEdit &&
+                          <span className='property-type'>
+                              {variable.typeName || variable.type}
+                          </span>
+                        }
+                        {this.props.variable.varDeclarationString && !this.state.onEdit &&
+                            <span>
+                              <i className='btn fw fw-edit' onClick={this.onEdit}></i>
+                            </span>
+                        }
+                        { this.state.onEdit &&
+                          <input  type='text' className='variable-edit-text' value={this.state.statement} onChange={this.handleChange} />
+                        }
+                        { this.state.onEdit &&
+                          <span>
+                            <i className='btn fw fw-check' onClick={this.onComplete}></i>
+                          </span>
+                        }
                     </span>
                 </span>
                 <span id={variable.id + '-button'} className='btn connect-point'>
@@ -60,5 +87,20 @@ export default class VariableEndpoint extends React.Component {
                 </span>
             </div>
         );
+    }
+    handleChange(e) {
+      this.setState({statement: e.target.value});
+    }
+
+    onEdit() {
+      this.setState({
+          onEdit: true
+      });
+    }
+    onComplete(){
+      this.setState({
+          onEdit: false
+      });
+      this.props.updateVariable(this.props.variable.name, this.state.statement);
     }
 }
