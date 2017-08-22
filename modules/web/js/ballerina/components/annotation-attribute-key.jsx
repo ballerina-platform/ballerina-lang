@@ -176,7 +176,7 @@ class AnnotationAttributeKey extends React.Component {
             />);
         }
 
-        return (<span onClick={this.onKeyEdit}>
+        return (<span onClick={this.onKeyEdit} className='annotation-attribute-key'>
             {this.props.attributeModel.getKey()}:
             </span>);
     }

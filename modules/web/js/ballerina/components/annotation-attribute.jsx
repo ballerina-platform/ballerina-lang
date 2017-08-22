@@ -17,6 +17,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationAttachment from './annotation-attachment';
 import AnnotationAttributeAST from './../ast/annotations/annotation-attribute';
 import AnnotationAttributeBValue from './annotation-attribute-b-value';
@@ -72,6 +74,7 @@ class AnnotationAttribute extends React.Component {
         this.onBValueEdit = this.onBValueEdit.bind(this);
         this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
         this.onBValueKeyPress = this.onBValueKeyPress.bind(this);
+        this.toggleCollapse = this.toggleCollapse.bind(this);
     }
 
     /**
@@ -128,6 +131,12 @@ class AnnotationAttribute extends React.Component {
         this.props.model.getViewState().isInEdit = true;
     }
 
+    /**
+     * Event when a key is pressed on a b value edit.
+     *
+     * @param {Object} event The event.
+     * @memberof AnnotationAttribute
+     */
     onBValueKeyPress(event) {
         if (event.keyCode === 13 || event.which === 13) {
             this.setState({
@@ -139,6 +148,15 @@ class AnnotationAttribute extends React.Component {
             const bValue = attributeValue.getChildren()[0];
             bValue.setStringValue(event.target.value);
         }
+    }
+
+    /**
+     * Event when the collapse icon is clicked.
+     * @memberof AnnotationAttribute
+     */
+    toggleCollapse() {
+        this.props.model.getViewState().collapsed = !this.props.model.getViewState().collapsed;
+        this.context.editor.update();
     }
 
     /**
@@ -235,10 +253,6 @@ class AnnotationAttribute extends React.Component {
     render() {
         const key = this.renderKey();
         const attributeValue = this.props.model.getValue();
-        let errorClass;
-        if (this.state.hasError) {
-            errorClass = 'annotation-attribute-error';
-        }
         if (attributeValue.isBValue()) {
             const buttons = [];
             // Delete button.
@@ -258,10 +272,11 @@ class AnnotationAttribute extends React.Component {
                     <ul
                         className="attribute-value-bvalue"
                     >
-                        <li className={errorClass}>
+                        <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 <input
+                                    className='annotation-attribute-b-value-input'
                                     ref={(ref) => { this.bValueInput = ref; }}
                                     type="text"
                                     value={this.state.bValueText}
@@ -282,7 +297,10 @@ class AnnotationAttribute extends React.Component {
                     <ul
                         className="attribute-value-bvalue"
                     >
-                        <li className={errorClass} onClick={() => this.onBValueEdit(false)}>
+                        <li
+                            className={cn({ 'annotation-attribute-error': this.state.hasError })}
+                            onClick={() => this.onBValueEdit(false)}
+                        >
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 {bValue.getStringValue()}
@@ -296,7 +314,7 @@ class AnnotationAttribute extends React.Component {
                 <ul
                     className="attribute-value-bvalue"
                 >
-                    <li className={errorClass}>
+                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
                         {key}
                         <span className="annotation-attribute-value-wrapper" onClick={() => this.onBValueEdit(true)}>
                             {bValue.getStringValue()}
@@ -334,45 +352,38 @@ class AnnotationAttribute extends React.Component {
                 },
             };
             deletePopButton.push(deleteButton);
-            if (annotationAttachment.getChildren().length > 0) {
-                const attributes = this.renderAnnotationAttributes(annotationAttachment);
-                return (
-                    <ul
-                        className="attribute-value-annotation"
-                    >
-                        <li className={errorClass}>
-                            {key}
-                            <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
-                                @{packageName}
-                            </span>
-                            :{name}
-                            <span className="annotations-open-bracket">{'{'}</span>
-                            <PopoutButton buttons={addPopButton} />
-                            <PopoutButton buttons={deletePopButton} />
-                        </li>
-                        {attributes}
-                        <li>
-                            <span className="annotations-close-bracket">{'}'}</span>
-                        </li>
-                    </ul>
-                );
-            }
-
+            const attributes = this.props.model.getViewState().collapsed ? [] :
+                                                                this.renderAnnotationAttributes(annotationAttachment);
             return (
                 <ul
                     className="attribute-value-annotation"
                 >
-                    <li className={errorClass}>
+                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                        <CSSTransitionGroup
+                            component="span"
+                            transitionName="annotation-expand"
+                            transitionEnterTimeout={300}
+                            transitionLeaveTimeout={300}
+                        >
+                            <i
+                                className={cn('fw fw-right expand-icon',
+                                { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                                { hide: annotationAttachment.getChildren().length === 0 })}
+                                onClick={this.toggleCollapse}
+                            />
+                        </CSSTransitionGroup>
                         {key}
                         <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
                             @{packageName}
                         </span>
                         :{name}
-                        <span className="annotations-open-bracket">{'{'}</span>
                         <PopoutButton buttons={addPopButton} />
-                        <span className="annotations-close-bracket">{'}'}</span>
                         <PopoutButton buttons={deletePopButton} />
+                        <span className='annotation-attachment-badge hide'>
+                            <i className="fw fw-annotation-badge" />
+                        </span>
                     </li>
+                    {attributes}
                 </ul>
             );
         } else if (attributeValue.isArray()) {
@@ -396,48 +407,36 @@ class AnnotationAttribute extends React.Component {
             };
             addPopButton.push(addNewToArray);
             deletePopButton.push(deleteButton);
-            if (attributeValue.getChildren().length > 0) {
-                const arrayValues = [];
-                attributeValue.getChildren().forEach((annotationAttributeValue) => {
-                    arrayValues.push(this.renderAnnotationAttributeValue(annotationAttributeValue));
-                });
-                return (
-                    <ul
-                        className="attribute-value-array"
-                    >
-                        <li className={errorClass}>
-                            {key}
-                            <span
-                                className="annotations-attribute-open-square-bracket annotation-attribute-value-wrapper"
-                            >
-                                [
-                            </span>
-                            <PopoutButton buttons={addPopButton} />
-                            <PopoutButton buttons={deletePopButton} />
-                        </li>
-                        {arrayValues}
-                        <li>
-                            <span className="annotations-attribute-close-square-bracket">]</span>
-                        </li>
-                    </ul>
-                );
-            }
-
+            const arrayValues = this.props.model.getViewState().collapsed ? [] :
+                        attributeValue.getChildren().map((annotationAttributeValue) => {
+                            return this.renderAnnotationAttributeValue(annotationAttributeValue);
+                        });
             return (
                 <ul
                     className="attribute-value-array"
                 >
-                    <li className={errorClass}>
-                        {key}
-                        <span
-                            className="annotations-attribute-open-square-bracket  annotation-attribute-value-wrapper"
+                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                        <CSSTransitionGroup
+                            component="span"
+                            transitionName="annotation-expand"
+                            transitionEnterTimeout={300}
+                            transitionLeaveTimeout={300}
                         >
-                            [
-                        </span>
+                            <i
+                                className={cn('fw fw-right expand-icon',
+                                { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                                { hide: attributeValue.getChildren().length === 0 })}
+                                onClick={this.toggleCollapse}
+                            />
+                        </CSSTransitionGroup>
+                        {key}
                         <PopoutButton buttons={addPopButton} />
-                        <span className="annotations-attribute-close-square-bracket">]</span>
                         <PopoutButton buttons={deletePopButton} />
+                        <span className='annotation-attribute-array-badge hide'>
+                            <i className="fw fw-annotation-attribute-array-badge" />
+                        </span>
                     </li>
+                    {arrayValues}
                 </ul>
             );
         }
@@ -457,6 +456,7 @@ AnnotationAttribute.defaultProps = {
 
 AnnotationAttribute.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttribute;
