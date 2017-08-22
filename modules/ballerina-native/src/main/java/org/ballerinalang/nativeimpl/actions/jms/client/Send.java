@@ -33,7 +33,6 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.jms.JMSUtils;
@@ -44,7 +43,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
+import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.Map;
@@ -124,9 +124,8 @@ public class Send extends AbstractJMSAction {
                 log.debug("Sending " + messageType + " to " + propertyMap.get(JMSConstants.PARAM_DESTINATION_NAME));
             }
 
-            BallerinaConnectorManager.getInstance().getClientConnector("jms")
-                                     .send(message, null, propertyMap);
-        } catch (ClientConnectorException e) {
+            new JMSConnectorFactoryImpl().createClientConnector().send(message, propertyMap);
+        } catch (JMSConnectorException e) {
             throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
         }
         return null;
