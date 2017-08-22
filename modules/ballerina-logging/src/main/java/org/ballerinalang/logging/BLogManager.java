@@ -18,11 +18,9 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
-import org.ballerinalang.logging.handlers.HTTPTraceLogHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -49,6 +47,7 @@ public class BLogManager extends LogManager {
     // Trace log related constants
     public static final String HTTP_TRACE_LOG = "http-trace-log";
     public static final String HTTP_TRACE_LOGGER = "tracelog.http";
+    public static final String LOG_DEST_CONSOLE = "__console";
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
@@ -66,22 +65,21 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
-    public void setWirelogHandler(String traceLogDestination) throws IOException {
+    public void setTraceLogHandler(String traceLogDestination) throws IOException {
         Handler handler;
-        if ("console".equals(traceLogDestination)) {
+        if (LOG_DEST_CONSOLE.equals(traceLogDestination)) {
             handler = new ConsoleHandler();
             handler.setFormatter(new HTTPTraceLogFormatter());
-        } else if ("default".equals(traceLogDestination)) {
-            File file = new File(
-                    System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
-            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
         } else {
-            STD_OUT.println("Invalid trace log parameter. Defaulting to console");
-            handler = new ConsoleHandler();
-            handler.setFormatter(new HTTPTraceLogFormatter());
+            STD_OUT.println("Invalid parameter encountered while configuring trace logs.");
+            return;
         }
-
-//        else {
+        //TODO: Add the code below in a future release after finalizing the design
+//        else if ("default".equals(traceLogDestination)) {
+//            File file = new File(
+//                    System.getProperty("ballerina.home") + File.separator + "logs" + File.separator + "http.log");
+//            handler = new HTTPTraceLogHandler(file.getAbsolutePath());
+//        } else {
 //            File file;
 //
 //            if ("default".equals(traceLogDestination)) {
