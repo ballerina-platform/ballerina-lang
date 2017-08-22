@@ -63,8 +63,6 @@ public class TestUtil {
 
     public static final int TEST_SERVER_PORT = 9000;
     public static final String TEST_HOST = "localhost";
-    private static final int SERVERS_SETUP_TIME = 10000;
-    private static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
     private static List<ServerConnector> connectors;
