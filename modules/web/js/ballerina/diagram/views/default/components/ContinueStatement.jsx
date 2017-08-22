@@ -37,6 +37,7 @@ class ContinueStatement extends React.Component {
     constructor(props) {
         super(props);
         this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -54,6 +55,7 @@ class ContinueStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 designer={this.designer}
+                mode={this.mode}
             />);
     }
 }

@@ -23,7 +23,7 @@ import AbstractVisitor from './../../../abstract-visitor';
  *
  * @class BreakStatementDimensionCalculatorVisitor
  * */
-class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
+class BreakStatementDimensionCalculatorVisitor {
 
     /**
      * can visit the visitor.
@@ -61,7 +61,6 @@ class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
      * */
     endVisit(node) {
         const DesignerDefaults = this.getOptions().designer;
-        debugger;
     }
 }
 

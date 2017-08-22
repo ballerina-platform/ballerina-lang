@@ -32,6 +32,7 @@ class TryStatement extends React.Component {
     constructor(props) {
         super(props);
         this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
         this.onAddCatchClick = this.onAddCatchClick.bind(this);
     }
 
@@ -60,7 +61,7 @@ class TryStatement extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
         const addNewComponentsBtn = (
             <g onClick={this.onAddCatchClick}>
                 <rect

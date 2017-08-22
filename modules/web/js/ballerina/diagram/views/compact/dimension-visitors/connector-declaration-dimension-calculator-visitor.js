@@ -18,7 +18,6 @@
 
 import _ from 'lodash';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
-import AbstractVisitor from './../../../abstract-visitor';
 import SizingUtil from './../sizing-util';
 
 /**
@@ -26,16 +25,15 @@ import SizingUtil from './../sizing-util';
  *
  * @class ConnectorDeclarationDimensionCalculatorVisitor
  * */
-class ConnectorDeclarationDimensionCalculatorVisitor extends AbstractVisitor {
+class ConnectorDeclarationDimensionCalculatorVisitor {
 
     /**
      * Constructor for Abort statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
         this.designer = _.get(options, 'designer');
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

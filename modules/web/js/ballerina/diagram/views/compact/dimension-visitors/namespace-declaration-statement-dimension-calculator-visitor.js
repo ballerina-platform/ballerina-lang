@@ -23,15 +23,14 @@ import SizingUtil from './../sizing-util';
  * class for dimension calc NamespaceDeclarationStatement
  * @class NamespaceDeclarationStatement
  * */
-class NamespaceDeclarationStatementDimensionCalculatorVisitor extends AbstractVisitor {
+class NamespaceDeclarationStatementDimensionCalculatorVisitor {
 
     /**
      * Constructor for Abort statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

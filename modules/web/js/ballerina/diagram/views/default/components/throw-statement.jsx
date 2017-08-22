@@ -36,6 +36,7 @@ class ThrowStatement extends React.Component {
             setterMethod: props.model.setStatementFromString,
         };
         this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -51,6 +52,7 @@ class ThrowStatement extends React.Component {
                 editorOptions={this.editorOptions}
                 expression={expression}
                 designer={this.designer}
+                mode={this.mode}
             />);
     }
 }

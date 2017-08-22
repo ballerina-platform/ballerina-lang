@@ -17,7 +17,6 @@
  */
 
 import _ from 'lodash';
-import AbstractVisitor from './../../../abstract-visitor';
 import SizingUtil from './../sizing-util';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
 import DimensionCalculatorVisitor from '../../../dimension-visitor';
@@ -27,15 +26,14 @@ import DimensionCalculatorVisitor from '../../../dimension-visitor';
  *
  * @class AssignmentStatementDimensionCalculatorVisitor
  * */
-class AssignmentStatementDimensionCalculatorVisitor extends AbstractVisitor {
+class AssignmentStatementDimensionCalculatorVisitor {
 
     /**
      * Constructor for Assignment statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

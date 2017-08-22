@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import AbstractVisitor from './../../../abstract-visitor';
 import SizingUtil from './../sizing-util';
 
 /**
@@ -24,15 +23,14 @@ import SizingUtil from './../sizing-util';
  *
  * @class BreakStatementDimensionCalculatorVisitor
  * */
-class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor {
+class BreakStatementDimensionCalculatorVisitor {
 
     /**
      * Constructor for Break statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

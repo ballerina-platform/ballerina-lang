@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import AbstractVisitor from './../../../abstract-visitor';
 import SizingUtil from './../sizing-util';
 
 /**
@@ -24,15 +23,14 @@ import SizingUtil from './../sizing-util';
  *
  * @class AbortStatementDimensionCalculatorVisitor
  * */
-class AbortStatementDimensionCalculatorVisitor extends AbstractVisitor {
+class AbortStatementDimensionCalculatorVisitor {
 
     /**
      * Constructor for Abort statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

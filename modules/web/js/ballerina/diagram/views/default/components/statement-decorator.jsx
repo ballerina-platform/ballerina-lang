@@ -72,6 +72,7 @@ class StatementDecorator extends React.Component {
         };
 
         this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -239,7 +240,8 @@ class StatementDecorator extends React.Component {
         const designer = this.props.designer;
 
         // calculate the bBox for the statement
-        const textX = bBox.x + (bBox.w / 2);
+        const textX = bBox.x + (this.props.mode === 'compact' ? designer.statement.padding.left : (bBox.w / 2));
+        const textClassName = this.props.mode === 'compact' ? 'statement-text-compact' : 'statement-text';
         const textY = this.state.statementBox.y + (designer.statement.height / 2);
         const dropZoneX = bBox.x + ((bBox.w - designer.lifeLine.width) / 2);
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
@@ -294,7 +296,7 @@ class StatementDecorator extends React.Component {
                 </rect>
                 <g className="statement-body">
                     {tooltip}
-                    <text x={textX} y={textY} className="statement-text" onClick={e => this.openEditor(e)}>
+                    <text x={textX} y={textY} className={textClassName} onClick={e => this.openEditor(e)}>
                         {expression}
                     </text>
                 </g>

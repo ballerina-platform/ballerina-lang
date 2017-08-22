@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import AbstractVisitor from './../../../abstract-visitor';
+
 import SizingUtil from './../sizing-util';
 import BallerinaASTFactory from './../../../../ast/ast-factory';
 import DimensionCalculatorVisitor from '../../../dimension-visitor';
@@ -25,15 +25,14 @@ import DimensionCalculatorVisitor from '../../../dimension-visitor';
  *
  * @class VariableDefinitionStatementDimensionCalculatorVisitor
  * */
-class VariableDefinitionStatementDimensionCalculatorVisitor extends AbstractVisitor {
+class VariableDefinitionStatementDimensionCalculatorVisitor {
 
     /**
      * Constructor for Variable Definition statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

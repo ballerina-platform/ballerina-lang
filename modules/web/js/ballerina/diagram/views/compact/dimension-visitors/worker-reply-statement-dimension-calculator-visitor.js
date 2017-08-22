@@ -17,7 +17,6 @@
  */
 
 import _ from 'lodash';
-import AbstractVisitor from './../../../abstract-visitor';
 import SizingUtil from './../sizing-util';
 import BallerinaASTFactory from './../../../../ast/ast-factory';
 
@@ -26,15 +25,14 @@ import BallerinaASTFactory from './../../../../ast/ast-factory';
  *
  * @class WorkerReplyStatementDimensionCalculatorVisitor
  * */
-class WorkerReplyStatementDimensionCalculatorVisitor extends AbstractVisitor {
+class WorkerReplyStatementDimensionCalculatorVisitor {
 
     /**
      * Constructor for Worker Reply statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
-        super(options);
-        this.sizingUtil = new SizingUtil(this.getOptions());
+        this.sizingUtil = new SizingUtil(options);
     }
 
     /**

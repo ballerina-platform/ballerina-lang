@@ -35,6 +35,7 @@ class RetryStatement extends React.Component {
             setterMethod: this.props.model.setStatementFromString,
         };
         this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -50,6 +51,7 @@ class RetryStatement extends React.Component {
                 expression={expression}
                 editorOptions={this.editorOptions}
                 designer={this.designer}
+                mode={this.mode}
             />
         );
     }

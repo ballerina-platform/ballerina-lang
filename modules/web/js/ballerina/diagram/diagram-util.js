@@ -22,7 +22,7 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
-    components.compact = requireAll(require.context('./views/compact/dimension-visitors/', true, /\.js$/));
+    components.compact = requireAll(require.context('./views/compact/components/', true, /\.jsx$/));
 
     return nodeArray.filter((child) => {
         const compName = child.constructor.name;
@@ -40,6 +40,7 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
                 designer: designer,
+                mode: mode,
             }, null);
         } else if (components.default[compName]) {
             return React.createElement(components.default[compName], {
@@ -48,6 +49,7 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
                 designer: designer,
+                mode: mode,
             }, null);
         }
     });

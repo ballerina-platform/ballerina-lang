@@ -56,6 +56,7 @@ class AssignmentStatement extends React.Component {
             setterMethod: props.model.setStatementFromString,
         };
         this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -240,6 +241,7 @@ class AssignmentStatement extends React.Component {
                     editorOptions={this.editorOptions}
                     model={model}
                     designer={this.designer}
+                    mode={this.mode}
                 >
                     {!_.isNil(actionInvocation) &&
                     <g>
