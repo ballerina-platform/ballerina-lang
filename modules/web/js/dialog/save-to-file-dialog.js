@@ -279,7 +279,6 @@ const SaveToFileDialog = Backbone.View.extend(
                                     app.commandManager.dispatch('toggle-file-explorer');
                                 }
                             }
-                            app.breadcrumbController.setPath(options.location, options.configName);
                             saveConfigModal.modal('hide');
                             log.debug('file saved successfully');
                             callback(true);

@@ -21,6 +21,7 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import alerts from 'alerts';
 import DebugManager from './debug-manager';
+import * as toolbarFunctions from './../ballerina/toolbar/toolbar-callback-functions';
 
 /**
  * @description Debugger toolbar
@@ -139,6 +140,7 @@ class Tools extends EventChannel {
         this.active = false;
         this.navigation = true;
         this.render();
+        toolbarFunctions.removeDebuggingToolbar();
     }
     showWaiting() {
         this.waiting = true;
@@ -276,23 +278,23 @@ class Tools extends EventChannel {
     handleAction(actionName) {
         let action = () => {};
         switch (actionName) {
-        case 'Resume':
-            action = DebugManager.resume.bind(DebugManager);
-            break;
-        case 'StepOver':
-            action = DebugManager.stepOver.bind(DebugManager);
-            break;
-        case 'StepIn':
-            action = DebugManager.stepIn.bind(DebugManager);
-            break;
-        case 'StepOut':
-            action = DebugManager.stepOut.bind(DebugManager);
-            break;
-        case 'Stop':
-            action = DebugManager.stop.bind(DebugManager);
-            break;
-        default:
-            throw Error('Unknown action');
+            case 'Resume':
+                action = DebugManager.resume.bind(DebugManager);
+                break;
+            case 'StepOver':
+                action = DebugManager.stepOver.bind(DebugManager);
+                break;
+            case 'StepIn':
+                action = DebugManager.stepIn.bind(DebugManager);
+                break;
+            case 'StepOut':
+                action = DebugManager.stepOut.bind(DebugManager);
+                break;
+            case 'Stop':
+                action = DebugManager.stop.bind(DebugManager);
+                break;
+            default:
+                throw Error('Unknown action');
         }
 
         return () => {

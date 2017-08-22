@@ -1,0 +1,114 @@
+#toolbar-container {
+    background-color: #16191d;
+    height: 32px;
+    overflow: hidden;
+    line-height: 31px;
+    font-size: 12.5px;
+    border-width: 1px;
+    border-style: solid;
+}
+
+#toolbar-palette{
+    float:left;
+    color:#d0cfcf;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.toolbar-icons{
+    float: left;
+    width:45px;
+    height:32px;
+    text-align: center;
+}
+
+.internal-separator{
+    border-right-style: dashed;
+    border-color: #363836;
+}
+.section-separator{
+    border-right-style: solid;
+    border-color: #363836;
+}
+.toolbar-icons:hover{
+    background-color: #3c3c3c;
+    cursor: pointer;
+}
+
+/*Drop down for menu items in toolbar*/
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #565656;
+    min-width: 160px;
+    overflow: auto;
+    z-index: 2;
+    text-align: left;
+}
+
+.dropdown-content a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    height: 30px;
+}
+
+.show {display:block;}
+
+.dropdown-content a:hover {
+    background-color: #e2e2e2;
+    color:#000d0e;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    padding-top: 10px;
+}
+.link {
+    padding-left: 10px;
+}
+.more{
+    font-size: 8px;
+    padding-left: 4px;
+}
+
+.btn-debug-action-toolbar{
+    width:40px;
+    margin:0px !important;
+    background-color: #333;
+    color: white;
+    font-size: 14px;
+    /*padding:11px !important;*/
+}
+
+#debugger-tools{
+    float: left;
+    height:31px;
+    text-align: center;
+    width: 200px;
+}
+
+.stop{
+    color: #c0392b;
+    font-size: 14px;
+}
+
+.resume{
+    color: #379e61;
+    font-size: 18px;
+}
+
+.step{
+    color: #f39c12;
+    font-size: 18px;
+}
+
+#breadcrumb-container {
+    background-color: #282b2f;
+    line-height: 15px;
+    margin-left: 5px;
+    white-space: nowrap;
+    float: left;
+    color: #545353;
+}
