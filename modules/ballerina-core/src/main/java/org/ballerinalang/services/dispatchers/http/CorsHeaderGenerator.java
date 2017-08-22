@@ -119,7 +119,6 @@ public class CorsHeaderGenerator {
             bLog.info(action + "not allowed method");
             return null;
         }
-
         //6.2.2 - request origin must be on the list or match with *.
         if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.get(Constants.ALLOW_ORIGIN))) {
             bLog.info(action + "not allowed origin");

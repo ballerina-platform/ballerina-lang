@@ -124,15 +124,11 @@ public class DispatcherUtil {
 
     public static String concatValues(List<String> stringValues, boolean spaceSeparated) {
         StringBuilder builder = new StringBuilder();
-
+        String separator = spaceSeparated ? " " : ", ";
         for (int x = 0; x < stringValues.size(); ++x) {
             builder.append(stringValues.get(x));
             if (x != stringValues.size() - 1) {
-                if (spaceSeparated) {
-                    builder.append(" ");
-                } else {
-                    builder.append(", ");
-                }
+                builder.append(separator);
             }
         }
         return builder.toString();
