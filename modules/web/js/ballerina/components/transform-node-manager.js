@@ -213,14 +213,16 @@ class TransformNodeManager {
 
         // Connection source and target are not structs
         // Source and target could be function nodes.
-        const newIndex = this._transformStmt.getIndexOfChild(
-            this.findEnclosingAssignmentStatement(target.funcInv)) + 1;
+        const assignmentStmt = this.findEnclosingAssignmentStatement(target.funcInv);
+        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt) + 1;
 
-        (target.funcInv).removeChild(source.funcInv, true);
+        const index = target.funcInv.getIndexOfChild(source.funcInv);
+        target.funcInv.removeChild(source.funcInv, true);
+        target.funcInv.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
 
         const newAssignmentStmt = DefaultBallerinaASTFactory
             .createTransformAssignmentFunctionInvocationStatement({ funcInv: source.funcInv });
-        this._transformStmt.addChild(newAssignmentStmt, newIndex);
+        this._transformStmt.addChild(newAssignmentStmt, newAssignIndex);
     }
 
     /**
@@ -265,6 +267,9 @@ class TransformNodeManager {
     }
 
     findFunctionInvocationById(expression, id) {
+        if (expression.id === id) {
+            return expression;
+        }
         if (expression.getChildById(id)) {
             return expression.getChildById(id);
         }
