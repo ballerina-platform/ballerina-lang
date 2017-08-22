@@ -2171,19 +2171,23 @@ public class BLangModelBuilder {
                 Expression varRefExpression = variableDefStmt.getLExpr();
                 String varName = ((SimpleVarRefExpr) varRefExpression).getVarName();
                 //variables defined in transform scope, cannot be used as output
-                if (outputs.get(varName) == null) {
-                    //if variable has not been used as an output before
-                    if (inputs.get(varName) == null) {
-                        List<Statement> stmtList = new ArrayList<>();
-                        stmtList.add(statement);
-                        inputs.put(varName, varRefExpression);
-                    }
-                } else {
+                if (outputs.get(varName) != null) {
                     String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                               SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                                                 SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                     errorMsgs.add(errMsg);
+                    continue;
                 }
-            } else if (statement instanceof AssignStmt) {
+
+                //if variable has not been used as an output before
+                if (inputs.get(varName) == null) {
+                    List<Statement> stmtList = new ArrayList<>();
+                    stmtList.add(statement);
+                    inputs.put(varName, varRefExpression);
+                }
+                continue;
+            }
+
+            if (statement instanceof AssignStmt) {
                 AssignStmt assignStmt = (AssignStmt) statement;
                 for (Expression lExpr : assignStmt.getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
@@ -2192,18 +2196,17 @@ public class BLangModelBuilder {
                         if (!assignStmt.isDeclaredWithVar()) {
                             // if lhs is declared with var, they not considered as output variables since they are
                             // only available in transform statement scope
-                            if (inputs.get(varName) == null) {
-                                //if variable has not been used as an input before
-                                if (outputs.get(varName) == null) {
-                                    List<Statement> stmtList = new ArrayList<>();
-                                    stmtList.add(statement);
-                                    outputs.put(varName, exp);
-                                }
-                            } else {
+                            if (inputs.get(varName) != null) {
                                 String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                     SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT,
-                                                                                            statement);
+                                                   SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                                 errorMsgs.add(errMsg);
+                                continue;
+                            }
+                            //if variable has not been used as an input before
+                            if (outputs.get(varName) == null) {
+                                List<Statement> stmtList = new ArrayList<>();
+                                stmtList.add(statement);
+                                outputs.put(varName, exp);
                             }
                         }
                     }
@@ -2212,17 +2215,17 @@ public class BLangModelBuilder {
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
                     String varName = ((SimpleVarRefExpr) exp).getVarName();
-                    if (outputs.get(varName) == null) {
-                        //if variable has not been used as an output before
-                        if (inputs.get(varName) == null) {
-                            List<Statement> stmtList = new ArrayList<>();
-                            stmtList.add(statement);
-                            inputs.put(varName, exp);
-                        }
-                    } else {
+                    if (outputs.get(varName) != null) {
                         String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                                                 SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                         errorMsgs.add(errMsg);
+                        continue;
+                    }
+                    //if variable has not been used as an output before
+                    if (inputs.get(varName) == null) {
+                        List<Statement> stmtList = new ArrayList<>();
+                        stmtList.add(statement);
+                        inputs.put(varName, exp);
                     }
                 }
             }
