@@ -20,7 +20,9 @@ package org.wso2.siddhi.core.query.input.stream.state;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
@@ -55,6 +57,11 @@ public class AbsentStreamPreStateProcessor extends StreamPreStateProcessor imple
      */
     private boolean active = true;
 
+    /**
+     * TimeConstant to be used by cloneProcessor method.
+     */
+    private TimeConstant waitingTimeConstant;
+
 
     /**
      * Construct an AbsentStreamPreStateProcessor object.
@@ -68,6 +75,7 @@ public class AbsentStreamPreStateProcessor extends StreamPreStateProcessor imple
         super(stateType, withinStates);
         // Not operator always has 'for' time
         this.waitingTime = waitingTime.value();
+        this.waitingTimeConstant = waitingTime;
     }
 
     @Override
@@ -230,6 +238,23 @@ public class AbsentStreamPreStateProcessor extends StreamPreStateProcessor imple
     @Override
     public Scheduler getScheduler() {
         return this.scheduler;
+    }
+
+    @Override
+    public PreStateProcessor cloneProcessor(String key) {
+        AbsentStreamPreStateProcessor streamPreStateProcessor = new AbsentStreamPreStateProcessor(stateType,
+                withinStates, waitingTimeConstant);
+        cloneProperties(streamPreStateProcessor, key);
+        streamPreStateProcessor.init(siddhiAppContext, queryName);
+
+        // Set the scheduler
+        siddhiAppContext.addEternalReferencedHolder(streamPreStateProcessor);
+        EntryValveProcessor entryValveProcessor = new EntryValveProcessor(siddhiAppContext);
+        entryValveProcessor.setToLast(streamPreStateProcessor);
+        Scheduler scheduler = SchedulerParser.parse(siddhiAppContext.getScheduledExecutorService(),
+                entryValveProcessor, siddhiAppContext);
+        streamPreStateProcessor.setScheduler(scheduler);
+        return streamPreStateProcessor;
     }
 
     @Override

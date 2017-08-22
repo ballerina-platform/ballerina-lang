@@ -21,7 +21,9 @@ package org.wso2.siddhi.core.query.input.stream.state;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
@@ -55,20 +57,36 @@ public class AbsentLogicalPreStateProcessor extends LogicalPreStateProcessor imp
     /**
      * Lock to synchronize the both {@link AbsentLogicalPreStateProcessor}s in the pattern.
      */
-    private final ReentrantLock lock;
+    private ReentrantLock lock;
 
     /**
      * This flag turns to false after processing the first event if 'every' is not used.
      */
     private boolean active = true;
 
+    /**
+     * TimeConstant to be used by cloneProcessor method.
+     */
+    private TimeConstant waitingTimeConstant;
+
     public AbsentLogicalPreStateProcessor(LogicalStateElement.Type type, StateInputStream.Type stateType,
-                                          List<Map.Entry<Long, Set<Integer>>> withinStates, TimeConstant waitingTime,
-                                          ReentrantLock lock) {
+                                          List<Map.Entry<Long, Set<Integer>>> withinStates, TimeConstant waitingTime) {
         super(type, stateType, withinStates);
-        this.lock = lock;
         if (waitingTime != null) {
             this.waitingTime = waitingTime.value();
+            this.waitingTimeConstant = waitingTime;
+        }
+    }
+
+    @Override
+    public void setPartnerStatePreProcessor(LogicalPreStateProcessor partnerStatePreProcessor) {
+        super.setPartnerStatePreProcessor(partnerStatePreProcessor);
+        if (this.lock == null) {
+            this.lock = new ReentrantLock();
+        }
+        if (partnerStatePreProcessor instanceof AbsentLogicalPreStateProcessor && ((AbsentLogicalPreStateProcessor)
+                partnerStatePreProcessor).lock == null) {
+            ((AbsentLogicalPreStateProcessor) partnerStatePreProcessor).lock = this.lock;
         }
     }
 
@@ -310,6 +328,24 @@ public class AbsentLogicalPreStateProcessor extends LogicalPreStateProcessor imp
     @Override
     public Scheduler getScheduler() {
         return this.scheduler;
+    }
+
+    @Override
+    public PreStateProcessor cloneProcessor(String key) {
+        AbsentLogicalPreStateProcessor logicalPreStateProcessor = new AbsentLogicalPreStateProcessor(logicalType,
+                stateType, withinStates, waitingTimeConstant);
+        cloneProperties(logicalPreStateProcessor, key);
+        logicalPreStateProcessor.init(siddhiAppContext, queryName);
+
+        // Set the scheduler
+        siddhiAppContext.addEternalReferencedHolder(logicalPreStateProcessor);
+        EntryValveProcessor entryValveProcessor = new EntryValveProcessor(siddhiAppContext);
+        entryValveProcessor.setToLast(logicalPreStateProcessor);
+        Scheduler scheduler = SchedulerParser.parse(siddhiAppContext.getScheduledExecutorService(),
+                entryValveProcessor, siddhiAppContext);
+        logicalPreStateProcessor.setScheduler(scheduler);
+
+        return logicalPreStateProcessor;
     }
 
     @Override
