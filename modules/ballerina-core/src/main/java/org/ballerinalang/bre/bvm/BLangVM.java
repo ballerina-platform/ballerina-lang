@@ -68,6 +68,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
+import org.ballerinalang.services.dispatchers.http.CorsHeaderGenerator;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -2485,7 +2486,8 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
-        handleSessionCookieHeaders(message);
+        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
+        generateSessionAndCorsHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
@@ -3598,11 +3600,15 @@ public class BLangVM {
         logger.error("fatal error. incorrect error table entry.");
     }
 
-    private void handleSessionCookieHeaders(BMessage message) {
+    private void generateSessionAndCorsHeaders(BMessage message) {
         //check session cookie header
         Session session = context.getCurrentSession();
         if (session != null) {
             session.generateSessionHeader(message);
+        }
+        //Process CORS if exists.
+        if (context.getCarbonMessage() != null && context.getCarbonMessage().getHeader("Origin") != null) {
+            CorsHeaderGenerator.process(context.getCarbonMessage(), message.value(), true);
         }
     }
 
