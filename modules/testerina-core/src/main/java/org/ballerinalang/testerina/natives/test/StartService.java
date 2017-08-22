@@ -174,7 +174,8 @@ public class StartService extends AbstractNativeFunction {
                 throw new BallerinaException(MSG_PREFIX + "Cannot find relevant transport listener configuration");
             }
 
-            //Use the first config element to generate the url
+            //There can be multiple urls with the new transport implementation, so for the time being,
+            // just use the first listener configuration to generate the url
             ListenerConfiguration config = listenerConfigurationSet.iterator().next();
             String host = config.getHost().equals(DEFAULT_HOSTNAME) ? LOCALHOST : config.getHost();
             int port = config.getPort();
