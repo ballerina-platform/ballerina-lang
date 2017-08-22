@@ -396,7 +396,10 @@ class Tools extends EventChannel {
         const file = tab.getFile();
         // file is not saved give an error and avoid running
         if (file.isDirty()) {
-            return false;
+            if (!file.getPath()) {
+                return false;
+            }
+            this.application.workspaceManager.getServiceClient().writeFile(file);
         }
 
         return true;
