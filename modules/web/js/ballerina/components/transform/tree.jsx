@@ -26,8 +26,8 @@ export default class Tree extends React.Component {
         const { foldedEndpoints, foldEndpoint } = this.props;
         return (<div key={endpoint.name}>
             {
-                this.renderEndpoint(endpoint,
-                    (endpoint.isField ? 'property' : 'struct-head'), level, foldEndpoint)
+                this.renderEndpoint(endpoint, (endpoint.isField ? 'property' : 'struct-head'),
+                    level, foldEndpoint, Boolean(foldedEndpoints[endpoint.name]))
             }
             {
                 !foldedEndpoints[endpoint.name] && endpoint.properties.map((property) => {
@@ -40,7 +40,7 @@ export default class Tree extends React.Component {
         </div>);
     }
 
-    renderEndpoint(endpoint, kind, level, onClick) {
+    renderEndpoint(endpoint, kind, level, onClick, isFolded) {
         const { endpoints, type, makeConnectPoint, onEndpointRemove, viewId, updateVariable } = this.props;
         const key = `${endpoint.name}:${viewId}`;
 
@@ -55,6 +55,7 @@ export default class Tree extends React.Component {
                 onClick={onClick}
                 onRemove={onEndpointRemove}
                 updateVariable={updateVariable}
+                isFolded={isFolded}
             />
         );
     }
