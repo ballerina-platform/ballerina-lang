@@ -32,6 +32,11 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
         log.debug(`Unknown element type :${child.constructor.name}`);
         return false;
     }).map((child) => {
+        // hide hidden elements
+        if (child.viewState && child.viewState.hidden) {
+            return React.createElement('g');
+        }
+
         const compName = child.constructor.name;
         if (components[mode][compName]) {
             return React.createElement(components[mode][compName], {

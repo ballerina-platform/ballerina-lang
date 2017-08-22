@@ -15,31 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import AbstractVisitor from './../../../abstract-visitor';
+import { util } from '../../default/sizing-util';
 
 /**
- * Dimension visitor class for break statement.
+ * Dimension visitor class for Reply statement.
  *
- * @class BreakStatementDimensionCalculatorVisitor
+ * @class ReplyStatementDimensionCalculatorVisitor
  * */
-class BreakStatementDimensionCalculatorVisitor {
+class ReplyStatementDimensionCalculatorVisitor {
 
     /**
      * can visit the visitor.
      *
      * @return {boolean} true.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
      * */
     canVisit() {
         return true;
     }
 
     /**
-     * begin visit the visitor.
+     * begin visiting the visitor.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
      * */
     beginVisit() {
     }
@@ -47,7 +46,7 @@ class BreakStatementDimensionCalculatorVisitor {
     /**
      * visit the visitor.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
      * */
     visit() {
     }
@@ -55,13 +54,18 @@ class BreakStatementDimensionCalculatorVisitor {
     /**
      * visit the visitor at the end.
      *
-     * @param {ASTNode} node - Break statement node.
+     * @param {ASTNode} node - Reply statement node.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
         const DesignerDefaults = this.getOptions().designer;
+        util.populateSimpleStatementBBox(node.getReplyExpression(), node.getViewState());
+        // lets hide the element.
+        node.viewState.hidden = true;
+        node.viewState.components = {};
+        node.viewState.bBox.h = 0;
     }
 }
 
-export default BreakStatementDimensionCalculatorVisitor;
+export default ReplyStatementDimensionCalculatorVisitor;
