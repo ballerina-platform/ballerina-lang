@@ -238,7 +238,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = cMsg.getHeader(Constants.ALLOW_HEADER);
+        String allowHeader = cMsg.getHeader(Constants.ALLOW);
         Assert.assertEquals(allowHeader, "GET, HEAD, OPTIONS");
     }
 
@@ -253,7 +253,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = cMsg.getHeader(Constants.ALLOW_HEADER);
+        String allowHeader = cMsg.getHeader(Constants.ALLOW);
         Assert.assertEquals(allowHeader, "POST, OPTIONS");
     }
 
@@ -268,7 +268,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(Constants.ALLOW_HEADER);
+        String allowHeader = response.getHeader(Constants.ALLOW);
         Assert.assertEquals(allowHeader, "PUT, OPTIONS");
     }
 
@@ -283,7 +283,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(Constants.ALLOW_HEADER);
+        String allowHeader = response.getHeader(Constants.ALLOW);
         Assert.assertEquals(allowHeader, "POST, UPDATE, GET, PUT, HEAD, OPTIONS");
     }
 
@@ -298,7 +298,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(Constants.ALLOW_HEADER);
+        String allowHeader = response.getHeader(Constants.ALLOW);
         Assert.assertEquals(allowHeader, "OPTIONS, POST, GET, UPDATE, PUT, HEAD");
     }
 
@@ -326,7 +326,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        Assert.assertNull(response.getHeader(Constants.ALLOW_HEADER));
+        Assert.assertNull(response.getHeader(Constants.ALLOW));
     }
 
     @Test(description = "Test dispatching with OPTIONS request with wildcard")

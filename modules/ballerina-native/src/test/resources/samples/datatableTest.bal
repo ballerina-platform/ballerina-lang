@@ -53,6 +53,11 @@ struct ResultPrimitiveInt {
     int INT_TYPE;
 }
 
+struct ResultCount {
+    int COUNTVAL;
+}
+
+
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
@@ -82,11 +87,16 @@ function testToJson () (json) {
                                                             "TEST_DATA_TABLE_DB", "SA", "", properties);
     sql:Parameter[] parameters = [];
 
-    datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    json result;
-    result, _ = <json>dt;
-    return result;
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+        json result;
+        result, _ = <json>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
 }
 
 function testToXml () (xml) {
@@ -95,11 +105,16 @@ function testToXml () (xml) {
                                                             "TEST_DATA_TABLE_DB", "SA", "", properties);
     sql:Parameter[] parameters = [];
 
-    datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    xml result;
-    result, _ = <xml>dt;
-    return result;
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+                   boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+        xml result;
+        result, _ = <xml>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
 }
 
 function toXmlComplex () (xml) {
@@ -108,12 +123,17 @@ function toXmlComplex () (xml) {
                                                             "TEST_DATA_TABLE_DB", "SA", "", properties);
     sql:Parameter[] parameters = [];
 
-    datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
-                float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                from MixTypes where row_id =1", parameters);
-    xml result;
-    result, _ = <xml>dt;
-    return result;
+    try {
+        datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
+                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
+                    from MixTypes where row_id =1", parameters);
+        xml result;
+        result, _ = <xml>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
 }
 
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
@@ -197,11 +217,16 @@ function testJsonWithNull () (json) {
                                                             "TEST_DATA_TABLE_DB", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
-    json result;
-    result, _ = <json>dt;
-    return result;
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
+        json result;
+        result, _ = <json>dt;
+        return result;
+    }  finally {
+        testDB.close();
+    }
+    return null;
 }
 
 function testXmlWithNull () (xml) {
@@ -210,11 +235,16 @@ function testXmlWithNull () (xml) {
                                                             "TEST_DATA_TABLE_DB", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-               boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
-    xml result;
-    result, _ = <xml>dt;
-    return result;
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+                   boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
+        xml result;
+        result, _ = <xml>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
 }
 
 function testToXmlWithinTransaction () (string, int) {
@@ -233,10 +263,11 @@ function testToXmlWithinTransaction () (string, int) {
         } aborted {
             returnValue = -1;
         }
-    } catch (errors:Error ex) {
-        returnValue = -2;
+        return result, returnValue;
+    } finally {
+        testDB.close();
     }
-    return result, returnValue;
+    return "", -1;
 }
 
 function testToJsonWithinTransaction () (string, int) {
@@ -255,10 +286,11 @@ function testToJsonWithinTransaction () (string, int) {
         } aborted {
             returnValue = -1;
         }
-    } catch (errors:Error ex) {
-        returnValue = -2;
+        return result, returnValue;
+    } finally {
+        testDB.close();
     }
-    return result, returnValue;
+    return "", -2;
 }
 
 function testBlobData () (string blobStringData) {
@@ -383,6 +415,23 @@ function testBlobInsert () (int i) {
     sql:Parameter para1 = {sqlType:"blob", value:blobData};
     params = [para0, para1];
     int insertCount = testDB.update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
-
+    testDB.close();
     return insertCount;
+}
+
+function testCloseConnectionPool () (int count) {
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", properties);
+    sql:Parameter[] parameters = [];
+    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
+    errors:TypeCastError err;
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount) dataStruct;
+        count = rs.COUNTVAL;
+    }
+    testDB.close();
+    return;
 }

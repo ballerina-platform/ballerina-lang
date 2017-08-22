@@ -28,17 +28,18 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.services.dispatchers.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -73,14 +74,15 @@ public class Init extends AbstractWebSocketAction {
         ServiceInfo parentService = context.getServiceInfo();
 
         // Initializing a client connection.
-        ClientConnector clientConnector =
-                BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
-        CarbonMessage carbonMessage = new ControlCarbonMessage(org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
-        carbonMessage.setProperty(Constants.REMOTE_ADDRESS, remoteUrl);
-        carbonMessage.setProperty(Constants.TO, clientServiceName);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
+        properties.put(Constants.TO, clientServiceName);
+        WebSocketClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                getWebSocketClientConnector(properties);
+        Map<String, String> customHeaders = new HashMap<>();
         Session clientSession;
         try {
-            clientSession = (Session) clientConnector.init(carbonMessage, null, null);
+            clientSession = clientConnector.connect(new BallerinaWebSocketConnectorListener(), customHeaders);
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
         }

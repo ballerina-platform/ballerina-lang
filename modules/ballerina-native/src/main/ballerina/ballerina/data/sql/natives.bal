@@ -2,7 +2,11 @@ package ballerina.data.sql;
 
 import ballerina.doc;
 
-@doc:Description { value: "Parameter struct "}
+@doc:Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
+@doc:Field {value:"sqlType : The data type of the corresponding SQL parameter"}
+@doc:Field {value:"value: Value of paramter pass into the SQL query"}
+@doc:Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
+@doc:Field {value:"structuredType: Underline SQL type to be used for parameter of SQL array type or custom structure type to be used with struct type"}
 struct Parameter {
 	string sqlType;
 	any value;
@@ -10,11 +14,9 @@ struct Parameter {
 	string structuredType;
 }
 
-@doc:Description { value: "DB Connection properties struct"}
+@doc:Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
 @doc:Field {value:"url: Platform independent DB access URL"}
 @doc:Field {value:"dataSourceClassName: Name of the DataSource class provided by the JDBC driver"}
-@doc:Field {value:"username: Default authentication username used when obtaining Connections from the underlying driver"}
-@doc:Field {value:"password: Default authentication password used when obtaining Connections from the underlying driver"}
 @doc:Field {value:"connectionTestQuery: Query that will be executed to validate that the connection to the database is still alive"}
 @doc:Field {value:"poolName: User-defined name for the connection pool and appears mainly in logging"}
 @doc:Field {value:"catalog: Catalog of connections created by this pool"}
@@ -36,8 +38,6 @@ struct Parameter {
 struct ConnectionProperties {
 	string url;
 	string dataSourceClassName;
-	string username;
-	string password;
 	string connectionTestQuery;
 	string poolName;
 	string catalog;
@@ -61,59 +61,59 @@ struct ConnectionProperties {
 connector ClientConnector (string dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
     map sharedMap = {};
 
-	@doc:Description { value:"The call action implementation for SQL connector."}
-	@doc:Param { value:"query: String" }
-	@doc:Param { value:"parameters: Parameter array" }
-	@doc:Return { value:"datatable: Result set for the query" }
+	@doc:Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
+	@doc:Param { value:"query: SQL query to execute" }
+	@doc:Param { value:"parameters: Parameter array used with the SQL query" }
+	@doc:Return { value:"datatable: Result set for the given query" }
 	native action call (string query, Parameter[] parameters) (datatable);
 
-	@doc:Description { value:"The select action implementation for SQL connector."}
-	@doc:Param { value:"query: String" }
-	@doc:Param { value:"parameters: Parameter array" }
-	@doc:Return { value:"datatable: Result set for the query" }
+	@doc:Description { value:"The select action implementation for SQL connector to select data from tables."}
+	@doc:Param { value:"query: SQL query to execute" }
+	@doc:Param { value:"parameters: Parameter array used with the SQL query" }
+	@doc:Return { value:"datatable: Result set for the given query" }
 	native action select (string query, Parameter[] parameters) (datatable);
 
-	@doc:Description { value:"The close action implementation for SQL connector."}
+	@doc:Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();
 
-	@doc:Description { value:"The update action implementation for SQL connector."}
-	@doc:Param { value:"query: String" }
-	@doc:Param { value:"parameters: Parameter array" }
-	@doc:Return { value:"integer: Updated row count" }
+	@doc:Description { value:"The update action implementation for SQL connector to update data and schema of the database."}
+	@doc:Param { value:"query: SQL query to execute" }
+	@doc:Param { value:"parameters: Parameter array used with the SQL query" }
+	@doc:Return { value:"int: Updated row count" }
 	native action update (string query, Parameter[] parameters) (int);
 
-	@doc:Description { value:"The call action implementation for SQL connector."}
-	@doc:Param { value:"query: String" }
-	@doc:Param { value:"parameters: Parameter array" }
-	@doc:Return { value:"updatedCounts: Array of update counts" }
+	@doc:Description { value:"The batchUpdate action implementation for SQL connector to batch data insert."}
+	@doc:Param { value:"query: SQL query to execute" }
+	@doc:Param { value:"parameters: Parameter array used with the SQL query" }
+	@doc:Return { value:"int[]: Array of update counts" }
 	native action batchUpdate (string query, Parameter[][] parameters) (int[]);
 
-	@doc:Description { value:"The update with generated keys given columns action implementation for SQL connector."}
-	@doc:Param { value:"query: String" }
-	@doc:Param { value:"parameters: Parameter array" }
-	@doc:Param { value:"keyColumns: String array" }
-	@doc:Return { value:"rowCount: Updated row count" }
-	@doc:Return { value:"generatedKeys: Generated keys array" }
+	@doc:Description { value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto generated keys during the update action."}
+	@doc:Param { value:"query: SQL query to execute" }
+	@doc:Param { value:"parameters: Parameter array used with the SQL query" }
+	@doc:Param { value:"keyColumns: Names of auto generated columns for which the auto generated key values are returned" }
+	@doc:Return { value:"int: Updated row count during the query exectuion" }
+	@doc:Return { value:"string[]: Array of auto generated key values during the query execution" }
 	native action updateWithGeneratedKeys (string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 }
 
-@doc:Description { value:"Construct MYSQL DB jdbc url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
+@doc:Description { value:"Construct MySQL DB jdbc url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
 const string MYSQL = "MYSQL";
 
-@doc:Description { value:"Construct SQLSERVER DB jdbc url in the format of  jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
+@doc:Description { value:"Construct SQL Server DB jdbc url in the format of  jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
 const string SQLSERVER = "SQLSERVER";
 
-@doc:Description { value:"Construct ORACLE  DB jdbc url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
+@doc:Description { value:"Construct Oracle  DB jdbc url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
 const string ORACLE = "ORACLE";
 
-@doc:Description { value:"Construct SYBASE DB jdbc url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
+@doc:Description { value:"Construct Sybase DB jdbc url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
 const string SYBASE = "SYBASE";
 
-@doc:Description { value:"Construct MYSQL DB jdbc url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+@doc:Description { value:"Construct PostgreSQL DB jdbc url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
 const string POSTGRE = "POSTGRE";
 
-@doc:Description { value:"Construct IBMDB2  DB jdbc url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
+@doc:Description { value:"Construct IBM Db2  DB jdbc url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
 const string IBMDB2 = "IBMDB2";
 
 @doc:Description { value:"Construct HSQLDB SERVER dB jdbc url in the format of  jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
@@ -128,9 +128,9 @@ const string H2_SERVER = "H2_SERVER";
 @doc:Description { value:"Construct H2 FILE DB jdbc url in the format of  jdbc:h2:file://[path]/[database]"}
 const string H2_FILE = "H2_FILE";
 
-@doc:Description { value:"Construct DERBY SERVER DB jdbc url in the format of  jdbc:derby://[HOST]:[PORT]/[database]"}
+@doc:Description { value:"Construct Derby SERVER DB jdbc url in the format of  jdbc:derby://[HOST]:[PORT]/[database]"}
 const string DERBY_SERVER = "DERBY_SERVER";
 
-@doc:Description { value:"Construct DERBY FILE DB jdbc url in the format of  jdbc:derby://[path]/[database]"}
+@doc:Description { value:"Construct Derby FILE DB jdbc url in the format of  jdbc:derby://[path]/[database]"}
 const string DERBY_FILE = "DERBY_FILE";
 
