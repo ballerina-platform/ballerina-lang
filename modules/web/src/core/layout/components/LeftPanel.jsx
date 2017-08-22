@@ -2,10 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import ActivityBar from './ActivityBar';
-
-const HISTORY = {
-    ACTIVE_VIEW: 'active-left-view',
-};
+import { HISTORY } from './../constants';
 
 /**
  * React component for LeftPanel Region.
@@ -21,7 +18,7 @@ class LeftPanel extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            activeView: context.history.get(HISTORY.ACTIVE_VIEW) || '',
+            activeView: context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW) || null,
         };
     }
 
@@ -64,11 +61,13 @@ class LeftPanel extends React.Component {
                         id="activity-bar-tabs"
                         activeKey={this.state.activeView}
                         onSelect={(key) => {
-                            const activeView = this.state.activeView !== key ? key : '';
-                            this.context.history.put(HISTORY.ACTIVE_VIEW, activeView);
+                            // if same tab is selected, disable tabs
+                            const activeView = this.state.activeView !== key ? key : null;
+                            this.context.history.put(HISTORY.ACTIVE_LEFT_PANEL_VIEW, activeView);
                             this.setState({
                                 activeView,
                             });
+                            this.props.onActiveViewChange(activeView);
                         }}
                     >
                         <div>
@@ -89,6 +88,7 @@ class LeftPanel extends React.Component {
 }
 
 LeftPanel.propTypes = {
+    onActiveViewChange: PropTypes.func.isRequired,
     children: PropTypes.arrayOf(PropTypes.element),
 };
 

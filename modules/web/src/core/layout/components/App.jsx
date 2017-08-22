@@ -1,16 +1,12 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import LeftPanel from './LeftPanel';
 import EditorArea from './EditorArea';
 import BottomPanel from './BottomPanel';
 import Header from './Header';
-import { REGIONS } from './../constants';
-
-const HISTORY = {
-    LEFT_PANEL_SIZE: 'left-split-pane-size',
-    BOTTOM_PANEL_SIZE: 'bottom-split-pane-size',
-};
+import { REGIONS, HISTORY } from './../constants';
 
 /**
  * React component for App.
@@ -19,6 +15,18 @@ const HISTORY = {
  * @extends {React.Component}
  */
 class App extends React.Component {
+
+    /**
+     * @inheritdoc
+     */
+    constructor(props) {
+        super(props);
+        const { history } = this.props.appContext.pref;
+        this.state = {
+            showLeftPanel: !_.isNil(history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW)),
+            showBottomPanel: history.get(HISTORY.BOTTOM_PANEL_ACTIVE),
+        };
+    }
 
     /**
      * @inheritdoc
@@ -64,17 +72,30 @@ class App extends React.Component {
                 <SplitPane
                     split="vertical"
                     className="left-right-split-pane"
-                    minSize={300}
+                    minSize={this.state.showLeftPanel ? 300 : 0}
                     maxSize={700}
                     defaultSize={
-                        parseInt(this.props.appContext
-                                .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10) || 300
+                        this.state.showLeftPanel
+                            ? parseInt(this.props.appContext
+                                    .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10) || 300
+                            : 0
                     }
                     onChange={
                         size => this.props.appContext.pref.history.put(HISTORY.LEFT_PANEL_SIZE, size)
                     }
+                    pane2Style={
+                        this.state.showLeftPanel ? {} : { position: 'relative', left: '42px' }
+                    }
                 >
-                    <LeftPanel>
+                    <LeftPanel
+                        onActiveViewChange={
+                            (newView) => {
+                                this.setState({
+                                    showLeftPanel: !_.isNil(newView),
+                                });
+                            }
+                        }
+                    >
                         {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
                     </LeftPanel>
                     <SplitPane

@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
@@ -56,7 +57,12 @@ class PreferencesManagerPlugin extends Plugin {
             },
             history: {
                 put: (key, value) => {
-                    localStorage.setItem(`${HISTORY_KEY_PREFIX}-${key}`, value);
+                    const itemKey = `${HISTORY_KEY_PREFIX}-${key}`;
+                    if (_.isNil(value)) {
+                        localStorage.removeItem(itemKey);
+                    } else {
+                        localStorage.setItem(itemKey, value);
+                    }
                 },
                 get: (key) => {
                     return localStorage.getItem(`${HISTORY_KEY_PREFIX}-${key}`);
