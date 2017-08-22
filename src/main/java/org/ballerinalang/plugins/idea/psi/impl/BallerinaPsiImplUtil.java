@@ -35,12 +35,14 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
@@ -1024,7 +1026,7 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<IdentifierPSINode> getVariablesFromVarAssignment(@NotNull AssignmentStatementNode
-                                                                                 assignmentStatementNode) {
+                                                                                assignmentStatementNode) {
         List<IdentifierPSINode> results = new LinkedList<>();
         VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(assignmentStatementNode,
                 VariableReferenceListNode.class);
@@ -1487,7 +1489,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
-    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement definitionNode) {
+    public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
+                                                                                             definitionNode) {
         TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
@@ -1520,5 +1523,53 @@ public class BallerinaPsiImplUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * packageNameNode can be either a PackageNameNode or an IdentifierPSINode
+     * @param packageNameNode
+     * @return
+     */
+    @Nullable
+    public static PsiElement resolvePackage(@NotNull PsiElement packageNameNode) {
+        PsiReference reference = packageNameNode.findReferenceAt(0);
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+
+        AliasNode aliasNode = PsiTreeUtil.getParentOfType(resolvedElement, AliasNode.class);
+        if (aliasNode == null) {
+            return resolvedElement;
+        }
+
+        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(aliasNode,
+                ImportDeclarationNode.class);
+        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
+                PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode.class);
+        if (fullyQualifiedPackageNameNode == null) {
+            return null;
+        }
+        PackageNameNode[] packageNameNodes =
+                PsiTreeUtil.getChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class);
+        if (packageNameNodes == null) {
+            return null;
+        }
+        PackageNameNode lastElement = ArrayUtil.getLastElement(packageNameNodes);
+        if (lastElement == null) {
+            return null;
+        }
+        PsiElement packageName = lastElement.getNameIdentifier();
+        if (!(packageName instanceof IdentifierPSINode)) {
+            return null;
+        }
+        List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(((IdentifierPSINode) packageName));
+        for (PsiDirectory directory : directories) {
+            return directory;
+        }
+        return null;
     }
 }

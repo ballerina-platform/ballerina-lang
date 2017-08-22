@@ -20,7 +20,6 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -101,18 +100,20 @@ public class AnnotationReference extends BallerinaElementReference {
 
     @Nullable
     private PsiElement resolveInPackage(@NotNull PackageNameNode packageNameNode) {
-        PsiReference reference = packageNameNode.findReferenceAt(0);
-        if (reference == null) {
-            return null;
-        }
-        PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement instanceof PackageNameNode) {
-            reference = resolvedElement.findReferenceAt(0);
-            if (reference == null) {
-                return null;
-            }
-            resolvedElement = reference.resolve();
-        }
+        PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
+        //        PsiReference reference = packageNameNode.findReferenceAt(0);
+        //        if (reference == null) {
+        //            return null;
+        //        }
+        //        PsiElement resolvedElement = reference.resolve();
+        //        if (resolvedElement instanceof PackageNameNode) {
+        //            //            reference = resolvedElement.findReferenceAt(0);
+        //            //            if (reference == null) {
+        //            //                return null;
+        //            //            }
+        //            //            resolvedElement = reference.resolve();
+        //            resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
+        //        }
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return null;
         }
@@ -166,15 +167,17 @@ public class AnnotationReference extends BallerinaElementReference {
     }
 
     @NotNull
-    private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode, boolean allAnnotations) {
+    private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode,
+                                                       boolean allAnnotations) {
         List<LookupElement> results = new LinkedList<>();
         IdentifierPSINode identifier = getElement();
-        PsiReference reference = packageNameNode.findReferenceAt(0);
-        if (reference == null) {
-            return results;
-        }
-        PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null|| !(resolvedElement instanceof PsiDirectory)) {
+        PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
+        //        PsiReference reference = packageNameNode.findReferenceAt(0);
+        //        if (reference == null) {
+        //            return results;
+        //        }
+        //        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;

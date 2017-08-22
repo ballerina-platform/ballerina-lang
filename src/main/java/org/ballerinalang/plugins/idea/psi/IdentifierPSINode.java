@@ -112,6 +112,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     if (xmlAttribNode != null) {
                         return new NameSpaceReference(this);
                     }
+                    AliasNode aliasNode = PsiTreeUtil.getParentOfType(parent, AliasNode.class);
+                    if (aliasNode != null) {
+                        return null;
+                    }
                     return new PackageNameReference(this);
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);

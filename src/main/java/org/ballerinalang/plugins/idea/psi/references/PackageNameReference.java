@@ -178,34 +178,38 @@ public class PackageNameReference extends BallerinaElementReference implements P
                     continue;
                 }
                 if (packageName.equals(identifier.getText())) {
-                    results.add(new PsiElementResolveResult(importedPackage));
+                    IdentifierPSINode nameNode = PsiTreeUtil.findChildOfType(importedPackage, IdentifierPSINode.class);
+                    if (nameNode != null) {
+                        results.add(new PsiElementResolveResult(nameNode));
+                    }
                 }
             }
         } else {
-            ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
-                    ImportDeclarationNode.class);
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
-                    PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode.class);
-            if (fullyQualifiedPackageNameNode == null) {
-                return new ResolveResult[0];
-            }
-            PackageNameNode[] packageNameNodes =
-                    PsiTreeUtil.getChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class);
-            if (packageNameNodes == null) {
-                return new ResolveResult[0];
-            }
-            PackageNameNode lastElement = ArrayUtil.getLastElement(packageNameNodes);
-            if (lastElement == null) {
-                return new ResolveResult[0];
-            }
-            PsiElement packageName = lastElement.getNameIdentifier();
-            if (!(packageName instanceof IdentifierPSINode)) {
-                return new ResolveResult[0];
-            }
-            List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(((IdentifierPSINode) packageName));
-            for (PsiDirectory directory : directories) {
-                results.add(new PsiElementResolveResult(directory));
-            }
+            //            ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
+            //                    ImportDeclarationNode.class);
+            //            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
+            //                    PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode
+            // .class);
+            //            if (fullyQualifiedPackageNameNode == null) {
+            //                return new ResolveResult[0];
+            //            }
+            //            PackageNameNode[] packageNameNodes =
+            //                    PsiTreeUtil.getChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class);
+            //            if (packageNameNodes == null) {
+            //                return new ResolveResult[0];
+            //            }
+            //            PackageNameNode lastElement = ArrayUtil.getLastElement(packageNameNodes);
+            //            if (lastElement == null) {
+            //                return new ResolveResult[0];
+            //            }
+            //            PsiElement packageName = lastElement.getNameIdentifier();
+            //            if (!(packageName instanceof IdentifierPSINode)) {
+            //                return new ResolveResult[0];
+            //            }
+            //            List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(((IdentifierPSINode) packageName));
+            //            for (PsiDirectory directory : directories) {
+            //                results.add(new PsiElementResolveResult(directory));
+            //            }
         }
         return results.toArray(new ResolveResult[results.size()]);
     }
