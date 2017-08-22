@@ -13,13 +13,15 @@ float glbVarFloatChange = 99;
 float glbVarFloat1 = glbVarFloat;
 
 
-@http:BasePath {value:"/globalvar"}
-service GlobalVar {
+@http:configuration {basePath:"/globalvar"}
+service<http> GlobalVar {
 
-    string serviceVarFloat = glbVarFloat;
+    string serviceVarFloat = <string>glbVarFloat;
 
-    @http:GET{}
-    @http:Path {value:"/defined"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/defined"
+    }
     resource defineGlobalVar (message m) {
         message response = {};
 
@@ -28,8 +30,10 @@ service GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/access-service-level"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/access-service-level"
+    }
     resource accessGlobalVarAtServiceLevel (message m) {
         message response = {};
 
@@ -38,8 +42,10 @@ service GlobalVar {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path {value:"/change-resource-level"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/change-resource-level"
+    }
     resource changeGlobalVarAtResourceLevel (message m) {
         message response = {};
         glbVarFloatChange = 77.87;
@@ -48,9 +54,10 @@ service GlobalVar {
         reply response;
     }
 
-
-    @http:GET{}
-    @http:Path {value:"/get-changed-resource-level"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/get-changed-resource-level"
+    }
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
@@ -61,11 +68,13 @@ service GlobalVar {
 }
 
 
-@http:BasePath {value:"/globalvar-second"}
-service GlobalVarSecond {
+@http:configuration {basePath:"/globalvar-second"}
+service<http> GlobalVarSecond {
 
-    @http:GET{}
-    @http:Path {value:"/get-changed-resource-level"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/get-changed-resource-level"
+    }
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};

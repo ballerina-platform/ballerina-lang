@@ -94,7 +94,9 @@ public class ServerConnectorMessageHandler {
 
             // Find the Resource
             ResourceInfo resource = resourceDispatcher.findResource(service, cMsg, callback);
-            invokeResource(cMsg, callback, protocol, resource, service);
+            if (resource != null) {
+                invokeResource(cMsg, callback, protocol, resource, service);
+            }
         } catch (Throwable throwable) {
             handleError(cMsg, callback, throwable);
         }

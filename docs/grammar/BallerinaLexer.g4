@@ -1,7 +1,7 @@
 lexer grammar BallerinaLexer;
 
 @members {
-    boolean inXMLMode = false;
+    boolean inTemplate = false;
 }
 
 // Reserved words
@@ -62,6 +62,8 @@ TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
 ABORTED     : 'aborted' ;
 COMMITTED   : 'committed' ;
+FAILED      : 'failed' ;
+RETRY       : 'retry' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
@@ -378,11 +380,15 @@ LetterOrDigit
     ;
 
 XMLLiteralStart
-    :   TYPE_XML WS* BACKTICK   { inXMLMode = true; } -> pushMode(XML)
+    :   TYPE_XML WS* BACKTICK   { inTemplate = true; } -> pushMode(XML)
+    ;
+
+StringTemplateLiteralStart
+    :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
 ExpressionEnd
-    :   {inXMLMode}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
     ;
 
 // Whitespace and comments
@@ -452,7 +458,7 @@ XML_TAG_SPECIAL_OPEN
     ;
 
 XMLLiteralEnd
-    :   '`' { inXMLMode = false; }          -> popMode
+    :   '`' { inTemplate = false; }          -> popMode
     ;
 
 fragment
@@ -674,4 +680,41 @@ XMLCommentSpecialSequence
     :   '>'+
     |   ('>'* '-' '>'+)+
     |   '-'? '>'* '-'+
+    ;
+
+mode STRING_TEMPLATE;
+
+StringTemplateLiteralEnd
+    :   '`' { inTemplate = false; }          -> popMode
+    ;
+
+StringTemplateExpressionStart
+    :   StringTemplateText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    ;
+
+// We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
+// can match an empty string.
+StringTemplateText
+    :   StringTemplateValidCharSequence? (StringTemplateStringChar StringTemplateValidCharSequence?)+
+    |   StringTemplateValidCharSequence (StringTemplateStringChar StringTemplateValidCharSequence?)*
+    ;
+
+fragment
+StringTemplateStringChar
+    :   ~[`{\\]
+    |   '\\' [`{]
+    |   WS
+    |   StringLiteralEscapedSequence
+    ;
+
+fragment
+StringLiteralEscapedSequence
+    :   '\\\\'
+    |   '\\{{'
+    ;
+
+fragment
+StringTemplateValidCharSequence
+    :   '{'
+    |   '\\' ~'\\'
     ;

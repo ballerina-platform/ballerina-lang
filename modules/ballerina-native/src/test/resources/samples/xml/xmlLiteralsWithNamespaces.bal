@@ -114,3 +114,15 @@ function testComplexXMLLiteral() (xml) {
 
   return x;
 }
+
+function testElementWithEmptyUriQualifiedName()(xml, xml, xml) {
+    xmlns "http://ballerina.com/";
+
+    xml x1 = xml `<{{"{}root"}}>hello</{{"{}root"}}>`;
+    
+    xml x2 = xml `<{{"root"}}>hello</{{"root"}}>`;
+    
+    xml x3 = xml `<root>hello</root>`;
+    
+    return x1, x2, x3;
+}

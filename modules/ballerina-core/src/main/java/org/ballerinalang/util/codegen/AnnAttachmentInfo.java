@@ -58,6 +58,10 @@ public class AnnAttachmentInfo {
         return name;
     }
 
+    public Map<String, AnnAttributeKeyValuePair> getAttributeValueMap() {
+        return attributeValueMap;
+    }
+
     public void addAttributeValue(int nameCPIndex, String name, AnnAttributeValue attributeValue) {
         attributeValueMap.put(name, new AnnAttributeKeyValuePair(nameCPIndex, name, attributeValue));
     }

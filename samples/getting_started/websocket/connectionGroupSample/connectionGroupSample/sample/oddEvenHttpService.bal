@@ -10,8 +10,10 @@ service<http> oddEvenHttpService {
     string evenWebSocketConnectionGroupName = "evenGroup";
     string oddWebSocketConnectionGroupName = "oddGroup";
 
-    @http:POST {}
-    @http:Path {value:"/even"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/even"
+    }
     resource evenSend (message m) {
         ws:pushTextToGroup(evenWebSocketConnectionGroupName, messages:getStringPayload(m));
         message res = {};
@@ -19,8 +21,10 @@ service<http> oddEvenHttpService {
         reply res;
     }
 
-    @http:POST {}
-    @http:Path {value:"/odd"}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/odd"
+    }
     resource oddSend (message m) {
         ws:pushTextToGroup(oddWebSocketConnectionGroupName, messages:getStringPayload(m));
         message res = {};
@@ -28,8 +32,10 @@ service<http> oddEvenHttpService {
         reply res;
     }
 
-    @http:GET {}
-    @http:Path {value:"/rm-even"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/rm-even"
+    }
     resource deleteEven (message m) {
         ws:removeConnectionGroup(evenWebSocketConnectionGroupName);
         message res = {};
@@ -37,8 +43,10 @@ service<http> oddEvenHttpService {
         reply res;
     }
 
-    @http:GET {}
-    @http:Path {value:"/rm-odd"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/rm-odd"
+    }
     resource deleteOdd (message m) {
         ws:removeConnectionGroup(oddWebSocketConnectionGroupName);
         message res = {};
@@ -46,8 +54,10 @@ service<http> oddEvenHttpService {
         reply res;
     }
 
-    @http:GET {}
-    @http:Path {value:"/close-even"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/close-even"
+    }
     resource closeEven (message m) {
         ws:closeConnectionGroup(evenWebSocketConnectionGroupName);
         message res = {};
@@ -55,8 +65,10 @@ service<http> oddEvenHttpService {
         reply res;
     }
 
-    @http:GET {}
-    @http:Path {value:"/close-odd"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/close-odd"
+    }
     resource closeOdd (message m) {
         ws:closeConnectionGroup(oddWebSocketConnectionGroupName);
         message res = {};

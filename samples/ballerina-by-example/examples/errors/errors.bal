@@ -17,9 +17,7 @@ function getAccountBalance (int accountID) (int, errors:Error) {
 
 function main (string[] args) {
     // Best practice is to check whether an error has occurred.
-    int balance;
-    errors:Error err;
-    balance, err = getAccountBalance(23);
+    var balance, err = getAccountBalance(23);
     if (err != null) {
         system:println("error: " + err.msg);
     }

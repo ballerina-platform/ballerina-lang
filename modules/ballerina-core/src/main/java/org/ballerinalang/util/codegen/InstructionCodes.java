@@ -64,47 +64,44 @@ public interface InstructionCodes {
     int LGLOAD = 39;
     int RGLOAD = 40;
 
-    int ISTORE = 41;
-    int FSTORE = 42;
-    int SSTORE = 43;
-    int BSTORE = 44;
-    int LSTORE = 45;
-    int RSTORE = 46;
-    int IASTORE = 47;
-    int FASTORE = 48;
-    int SASTORE = 49;
-    int BASTORE = 50;
-    int LASTORE = 51;
-    int RASTORE = 52;
-    int JSONASTORE = 53;
-    int IGSTORE = 54;
-    int FGSTORE = 55;
-    int SGSTORE = 56;
-    int BGSTORE = 57;
-    int LGSTORE = 58;
-    int RGSTORE = 59;
+    int IFIELDLOAD = 41;
+    int FFIELDLOAD = 42;
+    int SFIELDLOAD = 43;
+    int BFIELDLOAD = 44;
+    int LFIELDLOAD = 45;
+    int RFIELDLOAD = 46;
 
-    int IFIELDLOAD = 60;
-    int FFIELDLOAD = 61;
-    int SFIELDLOAD = 62;
-    int BFIELDLOAD = 63;
-    int LFIELDLOAD = 64;
-    int RFIELDLOAD = 65;
+    int MAPLOAD = 47;
+    int JSONLOAD = 48;
 
-    int IFIELDSTORE = 66;
-    int FFIELDSTORE = 67;
-    int SFIELDSTORE = 68;
-    int BFIELDSTORE = 69;
-    int LFIELDSTORE = 70;
-    int RFIELDSTORE = 71;
+    int ISTORE = 49;
+    int FSTORE = 50;
+    int SSTORE = 51;
+    int BSTORE = 52;
+    int LSTORE = 53;
+    int RSTORE = 54;
+    int IASTORE = 55;
+    int FASTORE = 56;
+    int SASTORE = 57;
+    int BASTORE = 58;
+    int LASTORE = 59;
+    int RASTORE = 60;
+    int JSONASTORE = 61;
+    int IGSTORE = 62;
+    int FGSTORE = 63;
+    int SGSTORE = 64;
+    int BGSTORE = 65;
+    int LGSTORE = 66;
+    int RGSTORE = 67;
 
-    // mapload map_reg_index key value_reg_index
-    int MAPLOAD = 72;
-    // mapstore map_reg_index key value_reg_index
-    int MAPSTORE = 73;
+    int IFIELDSTORE = 68;
+    int FFIELDSTORE = 69;
+    int SFIELDSTORE = 70;
+    int BFIELDSTORE = 71;
+    int LFIELDSTORE = 72;
+    int RFIELDSTORE = 73;
 
-    // jsonload json_reg_index key json_value_reg_index
-    int JSONLOAD = 74;
+    int MAPSTORE = 74;
     int JSONSTORE = 75;
 
     int IADD = 76;
@@ -155,6 +152,7 @@ public interface InstructionCodes {
 
     int GOTO = 117;
     int HALT = 118;
+    int TR_RETRY = 119;
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
@@ -218,10 +216,12 @@ public interface InstructionCodes {
     int CHECKCAST = 180;
     int NULL2JSON = 181;
 
+    int ANY2TYPE = 182;
+
 
     // Transactions
-    int TRBGN = 188;
-    int TREND = 189;
+    int TR_BEGIN = 188;
+    int TR_END = 189;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
