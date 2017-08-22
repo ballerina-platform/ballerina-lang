@@ -135,37 +135,36 @@ class TransformStatement extends Statement {
      * Remove specified type from transform inputs
      * @param  {object} input input type needs to be removed
      */
-    removeInput(input){
-      _.remove(this.input, function(inputVal) {
-          return inputVal.getVariableName() === input.name;
-      });
+    removeInput(input) {
+        _.remove(this.input, (inputVal) => {
+            return inputVal.getVariableName() === input.name;
+        });
 
-      _.forEach(_.cloneDeep(this.getChildren()), (child) => {
-           if(ASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
-               _.forEach(child.getRightExpression().children, (expChild, index) => {
-                 if ((ASTFactory.isFieldBasedVarRefExpression(expChild)
-                              && expChild.getVarRoot().getVariableName()  == input.name) ||
-                     (ASTFactory.isSimpleVariableReferenceExpression(expChild)
-                              && expChild.getVariableName()  == input.name)) {
-                      this.getChildById(child.getID()).getRightExpression().children[index]
-                                                                    = ASTFactory.createNullLiteralExpression();
-                 }
-               });
-           } else if((ASTFactory.isFieldBasedVarRefExpression (child.getRightExpression())
-                          && child.getRightExpression().getVarRoot().getVariableName() == input.name)||
-                        (ASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
-                                                && child.getRightExpression().getVariableName() == input.name)){
-             this.removeChild(child, true, true);
-           }
-      });
+        _.forEach(_.cloneDeep(this.getChildren()), (child) => {
+            if (ASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
+                _.forEach(child.getRightExpression().children, (expChild, index) => {
+                    if ((ASTFactory.isFieldBasedVarRefExpression(expChild)
+                                && expChild.getVarRoot().getVariableName() === input.name) ||
+                        (ASTFactory.isSimpleVariableReferenceExpression(expChild)
+                                && expChild.getVariableName() === input.name)) {
+                        this.getChildById(child.getID()).getRightExpression().children[index]
+                                                                        = ASTFactory.createNullLiteralExpression();
+                    }
+                });
+            } else if ((ASTFactory.isFieldBasedVarRefExpression(child.getRightExpression())
+                            && child.getRightExpression().getVarRoot().getVariableName() === input.name)
+                            || (ASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
+                                                    && child.getRightExpression().getVariableName() === input.name)) {
+                this.removeChild(child, true, true);
+            }
+        });
 
-      this.trigger('tree-modified', {
-          origin: this,
-          type: 'input-removed',
-          title: `Remove ${input.name}`,
-          data: {
-          }
-      });
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'input-removed',
+            title: `Remove ${input.name}`,
+            data: {},
+        });
     }
 
     /**
@@ -173,28 +172,32 @@ class TransformStatement extends Statement {
      * @param  {object} output input type needs to be removed
      */
     removeOutput(output) {
-      _.remove(this.output, function(outputVal) {
-          return outputVal.getVariableName() === output.name;
-      });
+        _.remove(this.output, (outputVal) => {
+            return outputVal.getVariableName() === output.name;
+        });
 
-      _.forEach(_.cloneDeep(this.getChildren()), (child) => {
-          if(ASTFactory.isFunctionInvocationExpression(child.getRightExpression())) {
-            if (child.getLeftExpression().children[0].getVarRoot().getVariableName()  == output.name) {
-                this.getChildById(child.getID()).getLeftExpression()
-                          .removeChild(this.getChildById(child.getID()).getLeftExpression().children[0]);
-            }
-          } else if(child.getLeftExpression().children[0].getFieldName() == output.name){
-            this.removeChild(child, true, true);
-          }
-      });
+        _.forEach(_.cloneDeep(this.getChildren()), (stmt) => {
+            const leftExpressions = this.getChildById(stmt.getID()).getLeftExpression();
+            stmt.getLeftExpression().getChildren().forEach((exp) => {
+                if ((ASTFactory.isFieldBasedVarRefExpression(exp)
+                      && exp.getVarRoot().getVariableName() === output.name)
+                    || (ASTFactory.isSimpleVariableReferenceExpression(exp)
+                      && exp.getVariableName() === output.name)) {
+                    if (leftExpressions.length > 1) {
+                        leftExpressions.removeChildById(exp.getID());
+                    } else {
+                        this.removeChildById(stmt.getID());
+                    }
+                }
+            });
+        });
 
-      this.trigger('tree-modified', {
-          origin: this,
-          type: 'output-removed',
-          title: `Remove ${output.name}`,
-          data: {
-          }
-      });
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'output-removed',
+            title: `Remove ${output.name}`,
+            data: {},
+        });
     }
 }
 
