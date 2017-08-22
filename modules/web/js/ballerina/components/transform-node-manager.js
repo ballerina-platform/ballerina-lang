@@ -100,23 +100,23 @@ class TransformNodeManager {
         if (source.endpointKind === 'input') {
             // Connection source is a struct and target is not a struct.
             // Target could be a function node.
-            const funcNode = connection.target.funcInv;
-            const index = connection.target.index;
+            const funcNode = target.funcInv;
+            const index = target.index;
 
             let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
-            if (connection.target.isField &&
+            if (target.isField &&
                 BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
                 refType = funcNode.children[index];
             }
             funcNode.removeChild(funcNode.children[index], true);
             // check function parameter is a struct and mapping is a complex mapping
-            if (connection.target.isField && _.find(this.state.vertices, (struct) => {
+            if (target.isField && _.find(this.state.vertices, (struct) => {
                 return struct.typeName === this.getFunctionVertices(funcNode).parameters[index].type;
             })) {
                 const keyValEx = BallerinaASTFactory.createKeyValueExpression();
                 const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
 
-                const propChain = connection.targetProperty.split('.').splice(1);
+                const propChain = (target.name).split('.').splice(1);
 
                 nameVarRefExpression.setExpressionFromString(propChain[0]);
                 keyValEx.addChild(nameVarRefExpression);
@@ -132,12 +132,12 @@ class TransformNodeManager {
         if (target.endpointKind === 'output') {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtSource = this.getParentAssignmentStmt(connection.source.funcInv);
+            const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
             assignmentStmtSource.setIsDeclaredWithVar(false);
 
             const lexpr = assignmentStmtSource.getLeftExpression();
-            lexpr.removeChild(lexpr.getChildren()[connection.source.index], true);
-            lexpr.addChild(targetExpression, connection.source.index);
+            lexpr.removeChild(lexpr.getChildren()[source.index], true);
+            lexpr.addChild(targetExpression, source.index);
             return;
         }
 
@@ -148,13 +148,13 @@ class TransformNodeManager {
         // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
         // will be different from removing a param from a function and then drawing the connection
         // to the parent function invocation.
-        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetFuncInv);
-        const assignmentStmtSource = this.getParentAssignmentStmt(connection.sourceFuncInv);
+        const assignmentStmtTarget = this.getParentAssignmentStmt(target.funcInv);
+        const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
 
         const funcNode = assignmentStmtTarget.getRightExpression();
 
         const index = _.findIndex(this.getFunctionDefinition(funcNode).getParameters(), (param) => {
-            return param.name === (connection.targetProperty || connection.targetStruct);
+            return (param.name === target.name);
         });
 
         // remove the source assignment statement since it is now included in the target assignment statement.
@@ -180,9 +180,9 @@ class TransformNodeManager {
         if (source.endpointKind === 'input') {
             // Connection source is a struct and target is a function.
             // get the function invocation expression for nested and single cases.
-            const funcInvocationExpression = connection.targetFuncInv;
+            const funcInvocationExpression = target.funcInv;
             const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
-                return (child.getExpressionString().trim() === (connection.sourceProperty || connection.sourceStruct));
+                return (this.getMappingExpression(child).getExpressionString().trim() === source.name);
             });
             const index = funcInvocationExpression.getIndexOfChild(expression);
             funcInvocationExpression.removeChild(expression, true);
@@ -190,7 +190,7 @@ class TransformNodeManager {
             this._transformStmt.trigger('tree-modified', {
                 origin: this,
                 type: 'function-connection-removed',
-                title: `Remove ${connection.sourceProperty}`,
+                title: `Remove ${source.name}`,
                 data: {},
             });
             return;
@@ -201,20 +201,20 @@ class TransformNodeManager {
             // Target could be a function node.
             const assignmentStmtTarget = connection.sourceReference;
             const expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
-                return (child.getExpressionString().trim() === (connection.targetProperty || connection.targetStruct));
+                return (child.getExpressionString().trim() === target.name);
             });
             assignmentStmtTarget.getLeftExpression().removeChild(expression, true);
             assignmentStmtTarget.setIsDeclaredWithVar(true);
             const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-            simpleVarRefExpression.setExpressionFromString('_temp' + (connection.sourceIndex + 1));
-            assignmentStmtTarget.getLeftExpression().addChild(simpleVarRefExpression, connection.sourceIndex + 1);
+            simpleVarRefExpression.setExpressionFromString('_temp' + (source.index + 1));
+            assignmentStmtTarget.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1);
             return;
         }
 
         // Connection source and target are not structs
         // Source and target could be function nodes.
-        const targetFuncInvocationExpression = connection.targetFuncInv;
-        const sourceFuncInvocationExpression = connection.sourceFuncInv;
+        const targetFuncInvocationExpression = target.funcInv;
+        const sourceFuncInvocationExpression = source.funcInv;
 
         targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression, true);
 
