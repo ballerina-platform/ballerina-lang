@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -46,6 +47,7 @@ class CatchStatement extends React.Component {
             getterMethod: props.model.getParameterDefString,
             setterMethod: props.model.setParameterDefString,
         };
+        this.designer = _.get(props, 'designer');
         this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
     }
 
@@ -68,7 +70,7 @@ class CatchStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         const addFinallyBtn = (
             <g onClick={this.onAddFinallyClick}>
                 <rect

@@ -22,7 +22,6 @@ import ASTNode from '../../../../ast/node';
 import ActionBox from './action-box';
 import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
-import { lifeLine, actionBox, statement } from '../../../../configs/designer-defaults.js';
 import MessageManager from './../../../../visitors/message-manager';
 import './statement-decorator.css';
 import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
@@ -71,6 +70,8 @@ class StatementDecorator extends React.Component {
             active: 'hidden',
             statementBox: StatementDecorator.calculateStatementBox(props),
         };
+
+        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -235,11 +236,12 @@ class StatementDecorator extends React.Component {
         const { viewState, expression, isBreakpoint, isDebugHit } = this.props;
         const bBox = viewState.bBox;
         const innerZoneHeight = viewState.components['drop-zone'].h;
+        const designer = this.props.designer;
 
         // calculate the bBox for the statement
         const textX = bBox.x + (bBox.w / 2);
-        const textY = this.state.statementBox.y + (statement.height / 2);
-        const dropZoneX = bBox.x + ((bBox.w - lifeLine.width) / 2);
+        const textY = this.state.statementBox.y + (designer.statement.height / 2);
+        const dropZoneX = bBox.x + ((bBox.w - designer.lifeLine.width) / 2);
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
@@ -248,10 +250,10 @@ class StatementDecorator extends React.Component {
 
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
         const actionBoxBbox = new SimpleBBox(
-            bBox.x + ((bBox.w - actionBox.width) / 2),
-            bBox.y + titleH + actionBox.padding.top,
-            actionBox.width,
-            actionBox.height);
+            bBox.x + ((bBox.w - designer.actionBox.width) / 2),
+            bBox.y + titleH + designer.actionBox.padding.top,
+            designer.actionBox.width,
+            designer.actionBox.height);
         let statementRectClass = 'statement-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
@@ -273,7 +275,7 @@ class StatementDecorator extends React.Component {
                 <rect
                     x={dropZoneX}
                     y={bBox.y}
-                    width={lifeLine.width}
+                    width={designer.lifeLine.width}
                     height={innerZoneHeight}
                     className={dropZoneClassName}
                     {...fill}

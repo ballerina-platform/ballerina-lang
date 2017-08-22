@@ -55,6 +55,7 @@ class AssignmentStatement extends React.Component {
             getterMethod: props.model.getStatementString,
             setterMethod: props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -238,6 +239,7 @@ class AssignmentStatement extends React.Component {
                     expression={expression}
                     editorOptions={this.editorOptions}
                     model={model}
+                    designer={this.designer}
                 >
                     {!_.isNil(actionInvocation) &&
                     <g>

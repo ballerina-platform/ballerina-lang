@@ -16,8 +16,9 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
+import StatementDecorator from './statement-decorator';
 import MessageManager from './../../../../visitors/message-manager';
 import * as DesignerDefaults from './../../../../configs/designer-defaults';
 import ASTFactory from '../../../../ast/ast-factory';
@@ -26,6 +27,7 @@ class ReplyStatement extends React.Component {
 
     constructor(props) {
         super(props);
+        this.designer = _.get(props, 'designer');
         this.editorOptions = {
             propertyType: 'text',
             key: 'Response Message',
@@ -44,6 +46,7 @@ class ReplyStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
+                designer={this.designer}
             />);
     }
 

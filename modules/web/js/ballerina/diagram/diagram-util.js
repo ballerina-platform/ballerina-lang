@@ -1,5 +1,7 @@
 import log from 'log';
 import React from 'react';
+import * as DesignerDefaults from './views/designer-defaults';
+import * as DesignerAction from './views/compact/designer-defaults';
 
 const components = {};
 const diagramVisitors = {};
@@ -16,10 +18,11 @@ function requireAll(requireContext) {
     return comp;
 }
 
-function getComponentForNodeArray(nodeArray, mode = 'default') {
+function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
+    components.compact = requireAll(require.context('./views/compact/dimension-visitors/', true, /\.js$/));
 
     return nodeArray.filter((child) => {
         const compName = child.constructor.name;
@@ -36,6 +39,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
                 // set the key to prevent warning
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
+                designer: designer,
             }, null);
         } else if (components.default[compName]) {
             return React.createElement(components.default[compName], {
@@ -43,6 +47,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
                 // set the key to prevent warning
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
+                designer: designer,
             }, null);
         }
     });
@@ -53,6 +58,7 @@ function getDimentionVisitor(name, mode = 'default') {
     // lets load the view components diffrent modes.
     diagramVisitors.default = requireAll(require.context('./views/default/dimention-visitors/', true, /\.js$/));
     diagramVisitors.action = requireAll(require.context('./views/action/dimention-visitors/', true, /\.js$/));
+    diagramVisitors.compact = requireAll(require.context('./views/compact/dimension-visitors/', true, /\.js$/));
 
     if (diagramVisitors[mode][name]) {
         return diagramVisitors[mode][name];
@@ -61,8 +67,21 @@ function getDimentionVisitor(name, mode = 'default') {
     }
 }
 
+function getDesigner(modes) {
+    const designer = {};
+    Object.assign(designer, DesignerDefaults);
+    if (!_.isNil(modes)) {
+        modes.forEach((mode) => {
+            const modeDesigner = require('./views/' + mode + '/designer-defaults');
+            Object.assign(designer, modeDesigner);
+        });
+    }
+    return designer;
+}
+
 export {
     getComponentForNodeArray,
     requireAll,
     getDimentionVisitor,
+    getDesigner,
 };

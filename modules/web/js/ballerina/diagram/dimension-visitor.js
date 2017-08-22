@@ -17,21 +17,48 @@
  */
 
 import log from 'log';
-import { getDimentionVisitor } from './diagram-util.js';
+import _ from 'lodash';
+import { getDimentionVisitor, getDesigner } from './diagram-util.js';
 
 class DimensionVisitor {
 
-    constructor() {
+    /**
+     * Constructor for DimensionVisitor
+     * @param {object} options - DimensionVisitor options
+     */
+    constructor(options) {
         this.mode = 'default';
+        this.setDesigner(_.get(options, 'designer'));
     }
 
     setMode(mode) {
         this.mode = mode;
     }
 
+    /**
+     * Set the designer
+     * @param {object} designer - designer related default values
+     */
+    setDesigner(designer) {
+        if (_.isNil(designer)) {
+            this.designer = getDesigner();
+        } else {
+            this.designer = designer;
+        }
+    }
+
+    /**
+     * Get the designer
+     * @returns {object} designer - designer related default values
+     */
+    getDesigner() {
+        return this.designer;
+    }
+
     canVisit(node) {
         if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode)) {
-            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode))();
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`,
+                this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.canVisit(node);
         }
         log.debug(`Unable to find Dimension Calculator for : ${node.getType()}`);
@@ -42,7 +69,8 @@ class DimensionVisitor {
 
     visit(node) {
         if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode)) {
-            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode))();
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`,
+                this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.visit(node);
         }
         return undefined;
@@ -50,7 +78,8 @@ class DimensionVisitor {
 
     beginVisit(node) {
         if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode)) {
-            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode))();
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`,
+                this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.beginVisit(node);
         }
         return undefined;
@@ -58,7 +87,8 @@ class DimensionVisitor {
 
     endVisit(node) {
         if (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode)) {
-            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`, this.mode))();
+            const nodeVisitor = new (getDimentionVisitor(`${node.getType()}DimensionCalculatorVisitor`,
+                this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.endVisit(node);
         }
         log.warn(`Unable to find Dimension Calculator for : ${node.getType()}`);

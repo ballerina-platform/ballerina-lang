@@ -17,29 +17,39 @@
  */
 
 import AbstractVisitor from './../../../abstract-visitor';
+import SizingUtil from './../sizing-util';
 
 /**
- * Dimension visitor class for break statement.
+ * Dimension visitor class for Return statement.
  *
- * @class BreakStatementDimensionCalculatorVisitor
+ * @class ReturnStatementDimensionCalculatorVisitor
  * */
-class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
+class ReturnStatementDimensionCalculatorVisitor extends AbstractVisitor {
+
+    /**
+     * Constructor for Assignment statement dimensions
+     * @param {object} options - options
+     */
+    constructor(options) {
+        super(options);
+        this.sizingUtil = new SizingUtil(this.getOptions());
+    }
 
     /**
      * can visit the visitor.
      *
      * @return {boolean} true.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReturnStatementDimensionCalculatorVisitor
      * */
     canVisit() {
         return true;
     }
 
     /**
-     * begin visit the visitor.
+     * begin visiting the visitor.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReturnStatementDimensionCalculatorVisitor
      * */
     beginVisit() {
     }
@@ -47,7 +57,7 @@ class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
     /**
      * visit the visitor.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReturnStatementDimensionCalculatorVisitor
      * */
     visit() {
     }
@@ -55,14 +65,13 @@ class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
     /**
      * visit the visitor at the end.
      *
-     * @param {ASTNode} node - Break statement node.
+     * @param {ASTNode} node - Return statement node.
      *
-     * @memberOf BreakStatementDimensionCalculatorVisitor
+     * @memberOf ReturnStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-        const DesignerDefaults = this.getOptions().designer;
-        debugger;
+        this.sizingUtil.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 
-export default BreakStatementDimensionCalculatorVisitor;
+export default ReturnStatementDimensionCalculatorVisitor;

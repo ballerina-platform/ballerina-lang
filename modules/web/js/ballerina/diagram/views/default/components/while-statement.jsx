@@ -18,10 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import BlockStatementDecorator from './block-statement-decorator';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
-import * as DesignerDefaults from './../../../../configs/designer-defaults';
 import ASTNode from '../../../../ast/node';
 import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import './while-statement.css';
@@ -32,6 +32,7 @@ class WhileStatement extends React.Component {
     constructor(props) {
         super(props);
         this.state = { innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false };
+        this.designer = _.get(props, 'designer');
     }
 
     render() {
@@ -49,7 +50,7 @@ class WhileStatement extends React.Component {
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
             + ((innerDropZoneDropNotAllowed) ? ' block' : '');
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
 
         this.editorOptions = {
             propertyType: 'text',

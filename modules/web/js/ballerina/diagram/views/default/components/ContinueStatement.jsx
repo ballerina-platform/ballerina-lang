@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import ContinueStatementAST from './../../../../ast/statements/continue-statement';
 import StatementDecorator from './statement-decorator';
 
@@ -27,6 +28,17 @@ import StatementDecorator from './statement-decorator';
  * @extends {React.Component}
  */
 class ContinueStatement extends React.Component {
+
+    /**
+     * Creates an instance of ContinueStatement.
+     * @param {Object} props React properties.
+     * @memberof ContinueStatement
+     */
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
+
     /**
      * Render function for the continue statement.
      *
@@ -36,7 +48,13 @@ class ContinueStatement extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                designer={this.designer}
+            />);
     }
 }
 

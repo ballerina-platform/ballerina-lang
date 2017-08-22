@@ -15,21 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 
 class FinallyStatement extends React.Component {
 
     constructor(props) {
         super(props);
+        debugger;
+        this.designer = _.get(props, 'designer');
     }
 
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Finally'} model={model}>
             {children}
         </BlockStatementDecorator>);

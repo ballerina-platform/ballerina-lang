@@ -15,14 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 
 class TransactionStatement extends React.Component {
     constructor(props) {
         super(props);
+        this.designer = _.get(props, 'designer');
         this.onAddAbortedCommittedClick = this.onAddAbortedCommittedClick.bind(this);
     }
 
@@ -84,7 +87,7 @@ class TransactionStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
 
         // If utilities available add utilities to the block statement.
         if (utilities) {

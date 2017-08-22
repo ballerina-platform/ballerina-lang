@@ -17,13 +17,23 @@
  */
 
 import AbstractVisitor from './../../../abstract-visitor';
+import SizingUtil from './../sizing-util';
 
 /**
  * Dimension visitor class for break statement.
  *
  * @class BreakStatementDimensionCalculatorVisitor
  * */
-class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
+class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor {
+
+    /**
+     * Constructor for Break statement dimensions
+     * @param {object} options - options
+     */
+    constructor(options) {
+        super(options);
+        this.sizingUtil = new SizingUtil(this.getOptions());
+    }
 
     /**
      * can visit the visitor.
@@ -60,8 +70,7 @@ class BreakStatementDimensionCalculatorVisitor extends AbstractVisitor{
      * @memberOf BreakStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-        const DesignerDefaults = this.getOptions().designer;
-        debugger;
+        this.sizingUtil.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 

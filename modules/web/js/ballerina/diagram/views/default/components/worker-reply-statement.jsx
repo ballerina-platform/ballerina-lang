@@ -16,9 +16,10 @@
  * under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
 import StatementDecorator from './statement-decorator';
 import StatementArrowConnection from './statement-arrow-connection';
-import PropTypes from 'prop-types';
 import ASTFactory from '../../../../ast/ast-factory';
 
 class WorkerReplyStatement extends React.Component {
@@ -32,6 +33,7 @@ class WorkerReplyStatement extends React.Component {
             getterMethod: props.model.getStatementString,
             setterMethod: props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     render() {
@@ -42,21 +44,32 @@ class WorkerReplyStatement extends React.Component {
             if (!_.isUndefined(workerReplyStatement)) {
                 return (<g>
                     <StatementDecorator
-                        model={model} viewState={model.viewState}
-                        expression={expression} editorOptions={this.editorOptions}
+                        model={model}
+                        viewState={model.viewState}
+                        expression={expression}
+                        editorOptions={this.editorOptions}
+                        designer={this.designer}
                     />);
                       <StatementArrowConnection start={workerReplyStatement.viewState} end={model.viewState} />
                 </g>);
             }
-            return (<StatementDecorator
-                model={model} viewState={model.viewState}
-                expression={expression} editorOptions={this.editorOptions}
-            />);
+            return (
+                <StatementDecorator
+                    model={model}
+                    viewState={model.viewState}
+                    expression={expression}
+                    editorOptions={this.editorOptions}
+                    designer={this.designer}
+                />);
         }
-        return (<StatementDecorator
-            model={model} viewState={model.viewState}
-            expression={expression} editorOptions={this.editorOptions}
-        />);
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                editorOptions={this.editorOptions}
+                designer={this.designer}
+            />);
     }
 }
 

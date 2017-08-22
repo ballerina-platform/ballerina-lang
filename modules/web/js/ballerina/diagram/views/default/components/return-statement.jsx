@@ -16,8 +16,9 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import StatementDecorator from './statement-decorator';
 
 /**
  * Return statement decorator.
@@ -33,6 +34,7 @@ class ReturnStatement extends React.Component {
             getterMethod: this.props.model.getStatementString,
             setterMethod: this.props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -41,7 +43,14 @@ class ReturnStatement extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.viewState.expression;
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions} />);
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                editorOptions={this.editorOptions}
+                designer={this.designer}
+            />);
     }
 }
 

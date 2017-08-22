@@ -43,6 +43,7 @@ class VariableDefinitionStatement extends React.Component {
             getterMethod: this.props.model.getStatementString,
             setterMethod: this.props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     onArrowStartPointMouseOut(e) {
@@ -157,6 +158,7 @@ class VariableDefinitionStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
+                designer={this.designer}
             >
                 {!_.isNil(actionInvocation) &&
                 <g>

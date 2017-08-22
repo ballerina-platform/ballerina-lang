@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import BlockStatementDecorator from './block-statement-decorator';
 import CommittedStatementAST from './../../../../ast/statements/committed-statement';
@@ -36,6 +37,7 @@ class CommittedStatement extends React.Component {
      * */
     constructor(props) {
         super(props);
+        this.designer = _.get(props, 'designer');
         this.onAddAbortedFailedClick = this.onAddAbortedFailedClick.bind(this);
     }
 
@@ -92,7 +94,7 @@ class CommittedStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
-        const children = getComponentForNodeArray(model.getChildren());
+        const children = getComponentForNodeArray(model.getChildren(), this.designer);
         if (utilities) {
             return (<BlockStatementDecorator
                 model={model}

@@ -16,8 +16,9 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import ASTFactory from '../../../../ast/ast-factory';
 import './if-statement.css';
@@ -33,7 +34,7 @@ class IfStatement extends React.Component {
             getterMethod: props.model.getConditionString,
             setterMethod: props.model.setConditionFromString,
         };
-
+        this.designer = _.get(props, 'designer');
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }
 
@@ -59,7 +60,7 @@ class IfStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>
                 <rect

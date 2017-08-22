@@ -16,17 +16,19 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import ASTFactory from '../../../../ast/ast-factory';
 
 class ElseIfStatement extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             showAddButton: false,
         };
+        this.designer = _.get(props, 'designer');
         this.onAddElseIfClick = this.onAddElseIfClick.bind(this);
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseOut = this.onMouseOut.bind(this);
@@ -66,7 +68,7 @@ class ElseIfStatement extends React.Component {
             setterMethod: this.props.model.setConditionFromString,
         };
 
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
 
         const addElseIfBtn = (
             <g onClick={this.onAddElseIfClick}>

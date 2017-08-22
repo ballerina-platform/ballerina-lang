@@ -16,9 +16,9 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import StatementDecorator from './statement-decorator';
 import * as DesignerDefaults from './../../../../configs/designer-defaults';
 import MessageManager from './../../../../visitors/message-manager';
 import { util } from './../../../../visitors/sizing-utils';
@@ -36,6 +36,7 @@ class WorkerInvocationStatement extends React.Component {
             getterMethod: props.model.getStatementString,
             setterMethod: props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     render() {
@@ -96,8 +97,11 @@ class WorkerInvocationStatement extends React.Component {
 
         return (<g>
             <StatementDecorator
-                model={model} viewState={model.viewState}
-                expression={expression} editorOptions={this.editorOptions}
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                editorOptions={this.editorOptions}
+                designer={this.designer}
             />
             <g>
                 <circle

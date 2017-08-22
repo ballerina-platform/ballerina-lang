@@ -15,17 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import TransactionAbortedStatementAST from './../../../../ast/statements/transaction-aborted-statement';
 
 class TransactionAbortedStatement extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
+
     render() {
         const { model } = this.props;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(model.getChildren());
+        const children = getComponentForNodeArray(model.getChildren(), this.designer);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             {children}
         </CompoundStatementDecorator>);

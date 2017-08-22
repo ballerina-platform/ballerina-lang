@@ -16,16 +16,22 @@
  * under the License.
  */
 import React from 'react';
-import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 
 class IfElseStatement extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.designer = _.get(props, 'designer');
+    }
+
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             {children}
         </CompoundStatementDecorator>);

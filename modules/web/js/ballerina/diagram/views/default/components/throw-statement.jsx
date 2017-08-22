@@ -15,9 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import StatementDecorator from './statement-decorator';
 
 /**
  * Throw statement decorator.
@@ -33,6 +35,7 @@ class ThrowStatement extends React.Component {
             getterMethod: props.model.getStatementString,
             setterMethod: props.model.setStatementFromString,
         };
+        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -41,7 +44,14 @@ class ThrowStatement extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} editorOptions={this.editorOptions} expression={expression} />);
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                editorOptions={this.editorOptions}
+                expression={expression}
+                designer={this.designer}
+            />);
     }
 }
 

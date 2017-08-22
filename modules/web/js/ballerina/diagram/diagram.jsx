@@ -24,7 +24,7 @@ import DimensionVisitor from './dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
-import { getComponentForNodeArray } from './diagram-util';
+import { getComponentForNodeArray, getDesigner } from './diagram-util';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import ActiveArbiter from '../components/active-arbiter';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
@@ -65,6 +65,7 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
+        const designer = getDesigner(['compact']);
         // Following is how we render the diagram.
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.
@@ -72,6 +73,7 @@ class Diagram extends React.Component {
         this.props.model.accept(new ClearOffset());
         // 1.2 Run the dimention calculator.
         this.dimentionVisitor.setMode(this.props.mode);
+        this.dimentionVisitor.setDesigner(designer);
         this.props.model.accept(this.dimentionVisitor);
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
@@ -103,13 +105,13 @@ class Diagram extends React.Component {
                 otherNodes.push(child);
             }
         });
-        others = getComponentForNodeArray(otherNodes, this.props.mode);
+        others = getComponentForNodeArray(otherNodes, designer, this.props.mode);
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
         this.props.model.accept(annotationRenderer);
         let annotations = [];
         if (annotationRenderer.getAnnotations()) {
-            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
+            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), designer, this.props.mode);
         }
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
@@ -142,7 +144,7 @@ Diagram.childContextTypes = {
 };
 
 Diagram.defaultProps = {
-    mode: 'action',
+    mode: 'compact',
 };
 
 export default Diagram;
