@@ -147,12 +147,8 @@ class Tools extends EventChannel {
     showReconnectButton(endpoint) {
         this.waiting = false;
         this.reConnecting = true;
+        this.endpoint = endpoint;
         this.render();
-        this.container.on('click', '#reconnect-debugger', () => {
-            this.waiting = true;
-            this.reConnecting = false;
-            DebugManager.connect(endpoint);
-        });
     }
     /**
      *
@@ -181,8 +177,8 @@ class Tools extends EventChannel {
         $('#form-run-application-with-args').submit(function (e) {
             e.preventDefault();
             const newArgs = $(this).serializeArray().map(input => input.value)
-                                .join(' ')
-                                .trim();
+                .join(' ')
+                .trim();
             const activeTab = self.application.tabController.getActiveTab();
             if (activeTab && activeTab.getFile()) {
                 const uniqueId = self.getFileUniqueId(activeTab.getFile());
@@ -229,6 +225,12 @@ class Tools extends EventChannel {
             $('.debug-connection-error').addClass('hide');
             this.connectionDialog.modal('show');
         });
+
+        this.container.on('click', '#reconnect-debugger', () => {
+            this.waiting = true;
+            this.reConnecting = false;
+            DebugManager.connect(this.endpoint);
+        });
     }
     /**
      *
@@ -274,25 +276,25 @@ class Tools extends EventChannel {
      * @memberof Tools
      */
     handleAction(actionName) {
-        let action = () => {};
+        let action = () => { };
         switch (actionName) {
-        case 'Resume':
-            action = DebugManager.resume.bind(DebugManager);
-            break;
-        case 'StepOver':
-            action = DebugManager.stepOver.bind(DebugManager);
-            break;
-        case 'StepIn':
-            action = DebugManager.stepIn.bind(DebugManager);
-            break;
-        case 'StepOut':
-            action = DebugManager.stepOut.bind(DebugManager);
-            break;
-        case 'Stop':
-            action = DebugManager.stop.bind(DebugManager);
-            break;
-        default:
-            throw Error('Unknown action');
+            case 'Resume':
+                action = DebugManager.resume.bind(DebugManager);
+                break;
+            case 'StepOver':
+                action = DebugManager.stepOver.bind(DebugManager);
+                break;
+            case 'StepIn':
+                action = DebugManager.stepIn.bind(DebugManager);
+                break;
+            case 'StepOut':
+                action = DebugManager.stepOut.bind(DebugManager);
+                break;
+            case 'Stop':
+                action = DebugManager.stop.bind(DebugManager);
+                break;
+            default:
+                throw Error('Unknown action');
         }
 
         return () => {
