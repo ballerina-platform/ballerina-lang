@@ -59,6 +59,14 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
                     .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
         }
 
+        // Add the var keyword
+        CompletionItem varKeyword = new CompletionItem();
+        varKeyword.setInsertText("var ");
+        varKeyword.setLabel("var");
+        varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        varKeyword.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItems.add(varKeyword);
+
         HashMap<String, Integer> prioritiesMap = new HashMap<>();
         prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_7);
         prioritiesMap.put(ItemResolverConstants.B_TYPE, ItemResolverConstants.PRIORITY_6);
