@@ -140,7 +140,6 @@ public abstract class Node {
         if (resource == null) {
             if (!isOptionsRequest) {
                 carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
-                carbonMessage.setHeader(Constants.ALLOW_HEADER, getAllowHeaderValues());
                 throw new BallerinaException("Method not allowed");
             } else {
                 return null;
