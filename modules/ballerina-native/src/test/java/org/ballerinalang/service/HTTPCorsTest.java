@@ -123,6 +123,20 @@ public class HTTPCorsTest {
         Assert.assertNull(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
     }
 
+    @Test(description = "Test simple request for null origins")
+    public void testSimpleReqWithNullOrigin() {
+        String path = "/hello1/test1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, null);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
+        Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertNull(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+    }
+
     @Test(description = "Test for values with extra white spaces")
     public void testSimpleReqwithExtraWS() {
         String path = "/hello2/test1";
@@ -301,6 +315,18 @@ public class HTTPCorsTest {
         Assert.assertEquals("POST, OPTIONS", response.getHeader(Constants.ALLOW));
     }
 
+    @Test(description = "Test for simple OPTIONS request")
+    public void testSimpleOPTIONSReq() {
+        String path = "/echo4/info2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "noCorsOPTIONS");
+    }
+
     @Test(description = "Test for case insensitive origin")
     public void testPreFlightReqwithCaseInsensitiveOrigin() {
         String path = "/hello1/test1";
@@ -326,6 +352,34 @@ public class HTTPCorsTest {
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, "http://www.wso2.com", "true"
                 , "X-PINGOTHER", "POST", "-1");
+    }
+
+    @Test(description = "Test simple request with worker")
+    public void testSimpleReqwithWorker() {
+        String path = "/hello3/info2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "worker");
+        Assert.assertEquals("http://www.m3.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
+        Assert.assertEquals("true", response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
+    }
+
+    @Test(description = "Test preflight with worker")
+    public void testPreFlightReqwithWorker() {
+        String path = "/hello3/info2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(Constants.ORIGIN, "http://www.m3.com");
+        cMsg.setHeader(Constants.AC_REQUEST_METHOD, Constants.HTTP_METHOD_GET);
+        cMsg.setHeader(Constants.AC_REQUEST_HEADERS, "X-PINGOTHER");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
+        assertEqualsCorsResponse(response, 200, "http://www.m3.com", "true"
+                , "X-PINGOTHER", "GET", "1");
     }
 
     @AfterClass

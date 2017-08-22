@@ -84,7 +84,7 @@ public class CorsHeaderGenerator {
         }
         //6.1.2 - check all the origins
         if (!isEffectiveOrigin(requestOrigins, resourceCors.get(Constants.ALLOW_ORIGIN))) {
-            bLog.info(action + "unallowed origin");
+            bLog.info(action + "not allowed origin");
             return null;
         }
         //6.1.3 - set origin and credentials
@@ -106,7 +106,7 @@ public class CorsHeaderGenerator {
         //6.2.3 - request must have access-control-request-method, must be single-valued
         List<String> requestMethods = getHeaderValues(Constants.AC_REQUEST_METHOD, cMsg);
         if (requestMethods == null || requestMethods.size() != 1) {
-            bLog.info(action + "unallowed request methods");
+            bLog.info(action + "not allowed request methods");
             return null;
         }
         String requestMethod = requestMethods.get(0);
@@ -116,13 +116,13 @@ public class CorsHeaderGenerator {
             return null;
         }
         if (!isEffectiveMethod(requestMethod, resourceCors.get(Constants.ALLOW_METHODS))) {
-            bLog.info(action + "unallowed method");
+            bLog.info(action + "not allowed method");
             return null;
         }
 
         //6.2.2 - request origin must be on the list or match with *.
         if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.get(Constants.ALLOW_ORIGIN))) {
-            bLog.info(action + "unallowed origin");
+            bLog.info(action + "not allowed origin");
             return null;
         }
         //6.2.4 - get list of request headers.
@@ -180,17 +180,21 @@ public class CorsHeaderGenerator {
             return null;
         } else {
             for (ResourceInfo resource : resources) {
-                for (String method : DispatcherUtil.getHttpMethods(resource)) {
-                    if (requestMethod.equals(method)) {
-                        return CorsRegistry.getInstance().getCorsHeaders(resource);
+                if (DispatcherUtil.getHttpMethods(resource) != null) {
+                    for (String method : DispatcherUtil.getHttpMethods(resource)) {
+                        if (requestMethod.equals(method)) {
+                            return CorsRegistry.getInstance().getCorsHeaders(resource);
+                        }
                     }
                 }
             }
             if (requestMethod.equals(Constants.HTTP_METHOD_HEAD)) {
                 for (ResourceInfo resource : resources) {
-                    for (String method : DispatcherUtil.getHttpMethods(resource)) {
-                        if (method.equals(Constants.HTTP_METHOD_GET)) {
-                            return CorsRegistry.getInstance().getCorsHeaders(resource);
+                    if (DispatcherUtil.getHttpMethods(resource) != null) {
+                        for (String method : DispatcherUtil.getHttpMethods(resource)) {
+                            if (method.equals(Constants.HTTP_METHOD_GET)) {
+                                return CorsRegistry.getInstance().getCorsHeaders(resource);
+                            }
                         }
                     }
                 }

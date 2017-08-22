@@ -44,7 +44,7 @@ public class Constants {
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String ACCEPT_HEADER = "Accept";
-    public static final String ALLOW_HEADER = "Allow";
+    public static final String ALLOW = "Allow";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
@@ -109,5 +109,5 @@ public class Constants {
     public static final String ALLOW_HEADERS = "allowHeaders";
     public static final String EXPOSE_HEADERS = "exposeHeaders";
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
-    public static final String RESOURCES_CORS = "resourceCors";
+    public static final String RESOURCES_CORS = "RESOURCES_CORS";
 }

@@ -50,7 +50,7 @@ public class CorsRegistry {
     }
 
     public Map<String, List<String>> getServiceCors(ServiceInfo service) {
-        if (isHeadersAvailable(service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
+        if (isCorsHeadersAvailable(service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
                 , Constants.ANN_NAME_CONFIG))) {
             return populateCorsHeaders(null);
         } else {
@@ -59,15 +59,15 @@ public class CorsRegistry {
     }
 
     public void processResourceCors(ResourceInfo resource, Map<String, List<String>> serviceCorsMap) {
-        if (isHeadersAvailable(resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
+        if (isCorsHeadersAvailable(resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH
                 , Constants.ANN_NAME_RESOURCE_CONFIG))) {
-            resourceCorsHolder.put(getResourceKey(resource), populateCorsHeaders(resource));
+            resourceCorsHolder.put(createResourceKey(resource), populateCorsHeaders(resource));
         } else if (serviceCorsMap != null && !serviceCorsMap.isEmpty()) {
-            resourceCorsHolder.put(getResourceKey(resource), serviceCorsMap);
+            resourceCorsHolder.put(createResourceKey(resource), serviceCorsMap);
         }
     }
 
-    public boolean isHeadersAvailable(AnnAttachmentInfo configAnnotInfo) {
+    public boolean isCorsHeadersAvailable(AnnAttachmentInfo configAnnotInfo) {
         if (configAnnotInfo == null) {
             return false;
         }
@@ -138,14 +138,14 @@ public class CorsRegistry {
     }
 
     public Map<String, List<String>> getCorsHeaders(ResourceInfo resource) {
-        Map<String, List<String>> corsheaders = resourceCorsHolder.get(getResourceKey(resource));
+        Map<String, List<String>> corsheaders = resourceCorsHolder.get(createResourceKey(resource));
         if (corsheaders != null) {
             return corsheaders;
         }
         return null;
     }
 
-    private String getResourceKey(ResourceInfo resource) {
+    private String createResourceKey(ResourceInfo resource) {
         String separator = "%&$";
         return resource.getServiceInfo().getName() + separator + resource.getName();
     }

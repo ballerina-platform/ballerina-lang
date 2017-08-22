@@ -3,7 +3,7 @@ import ballerina.lang.messages;
 
 @http:configuration {
     basePath:"/hello1",
-    allowOrigins :["http://www.m3.com","http://www.hello.com"],
+    allowOrigins :["http://www.m3.com", "http://www.hello.com"],
     allowCredentials : true,
     allowHeaders : ["CORELATION_ID"],
     exposeHeaders : ["CORELATION_ID"],
@@ -99,6 +99,23 @@ service<http> echo3 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:resourceConfig {
+        methods:["GET"]
+    }
+    resource info2 (message m) {
+        message result = {};
+        m -> sampleWorker;
+        result <- sampleWorker;
+        reply result;
+        worker sampleWorker {
+            m <- default;
+            message msg = {};
+            json responseJson = {"echo":"worker"};
+            messages:setJsonPayload( msg, responseJson);
+            msg -> default;
+        }
+    }
 }
 
 service<http> echo4 {
@@ -108,6 +125,16 @@ service<http> echo4 {
     resource info1 (message m) {
         message response = {};
         json responseJson = {"echo":"noCors"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["OPTIONS"]
+    }
+    resource info2 (message m) {
+        message response = {};
+        json responseJson = {"echo":"noCorsOPTIONS"};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }

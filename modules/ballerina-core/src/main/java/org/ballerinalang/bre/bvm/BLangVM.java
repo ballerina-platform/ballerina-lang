@@ -2304,7 +2304,7 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
-        generateSessionNCorsHeaders(message);
+        generateSessionAndCorsHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
@@ -3416,8 +3416,8 @@ public class BLangVM {
         ip = -1;
         logger.error("fatal error. incorrect error table entry.");
     }
-
-    private void generateSessionNCorsHeaders(BMessage message) {
+    //TODO: This method is HTTP specific. Need to move to a HTTP specific location
+    private void generateSessionAndCorsHeaders(BMessage message) {
         //check session cookie header
         Session session = context.getCurrentSession();
         if (session != null) {

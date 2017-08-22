@@ -250,7 +250,7 @@ public abstract class Node {
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage cMsg) {
         if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            cMsg.setHeader(Constants.ALLOW_HEADER, getAllowHeaderValues());
+            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(cMsg));
             return true;
         }
         return false;
@@ -260,7 +260,9 @@ public abstract class Node {
         List<String> methods = new ArrayList<>();
         List<ResourceInfo> resourceInfos = new ArrayList<>();
         for (ResourceInfo resourceInfo : this.resource) {
-            methods.addAll(Arrays.stream(DispatcherUtil.getHttpMethods(resourceInfo)).collect(Collectors.toList()));
+            if (DispatcherUtil.getHttpMethods(resourceInfo) != null) {
+                methods.addAll(Arrays.stream(DispatcherUtil.getHttpMethods(resourceInfo)).collect(Collectors.toList()));
+            }
             resourceInfos.add(resourceInfo);
         }
         cMsg.setProperty(Constants.PREFLIGHT_RESOURCES, resourceInfos);

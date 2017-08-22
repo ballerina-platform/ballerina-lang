@@ -97,8 +97,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static void handleOptionsRequest(CarbonMessage cMsg, ServiceInfo service, CarbonCallback callback)
             throws URITemplateException {
         DefaultCarbonMessage response = new DefaultCarbonMessage();
-        if (cMsg.getHeader(Constants.ALLOW_HEADER) != null) {
-            response.setHeader(Constants.ALLOW_HEADER, cMsg.getHeader(Constants.ALLOW_HEADER));
+        if (cMsg.getHeader(Constants.ALLOW) != null) {
+            response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
         } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
             if (!getAllResourceMethods(service).isEmpty()) {
                 response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service), false));
