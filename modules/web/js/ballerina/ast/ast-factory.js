@@ -1,4 +1,4 @@
-  /**
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -115,6 +115,7 @@ import XMLElementLiteral from './expressions/xml-element-literal';
 import XMLSequenceLiteral from './expressions/xml-sequence-literal';
 import XMLTextLiteral from './expressions/xml-text-literal';
 import XMLCommentLiteral from './expressions/xml-comment-literal';
+import XMLPILiteral from './expressions/xml-pi-literal';
 
 /**
  * @class ASTFactory
@@ -553,7 +554,7 @@ ASTFactory.createResourceParameter = function (args) {
  * @param args
  * @returns {StructType}
  */
-ASTFactory.createStructType= function (args) {
+ASTFactory.createStructType = function (args) {
     return new structType(args);
 };
 
@@ -736,7 +737,7 @@ ASTFactory.createTransformStatement = function (args) {
  * @param {Object} args - argument for the creating retry statement.
  * @return {RetryStatement} retry statement.
  * */
-ASTFactory.createRetryStatement = function(args){
+ASTFactory.createRetryStatement = function (args) {
     return new RetryStatement(args);
 };
 
@@ -895,27 +896,31 @@ ASTFactory.createXMLAttributeReferenceExpression = () => {
  * Create new {@link XMLElementLiteral}
  * @return {XMLElementLiteral} new XMLElementLiteral
  * */
-ASTFactory.createXMLElementLiteral = () => {
-    return new XMLElementLiteral();
+ASTFactory.createXMLElementLiteral = (args) => {
+    return new XMLElementLiteral(args);
 };
 
 /**
  * Create new {@link XMLSequenceLiteral}
  * @return {XMLSequenceLiteral} new XMLSequenceLiteral
  * */
-ASTFactory.createXMLSequenceLiteral = () => {
-    return new XMLSequenceLiteral();
+ASTFactory.createXMLSequenceLiteral = (args) => {
+    return new XMLSequenceLiteral(args);
 };
 
 /**
  * Create new {@link XMLTextLiteral
  * */
-ASTFactory.createXMLTextLiteral = () => {
-    return new XMLTextLiteral();
+ASTFactory.createXMLTextLiteral = (args) => {
+    return new XMLTextLiteral(args);
 };
 
-ASTFactory.createXMLCommentLiteral = () => {
-    return new XMLCommentLiteral();
+ASTFactory.createXMLCommentLiteral = (args) => {
+    return new XMLCommentLiteral(args);
+};
+
+ASTFactory.createPILiteral = (args) => {
+    return new XMLPILiteral(args);
 };
 
 /**
@@ -1140,7 +1145,7 @@ ASTFactory.isExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-ASTFactory.isKeyValueExpression= function (child) {
+ASTFactory.isKeyValueExpression = function (child) {
     return child instanceof keyValueExpression;
 };
 
@@ -1365,7 +1370,7 @@ ASTFactory.isReturnType = function (child) {
  * @param {ASTNode} child - object for instanceof check
  * @return {boolean} - true if same type, else false.
  * */
-ASTFactory.isRetry = function(child){
+ASTFactory.isRetry = function (child) {
     return child instanceof RetryStatement;
 };
 
@@ -1748,6 +1753,31 @@ ASTFactory.isXMLAttributeReferenceExpression = (child) => {
     return child instanceof XMLAttributeReferenceExpression;
 };
 
+/**
+ * instanceof check for the XMLPILiteral.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if the same type, else false.
+ * */
+ASTFactory.isXMLPILiteral = (child) => {
+    return child instanceof XMLPILiteral;
+};
+
+ASTFactory.isXMLElementLiteral = (child) => {
+    return child instanceof XMLElementLiteral;
+};
+
+ASTFactory.isXMLCommentLiteral = (child) => {
+    return child instanceof XMLCommentLiteral;
+};
+
+ASTFactory.isXMLPILiteral = (child) => {
+    return child instanceof XMLPILiteral;
+};
+
+ASTFactory.isXMLSequenceLiteral = (child) => {
+    return child instanceof XMLSequenceLiteral;
+};
+
 ASTFactory.createFromJson = function (jsonNode) {
     let node;
     const nodeType = jsonNode.type;
@@ -1871,46 +1901,46 @@ ASTFactory.createFromJson = function (jsonNode) {
             node = ASTFactory.createThenBody();
             break;
         case 'equal_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '==' });
+            node = ASTFactory.createBinaryExpression({operator: '=='});
             break;
         case 'greater_than_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '>' });
+            node = ASTFactory.createBinaryExpression({operator: '>'});
             break;
         case 'add_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '+' });
+            node = ASTFactory.createBinaryExpression({operator: '+'});
             break;
         case 'multiplication_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '*' });
+            node = ASTFactory.createBinaryExpression({operator: '*'});
             break;
         case 'division_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '/' });
+            node = ASTFactory.createBinaryExpression({operator: '/'});
             break;
         case 'mod_expression' :
-            node = ASTFactory.createBinaryExpression({ operator: '%' });
+            node = ASTFactory.createBinaryExpression({operator: '%'});
             break;
         case 'and_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '&&' });
+            node = ASTFactory.createBinaryExpression({operator: '&&'});
             break;
         case 'subtract_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '-' });
+            node = ASTFactory.createBinaryExpression({operator: '-'});
             break;
         case 'or_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '||' });
+            node = ASTFactory.createBinaryExpression({operator: '||'});
             break;
         case 'greater_equal_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '>=' });
+            node = ASTFactory.createBinaryExpression({operator: '>='});
             break;
         case 'less_than_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '<' });
+            node = ASTFactory.createBinaryExpression({operator: '<'});
             break;
         case 'less_equal_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '<=' });
+            node = ASTFactory.createBinaryExpression({operator: '<='});
             break;
         case 'not_equal_expression':
-            node = ASTFactory.createBinaryExpression({ operator: '!=' });
+            node = ASTFactory.createBinaryExpression({operator: '!='});
             break;
         case 'unary_expression':
-            node = ASTFactory.createUnaryExpression({ operator: jsonNode.operator });
+            node = ASTFactory.createUnaryExpression({operator: jsonNode.operator});
             break;
         case 'connector_init_expr':
             node = ASTFactory.createConnectorInitExpression();
@@ -2045,40 +2075,43 @@ ASTFactory.createFromJson = function (jsonNode) {
             node = ASTFactory.createRetryStatement();
             break;
         case 'xml_element_literal':
-            node = ASTFactory.createXMLElementLiteral();
+            node = ASTFactory.createXMLElementLiteral(jsonNode);
             break;
         case 'xml_sequence_literal':
-            node = ASTFactory.createXMLSequenceLiteral();
+            node = ASTFactory.createXMLSequenceLiteral(jsonNode);
             break;
         case 'xml_text_literal':
-            node = ASTFactory.createXMLTextLiteral();
+            node = ASTFactory.createXMLTextLiteral(jsonNode);
             break;
-        case 'xml_comment-literal':
-            node = ASTFactory.createXMLCommentLiteral();
+        case 'xml_comment_literal':
+            node = ASTFactory.createXMLCommentLiteral(jsonNode);
+            break;
+        case 'xml_pi_literal':
+            node = ASTFactory.createPILiteral(jsonNode);
             break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);
     }
     // handle special case of connector declaration
     if (jsonNode.type === 'variable_definition_statement' &&
-                !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
+        !_.isNil(jsonNode.children[1]) && jsonNode.children[1].type === 'connector_init_expr') {
         node = ASTFactory.createConnectorDeclaration();
-    } 
+    }
 
-    node.setLineNumber(jsonNode.line_number, { doSilently: true });
+    node.setLineNumber(jsonNode.line_number, {doSilently: true});
 
     if (!_.isNil(jsonNode.position_info)) {
-        const { start_line, start_offset, stop_line, stop_offset } = jsonNode.position_info;
+        const {start_line, start_offset, stop_line, stop_offset} = jsonNode.position_info;
         const position = {
             startLine: start_line,
             startOffset: start_offset,
             stopLine: stop_line,
             stopOffset: stop_offset
         };
-        node.setPosition(position, { doSilently: true });
+        node.setPosition(position, {doSilently: true});
     }
     if (jsonNode.is_identifier_literal) {
-        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, { doSilently: true });
+        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, {doSilently: true});
     }
 
     if (!_.isNil(jsonNode.whitespace_descriptor)) {

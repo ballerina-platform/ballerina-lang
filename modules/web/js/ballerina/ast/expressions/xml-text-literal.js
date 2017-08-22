@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
-import ASTFactory from './../ballerina-ast-factory';
+import ASTFactory from './../ast-factory';
 
 /**
  * Class for XML text literal.
@@ -28,8 +28,13 @@ class XMLTextLiteral extends Expression {
      * Class Constructor.
      * @class XMLTextLiteral
      * */
-    constructor() {
+    constructor(args) {
         super('XMLTextLiteral');
+        this.type_name = _.get(args, 'type_name', '');
+    }
+
+    getExpressionString() {
+        return `${this.type_name} \`${this.children[0].getBasicLiteralValue()}\``;
     }
 
     /**
@@ -37,9 +42,10 @@ class XMLTextLiteral extends Expression {
      * @param {object} jsonNode - json node for XMLTextLiteral
      * */
     initFromJson(jsonNode) {
+        this.type_name = _.get(jsonNode, 'type_name', '');
         _.forEach(jsonNode.children, (childNode) => {
             const child = ASTFactory.createFromJson(childNode);
-            this.addChild(child, undefined);
+            this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }

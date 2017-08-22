@@ -402,4 +402,8 @@ public class BLangJSONModelConstants {
     public static final String XML_ATTRIBUTES = "attributes";
 
     public static final String CONCAT_EXPR = "concat_expr";
+
+    public static final String XML_COMMENT_LITERAL = "xml_comment_literal";
+
+    public static final String XML_PI_LITERAL = "xml_pi_literal";
 }

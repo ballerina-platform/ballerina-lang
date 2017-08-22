@@ -17,25 +17,42 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
-import ASTFactory from './../ballerina-ast-factory';
+import ASTFactory from './../ast-factory';
 
 /**
  * class for XML sequence literal.
  * @class XMLSequenceLiteral
  * */
 class XMLSequenceLiteral extends Expression {
-    constructor() {
+    constructor(args) {
         super('XMLSequenceLiteral');
+        this.type_name = _.get(args, 'type_name', '');
     }
+
+    getExpressionString() {
+        let expression = `${this.type_name} \``;
+        this.children.forEach((child) => {
+            if (ASTFactory.isBasicLiteralExpression(child)) {
+                expression += `${child.getBasicLiteralValue()}`;
+            } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
+                expression += `{{${child.getVariableName()}}}`;
+            }
+        });
+        expression += '`';
+        return expression;
+    }
+
 
     /**
      * Initialize from the json.
-     * @param {object} jsonnode - json node for the XML sequence literal.
+     * @param {object} jsonNode - json node for the XML sequence literal.
      * */
     initFromJson(jsonNode) {
+        this.children = [];
+        this.type_name = _.get(jsonNode, 'type_name', '');
         _.forEach(jsonNode.children, (childNode) => {
             const child = ASTFactory.createFromJson(childNode);
-            this.addChild(child, undefined);
+            this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }

@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
-import ASTFactory from './../ballerina-ast-factory';
+import ASTFactory from './../ast-factory';
 
 /**
  * Class for XML Element Literal.
@@ -26,6 +26,89 @@ import ASTFactory from './../ballerina-ast-factory';
 class XMLElementLiteral extends Expression {
     constructor(args) {
         super('XMLElementLiteral');
+        this._attributes = _.get(args, 'attributes', []);
+        this.type_name = _.get(args, 'type_name', '');
+    }
+
+    getExpressionString() {
+        let expression = `${this.type_name} \``;
+        if (this.children[0]) {
+            if (ASTFactory.isBasicLiteralExpression(this.children[0])) {
+                expression += `<${this.children[0].getBasicLiteralValue()}`;
+            } else if (ASTFactory.isSimpleVariableReferenceExpression(this.children[0])) {
+                expression += `<{{${this.children[0].getVariableName()}}}`;
+            } else if (ASTFactory.isXMLQNameExpression(this.children[0])) {
+                expression += `<${this.children[0]._localName}`;
+            }
+
+            this._attributes.forEach((attribute) => {
+                attribute.children.forEach((child) => {
+                    if (ASTFactory.isBasicLiteralExpression(child)) {
+                        if (attribute.children.indexOf(child) === 0 || attribute.children.indexOf(child) === 1) {
+                            expression += `="${child.getBasicLiteralValue()}`;
+                        } else {
+                            expression += `${child.getBasicLiteralValue()}`;
+                        }
+                        if (attribute.children.indexOf(child) === (attribute.children.length - 1)) {
+                            expression += '"';
+                        }
+                    } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
+                        if (attribute.children.indexOf(child) === 0) {
+                            expression += ` {{${child.getVariableName()}}}`;
+                        } else if (attribute.children.indexOf(child) === 1) {
+                            expression += `="{{${child.getVariableName()}}}`;
+                        } else {
+                            expression += `{{${child.getVariableName()}}}`;
+                        }
+
+                        if (attribute.children.indexOf(child) !== 0
+                            && attribute.children.indexOf(child) === (attribute.children.length - 1)) {
+                            expression += '"';
+                        }
+                    } else if (ASTFactory.isXMLQNameExpression(child)) {
+                        expression += ` ${child.getLocalName()}`;
+                    }
+                });
+            });
+            if (!this.children[1] && !this.children[2]) {
+                expression += '/>';
+            } else {
+                expression += '>';
+            }
+        }
+
+        if (ASTFactory.isXMLSequenceLiteral(this.children[1]) && this.children[1].children.length > 0) {
+            this.children[1].children.forEach((child) => {
+                if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
+                    expression += `{{${child.getVariableName()}}}`;
+                } else if (ASTFactory.isBasicLiteralExpression(child)) {
+                    expression += `${child.getBasicLiteralValue()}`;
+                } else if (ASTFactory.isXMLElementLiteral(child)) {
+                    expression += child.getExpressionString().replace('`', '');
+                }
+            });
+        } else if (ASTFactory.isXMLQNameExpression(this.children[1])) {
+            if (ASTFactory.isBasicLiteralExpression(this.children[1])) {
+                expression += `</${this.children[1]._localName}>`;
+            } else if (ASTFactory.isSimpleVariableReferenceExpression(this.children[1])) {
+                expression += `</{{${this.children[1].getVariableName()}}}>`;
+            } else {
+                expression += `</${this.children[1]._localName}>`;
+            }
+        }
+
+        if (this.children[2]) {
+            if (ASTFactory.isBasicLiteralExpression(this.children[2])) {
+                expression += `</${this.children[2]._localName}>`;
+            } else if (ASTFactory.isSimpleVariableReferenceExpression(this.children[2])) {
+                expression += `</{{${this.children[2].getVariableName()}}}>`;
+            } else {
+                expression += `</${this.children[2]._localName}>`;
+            }
+        }
+
+        expression += '`';
+        return expression;
     }
 
     /**
@@ -33,9 +116,18 @@ class XMLElementLiteral extends Expression {
      * @param {Object} jsonNode - Json node fore XML Element Literal.
      * */
     initFromJson(jsonNode) {
+        this.children = [];
+        this.type_name = _.get(jsonNode, 'type_name', '');
+        this._attributes = [];
         _.forEach(jsonNode.children, (childNode) => {
             const child = ASTFactory.createFromJson(childNode);
-            this.addChild(child, undefined);
+            this.addChild(child, undefined, true, true);
+            child.initFromJson(childNode);
+        });
+
+        _.forEach(jsonNode.attributes, (childNode) => {
+            const child = ASTFactory.createFromJson(childNode);
+            this._attributes.push(child);
             child.initFromJson(childNode);
         });
     }

@@ -19,24 +19,25 @@ import _ from 'lodash';
 import Expression from './expression';
 import ASTFactory from './../ast-factory';
 
-class XMLCommentLiteral extends Expression {
+class XMLPILiteral extends Expression {
     constructor(args) {
-        super('XMLCommentLiteral');
+        super('XMLPILiteral');
         this.type_name = _.get(args, 'type_name', '');
     }
 
     getExpressionString() {
-        let expression = `${this.type_name} \`<!--`;
+        let expression = `${this.type_name} \`<?`;
         this.children.forEach((child) => {
             if (ASTFactory.isBasicLiteralExpression(child)) {
                 expression += `${child.getBasicLiteralValue()}`;
+                if (this.children.indexOf(child) === 0) {
+                    expression += ' ';
+                }
             } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
                 expression += `{{${child.getVariableName()}}}`;
-            } else if (ASTFactory.isBinaryExpression(child)) {
-                expression += '';
             }
         });
-        expression += '-->`';
+        expression += '?>`';
         return expression;
     }
 
@@ -45,7 +46,6 @@ class XMLCommentLiteral extends Expression {
      * */
     initFromJson(jsonNode) {
         this.type_name = _.get(jsonNode, 'type_name', '');
-        this.children = [];
         _.forEach(jsonNode.children, (childNode) => {
             const child = ASTFactory.createFromJson(childNode);
             this.addChild(child);
@@ -54,4 +54,4 @@ class XMLCommentLiteral extends Expression {
     }
 }
 
-export default XMLCommentLiteral;
+export default XMLPILiteral;
