@@ -27,7 +27,7 @@ class TypeLattice {
      * @memberof TypeLattice
      */
     constructor() {
-        this._typeEdges = [];
+        this._typeLattice = [];
     }
 
     /**
@@ -107,4 +107,4 @@ class TypeLattice {
     }
 }
 
-export default TypeLattice;
+export default new TypeLattice();

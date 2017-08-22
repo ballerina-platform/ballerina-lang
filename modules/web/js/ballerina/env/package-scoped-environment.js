@@ -26,7 +26,7 @@ class PackageScopedEnvironment {
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
         this._annotationAttachmentTypes = [];
-        this._typeLattice = _.get(args, 'typeLattice', new TypeLattice());
+        this._typeLattice = _.get(args, 'typeLattice', TypeLattice);
         this._initialized = false;
     }
 

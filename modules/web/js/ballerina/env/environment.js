@@ -36,7 +36,7 @@ class BallerinaEnvironment extends EventChannel {
         this.initialized = false;
         this.initPending = false;
         this._packages = _.get(args, 'packages', []);
-        this._typeLattice = _.get(args, 'typeLattice', new TypeLattice());
+        this._typeLattice = _.get(args, 'typeLattice', TypeLattice);
         this._types = _.get(args, 'types', []);
         this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
     }

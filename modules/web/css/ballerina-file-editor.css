@@ -1051,12 +1051,21 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     border: 1px solid #CCC;
 }
 
-.annotation-container ul > li:first-child {
-    /*height: 0px;*/
-}
-
 .annotation-container ul > li {
     padding-left: 20px;
+}
+
+.annotation-container > ul > li {
+    padding-left: 0px;
+}
+
+.annotation-add-at-sign {
+    padding-right: 4px;
+}
+
+.annotation-attribute-b-value-input {
+    padding: 1px 10px;
+    border: 0px solid #aaa;
 }
 
 .annotation-container > .annotation-attachment-ul {
@@ -1095,6 +1104,18 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 
 .annotation-attribute-error {
     /*border: 1px solid red;*/
+}
+
+.annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span {
+    padding-right: 7px;
+}
+
+.annotation-attachment-text-li > span, .attribute-value-array li > span, .attribute-value-annotation li > span :hover{
+    cursor: pointer;
+}
+
+.attribute-value-bvalue .annotation-attribute-key {
+    padding-left: 16px;
 }
 
 .popout-button-wrapper i {

@@ -25,36 +25,15 @@ export default class FunctionInv extends React.Component {
     render() {
         const {
             func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv,
+            parentFunc, funcInv, onEndpointRemove
         } = this.props;
-        const params = func.getParameters().map((paramObj, index) => {
-            const param = paramObj.typeDef || paramObj;
-            const paramDetails = {
-                name: paramObj.name,
-                index,
-                type: param.type,
-                typeName: param.typeName,
-                properties: param.properties,
-                endpointKind: 'param',
-                paramName: `${funcInv.getID()}:${func.getName()}`,
-                enclosingAssignmentStatement,
-                parentFunc,
-                funcInv,
-            };
 
-            return paramDetails;
+        func.parameters.forEach((param, index) => {
+            param.endpointKind = 'param';
         });
 
-        const returns = func.getReturnParams().map((returnsObj, index) => {
-            return {
-                name: returnsObj.name,
-                index,
-                type: returnsObj.typeName || returnsObj.type,
-                paramName: `${funcInv.getID()}:${func.getName()}`,
-                enclosingAssignmentStatement,
-                parentFunc,
-                funcInv,
-            };
+        func.returnParams.forEach((returnsObj, index) => {
+            returnsObj.endpointKind = 'return';
         });
 
         const onRemove = () => {
@@ -89,7 +68,7 @@ export default class FunctionInv extends React.Component {
             <div className='transform-expanded-func func'>
                 <div className='function-header'>
                     <i className='fw fw-function fw-inverse' />
-                    <span className='func-name'>{func.getName()}</span>
+                    <span className='func-name'>{funcInv.getFunctionName()}</span>
                     <span onClick={onRemove} className='fw-stack fw-lg btn btn-remove-func'>
                         <i className='fw-delete fw-stack-1x fw-inverse' />
                     </span>
@@ -99,16 +78,18 @@ export default class FunctionInv extends React.Component {
                         <Tree
                             type='param'
                             makeConnectPoint={recordTargetElement}
-                            endpoints={params}
+                            endpoints={func.parameters}
                             viewId={viewId}
+                            onEndpointRemove={onEndpointRemove}
                         />
                     </div>
                     <div className='func-output'>
                         <Tree
                             type='return'
                             makeConnectPoint={recordSourceElement}
-                            endpoints={returns}
+                            endpoints={func.returnParams}
                             viewId={viewId}
+                            onEndpointRemove={onEndpointRemove}
                         />
                     </div>
                 </div>

@@ -36,6 +36,7 @@ import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -252,9 +253,22 @@ public abstract class AbstractItemResolver {
     public boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
         TokenStream tokenStream = dataModel.getTokenStream();
         int currentTokenIndex = dataModel.getTokenIndex();
+        int searchTokenIndex = currentTokenIndex + 1;
 
-        return tokenStream.get(currentTokenIndex + 1).getText().equals(".") ||
-                tokenStream.get(currentTokenIndex + 1).getText().equals(":");
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        while (true) {
+            if (searchTokenIndex >= tokenStream.size()) {
+                return false;
+            }
+            String tokenString = tokenStream.get(searchTokenIndex).getText();
+            if (tokenString.equals(".") || tokenString.equals(":")) {
+                return true;
+            } else if (terminalTokens.contains(tokenString)) {
+                return false;
+            } else {
+                searchTokenIndex++;
+            }
+        }
     }
 
     /**

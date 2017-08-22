@@ -1,0 +1,25 @@
+.debug-frames-container .tree-view {
+    font-size : 1.1em;
+    margin-bottom: 3px;
+    color: #f2f0ec;
+}
+
+/** added !important to override inline styles **/
+.debug-frames-container .react-json-view{
+    background: inherit !important;
+    color: inherit!important;
+    font-size: 14px!important;
+}
+
+.debug-frames-container .tree-view .node{
+    padding-top: 6px;
+}
+
+.debug-frames-container .tree-view .tree-view_item{
+    padding-top: 8px;
+}
+
+.debug-frames-container .HTMLTree{
+    background-color: inherit;
+    font-size: 14px;
+}
