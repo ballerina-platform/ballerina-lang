@@ -57,7 +57,7 @@ public class DataTableTest {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
     }
 
-    @Test(description = "Check getByIndex methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
     public void testGetPrimitiveTypes() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testGetPrimitiveTypes");
 
@@ -70,7 +70,7 @@ public class DataTableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
-    @Test(description = "Check toJson methods.")
+    @Test(groups = "DatatableTest", description = "Check toJson methods.")
     public void testToJson() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToJson");
 
@@ -81,7 +81,7 @@ public class DataTableTest {
                         + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]");
     }
 
-    @Test(description = "Check toXml methods with wrapper element.")
+    @Test(groups = "DatatableTest", description = "Check toXml methods with wrapper element.")
     public void testToXml() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXml");
 
@@ -93,7 +93,7 @@ public class DataTableTest {
                         + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></result></results>");
     }
 
-    @Test(description = "Check toXml methods with complex element.")
+    @Test(groups = "DatatableTest", description = "Check toXml methods with complex element.")
     public void testToXmlComplex() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "toXmlComplex");
 
@@ -113,7 +113,7 @@ public class DataTableTest {
                         + "<element>Ballerina</element></STRING_ARRAY></result></results>");
     }
 
-    @Test(description = "Check getObjectAsStringByName methods for complex types.")
+    @Test(groups = "DatatableTest", description = "Check getObjectAsStringByName methods for complex types.")
     public void testGetComplexTypes() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testGetComplexTypes");
 
@@ -124,7 +124,7 @@ public class DataTableTest {
     }
 
     @SuppressWarnings("unchecked")
-    @Test(description = "Check getXXXArray methods for complex types.")
+    @Test(groups = "DatatableTest", description = "Check getXXXArray methods for complex types.")
     public void testArrayData() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testArrayData");
         Assert.assertEquals(returns.length, 5);
@@ -163,7 +163,7 @@ public class DataTableTest {
         Assert.assertEquals(booleanArray.get(new BString("2")).booleanValue(), true);
     }
 
-    @Test(description = "Check date time operation")
+    @Test(groups = "DatatableTest", description = "Check date time operation")
     public void testDateTime() {
         BValue[] args = new BValue[3];
         Calendar cal = Calendar.getInstance();
@@ -221,7 +221,7 @@ public class DataTableTest {
         }
     }
 
-    @Test(description = "Check toJson methods with null values.")
+    @Test(groups = "DatatableTest", description = "Check toJson methods with null values.")
     public void testJsonWithNull() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonWithNull");
 
@@ -232,7 +232,7 @@ public class DataTableTest {
                         + "\"STRING_TYPE\":null}]");
     }
 
-    @Test(description = "Check toXml method with null values.")
+    @Test(groups = "DatatableTest", description = "Check toXml method with null values.")
     public void testXmlWithNull() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testXmlWithNull");
 
@@ -245,7 +245,7 @@ public class DataTableTest {
                         + "</result></results>");
     }
 
-    @Test(description = "Check toXml method within transaction.")
+    @Test(groups = "DatatableTest", description = "Check toXml method within transaction.")
     public void testToXmlWithinTransaction() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXmlWithinTransaction");
         Assert.assertEquals(returns.length, 2);
@@ -254,7 +254,7 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(description = "Check toJson methods within transaction.")
+    @Test(groups = "DatatableTest", description = "Check toJson methods within transaction.")
     public void testToJsonWithinTransaction() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToJsonWithinTransaction");
         Assert.assertEquals(returns.length, 2);
@@ -262,14 +262,14 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(description = "Check blob data support.")
+    @Test(groups = "DatatableTest", description = "Check blob data support.")
     public void testBlobData() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobData");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
     }
 
-    @Test(description = "Check getByIndex methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
     public void testColumnAlias() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testColumnAlias");
 
@@ -283,13 +283,13 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
     }
 
-    @Test(description = "Check getByIndex methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
     public void testBlobInsert() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobInsert");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(description = "Check auto close resources in datatable.")
+    @Test(groups = "DatatableTest", description = "Check auto close resources in datatable.")
     public void testDatatableAutoClose() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDatatableAutoClose");
         Assert.assertEquals(returns.length, 2);
@@ -299,11 +299,18 @@ public class DataTableTest {
                 + "\"STRING_TYPE\":\"Hello\"}]");
     }
 
-    @Test(description = "Check manual close resources in datatable.")
+    @Test(groups = "DatatableTest", description = "Check manual close resources in datatable.")
     public void testDatatableManualClose() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDatatableManualClose");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(dependsOnGroups = "DatatableTest", description = "Check all sql connectors are closed properly.")
+    public void testCloseConnectionPool() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testCloseConnectionPool");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @AfterSuite
