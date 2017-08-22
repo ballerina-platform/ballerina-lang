@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.natives.connectors;
 
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
@@ -43,6 +44,7 @@ import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,6 +86,14 @@ public class BallerinaConnectorManager {
         trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
         serverBootstrapConfiguration = HTTPMessageUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
+
+        if (System.getProperty(BLogManager.HTTP_TRACE_LOG) != null) {
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            } catch (IOException e) {
+                throw new BallerinaException("Error in configuring HTTP trace log");
+            }
+        }
     }
 
     public static BallerinaConnectorManager getInstance() {
@@ -158,12 +168,16 @@ public class BallerinaConnectorManager {
             }
         }
 
+        if (System.getProperty(BLogManager.HTTP_TRACE_LOG) != null) {
+            listenerConfig.setHttpTraceLogEnabled(true);
+        }
+
         serverBootstrapConfiguration = HTTPMessageUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
                 httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
 
-        httpServerConnectorContext =  new HttpServerConnectorContext(serverConnector, listenerConfig);
+        httpServerConnectorContext = new HttpServerConnectorContext(serverConnector, listenerConfig);
         serverConnectorPool.put(serverConnector.getConnectorID(), httpServerConnectorContext);
         httpServerConnectorContext.incrementReferenceCount();
         addStartupDelayedHTTPServerConnector(listenerInterface, serverConnector);
@@ -315,6 +329,11 @@ public class BallerinaConnectorManager {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig);
+
+        if (System.getProperty(BLogManager.HTTP_TRACE_LOG) != null) {
+            senderConfiguration.setHttpTraceLogEnabled(true);
+        }
+
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
 
