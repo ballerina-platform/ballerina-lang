@@ -2261,7 +2261,6 @@ public class PrimaryKeyTableTestCase {
         }
     }
 
-
     @Test
     public void primaryKeyTableTest36() throws InterruptedException {
         log.info("primaryKeyTableTest36");
@@ -2327,6 +2326,73 @@ public class PrimaryKeyTableTestCase {
             siddhiAppRuntime.shutdown();
         }
     }
+
+    @Test
+    public void primaryKeyTableTest37() throws InterruptedException {
+        log.info("primaryKeyTableTest37");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol','volume') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on CheckStockStream.symbol==StockTable.symbol " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        try {
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+
+            siddhiAppRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 56.6f, 200L});
+            checkStockStream.send(new Object[]{"IBM", 200L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+
+            List<Object[]> expected = Arrays.asList(
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
+            );
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 2, inEventCount.get());
+            Assert.assertEquals("Number of remove events", 0, removeEventCount);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
+
 //
 //    @Test
 //    public void primaryKeyTableTest33() throws InterruptedException {

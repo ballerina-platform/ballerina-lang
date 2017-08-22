@@ -47,6 +47,7 @@ public class IndexEventHolder implements IndexedEventHolder {
     private final Map<Object, StreamEvent> primaryKeyData;
     private final Map<String, TreeMap<Object, Set<StreamEvent>>> indexData;
     private final PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders;
+    private String primaryKeyAttributes = null;
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
     private Map<String, Integer> indexMetaData;
@@ -70,11 +71,16 @@ public class IndexEventHolder implements IndexedEventHolder {
             if (primaryKeyReferenceHolders.length == 1) {
                 allIndexMetaData.put(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute(),
                         primaryKeyReferenceHolders[0].getPrimaryKeyPosition());
+                primaryKeyAttributes = primaryKeyReferenceHolders[0].getPrimaryKeyAttribute();
             } else {
+                StringBuilder primaryKeyAttributesBuilder = new StringBuilder();
                 for (PrimaryKeyReferenceHolder primaryKeyReferenceHolder : primaryKeyReferenceHolders) {
                     multiPrimaryKeyMetaData.put(primaryKeyReferenceHolder.getPrimaryKeyAttribute(),
                             primaryKeyReferenceHolder.getPrimaryKeyPosition());
+                    primaryKeyAttributesBuilder.append(primaryKeyReferenceHolder.getPrimaryKeyAttribute())
+                            .append(SiddhiConstants.KEY_DELIMITER);
                 }
+                primaryKeyAttributes = primaryKeyAttributesBuilder.toString();
             }
         } else {
             primaryKeyData = null;
@@ -227,8 +233,7 @@ public class IndexEventHolder implements IndexedEventHolder {
     @Override
     public Collection<StreamEvent> findEvents(String attribute, Compare.Operator operator, Object value) {
 
-        if (primaryKeyData != null && primaryKeyReferenceHolders.length == 1 &&
-                attribute.equals(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute())) {
+        if (primaryKeyData != null && attribute.equals(primaryKeyAttributes)) {
             StreamEvent resultEvent;
             HashSet<StreamEvent> resultEventSet;
 
@@ -342,8 +347,7 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     @Override
     public void delete(String attribute, Compare.Operator operator, Object value) {
-        if (primaryKeyData != null && primaryKeyReferenceHolders.length == 1 &&
-                attribute.equals(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute())) {
+        if (primaryKeyData != null && attribute.equals(primaryKeyAttributes)) {
             switch (operator) {
 
                 case LESS_THAN:
@@ -456,8 +460,7 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     @Override
     public boolean containsEventSet(String attribute, Compare.Operator operator, Object value) {
-        if (primaryKeyData != null && primaryKeyReferenceHolders.length == 1 &&
-                attribute.equals(primaryKeyReferenceHolders[0].getPrimaryKeyAttribute())) {
+        if (primaryKeyData != null && attribute.equals(primaryKeyAttributes)) {
             switch (operator) {
                 case LESS_THAN:
                     return ((TreeMap<Object, StreamEvent>) primaryKeyData).lowerKey(value) != null;

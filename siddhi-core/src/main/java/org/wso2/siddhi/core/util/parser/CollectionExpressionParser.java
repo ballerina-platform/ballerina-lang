@@ -25,6 +25,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.executor.AndMultiPrimaryKeyCollectionExecutor;
 import org.wso2.siddhi.core.util.collection.executor.AnyAndCollectionExecutor;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 import org.wso2.siddhi.core.util.collection.executor.CompareCollectionExecutor;
@@ -61,6 +63,8 @@ import org.wso2.siddhi.query.api.expression.math.Mod;
 import org.wso2.siddhi.query.api.expression.math.Multiply;
 import org.wso2.siddhi.query.api.expression.math.Subtract;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -393,9 +397,22 @@ public class CollectionExpressionParser {
                     Compare.Operator.EQUAL, new ConstantExpressionExecutor(null, Attribute.Type.OBJECT));
         } else if (collectionExpression instanceof AndMutiPrimaryKeyCollectionExpression) {
 
-            asdf = buildMultiPrimaryKeyCollectionExecutors(collectionExpression,
-                    matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
-                    siddhiAppContext, isFirst, queryName);
+            Map<String, ExpressionExecutor> multiPrimaryKeyExpressionExecutors =
+                    buildMultiPrimaryKeyExpressionExecutors(collectionExpression,
+                            matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
+                            siddhiAppContext, isFirst, queryName);
+            List<Attribute> attributes = matchingMetaInfoHolder.getStoreDefinition().getAttributeList();
+            StringBuilder compositePrimaryKey = new StringBuilder();
+            List<ExpressionExecutor> sortedExecutors = new ArrayList<ExpressionExecutor>();
+            for (Attribute attribute : attributes) {
+                ExpressionExecutor expressionExecutor = multiPrimaryKeyExpressionExecutors.get(attribute.getName());
+                if (expressionExecutor != null) {
+                    sortedExecutors.add(expressionExecutor);
+                    compositePrimaryKey.append(attribute.getName()).append(SiddhiConstants.KEY_DELIMITER);
+                }
+
+            }
+            return new AndMultiPrimaryKeyCollectionExecutor(compositePrimaryKey.toString(), sortedExecutors);
 
 //
         } else if (collectionExpression instanceof AndCollectionExpression) {
@@ -660,9 +677,10 @@ public class CollectionExpressionParser {
                     if (isFirst) {
                         exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(
                                 ExpressionParser.parseExpression(collectionExpression.getExpression(),
-                                        matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
-                                        tableMap, variableExpressionExecutors, siddhiAppContext, false,
-                                        0, queryName), matchingMetaInfoHolder.getStoreEventIndex());
+                                        matchingMetaInfoHolder.getMetaStateEvent(),
+                                        matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors,
+                                        siddhiAppContext, false, 0, queryName),
+                                matchingMetaInfoHolder.getStoreEventIndex());
                     }
                     CollectionExecutor notCollectionExecutor = buildCollectionExecutor(((NotCollectionExpression)
                                     collectionExpression).getCollectionExpression(), matchingMetaInfoHolder,
@@ -692,14 +710,14 @@ public class CollectionExpressionParser {
                             matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
                             tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
                 }
-                return new ExhaustiveCollectionExecutor(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex
-                        ());
+                return new ExhaustiveCollectionExecutor(expressionExecutor,
+                        matchingMetaInfoHolder.getStoreEventIndex());
             }
         }
         throw new UnsupportedOperationException(collectionExpression.getClass().getName() + " not supported!");
     }
 
-    private static Map<String, CollectionExecutor> buildMultiPrimaryKeyCollectionExecutors(
+    private static Map<String, ExpressionExecutor> buildMultiPrimaryKeyExpressionExecutors(
             CollectionExpression collectionExpression, MatchingMetaInfoHolder matchingMetaInfoHolder,
             List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
             SiddhiAppContext siddhiAppContext, boolean isFirst, String queryName) {
@@ -708,27 +726,28 @@ public class CollectionExpressionParser {
             CollectionExpression leftCollectionExpression = ((AndMutiPrimaryKeyCollectionExpression)
                     collectionExpression).getLeftCollectionExpression();
             CollectionExpression rightCollectionExpression = ((AndMutiPrimaryKeyCollectionExpression)
-                    collectionExpression).getLeftCollectionExpression();
-            Map<String, CollectionExecutor> collectionExecutors = buildMultiPrimaryKeyCollectionExecutors(
+                    collectionExpression).getRightCollectionExpression();
+            Map<String, ExpressionExecutor> expressionExecutors = buildMultiPrimaryKeyExpressionExecutors(
                     leftCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
                     siddhiAppContext, false, queryName);
-            collectionExecutors.putAll(buildMultiPrimaryKeyCollectionExecutors(
+            expressionExecutors.putAll(buildMultiPrimaryKeyExpressionExecutors(
                     rightCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
                     siddhiAppContext, false, queryName));
-            return collectionExecutors;
+            return expressionExecutors;
         } else if (collectionExpression instanceof AndCollectionExpression) {
             CollectionExpression leftCollectionExpression = ((AndCollectionExpression)
                     collectionExpression).getLeftCollectionExpression();
             CollectionExpression rightCollectionExpression = ((AndCollectionExpression)
                     collectionExpression).getLeftCollectionExpression();
-            Map<String, CollectionExecutor> collectionExecutors = buildMultiPrimaryKeyCollectionExecutors(
+            Map<String, ExpressionExecutor> expressionExecutors = buildMultiPrimaryKeyExpressionExecutors(
                     leftCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
                     siddhiAppContext, false, queryName);
-            collectionExecutors.putAll(buildMultiPrimaryKeyCollectionExecutors(
+            expressionExecutors.putAll(buildMultiPrimaryKeyExpressionExecutors(
                     rightCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
                     siddhiAppContext, false, queryName));
-            return collectionExecutors;
+            return expressionExecutors;
         } else if (collectionExpression instanceof CompareCollectionExpression) {
+
             if (((CompareCollectionExpression) collectionExpression).getOperator() == Compare.Operator.EQUAL) {
                 CollectionExpression attributeCollectionExpression =
                         ((CompareCollectionExpression) collectionExpression).getAttributeCollectionExpression();
@@ -736,18 +755,27 @@ public class CollectionExpressionParser {
                     String attribue = ((AttributeCollectionExpression) attributeCollectionExpression).getAttribute();
                     CollectionExpression valueCollectionExpression =
                             ((CompareCollectionExpression) collectionExpression).getValueCollectionExpression();
-                   ExpressionExecutor valueCollectionExpression.getExpression()
+                    ExpressionExecutor valueExpressionExecutor = ExpressionParser.parseExpression(
+                            valueCollectionExpression.getExpression(), matchingMetaInfoHolder.getMetaStateEvent(),
+                            matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors,
+                            siddhiAppContext, false, 0, queryName);
+                    Map<String, ExpressionExecutor> expressionExecutors = new HashMap<String, ExpressionExecutor>();
+                    expressionExecutors.put(attribue, valueExpressionExecutor);
+                    return expressionExecutors;
                 } else {
-                    throw new SiddhiAppCreationException("Only attribute supported for multiple primary key EQUAL " +
-                            "comparision but found '" + attributeCollectionExpression.getClass() + "'");
+                    throw new SiddhiAppCreationException("Only attribute EQUAL " +
+                            "comparision supported for multiple primary key optimization, " +
+                            "but found  '" + attributeCollectionExpression.getClass() + "'");
                 }
             } else {
                 throw new SiddhiAppCreationException("Only '" + Compare.Operator.EQUAL + "' supported for multiple " +
-                        "primary key but found '" + ((CompareCollectionExpression) collectionExpression).getOperator() +
-                        "'");
+                        "primary key for multiple primary key optimization, but found '" +
+                        ((CompareCollectionExpression) collectionExpression).getOperator() + "'");
             }
         } else {//Attribute Collection
-
+            throw new SiddhiAppCreationException("Only 'AND' and '" + Compare.Operator.EQUAL + "' operators are " +
+                    "supported for multiple primary key optimization, but found '" +
+                    ((CompareCollectionExpression) collectionExpression).getOperator() + "'");
         }
 
     }
