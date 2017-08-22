@@ -69,11 +69,9 @@ public class HTTPServer {
             httpServerInitializer = new HTTPServerInitializer();
             httpServerInitializer.setSslContext(sslContext);
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(httpServerInitializer);
-            ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port)).sync();
-            logger.info("HTTPServer starting on port " + port);
-            if (ch.isSuccess()) {
-                logger.info("HTTPServer started on port " + port);
-            }
+            ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
+            ch.sync();
+            logger.info("HTTPServer started on port " + port);
         } catch (InterruptedException e) {
             logger.error("HTTP Server cannot start on port " + port);
         }
@@ -82,9 +80,9 @@ public class HTTPServer {
     /**
      * Shutdown the HTTPServer
      */
-    public void shutdown() {
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+    public void shutdown() throws InterruptedException {
+        bossGroup.shutdownGracefully().sync();
+        workerGroup.shutdownGracefully().sync();
         logger.info("HTTPServer shutdown ");
     }
 

@@ -24,12 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -47,7 +46,7 @@ public class PassThroughHttpTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
 
-    private List<HTTPServerConnector> serverConnectors;
+    private List<ServerConnector> serverConnectors;
 
     private static final String testValue = "Test Message";
 
@@ -55,14 +54,12 @@ public class PassThroughHttpTestCase {
 
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
-    private CarbonMessageProcessor carbonMessageProcessor;
-
     @BeforeClass
     public void setUp() {
         TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
-        carbonMessageProcessor = new PassthroughMessageProcessor();
-        serverConnectors = TestUtil.startConnectors(configuration, carbonMessageProcessor);
+        serverConnectors = TestUtil.startConnectors(
+                configuration, new PassthroughMessageProcessorListener(configuration));
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
     }
 
@@ -93,7 +90,6 @@ public class PassThroughHttpTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         TestUtil.cleanUp(serverConnectors, httpServer);
-        TestUtil.removeMessageProcessor(carbonMessageProcessor);
     }
 
 }

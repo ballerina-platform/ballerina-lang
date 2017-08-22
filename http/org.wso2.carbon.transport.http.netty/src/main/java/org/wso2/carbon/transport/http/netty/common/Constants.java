@@ -45,6 +45,7 @@ public final class Constants {
     public static final String CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE = "client.bootstrap.worker.group.size";
 
     //Server side SSL Parameters
+    public static final String SSL_HANDLER = "ssl";
     public static final String CLIENT_SUPPORT_CIPHERS = "client.ssl.ciphers";
     public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "client.ssl.http.protocols";
     public static final String CLIENT_ENABLE_SESSION_CREATION = "client.enable.session.creation";
@@ -216,6 +217,7 @@ public final class Constants {
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_PROTOCOL = "ws";
+    public static final String WEBSOCKET_PROTOCOL_SECURED = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
     public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
@@ -224,6 +226,8 @@ public final class Constants {
     public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
     public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
     public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
+    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
+    public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
 
 
     // Callback related parameters
@@ -240,9 +244,11 @@ public final class Constants {
     public static final String HTTP2_AUTHORITY = ":authority";
     public static final String HTTP2_SCHEME = ":scheme";
 
+    public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
+    public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String TARGET_HANDLER = "targetHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
-    public static final String HTTP_TRACE_LOGGING_HANDLER = "httpTraceLogger";
+    public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
 
     private Constants() {
     }

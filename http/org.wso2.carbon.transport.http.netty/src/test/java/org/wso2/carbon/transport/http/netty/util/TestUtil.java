@@ -19,29 +19,38 @@
 package org.wso2.carbon.transport.http.netty.util;
 
 import com.google.common.io.ByteStreams;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
-import org.wso2.carbon.transport.http.netty.listener.ServerConnectorController;
-import org.wso2.carbon.transport.http.netty.sender.HTTPClientConnector;
+import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+import org.wso2.carbon.transport.http.netty.util.server.ServerThread;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.testng.AssertJUnit.fail;
 
@@ -54,75 +63,58 @@ public class TestUtil {
 
     public static final int TEST_SERVER_PORT = 9000;
     public static final String TEST_HOST = "localhost";
-
-    public static final int SERVERS_SETUP_TIME = 10000;
-    public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
+    private static List<ServerConnector> connectors;
+    private static List<ServerConnectorFuture> futures;
 
-    public static final String TRANSPORT_URI = "http://localhost:8490/";
-
-    public static void cleanUp(List<HTTPServerConnector> serverConnectors, HTTPServer httpServer)
+    public static void cleanUp(List<ServerConnector> serverConnectors, HTTPServer httpServer)
             throws ServerConnectorException {
-        try {
-            Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-
-        for (HTTPServerConnector httpServerConnector : serverConnectors) {
+        for (ServerConnector httpServerConnector : serverConnectors) {
             httpServerConnector.stop();
         }
 
-        serverConnectors.get(0).getServerConnectorController().stop();
+        if (ConnectionManager.getInstance() != null) {
+            ConnectionManager.getInstance().getTargetChannelPool().clear();
+        }
 
-        httpServer.shutdown();
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+            HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully().sync();
+            HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully().sync();
+            httpServer.shutdown();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
     }
 
-    public static List<HTTPServerConnector> startConnectors(TransportsConfiguration transportsConfiguration,
-                                                            CarbonMessageProcessor carbonMessageProcessor) {
+    public static List<ServerConnector> startConnectors(TransportsConfiguration transportsConfiguration,
+                                                            HttpConnectorListener httpConnectorListener) {
 
-        List<HTTPServerConnector> connectors = new ArrayList<>();
-
-        ServerConnectorController serverConnectorController = new ServerConnectorController(transportsConfiguration);
-
+        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
+                        .build("src/test/resources/simple-test-config/netty-transports.yml");
+        ServerBootstrapConfiguration serverBootstrapConfiguration = getServerBootstrapConfiguration(
+                configuration.getTransportProperties());
         Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
 
-        HTTPClientConnector httpClientConnector =
-                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
-                        transportsConfiguration.getTransportProperties());
+        HTTPTransportContextHolder.getInstance().setWorkerGroup(new NioEventLoopGroup());
+        HTTPTransportContextHolder.getInstance().setBossGroup(new NioEventLoopGroup());
 
-        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+        connectors = new ArrayList<>();
+        futures = new ArrayList<>();
 
-        carbonMessageProcessor.setClientConnector(httpClientConnector);
-
-        Thread transportRunner = new Thread(() -> {
-            try {
-                serverConnectorController.start();
-            } catch (Exception e) {
-                log.error("Unable to start Server Connector Controller ", e);
-            }
-        });
-        transportRunner.start();
-
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-
+        HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
         listenerConfigurationSet.forEach(config -> {
-            HTTPServerConnector connector = new HTTPServerConnector(config.getId());
-            connector.setListenerConfiguration(config);
-            connector.setServerConnectorController(serverConnectorController);
-            serverConnectorController.bindInterface(connector);
-            connector.setMessageProcessor(carbonMessageProcessor);
-            connectors.add(connector);
+            ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
+                    config);
+            ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+            serverConnectorFuture.setHttpConnectorListener(httpConnectorListener);
+            try {
+                serverConnectorFuture.sync();
+            } catch (InterruptedException e) {
+                log.error("Thread Interrupted while sleeping ", e);
+            }
+            futures.add(serverConnectorFuture);
+            connectors.add(serverConnector);
         });
 
         return connectors;
@@ -130,15 +122,12 @@ public class TestUtil {
 
     public static HTTPServer startHTTPServer(int port) {
         HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                httpServer.start();
-            }
-        });
-        serverThread.start();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+            serverThread.start();
+            latch.await();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
@@ -147,35 +136,16 @@ public class TestUtil {
 
     public static HTTPServer startHTTPServer(int port, String message, String contentType) {
         HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(() -> {
-            httpServer.start();
-            httpServer.setMessage(message, contentType);
-        });
-        serverThread.start();
+        CountDownLatch latch = new CountDownLatch(1);
+        ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
+            serverThread.start();
+            latch.await();
+            httpServer.setMessage(message, contentType);
+        } catch (Exception e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
-    }
-
-    public static void shutDownCarbonTransport(HTTPTransportListener httpTransportListener) {
-        httpTransportListener.stop();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interuppted while sleeping ", e);
-        }
-    }
-
-    public static void shutDownHttpServer(HTTPServer httpServer) {
-        httpServer.shutdown();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
     }
 
     public static String getContent(HttpURLConnection urlConn) throws IOException {
@@ -205,16 +175,9 @@ public class TestUtil {
     public static void setHeader(HttpURLConnection urlConnection, String key, String value) {
         urlConnection.setRequestProperty(key, value);
     }
-    public static void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        HTTPTransportContextHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
-    }
-    public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
-            TransportsConfiguration transportsConfiguration) {
-        HTTPClientConnector httpClientConnector =
-                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
-                        transportsConfiguration.getTransportProperties());
-        carbonMessageProcessor.setClientConnector(httpClientConnector);
-        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+
+    public static void updateMessageProcessor(HttpConnectorListener httpConnectorListener) {
+        futures.forEach(future -> future.setHttpConnectorListener(httpConnectorListener));
     }
 
     public static void handleException(String msg, Exception ex) {
@@ -222,5 +185,17 @@ public class TestUtil {
         fail(msg);
     }
 
+    private static ServerBootstrapConfiguration getServerBootstrapConfiguration(
+            Set<TransportProperty> transportPropertiesSet) {
+        Map<String, Object> transportProperties = new HashMap<>();
+
+        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+            transportProperties = transportPropertiesSet.stream().collect(
+                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+        }
+        // Create Bootstrap Configuration from listener parameters
+        ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
+        return ServerBootstrapConfiguration.getInstance();
+    }
 }
 

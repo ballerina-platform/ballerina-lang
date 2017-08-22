@@ -40,12 +40,12 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.Headers;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import javax.net.ssl.SSLException;
 import javax.websocket.Session;
 
@@ -63,38 +63,43 @@ public class WebSocketClient {
 
     private final String url;
     private final String subprotocol;
-    private final String clientServiceName;
+    private final String target;
     private final boolean allowExtensions;
-    private final Headers headers;
+    private final Map<String, String> headers;
     private final WebSocketSourceHandler sourceHandler;
-    private final CarbonMessageProcessor messageProcessor;
+    private final WebSocketConnectorListener connectorListener;
 
     /**
+     *
      * @param url url of the remote endpoint.
+     * @param target target for the inbound messages from the remote server.
      * @param subprotocol the negotiable sub-protocol if server is asking for it.
      * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
+     * @param sourceHandler {@link WebSocketSourceHandler} for pass through purposes.
+     * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String clientServiceName, String subprotocol, boolean allowExtensions,
-                           Headers headers, WebSocketSourceHandler sourceHandler,
-                           CarbonMessageProcessor messageProcessor) {
+    public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
+                           Map<String, String> headers, WebSocketSourceHandler sourceHandler,
+                           WebSocketConnectorListener connectorListener) {
         this.url = url;
-        this.clientServiceName = clientServiceName;
+        this.target = target;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
         this.sourceHandler = sourceHandler;
-        this.messageProcessor = messageProcessor;
+        this.connectorListener = connectorListener;
     }
 
     /**
      * Handle the handshake with the server.
      *
+     * @return Session {@link Session} which is created for the channel.
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      * @throws SSLException throws if SSL exception occurred during protocol negotiation.
      */
-    public void handshake() throws InterruptedException, URISyntaxException, SSLException {
+    public Session handshake() throws InterruptedException, URISyntaxException, SSLException {
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
@@ -129,45 +134,40 @@ public class WebSocketClient {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
 
         // Adding custom headers to the handshake request.
-        headers.getAll().forEach(
-                header -> httpHeaders.add(header.getName(), header.getValue())
+
+        headers.entrySet().forEach(
+                entry -> httpHeaders.add(entry.getKey(), entry.getValue())
         );
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, clientServiceName,
-                                             messageProcessor);
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, subprotocol,
+                                             connectorListener);
 
-        Bootstrap b = new Bootstrap();
-        b.group(group)
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ChannelPipeline p = ch.pipeline();
-                        if (sslCtx != null) {
-                            p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+        try {
+            Bootstrap b = new Bootstrap();
+            b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) {
+                            ChannelPipeline p = ch.pipeline();
+                            if (sslCtx != null) {
+                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                            }
+                            p.addLast(
+                                    new HttpClientCodec(),
+                                    new HttpObjectAggregator(8192),
+                                    WebSocketClientCompressionHandler.INSTANCE,
+                                    handler);
                         }
-                        p.addLast(
-                                new HttpClientCodec(),
-                                new HttpObjectAggregator(8192),
-                                WebSocketClientCompressionHandler.INSTANCE,
-                                handler);
-                    }
-                });
+                    });
 
-        channel = b.connect(uri.getHost(), port).sync().channel();
-        handler.handshakeFuture().sync();
-        handshakeDone = true;
+            channel = b.connect(uri.getHost(), port).sync().channel();
+            handler.handshakeFuture().sync();
+            return handler.getChannelSession();
+        } catch (Throwable t) {
+            throw new InterruptedException("Couldn't connect to the remote server.");
+        }
     }
-
-    /**
-     * Retrieve the relevant session of the client.
-     *
-     * @return Session of the client.
-     */
-    public Session getSession() {
-        return handler.getClientSession();
-    }
-
 }

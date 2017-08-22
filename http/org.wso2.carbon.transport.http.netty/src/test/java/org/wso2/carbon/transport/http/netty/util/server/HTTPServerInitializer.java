@@ -24,6 +24,8 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.ssl.SslHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -33,6 +35,8 @@ import javax.net.ssl.SSLEngine;
  */
 public class HTTPServerInitializer extends ChannelInitializer {
 
+    private static final Logger logger = LoggerFactory.getLogger(HTTPServerInitializer.class);
+
     private SSLContext sslContext;
     private String message;
     private String contentType;
@@ -41,6 +45,7 @@ public class HTTPServerInitializer extends ChannelInitializer {
     @Override
     protected void initChannel(Channel channel) throws Exception {
 
+        logger.debug("Server connection established");
         ChannelPipeline p = channel.pipeline();
         if (sslContext != null) {
             SSLEngine engine = sslContext.createSSLEngine();

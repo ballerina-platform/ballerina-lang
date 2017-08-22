@@ -68,6 +68,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private int socketIdleTimeout;
 
+    @XmlAttribute
+    private boolean httpTraceLogEnabled;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
@@ -161,5 +164,13 @@ public class SenderConfiguration {
 
     public void setSocketIdleTimeout(int socketIdleTimeout) {
         this.socketIdleTimeout = socketIdleTimeout;
+    }
+
+    public boolean isHttpTraceLogEnabled() {
+        return httpTraceLogEnabled;
+    }
+
+    public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 }

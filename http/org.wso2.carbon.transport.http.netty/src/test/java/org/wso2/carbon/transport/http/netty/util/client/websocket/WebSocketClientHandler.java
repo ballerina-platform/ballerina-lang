@@ -46,9 +46,11 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
+    private ChannelHandlerContext ctx;
 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
+    private boolean isOpen = false;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -61,16 +63,20 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
+        this.ctx = ctx;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         handshaker.handshake(ctx.channel());
+        isOpen = true;
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        logger.info("WebSocket Client disconnected!");
+    public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
+        logger.debug("WebSocket Client disconnected!");
+        ctx.channel().close().sync();
+        isOpen = false;
     }
 
     @Override
@@ -78,7 +84,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
-            logger.info("WebSocket Client connected!");
+            logger.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
         }
@@ -93,18 +99,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            logger.info("WebSocket Client received text message: " + textFrame.text());
+            logger.debug("WebSocket Client received text message: " + textFrame.text());
             textReceived = textFrame.text();
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
             bufferReceived = binaryFrame.content().nioBuffer();
-            logger.info("WebSocket Client received  binary message: " + bufferReceived.toString());
+            logger.debug("WebSocket Client received  binary message: " + bufferReceived.toString());
         } else if (frame instanceof PongWebSocketFrame) {
-            logger.info("WebSocket Client received pong");
+            logger.debug("WebSocket Client received pong");
             PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
-            logger.info("WebSocket Client received closing");
+            logger.debug("WebSocket Client received closing");
             ch.close();
         }
     }
@@ -130,5 +136,14 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             handshakeFuture.setFailure(cause);
         }
         ctx.close();
+    }
+
+    public void shutDown() throws InterruptedException {
+        ctx.channel().writeAndFlush(new CloseWebSocketFrame());
+        ctx.channel().closeFuture().sync();
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 }

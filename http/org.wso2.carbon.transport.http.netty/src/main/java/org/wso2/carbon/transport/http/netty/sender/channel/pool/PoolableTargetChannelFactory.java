@@ -23,7 +23,7 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
@@ -37,14 +37,17 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private EventLoopGroup eventLoopGroup;
     private Class eventLoopClass;
     private HttpRoute httpRoute;
-    private SenderConfiguration senderConfiguration;
+    private SSLConfig sslConfig;
+    private boolean httpTraceLogEnabled;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-                                        Class eventLoopClass, SenderConfiguration senderConfiguration) {
+                                        Class eventLoopClass, SSLConfig sslConfig,
+                                        boolean httpTraceLogEnabled) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
-        this.senderConfiguration = senderConfiguration;
+        this.sslConfig = sslConfig;
+        this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
 
@@ -52,7 +55,9 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         TargetChannel targetChannel = new TargetChannel();
         ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
-                eventLoopGroup, eventLoopClass, httpRoute, senderConfiguration);
+                                                                       eventLoopGroup, eventLoopClass, httpRoute,
+                                                                       this.sslConfig,
+                                                                       httpTraceLogEnabled);
         Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
         log.debug("Created channel: {}", channel);
         targetChannel.setChannel(channel);

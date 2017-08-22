@@ -27,18 +27,17 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,11 +52,11 @@ import java.util.Map;
 public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
-    protected CarbonCallback callback;
-    protected CarbonMessage cMsg;
-    protected ConnectionManager connectionManager;
-    protected TargetChannel targetChannel;
-    protected CarbonMessage incomingMsg;
+    private HttpResponseFuture httpResponseFuture;
+    private HTTPCarbonMessage cMsg;
+    private ConnectionManager connectionManager;
+    private TargetChannel targetChannel;
+    private CarbonMessage incomingMsg;
 
     public TargetHandler() {
     }
@@ -82,24 +81,20 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                             executeAtTargetResponseReceiving(cMsg);
                 }
-                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                        .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-                if (carbonMessageProcessor != null) {
+                if (this.httpResponseFuture != null) {
                     try {
-                        HTTPTransportContextHolder.getInstance()
-                                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID))
-                                .receive(cMsg, callback);
+                        httpResponseFuture.notifyHttpListener(cMsg);
                     } catch (Exception e) {
-                        LOG.error("Error while handover response to MessageProcessor ", e);
+                        LOG.error("Error while notifying response to listener ", e);
                     }
                 } else {
-                    LOG.error("Cannot correlate callback with request callback is null ");
+                    LOG.error("Cannot correlate callback with request callback is null");
                 }
             } else {
                 if (cMsg != null) {
                     if (msg instanceof LastHttpContent) {
                         HttpContent httpContent = (LastHttpContent) msg;
-                        ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
+                        cMsg.addHttpContent(httpContent);
                         cMsg.setEndOfMsgAdded(true);
                         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
@@ -109,7 +104,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         connectionManager.returnChannel(targetChannel);
                     } else {
                         HttpContent httpContent = (DefaultHttpContent) msg;
-                        ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
+                        cMsg.addHttpContent(httpContent);
                     }
                 }
             }
@@ -134,8 +129,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         LOG.debug("Target channel closed.");
     }
 
-    public void setCallback(CarbonCallback callback) {
-        this.callback = callback;
+    public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
+        this.httpResponseFuture = httpResponseFuture;
     }
 
     public void setConnectionManager(ConnectionManager connectionManager) {
@@ -150,27 +145,21 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.targetChannel = targetChannel;
     }
 
-    protected void sendBackTimeOutResponse() {
+    private void sendBackTimeOutResponse() {
         String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                 getHttpRoute().toString() + "</errorMessage>";
-
-        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
-
-        if (carbonMessageProcessor != null) {
+        if (httpResponseFuture != null) {
             try {
-                HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
-                        .getProperty(Constants.MESSAGE_PROCESSOR_ID))
-                        .receive(createErrorMessage(payload), callback);
+                httpResponseFuture.notifyHttpListener(createErrorMessage(payload));
             } catch (Exception e) {
-                LOG.error("Error while handover response to MessageProcessor ", e);
+                LOG.error("Error while notifying response to listener ", e);
             }
         } else {
             LOG.error("Cannot correlate callback with request callback is null ");
         }
     }
 
-    protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
+    private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
         cMsg = new HTTPCarbonMessage();
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
@@ -178,7 +167,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
         HttpResponse httpResponse = (HttpResponse) msg;
 
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
@@ -193,10 +181,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    protected CarbonMessage createErrorMessage(String payload) {
-        DefaultCarbonMessage response = new DefaultCarbonMessage();
+    private HTTPCarbonMessage createErrorMessage(String payload) {
+        HTTPCarbonMessage response = new HTTPCarbonMessage();
 
-        response.setStringMessageBody(payload);
+        response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
+        response.setEndOfMsgAdded(true);
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
 
         Map<String, String> transportHeaders = new HashMap<>();
@@ -208,7 +197,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         response.setProperty(Constants.HTTP_STATUS_CODE, 504);
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        response.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
         MessagingException messagingException = new MessagingException("read timeout", 101504);
         response.setMessagingException(messagingException);
         return response;
