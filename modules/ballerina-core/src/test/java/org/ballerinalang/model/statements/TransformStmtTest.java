@@ -103,4 +103,24 @@ public class TransformStmtTest {
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
+
+    @Test(description = "Test one to one simple transformation with type cast and conversion")
+    public void testCastAndConversionInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "castAndConversionInTransform");
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Mr.John");
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "New York");
+
+        Assert.assertTrue(returns[3] instanceof BInteger);
+        Assert.assertEquals(returns[3].stringValue(), "30");
+    }
+
 }
