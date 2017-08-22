@@ -33,6 +33,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -97,6 +98,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);
+        Map<String, List<String>> serviceCorsMap = CorsRegistry.getInstance().getServiceCors(service);
         for (ResourceInfo resource : service.getResourceInfoEntries()) {
             AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                     Constants.ANN_NAME_RESOURCE_CONFIG);
@@ -125,6 +127,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             } catch (URITemplateException e) {
                 throw new BallerinaException(e.getMessage());
             }
+            CorsRegistry.getInstance().processResourceCors(resource, serviceCorsMap);
         }
         String basePath = DispatcherUtil.getServiceBasePath(service);
         sortedServiceURIs.add(basePath);

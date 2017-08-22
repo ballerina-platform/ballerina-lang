@@ -90,6 +90,7 @@ under the License.
             <class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>
             <class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>
             <class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>
+            <class name="org.ballerinalang.service.HTTPCorsTest"/>
         </classes>
     </test>
 

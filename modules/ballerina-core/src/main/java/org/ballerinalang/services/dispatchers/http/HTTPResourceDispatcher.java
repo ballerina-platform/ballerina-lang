@@ -62,6 +62,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                             .forEach((resourceArgumentValues::put));
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
+                cMsg.setProperty(Constants.RESOURCES_CORS, CorsRegistry.getInstance().getCorsHeaders(resource));
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
@@ -96,17 +97,18 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static void handleOptionsRequest(CarbonMessage cMsg, ServiceInfo service, CarbonCallback callback)
             throws URITemplateException {
         DefaultCarbonMessage response = new DefaultCarbonMessage();
-        if (cMsg.getHeader(Constants.ALLOW_HEADER) != null) {
-            response.setHeader(Constants.ALLOW_HEADER, cMsg.getHeader(Constants.ALLOW_HEADER));
+        if (cMsg.getHeader(Constants.ALLOW) != null) {
+            response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
         } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
             if (!getAllResourceMethods(service).isEmpty()) {
-                response.setHeader(Constants.ALLOW_HEADER, DispatcherUtil.concatValues(getAllResourceMethods(service)));
+                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service), false));
             }
         } else {
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("no matching resource found for path : "
                     + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + "OPTIONS");
         }
+        CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
         response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);

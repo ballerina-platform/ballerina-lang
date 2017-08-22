@@ -25,14 +25,18 @@ import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Utilities related to dispatcher processing.
  */
 public class DispatcherUtil {
+
+    private static String[] allMethods = new String[]{Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
+            , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
+            , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS};
 
     public static boolean isMatchingMethodExist(ResourceInfo resourceInfo, String method) {
         String[] rHttpMethods = getHttpMethods(resourceInfo);
@@ -118,13 +122,13 @@ public class DispatcherUtil {
         return basePath;
     }
 
-    public static String concatValues(List<String> stringValues) {
+    public static String concatValues(List<String> stringValues, boolean spaceSeparated) {
         StringBuilder builder = new StringBuilder();
-
+        String separator = spaceSeparated ? " " : ", ";
         for (int x = 0; x < stringValues.size(); ++x) {
             builder.append(stringValues.get(x));
             if (x != stringValues.size() - 1) {
-                builder.append(", ");
+                builder.append(separator);
             }
         }
         return builder.toString();
@@ -142,8 +146,6 @@ public class DispatcherUtil {
     }
 
     public static List<String> addAllMethods() {
-        return Stream.of(Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
-                , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
-                , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS).collect(Collectors.toList());
+        return Arrays.stream(allMethods).collect(Collectors.toList());
     }
 }
