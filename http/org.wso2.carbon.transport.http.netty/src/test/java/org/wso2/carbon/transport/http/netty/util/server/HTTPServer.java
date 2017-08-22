@@ -69,7 +69,8 @@ public class HTTPServer {
             httpServerInitializer = new HTTPServerInitializer();
             httpServerInitializer.setSslContext(sslContext);
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(httpServerInitializer);
-            ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port)).sync();
+            ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
+            ch.sync();
             logger.info("HTTPServer started on port " + port);
         } catch (InterruptedException e) {
             logger.error("HTTP Server cannot start on port " + port);

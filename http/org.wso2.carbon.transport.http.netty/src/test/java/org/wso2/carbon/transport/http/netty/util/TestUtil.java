@@ -37,6 +37,7 @@ import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+import org.wso2.carbon.transport.http.netty.util.server.ServerThread;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -70,12 +72,6 @@ public class TestUtil {
 
     public static void cleanUp(List<ServerConnector> serverConnectors, HTTPServer httpServer)
             throws ServerConnectorException {
-        try {
-            Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-
         for (ServerConnector httpServerConnector : serverConnectors) {
             httpServerConnector.stop();
         }
@@ -128,15 +124,12 @@ public class TestUtil {
 
     public static HTTPServer startHTTPServer(int port) {
         HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                httpServer.start();
-            }
-        });
-        serverThread.start();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+            serverThread.start();
+            latch.await();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
@@ -145,14 +138,13 @@ public class TestUtil {
 
     public static HTTPServer startHTTPServer(int port, String message, String contentType) {
         HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(() -> {
-            httpServer.start();
-            httpServer.setMessage(message, contentType);
-        });
-        serverThread.start();
+        CountDownLatch latch = new CountDownLatch(1);
+        ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
+            serverThread.start();
+            latch.await();
+            httpServer.setMessage(message, contentType);
+        } catch (Exception e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
@@ -207,6 +199,5 @@ public class TestUtil {
         ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
         return ServerBootstrapConfiguration.getInstance();
     }
-
 }
 
