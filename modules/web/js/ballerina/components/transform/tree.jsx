@@ -31,11 +31,9 @@ export default class Tree extends React.Component {
             }
             {
                 !foldedEndpoints[endpoint.name] && endpoint.properties.map((property) => {
-                    if (property.innerType) {
-                        property.innerType.root = endpoint.root || endpoint;
-                        return this.renderStruct(property.innerType, level + 1);
+                    if (property.type === 'struct') {
+                        return this.renderStruct(property, level + 1);
                     }
-                    property.root = endpoint.root || endpoint;
                     return this.renderEndpoint(property, 'property', level + 1);
                 })
             }
