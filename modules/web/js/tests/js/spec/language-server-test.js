@@ -66,16 +66,16 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, testFilePath, testFile, done, compareCallback);
         });
 
-        // it("Resource level completions", function (done) {
-        //     this.timeout(10000);
-        //     const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
-        //     const testFile = 'echoService.bal';
-        //     const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));
-        //     const expectedFileContent = fs.readFileSync(expectedFile, 'utf8');
-        //     const compareCallback = compareWithoutOrderCallback(expectedFileContent, done);
-        //     const cursorPosition = { row: 10, column: 0 };
-        //     testCompletions(cursorPosition, testFilePath, testFile, done, compareCallback);
-        // });
+        it("Resource level completions", function (done) {
+            this.timeout(10000);
+            const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
+            const testFile = 'echoService.bal';
+            const expectedFile = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', 'echoService_case3.js'));
+            const expectedFileContent = fs.readFileSync(expectedFile, 'utf8');
+            const compareCallback = compareWithoutOrderCallback(expectedFileContent, done);
+            const cursorPosition = { row: 10, column: 0 };
+            testCompletions(cursorPosition, testFilePath, testFile, done, compareCallback);
+        });
 
         // Import tests
 
@@ -126,7 +126,15 @@ describe('Ballerina Composer Test Suite', () => {
         // returns a callback function to validate generated completions. Order of elements of two arrays can be different.
         function compareWithoutOrderCallback(expectedFileContent, done) {
             return function (x, completions) {
-                expect(JSON.parse(expectedFileContent)).to.have.deep.members(completions);
+                function comparator(a, b) {
+                    return (a.caption === b.caption) && (a.snippet === b.snippet) && (a.meta === b.meta);
+                }
+                const expectedJSON= JSON.parse(expectedFileContent);
+                let intersection = _.intersectionWith(completions, expectedJSON, comparator);
+
+                if (!((completions.length === expectedJSON.length) && (completions.length === intersection.length))) {
+                    throw new Error("Fail - Incompatible content. \nExpect + Actual -\n" + "+  " + expectedFileContent + "\n -  " + JSON.stringify(completions));
+                }
                 done();
             }
         }
