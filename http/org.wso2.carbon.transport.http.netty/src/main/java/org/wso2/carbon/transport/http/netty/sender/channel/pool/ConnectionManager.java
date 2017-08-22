@@ -109,6 +109,7 @@ public class ConnectionManager {
      * @param sourceHandler       Incoming channel
      * @param sslConfig           netty sender config
      * @param httpTraceLogEnabled Indicates whether HTTP trace logs are enabled
+     * @return the target channel which is requested for given parameters.
      * @throws Exception    to notify any errors occur during retrieving the target channel
      */
     public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler, SSLConfig sslConfig,
