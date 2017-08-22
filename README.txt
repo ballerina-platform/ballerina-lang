@@ -25,5 +25,5 @@ to your local directory.
 Running samples
 ==================================
 The website http://ballerinalang.org has several samples you can try out right there in the page.
-Or go to the Samples website (https://ballerinalang.org/docs/by-example/) to view the Ballerina by examples.
 These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution.
+Or go to the ballerina-by-example website (https://ballerinalang.org/docs/by-example/) to view the Ballerina examples.
