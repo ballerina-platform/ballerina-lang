@@ -37,6 +37,8 @@ import javax.websocket.Session;
 
 /**
  * Ballerina Connector listener for WebSocket.
+ *
+ * @since 0.93
  */
 public class BallerinaWebSocketConnectorListener implements WebSocketConnectorListener {
 
