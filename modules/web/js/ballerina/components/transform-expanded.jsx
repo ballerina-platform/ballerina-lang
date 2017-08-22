@@ -134,19 +134,44 @@ class TransformExpanded extends React.Component {
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
-                let sourceId = `${rightExpression.getExpressionString().trim()}:${viewId}`;
-                if(!this.sourceElements[sourceId] || !this.sourceElements[sourceId].element){
-                    return;
+                let sourceExprString = rightExpression.getExpressionString().trim();
+                let sourceId = `${sourceExprString}:${viewId}`;
+                let folded = false;
+                if(!this.sourceElements[sourceId]) {
+                    folded = true;
+                    sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
 
-                const targetId = `${leftExpr.getExpressionString().trim()}:${viewId}`;
-                this.drawConnection(sourceId, targetId);
+                let targetExprString = leftExpression.getExpressionString().trim();
+                let targetId = `${targetExprString}:${viewId}`;
+                if(!this.targetElements[targetId]) {
+                    folded = true;
+                    targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
+                }
+
+                this.drawConnection(sourceId, targetId, folded);
             });
         }
 
         if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
+    }
+
+    getFoldedEndpointId(exprString, viewId, type='source') {
+        let currentExprString = exprString;
+        let endpointId = `${currentExprString}:${viewId}`;
+
+        while(exprString.includes('.') && !this[`${type}Elements`][endpointId]) {
+            const newExprString = currentExprString.slice(0, currentExprString.lastIndexOf('.'));
+            if(newExprString === currentExprString){
+                break;
+            }
+            currentExprString = newExprString;
+            endpointId = `${currentExprString}:${viewId}`;
+        }
+
+        return endpointId;
     }
 
     drawInnerFunctionInvocationExpression(parentFunctionInvocationExpression, functionInvocationExpression,
@@ -232,9 +257,15 @@ class TransformExpanded extends React.Component {
                         this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                     });
                 } else {
-                    const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                    let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                    let folded = false;
+                    if(!this.sourceElements[sourceId]) {
+                        folded = true;
+                        sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
+                    }
+
                     const targetId = `${funcInvID}:${i}:${viewId}`;
-                    this.drawConnection(sourceId, targetId);
+                    this.drawConnection(sourceId, targetId, folded);
                 }
             }
         });
@@ -248,8 +279,14 @@ class TransformExpanded extends React.Component {
             }
 
             const sourceId = `${funcInvID}:${i}:return:${viewId}`;
-            const targetId = `${expression.getExpressionString().trim()}:${viewId}`;
-            this.drawConnection(sourceId, targetId);
+            let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
+            let folded = false;
+            if(!this.targetElements[targetId]) {
+                folded = true;
+                targetId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'target');
+            }
+
+            this.drawConnection(sourceId, targetId, folded);
         });
         this.mapper.reposition(this.props.model.getID());
     }
@@ -292,13 +329,13 @@ class TransformExpanded extends React.Component {
         return con;
     }
 
-    drawConnection(sourceId, targetId) {
+    drawConnection(sourceId, targetId, folded) {
         // if source or target is not mounted then this draw request is ignored
         if(!this.sourceElements[sourceId] || !this.targetElements[targetId]){
             return;
         }
 
-        this.mapper.addConnection(sourceId, targetId);
+        this.mapper.addConnection(sourceId, targetId, folded);
     }
 
     createComplexProp(structName, expression) {
