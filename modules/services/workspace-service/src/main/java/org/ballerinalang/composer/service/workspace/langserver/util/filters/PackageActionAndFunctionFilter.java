@@ -179,6 +179,10 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         SimpleTypeName[] argumentTypeNames = nativeUnit.getArgumentTypeNames();
         String[] argumentNames = nativeUnit.getArgumentNames();
         for (int itr = 0; itr < argumentTypeNames.length; itr++) {
+            // ignore "ClientConnector" argument from connector action argument list
+            if ("ClientConnector".equals(argumentTypeNames[itr].getName())) {
+                continue;
+            }
             signature.append(argumentTypeNames[itr])
                     .append(" ")
                     .append(argumentNames[itr]);
