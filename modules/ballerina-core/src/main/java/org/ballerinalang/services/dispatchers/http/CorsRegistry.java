@@ -44,7 +44,6 @@ public class CorsRegistry {
             , Constants.ALLOW_CREDENTIALS, Constants.ALLOW_METHODS
             , Constants.ALLOW_HEADERS, Constants.EXPOSE_HEADERS};
 
-
     public static CorsRegistry getInstance() {
         return corsRegistry;
     }

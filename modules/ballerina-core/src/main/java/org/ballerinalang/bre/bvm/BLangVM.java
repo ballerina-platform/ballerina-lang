@@ -3416,7 +3416,7 @@ public class BLangVM {
         ip = -1;
         logger.error("fatal error. incorrect error table entry.");
     }
-    //TODO: This method is HTTP specific. Need to move to a HTTP specific location
+    //TODO: This method is HTTP specific. Move to an HTTP specific location.
     private void generateSessionAndCorsHeaders(BMessage message) {
         //check session cookie header
         Session session = context.getCurrentSession();

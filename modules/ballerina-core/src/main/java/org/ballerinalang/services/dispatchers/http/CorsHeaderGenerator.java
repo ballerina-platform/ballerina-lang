@@ -144,7 +144,6 @@ public class CorsHeaderGenerator {
         return responseHeaders;
     }
 
-
     private static boolean isEffectiveOrigin(List<String> requestOrigins, List<String> resourceOrigins) {
         if (resourceOrigins.size() == 1 && resourceOrigins.get(0).equals("*")) {
             return true;
