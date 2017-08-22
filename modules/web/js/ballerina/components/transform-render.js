@@ -167,13 +167,29 @@ class TransformRender {
         this.jsPlumbInstance.remove(elementId);
     }
 
-    addConnection(sourceId, targetId) {
+    addConnection(sourceId, targetId, folded=false) {
         this.midpoint += this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
-        this.jsPlumbInstance.connect({
+        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint)});
+        const options = {
             source: sourceId,
             target: targetId,
-        });
+        };
+
+        if(folded) {
+            options.paintStyle = {
+                strokeWidth: 1,
+                stroke: '#666769',
+                cssClass: 'plumbConnect',
+                outlineStroke: '#F7F7F7',
+                outlineWidth: 2,
+                dashstyle: '4',
+            }
+
+            options.parameters = options.parameters || {};
+            options.parameters.isFolded = true;
+        }
+
+        this.jsPlumbInstance.connect(options);
         this.markConnected(sourceId);
         this.markConnected(targetId);
         this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
@@ -185,6 +201,10 @@ class TransformRender {
             return;
         }
         connection.bind('mouseover', (conn, e) => {
+            if(connection.getParameters().isFolded){
+                return;
+            };
+
             if (!this.container.find('#' + this.contextMenu).is(':visible')) {
                 const contextMenuDiv = this.container.find('#' + this.contextMenu);
                 const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
