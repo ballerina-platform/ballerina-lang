@@ -109,3 +109,78 @@ service<http> Ecommerce {
         reply response;
     }
 }
+
+@http:configuration {
+    basePath:"/options"
+}
+service<http> echo111 {
+
+    @http:resourceConfig {
+        methods:["POST", "UPDATE"],
+        path : "/test"
+    }
+    resource productsInfo99 (message m) {
+        message response = {};
+        reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["OPTIONS"],
+        path : "/hi"
+    }
+    resource productsOptions (message m) {
+        message response = {};
+        json responseJson = {"echo":"wso2"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["GET", "PUT"],
+        path : "/test"
+    }
+    resource productsInfo98 (message m) {
+        message response = {};
+        reply response;
+
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path : "/getme"
+    }
+    resource productsGet (message m) {
+        message response = {};
+        json responseJson = {"echo":"get"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path : "/post"
+    }
+    resource productsPOST (message m) {
+        message response = {};
+        json responseJson = {"echo":"post"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:resourceConfig {
+        methods:["PUT"],
+        path : "/put"
+    }
+    resource productsPUT (message m) {
+        message response = {};
+        json responseJson = {"echo":"put"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+}
+
+@http:configuration {
+    basePath:"/noResource"
+}
+service<http> echo112 {
+}
