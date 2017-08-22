@@ -133,7 +133,7 @@ define function <FunctionName>[${extension.name}] return <type> {
 <@utils.renderHeadingFourWithStylesOnly heading="Examples"/>
 
 <#items as example>
-<@utils.renderHeadingFiveWithStylesOnly heading=("Example" + (example?index + 1))/>
+<@utils.renderHeadingFiveWithStylesOnly heading=("Example " + (example?index + 1))/>
 
 ```
 ${example.syntax}

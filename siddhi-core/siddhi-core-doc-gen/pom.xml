@@ -45,25 +45,49 @@
                     <moduleTargetDirectory>../target/</moduleTargetDirectory>
                     <extensionRepositories>
                         <!-- Extensions released under Apache 2.0 License -->
+                        <extensionRepository>siddhi-execution-string</extensionRepository>
+                        <extensionRepository>siddhi-execution-math</extensionRepository>
+                        <extensionRepository>siddhi-execution-time</extensionRepository>
+                        <extensionRepository>siddhi-execution-streamingml</extensionRepository>
+                        <extensionRepository>siddhi-execution-regex</extensionRepository>
+                        <extensionRepository>siddhi-execution-markov</extensionRepository>
+                        <extensionRepository>siddhi-execution-unique</extensionRepository>
+                        <extensionRepository>siddhi-execution-map</extensionRepository>
+                        <extensionRepository>siddhi-execution-unitconversion</extensionRepository>
                         <extensionRepository>siddhi-execution-extrema</extensionRepository>
-                        <extensionRepository>siddhi-execution-kalmanfilter</extensionRepository>
+                        <extensionRepository>siddhi-execution-timeseries</extensionRepository>
+                        <extensionRepository>siddhi-execution-var</extensionRepository>
                         <extensionRepository>siddhi-execution-priority</extensionRepository>
+                        <extensionRepository>siddhi-execution-reorder</extensionRepository>
                         <extensionRepository>siddhi-execution-sentiment</extensionRepository>
                         <extensionRepository>siddhi-execution-stats</extensionRepository>
-                        <extensionRepository>siddhi-execution-string</extensionRepository>
-                        <extensionRepository>siddhi-execution-unique</extensionRepository>
+                        <extensionRepository>siddhi-execution-geo</extensionRepository>
                         <extensionRepository>siddhi-io-http</extensionRepository>
-                        <extensionRepository>siddhi-io-jms</extensionRepository>
                         <extensionRepository>siddhi-io-kafka</extensionRepository>
                         <extensionRepository>siddhi-io-tcp</extensionRepository>
                         <extensionRepository>siddhi-io-wso2event</extensionRepository>
+                        <extensionRepository>siddhi-io-email</extensionRepository>
+                        <extensionRepository>siddhi-io-jms</extensionRepository>
+                        <extensionRepository>siddhi-io-file</extensionRepository>
+                        <extensionRepository>siddhi-io-rabbitmq</extensionRepository>
+                        <extensionRepository>siddhi-io-mqtt</extensionRepository>
+                        <extensionRepository>siddhi-map-json</extensionRepository>
+                        <extensionRepository>siddhi-map-xml</extensionRepository>
+                        <extensionRepository>siddhi-map-binary</extensionRepository>
                         <extensionRepository>siddhi-map-text</extensionRepository>
                         <extensionRepository>siddhi-map-wso2event</extensionRepository>
-                        <extensionRepository>siddhi-map-xml</extensionRepository>
                         <extensionRepository>siddhi-store-rdbms</extensionRepository>
+                        <extensionRepository>siddhi-store-solr</extensionRepository>
+                        <extensionRepository>siddhi-store-mongodb</extensionRepository>
+                        <extensionRepository>siddhi-script-js</extensionRepository>
+                        <extensionRepository>siddhi-script-scala</extensionRepository>
 
                         <!-- Extensions released under GPL License -->
+                        <extensionRepository>siddhi-gpl-execution-pmml</extensionRepository>
+                        <extensionRepository>siddhi-gpl-execution-geo</extensionRepository>
+                        <extensionRepository>siddhi-gpl-execution-nlp</extensionRepository>
                         <extensionRepository>siddhi-gpl-execution-r</extensionRepository>
+                        <extensionRepository>siddhi-gpl-script-r</extensionRepository>
                     </extensionRepositories>
                 </configuration>
             </plugin>

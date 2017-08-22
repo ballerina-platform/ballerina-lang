@@ -19,7 +19,7 @@
 
 ## Available Extensions
 
-Siddhi currently have several prewritten extensions as follows;
+Following are some prewritten extensions that are supported with Siddhi;
 
 <#macro displayRepositoriesList title extensionRepositories>
 <#list extensionRepositories>
