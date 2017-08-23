@@ -16,18 +16,18 @@
     font-size: 12px;
 }
 
-.toolbar-icons{
+#toolbar-palette .toolbar-icons{
     float: left;
     width:45px;
     height:32px;
     text-align: center;
 }
 
-.internal-separator{
+#toolbar-palette .internal-separator{
     border-right-style: dashed;
     border-color: #363836;
 }
-.section-separator{
+#toolbar-palette .section-separator{
     border-right-style: solid;
     border-color: #363836;
 }
@@ -37,7 +37,7 @@
 }
 
 /*Drop down for menu items in toolbar*/
-.dropdown-content {
+#toolbar-palette .dropdown-content {
     display: none;
     position: absolute;
     background-color: #565656;
@@ -47,7 +47,7 @@
     text-align: left;
 }
 
-.dropdown-content a {
+#toolbar-palette .dropdown-content a {
     color: white;
     text-decoration: none;
     display: block;
@@ -61,20 +61,20 @@
     color:#000d0e;
 }
 
-.list {
+#toolbar-palette .list {
     list-style: none;
     padding: 0;
     padding-top: 10px;
 }
-.link {
+#toolbar-palette .link {
     padding-left: 10px;
 }
-.more{
+#toolbar-palette .more{
     font-size: 8px;
     padding-left: 4px;
 }
 
-.btn-debug-action-toolbar{
+#toolbar-palette .btn-debug-action-toolbar{
     width:40px;
     margin:0px !important;
     background-color: #333;
@@ -89,16 +89,16 @@
     width: 200px;
 }
 
-.stop{
+#toolbar-palette .stop{
     color: #c0392b;
     font-size:12px;
 }
 
-.resume{
+#toolbar-palette .resume{
     color: #379e61;
 }
 
-.step{
+#toolbar-palette .step{
     color: #3498db;
 }
 
