@@ -70,7 +70,7 @@ class ToolbarView extends React.Component {
         let viewFullPath = '';
         if (copyPathArr.length > 3) {
             copyPathArr = copyPathArr.splice(copyPathArr.length - 3);
-            viewFullPath = (<li title={[this.state.filePath, this.state.file].join('/')}> ...</li>);
+            viewFullPath = (<li title={[this.state.filePath, this.state.file].join('/')}> <a>...</a></li>);
         }
         return (
             <div className="row">
@@ -92,14 +92,14 @@ class ToolbarView extends React.Component {
                                 key={value}
                                 className={app.config.breadcrumbs.cssClass.item}
                             >
-                                {value}</li>);
+                                <a>{value}</a></li>);
                         })}
                         <li
                             key="fileName"
                             className={[app.config.breadcrumbs.cssClass.item,
                                 app.config.breadcrumbs.cssClass.active].join(' ')}
                         >
-                            {this.state.file}</li>
+                            <a>{this.state.file}</a></li>
                     </ul>
                 </div>
             </div>
