@@ -127,10 +127,6 @@ class DebugManager extends EventChannel {
             this.trigger('debug-hit', message);
             this.currentThreadId = message.threadId;
         }
-        if (message.code === 'EXIT') {
-            this.active = false;
-            this.trigger('session-ended');
-        }
         if (message.code === 'COMPLETE') {
             this.active = false;
             this.trigger('session-completed');

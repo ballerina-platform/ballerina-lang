@@ -24,7 +24,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import SimpleBBox from '../ast/simple-bounding-box';
 import * as DesignerDefaults from '../configs/designer-defaults';
 import './statement-decorator.css';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import ImageUtil from './image-util';
 import ASTFactory from '../ast/ast-factory.js';
 
