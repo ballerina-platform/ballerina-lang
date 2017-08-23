@@ -23,16 +23,6 @@ import DebugManager from './../../debugger/debug-manager';
 import Tool from './../../debugger/tools';
 import './toolbar.css';
 
-let appInstance = null;
-
-export function setApp(param) {
-    appInstance = param;
-}
-
-export function getApp() {
-    return appInstance;
-}
-
 export function isReadyToRun(tab) {
     if (typeof tab.getFile !== 'function') {
         return false;
@@ -47,7 +37,6 @@ export function isReadyToRun(tab) {
 
 /* Start functions */
 export function startFunction(app, tool, state) {
-    setApp(app);
     const className = $('#startIcon').attr('class');
     if (className.search('stop') > 0) {
         LaunchManager.stopProgram();
@@ -95,7 +84,6 @@ export function startConfigurationFunction() {
 /* Debug functions */
 
 export function debugFunction(app, tool, state) {
-    setApp(app);
     if (state === 'none') {
         state = 'block';
     } else {
@@ -125,7 +113,7 @@ export function showDebuggerToolbar() {
     if ($('#debugger-tools').length === 0) {
         $('#debug-tool').after(debuggerTools);
     }
-    const debuggerInstance = getApp().debugger;
+    const debuggerInstance = DebugManager.application.debugger;
     debuggerInstance._activateBtn.tab('show');
     const width = debuggerInstance.lastWidth || debuggerInstance._options.defaultWidth;
     debuggerInstance._$parent_el.parent().width(width);
@@ -135,7 +123,7 @@ export function showDebuggerToolbar() {
 
 export function removeDebuggingToolbar() {
     $('#debugger-tools').remove();
-    const debuggerInstance = getApp().debugger;
+    const debuggerInstance = DebugManager.application.debugger;
     debuggerInstance._$parent_el.parent().width('0px');
     debuggerInstance._containerToAdjust.css('padding-left', debuggerInstance._options.leftOffset);
     debuggerInstance._verticalSeparator.css('left',

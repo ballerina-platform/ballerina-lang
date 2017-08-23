@@ -3,7 +3,7 @@
     height: 32px;
     overflow: hidden;
     line-height: 31px;
-    font-size: 12.5px;
+    font-size: 12px;
     border-width: 1px;
     border-style: solid;
 }
@@ -13,6 +13,7 @@
     color:#d0cfcf;
     padding-left: 40px;
     padding-right: 40px;
+    font-size: 12px;
 }
 
 .toolbar-icons{
@@ -42,7 +43,7 @@
     background-color: #565656;
     min-width: 160px;
     overflow: auto;
-    z-index: 2;
+    z-index: 4;
     text-align: left;
 }
 
@@ -78,8 +79,7 @@
     margin:0px !important;
     background-color: #333;
     color: white;
-    font-size: 14px;
-    /*padding:11px !important;*/
+    font-size: 12px;
 }
 
 #debugger-tools{
@@ -91,17 +91,16 @@
 
 .stop{
     color: #c0392b;
-    font-size: 14px;
+    font-size:12px;
 }
 
 .resume{
     color: #379e61;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .step{
     color: #f39c12;
-    font-size: 18px;
 }
 
 #breadcrumb-container {
