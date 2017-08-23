@@ -198,12 +198,14 @@ class TransformNodeManager {
         const { source, target } = connection;
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             const assignmentStmt = _.find(this._transformStmt.getChildren(), (child) => {
-                return child.getLeftExpression().getChildren().find((leftExpression) => {
-                    const leftExpressionStr = leftExpression.getExpressionString().trim();
-                    const rightExpressionStr = this.getMappingExpression(
-                        child.getRightExpression()).getExpressionString().trim();
-                    return (leftExpressionStr === target.name) && (rightExpressionStr === source.name);
-                });
+              if(!BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                    return child.getLeftExpression().getChildren().find((leftExpression) => {
+                        const leftExpressionStr = leftExpression.getExpressionString().trim();
+                        const rightExpressionStr = this.getMappingExpression(
+                            child.getRightExpression()).getExpressionString().trim();
+                        return (leftExpressionStr === target.name) && (rightExpressionStr === source.name);
+                    });
+              }
             });
             this._transformStmt.removeChild(assignmentStmt);
             return;
