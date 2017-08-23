@@ -45,7 +45,7 @@ const saveFileTool = {
     name: 'Save',
     cssClass: 'fw fw-save fw-lg',
     title: 'Save File',
-    cssClassOnDiv: 'internal-separator',
+    cssClassOnDiv: 'section-separator',
     children: {},
     command: {
         id: 'save',
