@@ -146,22 +146,22 @@ public class StartService extends AbstractNativeFunction {
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
 
         int serviceCount = 0;
-            // Invoke service init function
-            bContext.setServiceInfo(matchingService);
-            BLangFunctions.invokeFunction(programFile, matchingService.getInitFunctionInfo(), bContext);
-            if (bContext.getError() != null) {
-                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-                throw new BLangRuntimeException("error: " + stackTraceStr);
-            }
+        // Invoke service init function
+        bContext.setServiceInfo(matchingService);
+        BLangFunctions.invokeFunction(programFile, matchingService.getInitFunctionInfo(), bContext);
+        if (bContext.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
 
-            if (!DispatcherRegistry.getInstance().protocolPkgExist(matchingService.getProtocolPkgPath())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                        matchingService.getProtocolPkgPath());
-            }
-            // Deploy service
-            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(matchingService.getProtocolPkgPath())
-                    .serviceRegistered(matchingService);
-            serviceCount++;
+        if (!DispatcherRegistry.getInstance().protocolPkgExist(matchingService.getProtocolPkgPath())) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
+                    matchingService.getProtocolPkgPath());
+        }
+        // Deploy service
+        DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(matchingService.getProtocolPkgPath())
+                .serviceRegistered(matchingService);
+        serviceCount++;
 
         if (serviceCount == 0) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
