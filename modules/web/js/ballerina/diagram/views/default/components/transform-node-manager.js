@@ -407,13 +407,15 @@ class TransformNodeManager {
 
     createTypeConversionExpression(type, vertexExpression) {
         const typeConversionExp = BallerinaASTFactory.createTypeConversionExpression();
-        typeConversionExp.setExpressionFromString('<' + type + '>' + vertexExpression.getExpressionString());
+        typeConversionExp.addChild(vertexExpression);
+        typeConversionExp.setTargetType(type);
         return typeConversionExp;
     }
 
     createTypeCastExpression(type, vertexExpression) {
         const typeCastExp = BallerinaASTFactory.createTypeCastExpression();
-        typeCastExp.setExpressionFromString('(' + type + ')' + vertexExpression.getExpressionString());
+        typeCastExp.addChild(vertexExpression);
+        typeCastExp.setTargetType(type);
         return typeCastExp;
     }
 
