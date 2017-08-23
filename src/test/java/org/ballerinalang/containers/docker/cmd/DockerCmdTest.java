@@ -402,6 +402,13 @@ public class DockerCmdTest {
         }
 
         @Override
+        public String createMainImage(String packageName, String dockerEnv, Path bPackagePaths,
+                                      String imageName, String imageVersion)
+                throws BallerinaDockerClientException, IOException, InterruptedException {
+            throw new BallerinaDockerClientException("Not Implemented.");
+        }
+
+        @Override
         public String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
                                       String imageName, String imageVersion)
                 throws InterruptedException, BallerinaDockerClientException, IOException {

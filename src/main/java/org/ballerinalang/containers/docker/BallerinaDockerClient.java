@@ -80,6 +80,23 @@ public interface BallerinaDockerClient {
             throws BallerinaDockerClientException, IOException, InterruptedException;
 
     /**
+     * Create a Ballerina Main Docker image from a Ballerina BAL / BALX File.
+     *
+     * @param packageName  The name used to identify the package.
+     * @param dockerEnv    The docker host URL.
+     * @param bPackagePath The paths to package to be packed to the image.
+     * @param imageName    The docker image name to use.
+     * @param imageVersion The docker image version to use.
+     * @return The {@link String} name of the docker image created. Null if the image building process failed.
+     * @throws BallerinaDockerClientException If the input parameters are invalid.
+     * @throws IOException                    If specified files cannot be accessed.
+     * @throws InterruptedException           If the docker image build process was interrupted.
+     */
+    String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
+                           String imageName, String imageVersion)
+            throws BallerinaDockerClientException, IOException, InterruptedException;
+
+    /**
      * Create a Ballerina Main Docker image from a Ballerina configuration.
      *
      * @param mainPackageName The name used to identify the main function to be packed.
