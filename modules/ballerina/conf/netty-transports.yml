@@ -29,14 +29,14 @@ listenerConfigurations:
   id: "default"
   host: "0.0.0.0"
   port: 9090
- -
-  id: "https"
-  host: "0.0.0.0"
-  port: 9092
-  scheme: https
-  keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks"
-  keyStorePass: wso2carbon
-  certPass: wso2carbon
+# -
+#  id: "https"
+#  host: "0.0.0.0"
+#  port: 9092
+#  scheme: https
+#  keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks"
+#  keyStorePass: wso2carbon
+#  certPass: wso2carbon
 
 senderConfigurations:
  -
