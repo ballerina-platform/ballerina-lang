@@ -38,6 +38,7 @@ class ApplicationMenuPlugin extends Plugin {
     constructor() {
         super();
         this.menus = [];
+        this.roots = [];
     }
 
     /**
@@ -97,7 +98,7 @@ class ApplicationMenuPlugin extends Plugin {
         groups.forEach(nestMenuUnderParent);
         items.forEach(nestMenuUnderParent);
 
-        return roots;
+        this.roots = roots;
     }
 
     /**
@@ -105,8 +106,9 @@ class ApplicationMenuPlugin extends Plugin {
      */
     activate(appContext) {
         super.activate(appContext);
+        this.generateMenuFromDefinitions();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -124,7 +126,7 @@ class ApplicationMenuPlugin extends Plugin {
                             dispatch: (...args) => {
                                 this.appContext.command.dispatch(args);
                             },
-                            menu: this.generateMenuFromDefinitions(),
+                            menu: this.roots,
                             getLabelForCommand: (cmdID) => {
                                 const cmd = this.appContext.command.findCommand(cmdID);
                                 return _.get(cmd, 'shortcut.derived.label', '');

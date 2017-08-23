@@ -47,11 +47,6 @@ class ApplicationMenu extends View {
      * @inheritdoc
      */
     render() {
-        const roots = [];
-        this.props.menu.forEach((root) => {
-            roots.push(this.renderMenuNode(root));
-        });
-
         return (
             <div className="application-menu">
                 <Menu
@@ -65,7 +60,7 @@ class ApplicationMenu extends View {
                     }}
                     openKeys={this.state.activeKeys}
                 >
-                    {roots}
+                    {this.props.menu.map(root => this.renderMenuNode(root))}
                 </Menu>
             </div>
         );
