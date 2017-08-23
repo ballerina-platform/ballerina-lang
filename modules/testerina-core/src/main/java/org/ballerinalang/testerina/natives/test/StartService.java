@@ -189,7 +189,7 @@ public class StartService extends AbstractNativeFunction {
                     .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
             String basePath = discoverBasePathFrom(service, annotationInfo);
-            Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotationInfo);
+            Set<ListenerConfiguration> listenerConfigurationSet = getListenerConfig(annotationInfo);
 
             if (listenerConfigurationSet.isEmpty()) {
                 throw new BallerinaException(MSG_PREFIX + "Cannot find relevant transport listener configuration");
@@ -208,7 +208,16 @@ public class StartService extends AbstractNativeFunction {
 
     }
 
-    private Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(AnnAttachmentInfo annotationInfo) {
+    /**
+     * This method is used to get listener configuration.
+     * It will return dynamic listener configuration if available,
+     * otherwise it will return default listener configurations.
+     *
+     * TODO use methods from ballerina once available.
+     * @param annotationInfo annotation info object.
+     * @return  listenerProp map.
+     */
+    private Set<ListenerConfiguration> getListenerConfig(AnnAttachmentInfo annotationInfo) {
         Map<String, Map<String, String>> listenerProp = buildListerProperties(annotationInfo);
 
         Set<ListenerConfiguration> listenerConfigurationSet;
@@ -226,6 +235,7 @@ public class StartService extends AbstractNativeFunction {
      * This will first look for the port property and if present then it will get other properties,
      * and create the property map.
      *
+     * TODO use methods from ballerina once available.
      * @param configInfo            In which listener configurations are specified.
      * @return listenerConfMap      With required properties
      */
@@ -290,6 +300,7 @@ public class StartService extends AbstractNativeFunction {
         return listenerConfMap;
     }
 
+    //TODO use methods from ballerina once available.
     private String discoverBasePathFrom(ServiceInfo service, AnnAttachmentInfo annotationInfo) {
         String basePath = service.getName();
         if (annotationInfo != null) {
@@ -312,6 +323,7 @@ public class StartService extends AbstractNativeFunction {
     /**
      * Build interface name using schema and port.
      *
+     * TODO use methods from ballerina once available.
      * @param propMap which has schema and port
      * @return interfaceName
      */
@@ -325,6 +337,7 @@ public class StartService extends AbstractNativeFunction {
         return iName.toString();
     }
 
+    //TODO use methods from ballerina once available.
     private Set<ListenerConfiguration> getListenerConfigurationsFrom(Map<String, Map<String, String>> listenerProp) {
         Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
         for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
@@ -337,6 +350,7 @@ public class StartService extends AbstractNativeFunction {
         return listenerConfigurationSet;
     }
 
+    //TODO use methods from ballerina once available.
     private String getListenerInterface(Map<String, String> parameters) {
         String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
         int port = Integer.parseInt(parameters.get("port"));
