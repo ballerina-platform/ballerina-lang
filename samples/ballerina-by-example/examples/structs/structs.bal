@@ -28,5 +28,6 @@ function main (string[] args) {
     //Set the value of a field.
     p1.name = "Peter";
     p1.age = 25;
+    system:println(p1);
     system:println(p2);
 }

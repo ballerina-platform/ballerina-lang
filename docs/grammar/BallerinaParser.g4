@@ -422,15 +422,15 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   TRANSACTION (WITH transactionPropertyInitExpressionList)? LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
     ;
 
-transactionPropertyInitExpression
+transactionPropertyInitStatement
     : retriesStatement
     ;
 
-transactionPropertyInitExpressionList
-    : transactionPropertyInitExpression (COMMA transactionPropertyInitExpression)*
+transactionPropertyInitStatementList
+    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 transactionHandlers

@@ -54,4 +54,5 @@ public class Constants extends org.ballerinalang.services.dispatchers.http.Const
     public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
+    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 }

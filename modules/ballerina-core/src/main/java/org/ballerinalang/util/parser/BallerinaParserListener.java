@@ -1036,25 +1036,25 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpression}.
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx);
+	void enterTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpression}.
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx);
+	void exitTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpressionList}.
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatementList}.
 	 * @param ctx the parse tree
 	 */
-	void enterTransactionPropertyInitExpressionList(BallerinaParser.TransactionPropertyInitExpressionListContext ctx);
+	void enterTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitExpressionList}.
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatementList}.
 	 * @param ctx the parse tree
 	 */
-	void exitTransactionPropertyInitExpressionList(BallerinaParser.TransactionPropertyInitExpressionListContext ctx);
+	void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#transactionHandlers}.
 	 * @param ctx the parse tree

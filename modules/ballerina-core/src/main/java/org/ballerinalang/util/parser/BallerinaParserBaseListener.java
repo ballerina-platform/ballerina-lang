@@ -1204,25 +1204,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx) { }
+	@Override public void enterTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx) { }
+	@Override public void exitTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransactionPropertyInitExpressionList(BallerinaParser.TransactionPropertyInitExpressionListContext ctx) { }
+	@Override public void enterTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTransactionPropertyInitExpressionList(BallerinaParser.TransactionPropertyInitExpressionListContext ctx) { }
+	@Override public void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

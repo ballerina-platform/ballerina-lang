@@ -72,8 +72,8 @@ public class BallerinaParser extends Parser {
 		RULE_workerReply = 74, RULE_commentStatement = 75, RULE_variableReference = 76, 
 		RULE_field = 77, RULE_index = 78, RULE_xmlAttrib = 79, RULE_expressionList = 80, 
 		RULE_functionInvocationStatement = 81, RULE_actionInvocationStatement = 82, 
-		RULE_transactionStatement = 83, RULE_transactionPropertyInitExpression = 84, 
-		RULE_transactionPropertyInitExpressionList = 85, RULE_transactionHandlers = 86, 
+		RULE_transactionStatement = 83, RULE_transactionPropertyInitStatement = 84, 
+		RULE_transactionPropertyInitStatementList = 85, RULE_transactionHandlers = 86, 
 		RULE_failedClause = 87, RULE_abortedClause = 88, RULE_committedClause = 89, 
 		RULE_abortStatement = 90, RULE_retriesStatement = 91, RULE_actionInvocation = 92, 
 		RULE_namespaceDeclarationStatement = 93, RULE_namespaceDeclaration = 94, 
@@ -107,8 +107,8 @@ public class BallerinaParser extends Parser {
 		"throwStatement", "returnStatement", "replyStatement", "workerInteractionStatement", 
 		"triggerWorker", "workerReply", "commentStatement", "variableReference", 
 		"field", "index", "xmlAttrib", "expressionList", "functionInvocationStatement", 
-		"actionInvocationStatement", "transactionStatement", "transactionPropertyInitExpression", 
-		"transactionPropertyInitExpressionList", "transactionHandlers", "failedClause", 
+		"actionInvocationStatement", "transactionStatement", "transactionPropertyInitStatement", 
+		"transactionPropertyInitStatementList", "transactionHandlers", "failedClause", 
 		"abortedClause", "committedClause", "abortStatement", "retriesStatement", 
 		"actionInvocation", "namespaceDeclarationStatement", "namespaceDeclaration", 
 		"expression", "nameReference", "returnParameters", "typeList", "parameterList", 
@@ -6489,8 +6489,8 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(TransactionHandlersContext.class,0);
 		}
 		public TerminalNode WITH() { return getToken(BallerinaParser.WITH, 0); }
-		public TransactionPropertyInitExpressionListContext transactionPropertyInitExpressionList() {
-			return getRuleContext(TransactionPropertyInitExpressionListContext.class,0);
+		public TransactionPropertyInitStatementListContext transactionPropertyInitStatementList() {
+			return getRuleContext(TransactionPropertyInitStatementListContext.class,0);
 		}
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
@@ -6528,7 +6528,7 @@ public class BallerinaParser extends Parser {
 				setState(1094);
 				match(WITH);
 				setState(1095);
-				transactionPropertyInitExpressionList();
+				transactionPropertyInitStatementList();
 				}
 			}
 
@@ -6565,27 +6565,27 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TransactionPropertyInitExpressionContext extends ParserRuleContext {
+	public static class TransactionPropertyInitStatementContext extends ParserRuleContext {
 		public RetriesStatementContext retriesStatement() {
 			return getRuleContext(RetriesStatementContext.class,0);
 		}
-		public TransactionPropertyInitExpressionContext(ParserRuleContext parent, int invokingState) {
+		public TransactionPropertyInitStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_transactionPropertyInitExpression; }
+		@Override public int getRuleIndex() { return RULE_transactionPropertyInitStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTransactionPropertyInitExpression(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTransactionPropertyInitStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionPropertyInitExpression(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionPropertyInitStatement(this);
 		}
 	}
 
-	public final TransactionPropertyInitExpressionContext transactionPropertyInitExpression() throws RecognitionException {
-		TransactionPropertyInitExpressionContext _localctx = new TransactionPropertyInitExpressionContext(_ctx, getState());
-		enterRule(_localctx, 168, RULE_transactionPropertyInitExpression);
+	public final TransactionPropertyInitStatementContext transactionPropertyInitStatement() throws RecognitionException {
+		TransactionPropertyInitStatementContext _localctx = new TransactionPropertyInitStatementContext(_ctx, getState());
+		enterRule(_localctx, 168, RULE_transactionPropertyInitStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -6604,40 +6604,40 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TransactionPropertyInitExpressionListContext extends ParserRuleContext {
-		public List<TransactionPropertyInitExpressionContext> transactionPropertyInitExpression() {
-			return getRuleContexts(TransactionPropertyInitExpressionContext.class);
+	public static class TransactionPropertyInitStatementListContext extends ParserRuleContext {
+		public List<TransactionPropertyInitStatementContext> transactionPropertyInitStatement() {
+			return getRuleContexts(TransactionPropertyInitStatementContext.class);
 		}
-		public TransactionPropertyInitExpressionContext transactionPropertyInitExpression(int i) {
-			return getRuleContext(TransactionPropertyInitExpressionContext.class,i);
+		public TransactionPropertyInitStatementContext transactionPropertyInitStatement(int i) {
+			return getRuleContext(TransactionPropertyInitStatementContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(BallerinaParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(BallerinaParser.COMMA, i);
 		}
-		public TransactionPropertyInitExpressionListContext(ParserRuleContext parent, int invokingState) {
+		public TransactionPropertyInitStatementListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_transactionPropertyInitExpressionList; }
+		@Override public int getRuleIndex() { return RULE_transactionPropertyInitStatementList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTransactionPropertyInitExpressionList(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTransactionPropertyInitStatementList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionPropertyInitExpressionList(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionPropertyInitStatementList(this);
 		}
 	}
 
-	public final TransactionPropertyInitExpressionListContext transactionPropertyInitExpressionList() throws RecognitionException {
-		TransactionPropertyInitExpressionListContext _localctx = new TransactionPropertyInitExpressionListContext(_ctx, getState());
-		enterRule(_localctx, 170, RULE_transactionPropertyInitExpressionList);
+	public final TransactionPropertyInitStatementListContext transactionPropertyInitStatementList() throws RecognitionException {
+		TransactionPropertyInitStatementListContext _localctx = new TransactionPropertyInitStatementListContext(_ctx, getState());
+		enterRule(_localctx, 170, RULE_transactionPropertyInitStatementList);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1110);
-			transactionPropertyInitExpression();
+			transactionPropertyInitStatement();
 			setState(1115);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -6647,7 +6647,7 @@ public class BallerinaParser extends Parser {
 				setState(1111);
 				match(COMMA);
 				setState(1112);
-				transactionPropertyInitExpression();
+				transactionPropertyInitStatement();
 				}
 				}
 				setState(1117);

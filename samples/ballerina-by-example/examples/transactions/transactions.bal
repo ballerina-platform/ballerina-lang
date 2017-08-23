@@ -11,8 +11,8 @@ function main (string[] args) {
                   emptyParams);
     testDB.update("CREATE TABLE IF NOT EXISTS SALARY (ID INT, MON_SALARY FLOAT)",
                   emptyParams);
-    //Here is the transaction block. You can use a Try catch here since update action can throw
-    //errors due to SQL errors, connection pool errors etc. The retry count is the number times
+    //Here is the transaction block. You can use a Try catch here since update action can
+    //throw errors due to SQL errors, connection pool errors etc. The retry count is the number times
     //the transaction is tried before aborting. By default a transaction is tried three
     //times before aborting. Only integer literals or constants are
     //allowed for retry count.

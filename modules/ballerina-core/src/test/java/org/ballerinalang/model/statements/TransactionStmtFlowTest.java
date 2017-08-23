@@ -323,6 +323,12 @@ public class TransactionStmtFlowTest {
         BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry3.bal");
     }
 
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-retry4.bal:3: " +
+            "redeclared retry count*")
+    public void testTransactionInvalidRetry4() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-retry4.bal");
+    }
+
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort1.bal:7: " +
             "abort statement is not allowed here.*")

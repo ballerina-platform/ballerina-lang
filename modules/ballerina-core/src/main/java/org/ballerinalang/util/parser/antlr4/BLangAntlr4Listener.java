@@ -2078,21 +2078,27 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
-    public void enterTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx) {
+    public void enterTransactionPropertyInitStatement(
+            BallerinaParser.TransactionPropertyInitStatementContext ctx) {
+
     }
 
     @Override
-    public void exitTransactionPropertyInitExpression(BallerinaParser.TransactionPropertyInitExpressionContext ctx) {
+    public void exitTransactionPropertyInitStatement(
+            BallerinaParser.TransactionPropertyInitStatementContext ctx) {
+
     }
 
     @Override
-    public void enterTransactionPropertyInitExpressionList(
-            BallerinaParser.TransactionPropertyInitExpressionListContext ctx) {
+    public void enterTransactionPropertyInitStatementList(
+            BallerinaParser.TransactionPropertyInitStatementListContext ctx) {
+
     }
 
     @Override
-    public void exitTransactionPropertyInitExpressionList(
-            BallerinaParser.TransactionPropertyInitExpressionListContext ctx) {
+    public void exitTransactionPropertyInitStatementList(
+            BallerinaParser.TransactionPropertyInitStatementListContext ctx) {
+
     }
 
     @Override
@@ -2176,7 +2182,8 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addRetryCountExpression();
+        NodeLocation nodeLocation = getCurrentLocation(ctx);
+        modelBuilder.addRetryCountExpression(nodeLocation);
     }
 
     @Override
