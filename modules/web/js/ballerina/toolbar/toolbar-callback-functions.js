@@ -249,3 +249,14 @@ export function resetMenu() {
     }
 }
 
+export function defaultViewFunction(app, tool, state) {
+    app.commandManager.dispatch(tool.command.id, 'default');
+}
+
+export function compactViewFunction(app, tool, state) {
+    app.commandManager.dispatch(tool.command.id, 'compact');
+}
+
+export function actionViewFunction(app, tool, state) {
+    app.commandManager.dispatch(tool.command.id, 'action');
+}
