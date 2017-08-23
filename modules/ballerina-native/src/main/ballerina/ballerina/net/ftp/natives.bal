@@ -32,8 +32,8 @@ connector ClientConnector () {
 
     @doc:Description { value:"Create a file or folder"}
     @doc:Param { value:"file: Path of the file" }
-    @doc:Param { value:"fileType: Specification whether file or folder" }
-    native action createFile (files:File file, boolean fileType);
+    @doc:Param { value:"isDir: Specify whether it is a file or a folder" }
+    native action createFile (files:File file, boolean isDir);
 
     @doc:Description { value:"Checks the existence of a file"}
     @doc:Param { value:"file: File struct containing path information" }
