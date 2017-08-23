@@ -1,0 +1,10 @@
+.add-timeout-button {
+    fill: #f1772a;
+    cursor: pointer;
+}
+
+.add-timeout-button-label {
+    fill: #fff;
+    dominant-baseline: central;
+    cursor: pointer;
+}

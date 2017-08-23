@@ -1,0 +1,41 @@
+.transform-expanded-func {
+    width: 300px;
+    position: relative;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.transform-expanded-func .func-input {
+    width: 50%;
+    float: left;
+    padding-right: 3px;
+}
+
+.transform-expanded-func .func-output {
+    width: 50%;
+    float: right;
+    padding-left: 3px;
+}
+
+.transform-expanded-func .function-param-body {
+    overflow: auto;
+}
+
+.transform-expanded-func .func-name {
+    line-height: 30px;
+}
+
+.transform-expanded-func .fw-function {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.transform-expanded-func .btn-remove-func {
+    float: right;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+    color: #bababb;
+    background: #666769;
+}

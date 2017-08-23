@@ -213,6 +213,13 @@ ol#breadcrumbList {
     max-width: 250px;
 }
 
+.statement-text-compact {
+    text-anchor: start;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+}
+
 .panel-label {
     dominant-baseline: middle;
 }

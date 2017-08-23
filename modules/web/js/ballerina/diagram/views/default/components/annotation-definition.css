@@ -1,0 +1,57 @@
+.attribute-content-operations-wrapper {
+    fill: #615c5c;
+    shape-rendering: crispEdges;
+    height: 25px;
+}
+
+.delete-button-icon {
+    opacity: 0.5;
+    cursor: pointer;
+    height: 15px;
+}
+
+.delete-button-icon:hover {
+    fill: #912d31;
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+.annotation-input{
+    fill: #eee;
+    stroke: #b5b5b5;
+    stroke-width: 1;
+    stroke-dasharray: 3, 3;
+}
+
+.annotation-input-placeholder {
+    fill: #333;
+}
+
+.annotation-delete-wrapper {
+    fill: #dfdfdf;
+    stroke: #dfdfdf;
+    stroke-width: 1;
+}
+
+.annotation-attribute-wrapper {
+    fill: #f3f3f3;
+    shape-rendering: crispEdges;
+    stroke: #ccc;
+    stroke-width: 0.5;
+}
+
+.annotation-attribute-wrapper-text {
+    fill: #333;
+}
+
+.panel-label {
+    left: 10px;
+    fill: #252525
+}
+
+.annotation-input-placeholder {
+    fill: #999
+}
+
+.annotation-input-text-box {
+}
