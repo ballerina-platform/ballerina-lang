@@ -138,6 +138,7 @@ class Tools extends EventChannel {
         DebugManager.on('session-ended', () => { this.endSession(); });
         DebugManager.on('debug-hit', () => { this.enableNavigation(); });
         DebugManager.on('resume-execution', () => { this.disableNavigation(); });
+        DebugManager.on('session-completed', () => { toolbarFunctions.removeDebuggingToolbar();});
         DebugManager.on('session-error', (endpoint) => { this.showReconnectButton(endpoint); });
     }
     endSession() {
@@ -146,7 +147,6 @@ class Tools extends EventChannel {
         this.active = false;
         this.navigation = true;
         this.render();
-        toolbarFunctions.removeDebuggingToolbar();
     }
     showWaiting() {
         this.waiting = true;
