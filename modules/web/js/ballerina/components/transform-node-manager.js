@@ -145,9 +145,8 @@ class TransformNodeManager {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
-            let rightExpression = assignmentStmtSource.getRightExpression();
-            assignmentStmtSource.removeChild(rightExpression, true);
-            rightExpression = this.getCompatibleSourceExpression(source.funcInv, compatibility.type, target.type);
+            const rightExpression = this.getCompatibleSourceExpression(source.funcInv, compatibility.type, target.type);
+            assignmentStmtSource.removeChild(source.funcInv, true);
             assignmentStmtSource.addChild(rightExpression, 1, true);
             assignmentStmtSource.setIsDeclaredWithVar(false);
 
@@ -411,9 +410,9 @@ class TransformNodeManager {
     }
 
     createTypeCastExpression(type, vertexExpression) {
-        const typeConversionExp = BallerinaASTFactory.createTypeCastExpression();
-        typeConversionExp.setExpressionFromString('(' + type + ')' + vertexExpression.getExpressionString());
-        return typeConversionExp;
+        const typeCastExp = BallerinaASTFactory.createTypeCastExpression();
+        typeCastExp.setExpressionFromString('(' + type + ')' + vertexExpression.getExpressionString());
+        return typeCastExp;
     }
 
     getMappingExpression(expression) {
