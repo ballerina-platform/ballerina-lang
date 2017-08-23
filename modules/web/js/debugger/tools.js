@@ -48,10 +48,16 @@ class Tools extends EventChannel {
                 </div>
                 <div class="btn-group col-xs-12">
                     <div type="button" 
-                        class="btn btn-default text-left btn-debug-activate col-xs-12"
+                        class="btn btn-default text-left btn-debug-activate col-xs-6"
                         id="reconnect-debugger"
                         title="Reconnect">
                         <span class="launch-label"><i class="fw fw-refresh"></i> Retry</span>
+                    </div>
+                    <div type="button" 
+                        class="btn btn-default text-left btn-debug-activate col-xs-6"
+                        id="cancel-reconnect-debugger"
+                        title="Cancel Reconnect">
+                        <span class="launch-label"><i class="fw fw-cancel"></i> Cancel</span>
                     </div>
                 </div>
             <% } %>
@@ -232,6 +238,11 @@ class Tools extends EventChannel {
             this.waiting = true;
             this.reConnecting = false;
             DebugManager.connect(this.endpoint);
+        });
+        this.container.on('click', '#cancel-reconnect-debugger', () => {
+            this.waiting = false;
+            this.reConnecting = false;
+            this.render();
         });
     }
     /**
