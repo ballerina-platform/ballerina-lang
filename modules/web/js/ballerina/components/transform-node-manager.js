@@ -148,13 +148,16 @@ class TransformNodeManager {
         // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
         // will be different from removing a param from a function and then drawing the connection
         // to the parent function invocation.
-        const assignmentStmtTarget = this.getParentAssignmentStmt(target.funcInv);
         const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
-
-        const funcNode = assignmentStmtTarget.getRightExpression();
 
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.removeChild(assignmentStmtSource, true);
+
+        const currentChild = target.funcInv.getChildren()[target.index];
+        if(currentChild) {
+            target.funcInv.removeChild(currentChild, true);
+        }
+
         target.funcInv.addChild(source.funcInv, target.index);
     }
 
