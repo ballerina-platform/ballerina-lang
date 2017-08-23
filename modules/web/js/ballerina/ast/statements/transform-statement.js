@@ -202,6 +202,26 @@ class TransformStatement extends Statement {
             data: {},
         });
     }
+
+    getNextTempVarName() {
+        const varNameRegex = new RegExp('_temp[\\d]*');
+        const assignmentStmts = this.filterChildren(ASTFactory.isAssignmentStatement);
+        const tempVarIdentifiers = [];
+        assignmentStmts.forEach((assStmt) => {
+            assStmt.getLeftExpression().getChildren().forEach((leftExpr) => {
+                if (varNameRegex.test(leftExpr.getExpressionString())) {
+                    tempVarIdentifiers.push(leftExpr.getExpressionString());
+                }
+            });
+        });
+        tempVarIdentifiers.sort();
+
+        let index = 1;
+        if (tempVarIdentifiers.length > 0) {
+            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length + 1].substring(5), 10) + 1;
+        }
+        return '_temp' + index;
+    }
 }
 
 export default TransformStatement;

@@ -124,7 +124,19 @@ class TransformNodeManager {
                 refType.addChild(keyValEx);
                 funcNode.addChild(refType, index);
             } else {
-                funcNode.addChild(sourceExpression, index);
+                if (compatibility.safe) {
+                    funcNode.addChild(sourceExpression, index);
+                    return;
+                }
+
+                const assignmentStmt = this.findEnclosingAssignmentStatement(funcNode);
+                // unsafe cast/conversion
+                const tempVarName = this._transformStmt.getNextTempVarName();
+                this.insertExplicitAssignmentStatement(tempVarName, sourceExpression, this._transformStmt.getIndexOfChild(assignmentStmt) - 1);
+
+                const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                tempVarRefExpr.setExpressionFromString(tempVarName);
+                funcNode.addChild(tempVarRefExpr, index);
             }
             return;
         }
@@ -159,6 +171,18 @@ class TransformNodeManager {
         }
 
         target.funcInv.addChild(source.funcInv, target.index);
+    }
+
+    insertExplicitAssignmentStatement(tempVarName, sourceExpression, index) {
+        const tempVarAssignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+        const varRefList = BallerinaASTFactory.createVariableReferenceList();
+        varRefList.setExpressionFromString(tempVarName);
+        tempVarAssignmentStmt.addChild(varRefList, 0);
+        tempVarAssignmentStmt.addChild(sourceExpression, 1);
+        tempVarAssignmentStmt.setIsDeclaredWithVar(true);
+        const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
+        varRefList.addChild(errorVarRef);
+        this._transformStmt.addChild(tempVarAssignmentStmt, index);
     }
 
     removeStatementEdge(connection) {
@@ -293,7 +317,7 @@ class TransformNodeManager {
                 paramObj = {
                     name: paramName,
                     type: param.type,
-                }
+                };
             }
 
             paramObj.displayName = param.name;
@@ -311,7 +335,6 @@ class TransformNodeManager {
                 index,
                 funcInv: functionInvocationExpression,
             };
-
             returnParams.push(paramObj);
         });
 
@@ -455,15 +478,15 @@ class TransformNodeManager {
                     const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
                     variableReferenceExpression.setExpressionFromString(newVarName);
                     inputs[i] = variableReferenceExpression;
-                  }
-              });
-              node.setInput(inputs);
-              node.trigger('tree-modified', {
-                  origin: this,
-                  type: 'variable-update',
-                  title: `Variable update ${varName}`,
-                  data: {},
-              });
+                }
+            });
+            node.setInput(inputs);
+            node.trigger('tree-modified', {
+                origin: this,
+                type: 'variable-update',
+                title: `Variable update ${varName}`,
+                data: {},
+            });
         }
     }
  }

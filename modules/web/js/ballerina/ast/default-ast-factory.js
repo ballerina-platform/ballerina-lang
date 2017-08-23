@@ -281,12 +281,10 @@ DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = functio
         }
         functionInvokeString += args.functionDef.getName() + '(';
         if (!_.isEmpty(args.functionDef.getParameters())) {
-            const paramNames = [];
-            args.functionDef.getParameters().forEach((param) => {
-                paramNames.push(param.name);
+            args.functionDef.getParameters().forEach(() => {
                 funcInvocationExpression.addChild(ASTFactory.createNullLiteralExpression());
             });
-            functionInvokeString += _.join(paramNames, ', ');
+            functionInvokeString += Array(args.functionDef.getParameters().length).fill('null').join(', ');
         }
         functionInvokeString += ')';
         funcInvocationExpression.setExpressionFromString(functionInvokeString);
@@ -298,7 +296,7 @@ DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = functio
         if (!_.isEmpty(args.functionDef.getReturnParams())) {
             const varRefNames = [];
             args.functionDef.getReturnParams().forEach((param, index) => {
-                varRefNames.push(param.name || '_temp' + (index + 1));
+                varRefNames.push(param.name || '_output' + (index + 1));
             });
             if (varRefNames.length > 0) {
                 varRefListString = _.join(varRefNames, ', ') + ' ';
@@ -316,7 +314,7 @@ DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = functio
     if (_.has(args, 'funcInv')) {
         assignmentStmt.setIsDeclaredWithVar(true);
         const variableRefList = ASTFactory.createVariableReferenceList(args);
-        variableRefList.setExpressionFromString('var _temp');
+        variableRefList.setExpressionFromString('var _output1');
         assignmentStmt.addChild(variableRefList, 0);
         assignmentStmt.addChild(args.funcInv, 1);
         return assignmentStmt;
