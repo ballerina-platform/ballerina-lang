@@ -153,13 +153,9 @@ class TransformNodeManager {
 
         const funcNode = assignmentStmtTarget.getRightExpression();
 
-        const index = _.findIndex(this.getFunctionVertices(funcNode).getParameters(), (param) => {
-            return (param.name === target.name);
-        });
-
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.removeChild(assignmentStmtSource, true);
-        funcNode.addChild(assignmentStmtSource.getRightExpression(), index);
+        target.funcInv.addChild(source.funcInv, target.index);
     }
 
     removeStatementEdge(connection) {
@@ -199,22 +195,22 @@ class TransformNodeManager {
         if (target.endpointKind === 'output') {
             // Connection target is not a struct and source is a struct.
             // Target could be a function node.
-            const assignmentStmtTarget = connection.sourceReference;
-            const expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
+            const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
+            const expression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
                 return (child.getExpressionString().trim() === target.name);
             });
-            assignmentStmtTarget.getLeftExpression().removeChild(expression, true);
-            assignmentStmtTarget.setIsDeclaredWithVar(true);
+            assignmentStmtSource.getLeftExpression().removeChild(expression, true);
+            assignmentStmtSource.setIsDeclaredWithVar(true);
             const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
             simpleVarRefExpression.setExpressionFromString('_temp' + (source.index + 1));
-            assignmentStmtTarget.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1);
+            assignmentStmtSource.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1);
             return;
         }
 
         // Connection source and target are not structs
         // Source and target could be function nodes.
         const assignmentStmt = this.findEnclosingAssignmentStatement(target.funcInv);
-        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt) + 1;
+        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt);
 
         const index = target.funcInv.getIndexOfChild(source.funcInv);
         target.funcInv.removeChild(source.funcInv, true);
