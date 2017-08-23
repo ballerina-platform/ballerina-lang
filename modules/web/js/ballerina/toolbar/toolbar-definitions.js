@@ -223,6 +223,6 @@ const compactView = {
 
 const toolgroupArray = [
     createNewFileTool, openFileTool, saveFileTool, undoTool, redoTool,
-    startTool, debugTool, actionView, collapseView, compactView];
+    startTool, debugTool /*, actionView, collapseView, compactView*/];
 
 export default toolgroupArray;
