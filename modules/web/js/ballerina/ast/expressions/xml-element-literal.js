@@ -30,8 +30,9 @@ class XMLElementLiteral extends Expression {
         this.type_name = _.get(args, 'type_name', '');
     }
 
-    getExpressionString() {
-        let expression = `${this.type_name} \``;
+    getExpressionString(isTemplate) {
+        let expression = '';
+        expression += isTemplate ? '' : `${this.type_name} \``;
         if (this.children[0]) {
             if (ASTFactory.isBasicLiteralExpression(this.children[0])) {
                 expression += `<${this.children[0].getBasicLiteralValue()}`;
@@ -67,6 +68,8 @@ class XMLElementLiteral extends Expression {
                         }
                     } else if (ASTFactory.isXMLQNameExpression(child)) {
                         expression += ` ${child.getLocalName()}`;
+                    } else if (ASTFactory.isBinaryExpression(child)) {
+                        expression += `="${child.getExpressionString(true)}"`;
                     }
                 });
             });
@@ -84,7 +87,11 @@ class XMLElementLiteral extends Expression {
                 } else if (ASTFactory.isBasicLiteralExpression(child)) {
                     expression += `${child.getBasicLiteralValue()}`;
                 } else if (ASTFactory.isXMLElementLiteral(child)) {
-                    expression += child.getExpressionString().replace('`', '');
+                    expression += child.getExpressionString(true);
+                } else if (ASTFactory.isBinaryExpression(child)) {
+                    expression += child.getExpressionString(true);
+                } else if (ASTFactory.isXMLTextLiteral(child)) {
+                    expression += child.getExpressionString(true);
                 }
             });
         } else if (ASTFactory.isXMLQNameExpression(this.children[1])) {
@@ -107,7 +114,7 @@ class XMLElementLiteral extends Expression {
             }
         }
 
-        expression += '`';
+        expression += isTemplate ? '' : '`';
         return expression;
     }
 

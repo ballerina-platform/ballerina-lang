@@ -406,4 +406,6 @@ public class BLangJSONModelConstants {
     public static final String XML_COMMENT_LITERAL = "xml_comment_literal";
 
     public static final String XML_PI_LITERAL = "xml_pi_literal";
+
+    public static final String STRING_TEMPLATE_LITERAL = "string_template_literal";
 }

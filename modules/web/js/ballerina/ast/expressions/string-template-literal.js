@@ -19,41 +19,52 @@ import _ from 'lodash';
 import Expression from './expression';
 import ASTFactory from './../ast-factory';
 
-class XMLPILiteral extends Expression {
+/**
+ * Class for string template literal.
+ * @class StringTemplateLiteral
+ * */
+class StringTemplateLiteral extends Expression {
+    /**
+     * constructor for String template literal.
+     * @param {object} args - argument for string template literal.
+     * */
     constructor(args) {
-        super('XMLPILiteral');
+        super('StringTemplateLiteral');
         this.type_name = _.get(args, 'type_name', '');
     }
 
+    /**
+     * get the expression string.
+     * @return {string} concat of the string template literal.
+     * */
     getExpressionString() {
-        let expression = `${this.type_name} \`<?`;
+        let expression = (this.type_name ? this.type_name : 'string') + ' `';
         this.children.forEach((child) => {
             if (ASTFactory.isBasicLiteralExpression(child)) {
                 expression += `${child.getBasicLiteralValue()}`;
-                if (this.children.indexOf(child) === 0) {
-                    expression += ' ';
-                }
             } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
                 expression += `{{${child.getVariableName()}}}`;
-            } else if (ASTFactory.isBinaryExpression(child)) {
-                expression += `${child.getExpressionString(true)}`;
+            } else {
+                expression += `{{${child.getExpressionString()}}}`;
             }
         });
-        expression += '?>`';
+        expression += '`';
         return expression;
     }
 
     /**
-     * Intialize the json node for XML comment literal.
+     * Initialize the node from json.
+     * @param {object} jsonNode - json model for string template.
      * */
     initFromJson(jsonNode) {
+        this.children = [];
         this.type_name = _.get(jsonNode, 'type_name', '');
         _.forEach(jsonNode.children, (childNode) => {
             const child = ASTFactory.createFromJson(childNode);
-            this.addChild(child);
+            this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }
 }
 
-export default XMLPILiteral;
+export default StringTemplateLiteral;

@@ -50,19 +50,19 @@ class BasicLiteralExpression extends Expression {
             const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                     || !_.has(parsedJson, 'syntax_errors'))
-                    && _.isEqual(parsedJson.type, 'basic_literal_expression')) {
+                && _.isEqual(parsedJson.type, 'basic_literal_expression')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({ isValid: true });
+                    callback({isValid: true});
                 }
             } else if (_.isFunction(callback)) {
-                callback({ isValid: false, response: parsedJson });
+                callback({isValid: false, response: parsedJson});
             }
         }
     }
 
-    getExpressionString() {
-        if (this._basicLiteralType === 'string') {
+    getExpressionString(isTemplte) {
+        if (this._basicLiteralType === 'string' && !isTemplte) {
             // Adding double quotes if it is a string.
             return '"' + this._basicLiteralValue + '"' + this.getWSRegion(1);
         }

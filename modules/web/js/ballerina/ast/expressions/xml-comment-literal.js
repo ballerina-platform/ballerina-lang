@@ -33,7 +33,7 @@ class XMLCommentLiteral extends Expression {
             } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
                 expression += `{{${child.getVariableName()}}}`;
             } else if (ASTFactory.isBinaryExpression(child)) {
-                expression += '';
+                expression += `${child.getExpressionString(true)}`;
             }
         });
         expression += '-->`';
