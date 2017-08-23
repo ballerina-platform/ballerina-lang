@@ -56,6 +56,7 @@ class ToolsPane extends React.Component {
     }
 
     render() {
+        const renderMode = this.props.mode;
         return (
             <div>
                 {this.props.constructs &&
@@ -78,11 +79,11 @@ class ToolsPane extends React.Component {
                         role="button"
                         onClick={() => this.changePane('connectors')}
                     >
-                        <i className="fw fw-view icon" />
-                         More connectors
-              </a>
+                        <i className="fw fw-view icon"/>
+                        More connectors
+                    </a>
                 </ToolsPanel>
-                <ToolsPanel name="Libraries">
+                { renderMode !== 'action' && <ToolsPanel name="Libraries">
                     {this.props.library}
                     <a
                         role="button"
@@ -90,11 +91,12 @@ class ToolsPane extends React.Component {
                         className="tool-palette-add-button"
                         onClick={() => this.changePane('library')}
                     >
-                        <i className="fw fw-view icon" />
-                         More libraries
+                        <i className="fw fw-view icon"/>
+                        More libraries
                     </a>
                     <br />
                 </ToolsPanel>
+                }
             </div>
         );
     }

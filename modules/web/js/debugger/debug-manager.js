@@ -124,19 +124,6 @@ class DebugManager extends EventChannel {
     processMesssage(message) {
         if (message.code === 'DEBUG_HIT') {
             this.active = true;
-            const { debugFile } = this.launchManager;
-            // open file if not file is open already
-            if (this.launchManager.debugFile) {
-                const debugStartedFilePath = debugFile.getPath();
-                let packagePath = debugFile.getPackageName() || '';
-
-                if (packagePath.length > 0) {
-                    packagePath = packagePath.replace(/\./g, '/');
-                    const programDir = debugStartedFilePath.split(`/${packagePath}`)[0];
-                    const filePath = `${programDir}/${message.location.fileName}`;
-                    this.application.commandManager.dispatch('open-file', filePath);
-                }
-            }
             this.trigger('debug-hit', message);
             this.currentThreadId = message.threadId;
         }

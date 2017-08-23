@@ -35,8 +35,10 @@ class SuggestionsDropdown extends React.Component {
                 matches.push(sug);
             }
         });
-        matches.push({ type: '-- add new variable --', name: '' });
 
+        if(this.props.type === "source") {
+            matches.push({ type: '-- add new variable --', name: '' });
+        }
         this.setState({ suggestions: matches });
     }
 
@@ -72,6 +74,7 @@ class SuggestionsDropdown extends React.Component {
                 getSuggestionValue={getSuggestionValue}
                 renderSuggestion={renderSuggestion}
                 inputProps={inputProps}
+                focusInputOnSuggestionClick={false}
             />
         );
     }

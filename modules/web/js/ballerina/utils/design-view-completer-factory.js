@@ -15,6 +15,7 @@
  */
 
 import _ from 'lodash';
+import ASTFactory from './../ast/ast-factory';
 import DesignViewCompleterUtils from './design-view-completer-utils';
 /**
  * Class to represent design view completer factory
@@ -70,17 +71,36 @@ class CompleterFactory {
         langserverController.getCompletions(options, (response) => {
             const sortedArr = _.orderBy(response.result, ['sortText'], ['desc']);
             let score = sortedArr.length;
-            sortedArr.map((completionItem) => {
-                completions.push(
-                    {
-                        caption: completionItem.label,
-                        snippet: completionItem.insertText,
-                        meta: completionItem.detail,
-                        score: 100 + (score || 0),
-                    });
-                score--;
-            });
+            this.filterCompletionItems(sortedArr, node, editorContent)
+                .forEach((completionItem) => {
+                    completions.push(
+                        {
+                            caption: completionItem.label,
+                            snippet: completionItem.insertText,
+                            meta: completionItem.detail,
+                            score: 100 + (score || 0),
+                        });
+                    score--;
+                });
             callback(null, completions);
+        });
+    }
+
+    /**
+     * Filter retried completion items from lang-server
+     *
+     * @param {Object[]} items Completion items received from server
+     * @param {ASTNode} node ASTNode attached to expression editor
+     * @param {string} editorContent Current content of the editor
+     */
+    filterCompletionItems(items, node, editorContent) {
+        return items.filter((item) => {
+            // Only suggest BTypes for empty var def statements
+            if (ASTFactory.isVariableDefinitionStatement(node) && editorContent.trim() === '') {
+                return item.detail === 'BType';
+            } else {
+                return true;
+            }
         });
     }
 

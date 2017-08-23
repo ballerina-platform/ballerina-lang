@@ -45,7 +45,7 @@ const saveFileTool = {
     name: 'Save',
     cssClass: 'fw fw-save fw-lg',
     title: 'Save File',
-    cssClassOnDiv: 'internal-separator',
+    cssClassOnDiv: 'section-separator',
     children: {},
     command: {
         id: 'save',
@@ -80,7 +80,7 @@ const startTool = {
     id: 'start',
     name: 'Start',
     cssClass: 'fw fw-start fw-lg',
-    title: 'Start',
+    title: 'Run',
     cssClassOnDiv: '',
     getChildrenIcon: 'fw fw-sort-down more',
     children: {
@@ -99,8 +99,8 @@ const debugTool = {
     id: 'debug',
     name: 'Debug',
     cssClass: 'fw fw-bug fw-lg',
-    title: 'Debug',
-    cssClassOnDiv: '',
+    title: 'Debugger',
+    cssClassOnDiv: 'section-separator',
     getChildrenIcon: 'fw fw-sort-down more',
     children: {
         application: {
@@ -184,8 +184,44 @@ const debugTool = {
         },
     ],
 };
+const actionView = {
+    id: 'actionView',
+    name: 'Action View',
+    cssClass: 'fw fw-undo fw-lg',
+    title: 'Action View',
+    cssClassOnDiv: '',
+    children: {},
+    command: {
+        id: 'undo',
+    },
+};
+
+const collapseView = {
+    id: 'collapseView',
+    name: 'Collapse View',
+    cssClass: 'fw fw-redo fw-lg',
+    title: 'Collapse View',
+    cssClassOnDiv: '',
+    children: {},
+    command: {
+        id: 'redo',
+    },
+};
+
+const compactView = {
+    id: 'compactView',
+    name: 'Compact View',
+    cssClass: 'fw fw-undo fw-lg',
+    title: 'Compact View',
+    cssClassOnDiv: '',
+    children: {},
+    command: {
+        id: 'undo',
+    },
+};
+
 const toolgroupArray = [
     createNewFileTool, openFileTool, saveFileTool, undoTool, redoTool,
-    startTool, debugTool];
+    startTool, debugTool, actionView, collapseView, compactView];
 
 export default toolgroupArray;
