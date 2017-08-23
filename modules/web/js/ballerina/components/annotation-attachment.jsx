@@ -49,7 +49,7 @@ class AnnotationAttachment extends React.Component {
                 hasError: true,
             };
         } else if (props.model.getFullPackageName() !== '.' && (props.model.getPackageName() === undefined ||
-                                                                                props.model.getPackageName() === '')) {
+            props.model.getPackageName() === '')) {
             this.state = {
                 isPackageNameInEdit: true,
                 hasError: true,
@@ -176,7 +176,7 @@ class AnnotationAttachment extends React.Component {
         const model = this.props.model;
         const componentsOfAttributes = [];
         const annotationDefModel = AnnotationHelper.getAnnotationDefinition(
-                                                this.context.environment, model.getFullPackageName(), model.getName());
+            this.context.environment, model.getFullPackageName(), model.getName());
         if (annotationDefModel) {
             model.getChildren().forEach((attribute) => {
                 componentsOfAttributes.push(<AnnotationAttribute
@@ -277,7 +277,7 @@ class AnnotationAttachment extends React.Component {
      */
     renderPackageName() {
         const supportedPackageNames = AnnotationHelper.getPackageNames(
-                                                                this.context.environment, this.props.model.getParent());
+            this.context.environment, this.props.model.getParent());
         if (this.state.isPackageNameInEdit && !this.props.model.getViewState().disableEdit) {
             const model = this.props.model;
             return (<span>@
@@ -296,8 +296,8 @@ class AnnotationAttachment extends React.Component {
 
         let packageName = '';
         if (!(this.props.model.getPackageName() === undefined ||
-                    this.props.model.getPackageName() === null ||
-                    this.props.model.getPackageName() === 'Current Package')) {
+            this.props.model.getPackageName() === null ||
+            this.props.model.getPackageName() === 'Current Package')) {
             packageName = `${this.props.model.getPackageName()}:`;
         }
 
@@ -332,8 +332,8 @@ class AnnotationAttachment extends React.Component {
                     <i
                         key={`${this.props.model.getID()}-collapser`}
                         className={cn('fw fw-right expand-icon',
-                        { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
-                        { hide: this.props.model.getChildren().length === 0 })}
+                            { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                            { hide: this.props.model.getChildren().length === 0 })}
                         onClick={this.toggleCollapse}
                     />
                 </CSSTransitionGroup>
