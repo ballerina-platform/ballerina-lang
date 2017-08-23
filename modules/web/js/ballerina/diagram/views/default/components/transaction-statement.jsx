@@ -88,7 +88,7 @@ class TransactionStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
 
         // If utilities available add utilities to the block statement.
         if (utilities) {

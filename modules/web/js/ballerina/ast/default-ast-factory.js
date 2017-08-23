@@ -296,7 +296,7 @@ DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = functio
         if (!_.isEmpty(args.functionDef.getReturnParams())) {
             const varRefNames = [];
             args.functionDef.getReturnParams().forEach((param, index) => {
-                varRefNames.push(param.name || '__output' + (index + 1));
+                varRefNames.push('__output' + (index + 1));
             });
             if (varRefNames.length > 0) {
                 varRefListString = _.join(varRefNames, ', ') + ' ';

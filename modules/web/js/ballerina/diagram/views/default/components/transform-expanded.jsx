@@ -794,7 +794,8 @@ class TransformExpanded extends React.Component {
                 if (!ASTFactory.isAssignmentStatement(child)) {
                     return;
                 }
-                const rightExpression = child.getRightExpression();
+                let rightExpression = child.getRightExpression();
+                rightExpression = this.transformNodeManager.getMappingExpression(rightExpression);
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
                     const funcInvs = this.findFunctionInvocations(rightExpression);

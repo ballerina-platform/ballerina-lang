@@ -54,7 +54,7 @@ class NamespaceDeclarationStatement extends React.Component {
                 model={model}
                 expression={expression}
                 editorOptions={this.editorOptions}
-                designer={this.designer}
+                designer={this.props.designer}
             />);
     }
 }

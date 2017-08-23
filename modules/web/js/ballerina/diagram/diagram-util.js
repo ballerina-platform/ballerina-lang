@@ -38,6 +38,8 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
             return React.createElement(Hidden,{
                 model: child,
                 key: child.getID(),
+                designer: designer,
+                mode: mode,
             });
         }
 

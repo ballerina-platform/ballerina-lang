@@ -57,6 +57,7 @@ class Diagram extends React.Component {
         return {
             astRoot: this.props.model,
             activeArbiter: new ActiveArbiter(),
+            mode: this.props.mode,
         };
     }
 
@@ -140,6 +141,7 @@ Diagram.contextTypes = {
 
 Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    mode: PropTypes.string,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 

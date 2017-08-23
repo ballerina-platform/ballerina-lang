@@ -118,7 +118,7 @@ class ServiceDefinition extends React.Component {
         /**
          * Here we skip rendering the variables
          */
-        const children = getComponentForNodeArray(childrenWithNoVariables, this.designer, this.mode);
+        const children = getComponentForNodeArray(childrenWithNoVariables, this.props.designer, this.props.mode);
 
         const expandedVariablesBBox = {
             x: bBox.x + DesignerDefaults.panel.body.padding.left,

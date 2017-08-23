@@ -94,7 +94,7 @@ class FailedStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
-        const children = getComponentForNodeArray(model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(model.getChildren(), this.props.designer, this.props.mode);
         if (utilities) {
             return (<BlockStatementDecorator
                 model={model}
