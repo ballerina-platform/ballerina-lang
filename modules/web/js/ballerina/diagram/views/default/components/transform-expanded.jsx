@@ -22,16 +22,16 @@ import _ from 'lodash';
 import $ from 'jquery';
 import alerts from 'alerts';
 import log from 'log';
-import TransformRender from '../../ballerina/components/transform-render';
+import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
-import ASTNode from '../ast/node';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import ASTNode from '../../../../ast/node';
+import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import Tree from './transform/tree';
 import FunctionInv from './transform/function';
-import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import { getResolvedTypeData } from './../../langserver/lang-server-utils';
-import ASTFactory from '../ast/ast-factory';
+import { getLangServerClientInstance } from './../../../../../langserver/lang-server-client-controller';
+import { getResolvedTypeData } from './../../../../../langserver/lang-server-utils';
+import ASTFactory from '../../../../ast/ast-factory';
 import './transform-expanded.css';
 
 /**
