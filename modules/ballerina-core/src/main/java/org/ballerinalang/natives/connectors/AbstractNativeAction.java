@@ -368,4 +368,11 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
         return null;
     }
+
+    /**
+     * Prepare responses which don't have a message body.
+     *
+     * @param valueRef Callback valueRef.
+     */
+    public void prepareNoMessageBodyResponse(BValue valueRef){}
 }

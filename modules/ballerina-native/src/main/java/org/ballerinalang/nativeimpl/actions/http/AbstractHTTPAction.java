@@ -163,6 +163,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 }
             }
             handleTransportException(balConnectorCallback.getValueRef());
+            prepareNoMessageBodyResponse(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {
@@ -194,6 +195,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     @Override
     public void validate(BalConnectorCallback callback) {
         handleTransportException(callback.getValueRef());
+    }
+
+    @Override
+    public void prepareNoMessageBodyResponse(BValue valueRef) {
+        if (this.getIdentifier().getName().equals("head") || this.getIdentifier().getName().equals("options")) {
+            if (valueRef instanceof BMessage) {
+                BMessage bMsg = (BMessage) valueRef;
+                bMsg.value().setEndOfMsgAdded(true);
+            }
+        }
     }
 
     @Override
