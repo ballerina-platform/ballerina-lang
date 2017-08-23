@@ -17,6 +17,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationAttachmentAST from './../../../../ast/annotations/annotation-attachment';
 import AnnotationAttribute from './annotation-attribute';
 import { deleteNode, addAttribute } from './utils/annotation-button-events';
@@ -46,7 +48,8 @@ class AnnotationAttachment extends React.Component {
                 isPackageNameInEdit: true,
                 hasError: true,
             };
-        } else if (props.model.getFullPackageName() !== '.' && (props.model.getPackageName() === undefined || props.model.getPackageName() === '')) {
+        } else if (props.model.getFullPackageName() !== '.' && (props.model.getPackageName() === undefined ||
+            props.model.getPackageName() === '')) {
             this.state = {
                 isPackageNameInEdit: true,
                 hasError: true,
@@ -70,6 +73,7 @@ class AnnotationAttachment extends React.Component {
         this.onPackageNameEditFinished = this.onPackageNameEditFinished.bind(this);
         this.onPackageNameSelected = this.onPackageNameSelected.bind(this);
         this.onNameSelected = this.onNameSelected.bind(this);
+        this.toggleCollapse = this.toggleCollapse.bind(this);
     }
 
     /**
@@ -154,6 +158,15 @@ class AnnotationAttachment extends React.Component {
     }
 
     /**
+     * Event for collpasing the view.
+     * @memberof AnnotationAttachment
+     */
+    toggleCollapse() {
+        this.props.model.getViewState().collapsed = !this.props.model.getViewState().collapsed;
+        this.context.editor.update();
+    }
+
+    /**
      * Renders the annotation attributes of the annotation attachment.
      *
      * @returns {AnnotationAttribute[]} Annotation attribute components.
@@ -231,6 +244,12 @@ class AnnotationAttachment extends React.Component {
         return <PopoutButton buttons={buttons} />;
     }
 
+    /**
+     * Renders the add annotation button.
+     *
+     * @returns {PopoutButton} The add button view.
+     * @memberof AnnotationAttachment
+     */
     renderAddButton() {
         const buttons = [];
         const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
@@ -300,40 +319,31 @@ class AnnotationAttachment extends React.Component {
         const name = this.renderName();
         const addOperationButton = this.renderAddButton();
         const deleteOperationButton = this.renderDeleteButton();
-        let errorClass = '';
-        if (this.state.hasError) {
-            errorClass = 'annotation-attachment-error';
-        }
-
-        const hasAttributes = this.props.model.getChildren().length > 0;
-        if (hasAttributes) {
-            const attributes = this.renderAttributes();
-            return (
-                <ul className="annotation-attachment-ul">
-                    <li className={`annotation-attachment-text-li ${errorClass}`}>
-                        {packageName}
-                        <span className='annotation-attachment-name'>{name}</span>
-                        <span className="annotations-open-bracket">{'{'}</span>
-                        {addOperationButton}
-                        {deleteOperationButton}
-                    </li>
-                    <li>
-                        {attributes}
-                    </li>
-                    <li>
-                        <span className="annotations-close-bracket">{'}'}</span>
-                    </li>
-                </ul>
-            );
-        }
+        const attributes = this.props.model.getViewState().collapsed ? (null) : <li>{this.renderAttributes()}</li>;
         return (<ul className="annotation-attachment-ul">
-            <li className={`annotation-attachment-text-li ${errorClass}`}>
+            <li className={cn('annotation-attachment-text-li', { 'annotation-attachment-error': this.state.hasError })}>
+                <CSSTransitionGroup
+                    component="span"
+                    transitionName="annotation-expand"
+                    transitionEnterTimeout={300}
+                    transitionLeaveTimeout={300}
+                >
+                    <i
+                        key={`${this.props.model.getID()}-collapser`}
+                        className={cn('fw fw-right expand-icon',
+                            { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                            { hide: this.props.model.getChildren().length === 0 })}
+                        onClick={this.toggleCollapse}
+                    />
+                </CSSTransitionGroup>
                 {packageName}{name}
-                <span className="annotations-open-bracket">{'{'}</span>
                 {addOperationButton}
-                <span className="annotations-close-bracket">{'}'}</span>
                 {deleteOperationButton}
+                <span className='annotation-attachment-badge hide'>
+                    <i className="fw fw-annotation-badge" />
+                </span>
             </li>
+            {attributes}
         </ul>);
     }
 }
@@ -346,6 +356,7 @@ AnnotationAttachment.contextTypes = {
     // Used for accessing ast-root to add imports
     astRoot: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttachment;
