@@ -49,6 +49,8 @@ class AnnotationContainer extends React.Component {
             selectedIdentifierValue: '',
             shownIdentifierSuggestions: [],
         };
+        this.designer = _.get(props, 'designer');
+        this.mode = _.get(props, 'mode');
 
         this.onAnnotationPackageNameChange = this.onAnnotationPackageNameChange.bind(this);
         this.onAnnotationPackageNameBlur = this.onAnnotationPackageNameBlur.bind(this);
@@ -411,7 +413,7 @@ class AnnotationContainer extends React.Component {
         };
 
         // Getting the components for the annotation of the current model.
-        const annotations = getComponentForNodeArray(this.props.model.getAnnotations());
+        const annotations = getComponentForNodeArray(this.props.model.getAnnotations(), this.props.designer, this.props.mode);
 
         if (this.state.hasPackageNameSelected) {
             // Input properties for the package name

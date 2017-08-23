@@ -51,7 +51,7 @@ class WhileStatement extends React.Component {
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
             + ((innerDropZoneDropNotAllowed) ? ' block' : '');
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
 
         this.editorOptions = {
             propertyType: 'text',

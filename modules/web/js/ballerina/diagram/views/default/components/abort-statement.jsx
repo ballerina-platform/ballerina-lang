@@ -50,8 +50,8 @@ class AbortStatement extends React.Component {
                 model={model}
                 viewState={model.viewState}
                 expression={expression}
-                designer={this.designer}
-                mode={this.mode}
+                designer={this.props.designer}
+                mode={this.props.mode}
             />);
     }
 }

@@ -66,7 +66,7 @@ class FunctionDefinition extends React.Component {
         };
 
         // filter children nodes and create components
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
         const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));

@@ -49,8 +49,8 @@ class WorkerReplyStatement extends React.Component {
                         viewState={model.viewState}
                         expression={expression}
                         editorOptions={this.editorOptions}
-                        designer={this.designer}
-                        mode={this.mode}
+                        designer={this.props.designer}
+                        mode={this.props.mode}
                     />);
                       <StatementArrowConnection start={workerReplyStatement.viewState} end={model.viewState} />
                 </g>);
@@ -61,8 +61,8 @@ class WorkerReplyStatement extends React.Component {
                     viewState={model.viewState}
                     expression={expression}
                     editorOptions={this.editorOptions}
-                    designer={this.designer}
-                    mode={this.mode}
+                    designer={this.props.designer}
+                    mode={this.props.mode}
                 />);
         }
         return (
@@ -71,8 +71,8 @@ class WorkerReplyStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
-                designer={this.designer}
-                mode={this.mode}
+                designer={this.props.designer}
+                mode={this.props.mode}
             />);
     }
 }

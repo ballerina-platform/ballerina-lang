@@ -56,7 +56,7 @@ class ForkJoinStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const bodyBBox = model.viewState.components.body;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
 
         const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bodyBBox.h
             + blockStatement.heading.height);

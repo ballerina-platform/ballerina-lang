@@ -43,8 +43,8 @@ class FunctionInvocationStatement extends React.Component {
                 expression={expression}
                 editorOptions={this.editorOptions}
                 model={model}
-                designer={this.designer}
-                mode={this.mode}
+                designer={this.props.designer}
+                mode={this.props.mode}
             />);
     }
 }

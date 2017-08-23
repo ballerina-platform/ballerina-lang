@@ -51,8 +51,8 @@ class ThrowStatement extends React.Component {
                 viewState={model.viewState}
                 editorOptions={this.editorOptions}
                 expression={expression}
-                designer={this.designer}
-                mode={this.mode}
+                designer={this.props.designer}
+                mode={this.props.mode}
             />);
     }
 }
