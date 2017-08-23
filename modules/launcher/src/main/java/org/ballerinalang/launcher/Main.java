@@ -212,7 +212,7 @@ public class Main {
         private String ballerinaDebugPort;
 
         //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander. Github issue #3245
-        @Parameter(names = "-Bhttp-trace-log", hidden = true, description = "enable HTTP trace logging")
+        @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
         private boolean httpTraceLogEnabled;
 
         public void execute() {
@@ -227,7 +227,7 @@ public class Main {
             }
 
             if (httpTraceLogEnabled) {
-                System.setProperty(BLogManager.HTTP_TRACE_LOG, BLogManager.LOG_DEST_CONSOLE);
+                System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
             }
 
             // Enable remote debugging

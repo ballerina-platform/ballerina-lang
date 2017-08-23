@@ -45,7 +45,6 @@ public class BLogManager extends LogManager {
     public static final PrintStream STD_OUT = System.out;
 
     // Trace log related constants
-    public static final String HTTP_TRACE_LOG = "http-trace-log";
     public static final String HTTP_TRACE_LOGGER = "tracelog.http";
     public static final String LOG_DEST_CONSOLE = "__console";
 
