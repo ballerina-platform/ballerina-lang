@@ -21,7 +21,7 @@ native function getBinaryPayload (message m) (blob);
 @doc:Param { value:"msg: The current message object" }
 @doc:Param { value:"propertyName: The name of the property" }
 @doc:Param { value:"propertyValue: The value of the property" }
-native function setProperty (message msg, string propertyName, string propertyValue);
+native function setProperty (message msg, string propertyName, any propertyValue);
 
 @doc:Description { value:"Sets the message payload using a string object"}
 @doc:Param { value:"m: The current message object" }
@@ -60,7 +60,7 @@ native function setJsonPayload (message m, json payload);
 @doc:Param { value:"msg: The current message object" }
 @doc:Param { value:"propertyName: The name of the property" }
 @doc:Return { value:"string: The property value" }
-native function getProperty (message msg, string propertyName) (string);
+native function getProperty (message msg, string propertyName) (any);
 
 @doc:Description { value:"Removes a transport header from the message"}
 @doc:Param { value:"m: The message object" }

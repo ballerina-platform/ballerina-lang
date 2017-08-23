@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "setProperty",
         args = {@Argument(name = "msg", type = TypeEnum.MESSAGE),
                 @Argument(name = "propertyName", type = TypeEnum.STRING),
-                @Argument(name = "propertyValue", type = TypeEnum.STRING)}, //TODO: property value could be of any type
+                @Argument(name = "propertyValue", type = TypeEnum.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
@@ -54,7 +54,7 @@ public class SetProperty extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getRefArgument(context, 0);
         String propertyName = getStringArgument(context, 0);
-        String propertyValue = getStringArgument(context, 1);
+        BValue propertyValue = getRefArgument(context, 1);
 
         if (propertyName != null && propertyValue != null) {
             msg.setProperty(propertyName, propertyValue);
