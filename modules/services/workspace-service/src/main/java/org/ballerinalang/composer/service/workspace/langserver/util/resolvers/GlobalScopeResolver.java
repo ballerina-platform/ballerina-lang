@@ -51,14 +51,6 @@ public class GlobalScopeResolver extends AbstractItemResolver {
                     .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
                     .collect(Collectors.toList());
             this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
-
-            // Add the var keyword
-            CompletionItem varKeyword = new CompletionItem();
-            varKeyword.setInsertText("var ");
-            varKeyword.setLabel("var");
-            varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            completionItems.add(varKeyword);
-
         } else {
             return resolvers.get(parserRuleContext.getClass()).resolveItems(dataModel, symbols, resolvers);
         }
