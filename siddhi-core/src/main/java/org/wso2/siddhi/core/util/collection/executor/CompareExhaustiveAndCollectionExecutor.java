@@ -57,7 +57,6 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
                 }
             }
             return returnEventChunk.getFirst();
-
         } else {
             return null;
         }

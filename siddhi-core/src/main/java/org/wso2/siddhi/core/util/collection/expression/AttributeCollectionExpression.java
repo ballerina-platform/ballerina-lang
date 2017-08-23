@@ -36,7 +36,8 @@ public class AttributeCollectionExpression implements CollectionExpression {
         this.expression = expression;
         this.attribute = attribute;
         this.collectionScope = collectionScope;
-        if (collectionScope == CollectionScope.MULTI_PRIMARY_KEY_ATTRIBUTE) {
+        if (collectionScope == CollectionScope.PRIMARY_KEY_ATTRIBUTE
+                || collectionScope == CollectionScope.PARTIAL_PRIMARY_KEY_ATTRIBUTE) {
             multiPrimaryKeys.add(attribute);
         }
     }

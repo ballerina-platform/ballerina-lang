@@ -39,7 +39,8 @@ public class AndMultiPrimaryKeyCollectionExecutor implements CollectionExecutor 
     private final String compositePrimaryKey;
     private final List<ExpressionExecutor> multiPrimaryKeyExpressionExecutors;
 
-    public AndMultiPrimaryKeyCollectionExecutor(String compositePrimaryKey, List<ExpressionExecutor> multiPrimaryKeyExpressionExecutors) {
+    public AndMultiPrimaryKeyCollectionExecutor(String compositePrimaryKey,
+                                                List<ExpressionExecutor> multiPrimaryKeyExpressionExecutors) {
         this.compositePrimaryKey = compositePrimaryKey;
         this.multiPrimaryKeyExpressionExecutors = multiPrimaryKeyExpressionExecutors;
     }

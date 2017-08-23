@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -2314,7 +2313,7 @@ public class PrimaryKeyTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100L},
+                    new Object[]{"IBM", 200L},
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
@@ -2381,6 +2380,145 @@ public class PrimaryKeyTableTestCase {
 
             List<Object[]> expected = Arrays.asList(
                     new Object[]{"IBM", 100L},
+                    new Object[]{"IBM", 200L},
+                    new Object[]{"WSO2", 100L}
+            );
+            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 3, inEventCount.get());
+            Assert.assertEquals("Number of remove events", 0, removeEventCount);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void primaryKeyTableTest38() throws InterruptedException {
+        log.info("primaryKeyTableTest38");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol','volume') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on (CheckStockStream.symbol==StockTable.symbol and CheckStockStream.volume==StockTable.volume) and " +
+                " 55.6f == StockTable.price " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        try {
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+
+            siddhiAppRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 101L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 102L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 200L});
+            checkStockStream.send(new Object[]{"IBM", 200L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+
+            List<Object[]> expected = Arrays.asList(
+                    new Object[]{"IBM", 200L},
+                    new Object[]{"WSO2", 100L}
+            );
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 2, inEventCount.get());
+            Assert.assertEquals("Number of remove events", 0, removeEventCount);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void primaryKeyTableTest39() throws InterruptedException {
+        log.info("primaryKeyTableTest39");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, price float, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol','volume') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on CheckStockStream.symbol==StockTable.symbol and CheckStockStream.volume==StockTable.volume and " +
+                " CheckStockStream.price == StockTable.price " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        try {
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+
+            siddhiAppRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 101L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 102L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 200L});
+            checkStockStream.send(new Object[]{"IBM", 55.6f, 200L});
+            checkStockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+
+            List<Object[]> expected = Arrays.asList(
+                    new Object[]{"IBM", 200L},
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);

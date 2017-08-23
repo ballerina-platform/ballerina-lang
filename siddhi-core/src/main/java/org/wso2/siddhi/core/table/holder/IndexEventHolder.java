@@ -98,7 +98,7 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public Set<Object> getAllPrimaryKeys() {
+    public Set<Object> getAllPrimaryKeyValues() {
         if (primaryKeyData != null) {
             return primaryKeyData.keySet();
         } else {
@@ -112,7 +112,7 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public boolean isMultiPrimaryKey(String attributeName) {
+    public boolean isMultiPrimaryKeyAttribute(String attributeName) {
         return multiPrimaryKeyMetaData.containsKey(attributeName);
     }
 

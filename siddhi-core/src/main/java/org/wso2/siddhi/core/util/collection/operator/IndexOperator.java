@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
+import org.wso2.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 
@@ -130,9 +131,11 @@ public class IndexOperator implements Operator {
                 //Todo how much check we need to do before falling back to Delete and then Update
                 foundEventChunk.reset();
                 Set<Object> keys = null;
-                if (storeEvents.getPrimaryKeyReferenceHolders().length == 1 &&
-                        entry.getKey() == storeEvents.getPrimaryKeyReferenceHolders()[0].getPrimaryKeyPosition()) {
-                    keys = new HashSet<>(storeEvents.getAllPrimaryKeys());
+                PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders = storeEvents.getPrimaryKeyReferenceHolders();
+                if (primaryKeyReferenceHolders != null
+                        && primaryKeyReferenceHolders.length == 1
+                        && entry.getKey() == primaryKeyReferenceHolders[0].getPrimaryKeyPosition()) {
+                    keys = new HashSet<>(storeEvents.getAllPrimaryKeyValues());
                 }
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();

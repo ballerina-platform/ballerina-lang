@@ -37,7 +37,7 @@ import org.wso2.siddhi.core.util.collection.executor.NonCollectionExecutor;
 import org.wso2.siddhi.core.util.collection.executor.NotCollectionExecutor;
 import org.wso2.siddhi.core.util.collection.executor.OrCollectionExecutor;
 import org.wso2.siddhi.core.util.collection.expression.AndCollectionExpression;
-import org.wso2.siddhi.core.util.collection.expression.AndMutiPrimaryKeyCollectionExpression;
+import org.wso2.siddhi.core.util.collection.expression.AndMultiPrimaryKeyCollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.AttributeCollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.BasicCollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
@@ -73,10 +73,12 @@ import java.util.Set;
 import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.EXHAUSTIVE;
 import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.INDEXED_ATTRIBUTE;
 import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.INDEXED_RESULT_SET;
-import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.MULTI_PRIMARY_KEY_ATTRIBUTE;
 import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.NON;
-import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.OPTIMISED_INDEXED_RESULT_SET;
-import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET;
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET;
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PARTIAL_PRIMARY_KEY_ATTRIBUTE;
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PARTIAL_PRIMARY_KEY_RESULT_SET;
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PRIMARY_KEY_ATTRIBUTE;
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PRIMARY_KEY_RESULT_SET;
 
 /**
  * Class to parse Expressions and create Expression executors.
@@ -93,81 +95,117 @@ public class CollectionExpressionParser {
      */
     public static CollectionExpression parseCollectionExpression(Expression expression, MatchingMetaInfoHolder
             matchingMetaInfoHolder, IndexedEventHolder indexedEventHolder) {
+        CollectionExpression collectionExpression = parseInternalCollectionExpression(expression,
+                matchingMetaInfoHolder, indexedEventHolder);
+        if (collectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET
+                || collectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE) {
+            return new BasicCollectionExpression(collectionExpression.getExpression(), EXHAUSTIVE);
+        } else {
+            return collectionExpression;
+        }
+    }
+
+    /**
+     * Parse the given expression and create the appropriate Executor by recursively traversing the expression
+     *
+     * @param expression             Expression to be parsed
+     * @param matchingMetaInfoHolder matchingMetaInfoHolder
+     * @param indexedEventHolder     indexed event holder
+     * @return ExpressionExecutor
+     */
+    private static CollectionExpression parseInternalCollectionExpression(Expression expression,
+                                                                          MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                                                          IndexedEventHolder indexedEventHolder) {
         if (expression instanceof And) {
 
-            CollectionExpression leftCollectionExpression = parseCollectionExpression(((And) expression)
+            CollectionExpression leftCollectionExpression = parseInternalCollectionExpression(((And) expression)
                     .getLeftExpression(), matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression rightCollectionExpression = parseCollectionExpression(((And) expression)
+            CollectionExpression rightCollectionExpression = parseInternalCollectionExpression(((And) expression)
                     .getRightExpression(), matchingMetaInfoHolder, indexedEventHolder);
 
             if (leftCollectionExpression.getCollectionScope() == NON &&
                     rightCollectionExpression.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
-            } else if (leftCollectionExpression.getCollectionScope() == EXHAUSTIVE &&
-                    rightCollectionExpression.getCollectionScope() == EXHAUSTIVE) {
-                return new BasicCollectionExpression(expression, EXHAUSTIVE);
-            } else if ((leftCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE
-                    || leftCollectionExpression.getCollectionScope() == OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET)
-                    && (rightCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE
-                    || rightCollectionExpression.getCollectionScope() == OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET)) {
+            } else if ((leftCollectionExpression.getCollectionScope() == PRIMARY_KEY_ATTRIBUTE
+                    || leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE
+                    || leftCollectionExpression.getCollectionScope() == PRIMARY_KEY_RESULT_SET
+                    || leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET)
+                    && (rightCollectionExpression.getCollectionScope() == PRIMARY_KEY_ATTRIBUTE
+                    || rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE
+                    || rightCollectionExpression.getCollectionScope() == PRIMARY_KEY_RESULT_SET
+                    || rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET)) {
                 Set<String> primaryKeys = new HashSet<>();
                 primaryKeys.addAll(leftCollectionExpression.getMultiPrimaryKeys());
                 primaryKeys.addAll(rightCollectionExpression.getMultiPrimaryKeys());
-                if (primaryKeys.size() == indexedEventHolder.getPrimaryKeyReferenceHolders().length) {
-                    return new AndMutiPrimaryKeyCollectionExpression(expression,
-                            OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET,
+                if (indexedEventHolder.getPrimaryKeyReferenceHolders() != null
+                        && primaryKeys.size() == indexedEventHolder.getPrimaryKeyReferenceHolders().length) {
+                    return new AndMultiPrimaryKeyCollectionExpression(expression,
+                            PRIMARY_KEY_RESULT_SET,
                             leftCollectionExpression, rightCollectionExpression);
                 } else {
                     return new AndCollectionExpression(expression,
-                            OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET,
+                            PARTIAL_PRIMARY_KEY_RESULT_SET,
                             leftCollectionExpression, rightCollectionExpression);
                 }
+                //TODO support query rewriting to group all PARTIAL_PRIMARY_KEY_RESULT_SETs together such that it can
+                // build AndMultiPrimaryKeyCollectionExpression.
+            } else if ((leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE
+                    || leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET
+                    || leftCollectionExpression.getCollectionScope() == NON
+                    || leftCollectionExpression.getCollectionScope() == EXHAUSTIVE)
+                    && (rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE
+                    || rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET
+                    || rightCollectionExpression.getCollectionScope() == NON
+                    || rightCollectionExpression.getCollectionScope() == EXHAUSTIVE)) {
+                return new BasicCollectionExpression(expression, EXHAUSTIVE);
             } else {
-                return new AndCollectionExpression(expression, OPTIMISED_INDEXED_RESULT_SET,
+                return new AndCollectionExpression(expression, OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET,
                         leftCollectionExpression, rightCollectionExpression);
             }
         } else if (expression instanceof Or) {
-            CollectionExpression leftCollectionExpression = parseCollectionExpression(((Or) expression)
+            CollectionExpression leftCollectionExpression = parseInternalCollectionExpression(((Or) expression)
                     .getLeftExpression(), matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression rightCollectionExpression = parseCollectionExpression(((Or) expression)
+            CollectionExpression rightCollectionExpression = parseInternalCollectionExpression(((Or) expression)
                     .getRightExpression(), matchingMetaInfoHolder, indexedEventHolder);
 
             if (leftCollectionExpression.getCollectionScope() == NON &&
                     rightCollectionExpression.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
             } else if (leftCollectionExpression.getCollectionScope() == EXHAUSTIVE
-                    || leftCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE
-                    || leftCollectionExpression.getCollectionScope() == OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET
+                    || leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE
+                    || leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET
                     || rightCollectionExpression.getCollectionScope() == EXHAUSTIVE
-                    || rightCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE
-                    || rightCollectionExpression.getCollectionScope() == OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET) {
+                    || rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE
+                    || rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET) {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
             } else {
                 return new OrCollectionExpression(expression,
-                        OPTIMISED_INDEXED_RESULT_SET,
+                        OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET,
                         leftCollectionExpression, rightCollectionExpression);
             }
         } else if (expression instanceof Not) {
-            CollectionExpression notCollectionExpression = parseCollectionExpression(((Not) expression).getExpression
-                    (), matchingMetaInfoHolder, indexedEventHolder);
-
-            if (notCollectionExpression.getCollectionScope() == EXHAUSTIVE ||
-                    notCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE ||
-                    notCollectionExpression.getCollectionScope() == OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET) {
-                return new BasicCollectionExpression(expression, EXHAUSTIVE);
-            } else if (notCollectionExpression.getCollectionScope() == NON) {
-                return new BasicCollectionExpression(expression, NON);
-            } else if (notCollectionExpression.getCollectionScope() == INDEXED_ATTRIBUTE) {
-                return new NotCollectionExpression(expression, INDEXED_RESULT_SET, notCollectionExpression);
-            } else {
-                return new NotCollectionExpression(expression, OPTIMISED_INDEXED_RESULT_SET, notCollectionExpression);
+            CollectionExpression notCollectionExpression = parseInternalCollectionExpression(
+                    ((Not) expression).getExpression(), matchingMetaInfoHolder, indexedEventHolder);
+            switch (notCollectionExpression.getCollectionScope()) {
+                case NON:
+                    return new BasicCollectionExpression(expression, NON);
+                case PRIMARY_KEY_ATTRIBUTE:
+                    return new NotCollectionExpression(expression, PRIMARY_KEY_RESULT_SET, notCollectionExpression);
+                case INDEXED_ATTRIBUTE:
+                    return new NotCollectionExpression(expression, INDEXED_RESULT_SET, notCollectionExpression);
+                case PRIMARY_KEY_RESULT_SET:
+                case INDEXED_RESULT_SET:
+                case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
+                    return new NotCollectionExpression(expression, OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET, notCollectionExpression);
+                case PARTIAL_PRIMARY_KEY_ATTRIBUTE:
+                case PARTIAL_PRIMARY_KEY_RESULT_SET:
+                case EXHAUSTIVE:
+                    return new BasicCollectionExpression(expression, EXHAUSTIVE);
             }
         } else if (expression instanceof Compare) {
-//            if (((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
-
-            CollectionExpression leftCollectionExpression = parseCollectionExpression(((Compare) expression)
+            CollectionExpression leftCollectionExpression = parseInternalCollectionExpression(((Compare) expression)
                     .getLeftExpression(), matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression rightCollectionExpression = parseCollectionExpression(((Compare) expression)
+            CollectionExpression rightCollectionExpression = parseInternalCollectionExpression(((Compare) expression)
                     .getRightExpression(), matchingMetaInfoHolder, indexedEventHolder);
 
             if (leftCollectionExpression.getCollectionScope() == NON &&
@@ -175,25 +213,27 @@ public class CollectionExpressionParser {
                 //comparing two stream attributes with O(1) time complexity
                 return new BasicCollectionExpression(expression, NON);
             } else if ((leftCollectionExpression.getCollectionScope() == INDEXED_ATTRIBUTE ||
-                    leftCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE) &&
+                    leftCollectionExpression.getCollectionScope() == PRIMARY_KEY_ATTRIBUTE ||
+                    leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE) &&
                     rightCollectionExpression.getCollectionScope() == NON) {
-                if (indexedEventHolder.isAttributeIndexed(
-                        ((AttributeCollectionExpression) leftCollectionExpression).getAttribute())) {
-                    //comparing indexed table attribute with stream attributes
-                    return new CompareCollectionExpression((Compare) expression, INDEXED_RESULT_SET,
-                            leftCollectionExpression, ((Compare) expression).getOperator(), rightCollectionExpression);
-                } else if (indexedEventHolder.isMultiPrimaryKey(
-                        ((AttributeCollectionExpression) leftCollectionExpression).getAttribute())) {
-                    //comparing indexed table attribute with stream attributes
-                    return new CompareCollectionExpression((Compare) expression, OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET,
-                            leftCollectionExpression, ((Compare) expression).getOperator(), rightCollectionExpression);
-                } else {
-                    //comparing non indexed table attribute with stream attributes
-                    return new BasicCollectionExpression(expression, EXHAUSTIVE);
+                switch (leftCollectionExpression.getCollectionScope()) {
+                    case INDEXED_ATTRIBUTE:
+                        return new CompareCollectionExpression((Compare) expression, INDEXED_RESULT_SET,
+                                leftCollectionExpression, ((Compare) expression).getOperator(),
+                                rightCollectionExpression);
+                    case PRIMARY_KEY_ATTRIBUTE:
+                        return new CompareCollectionExpression((Compare) expression, PRIMARY_KEY_RESULT_SET,
+                                leftCollectionExpression, ((Compare) expression).getOperator(),
+                                rightCollectionExpression);
+                    case PARTIAL_PRIMARY_KEY_ATTRIBUTE:
+                        return new CompareCollectionExpression((Compare) expression, PARTIAL_PRIMARY_KEY_RESULT_SET,
+                                leftCollectionExpression, ((Compare) expression).getOperator(),
+                                rightCollectionExpression);
                 }
             } else if (leftCollectionExpression.getCollectionScope() == NON
                     && (rightCollectionExpression.getCollectionScope() == INDEXED_ATTRIBUTE ||
-                    rightCollectionExpression.getCollectionScope() == MULTI_PRIMARY_KEY_ATTRIBUTE)) {
+                    rightCollectionExpression.getCollectionScope() == PRIMARY_KEY_ATTRIBUTE ||
+                    rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_ATTRIBUTE)) {
                 Compare.Operator operator = ((Compare) expression).getOperator();
                 //moving let to right
                 switch (operator) {
@@ -214,21 +254,16 @@ public class CollectionExpressionParser {
                     case NOT_EQUAL:
                         break;
                 }
-                if (indexedEventHolder.isAttributeIndexed(
-                        ((AttributeCollectionExpression) rightCollectionExpression).getAttribute())) {
-                    //comparing indexed table attribute with stream attributes
-                    return new CompareCollectionExpression((Compare) expression,
-                            INDEXED_RESULT_SET, rightCollectionExpression,
-                            operator, leftCollectionExpression);
-                } else if (indexedEventHolder.isMultiPrimaryKey(
-                        ((AttributeCollectionExpression) rightCollectionExpression).getAttribute())) {
-                    //comparing indexed table attribute with stream attributes
-                    return new CompareCollectionExpression((Compare) expression,
-                            OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET, rightCollectionExpression,
-                            operator, leftCollectionExpression);
-                } else {
-                    //comparing non indexed table attribute with stream attributes
-                    return new BasicCollectionExpression(expression, EXHAUSTIVE);
+                switch (rightCollectionExpression.getCollectionScope()) {
+                    case INDEXED_ATTRIBUTE:
+                        return new CompareCollectionExpression((Compare) expression, INDEXED_RESULT_SET,
+                                rightCollectionExpression, operator, leftCollectionExpression);
+                    case PRIMARY_KEY_ATTRIBUTE:
+                        return new CompareCollectionExpression((Compare) expression, PRIMARY_KEY_RESULT_SET,
+                                rightCollectionExpression, operator, leftCollectionExpression);
+                    case PARTIAL_PRIMARY_KEY_ATTRIBUTE:
+                        return new CompareCollectionExpression((Compare) expression, PARTIAL_PRIMARY_KEY_RESULT_SET,
+                                rightCollectionExpression, operator, leftCollectionExpression);
                 }
             } else {
                 //comparing non indexed table with stream attributes or another table attribute
@@ -241,9 +276,15 @@ public class CollectionExpressionParser {
                 if (indexedEventHolder.isAttributeIndexed(((Variable) expression).getAttributeName())) {
                     return new AttributeCollectionExpression(expression, ((Variable) expression).getAttributeName(),
                             INDEXED_ATTRIBUTE);
-                } else if (indexedEventHolder.isMultiPrimaryKey(((Variable) expression).getAttributeName())) {
-                    return new AttributeCollectionExpression(expression, ((Variable) expression).getAttributeName(),
-                            MULTI_PRIMARY_KEY_ATTRIBUTE);
+                } else if (indexedEventHolder.isMultiPrimaryKeyAttribute(((Variable) expression).getAttributeName())) {
+                    if (indexedEventHolder.getPrimaryKeyReferenceHolders() != null
+                            && indexedEventHolder.getPrimaryKeyReferenceHolders().length == 1) {
+                        return new AttributeCollectionExpression(expression, ((Variable) expression).getAttributeName(),
+                                PRIMARY_KEY_ATTRIBUTE);
+                    } else {
+                        return new AttributeCollectionExpression(expression, ((Variable) expression).getAttributeName(),
+                                PARTIAL_PRIMARY_KEY_ATTRIBUTE);
+                    }
                 } else {
                     return new BasicCollectionExpression(expression, EXHAUSTIVE);
                 }
@@ -251,9 +292,9 @@ public class CollectionExpressionParser {
                 return new BasicCollectionExpression(expression, NON);
             }
         } else if (expression instanceof Multiply) {
-            CollectionExpression left = parseCollectionExpression(((Multiply) expression).getLeftValue(),
+            CollectionExpression left = parseInternalCollectionExpression(((Multiply) expression).getLeftValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression right = parseCollectionExpression(((Multiply) expression).getRightValue(),
+            CollectionExpression right = parseInternalCollectionExpression(((Multiply) expression).getRightValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
             if (left.getCollectionScope() == NON && right.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
@@ -261,9 +302,9 @@ public class CollectionExpressionParser {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
             }
         } else if (expression instanceof Add) {
-            CollectionExpression left = parseCollectionExpression(((Add) expression).getLeftValue(),
+            CollectionExpression left = parseInternalCollectionExpression(((Add) expression).getLeftValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression right = parseCollectionExpression(((Add) expression).getRightValue(),
+            CollectionExpression right = parseInternalCollectionExpression(((Add) expression).getRightValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
             if (left.getCollectionScope() == NON && right.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
@@ -271,9 +312,9 @@ public class CollectionExpressionParser {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
             }
         } else if (expression instanceof Subtract) {
-            CollectionExpression left = parseCollectionExpression(((Subtract) expression).getLeftValue(),
+            CollectionExpression left = parseInternalCollectionExpression(((Subtract) expression).getLeftValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression right = parseCollectionExpression(((Subtract) expression).getRightValue(),
+            CollectionExpression right = parseInternalCollectionExpression(((Subtract) expression).getRightValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
             if (left.getCollectionScope() == NON && right.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
@@ -281,9 +322,9 @@ public class CollectionExpressionParser {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
             }
         } else if (expression instanceof Mod) {
-            CollectionExpression left = parseCollectionExpression(((Mod) expression).getLeftValue(),
+            CollectionExpression left = parseInternalCollectionExpression(((Mod) expression).getLeftValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression right = parseCollectionExpression(((Mod) expression).getRightValue(),
+            CollectionExpression right = parseInternalCollectionExpression(((Mod) expression).getRightValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
             if (left.getCollectionScope() == NON && right.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
@@ -291,9 +332,9 @@ public class CollectionExpressionParser {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
             }
         } else if (expression instanceof Divide) {
-            CollectionExpression left = parseCollectionExpression(((Divide) expression).getLeftValue(),
+            CollectionExpression left = parseInternalCollectionExpression(((Divide) expression).getLeftValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
-            CollectionExpression right = parseCollectionExpression(((Divide) expression).getRightValue(),
+            CollectionExpression right = parseInternalCollectionExpression(((Divide) expression).getRightValue(),
                     matchingMetaInfoHolder, indexedEventHolder);
             if (left.getCollectionScope() == NON && right.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
@@ -303,7 +344,7 @@ public class CollectionExpressionParser {
         } else if (expression instanceof AttributeFunction) {
             Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
             for (Expression aExpression : innerExpressions) {
-                CollectionExpression aCollectionExpression = parseCollectionExpression(aExpression,
+                CollectionExpression aCollectionExpression = parseInternalCollectionExpression(aExpression,
                         matchingMetaInfoHolder, indexedEventHolder);
                 if (aCollectionExpression.getCollectionScope() != NON) {
                     return new BasicCollectionExpression(expression, EXHAUSTIVE);
@@ -311,23 +352,23 @@ public class CollectionExpressionParser {
             }
             return new BasicCollectionExpression(expression, NON);
         } else if (expression instanceof In) {
-            CollectionExpression inCollectionExpression = parseCollectionExpression(((In) expression).getExpression()
-                    , matchingMetaInfoHolder, indexedEventHolder);
+            CollectionExpression inCollectionExpression = parseInternalCollectionExpression(
+                    ((In) expression).getExpression(), matchingMetaInfoHolder, indexedEventHolder);
             if (inCollectionExpression.getCollectionScope() != NON) {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
             }
-
             return new BasicCollectionExpression(expression, NON);
         } else if (expression instanceof IsNull) {
-
-            CollectionExpression nullCollectionExpression = parseCollectionExpression(((IsNull) expression)
+            CollectionExpression nullCollectionExpression = parseInternalCollectionExpression(((IsNull) expression)
                             .getExpression(),
                     matchingMetaInfoHolder, indexedEventHolder);
-
             if (nullCollectionExpression.getCollectionScope() == NON) {
                 return new BasicCollectionExpression(expression, NON);
             } else if (nullCollectionExpression.getCollectionScope() == INDEXED_ATTRIBUTE) {
                 return new NullCollectionExpression(expression, INDEXED_RESULT_SET,
+                        ((AttributeCollectionExpression) nullCollectionExpression).getAttribute());
+            } else if (nullCollectionExpression.getCollectionScope() == PRIMARY_KEY_ATTRIBUTE) {
+                return new NullCollectionExpression(expression, PRIMARY_KEY_RESULT_SET,
                         ((AttributeCollectionExpression) nullCollectionExpression).getAttribute());
             } else {
                 return new BasicCollectionExpression(expression, EXHAUSTIVE);
@@ -373,9 +414,12 @@ public class CollectionExpressionParser {
                     (AttributeCollectionExpression) collectionExpression).getAttribute(), Compare.Operator.EQUAL, new
                     ConstantExpressionExecutor(true, Attribute.Type.BOOL));
         } else if (collectionExpression instanceof CompareCollectionExpression) {
-            ExpressionExecutor valueExpressionExecutor = ExpressionParser.parseExpression(((CompareCollectionExpression) collectionExpression).getValueCollectionExpression().getExpression(),
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
-            AttributeCollectionExpression attributeCollectionExpression = ((AttributeCollectionExpression) ((CompareCollectionExpression) collectionExpression).getAttributeCollectionExpression());
+            ExpressionExecutor valueExpressionExecutor = ExpressionParser.parseExpression(
+                    ((CompareCollectionExpression) collectionExpression).getValueCollectionExpression().getExpression(),
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap,
+                    variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
+            AttributeCollectionExpression attributeCollectionExpression = ((AttributeCollectionExpression)
+                    ((CompareCollectionExpression) collectionExpression).getAttributeCollectionExpression());
             ExpressionExecutor expressionExecutor = null;
             if (isFirst) {
                 expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
@@ -395,8 +439,7 @@ public class CollectionExpressionParser {
             return new CompareCollectionExecutor(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex(), (
                     (NullCollectionExpression) collectionExpression).getAttribute(),
                     Compare.Operator.EQUAL, new ConstantExpressionExecutor(null, Attribute.Type.OBJECT));
-        } else if (collectionExpression instanceof AndMutiPrimaryKeyCollectionExpression) {
-
+        } else if (collectionExpression instanceof AndMultiPrimaryKeyCollectionExpression) {
             Map<String, ExpressionExecutor> multiPrimaryKeyExpressionExecutors =
                     buildMultiPrimaryKeyExpressionExecutors(collectionExpression,
                             matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
@@ -410,18 +453,13 @@ public class CollectionExpressionParser {
                     sortedExecutors.add(expressionExecutor);
                     compositePrimaryKey.append(attribute.getName()).append(SiddhiConstants.KEY_DELIMITER);
                 }
-
             }
             return new AndMultiPrimaryKeyCollectionExecutor(compositePrimaryKey.toString(), sortedExecutors);
-
-//
         } else if (collectionExpression instanceof AndCollectionExpression) {
-
             CollectionExpression leftCollectionExpression = ((AndCollectionExpression) collectionExpression)
                     .getLeftCollectionExpression();
             CollectionExpression rightCollectionExpression = ((AndCollectionExpression) collectionExpression)
                     .getRightCollectionExpression();
-
             ExpressionExecutor expressionExecutor = null;
             CollectionExecutor aCollectionExecutor = null;
             ExhaustiveCollectionExecutor exhaustiveCollectionExecutor = null;
@@ -439,9 +477,10 @@ public class CollectionExpressionParser {
                             return new NonCollectionExecutor(expressionExecutor);
                         case INDEXED_ATTRIBUTE:
                         case INDEXED_RESULT_SET:
-                        case OPTIMISED_INDEXED_RESULT_SET:
-                        case MULTI_PRIMARY_KEY_ATTRIBUTE:
-                        case OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET:
+                        case PRIMARY_KEY_ATTRIBUTE:
+                        case PRIMARY_KEY_RESULT_SET:
+                        case PARTIAL_PRIMARY_KEY_RESULT_SET:
+                        case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
                         case EXHAUSTIVE:
                             expressionExecutor = ExpressionParser.parseExpression(leftCollectionExpression
                                             .getExpression(),
@@ -456,6 +495,7 @@ public class CollectionExpressionParser {
                     }
                     break;
                 case INDEXED_ATTRIBUTE:
+                case PRIMARY_KEY_ATTRIBUTE:
                     switch (rightCollectionExpression.getCollectionScope()) {
 
                         case NON:
@@ -471,7 +511,9 @@ public class CollectionExpressionParser {
                                     rightCollectionExpression.getCollectionScope());
                         case INDEXED_ATTRIBUTE:
                         case INDEXED_RESULT_SET:
-                        case OPTIMISED_INDEXED_RESULT_SET:
+                        case PRIMARY_KEY_ATTRIBUTE:
+                        case PRIMARY_KEY_RESULT_SET:
+                        case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
                             exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser
                                     .parseExpression(collectionExpression.getExpression(),
                                             matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder
@@ -486,8 +528,7 @@ public class CollectionExpressionParser {
                                     siddhiAppContext, false, queryName);
                             return new AnyAndCollectionExecutor(leftCollectionExecutor, rightCollectionExecutor,
                                     exhaustiveCollectionExecutor);
-                        case MULTI_PRIMARY_KEY_ATTRIBUTE:
-                        case OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET:
+                        case PARTIAL_PRIMARY_KEY_RESULT_SET:
                         case EXHAUSTIVE:
                             leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression,
                                     matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
@@ -506,7 +547,8 @@ public class CollectionExpressionParser {
                     }
                     break;
                 case INDEXED_RESULT_SET:
-                case OPTIMISED_INDEXED_RESULT_SET:
+                case PRIMARY_KEY_RESULT_SET:
+                case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
                     switch (rightCollectionExpression.getCollectionScope()) {
 
                         case NON:
@@ -522,6 +564,7 @@ public class CollectionExpressionParser {
                                     rightCollectionExpression.getCollectionScope());
 
                         case INDEXED_ATTRIBUTE:
+                        case PRIMARY_KEY_ATTRIBUTE:
                             exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser
                                     .parseExpression(collectionExpression.getExpression(),
                                             matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder
@@ -537,7 +580,8 @@ public class CollectionExpressionParser {
                             return new AnyAndCollectionExecutor(rightCollectionExecutor, leftCollectionExecutor,
                                     exhaustiveCollectionExecutor);
                         case INDEXED_RESULT_SET:
-                        case OPTIMISED_INDEXED_RESULT_SET:
+                        case PRIMARY_KEY_RESULT_SET:
+                        case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
                             exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser
                                     .parseExpression(collectionExpression.getExpression(),
                                             matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder
@@ -552,8 +596,7 @@ public class CollectionExpressionParser {
                                     siddhiAppContext, false, queryName);
                             return new AnyAndCollectionExecutor(leftCollectionExecutor, rightCollectionExecutor,
                                     exhaustiveCollectionExecutor);
-                        case MULTI_PRIMARY_KEY_ATTRIBUTE:
-                        case OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET:
+                        case PARTIAL_PRIMARY_KEY_RESULT_SET:
                         case EXHAUSTIVE:
                             leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression,
                                     matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
@@ -571,8 +614,7 @@ public class CollectionExpressionParser {
                                     exhaustiveCollectionExecutor);
                     }
                     break;
-                case MULTI_PRIMARY_KEY_ATTRIBUTE:
-                case OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET:
+                case PARTIAL_PRIMARY_KEY_RESULT_SET:
                 case EXHAUSTIVE:
                     switch (rightCollectionExpression.getCollectionScope()) {
 
@@ -590,7 +632,9 @@ public class CollectionExpressionParser {
 
                         case INDEXED_ATTRIBUTE:
                         case INDEXED_RESULT_SET:
-                        case OPTIMISED_INDEXED_RESULT_SET:
+                        case PRIMARY_KEY_ATTRIBUTE:
+                        case PRIMARY_KEY_RESULT_SET:
+                        case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
                             rightCollectionExecutor = buildCollectionExecutor(rightCollectionExpression,
                                     matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
                                     siddhiAppContext, isFirst, queryName);
@@ -605,8 +649,7 @@ public class CollectionExpressionParser {
                             }
                             return new CompareExhaustiveAndCollectionExecutor(rightCollectionExecutor,
                                     exhaustiveCollectionExecutor);
-                        case MULTI_PRIMARY_KEY_ATTRIBUTE:
-                        case OPTIMISED_MULTI_PRIMARY_KEY_RESULT_SET:
+                        case PARTIAL_PRIMARY_KEY_RESULT_SET:
                         case EXHAUSTIVE:
                             if (isFirst) {
                                 expressionExecutor = ExpressionParser.parseExpression(collectionExpression
@@ -626,7 +669,6 @@ public class CollectionExpressionParser {
                     .getLeftCollectionExpression();
             CollectionExpression rightCollectionExpression = ((OrCollectionExpression) collectionExpression)
                     .getRightCollectionExpression();
-
             ExpressionExecutor expressionExecutor = null;
             CollectionExecutor aCollectionExecutor = null;
             CollectionExecutor leftCollectionExecutor;
@@ -637,8 +679,10 @@ public class CollectionExpressionParser {
                         matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
                         tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
                 return new NonCollectionExecutor(expressionExecutor);
-            } else if (leftCollectionExpression.getCollectionScope() == EXHAUSTIVE ||
-                    rightCollectionExpression.getCollectionScope() == EXHAUSTIVE) {
+            } else if ((leftCollectionExpression.getCollectionScope() == EXHAUSTIVE &&
+                    leftCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET)
+                    || (rightCollectionExpression.getCollectionScope() == EXHAUSTIVE &&
+                    rightCollectionExpression.getCollectionScope() == PARTIAL_PRIMARY_KEY_RESULT_SET)) {
                 if (isFirst) {
                     expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
                             matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
@@ -672,7 +716,9 @@ public class CollectionExpressionParser {
                     return new NonCollectionExecutor(expressionExecutor);
                 case INDEXED_ATTRIBUTE:
                 case INDEXED_RESULT_SET:
-                case OPTIMISED_INDEXED_RESULT_SET:
+                case PRIMARY_KEY_ATTRIBUTE:
+                case PRIMARY_KEY_RESULT_SET:
+                case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
                     ExhaustiveCollectionExecutor exhaustiveCollectionExecutor = null;
                     if (isFirst) {
                         exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(
@@ -687,6 +733,7 @@ public class CollectionExpressionParser {
                             variableExpressionExecutors, tableMap, siddhiAppContext, isFirst, queryName);
                     return new NotCollectionExecutor(notCollectionExecutor, exhaustiveCollectionExecutor);
 
+                case PARTIAL_PRIMARY_KEY_RESULT_SET:
                 case EXHAUSTIVE:
                     if (isFirst) {
                         expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
@@ -722,10 +769,10 @@ public class CollectionExpressionParser {
             List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
             SiddhiAppContext siddhiAppContext, boolean isFirst, String queryName) {
 
-        if (collectionExpression instanceof AndMutiPrimaryKeyCollectionExpression) {
-            CollectionExpression leftCollectionExpression = ((AndMutiPrimaryKeyCollectionExpression)
+        if (collectionExpression instanceof AndMultiPrimaryKeyCollectionExpression) {
+            CollectionExpression leftCollectionExpression = ((AndMultiPrimaryKeyCollectionExpression)
                     collectionExpression).getLeftCollectionExpression();
-            CollectionExpression rightCollectionExpression = ((AndMutiPrimaryKeyCollectionExpression)
+            CollectionExpression rightCollectionExpression = ((AndMultiPrimaryKeyCollectionExpression)
                     collectionExpression).getRightCollectionExpression();
             Map<String, ExpressionExecutor> expressionExecutors = buildMultiPrimaryKeyExpressionExecutors(
                     leftCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,

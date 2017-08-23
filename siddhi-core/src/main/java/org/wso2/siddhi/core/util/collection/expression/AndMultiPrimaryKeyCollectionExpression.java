@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * Implementation of {@link CollectionExpression} which represent And expressions.
  */
-public class AndMutiPrimaryKeyCollectionExpression implements CollectionExpression {
+public class AndMultiPrimaryKeyCollectionExpression implements CollectionExpression {
 
     private final Expression expression;
     private final CollectionScope collectionScope;
@@ -35,9 +35,9 @@ public class AndMutiPrimaryKeyCollectionExpression implements CollectionExpressi
     private HashSet<String> multiPrimaryKeys = new HashSet<>();
 
 
-    public AndMutiPrimaryKeyCollectionExpression(Expression expression, CollectionScope collectionScope,
-                                                 CollectionExpression leftCollectionExpression,
-                                                 CollectionExpression rightCollectionExpression) {
+    public AndMultiPrimaryKeyCollectionExpression(Expression expression, CollectionScope collectionScope,
+                                                  CollectionExpression leftCollectionExpression,
+                                                  CollectionExpression rightCollectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;
