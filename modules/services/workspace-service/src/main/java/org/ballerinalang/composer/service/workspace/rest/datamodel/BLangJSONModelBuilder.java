@@ -2288,6 +2288,22 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(StringTemplateLiteral stringTemplateLiteral) {
         JsonObject stringTemplateLiteralObj = new JsonObject();
+        stringTemplateLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.STRING_TEMPLATE_LITERAL);
+        this.addPosition(stringTemplateLiteralObj, stringTemplateLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(stringTemplateLiteralObj, stringTemplateLiteral.getWhiteSpaceDescriptor());
+        if (stringTemplateLiteral.getType() != null) {
+            stringTemplateLiteralObj.addProperty(BLangJSONModelConstants.TYPE_NAME,
+                    stringTemplateLiteral.getType().getName());
+        }
+        tempJsonArrayRef.push(new JsonArray());
+        if (stringTemplateLiteral.getArgExprs() != null && stringTemplateLiteral.getArgExprs().length > 0) {
+            for (Expression expression : stringTemplateLiteral.getArgExprs()) {
+                expression.accept(this);
+            }
+        }
+        stringTemplateLiteralObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(stringTemplateLiteralObj);
     }
 

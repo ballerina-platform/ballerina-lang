@@ -18,23 +18,24 @@
 import ASTNode from '../node';
 
 class Expression extends ASTNode {
-    constructor(type){
+    constructor(type) {
         super(type || 'Expression');
     }
 
     /**
-    * get the string from expression editor
-    * call fragment parser and get parse tree of the node
-    * validate and create children from scratch
-    **/
+     * get the string from expression editor
+     * call fragment parser and get parse tree of the node
+     * validate and create children from scratch
+     **/
     setExpressionFromString(expression, callback) {
         throw 'This method should be implemented by sub class';
     }
 
     /**
-    * Traverse the children and generate a string to show up in expression editor
-    **/
-    getExpressionString() {
+     * Traverse the children and generate a string to show up in expression editor
+     * @param {boolean} isTemplate - is template
+     **/
+    getExpressionString(isTemplate) {
         throw 'This method should be implemented by sub class';
     }
 }

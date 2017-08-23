@@ -104,8 +104,8 @@ class SimpleVariableReferenceExpression extends Expression {
             child.initFromJson(childNode);
         });
         this.isIdentifierLiteral = jsonNode.is_identifier_literal;
-        this.setVariableName(jsonNode.variable_reference_name, { doSilently: true });
-        this.setPackageName(jsonNode.package_name, { doSilently: true });
+        this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
+        this.setPackageName(jsonNode.package_name, {doSilently: true});
     }
 
     /**
@@ -118,14 +118,14 @@ class SimpleVariableReferenceExpression extends Expression {
             const fragment = FragmentUtils.createExpressionFragment(expression);
             const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
-                   || !_.has(parsedJson, 'syntax_errors'))
-                   && _.isEqual(parsedJson.type, 'simple_variable_reference_expression')) {
+                    || !_.has(parsedJson, 'syntax_errors'))
+                && _.isEqual(parsedJson.type, 'simple_variable_reference_expression')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({ isValid: true });
+                    callback({isValid: true});
                 }
             } else if (_.isFunction(callback)) {
-                callback({ isValid: false, response: parsedJson });
+                callback({isValid: false, response: parsedJson});
             }
         }
     }
@@ -135,13 +135,19 @@ class SimpleVariableReferenceExpression extends Expression {
      * @returns {string} expression string
      * @override
      */
-    getExpressionString() {
-        return (!_.isNil(this.getPackageName()) ? (this.getPackageName()
-                + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
-                + (this.isIdentifierLiteral ? '|' : '')
-                + this.getVariableName()
-                + (this.isIdentifierLiteral ? '|' : '')
-                + this.getWSRegion(3);
+    getExpressionString(isTemplte) {
+        let templateStart = '';
+        let templateEnd = '';
+        if (isTemplte) {
+            templateStart = '{{';
+            templateEnd = '}}';
+        }
+        return templateStart + (!_.isNil(this.getPackageName()) ? (this.getPackageName()
+            + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
+            + (this.isIdentifierLiteral ? '|' : '')
+            + this.getVariableName()
+            + (this.isIdentifierLiteral ? '|' : '')
+            + this.getWSRegion(3) + templateEnd;
     }
 
 }
