@@ -1,6 +1,6 @@
 .header.header-default {
     background-color: $header-bgcolor;
-    min-height: 27px;
+    min-height: 24px;
 
     & .brand {
         color: $header-brand-color;
@@ -26,7 +26,7 @@
     }
     & > .file-dropdown-menu {
         background-color: $menubar-file-dropdown-menu-bgcolor;
-        margin-top: 17px;
+        margin-top: 12px;
         width: 300px;
         
         & > li {

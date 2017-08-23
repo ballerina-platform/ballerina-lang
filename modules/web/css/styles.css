@@ -14,7 +14,7 @@
 
 .header.header-default {
     background-color: #16191d;
-    min-height: 27px;
+    min-height: 24px;
 }
 
 #editor-container {
@@ -118,7 +118,7 @@ header .brand img.logo {
 header .brand {
     padding: 0 10px;
     margin-right: 25px;
-    line-height: 35px;
+    line-height: 24px;
 }
 
 header .brand h1 {
@@ -134,6 +134,7 @@ ol#breadcrumbList {
     background: #1e1e1e;
     top: 50%;
     font-size: 11px;
+    padding: 0px;
 }
 
 /** Breadcrumbs related styles | -> End**/
@@ -1438,9 +1439,10 @@ attachment-content-wrapper,
 }
 
 footer > .container p, footer > .container-fluid p {
-    line-height: 0;
+    line-height: 20px;
     font-size: 12px;
     margin: 0;
+    margin-top: -7px;
 }
 
 header .brand span {

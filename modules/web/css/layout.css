@@ -90,7 +90,7 @@ div[class*="col-sm-"] {
 }
 
 .right-container{
-    height: calc(100% - 103px);
+    height: calc(100% - 74px);
     position: fixed;
     padding-left: 40px;
     width: 100%;
