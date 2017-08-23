@@ -63,11 +63,18 @@ class ToolView extends React.Component {
                 title={toolTip}
                 onClick={() => { this.onClickIcon(app, tool, callBackFunctionForTool); }}
             >
+                { tool.cssClass &&
                 <i
                     id={`${tool.id}Icon`}
                     className={tool.cssClass}
-
                 />
+                }
+                { tool.iconImage &&
+                <img src={tool.iconImage}
+                    id={`${tool.id}Icon`}
+                    style={{ width:'16px'}}
+                />
+                }                
                 <i className={tool.getChildrenIcon} />
                 <div
                     id={`${tool.id}Menu`}

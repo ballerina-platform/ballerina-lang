@@ -189,7 +189,7 @@ const debugTool = {
 const defaultView = {
     id: 'defaultView',
     name: 'Default View',
-    cssClass: 'fw fw-dgm-fork fw-lg',
+    iconImage: 'images/default-view.svg',
     title: 'Default View',
     cssClassOnDiv: '',
     children: {},
@@ -201,7 +201,7 @@ const defaultView = {
 const actionView = {
     id: 'actionView',
     name: 'Action View',
-    cssClass: 'fw fw-design-view fw-lg',
+    iconImage: 'images/action-view.svg',
     title: 'Action View',
     cssClassOnDiv: '',
     children: {},
@@ -213,7 +213,7 @@ const actionView = {
 const compactView = {
     id: 'compactView',
     name: 'Compact View',
-    cssClass: 'fw fw-dgm-lifeline fw-lg',
+    iconImage: 'images/compact-view.svg',
     title: 'Compact View',
     cssClassOnDiv: '',
     children: {},
