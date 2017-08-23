@@ -36,6 +36,8 @@ class XMLSequenceLiteral extends Expression {
                 expression += `${child.getBasicLiteralValue()}`;
             } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
                 expression += `{{${child.getVariableName()}}}`;
+            } else if (ASTFactory.isBinaryExpression(child)) {
+                expression += `${child.getExpressionString(true)}`;
             }
         });
         expression += '`';

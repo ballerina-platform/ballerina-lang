@@ -33,7 +33,10 @@ class XMLTextLiteral extends Expression {
         this.type_name = _.get(args, 'type_name', '');
     }
 
-    getExpressionString() {
+    getExpressionString(isTemplate) {
+        if (isTemplate) {
+            return `${this.children[0].getBasicLiteralValue()}`;
+        }
         return `${this.type_name} \`${this.children[0].getBasicLiteralValue()}\``;
     }
 

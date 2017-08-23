@@ -45,13 +45,13 @@ class Hidden extends React.Component {
         const designer = this.props.designer;
 
         // calculate the bBox for the statement
-        const textX = bBox.x + bBox.w/2 - 10;
+        const textX = bBox.x + bBox.w/2 - 7;
         const textY = bBox.y + 20;
         return (
             <g>
                 <g className="statement-body">
                     <text x={textX} y={textY} className="hidden-indicator">
-                        ~
+                        &#8801;
                     </text>
                 </g>
             </g>);

@@ -67,25 +67,27 @@ class BinaryExpression extends Expression {
                     || !_.has(parsedJson, 'syntax_errors'))) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({ isValid: true });
+                    callback({isValid: true});
                 }
             } else if (_.isFunction(callback)) {
-                callback({ isValid: false, response: parsedJson });
+                callback({isValid: false, response: parsedJson});
             }
         }
     }
 
-    getExpressionString() {
+    getExpressionString(isTemplte) {
         let expressionString = '';
         expressionString += (!_.isNil(this.getLeftExpression()))
-                ? this.getLeftExpression().getExpressionString() : '';
+            ? this.getLeftExpression().getExpressionString(isTemplte) : '';
         // default tailing whitespace of expressions is emtpy - hence we need to
         // append a space here
         expressionString += (!_.isNil(this.getLeftExpression()) && this.getLeftExpression().whiteSpace.useDefault)
-                                ? ' ' : '';
-        expressionString += this._operator + this.getWSRegion(2);
+            ? ' ' : '';
+        if (!isTemplte) {
+            expressionString += this._operator + this.getWSRegion(2);
+        }
         expressionString += (!_.isNil(this.getRightExpression()))
-                ? this.getRightExpression().getExpressionString() : '';
+            ? this.getRightExpression().getExpressionString(isTemplte) : '';
         return expressionString;
     }
 

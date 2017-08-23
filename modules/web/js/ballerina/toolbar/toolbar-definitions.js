@@ -184,45 +184,46 @@ const debugTool = {
         },
     ],
 };
-/*
+
+
+const defaultView = {
+    id: 'defaultView',
+    name: 'Default View',
+    cssClass: 'fw fw-dgm-fork fw-lg',
+    title: 'Default View',
+    cssClassOnDiv: '',
+    children: {},
+    command: {
+        id: 'diagram-mode-change',
+    },
+};
+
 const actionView = {
     id: 'actionView',
     name: 'Action View',
-    cssClass: 'fw fw-undo fw-lg',
+    cssClass: 'fw fw-design-view fw-lg',
     title: 'Action View',
     cssClassOnDiv: '',
     children: {},
     command: {
-        id: 'undo',
-    },
-};
-
-const collapseView = {
-    id: 'collapseView',
-    name: 'Collapse View',
-    cssClass: 'fw fw-redo fw-lg',
-    title: 'Collapse View',
-    cssClassOnDiv: '',
-    children: {},
-    command: {
-        id: 'redo',
+        id: 'diagram-mode-change',
     },
 };
 
 const compactView = {
     id: 'compactView',
     name: 'Compact View',
-    cssClass: 'fw fw-undo fw-lg',
+    cssClass: 'fw fw-dgm-lifeline fw-lg',
     title: 'Compact View',
     cssClassOnDiv: '',
     children: {},
     command: {
-        id: 'undo',
+        id: 'diagram-mode-change',
     },
-};*/
+};
 
 const toolgroupArray = [
     createNewFileTool, openFileTool, saveFileTool, undoTool, redoTool,
-    startTool, debugTool /*, actionView, collapseView, compactView*/];
+    startTool, debugTool, defaultView, compactView, actionView];
 
 export default toolgroupArray;

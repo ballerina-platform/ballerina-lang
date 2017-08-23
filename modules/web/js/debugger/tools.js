@@ -353,6 +353,7 @@ class Tools extends EventChannel {
      * @memberof Tools
      */
     connectionStarted() {
+        toolbarFunctions.showDebuggerToolbar();
         this.waiting = false;
         this.render();
 

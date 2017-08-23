@@ -116,6 +116,7 @@ import XMLSequenceLiteral from './expressions/xml-sequence-literal';
 import XMLTextLiteral from './expressions/xml-text-literal';
 import XMLCommentLiteral from './expressions/xml-comment-literal';
 import XMLPILiteral from './expressions/xml-pi-literal';
+import StringTemplateLiteral from './expressions/string-template-literal';
 
 /**
  * @class ASTFactory
@@ -909,18 +910,40 @@ ASTFactory.createXMLSequenceLiteral = (args) => {
 };
 
 /**
- * Create new {@link XMLTextLiteral
+ * Create new {@link XMLTextLiteral}
+ * @param {object} args - arguments for the xml text literal.
+ * @return {XMLTextLiteral} xml text literal node.
  * */
 ASTFactory.createXMLTextLiteral = (args) => {
     return new XMLTextLiteral(args);
 };
 
+/**
+ * Create new {@link XMLCommentLiteral}
+ * @param {object} args - arguments for the xml comment literal.
+ * @return {XMLCommentLiteral} xml comment literal node.
+ * */
 ASTFactory.createXMLCommentLiteral = (args) => {
     return new XMLCommentLiteral(args);
 };
 
+/**
+ * Create new {@link XMLPILiteral}
+ * @param {object} args - argument for the xml pi literal.
+ * @return {XMLPILiteral} xml pi literal node.
+ * */
 ASTFactory.createPILiteral = (args) => {
     return new XMLPILiteral(args);
+};
+
+
+/**
+ * Create new {@link StringTemplateLiteral}
+ * @param {object} args - arguments for the string template.
+ * @return {StringTemplateLiteral} string template literal node.
+ * */
+ASTFactory.createStringTemplateLiteral = (args) => {
+    return new StringTemplateLiteral(args);
 };
 
 /**
@@ -1754,28 +1777,57 @@ ASTFactory.isXMLAttributeReferenceExpression = (child) => {
 };
 
 /**
- * instanceof check for the XMLPILiteral.
+ * instanceof check for the XML text literal.
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if the same type, else false.
+ * */
+ASTFactory.isXMLTextLiteral = (child) => {
+    return child instanceof XMLTextLiteral;
+};
+
+/**
+ * instanceof check for XML element literal.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} if true return true, else false.
+ * */
+ASTFactory.isXMLElementLiteral = (child) => {
+    return child instanceof XMLElementLiteral;
+};
+
+/**
+ * instanceof check for XML comment literal.
+ * @param {ASTNode} child - AST node.
+ * @return {boolean} if true return true, else false.
+ * */
+ASTFactory.isXMLCommentLiteral = (child) => {
+    return child instanceof XMLCommentLiteral;
+};
+
+/**
+ * instanceof check for XML PI literal.
+ * @param {ASTNode} child - AST node.
+ * @return {boolean} if true return true, else false.
  * */
 ASTFactory.isXMLPILiteral = (child) => {
     return child instanceof XMLPILiteral;
 };
 
-ASTFactory.isXMLElementLiteral = (child) => {
-    return child instanceof XMLElementLiteral;
-};
-
-ASTFactory.isXMLCommentLiteral = (child) => {
-    return child instanceof XMLCommentLiteral;
-};
-
-ASTFactory.isXMLPILiteral = (child) => {
-    return child instanceof XMLPILiteral;
-};
-
+/**
+ * instanceof check for XML sequence literal.
+ * @param {ASTNode} child - AST node.
+ * @return {boolean} if true return true, else false.
+ * */
 ASTFactory.isXMLSequenceLiteral = (child) => {
     return child instanceof XMLSequenceLiteral;
+};
+
+/**
+ * instanceof check for string template literal.
+ * @param {ASTNode} child - AST node.
+ * @return {boolean} if true return true, else false.
+ * */
+ASTFactory.isStringTemplateLiteral = (child) => {
+    return child instanceof StringTemplateLiteral;
 };
 
 ASTFactory.createFromJson = function (jsonNode) {
@@ -2089,6 +2141,9 @@ ASTFactory.createFromJson = function (jsonNode) {
         case 'xml_pi_literal':
             node = ASTFactory.createPILiteral(jsonNode);
             break;
+        case 'string_template_literal':
+            node = ASTFactory.createStringTemplateLiteral(jsonNode);
+            break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);
     }
@@ -2098,7 +2153,9 @@ ASTFactory.createFromJson = function (jsonNode) {
         node = ASTFactory.createConnectorDeclaration();
     }
 
-    node.setLineNumber(jsonNode.line_number, {doSilently: true});
+    node.setLineNumber(jsonNode.line_number, {
+        doSilently: true,
+    });
 
     if (!_.isNil(jsonNode.position_info)) {
         const {start_line, start_offset, stop_line, stop_offset} = jsonNode.position_info;
@@ -2106,12 +2163,16 @@ ASTFactory.createFromJson = function (jsonNode) {
             startLine: start_line,
             startOffset: start_offset,
             stopLine: stop_line,
-            stopOffset: stop_offset
+            stopOffset: stop_offset,
         };
-        node.setPosition(position, {doSilently: true});
+        node.setPosition(position, {
+            doSilently: true,
+        });
     }
     if (jsonNode.is_identifier_literal) {
-        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, {doSilently: true});
+        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, {
+            doSilently: true,
+        });
     }
 
     if (!_.isNil(jsonNode.whitespace_descriptor)) {

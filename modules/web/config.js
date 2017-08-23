@@ -37,11 +37,11 @@ const config = {
                 image: 'preview_passthroughService',
             },
             {
-                name: 'Service Chaining',
+                name: 'Transform Statement',
                 isFile: false,
-                folder: '/samples/serviceChaining/servicechaining',
-                path: '/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
-                image: 'preview_servicechaining',
+                folder: '/samples/transformStmt',
+                path: '/samples/transformStmt/StructTransform.bal',
+                image: 'preview_transformStmt',
             },
             {
                 name: 'JMS',

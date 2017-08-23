@@ -13,6 +13,7 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
+            mode: 'default',
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -25,6 +26,10 @@ class DesignView extends React.Component {
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.dragDropManager = new DragDropManager();
         this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
+
+        this.props.commandManager.registerHandler('diagram-mode-change', (mode) => {
+            this.setMode(mode);
+        });
     }
 
     setDiagramContainer(ref) {
@@ -47,7 +52,7 @@ class DesignView extends React.Component {
     * @memberof DesignView
     */
     setTransformActive(isTransformActive, activeTransformModel) {
-        if(this.state.isTransformActive === isTransformActive &&
+        if (this.state.isTransformActive === isTransformActive &&
             this.state.activeTransformModel === activeTransformModel) {
 
             return;
@@ -79,6 +84,10 @@ class DesignView extends React.Component {
         return this.toolPaletteContainer;
     }
 
+    setMode(diagramMode) {
+        this.setState({ mode: diagramMode });
+    }
+
     /**
      * @override
      * @memberof Diagram
@@ -105,6 +114,7 @@ class DesignView extends React.Component {
                         <div className="diagram root" ref={this.setDiagramContainer} >
                             <BallerinaDiagram
                                 model={this.props.model}
+                                mode={this.state.mode}
                             />
                         </div>
                     </div>
@@ -118,6 +128,7 @@ class DesignView extends React.Component {
                     <ToolPaletteView
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
+                        mode={this.state.mode}
                     />
                 </div>
                 <div className="top-right-controls-container">

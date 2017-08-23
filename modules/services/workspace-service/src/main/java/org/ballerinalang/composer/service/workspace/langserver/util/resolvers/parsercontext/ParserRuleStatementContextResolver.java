@@ -80,6 +80,14 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             xmlAttribute.setSortText(ItemResolverConstants.PRIORITY_7);
             completionItems.add(xmlAttribute);
 
+            // Add the var keyword
+            CompletionItem varKeyword = new CompletionItem();
+            varKeyword.setInsertText("var ");
+            varKeyword.setLabel("var");
+            varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+            varKeyword.setSortText(ItemResolverConstants.PRIORITY_6);
+            completionItems.add(varKeyword);
+
             prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_6);
             prioritiesMap.put(ItemResolverConstants.STATEMENT_TYPE, ItemResolverConstants.PRIORITY_5);
             this.assignItemPriorities(prioritiesMap, completionItems);
