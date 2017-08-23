@@ -196,9 +196,15 @@ class TransformExpanded extends React.Component {
                 this.drawInnerFunctionInvocationExpression(
                     functionInvocationExpression, expression, func, i, statement);
             } else {
-                const sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                let folded = false;
+                if (!this.sourceElements[sourceId]) {
+                    folded = true;
+                    sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
+                }
+
                 const targetId = `${functionInvID}:${i}:${viewId}`;
-                this.drawConnection(sourceId, targetId);
+                this.drawConnection(sourceId, targetId, folded);
             }
         });
 
