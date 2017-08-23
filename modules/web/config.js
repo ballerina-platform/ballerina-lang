@@ -134,9 +134,9 @@ const config = {
     breadcrumbs: {
         container: '#breadcrumb-container',
         cssClass: {
+            list: 'breadcrumb-toolbar pull-left',
+            item: 'breadcrumb-items',
             active: 'active',
-            list: 'breadcrumb pull-left',
-            item: 'breadcrumb-item',
         },
     },
     tab_controller: {
