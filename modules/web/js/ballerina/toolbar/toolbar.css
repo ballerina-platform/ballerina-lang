@@ -80,7 +80,6 @@
     background-color: #333;
     color: white;
     font-size: 12px;
-    /*padding:11px !important;*/
 }
 
 #debugger-tools{
@@ -97,6 +96,7 @@
 
 .resume{
     color: #379e61;
+    font-size: 16px;
 }
 
 .step{
