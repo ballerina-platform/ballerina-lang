@@ -29,7 +29,6 @@ import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -62,21 +61,6 @@ public class StatementReference extends BallerinaElementReference {
                 return null;
             }
             PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-            //                PsiReference reference = packageNameNode.findReferenceAt(0);
-            //                if (reference == null) {
-            //                    return null;
-            //                }
-            //                PsiElement resolvedElement = reference.resolve();
-            //                if (resolvedElement instanceof PackageNameNode) {
-            //                    //                    reference = resolvedElement.findReferenceAt(0);
-            //                    //                    if (reference == null) {
-            //                    //                        return null;
-            //                    //                    }
-            //                    //                    resolvedElement = reference.resolve();
-            //                    resolvedElement = BallerinaPsiImplUtil.resolvePackage((PackageNameNode)
-            // resolvedElement);
-            //                }
-
             if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
                 return null;
             }
@@ -162,15 +146,12 @@ public class StatementReference extends BallerinaElementReference {
         ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
                 TopLevelDefinition.class, LowerLevelDefinition.class);
         if (scope != null) {
-
             int caretOffset = identifier.getStartOffset();
 
-            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
-                    caretOffset);
+            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
             results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
 
-            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
-                    caretOffset);
+            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope, caretOffset);
             results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
 
             List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
@@ -185,7 +166,6 @@ public class StatementReference extends BallerinaElementReference {
             List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
             results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
         }
-
         return results;
     }
 
@@ -194,21 +174,6 @@ public class StatementReference extends BallerinaElementReference {
         List<LookupElement> results = new LinkedList<>();
 
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-
-        //            PsiReference reference = packageNameNode.findReferenceAt(0);
-        //            if (reference == null) {
-        //                return new Object[0];
-        //            }
-        //            PsiElement resolvedElement = reference.resolve();
-        //            if (resolvedElement instanceof PackageNameNode) {
-        //                //                reference = resolvedElement.findReferenceAt(0);
-        //                //                if (reference == null) {
-        //                //                    return new LookupElement[0];
-        //                //                }
-        //                //                resolvedElement = reference.resolve();
-        //                resolvedElement = BallerinaPsiImplUtil.resolvePackage((PackageNameNode) resolvedElement);
-        //            }
-
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }

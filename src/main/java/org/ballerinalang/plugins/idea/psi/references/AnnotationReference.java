@@ -101,19 +101,6 @@ public class AnnotationReference extends BallerinaElementReference {
     @Nullable
     private PsiElement resolveInPackage(@NotNull PackageNameNode packageNameNode) {
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        //        PsiReference reference = packageNameNode.findReferenceAt(0);
-        //        if (reference == null) {
-        //            return null;
-        //        }
-        //        PsiElement resolvedElement = reference.resolve();
-        //        if (resolvedElement instanceof PackageNameNode) {
-        //            //            reference = resolvedElement.findReferenceAt(0);
-        //            //            if (reference == null) {
-        //            //                return null;
-        //            //            }
-        //            //            resolvedElement = reference.resolve();
-        //            resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        //        }
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return null;
         }
@@ -149,20 +136,21 @@ public class AnnotationReference extends BallerinaElementReference {
         results.addAll(packages);
 
         PsiDirectory containingPackage = originalFile.getParent();
-        if (containingPackage != null) {
-            List<PsiElement> annotations;
-            if (allAnnotations) {
-                annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(containingPackage);
-            } else {
-                String attachmentType = BallerinaPsiImplUtil.getAttachmentType(identifier);
-                if (attachmentType == null) {
-                    return results;
-                }
-                annotations = BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(containingPackage,
-                        attachmentType);
-            }
-            results.addAll(BallerinaCompletionUtils.createAnnotationLookupElements(annotations));
+        if (containingPackage == null) {
+            return results;
         }
+        List<PsiElement> annotations;
+        if (allAnnotations) {
+            annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(containingPackage);
+        } else {
+            String attachmentType = BallerinaPsiImplUtil.getAttachmentType(identifier);
+            if (attachmentType == null) {
+                return results;
+            }
+            annotations = BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(containingPackage,
+                    attachmentType);
+        }
+        results.addAll(BallerinaCompletionUtils.createAnnotationLookupElements(annotations));
         return results;
     }
 
@@ -172,11 +160,6 @@ public class AnnotationReference extends BallerinaElementReference {
         List<LookupElement> results = new LinkedList<>();
         IdentifierPSINode identifier = getElement();
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        //        PsiReference reference = packageNameNode.findReferenceAt(0);
-        //        if (reference == null) {
-        //            return results;
-        //        }
-        //        PsiElement resolvedElement = reference.resolve();
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }

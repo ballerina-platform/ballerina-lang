@@ -118,26 +118,12 @@ public class NameReference extends BallerinaElementReference {
 
     @Nullable
     private PsiElement resolveInPackage(@NotNull PackageNameNode packageNameNode) {
-        IdentifierPSINode identifier = getElement();
-
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        //        PsiReference reference = packageNameNode.findReferenceAt(0);
-        //        if (reference == null) {
-        //            return null;
-        //        }
-        //        PsiElement resolvedElement = reference.resolve();
-        //        if (resolvedElement instanceof PackageNameNode) {
-        //            //            reference = resolvedElement.findReferenceAt(0);
-        //            //            if (reference == null) {
-        //            //                return null;
-        //            //            }
-        //            //            resolvedElement = reference.resolve();
-        //            resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        //        }
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return null;
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+        IdentifierPSINode identifier = getElement();
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true, true);
     }
 
@@ -210,17 +196,11 @@ public class NameReference extends BallerinaElementReference {
     private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
         List<LookupElement> results = new LinkedList<>();
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        //        PsiReference reference = packageNameNode.findReferenceAt(0);
-        //        if (reference == null) {
-        //            return results;
-        //        }
-        //        PsiElement resolvedElement = reference.resolve();
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }
 
         PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
-
         AnnotationAttachmentNode attachmentNode = PsiTreeUtil.getParentOfType(packageNameNode,
                 AnnotationAttachmentNode.class);
         if (attachmentNode != null) {
