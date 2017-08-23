@@ -287,18 +287,19 @@ a.tool-palette-add-button:focus, a.tool-palette-add-button:hover{
     margin-top: -10px;
 }
 
-i.fw-search {
+.tool-palette-container i.fw-search {
     position: absolute;
     padding-left: 5px;
     padding-right: 5px;
 }
-i.fw-cancel {
+
+.tool-palette-container. i.fw-cancel {
     position: absolute;
     padding-left: 5px;
     padding-right: 5px;
     font-size: 0.7em;
 }
 
-.wrapper {
+.tool-palette-container .wrapper {
     position: relative;
 }
