@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.93</version>
+        <version>0.93.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
