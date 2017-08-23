@@ -818,6 +818,7 @@ class TransformExpanded extends React.Component {
                             suggestionsPool={vertices}
                             placeholder='Select Source'
                             onSuggestionSelected={this.onSourceSelect}
+                            type='source'
                         />
                     </div>
                     <div className="leftType">
@@ -860,6 +861,7 @@ class TransformExpanded extends React.Component {
                             suggestionsPool={vertices}
                             placeholder='Select Target'
                             onSuggestionSelected={this.onTargetSelect}
+                            type='target'
                         />
                     </div>
                     <div className='rightType'>
