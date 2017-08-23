@@ -251,9 +251,10 @@ class StatementDecorator extends React.Component {
         const titleH = bBox.h;
 
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
+        const isCompact = this.context.mode === 'compact';
         const actionBoxBbox = new SimpleBBox(
-            bBox.x + ((bBox.w - designer.actionBox.width) / 2),
-            bBox.y + titleH + designer.actionBox.padding.top,
+            isCompact ? bBox.x - designer.actionBox.width - 2 : bBox.x + ((bBox.w - designer.actionBox.width) / 2),
+            isCompact ? bBox.y + 10 : bBox.y + titleH + designer.actionBox.padding.top,
             designer.actionBox.width,
             designer.actionBox.height);
         let statementRectClass = 'statement-rect';
@@ -348,6 +349,7 @@ StatementDecorator.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    mode: PropTypes.string,
 };
 
 

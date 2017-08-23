@@ -225,9 +225,9 @@ class BlockStatementDecorator extends React.Component {
         }
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleH);
-
+        const isCompact = this.context.mode === 'compact';
         const actionBoxBbox = new SimpleBBox(
-            bBox.x + ((bBox.w - actionBox.width) / 2),
+            isCompact ? bBox.x - actionBox.width - 2 : bBox.x + ((bBox.w - actionBox.width) / 2),
             bBox.y + titleH + actionBox.padding.top,
             actionBox.width,
             actionBox.height);
@@ -366,6 +366,7 @@ BlockStatementDecorator.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
+    mode: PropTypes.string,
 };
 
 export default breakpointHOC(BlockStatementDecorator);
