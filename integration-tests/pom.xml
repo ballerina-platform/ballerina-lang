@@ -13,6 +13,6 @@
     <packaging>pom</packaging>
     <version>0.92.1-SNAPSHOT</version>
     <modules>
-        <module>ui-integration-tests</module>
+        <!-- module>ui-integration-tests</module -->
     </modules>
 </project>
