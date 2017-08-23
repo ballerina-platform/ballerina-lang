@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -47,6 +49,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private ConnectionManager connectionManager;
     private ServerConnectorFuture serverConnectorFuture;
+    private SSLConfig sslConfig;
     private SSLEngine sslEngine;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
@@ -73,6 +76,11 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         ChannelPipeline pipeline = ch.pipeline();
+
+        if (sslConfig != null) {
+            pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(new SSLHandlerFactory(sslConfig).build()));
+        }
+
         pipeline.addLast("encoder", new HttpResponseEncoder());
         configureHTTPPipeline(pipeline);
 
@@ -81,10 +89,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                     Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
                                          TimeUnit.MILLISECONDS));
-        }
-
-        if (sslEngine != null) {
-            pipeline.addFirst(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
     }
 
@@ -150,5 +154,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
+    }
+
+    public void setSslConfig(SSLConfig sslConfig) {
+        this.sslConfig = sslConfig;
     }
 }

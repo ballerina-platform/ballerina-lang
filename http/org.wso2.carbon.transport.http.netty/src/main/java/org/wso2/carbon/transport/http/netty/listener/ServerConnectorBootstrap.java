@@ -140,8 +140,9 @@ public class ServerConnectorBootstrap {
 
     public void addSecurity(SSLConfig sslConfig) {
         if (sslConfig != null) {
-            SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).build();
-            httpServerChannelInitializer.setSslEngine(sslEngine);
+//            SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).build();
+//            httpServerChannelInitializer.setSslEngine(sslEngine);
+            httpServerChannelInitializer.setSslConfig(sslConfig);
         }
     }
 
