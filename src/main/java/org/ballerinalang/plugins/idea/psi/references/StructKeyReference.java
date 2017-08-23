@@ -25,11 +25,15 @@ import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,38 +54,48 @@ public class StructKeyReference extends BallerinaElementReference {
 
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
-        if (variableDefinitionNode == null) {
-            // Todo - resolve variable to definition
-            AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
-                    AssignmentStatementNode.class);
-            if (assignmentStatementNode == null) {
-
-            } else {
-                VariableReferenceListNode variableReferenceListNode =
-                        PsiTreeUtil.getChildOfType(assignmentStatementNode, VariableReferenceListNode.class);
-                if (variableReferenceListNode == null) {
-                    return null;
-                }
-                PsiElement variableReferenceNode = variableReferenceListNode.getFirstChild();
-                if (variableReferenceNode == null) {
-                    return null;
-                }
-                PsiReference reference = variableReferenceNode.findReferenceAt(0);
-                if (reference == null) {
-                    return null;
-                }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    return null;
-                }
-                PsiElement parent = resolvedElement.getParent();
-                if (!(parent instanceof VariableDefinitionNode)) {
-                    return null;
-                }
-                return resolveDefinition(((VariableDefinitionNode) parent));
-            }
-        } else {
+        if (variableDefinitionNode != null) {
             return resolveDefinition(variableDefinitionNode);
+        }
+
+        AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
+                AssignmentStatementNode.class);
+        if (assignmentStatementNode != null) {
+            VariableReferenceListNode variableReferenceListNode =
+                    PsiTreeUtil.getChildOfType(assignmentStatementNode, VariableReferenceListNode.class);
+            if (variableReferenceListNode == null) {
+                return null;
+            }
+            PsiElement variableReferenceNode = variableReferenceListNode.getFirstChild();
+            if (variableReferenceNode == null) {
+                return null;
+            }
+            PsiReference reference = variableReferenceNode.findReferenceAt(0);
+            if (reference == null) {
+                return null;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return null;
+            }
+            PsiElement parent = resolvedElement.getParent();
+            if (parent instanceof VariableDefinitionNode || parent instanceof ParameterNode) {
+                return resolveDefinition(parent);
+            } else if (parent instanceof NameReferenceNode) {
+                StructDefinitionNode structDefinitionNode = resolveStructDefinition(identifier);
+                if (structDefinitionNode == null) {
+                    return null;
+                }
+                Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                        PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+                for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+                    IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
+                            IdentifierPSINode.class);
+                    if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
+                        return fieldName;
+                    }
+                }
+            }
         }
         return null;
     }
@@ -111,7 +125,18 @@ public class StructKeyReference extends BallerinaElementReference {
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
         if (variableDefinitionNode == null) {
-            // Todo - resolve variable to definition
+            StructDefinitionNode structDefinition = resolveStructDefinition(identifier);
+            if (structDefinition == null) {
+                return results;
+            }
+            IdentifierPSINode structNameNode = PsiTreeUtil.getChildOfType(structDefinition, IdentifierPSINode.class);
+            if (structNameNode == null) {
+                return results;
+            }
+            Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                    PsiTreeUtil.findChildrenOfType(structDefinition, FieldDefinitionNode.class);
+            results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                    structNameNode, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         } else {
             TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
             if (typeNameNode == null) {
@@ -144,9 +169,9 @@ public class StructKeyReference extends BallerinaElementReference {
     }
 
     @Nullable
-    private PsiElement resolveDefinition(@NotNull VariableDefinitionNode variableDefinitionNode) {
+    private PsiElement resolveDefinition(@NotNull PsiElement definitionNode) {
         IdentifierPSINode identifier = getElement();
-        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
         } else {
@@ -168,6 +193,35 @@ public class StructKeyReference extends BallerinaElementReference {
                             IdentifierPSINode.class);
                     if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
                         return fieldName;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private StructDefinitionNode resolveStructDefinition(@NotNull IdentifierPSINode identifier) {
+        AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
+                AssignmentStatementNode.class);
+        if (assignmentStatementNode != null &&
+                !BallerinaPsiImplUtil.isVarAssignmentStatement(assignmentStatementNode)) {
+            VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType
+                    (assignmentStatementNode,
+                            VariableReferenceListNode.class);
+            if (variableReferenceListNode != null) {
+                VariableReferenceNode variableReferenceNode = PsiTreeUtil.getChildOfType(variableReferenceListNode,
+                        VariableReferenceNode.class);
+
+                if (variableReferenceNode != null) {
+
+                    PsiReference reference = variableReferenceNode.findReferenceAt(variableReferenceNode
+                            .getTextLength());
+                    if (reference != null) {
+                        PsiElement resolvedElement = reference.resolve();
+                        if (resolvedElement != null && resolvedElement instanceof IdentifierPSINode) {
+                            return BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
+                        }
                     }
                 }
             }
