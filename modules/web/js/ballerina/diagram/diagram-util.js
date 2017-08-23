@@ -2,6 +2,7 @@ import log from 'log';
 import React from 'react';
 import * as DesignerDefaults from './views/default/designer-defaults';
 import * as DesignerAction from './views/compact/designer-defaults';
+import Hidden from './views/action/components/hidden';
 
 const components = {};
 const diagramVisitors = {};
@@ -34,7 +35,10 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
     }).map((child) => {
         // hide hidden elements
         if (child.viewState && child.viewState.hidden) {
-            return React.createElement('g');
+            return React.createElement(Hidden,{
+                model: child,
+                key: child.getID(),
+            });
         }
 
         const compName = child.constructor.name;
