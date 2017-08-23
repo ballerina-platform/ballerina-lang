@@ -119,6 +119,7 @@ export function showDebuggerToolbar() {
     debuggerInstance._$parent_el.parent().width(width);
     debuggerInstance._containerToAdjust.css('padding-left', width);
     debuggerInstance._verticalSeparator.css('left', width - debuggerInstance._options.separatorOffset);
+    DebugManager.application.reRender();
 }
 
 export function removeDebuggingToolbar() {
@@ -129,6 +130,7 @@ export function removeDebuggingToolbar() {
     debuggerInstance._verticalSeparator.css('left',
         debuggerInstance._options.leftOffset - debuggerInstance._options.separatorOffset);
     debuggerInstance._activateBtn.parent('li').removeClass('active');
+    DebugManager.application.reRender();
 }
 
 export function addStopApplication() {
