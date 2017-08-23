@@ -17,9 +17,11 @@
 */
 package org.ballerinalang.model.tree.types;
 
+import org.ballerinalang.model.elements.TypeKind;
+
 /**
  * @since 0.94
  */
 public interface ValueTypeNode extends TypeNode {
-    // TODO get type kind e.g. int, float, string, boolean, blob
+    TypeKind getTypeKind();
 }

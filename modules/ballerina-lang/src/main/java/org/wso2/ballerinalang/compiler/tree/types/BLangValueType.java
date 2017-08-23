@@ -15,16 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.elements.TypeKind;
+import org.ballerinalang.model.tree.types.ValueTypeNode;
 
 /**
- * foo:Person
  * @since 0.94
  */
-public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
+public class BLangValueType extends BLangType implements ValueTypeNode {
+    public TypeKind typeKind;
 
-    IdentifierNode getTypeName();
+    public BLangValueType(TypeKind typeKind) {
+        this.typeKind = typeKind;
+    }
+
+    @Override
+    public TypeKind getTypeKind() {
+        return typeKind;
+    }
 }

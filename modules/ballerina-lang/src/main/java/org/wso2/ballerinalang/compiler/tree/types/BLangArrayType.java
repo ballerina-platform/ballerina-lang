@@ -15,16 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.types.ArrayTypeNode;
 
 /**
- * foo:Person
  * @since 0.94
  */
-public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
+public class BLangArrayType extends BLangType implements ArrayTypeNode {
+    public BLangType etype;
 
-    IdentifierNode getTypeName();
+    public BLangArrayType(BLangType eType) {
+        this.etype = eType;
+    }
+
+    @Override
+    public BLangType getElementType() {
+        return etype;
+    }
 }

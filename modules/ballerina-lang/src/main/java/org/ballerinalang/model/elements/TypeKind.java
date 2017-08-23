@@ -15,16 +15,41 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
-
-import org.ballerinalang.model.tree.IdentifierNode;
+package org.ballerinalang.model.elements;
 
 /**
- * foo:Person
+ * {@code TypeKind} represents kind of a type.
+ *
  * @since 0.94
  */
-public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
+public enum TypeKind {
+    /**
+     * The <em>integer</em> value type.
+     */
+    INT,
 
-    IdentifierNode getTypeName();
+    /**
+     * The <em>float</em> value type.
+     */
+    FLOAT,
+
+    /**
+     * The <em>string</em> value type.
+     */
+    STRING,
+
+    /**
+     * The <em>boolean</em> value type.
+     */
+    BOOLEAN,
+
+    /**
+     * The <em>blob</em> value type.
+     */
+    BLOB,
+
+    MESSAGE,
+    DATATABLE,
+    JSON,
+    XML;
 }

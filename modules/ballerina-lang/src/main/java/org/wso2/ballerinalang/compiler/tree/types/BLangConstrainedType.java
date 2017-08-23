@@ -15,16 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
 
 /**
- * foo:Person
  * @since 0.94
  */
-public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
+public class BLangConstrainedType extends BLangType implements ConstrainedTypeNode {
+    public BLangType type;
+    public BLangType constraint;
 
-    IdentifierNode getTypeName();
+    public BLangConstrainedType(BLangType type, BLangType constraint) {
+        this.type = type;
+        this.constraint = constraint;
+    }
+
+    @Override
+    public BLangType getType() {
+        return type;
+    }
+
+    @Override
+    public BLangType getConstraint() {
+        return constraint;
+    }
 }

@@ -15,16 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
- * foo:Person
  * @since 0.94
  */
-public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
+public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
+    public BLangIdentifier pkgAlias;
+    public BLangIdentifier typeName;
 
-    IdentifierNode getTypeName();
+    public BLangUserDefinedType(BLangIdentifier pkgAlias, BLangIdentifier typeName) {
+        this.pkgAlias = pkgAlias;
+        this.typeName = typeName;
+    }
+
+    @Override
+    public BLangIdentifier getPackageAlias() {
+        return pkgAlias;
+    }
+
+    @Override
+    public BLangIdentifier getTypeName() {
+        return typeName;
+    }
 }
