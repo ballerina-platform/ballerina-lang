@@ -131,7 +131,7 @@ class TransformNodeManager {
 
                 const assignmentStmt = this.findEnclosingAssignmentStatement(funcNode);
                 // unsafe cast/conversion
-                const tempVarName = this._transformStmt.getNextTempVarName();
+                const tempVarName = this.getNextTempVarName();
                 this.insertExplicitAssignmentStatement(tempVarName, sourceExpression, this._transformStmt.getIndexOfChild(assignmentStmt) - 1);
 
                 const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
@@ -145,11 +145,20 @@ class TransformNodeManager {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
             const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
+            let rightExpression = assignmentStmtSource.getRightExpression();
+            assignmentStmtSource.removeChild(rightExpression, true);
+            rightExpression = this.getCompatibleSourceExpression(source.funcInv, compatibility.type, target.type);
+            assignmentStmtSource.addChild(rightExpression, 1, true);
             assignmentStmtSource.setIsDeclaredWithVar(false);
 
             const lexpr = assignmentStmtSource.getLeftExpression();
             lexpr.removeChild(lexpr.getChildren()[source.index], true);
             lexpr.addChild(targetExpression, source.index);
+
+            if (!compatibility.safe) {
+                const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
+                lexpr.addChild(errorVarRef);
+            }
             return;
         }
 
@@ -229,7 +238,7 @@ class TransformNodeManager {
             assignmentStmtSource.getLeftExpression().removeChild(expression, true);
             assignmentStmtSource.setIsDeclaredWithVar(true);
             const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-            simpleVarRefExpression.setExpressionFromString('_temp' + (source.index + 1));
+            simpleVarRefExpression.setExpressionFromString('__temp' + (source.index + 1));
             assignmentStmtSource.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1);
             return;
         }
@@ -408,14 +417,34 @@ class TransformNodeManager {
     }
 
     getMappingExpression(expression) {
-        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression) ||
-              BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
+        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             return expression;
-        } else if (BallerinaASTFactory.isTypeConversionExpression(expression) ||
+        }
+        if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
+            if (expression.getVariableName().startsWith('__temp')) {
+                const assignmentStmt = this.findAssignedVertexForTemp(expression);
+                if (assignmentStmt) {
+                    return assignmentStmt.getRightExpression();
+                }
+                return expression;
+            }
+            return expression;
+        }
+        if (BallerinaASTFactory.isTypeConversionExpression(expression) ||
                 BallerinaASTFactory.isTypeCastExpression(expression)) {
             return expression.getRightExpression();
         }
         return expression;
+    }
+
+    findAssignedVertexForTemp(expression) {
+        const tempVarName = expression.getVariableName();
+        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
+        return assignmentStmts.find((assStmt) => {
+            return assStmt.getLeftExpression().getChildren().find((leftExpr) => {
+                return (tempVarName === leftExpr.getExpressionString());
+            });
+        });
     }
 
     addNewVariable() {
@@ -488,6 +517,26 @@ class TransformNodeManager {
                 data: {},
             });
         }
+    }
+
+    getNextTempVarName() {
+        const varNameRegex = new RegExp('__temp[\\d]*');
+        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
+        const tempVarIdentifiers = [];
+        assignmentStmts.forEach((assStmt) => {
+            assStmt.getLeftExpression().getChildren().forEach((leftExpr) => {
+                if (varNameRegex.test(leftExpr.getExpressionString())) {
+                    tempVarIdentifiers.push(leftExpr.getExpressionString());
+                }
+            });
+        });
+        tempVarIdentifiers.sort();
+
+        let index = 1;
+        if (tempVarIdentifiers.length > 0) {
+            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(6), 10) + 1;
+        }
+        return '__temp' + index;
     }
  }
 

@@ -255,6 +255,7 @@ class TransformExpanded extends React.Component {
                         this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                     });
                 } else {
+                    expression = this.transformNodeManager.getMappingExpression(expression);
                     let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                     let folded = false;
                     if (!this.sourceElements[sourceId]) {
@@ -587,7 +588,9 @@ class TransformExpanded extends React.Component {
             langServerClient.getCompletions(options, (response) => {
                 const completions = response.result.filter((completionItem) => {
                     // all variables have type as 9 as per the declaration in lang server
-                    return (completionItem.kind === 9);
+                    return ((completionItem.kind === 9)
+                        && !completionItem.label.startsWith('__temp')
+                        && !completionItem.label.startsWith('__output'));
                 });
                 const transformVars = completions.map((completionItem) => {
                     const typeData = getResolvedTypeData(completionItem);
