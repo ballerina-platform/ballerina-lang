@@ -55,10 +55,9 @@ public class ItemResolverConstants {
     public static final String WORKER_REPLY = "<-";
     public static final String ATTACH = "attach";
     public static final String RETRY = "retry";
-    public static final String VAR = "var";
     private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
             TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
-            BREAK, THROW, RETRY, VAR};
+            BREAK, THROW, RETRY};
 
     public static final String FUNCTION = "function";
     public static final String SERVICE = "service";
