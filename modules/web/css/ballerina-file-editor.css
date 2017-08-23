@@ -1137,6 +1137,14 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     padding-left: 3px;
 }
 
+.annotation-container i.fw-right {
+    font-size: 9px;
+}
+
+.popout-button-wrapper i.fw-cancel {
+    padding-left: 5px;
+}
+
 .bal-file-editor-loading-container {
     z-index: 1000;
     text-align: center;
