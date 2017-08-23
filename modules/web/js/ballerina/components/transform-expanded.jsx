@@ -520,12 +520,12 @@ class TransformExpanded extends React.Component {
     }
 
     removeSourceType(removedType) {
-        this.mapper.removeType(removedType.name);
+        _.remove(this.state.vertices, (vertex) => { return vertex.name === removedType.name; });
         this.props.model.removeInput(removedType);
+
     }
 
     removeTargetType(removedType) {
-        this.mapper.removeType(removedType.name);
         this.props.model.removeOutput(removedType);
     }
 
