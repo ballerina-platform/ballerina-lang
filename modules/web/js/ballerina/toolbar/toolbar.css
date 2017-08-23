@@ -89,16 +89,16 @@
     width: 200px;
 }
 
-.stop{
+#toolbar-palette .stop{
     color: #c0392b;
     font-size:12px;
 }
 
-.resume{
+#toolbar-palette .resume{
     color: #379e61;
 }
 
-.step{
+#toolbar-palette .step{
     color: #3498db;
 }
 
