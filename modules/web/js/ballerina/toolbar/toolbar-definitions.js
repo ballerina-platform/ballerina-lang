@@ -184,6 +184,7 @@ const debugTool = {
         },
     ],
 };
+/*
 const actionView = {
     id: 'actionView',
     name: 'Action View',
@@ -218,7 +219,7 @@ const compactView = {
     command: {
         id: 'undo',
     },
-};
+};*/
 
 const toolgroupArray = [
     createNewFileTool, openFileTool, saveFileTool, undoTool, redoTool,
