@@ -70,18 +70,26 @@ class App extends React.Component {
                     {this.getViewsForRegion(REGIONS.HEADER)}
                 </Header>
                 <SplitPane
+                    ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split="vertical"
                     className="left-right-split-pane"
                     minSize={this.state.showLeftPanel ? 300 : 0}
                     maxSize={700}
                     defaultSize={
                         this.state.showLeftPanel
-                            ? parseInt(this.props.appContext
-                                    .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10) || 300
+                            ? (parseInt(this.props.appContext
+                                .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10) || 300)
                             : 0
                     }
                     onChange={
                         size => this.props.appContext.pref.history.put(HISTORY.LEFT_PANEL_SIZE, size)
+                    }
+                    onDragFinished={() => {
+                        this.leftRightSplitPane.setState({
+                            resized: false,
+                            draggedSize: undefined,
+                        });
+                    }
                     }
                     pane2Style={
                         this.state.showLeftPanel ? {} : { position: 'relative', left: '42px' }
@@ -92,6 +100,10 @@ class App extends React.Component {
                             (newView) => {
                                 this.setState({
                                     showLeftPanel: !_.isNil(newView),
+                                });
+                                this.leftRightSplitPane.setState({
+                                    resized: false,
+                                    draggedSize: undefined,
                                 });
                             }
                         }
