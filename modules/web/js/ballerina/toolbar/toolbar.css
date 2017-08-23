@@ -5,7 +5,7 @@
     line-height: 30px;
     font-size: 13px;
     border-top: 1px solid #555;
-    border-bottom:1px solid #303334;
+    /* border-bottom:1px solid #303334; */
 }
 
 #toolbar-palette{
