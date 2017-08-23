@@ -18,9 +18,14 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
  */
 public class BLangVariableReference extends BLangExpression implements VariableReferenceNode {
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

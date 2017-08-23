@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.statements.TransformNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
@@ -32,5 +33,10 @@ public class BlangTransform extends BLangStatement implements TransformNode {
     @Override
     public BLangBlockStmt getBody() {
         return body;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

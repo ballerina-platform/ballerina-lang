@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
 
@@ -48,5 +49,10 @@ public class BLangTryCatchFinally extends BLangStatement implements TryCatchFina
     @Override
     public BLangBlockStmt getFinallyBody() {
         return finallyBody;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

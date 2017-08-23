@@ -35,4 +35,9 @@ public class BLangAction extends BLangInvokable implements ActionNode {
                        List<BLangAnnotationAttachment> annAttachments) {
         super(name, params, retParams, body, flags, annAttachments);
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

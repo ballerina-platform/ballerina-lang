@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.statements.ReturnNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.List;
@@ -35,5 +36,10 @@ public class BLangReturn extends BLangStatement implements ReturnNode {
     @Override
     public List<BLangExpression> getExpressions() {
         return exprs;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

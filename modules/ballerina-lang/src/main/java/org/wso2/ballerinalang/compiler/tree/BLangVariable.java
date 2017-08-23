@@ -72,4 +72,9 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

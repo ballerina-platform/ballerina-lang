@@ -51,4 +51,9 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public BLangIdentifier getAlias() {
         return alias;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

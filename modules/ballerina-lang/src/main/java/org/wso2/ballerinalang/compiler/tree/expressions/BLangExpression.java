@@ -23,5 +23,5 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 /**
  * @since 0.94
  */
-public class BLangExpression extends BLangNode implements ExpressionNode {
+public abstract class BLangExpression extends BLangNode implements ExpressionNode {
 }

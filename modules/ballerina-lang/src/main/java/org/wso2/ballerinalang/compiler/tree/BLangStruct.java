@@ -61,4 +61,9 @@ public class BLangStruct extends BLangNode implements StructNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -77,4 +77,9 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class BLangInvokable extends BLangNode implements InvokableNode {
+public abstract class BLangInvokable extends BLangNode implements InvokableNode {
     public BLangIdentifier name;
     public List<BLangVariable> params;
     public List<BLangVariable> retParams;

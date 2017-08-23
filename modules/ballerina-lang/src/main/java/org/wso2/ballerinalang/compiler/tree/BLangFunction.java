@@ -35,4 +35,9 @@ public class BLangFunction extends BLangInvokable implements FunctionNode {
                          List<BLangAnnotationAttachment> annAttachments) {
         super(name, params, retParams, body, flags, annAttachments);
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

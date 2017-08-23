@@ -40,4 +40,9 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     public BLangIdentifier getPrefix() {
         return prefix;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

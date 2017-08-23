@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
 
@@ -34,5 +35,10 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     @Override
     public List<BLangStatement> getStatements() {
         return statements;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

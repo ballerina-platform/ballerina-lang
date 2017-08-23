@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
@@ -32,5 +33,10 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
     @Override
     public Object getValue() {
         return value;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

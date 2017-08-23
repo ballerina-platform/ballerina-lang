@@ -23,4 +23,8 @@ import org.ballerinalang.model.tree.AnnotationNode;
  * @since 0.94
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

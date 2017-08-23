@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 /**
@@ -41,5 +42,10 @@ public class BLangCatch extends BLangNode implements CatchNode {
     @Override
     public BLangBlockStmt getBody() {
         return body;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+//        visitor.visit(this);
     }
 }

@@ -108,4 +108,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangAnnotation> getAnnotations() {
         return annotations;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

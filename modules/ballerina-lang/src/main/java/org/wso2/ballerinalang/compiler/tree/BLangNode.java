@@ -23,4 +23,5 @@ import org.ballerinalang.model.tree.Node;
  * @since 0.94
  */
 public abstract class BLangNode implements Node {
+    public abstract void accept(BLangNodeVisitor visitor);
 }

@@ -40,4 +40,9 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
     public boolean isLiteral() {
         return isLiteral;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
