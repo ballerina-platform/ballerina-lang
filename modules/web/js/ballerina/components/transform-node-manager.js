@@ -430,7 +430,7 @@ class TransformNodeManager {
         const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
         variableDefinitionStatement.setStatementFromString(statementString);
         if(variableDefinitionStatement.children.length > 0) {
-          const newVarName = statementString.split(' ')[1];
+          const newVarName = variableDefinitionStatement.getVariableDef().getName();
               _.forEach(node.getChildren(), (child) => {
                   if(BallerinaASTFactory.isVariableDefinitionStatement(child)
                       && child.getLeftExpression().getVariableName() == varName) {
@@ -438,6 +438,7 @@ class TransformNodeManager {
                      node.removeChild(child, true);
                      node.addChild(variableDefinitionStatement, index, true);
                   } else if(BallerinaASTFactory.isAssignmentStatement(child)
+                              && BallerinaASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
                               && child.getRightExpression().getVariableName() == varName) {
                       child.removeChild(child.children[1], true);
                       const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
