@@ -691,9 +691,9 @@ class SizingUtil {
      *
      * @param {ASTNode} node The node with annotations.
      * @param {number} [defaultHeight=0] The height value to start from.
-     * @param {number} [annotationLineHeight=20] The default height of an annotation or annotation entry when contained
-     * to a single line.
-     * @returns The total height needed for the annotations.
+     * @param {number} [annotationLineHeight=18.75] The default height of an annotation or annotation entry when
+     * contained to a single line.
+     * @returns {number} The total height needed for the annotations.
      *
      * @memberof SizingUtil
      */
@@ -706,40 +706,43 @@ class SizingUtil {
             for (const annotation of node.getChildrenOfType(ASTFactory.isAnnotationAttachment)) {
                 height += this.getAnnotationHeight(annotation) + 10;
             }
-        } else if (!_.isUndefined(node) && ASTFactory.isAnnotationAttachment(node)) {
+        } else if (!_.isNil(node) && ASTFactory.isAnnotationAttachment(node)) {
             const annotationAttachment = node;
             // Considering the start line of the annotation.
             height += annotationLineHeight;
-            if (annotationAttachment.getChildren().length > 0) {
-                // Considering the closing bracket line.
-                height += annotationLineHeight;
-                annotationAttachment.getChildren().forEach((annotationAttribute) => {
-                    height += this.getAnnotationHeight(annotationAttribute);
-                });
+            if (!annotationAttachment.getViewState().collapsed) {
+                if (annotationAttachment.getChildren().length > 0) {
+                    annotationAttachment.getChildren().forEach((annotationAttribute) => {
+                        height += this.getAnnotationHeight(annotationAttribute);
+                    });
+                }
             }
-        } else if (!_.isUndefined(node) && ASTFactory.isAnnotationAttribute(node)) {
+        } else if (!_.isNil(node) && ASTFactory.isAnnotationAttribute(node)) {
             const annotationAttribute = node;
             // If the annotation entry a simple native type value
             if (annotationAttribute.getValue().isBValue()) {
                 height += annotationLineHeight;
             } else if (annotationAttribute.getValue().isAnnotation()) {
-                // If the annotation entry value an annotation
-                height += this.getAnnotationHeight(annotationAttribute.getValue().getChildren()[0]);
+                if (!annotationAttribute.getViewState().collapsed) {
+                    // If the annotation entry value an annotation
+                    height += this.getAnnotationHeight(annotationAttribute.getValue().getChildren()[0]);
+                } else {
+                    // When collapsed we have to consider attribute as a line.
+                    height += annotationLineHeight;
+                }
             } else if (annotationAttribute.getValue().isArray()) {
                 // If the annotation entry value an array
                 height += annotationLineHeight;
-                // Update height for the start and end of the square brackets.
-                if (annotationAttribute.getValue().getChildren().length > 0) {
-                    height += annotationLineHeight;
-                }
-                // Calculating the height for the array children.
-                annotationAttribute.getValue().getChildren().forEach((childAnnotationAttribute) => {
-                    childAnnotationAttribute.getChildren().forEach((arrayChild) => {
-                        height += this.getAnnotationHeight(arrayChild);
+                if (!annotationAttribute.getViewState().collapsed) {
+                    // Calculating the height for the array children.
+                    annotationAttribute.getValue().getChildren().forEach((childAnnotationAttribute) => {
+                        childAnnotationAttribute.getChildren().forEach((arrayChild) => {
+                            height += this.getAnnotationHeight(arrayChild);
+                        });
                     });
-                });
+                }
             }
-        } else if (!_.isUndefined(node) && ASTFactory.isBValue(node)) {
+        } else if (!_.isNil(node) && ASTFactory.isBValue(node)) {
             height += annotationLineHeight;
         }
 

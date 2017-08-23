@@ -174,8 +174,8 @@ class AnnotationAttribute extends React.Component {
                     model={attribute}
                     annotationDefinitionModel={
                         AnnotationHelper.getAnnotationDefinition(
-                                                    this.context.environment, annotationAttachment.getFullPackageName(),
-                                                    annotationAttachment.getName())}
+                            this.context.environment, annotationAttachment.getFullPackageName(),
+                            annotationAttachment.getName())}
                 />);
             });
         }
@@ -330,8 +330,8 @@ class AnnotationAttribute extends React.Component {
             const addPopButton = [];
             const deletePopButton = [];
             const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
-                                                this.context.environment, annotationAttachment.getFullPackageName(),
-                                                annotationAttachment.getName());
+                this.context.environment, annotationAttachment.getFullPackageName(),
+                annotationAttachment.getName());
             if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
                 // Add attribute button
                 const addAttributeButton = {
@@ -353,7 +353,7 @@ class AnnotationAttribute extends React.Component {
             };
             deletePopButton.push(deleteButton);
             const attributes = this.props.model.getViewState().collapsed ? [] :
-                                                                this.renderAnnotationAttributes(annotationAttachment);
+                this.renderAnnotationAttributes(annotationAttachment);
             return (
                 <ul
                     className="attribute-value-annotation"
@@ -367,8 +367,8 @@ class AnnotationAttribute extends React.Component {
                         >
                             <i
                                 className={cn('fw fw-right expand-icon',
-                                { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
-                                { hide: annotationAttachment.getChildren().length === 0 })}
+                                    { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                                    { hide: annotationAttachment.getChildren().length === 0 })}
                                 onClick={this.toggleCollapse}
                             />
                         </CSSTransitionGroup>
@@ -408,9 +408,9 @@ class AnnotationAttribute extends React.Component {
             addPopButton.push(addNewToArray);
             deletePopButton.push(deleteButton);
             const arrayValues = this.props.model.getViewState().collapsed ? [] :
-                        attributeValue.getChildren().map((annotationAttributeValue) => {
-                            return this.renderAnnotationAttributeValue(annotationAttributeValue);
-                        });
+                attributeValue.getChildren().map((annotationAttributeValue) => {
+                    return this.renderAnnotationAttributeValue(annotationAttributeValue);
+                });
             return (
                 <ul
                     className="attribute-value-array"
@@ -424,8 +424,8 @@ class AnnotationAttribute extends React.Component {
                         >
                             <i
                                 className={cn('fw fw-right expand-icon',
-                                { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
-                                { hide: attributeValue.getChildren().length === 0 })}
+                                    { 'fw-rotate-90': !this.props.model.getViewState().collapsed },
+                                    { hide: attributeValue.getChildren().length === 0 })}
                                 onClick={this.toggleCollapse}
                             />
                         </CSSTransitionGroup>
