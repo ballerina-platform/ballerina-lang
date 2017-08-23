@@ -25,6 +25,8 @@ import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.context.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +39,7 @@ import java.nio.file.Paths;
  * Testing the JMS connector.
  */
 public class JMSServiceSampleTestCase extends IntegrationTestCase {
-
+    private static final Logger log = LoggerFactory.getLogger(JMSServiceSampleTestCase.class);
     private BrokerService broker = new BrokerService();
     ServerInstance ballerinaServer;
 
@@ -74,18 +76,17 @@ public class JMSServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test simple JMS message send and receive via ballerina")
     public void testJMSSendReceive() throws Exception {
-
-        // Start receiver
-
-        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+        log.info("JMS test start..");
 
         //Adding temporary echo service so the server start can be monitored using that. (since this is a jms service
         //there won't be any http port openings, hence current logic cannot identify whether server is started or not)
-        String[] receiverArgs = {serviceSampleDir + File.separator + "jms" + File.separator + "jmsReceiver.bal",
-                serviceSampleDir + File.separator + "echoService" + File.separator + "echoService.bal"};
+        String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "jms" + File.separator + "jmsReceiver.bal").getAbsolutePath();
+        String[] receiverArgs = { relativePath };
 
         ballerinaServer.setArguments(receiverArgs);
 
+        // Start receiver
         ballerinaServer.startServer();
 
         String messageText = "Hello from JMS";
@@ -97,7 +98,8 @@ public class JMSServiceSampleTestCase extends IntegrationTestCase {
 
         ServerInstance jmsSender = new JMSServerInstance(serverZipPath);
         // Start sender
-        String[] senderArgs = {serviceSampleDir + File.separator + "jms" + File.separator + "jmsSender.bal"};
+        String[] senderArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "jms" + File.separator + "jmsSender.bal").getAbsolutePath()};
 
 
         jmsSender.runMain(senderArgs);

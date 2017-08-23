@@ -18,12 +18,17 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,15 +42,32 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
     private static final String responseMessage = "{\"ABC Bank\":{\"Address\":\"111 River Oaks Pkwy" +
                                                   ", San Jose, CA 95999\"}}";
 
+    private ServerInstance ballerinaServer;
+
+    @BeforeClass
+    private void setup() throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
+        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+        String balFile = serviceSampleDir + File.separator + "serviceChaining"
+                + File.separator + "ATMLocatorService.balx";
+        ballerinaServer.startBallerinaServer(balFile);
+    }
+
     @Test(description = "Test service chaining sample")
     public void testEchoServiceByBasePath() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("ABCBank/locator"), requestMessage
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+                        .getServiceURLHttp("ABCBank/locator"), requestMessage
                 , headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        ballerinaServer.stopServer();
     }
 }

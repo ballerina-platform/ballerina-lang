@@ -56,7 +56,7 @@ at the command line. Let's run the sample:
 1. Add the <ballerina_tools_home>/bin directory to your $PATH environment variable. 
 2. At the command prompt, navigate to the <ballerina_tools_home>/samples/helloWorld directory and enter the following line:
 
-ballerina run main helloWorld.bal
+ballerina run helloWorld.bal
 
 You will see the following response:
 

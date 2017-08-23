@@ -23,7 +23,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +49,7 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
-    private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
+    private int httpServerPort = 9099; //Constant.DEFAULT_HTTP_PORT;
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
@@ -68,6 +67,41 @@ public class ServerInstance implements Server {
         this.httpServerPort = serverHttpPort;
 
         initialize();
+    }
+
+    /**
+     * Method to start Ballerina server given the port and bal file.
+     *
+     * @param port                  In which server starts.
+     * @return ballerinaServer      Started server instance.
+     * @throws BallerinaTestException
+     */
+    public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        ServerInstance ballerinaServer = new ServerInstance(serverZipPath, port);
+
+        return ballerinaServer;
+    }
+
+    /**
+     * Method to start Ballerina server in default port 9092 with given bal file.
+     *
+     * @return ballerinaServer      Started server instance.
+     * @throws BallerinaTestException
+     */
+    public static ServerInstance initBallerinaServer() throws BallerinaTestException {
+        int defaultPort = Constant.DEFAULT_HTTP_PORT;
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        ServerInstance ballerinaServer = new ServerInstance(serverZipPath, defaultPort);
+
+        return ballerinaServer;
+    }
+
+    public void startBallerinaServer(String balFile) throws BallerinaTestException {
+        String[] args = {balFile};
+        setArguments(args);
+
+        startServer();
     }
 
     /**
@@ -133,8 +167,11 @@ public class ServerInstance implements Server {
                     killServer.destroy();
                 }
             } catch (IOException e) {
+                log.error("Error getting process id for the server in port - " + httpServerPort
+                        + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error while getting the server process id", e);
             } catch (InterruptedException e) {
+                log.error("Error stopping the server in port - " + httpServerPort + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error waiting for services to stop", e);
             }
             process.destroy();
@@ -179,13 +216,13 @@ public class ServerInstance implements Server {
         try {
             if (Utils.getOSName().toLowerCase().contains("windows")) {
                 commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run", "main"};
+                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "main"};
+                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
@@ -358,13 +395,13 @@ public class ServerInstance implements Server {
         try {
             if (Utils.getOSName().toLowerCase().contains("windows")) {
                 commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run", "service"};
+                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "service"};
+                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
@@ -406,33 +443,29 @@ public class ServerInstance implements Server {
             }
             tmp.destroy();
         } else {
-            BufferedReader bufferedReader = null;
-            FileReader fileReader = null;
 
+            //reading the process id from ss
+            Process tmp;
             try {
-                //reading the pid form  carbon.pid file in server home dir
-                fileReader = new FileReader(serverHome + File.separator + Constant.SERVER_PID_FILE_NAME);
-                bufferedReader = new BufferedReader(fileReader);
-                pid = bufferedReader.readLine();
-            } catch (IOException e) {
-                throw new BallerinaTestException("Error retrieving pid from " + Constant.SERVER_PID_FILE_NAME);
-            } finally {
-                if (fileReader != null) {
-                    try {
-                        fileReader.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
+                String[] cmd = { "bash", "-c",
+                        "ss -ltnp \'sport = :" + httpServerPort + "\' | grep LISTEN | awk \'{print $6}\'" };
+                tmp = Runtime.getRuntime().exec(cmd);
+                String outPut = readProcessInputStream(tmp.getInputStream());
+                log.info("Output of the PID extraction command : " + outPut);
+                /* The output of ss command is "users:(("java",pid=24522,fd=161))" in latest ss versions
+                 But in older versions the output is users:(("java",23165,116))
+                 TODO : Improve this OS dependent logic */
+                if (outPut.contains("pid=")) {
+                    pid = outPut.split("pid=")[1].split(",")[0];
+                } else {
+                    pid = outPut.split(",")[1];
                 }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
-                }
+
+            } catch (Exception e) {
+                throw new BallerinaTestException("Error retrieving the PID : ", e);
             }
 
+            tmp.destroy();
         }
         log.info("Server process id in " + Utils.getOSName() + " : " + pid);
         return pid;

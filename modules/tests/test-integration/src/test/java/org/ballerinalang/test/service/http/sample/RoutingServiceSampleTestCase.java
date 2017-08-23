@@ -18,12 +18,17 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +43,24 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
     private final String requestNasdaqMessage = "{\"name\":\"nasdaq\"}";
     private final String responseNasdaqMessage = "{\"exchange\":\"nasdaq\",\"name\":\"IBM\",\"value\":\"127.50\"}";
 
+    private ServerInstance ballerinaServer;
+
+    @BeforeClass
+    private void setup() throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
+        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+        String balFile = serviceSampleDir + File.separator + "routingServices"
+                + File.separator + "routingServices.balx";
+        ballerinaServer.startBallerinaServer(balFile);
+    }
+
     @Test(description = "Test Content base routing sample")
     public void testContentBaseRouting() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         //sending nyse as name
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("cbr"), requestNyseMessage, headers);
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+                .getServiceURLHttp("cbr"), requestNyseMessage, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
@@ -51,7 +68,8 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
                                                                      "Routing failed for nyse");
 
         //sending nasdaq as name
-        response = HttpClientRequest.doPost(getServiceURLHttp("cbr"), requestNasdaqMessage, headers);
+        response = HttpClientRequest.doPost(ballerinaServer
+                .getServiceURLHttp("cbr"), requestNasdaqMessage, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
@@ -65,7 +83,8 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         //sending nyse as name header
         headers.put("name", "nyse");
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hbr"), headers);
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+                .getServiceURLHttp("hbr"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
@@ -74,11 +93,17 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
 
         //sending nasdaq as http header
         headers.put("name", "nasdaq");
-        response = HttpClientRequest.doGet(getServiceURLHttp("hbr"), headers);
+        response = HttpClientRequest.doGet(ballerinaServer
+                .getServiceURLHttp("hbr"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), responseNasdaqMessage
                 , "Message content mismatched. Routing failed for nasdaq");
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        ballerinaServer.stopServer();
     }
 }
