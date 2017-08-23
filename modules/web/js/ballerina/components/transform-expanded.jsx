@@ -591,7 +591,8 @@ class TransformExpanded extends React.Component {
                     // all variables have type as 9 as per the declaration in lang server
                     return ((completionItem.kind === 9)
                         && !completionItem.label.startsWith('__temp')
-                        && !completionItem.label.startsWith('__output'));
+                        && !completionItem.label.startsWith('__output')
+                        && completionItem.label !== '_');
                 });
                 const transformVars = completions.map((completionItem) => {
                     const typeData = getResolvedTypeData(completionItem);
