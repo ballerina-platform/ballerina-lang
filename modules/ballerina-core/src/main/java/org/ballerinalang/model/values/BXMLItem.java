@@ -37,7 +37,9 @@ import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.XMLConstants;
@@ -148,8 +150,11 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BString getElementName() {
-        // TODO: check for comment, pi, etc
-        return new BString(((OMElement) omNode).getQName().toString());
+        if (nodeType == XMLNodeType.ELEMENT) {
+            return new BString(((OMElement) omNode).getQName().toString());
+        }
+        
+        return BTypes.typeString.getEmptyValue();
     }
     
     /**
@@ -222,26 +227,32 @@ public final class BXMLItem extends BXML<OMNode> {
             attr.setAttributeValue(value);
             return;
         }
-        
-        // Attributes cannot cannot be belong to default namespace. Hence, if the current namespace is the default one,
-        // treat this attribute-add operation as a namespace addition.
-        if ((node.getDefaultNamespace() != null &&
-                namespaceUri.equals(node.getDefaultNamespace().getNamespaceURI())) ||
-                namespaceUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-            
+
+        if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             node.declareNamespace(value, localName);
             return;
         }
-        
+
+        // Attributes cannot cannot be belong to default namespace. Hence, if the current namespace is the default one,
+        // treat this attribute-add operation as a namespace addition.
+        if ((node.getDefaultNamespace() != null && namespaceUri.equals(node.getDefaultNamespace().getNamespaceURI()))
+                || namespaceUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
+
+            node.declareNamespace(value, localName);
+            return;
+        }
+
         OMNamespace ns = null;
         if (!prefix.isEmpty()) {
-            if (node.findNamespaceURI(prefix) != null) {
-                // If a namespace exists with the same prefix, then do not add namespace declr again.
-                localName = prefix + ":" + localName;
-            } else {
-                // If the namespace prefix is not already defined in the XML, then add the namespace declr.
-                ns = new OMNamespaceImpl(namespaceUri, prefix);
+            OMNamespace existingNs = node.findNamespaceURI(prefix);
+
+            // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
+            if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
+                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                        prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
+
+            ns = new OMNamespaceImpl(namespaceUri, prefix);
             node.addAttribute(localName, value, ns);
             return;
         }
@@ -259,14 +270,15 @@ public final class BXMLItem extends BXML<OMNode> {
                 prefix = definedPrefix;
                 break;
             }
-            
-            if (prefix == null) {
-                // If not found, add a namespace decl with a random prefix
-                ns = new OMNamespaceImpl(namespaceUri, prefix);
-            } else {
-                // Otherwise use the prefix found
-                localName = prefix + ":" + localName;
+
+            if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                // If found, and if its the default namespace, add a namespace decl
+                node.declareNamespace(value, localName);
+                return;
             }
+
+            // else create use the prefix. If the prefix is null, it will generate a random prefix.
+            ns = new OMNamespaceImpl(namespaceUri, prefix);
         }
         node.addAttribute(localName, value, ns);
     }
@@ -367,7 +379,7 @@ public final class BXMLItem extends BXML<OMNode> {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
-                if (getElementName().equals(qname)) {
+                if (getElementName().stringValue().equals(getQname(qname).toString())) {
                     elementsSeq.add(0, this);
                 }
                 break;
@@ -406,14 +418,11 @@ public final class BXMLItem extends BXML<OMNode> {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
-                Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
+                Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildrenWithName(getQname(qname));
                 int i = 0;
                 while (childrenItr.hasNext()) {
                     OMNode node = childrenItr.next();
-                    if (node.getType() == OMNode.ELEMENT_NODE &&
-                        qname.stringValue().equals(((OMElement) node).getQName().toString())) {
-                        elementsSeq.add(i++, new BXMLItem(node));
-                    }
+                    elementsSeq.add(i++, new BXMLItem(node));
                 }
                 break;
             default:
@@ -485,12 +494,29 @@ public final class BXMLItem extends BXML<OMNode> {
         if (startIndex > endIndex) {
             throw new BallerinaException("invalid indices: " + startIndex + " < " + endIndex);
         }
-        
+
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BXML<?> descendants(BString qname) {
+        List<BXML<?>> descendants = new ArrayList<BXML<?>>();
+        switch (nodeType) {
+            case ELEMENT:
+                addDescendants(descendants, (OMElement) omNode, getQname(qname).toString());
+                break;
+            default:
+                break;
+        }
+
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()])));
     }
     
     // Methods from Datasource impl
-    
+
     /**
      * {@inheritDoc}
      */

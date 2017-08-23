@@ -18,10 +18,8 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
@@ -31,9 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,20 +62,21 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                             .forEach((resourceArgumentValues::put));
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
+                cMsg.setProperty(Constants.RESOURCES_CORS, CorsRegistry.getInstance().getCorsHeaders(resource));
                 return resource;
+            } else {
+                if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
+                    handleOptionsRequest(cMsg, service, callback);
+                } else {
+                    cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                    throw new BallerinaException("no matching resource found for path : "
+                            + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
+                }
+                return null;
             }
-            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-            throw new BallerinaException("no matching resource found for path : "
-                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
-
         } catch (UnsupportedEncodingException | URITemplateException e) {
             throw new BallerinaException(e.getMessage());
         }
-    }
-
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
-        return null;
     }
 
     @Override
@@ -81,7 +84,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         return Constants.PROTOCOL_HTTP;
     }
 
-    private String sanitizeSubPath (String subPath) {
+    private String sanitizeSubPath(String subPath) {
         if (!"/".equals(subPath)) {
             if (!subPath.startsWith("/")) {
                 subPath = Constants.DEFAULT_BASE_PATH + subPath;
@@ -89,5 +92,40 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
         }
         return subPath;
+    }
+
+    private static void handleOptionsRequest(CarbonMessage cMsg, ServiceInfo service, CarbonCallback callback)
+            throws URITemplateException {
+        DefaultCarbonMessage response = new DefaultCarbonMessage();
+        if (cMsg.getHeader(Constants.ALLOW) != null) {
+            response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
+        } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
+            if (!getAllResourceMethods(service).isEmpty()) {
+                response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(getAllResourceMethods(service), false));
+            }
+        } else {
+            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+            throw new BallerinaException("no matching resource found for path : "
+                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + "OPTIONS");
+        }
+        CorsHeaderGenerator.process(cMsg, response, false);
+        response.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        response.setAlreadyRead(true);
+        response.setEndOfMsgAdded(true);
+        callback.done(response);
+        return;
+    }
+
+    private static List<String> getAllResourceMethods(ServiceInfo service) {
+        List<String> cachedMethods = new ArrayList();
+        for (ResourceInfo resource : service.getResourceInfoEntries()) {
+            if (DispatcherUtil.getHttpMethods(resource) == null) {
+                cachedMethods = DispatcherUtil.addAllMethods();
+                break;
+            } else {
+                cachedMethods.addAll(Arrays.asList(DispatcherUtil.getHttpMethods(resource)));
+            }
+        }
+        return DispatcherUtil.validateAllowMethods(cachedMethods);
     }
 }

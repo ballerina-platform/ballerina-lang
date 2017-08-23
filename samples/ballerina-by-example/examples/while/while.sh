@@ -1,4 +1,4 @@
-$ ballerina run main while.bal
+$ ballerina run while.bal
 0
 1
 2

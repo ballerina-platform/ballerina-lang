@@ -5,25 +5,25 @@ import ballerina.net.ws;
 import ballerina.doc;
 
 @doc:Description {value:"WebSocket endpoint is defined as a composition of  BasePath + WebSocketUpgradePath."}
-@http:config{basePath:"/endpoint"}
+@http:configuration {basePath:"/endpoint"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> websocketServerEndpoint {
 
-    @doc:Description {value:"@OnOpen annotation is triggered when a new connection is initiated."}
+    @doc:Description {value:"Annotating a resource with @OnOpen annotation, allows the resource to receive events upon websocket handshake."}
     @ws:OnOpen {}
     resource onOpen(message m) {
-        system:println("New client connected to the server.");
+        system:println("New client connected to the server");
     }
 
-    @doc:Description {value:"@OnTextMessage annotation is triggered when a new message comes from the user."}
+    @doc:Description {value:"Annotating a resource with @OnTextMessage annotation, allows the resource to receive websocket text messages."}
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
         system:println("client: " + messages:getStringPayload(m));
     }
 
-    @doc:Description {value:"@OnOpen annotation is triggered when a existing connection is closed."}
+    @doc:Description {value:"Annotating a resource with @OnClose annotation, allows the resource to receive events upon connection close."}
     @ws:OnClose {}
     resource onClose(message m) {
-        system:println("client left the server.");
+        system:println("client left the server");
     }
 }

@@ -1,11 +1,13 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/echo66"}
+@http:configuration {basePath:"/echo66"}
 service<http> echo66 {
-    @http:POST{}
-    @http:Path{value:"/test1"}
-    @http:Consumes{value:["application/xml"]}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/test1",
+        consumes:["application/xml"]
+    }
     resource echo1 (message m) {
     	message response = {};
         json responseJson = {"msg":"wso2"};
@@ -13,9 +15,11 @@ service<http> echo66 {
         reply response;
     }
 
-    @http:GET{}
-    @http:Path{value:"/test2"}
-    @http:Produces{value:["text/xml","application/xml "]}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/test2",
+        produces:["text/xml","application/xml "]
+    }
     resource echo2 (message m) {
         message response = {};
         json responseJson = {"msg":"wso22"};
@@ -23,10 +27,12 @@ service<http> echo66 {
         reply response;
     }
 
-    @http:POST{}
-    @http:Path{value:"/test3"}
-    @http:Consumes{value:["application/xhtml+xml","text/plain","text/json"]}
-    @http:Produces{value:["text/css","application/json"]}
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/test3",
+        consumes:["application/xhtml+xml","text/plain","text/json"],
+        produces:["text/css","application/json"]
+    }
     resource echo3 (message m) {
         message response = {};
         json responseJson = {"msg":"wso222"};
@@ -35,7 +41,7 @@ service<http> echo66 {
     }
 }
 
-@http:config {basePath:"/echo67"}
+@http:configuration {basePath:"/echo67"}
 service<http> echo67 {
     resource echo1 (message m, string foo) {
         message response = {};

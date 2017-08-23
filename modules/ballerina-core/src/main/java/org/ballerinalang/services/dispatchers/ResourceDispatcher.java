@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.services.dispatchers;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -32,19 +29,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * Need to have a protocol specific dispatcher
  */
 public interface ResourceDispatcher {
-
-    /**
-     * Find the resource which can handle a given cMsg.
-     *
-     * @param service  Ballerina Service which resources are belongs to
-     * @param cMsg     Carbon Message
-     * @param callback Carbon Messaging Callback
-     * @param balContext Ballerina context
-     * @return resource which can handle a given cMsg
-     */
-    @Deprecated
-    Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException;
 
     /**
      * Find the resource which can handle a given cMsg.

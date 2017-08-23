@@ -13,15 +13,15 @@ function main (string[] args) {
 }
 
 @doc:Description {value:"Sample function defined with function name and input parameter using identifier literals."}
-function |combine names| (string |first value|,
+function |combine names| (string |first name|,
                           string |last name|) (string) {
-    return |first name| + |last name|;
+    return |first name| + " " + |last name|;
 }
 
 @doc:Description {value:"Struct defined using identifier literals"}
 struct |person record| {
-    string |first name|
-    string |last name|
+    string |first name|;
+    string |last name|;
     int age;
 }
 

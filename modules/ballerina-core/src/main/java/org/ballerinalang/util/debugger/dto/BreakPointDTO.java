@@ -24,6 +24,8 @@ package org.ballerinalang.util.debugger.dto;
  */
 public class BreakPointDTO {
 
+    private String packagePath;
+
     private String fileName;
 
     private int lineNumber = -1;
@@ -32,9 +34,18 @@ public class BreakPointDTO {
 
     }
 
-    public BreakPointDTO(String fileName, int lineNumber) {
+    public BreakPointDTO(String packagePath, String fileName, int lineNumber) {
+        this.packagePath = packagePath;
         this.fileName = fileName;
         this.lineNumber = lineNumber;
+    }
+
+    public String getPackagePath() {
+        return packagePath;
+    }
+
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
     }
 
     public String getFileName() {

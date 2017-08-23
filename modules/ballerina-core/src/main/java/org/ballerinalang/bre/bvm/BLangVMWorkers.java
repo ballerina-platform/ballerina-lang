@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -50,7 +52,7 @@ import java.util.concurrent.ExecutorService;
 public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                              StackFrame callerSF, int[] argRegs) {
+                              StackFrame callerSF, int[] argRegs, Map<String, Object> properties) {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
@@ -58,6 +60,10 @@ public class BLangVMWorkers {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+            if (properties != null) {
+                properties.forEach((property, value) -> workerContext.setProperty(property, value));
+            }
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
             StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
@@ -73,6 +79,11 @@ public class BLangVMWorkers {
             executor.submit(workerRunner);
         }
 
+    }
+
+    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF,
+                                                                                                    int[] argRegs) {
+        invoke(programFile, callableUnitInfo, callerSF, argRegs, null);
     }
 
     static class WorkerExecutor implements Callable<WorkerResult> {
@@ -93,16 +104,15 @@ public class BLangVMWorkers {
         @Override
         public WorkerResult call() throws BallerinaException {
             BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
-            bLangVM.execWorker(bContext,
-                    workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
+            bLangVM.execWorker(bContext, workerInfo.getCodeAttributeInfo().getCodeAddrs());
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
                 outStream.println("error in worker '" + workerInfo.getWorkerName() + "': " + stackTraceStr);
             }
 
-            if (workerInfo.getWorkerDataChannelForForkJoin() != null) {
-                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
-                BType[] types = workerInfo.getWorkerDataChannelForForkJoin().getTypes();
+            if (workerInfo.getWorkerDataChannelInfoForForkJoin() != null) {
+                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().takeData();
+                BType[] types = workerInfo.getWorkerDataChannelInfoForForkJoin().getTypes();
                 for (int i = 0; i < types.length; i++) {
                     BType paramType = types[i];
                     switch (paramType.getTag()) {
@@ -117,6 +127,9 @@ public class BLangVMWorkers {
                             break;
                         case TypeTags.BOOLEAN_TAG:
                             bRefValueArray.add(i, ((BBoolean) results[i]));
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            bRefValueArray.add(i, ((BBlob) results[i]));
                             break;
                         default:
                             bRefValueArray.add(i, ((BRefType) results[i]));

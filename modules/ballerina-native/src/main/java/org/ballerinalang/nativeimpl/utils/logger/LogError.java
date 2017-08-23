@@ -35,18 +35,18 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.utils.logger",
         functionName = "error",
-        args = {@Argument(name = "msg", type = TypeEnum.STRING)},
+        args = {@Argument(name = "value", type = TypeEnum.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "msg",
-                                                                              value = "Logs the specified message at " +
-                                                                                      "the error level.")})
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+                                                                              value = "Logs the specified value at " +
+                                                                                      "error level.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The message to be logged.")})
+                                                                        value = "The value to be logged.")})
 public class LogError extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).error(getStringArgument(ctx, 0));
+        BallerinaLogHandler.getLogger(ctx).error(getRefArgument(ctx, 0).stringValue());
         return VOID_RETURN;
     }
 }

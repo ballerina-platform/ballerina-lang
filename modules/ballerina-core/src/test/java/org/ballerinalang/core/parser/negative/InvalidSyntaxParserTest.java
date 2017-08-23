@@ -83,8 +83,7 @@ public class InvalidSyntaxParserTest {
     }
 
     @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:3:9: " +
-                    "mismatched input '\\{'. Expecting one of Identifier")
+            expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:3:0: invalid identifier 'function'")
     public void testParseMainFuncWithoutName() {
         BTestUtils.getProgramFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal");
     }

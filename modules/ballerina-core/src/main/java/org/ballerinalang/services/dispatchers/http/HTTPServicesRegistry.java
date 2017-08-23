@@ -20,19 +20,19 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,9 +47,6 @@ public class HTTPServicesRegistry {
 
     // Outer Map key=interface, Inner Map key=basePath
     private final Map<String, Map<String, ServiceInfo>> servicesInfoMap = new ConcurrentHashMap<>();
-    //Outer map key = interface, Inner map = listener property map
-    private final Map<String, Map<String, String>> listenerPropMap = new ConcurrentHashMap<>();
-
     private static final HTTPServicesRegistry servicesRegistry = new HTTPServicesRegistry();
 
     private HTTPServicesRegistry() {
@@ -86,121 +83,171 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(ServiceInfo service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getName();
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
-        if (annotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
-                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeValue.getStringValue();
-            }
-        }
+        String basePath = discoverBasePathFrom(service, annotationInfo);
+        Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotationInfo);
 
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
+        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap
+                    .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
 
-        Map<String, String> propMap = buildServerConnectorProperties(service);
-
-        //If port annotation is present in the service, then create a listener interface with schema and port
-        if (propMap != null) {
-            listenerInterface = buildInterfaceName(propMap);
-        }
-
-        //TODO check for parallel access
-        Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerInterface);
-        if (servicesOnInterface == null) {
+            BallerinaConnectorManager.getInstance().createHttpServerConnector(listenerConfiguration);
             // Assumption : this is always sequential, no two simultaneous calls can get here
-            servicesOnInterface = new HashMap<>();
-            servicesInfoMap.put(listenerInterface, servicesOnInterface);
-            ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-
-            //If there is no listener and required listener properties are present, then create a new listener
-            if (connector == null && propMap != null) {
-                connector = BallerinaConnectorManager.getInstance()
-                    .createServerConnector(Constants.PROTOCOL_HTTP, listenerInterface, propMap);
-                listenerPropMap.put(listenerInterface, propMap);
-            }
-
-            if (connector == null) {
+            if (servicesOnInterface.containsKey(basePath)) {
                 throw new BallerinaException(
-                        "ServerConnector interface not registered for : " + listenerInterface);
+                        "service with base path :" + basePath + " already exists in listener : "
+                                + entryListenerInterface);
             }
-            // Delay the startup until all services are deployed
-            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
-        } else {
-            //It comes to this means, same listener interface is already present. So in here, it checks
-            //whether existing interface also has same parameters (schema, keystores etc). If not throw and error
-            Map<String, String> existingMap = listenerPropMap.get(listenerInterface);
-            if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.SERVER_CONNECTOR_ALREADY_EXIST,
-                        propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
-            }
+            servicesOnInterface.put(basePath, service);
         }
-        if (servicesOnInterface.containsKey(basePath)) {
-            throw new BallerinaException(
-                    "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
-        }
-
-        servicesOnInterface.put(basePath, service);
 
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
     /**
-     * Method to build property map given the service annotations.
+     * Removing service from the service registry.
+     * @param service requested service to be removed.
+     */
+    public void unregisterService(ServiceInfo service) {
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+
+        String basePath = discoverBasePathFrom(service, annotationInfo);
+        Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotationInfo);
+
+        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+            Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(entryListenerInterface);
+            if (servicesOnInterface != null) {
+                servicesOnInterface.remove(basePath);
+                if (servicesOnInterface.isEmpty()) {
+                    servicesInfoMap.remove(entryListenerInterface);
+                    BallerinaConnectorManager.getInstance().closeIfLast(entryListenerInterface);
+                }
+            }
+        }
+    }
+
+    private Set<ListenerConfiguration> getListenerConfigurationsFrom(Map<String, Map<String, String>> listenerProp) {
+        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
+        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
+            Map<String, String> propMap = entry.getValue();
+            String entryListenerInterface = getListenerInterface(propMap);
+            ListenerConfiguration listenerConfiguration = HTTPMessageUtil
+                    .buildListenerConfig(entryListenerInterface, propMap);
+            listenerConfigurationSet.add(listenerConfiguration);
+        }
+        return listenerConfigurationSet;
+    }
+
+    private String getListenerInterface(Map<String, String> parameters) {
+        String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
+        int port = Integer.parseInt(parameters.get("port"));
+        return host + ":" + port;
+    }
+
+    private String discoverBasePathFrom(ServiceInfo service, AnnAttachmentInfo annotationInfo) {
+        String basePath = service.getName();
+        if (annotationInfo != null) {
+            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
+                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
+            if (annAttributeValue != null && annAttributeValue.getStringValue() != null) {
+                if (annAttributeValue.getStringValue().trim().isEmpty()) {
+                    basePath = Constants.DEFAULT_BASE_PATH;
+                } else {
+                    basePath = annAttributeValue.getStringValue();
+                }
+            }
+        }
+        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+        return basePath;
+    }
+
+    private Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(AnnAttachmentInfo annotationInfo) {
+        Map<String, Map<String, String>> listenerProp = buildListerProperties(annotationInfo);
+
+        Set<ListenerConfiguration> listenerConfigurationSet;
+        if (listenerProp == null || listenerProp.isEmpty()) {
+            listenerConfigurationSet =
+                    BallerinaConnectorManager.getInstance().getDefaultListenerConfiugrationSet();
+        } else {
+            listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
+        }
+        return listenerConfigurationSet;
+    }
+
+    /**
+     * Method to build map of listener property maps given the service annotation attachment.
      * This will first look for the port property and if present then it will get other properties,
      * and create the property map.
      *
-     * @param service from which annotations are retrieved
-     * @return  propMap with required properties
+     * @param configInfo            In which listener configurations are specified.
+     * @return listenerConfMap      With required properties
      */
-    private Map<String, String> buildServerConnectorProperties(ServiceInfo service) {
-        AnnotationAttachmentInfo configInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
+    private Map<String, Map<String, String>> buildListerProperties(AnnAttachmentInfo configInfo) {
         if (configInfo == null) {
             return null;
         }
-        AnnotationAttributeValue portAttrVal = configInfo.getAnnotationAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_PORT);
-        if (portAttrVal == null || portAttrVal.getIntValue() < 0) {
-            return null;
-        }
-        Map<String, String> propMap = new HashMap<>();
-        propMap.put(Constants.ANNOTATION_ATTRIBUTE_PORT, Long.toString(portAttrVal.getIntValue()));
+        //key - listenerId, value - listener config property map
+        Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
 
-        AnnotationAttributeValue hostAttrVal = configInfo.getAnnotationAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_HOST);
-        if (hostAttrVal != null && hostAttrVal.getStringValue() != null &&
-                !hostAttrVal.getStringValue().trim().isEmpty()) {
-            propMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, hostAttrVal.getStringValue());
-        }
+        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue
+                (Constants.ANN_CONFIG_ATTR_HOST);
+        AnnAttributeValue portAttrVal = configInfo.getAttributeValue
+                (Constants.ANN_CONFIG_ATTR_PORT);
+        AnnAttributeValue httpsPortAttrVal = configInfo.getAttributeValue
+                (Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
+        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue
+                (Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
+        AnnAttributeValue keyStorePassAttrVal = configInfo.getAttributeValue
+                (Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
+        AnnAttributeValue certPassAttrVal = configInfo.getAttributeValue
+                (Constants.ANN_CONFIG_ATTR_CERT_PASS);
 
-        AnnotationAttributeValue schemaAttrVal = configInfo.getAnnotationAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_SCHEME);
-        if (schemaAttrVal != null && schemaAttrVal.getStringValue() != null &&
-                !schemaAttrVal.getStringValue().trim().isEmpty()) {
-            propMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEME, schemaAttrVal.getStringValue());
-        }
-
-        AnnotationAttributeValue keyStoreFileAttrVal = configInfo.getAnnotationAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE);
-        if (keyStoreFileAttrVal != null && keyStoreFileAttrVal.getStringValue() != null &&
-                !keyStoreFileAttrVal.getStringValue().trim().isEmpty()) {
-            propMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            AnnotationAttributeValue keyStorePassAttrVal = configInfo.getAnnotationAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS);
-            propMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            AnnotationAttributeValue certPassAttrVal = configInfo.getAnnotationAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_CERT_PASS);
-            propMap.put(Constants.ANNOTATION_ATTRIBUTE_CERT_PASS, certPassAttrVal.getStringValue());
+        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
+            Map<String, String> httpPropMap = new HashMap<>();
+            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
+            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
+            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
+                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
+            } else {
+                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+            }
+            listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
         }
 
-        return propMap;
+        if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
+            Map<String, String> httpsPropMap = new HashMap<>();
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
+            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
+            } else {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+            }
+            if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Keystore location must be provided for protocol https");
+            }
+            if (keyStorePassAttrVal == null || keyStorePassAttrVal.getStringValue() == null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Keystore password value must be provided for protocol https");
+            }
+            if (certPassAttrVal == null || certPassAttrVal.getStringValue() == null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Certificate password value must be provided for protocol https");
+            }
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
+            listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
+        }
+        return listenerConfMap;
     }
 
     /**
@@ -211,52 +258,11 @@ public class HTTPServicesRegistry {
      */
     private String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME) != null ?
-                propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME) : Constants.PROTOCOL_HTTP);
+        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
         iName.append("_");
-        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
+        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
+        iName.append("_");
+        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
         return iName.toString();
-    }
-
-    /**
-     * Removing service from the service registry.
-     * @param service requested service to be removed.
-     */
-    public void unregisterService(ServiceInfo service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getName();
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.BASE_PATH);
-
-        if (annotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
-                    (Constants.VALUE_ATTRIBUTE);
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
-                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeValue.getStringValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerInterface);
-        if (servicesOnInterface != null) {
-            servicesOnInterface.remove(basePath);
-            if (servicesOnInterface.isEmpty()) {
-                servicesInfoMap.remove(listenerInterface);
-                ServerConnector connector =
-                        BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-                if (connector != null) {
-                    try {
-                        connector.stop();
-                    } catch (ServerConnectorException e) {
-                        throw new BallerinaException("Cannot stop the connector for the interface : " +
-                                listenerInterface, e);
-                    }
-                }
-            }
-        }
     }
 }

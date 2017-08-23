@@ -3,8 +3,8 @@ import ballerina.lang.system;
 function main (string[] args) {
     //Here is how you can initialize an array of int arrays.
     int[][] xx = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
-    system:println(xx.length);
-    system:println(xx[0].length);
+    system:println(lengthof xx);
+    system:println(lengthof xx[0]);
 
     // Initialize three dimensional array with one value. In this case value is a
     // two dimensional array.
@@ -20,6 +20,6 @@ function main (string[] args) {
     int[] a = [9];
     aa[0] = a;
 
-    // Print the first value of three dimensional array.
+    // Print the first value of two dimensional array.
     system:println(xx[0][0]);
 }

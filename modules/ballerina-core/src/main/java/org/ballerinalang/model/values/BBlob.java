@@ -20,6 +20,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * The {@code BBlob} represents a byte array.
  * {@link BBlob} will be useful for storing byte values.
@@ -34,7 +36,7 @@ public class BBlob extends BValueType implements BRefType<byte[]> {
 
     @Override
     public String stringValue() {
-        return null;
+        return new String(value, StandardCharsets.UTF_8);
     }
 
     @Override

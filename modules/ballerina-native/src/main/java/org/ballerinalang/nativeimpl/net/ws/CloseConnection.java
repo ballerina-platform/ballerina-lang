@@ -24,7 +24,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -53,9 +53,9 @@ public class CloseConnection extends AbstractNativeFunction {
 
         try {
             CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
             session.close(new CloseReason(() -> 1000, "Normal closure"));
-            WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
+            WebSocketConnectionManager.getInstance().removeSessionFromAll(session);
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred in removing the connection");
         }

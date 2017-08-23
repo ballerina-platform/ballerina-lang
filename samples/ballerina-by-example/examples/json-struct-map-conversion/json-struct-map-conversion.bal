@@ -19,8 +19,8 @@ function main (string[] args) {
                             writer:{fname:"Michael",
                                        lname:"Punke", age:30}};
     //Here's how you can convert a struct to a json object.
-    //This conversion is always safe
-    json j = <json>theRevenant;
+    //This conversion is unsafe
+    var j,_ = <json>theRevenant;
     system:println(j);
     system:println(j.writer.lname);
 

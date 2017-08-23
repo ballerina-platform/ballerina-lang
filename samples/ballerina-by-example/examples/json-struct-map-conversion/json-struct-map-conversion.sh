@@ -1,4 +1,4 @@
-$ ballerina run main json-struct-map-conversion.bal
+$ ballerina run json-struct-map-conversion.bal
 {"title":"The Revenant","year":"2015","released":"08 Jan 2016",
     "writer":{"fname":"Michael","lname":"Punke","age":30}}
 Punke

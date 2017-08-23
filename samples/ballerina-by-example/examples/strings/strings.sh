@@ -1,4 +1,4 @@
-$ ballerina run main strings.bal
+$ ballerina run strings.bal
 ToUpper: LION IN TOWN. CATCH THE LION
 ToLower: lion in town. catch the lion
 EqualsIgnoreCase: true

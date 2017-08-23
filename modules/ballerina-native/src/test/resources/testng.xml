@@ -90,6 +90,7 @@ under the License.
             <class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>
             <class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>
             <class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>
+            <class name="org.ballerinalang.service.HTTPCorsTest"/>
         </classes>
     </test>
 
@@ -99,29 +100,28 @@ under the License.
         </classes>
     </test>
 
-    <!-- TODO : Fix this. -->
-    <!--<test name="ballerina-global-var-test-suite">
+    <test name="ballerina-global-var-test-suite">
         <classes>
             <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
             <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
         </classes>
-    </test>-->
-
-    <!-- WebSocket Test Cases -->
-    <test name="websocket-test-cases" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>
-            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>
-            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>
-        </classes>
     </test>
 
-    <!-- TODO : Fix This -->
-    <!--<test name="ballerina-identifier-literal-test-suite">
+    <!--TODO: Should activate these test cases when migrating Ballerina to new transport-->
+    <!--&lt;!&ndash; WebSocket Test Cases &ndash;&gt;-->
+    <!--<test name="websocket-test-cases" parallel="false">-->
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>-->
+            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>-->
+            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
+
+    <test name="ballerina-identifier-literal-test-suite">
         <classes>
             <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
         </classes>
-    </test>-->
+    </test>
 
     <test name="ballerina-error-test-suite">
         <classes>
@@ -134,6 +134,19 @@ under the License.
     <test name="ballerina-interceptor-test-suite">
         <classes>
             <class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-debugger-test-suite">
+        <classes>
+            <class name="org.ballerinalang.debug.VMDebuggerTryCatchTest"/>
+            <class name="org.ballerinalang.debug.VMDebuggerScenarioTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-lambda-native-test-suite">
+        <classes>
+            <class name="org.ballerinalang.core.lang.functions.FunctionPointersNativeTest" />
         </classes>
     </test>
 </suite>

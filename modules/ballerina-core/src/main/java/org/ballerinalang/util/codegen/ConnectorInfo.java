@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BConnectorType;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,12 +30,77 @@ import java.util.Objects;
  */
 public class ConnectorInfo extends StructureTypeInfo {
 
+    // Connector constructor signature
+    private int signatureCPIndex;
+    private String signature;
+
+    private BConnectorType connectorType;
+
     private Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
-    protected Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
+    private boolean isFilterConnector = false;
 
-    public ConnectorInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
-        super(pkgPathCPIndex, connectorNameCPIndex);
+    // This variable holds the method table for this type.
+    protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
+    protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
+
+    public ConnectorInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name,
+                         int signatureCPIndex, String signature) {
+        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
+        this.signatureCPIndex = signatureCPIndex;
+        this.signature = signature;
+    }
+
+    public Map<Integer, Integer> getMethodTableIndex() {
+        return methodTableIndex;
+    }
+
+    public void setMethodTableIndex(Map<Integer, Integer> methodTable) {
+        this.methodTableIndex = methodTable;
+    }
+
+    public void addMethodIndex(int methodNameCPIndex, int ip) {
+        methodTableIndex.put(methodNameCPIndex, new Integer(ip));
+    }
+
+    public void addMethodType(BConnectorType connectorType, ConnectorInfo connectorInfo) {
+        methodTableType.put(connectorType, connectorInfo);
+    }
+
+    public void setMethodTableType(Map<BConnectorType, ConnectorInfo> methodTable) {
+        this.methodTableType = methodTable;
+    }
+
+    public ConnectorInfo getMethodTypeStructure(BConnectorType connectorType) {
+        if (methodTableType.containsKey(connectorType)) {
+            return methodTableType.get(connectorType);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
+    }
+
+    public int getSignatureCPIndex() {
+        return signatureCPIndex;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public BConnectorType getType() {
+        return connectorType;
+    }
+
+    public void setType(BConnectorType connectorType) {
+        this.connectorType = connectorType;
     }
 
     public void addActionInfo(String actionName, ActionInfo actionInfo) {
@@ -44,12 +111,8 @@ public class ConnectorInfo extends StructureTypeInfo {
         return actionInfoMap.get(actionName);
     }
 
-    public AttributeInfo getAttributeInfo(String attributeName) {
-        return attributeInfoMap.get(attributeName);
-    }
-
-    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
-        attributeInfoMap.put(attributeName, attributeInfo);
+    public ActionInfo[] getActionInfoEntries() {
+        return actionInfoMap.values().toArray(new ActionInfo[0]);
     }
 
     @Override

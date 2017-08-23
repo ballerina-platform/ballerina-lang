@@ -12,6 +12,11 @@ native function getJsonPayload (message m) (json);
 @doc:Return { value:"xml: The XML representation of the message payload" }
 native function getXmlPayload (message m) (xml);
 
+@doc:Description { value:"Gets the message payload in BLOB format"}
+@doc:Param { value:"m: The message object" }
+@doc:Return { value:"json: The BLOB reresentation of the message payload" }
+native function getBinaryPayload (message m) (blob);
+
 @doc:Description { value:"Sets a message property"}
 @doc:Param { value:"msg: The current message object" }
 @doc:Param { value:"propertyName: The name of the property" }

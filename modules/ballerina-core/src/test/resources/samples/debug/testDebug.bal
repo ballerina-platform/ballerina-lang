@@ -45,8 +45,3 @@ function testCalculateExp2(int x) (string) {
         return "small";
     }
 }
-service EchoService{
-  resource echoResource (message m) {
-      reply m;
-  }
-}

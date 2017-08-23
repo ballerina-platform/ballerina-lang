@@ -17,14 +17,10 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BType;
-
 /**
  * @since 0.87
  */
 public interface StructureType {
-
-    void init(int[] fieldIndexes);
 
     long getIntField(int index);
 
@@ -49,15 +45,4 @@ public interface StructureType {
     BRefType getRefField(int index);
 
     void setRefField(int index, BRefType value);
-
-    // TODO Remove all following methods when old executor is removed
-    BType[] getFieldTypes();
-
-    void setFieldTypes(BType[] fieldTypes);
-
-    BValue[] getMemoryBlock();
-
-    void setMemoryBlock(BValue[] memoryBlock);
-
-
 }

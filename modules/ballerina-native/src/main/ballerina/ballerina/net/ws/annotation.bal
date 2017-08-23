@@ -4,6 +4,9 @@ annotation WebSocketUpgradePath attach service {
     string value;
 }
 
+annotation ClientService attach service {
+}
+
 annotation OnOpen attach resource {
 }
 

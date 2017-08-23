@@ -18,6 +18,8 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
 
+import javax.xml.XMLConstants;
+
 /**
  * {@code NamespaceDeclaration} represents a namespace declaration in ballerina.
  * <p>
@@ -46,8 +48,6 @@ public class NamespaceDeclaration implements BLangSymbol, Node, CompilationUnit 
     private boolean isDefault;
     private SymbolScope symbolScope;
     
-    private static final String DEFAULT_NAMESPACE_PREFIX = ".";
-
     public NamespaceDeclaration(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String namespaceUri, 
             String prefix, String pkgPath, Identifier identifier, SymbolScope symbolScope) {
         this.location = location;
@@ -55,7 +55,7 @@ public class NamespaceDeclaration implements BLangSymbol, Node, CompilationUnit 
         this.namespaceUri = namespaceUri;
         
         if (prefix == null) {
-            this.prefix = DEFAULT_NAMESPACE_PREFIX;
+            this.prefix = XMLConstants.DEFAULT_NS_PREFIX;
             this.isDefault = true;
         } else {
             this.prefix = prefix;

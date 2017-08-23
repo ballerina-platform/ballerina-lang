@@ -18,6 +18,8 @@
 
 package org.ballerinalang.service;
 
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher;
@@ -122,6 +124,28 @@ public class ServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), "hello");
     }
 
+    @Test(description = "Test accessing service level variable in resource")
+    public void testGetServiceLevelString() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "sample value");
+    }
+
+    @Test(description = "Test using constant as annotation attribute value")
+    public void testConstantValueAsAnnAttributeVal() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "constant path test");
+    }
+
     @Test
     public void testGetStringAfterSetString() {
         CarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
@@ -151,6 +175,59 @@ public class ServiceTest {
         Assert.assertNull(response.getHeader("header1"));
         Assert.assertNull(response.getHeader("header2"));
         Assert.assertNull(response.getHeader("header3"));
+    }
+
+    @Test(description = "Test GetFormParams Native Function")
+    public void testGetFormParamsNativeFunction() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2"
+                , "Name variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Team").asText(), "BalDance"
+                , "Team variable not set properly.");
+    }
+
+    @Test(description = "Test GetFormParams with undefined key")
+    public void testGetFormParamsForUndefinedKey() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Team").asText(), ""
+                , "Team variable not set properly.");
+    }
+
+    @Test(description = "Test GetFormParams empty payloads")
+    public void testGetFormParamsEmptyPayload() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
+        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue().substring(86, 107), "empty message payload");
+    }
+
+    @Test(description = "Test GetFormParams with unsupported media type")
+    public void testGetFormParamsWithUnsupportedMediaType() {
+        String path = "/echo/getFormParams";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue().substring(86, 108), "unsupported media type");
     }
 
     @AfterClass

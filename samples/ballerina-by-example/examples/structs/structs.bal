@@ -1,7 +1,7 @@
 import ballerina.lang.system;
 import ballerina.doc;
 
-@doc:Description {value : "Defining a Person struct. Contains filed names and their types. <br/>Optionally, for value type fields, can define the default value. Otherwise, the default value will be set to the zero-value."}
+@doc:Description {value : "Defining a Person struct. Contains field names and their types. <br/>Optionally, for value type fields, can define the default value. Otherwise, the default value will be set to the zero-value."}
 struct Person {
     string name;
     int age = -1;
@@ -29,4 +29,5 @@ function main (string[] args) {
     p1.name = "Peter";
     p1.age = 25;
     system:println(p1);
+    system:println(p2);
 }

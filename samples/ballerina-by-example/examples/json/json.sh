@@ -1,4 +1,4 @@
-$ ballerina run main json.bal
+$ ballerina run json.bal
 Apple
 5.36
 true

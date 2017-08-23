@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 
@@ -36,6 +37,8 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     private Function calleeFunction;
     private BType[] types = new BType[0];
     private int[] offsets;
+    private boolean functionPointerInvocation;
+    private VariableDef functionPointerVariableDef;
 
     public FunctionInvocationExpr(NodeLocation location,
                                   WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -106,5 +109,21 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public boolean isFunctionPointerInvocation() {
+        return functionPointerInvocation;
+    }
+
+    public void setFunctionPointerInvocation(boolean functionPointerInvocation) {
+        this.functionPointerInvocation = functionPointerInvocation;
+    }
+
+    public VariableDef getFunctionPointerVariableDef() {
+        return functionPointerVariableDef;
+    }
+
+    public void setFunctionPointerVariableDef(VariableDef functionPointerVariableDef) {
+        this.functionPointerVariableDef = functionPointerVariableDef;
     }
 }

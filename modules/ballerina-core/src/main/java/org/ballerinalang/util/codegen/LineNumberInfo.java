@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
-
 import java.util.Objects;
 
 /**
@@ -34,25 +31,29 @@ public class LineNumberInfo {
     private int lineNumber = -1;
 
     // Index to the UTF8CPEntry which is name of the the Ballerina file.
-    private int fileIndex = -1;
+    private int fileNameCPIndex = -1;
     private String fileName;    // A cached value
 
     // First Instruction pointer of the line.
     private int ip = -1;
 
+    // Below two, does not need to be serialized
+    private boolean isDebugPoint = false;
+    private int endIp;
+
     // Cache values.
     private PackageInfo packageInfo;
 
-    public LineNumberInfo(int lineNumber, int fileIndex, int ip) {
+    public LineNumberInfo(int lineNumber, int fileNameCPIndex, String fileName, int ip) {
         this.lineNumber = lineNumber;
-        this.fileIndex = fileIndex;
+        this.fileNameCPIndex = fileNameCPIndex;
+        this.fileName = fileName;
         this.ip = ip;
     }
 
     // CP Indexes.
-
-    public int getFileIndex() {
-        return fileIndex;
+    public int getFileNameCPIndex() {
+        return fileNameCPIndex;
     }
 
     public int getLineNumber() {
@@ -60,9 +61,6 @@ public class LineNumberInfo {
     }
 
     public String getFileName() {
-        if (fileName == null) {
-            fileName = ((UTF8CPEntry) packageInfo.getConstPool()[fileIndex]).getValue();
-        }
         return fileName;
     }
 
@@ -70,9 +68,8 @@ public class LineNumberInfo {
         return packageInfo;
     }
 
-    public LineNumberInfo setPackageInfo(PackageInfo packageInfo) {
+    public void setPackageInfo(PackageInfo packageInfo) {
         this.packageInfo = packageInfo;
-        return this;
     }
 
     public int getIp() {
@@ -94,64 +91,38 @@ public class LineNumberInfo {
 
         LineNumberInfo that = (LineNumberInfo) o;
 
-        return lineNumber == that.getLineNumber() && fileIndex == that.getFileIndex() &&
+        return lineNumber == that.getLineNumber() && fileNameCPIndex == that.getFileNameCPIndex() &&
                 packageInfo == that.getPackageInfo();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineNumber, fileIndex, packageInfo);
-    }
-
-    /**
-     * Utility Class for creating LineNumber from AST.
-     */
-    public static class Factory {
-
-        /**
-         * Create LineNumberInfo instance from given NodeLocation.
-         *
-         * @param nodeLocation nodeLocation instance to be converted
-         * @param packageInfo  package where {@link LineNumberInfo} belongs to
-         * @param ip           start instruction pointer
-         * @return LineNumberInfo instance.
-         */
-        public static LineNumberInfo create(NodeLocation nodeLocation, PackageInfo packageInfo, int ip) {
-            if (nodeLocation == null) {
-                return null;
-            }
-            UTF8CPEntry fileNameUTF8CPEntry = new UTF8CPEntry(nodeLocation.getFileName());
-            int fileNameCPEntryIndex = packageInfo.addCPEntry(fileNameUTF8CPEntry);
-
-            LineNumberInfo lineNumberInfo = new LineNumberInfo(nodeLocation.getLineNumber(), fileNameCPEntryIndex, ip);
-            lineNumberInfo.setPackageInfo(packageInfo);
-            lineNumberInfo.setIp(ip);
-            return lineNumberInfo;
-        }
-
-        /**
-         * Get LineNumberInfo instance for given NodeLocation and ProgramFile.
-         *
-         * @param nodeLocation nodeLocation instance to be converted.
-         * @param packageInfo  packageInfo instance where LineNumberInfo should be created.
-         * @return LineNumberInfo instance.
-         */
-        public static LineNumberInfo get(NodeLocation nodeLocation, PackageInfo packageInfo) {
-            if (nodeLocation == null) {
-                return null;
-            }
-            UTF8CPEntry fileNameUTF8CPEntry = new UTF8CPEntry(nodeLocation.getFileName());
-            int fileNameCPEntryIndex = packageInfo.getCPEntryIndex(fileNameUTF8CPEntry);
-            if (fileNameCPEntryIndex < 0) {
-                return null;
-            }
-            return packageInfo.getLineNumberInfo(new LineNumberInfo(nodeLocation.getLineNumber(),
-                    fileNameCPEntryIndex, -1).setPackageInfo(packageInfo));
-        }
+        return Objects.hash(lineNumber, fileNameCPIndex, packageInfo, ip);
     }
 
     @Override
     public String toString() {
-        return "\t" + getFileName() + ":" + lineNumber + "\t\t" + ip;
+        return "\t" + fileName + ":" + lineNumber + "\t\t" + ip;
+    }
+
+    public boolean isDebugPoint() {
+        return isDebugPoint;
+    }
+
+    public void setDebugPoint(boolean debugPoint) {
+        isDebugPoint = debugPoint;
+    }
+
+    public void setEndIp(int endIp) {
+        this.endIp = endIp;
+    }
+
+    public boolean checkIpRangeForInstructionCode(Instruction[] codes, int matchingCode) {
+        for (int i = ip; i < endIp; i++) {
+            if (codes[i].getOpcode() == matchingCode) {
+                return true;
+            }
+        }
+        return false;
     }
 }

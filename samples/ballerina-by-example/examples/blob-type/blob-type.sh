@@ -1,2 +1,2 @@
-$ ballerina run main blob-type.bal
+$ ballerina run blob-type.bal
 Sample Text

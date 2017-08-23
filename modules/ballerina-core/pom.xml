@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.90-SNAPSHOT</version>
+        <version>0.92.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -33,6 +33,10 @@
     <url>http://ballerinalang.org</url>
 
     <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-logging</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -82,10 +86,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
@@ -138,6 +138,10 @@
         <dependency>
             <groupId>org.atomikos.wso2</groupId>
             <artifactId>atomikos</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.jms</artifactId>
         </dependency>
     </dependencies>
 

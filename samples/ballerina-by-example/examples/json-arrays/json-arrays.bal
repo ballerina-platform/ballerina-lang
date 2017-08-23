@@ -1,6 +1,4 @@
 import ballerina.lang.system;
-import ballerina.lang.errors;
-import ballerina.lang.strings;
 
 function main (string[] args) {
     //JSON Arrays. They are arrays of any JSON value.
@@ -25,22 +23,15 @@ function main (string[] args) {
     p.family[2].fname = "Alisha";
     system:println(p);
 
+    // Get the length of the JSON array.
+    json family = p.family;
+    int l = lengthof family;
+    system:println("length of array: " + l);
+
+    // Loop through the array.
     int i = 0;
-    try {
-        json family = p.family;
-        while (true) {
-            json e = family[i];
-            system:println(e);
-            i = i + 1;
-        }
-    } catch (errors:Error e) {
-        string msg = e.msg;
-        if (!strings:contains(msg, "array index out of range")) {
-            system:println(msg);
-            throw e;
-        } else {
-            system:println("length of array: " + i);
-            // Ignore the error.
-        }
+    while (i < l) {
+        system:println(family[i]);
+        i = i + 1;
     }
 }

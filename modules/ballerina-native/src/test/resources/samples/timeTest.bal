@@ -114,11 +114,12 @@ function testSubtractDuration () (string timeString) {
     return;
 }
 
-function testToTimezone () (string timeString) {
+function testToTimezone () (string timeStrBefore, string timeStrAfter) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1456876583555, zone:zoneValue};
+    timeStrBefore = time:toString(timeStruct);
     timeStruct = time:toTimezone(timeStruct, "Asia/Colombo");
-    timeString = time:format(timeStruct, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    timeStrAfter = time:toString(timeStruct);
     return;
 }
 
@@ -184,5 +185,32 @@ function testFormatTimeInvalidPattern () (string timeString) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1498488382444, zone:zoneValue};
     timeString = time:format(timeStruct, "test");
+    return;
+}
+
+function testParseTimeWithDifferentFormats () (int year, int month, int day, int hour, int minute, int second, int milliSecond,
+                                      string dateStr, string dateZoneStr, string timeZoneStr, string datetimeStr) {
+    time:Time timeStruct = time:parse("2017", "yyyy");
+    year = time:year(timeStruct);
+    timeStruct = time:parse("03", "MM");
+    month = time:month(timeStruct);
+    timeStruct = time:parse("31", "dd");
+    day = time:day(timeStruct);
+    timeStruct = time:parse("16", "HH");
+    hour = time:hour(timeStruct);
+    timeStruct = time:parse("59", "mm");
+    minute = time:minute(timeStruct);
+    timeStruct = time:parse("58", "ss");
+    second = time:second(timeStruct);
+    timeStruct = time:parse("999", "SSS");
+    milliSecond = time:milliSecond(timeStruct);
+    timeStruct = time:parse("2017/09/23", "yyyy/MM/dd");
+    dateStr = time:format(timeStruct, "yyyy-MM-dd");
+    timeStruct = time:parse("2015/02/15+0800", "yyyy/MM/ddZ");
+    dateZoneStr = time:format(timeStruct, "yyyy-MM-ddZ");
+    timeStruct = time:parse("08/23/59.544+0700", "HH/mm/ss.SSSZ");
+    timeZoneStr = time:format(timeStruct, "HH-mm-ss-SSS:Z");
+    timeStruct = time:parse("2014/05/29-23:44:59.544", "yyyy/MM/dd-HH:mm:ss.SSS");
+    datetimeStr = time:format(timeStruct, "yyyy-MM-dd-HH:mm:ss.SSS");
     return;
 }

@@ -111,10 +111,10 @@ public class BLangVMErrors {
     /**
      * Create TypeCastError.
      *
-     * @param context current Context
-     * @param ip      current instruction pointer
-     * @param sourceType    For which error happened
-     * @param targetType    For which error happened
+     * @param context    current Context
+     * @param ip         current instruction pointer
+     * @param sourceType For which error happened
+     * @param targetType For which error happened
      * @return created NullReferenceError
      */
     public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
@@ -135,10 +135,10 @@ public class BLangVMErrors {
     /**
      * Create TypeConversionError.
      *
-     * @param context current Context
-     * @param ip      current instruction pointer
-     * @param sourceTypeName    For which error happened
-     * @param targetTypeName    For which error happened
+     * @param context        current Context
+     * @param ip             current instruction pointer
+     * @param sourceTypeName For which error happened
+     * @param targetTypeName For which error happened
      * @return created NullReferenceError
      */
     public static BStruct createTypeConversionError(Context context, int ip,
@@ -160,12 +160,12 @@ public class BLangVMErrors {
     /**
      * Create TypeConversionError.
      *
-     * @param context   current Context
-     * @param ip        current instruction pointer
-     * @param errorMessage  error message
+     * @param context        current Context
+     * @param ip             current instruction pointer
+     * @param errorMessage   error message
      * @param sourceTypeName source type name
      * @param targetTypeName target type name
-     * @return  created TypeConversionError
+     * @return created TypeConversionError
      */
     public static BStruct createTypeConversionError(Context context, int ip, String errorMessage,
                                                     String sourceTypeName, String targetTypeName) {
@@ -314,17 +314,17 @@ public class BLangVMErrors {
      * @return BStruct instance.
      */
     public static BStruct createBStruct(StructInfo structInfo, Object... values) {
-        BStruct bStruct = new BStruct(structInfo.getType());
-        bStruct.setFieldTypes(structInfo.getFieldTypes());
-        bStruct.init(structInfo.getFieldCount());
+        BStructType structType = structInfo.getType();
+        BStruct bStruct = new BStruct(structType);
 
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
-        for (int i = 0; i < structInfo.getFieldTypes().length; i++) {
-            BType paramType = structInfo.getFieldTypes()[i];
+        BStructType.StructField[] structFields = structType.getStructFields();
+        for (int i = 0; i < structFields.length; i++) {
+            BType paramType = structFields[i].getFieldType();
             if (values.length < i + 1) {
                 break;
             }

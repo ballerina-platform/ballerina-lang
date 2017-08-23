@@ -19,10 +19,11 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.services.dispatchers.uri.DispatcherUtil;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -32,6 +33,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -96,30 +98,38 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);
-        for (ResourceInfo resource : service.getResourceInfoList()) {
-            AnnotationAttachmentInfo pathAnnotationInfo = resource
-                    .getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
+        Map<String, List<String>> serviceCorsMap = CorsRegistry.getInstance().getServiceCors(service);
+        for (ResourceInfo resource : service.getResourceInfoEntries()) {
+            AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                    Constants.ANN_NAME_RESOURCE_CONFIG);
             String subPathAnnotationVal;
-            if (pathAnnotationInfo != null
-                    && pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null
-                    && !pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
-                    .getStringValue().trim().isEmpty()) {
-                subPathAnnotationVal = pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
-                        .getStringValue();
-            } else {
+            if (rConfigAnnAtchmnt == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Path not specified in the Resource, using default sub path");
+                    log.debug("resourceConfig not specified in the Resource, using default sub path");
                 }
                 subPathAnnotationVal = resource.getName();
+            } else {
+                AnnAttributeValue pathAttrVal = rConfigAnnAtchmnt.getAttributeValue(Constants.ANN_RESOURCE_ATTR_PATH);
+                if (pathAttrVal == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Path not specified in the Resource, using default sub path");
+                    }
+                    subPathAnnotationVal = resource.getName();
+                } else if (pathAttrVal.getStringValue().trim().isEmpty()) {
+                    subPathAnnotationVal = Constants.DEFAULT_BASE_PATH;
+                } else {
+                    subPathAnnotationVal = pathAttrVal.getStringValue();
+                }
             }
+
             try {
                 service.getUriTemplate().parse(subPathAnnotationVal, resource);
             } catch (URITemplateException e) {
                 throw new BallerinaException(e.getMessage());
             }
+            CorsRegistry.getInstance().processResourceCors(resource, serviceCorsMap);
         }
-
-        String basePath = getServiceBasePath(service);
+        String basePath = DispatcherUtil.getServiceBasePath(service);
         sortedServiceURIs.add(basePath);
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
     }
@@ -128,7 +138,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceUnregistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().unregisterService(service);
 
-        String basePath = getServiceBasePath(service);
+        String basePath = DispatcherUtil.getServiceBasePath(service);
         sortedServiceURIs.remove(basePath);
     }
 
@@ -147,32 +157,18 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private String findTheMostSpecificBasePath(String requestURIPath, Map<String, ServiceInfo> services) {
         for (Object key : sortedServiceURIs) {
             if (requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
-                return key.toString();
+                if (requestURIPath.length() > key.toString().length()) {
+                    if (requestURIPath.charAt(key.toString().length()) == '/') {
+                        return key.toString();
+                    }
+                } else {
+                    return key.toString();
+                }
             }
         }
         if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {
             return Constants.DEFAULT_BASE_PATH;
         }
         return null;
-    }
-
-    private String getServiceBasePath(ServiceInfo service) {
-        String basePath = service.getName();
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
-
-        if (annotationInfo != null) {
-            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
-            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
-                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
-                basePath = annotationAttributeValue.getStringValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-        return basePath;
     }
 }

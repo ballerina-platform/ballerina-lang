@@ -32,6 +32,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -41,12 +42,19 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.StringTemplateLiteral;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -63,6 +71,7 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
@@ -110,7 +119,7 @@ public interface NodeVisitor {
 
     void visit(ParameterDef parameterDef);
 
-    void visit(VariableDef variableDef);
+    void visit(SimpleVariableDef variableDef);
 
     void visit(StructDef structDef);
     
@@ -159,6 +168,8 @@ public interface NodeVisitor {
     void visit(TransactionStmt transactionStmt);
 
     void visit(AbortStmt abortStmt);
+
+    void visit(RetryStmt retryStmt);
 
     void visit(NamespaceDeclarationStmt namespaceDeclarationStmt);
     
@@ -234,4 +245,19 @@ public interface NodeVisitor {
 
     void visit(NullLiteral nullLiteral);
 
+    void visit(XMLLiteral xmlLiteral);
+
+    void visit(XMLElementLiteral xmlElement);
+
+    void visit(XMLCommentLiteral xmlComment);
+
+    void visit(XMLTextLiteral xmlText);
+
+    void visit(XMLPILiteral xmlPI);
+    
+    void visit(XMLSequenceLiteral xmlSequence);
+
+    void visit(LambdaExpression lambdaExpr);
+
+    void visit(StringTemplateLiteral stringTemplateLiteral);
 }

@@ -35,18 +35,18 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.utils.logger",
         functionName = "debug",
-        args = {@Argument(name = "msg", type = TypeEnum.STRING)},
+        args = {@Argument(name = "value", type = TypeEnum.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "msg",
-                                                                              value = "Logs the specified message at " +
-                                                                                      "the debug level.")})
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+                                                                              value = "Logs the specified value at " +
+                                                                                      "debug level.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The message to be logged.")})
+                                                                        value = "The value to be logged.")})
 public class LogDebug extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).debug(getStringArgument(ctx, 0));
+        BallerinaLogHandler.getLogger(ctx).debug(getRefArgument(ctx, 0).stringValue());
         return VOID_RETURN;
     }
 }

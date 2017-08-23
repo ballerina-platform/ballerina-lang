@@ -21,12 +21,15 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -41,8 +44,6 @@ import javax.sql.XADataSource;
  */
 public class SQLDatasource implements BValue {
 
-    static final String CONNECTOR_PACKAGE = "ballerina.data.sql";
-
     private HikariDataSource hikariDataSource;
     private String databaseName;
     private String connectorId;
@@ -54,8 +55,9 @@ public class SQLDatasource implements BValue {
 
     public SQLDatasource() {}
 
-    public boolean init(BMap options) {
-        buildDataSource(options);
+    public boolean init(BStruct options, String dbType, String hostOrPath, int port, String username, String password,
+            String dbName) {
+        buildDataSource(options, dbType, hostOrPath, dbName, port, username, password);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
@@ -98,120 +100,94 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(BMap options) {
+    private void buildDataSource(BStruct options, String dbType, String hostOrPath, String dbName, int port,
+            String username, String password) {
         try {
             HikariConfig config = new HikariConfig();
-            String key = Constants.PoolProperties.DATA_SOURCE_CLASSNAME;
-            BValue value = options.get(key);
-            if (value != null) {
-                config.setDataSourceClassName(value.stringValue());
+            if (!username.isEmpty()) {
+                config.setUsername(username);
             }
-            key = Constants.PoolProperties.JDBC_URL;
-            value = options.get(key);
-            if (value != null) {
-                config.setJdbcUrl(value.stringValue());
+            if (!password.isEmpty()) {
+                config.setPassword(password);
             }
-            key = Constants.PoolProperties.USER_NAME;
-            value = options.get(key);
-            if (value != null) {
-                config.setUsername(value.stringValue());
+            String jdbcurl = options.getStringField(0);
+            String dataSourceClassName = options.getStringField(1);
+            if (!dataSourceClassName.isEmpty()) {
+                config.setDataSourceClassName(dataSourceClassName);
+            } else {
+                if (jdbcurl.isEmpty()) {
+                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                }
+                if (!jdbcurl.isEmpty()) {
+                    config.setJdbcUrl(jdbcurl);
+                } else {
+                    throw new BallerinaException("invalid database connection properties for db " + dbType);
+                }
             }
-            key = Constants.PoolProperties.PASSWORD;
-            value = options.get(key);
-            if (value != null) {
-                config.setPassword(value.stringValue());
+            String connectionTestQuery = options.getStringField(2);
+            if (!connectionTestQuery.isEmpty()) {
+                config.setConnectionTestQuery(connectionTestQuery);
             }
-            key = Constants.PoolProperties.AUTO_COMMIT;
-            value = options.get(key);
-            if (value != null) {
-                config.setAutoCommit(Boolean.parseBoolean(value.stringValue()));
+            String poolName = options.getStringField(3);
+            if (!poolName.isEmpty()) {
+                config.setPoolName(poolName);
             }
-            key = Constants.PoolProperties.CONNECTION_TIMEOUT;
-            value = options.get(key);
-            if (value != null) {
-                config.setConnectionTimeout(Long.parseLong(value.stringValue()));
+            String catalog = options.getStringField(4);
+            if (!catalog.isEmpty()) {
+                config.setCatalog(catalog);
             }
-            key = Constants.PoolProperties.IDLE_TIMEOUT;
-            value = options.get(key);
-            if (value != null) {
-                config.setIdleTimeout(Long.parseLong(value.stringValue()));
+            String connectionInitSQL = options.getStringField(5);
+            if (!connectionInitSQL.isEmpty()) {
+                config.setConnectionInitSql(connectionInitSQL);
             }
-            key = Constants.PoolProperties.MAX_LIFETIME;
-            value = options.get(key);
-            if (value != null) {
-                config.setMaxLifetime(Long.parseLong(value.stringValue()));
+            String driverClassName = options.getStringField(6);
+            if (!driverClassName.isEmpty()) {
+                config.setDriverClassName(driverClassName);
             }
-            key = Constants.PoolProperties.CONNECTION_TEST_QUERY;
-            value = options.get(key);
-            if (value != null) {
-                config.setConnectionTestQuery(value.stringValue());
+            String transactionIsolation = options.getStringField(7);
+            if (!transactionIsolation.isEmpty()) {
+                config.setTransactionIsolation(transactionIsolation);
             }
-            key = Constants.PoolProperties.MINIMUM_IDLE;
-            value = options.get(key);
-            if (value != null) {
-                config.setMinimumIdle(Integer.parseInt(value.stringValue()));
+            int maximumPoolSize = (int) options.getIntField(0);
+            if (maximumPoolSize != -1) {
+                config.setMaximumPoolSize(maximumPoolSize);
             }
-            key = Constants.PoolProperties.MAXIMUM_POOL_SIZE;
-            value = options.get(key);
-            if (value != null) {
-                config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
+            long connectionTimeout = options.getIntField(1);
+            if (connectionTimeout != -1) {
+                config.setConnectionTimeout(connectionTimeout);
             }
-            key = Constants.PoolProperties.POOL_NAME;
-            value = options.get(key);
-            if (value != null) {
-                config.setPoolName(value.stringValue());
+            long idleTimeout = options.getIntField(2);
+            if (idleTimeout != -1) {
+                config.setIdleTimeout(idleTimeout);
             }
-            key = Constants.PoolProperties.ISOLATE_INTERNAL_QUERIES;
-            value = options.get(key);
-            if (value != null) {
-                config.setIsolateInternalQueries(Boolean.parseBoolean(value.stringValue()));
+            int minimumIdle = (int) options.getIntField(3);
+            if (minimumIdle != -1) {
+                config.setMinimumIdle(minimumIdle);
             }
-            key = Constants.PoolProperties.ALLOW_POOL_SUSPENSION;
-            value = options.get(key);
-            if (value != null) {
-                config.setAllowPoolSuspension(Boolean.parseBoolean(value.stringValue()));
+            long maxLifetime = options.getIntField(4);
+            if (maxLifetime != -1) {
+                config.setMaxLifetime(maxLifetime);
             }
-            key = Constants.PoolProperties.READ_ONLY;
-            value = options.get(key);
-            if (value != null) {
-                config.setReadOnly(Boolean.parseBoolean(value.stringValue()));
+            long validationTimeout = options.getIntField(5);
+            if (validationTimeout != -1) {
+                config.setValidationTimeout(validationTimeout);
             }
-            key = Constants.PoolProperties.REGISTER_MBEANS;
-            value = options.get(key);
-            if (value != null) {
-                config.setRegisterMbeans(Boolean.parseBoolean(value.stringValue()));
+            long leakDetectionThreshold = options.getIntField(6);
+            if (leakDetectionThreshold != -1) {
+                config.setLeakDetectionThreshold(leakDetectionThreshold);
             }
-            key = Constants.PoolProperties.CATALOG;
-            value = options.get(key);
-            if (value != null) {
-                config.setCatalog(value.stringValue());
+            boolean autoCommit = options.getBooleanField(0) != 0;
+            config.setAutoCommit(autoCommit);
+            boolean isolateInternalQueries = options.getBooleanField(1) != 0;
+            config.setIsolateInternalQueries(isolateInternalQueries);
+            boolean allowPoolSuspension = options.getBooleanField(2) != 0;
+            config.setAllowPoolSuspension(allowPoolSuspension);
+            boolean readOnly = options.getBooleanField(3) != 0;
+            config.setReadOnly(readOnly);
+            BMap mapSourceConfigs = (BMap) options.getRefField(0);
+            if (mapSourceConfigs != null) {
+                setDataSourceProperties(mapSourceConfigs, config);
             }
-            key = Constants.PoolProperties.CONNECTION_INIT_SQL;
-            value = options.get(key);
-            if (value != null) {
-                config.setConnectionInitSql(value.stringValue());
-            }
-            key = Constants.PoolProperties.DRIVER_CLASSNAME;
-            value = options.get(key);
-            if (value != null) {
-                config.setDriverClassName(value.stringValue());
-            }
-            key = Constants.PoolProperties.TRANSACTION_ISOLATION;
-            value = options.get(key);
-            if (value != null) {
-                config.setTransactionIsolation(value.stringValue());
-            }
-            key = Constants.PoolProperties.VALIDATION_TIMEOUT;
-            value = options.get(key);
-            if (value != null) {
-                config.setValidationTimeout(Long.parseLong(value.stringValue()));
-            }
-            key = Constants.PoolProperties.LEAK_DETECTION_THRESHOLD;
-            value = options.get(key);
-            if (value != null) {
-                config.setLeakDetectionThreshold(Long.parseLong(value.stringValue()));
-            }
-            setDataSourceProperties(options, config);
             hikariDataSource = new HikariDataSource(config);
         } catch (Throwable t) {
             String errorMessage = "error in sql connector configuration";
@@ -223,20 +199,96 @@ public class SQLDatasource implements BValue {
         }
     }
 
+    private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
+            String password) {
+        StringBuilder jdbcUrl = new StringBuilder();
+        dbType = dbType.toUpperCase(Locale.ENGLISH);
+        hostOrPath = hostOrPath.replaceAll("/$", "");
+        switch (dbType) {
+        case Constants.DBTypes.MYSQL:
+            if (port <= 0) {
+                port = Constants.DefaultPort.MYSQL;
+            }
+            jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.SQLSERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.SQLSERVER;
+            }
+            jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
+                    .append(dbName);
+            break;
+        case Constants.DBTypes.ORACLE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.ORACLE;
+            }
+            jdbcUrl.append("jdbc:oracle:thin:").append(username).append("/").append(password).append("@")
+                    .append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.SYBASE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.SYBASE;
+            }
+            jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.POSTGRE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.POSTGRE;
+            }
+            jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.IBMDB2:
+            if (port <= 0) {
+                port = Constants.DefaultPort.IBMDB2;
+            }
+            jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.HSQLDB_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.HSQLDB_SERVER;
+            }
+            jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
+                    .append(dbName);
+            break;
+        case Constants.DBTypes.HSQLDB_FILE:
+            jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        case Constants.DBTypes.H2_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.H2_SERVER;
+            }
+            jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.H2_FILE:
+            jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        case Constants.DBTypes.DERBY_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.DERBY_SERVER;
+            }
+            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.DERBY_FILE:
+            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        default:
+            jdbcUrl.append("");
+        }
+        return jdbcUrl.toString();
+    }
+
     private void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<String> keySet = options.keySet();
         for (String key : keySet) {
-            String keyName = key;
-            if (keyName.startsWith(Constants.PoolProperties.DATASOURCE)) {
-                String keyValue = keyName.substring(Constants.PoolProperties.DATASOURCE.length());
-                BValue value = options.get(key);
-                if (value instanceof BString) {
-                    config.addDataSourceProperty(keyValue, value.stringValue());
-                } else if (value instanceof BInteger) {
-                    config.addDataSourceProperty(keyValue, ((BInteger) value).intValue());
-                } else if (value instanceof BBoolean) {
-                    config.addDataSourceProperty(keyValue, Boolean.parseBoolean(value.stringValue()));
-                }
+            BValue value = options.get(key);
+            if (value instanceof BString) {
+                config.addDataSourceProperty(key, value.stringValue());
+            } else if (value instanceof BInteger) {
+                config.addDataSourceProperty(key, ((BInteger) value).intValue());
+            } else if (value instanceof BBoolean) {
+                config.addDataSourceProperty(key, ((BBoolean) value).booleanValue());
+            } else if (value instanceof BFloat) {
+                config.addDataSourceProperty(key, ((BFloat) value).floatValue());
             }
         }
     }

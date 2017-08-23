@@ -27,10 +27,13 @@ public class TypeSignature {
     public static final String SIG_BOOLEAN = "B";
     public static final String SIG_BLOB = "L";
     public static final String SIG_REFTYPE = "R";
+    public static final String SIG_CJSON = "K";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
+    public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
+    public static final String SIG_TYPE = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
 
@@ -75,9 +78,16 @@ public class TypeSignature {
         return elementTypeSig;
     }
 
-    public static String getTypeSignature(String signature) {
-        return null;
+    @Override
+    public String toString() {
+        if (elementTypeSig != null) {
+            return sigChar + elementTypeSig.toString();
+        } else if (pkgPath != null) {
+            return sigChar + pkgPath + ":" + name + ";";
+        } else if (name != null) {
+            return sigChar + name + ";";
+        }
+
+        return sigChar;
     }
-
-
 }

@@ -34,7 +34,7 @@ import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COO
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
- * HTTP session Essential Methods Test Class
+ * HTTP session Essential Methods Test Class.
  */
 public class HTTPSessionEssentialMethodsTest {
 

@@ -18,7 +18,7 @@
 package org.ballerinalang.util.repository;
 
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.util.program.BLangPrograms;
+import org.ballerinalang.util.BLangConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,16 +91,16 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
         // First try to load from the built-in repositories 
-        PackageSource pkgSource = loadPackageFromBuiltinRepositories(packageDirPath);
-        if (pkgSource != null) {
-            return pkgSource;
-        }
+//        PackageSource pkgSource = loadPackageFromSystemRepo(packageDirPath);
+//        if (pkgSource != null) {
+//            return pkgSource;
+//        }
 
         Path zipPkgPath = zipFS.getPath("/", packageDirPath.toString());
         List<Path> pathList = packageFilesMap.get(zipPkgPath.toString());
         Map<String, InputStream> fileStreamMap;
         fileStreamMap = pathList.stream()
-                .filter(filePath -> filePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT))
+                .filter(filePath -> filePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX))
                 .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(), this::getInputStream));
 
         return new PackageSource(packageDirPath, fileStreamMap, this);
@@ -126,7 +126,7 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         zipFS = null;
     }
 
-    private InputStream getInputStream(Path path) {
+    public InputStream getInputStream(Path path) {
         try {
             return Files.newInputStream(path);
         } catch (IOException e) {
@@ -147,7 +147,7 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
                     return FileVisitResult.CONTINUE;
                 }
 
-                if (filePath.getFileName().toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+                if (filePath.getFileName().toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
                     filePathList.add(filePath);
                 }
 

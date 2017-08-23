@@ -18,9 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.jms;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -37,33 +34,13 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(JMSResourceDispatcher.class);
 
     @Override
-    @Deprecated
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
-        if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the jms service " + service.getSymbolName().toString() + " to "
-                            + "deliver the message");
-        }
-        Resource[] resources = service.getResources();
-        if (resources.length == 0) {
-            throw new BallerinaException("No resources found to handle the JMS message in " + service.getSymbolName()
-                    .toString(), balContext);
-        }
-        if (resources.length > 1) {
-            throw new BallerinaException("More than one resources found in JMS service " + service.getSymbolName()
-                    .toString() + ".JMS Service should only have one resource", balContext);
-        }
-        return resources[0];
-    }
-
-    @Override
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
             BallerinaException {
         if (log.isDebugEnabled()) {
             log.debug("Starting to find resource in the jms service " + service.getName() + " to "
                     + "deliver the message");
         }
-        ResourceInfo[] resources = service.getResourceInfoList();
+        ResourceInfo[] resources = service.getResourceInfoEntries();
         if (resources.length == 0) {
             throw new BallerinaException("No resources found to handle the JMS message in " + service.getName());
         }

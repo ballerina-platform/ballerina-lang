@@ -51,7 +51,10 @@ public final class BXMLAttributes implements BRefType {
 
     @Override
     public boolean equals(Object obj) {
-        return ((BXMLAttributes) obj).stringValue().equals(value);
+        if (obj == null || !(obj instanceof BXMLAttributes)) {
+            return false;
+        }
+        return ((BXMLAttributes) obj).stringValue().equals(value.stringValue());
     }
 
     @Override

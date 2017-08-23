@@ -55,10 +55,10 @@ public class ControlStackNew {
         return poppedFrame;
     }
 
-    public StackFrame peekFrame() {
+    public StackFrame peekFrame(int offset) {
         StackFrame peekFrame = null;
-        if (fp > 0) {
-            peekFrame = stackFrames[fp - 1];
+        if (fp - offset >= 0 && fp - offset < stackFrames.length) {
+            peekFrame = stackFrames[fp - offset];
         }
         return peekFrame;
     }

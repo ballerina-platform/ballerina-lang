@@ -161,8 +161,8 @@ public class StructTest {
     @Test(description = "Test negative default values in struct")
     public void testStructToString() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "getStruct");
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\",lname:\"\",adrs:null,age:25,family:null,parent:" +
-                "{name:\"bbb\",lname:\"ccc\",adrs:null,age:50,family:null,parent:null}}");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:null, age:25, family:null, " +
+                "parent:{name:\"bbb\", lname:\"ccc\", adrs:null, age:50, family:null, parent:null}}");
     }
 
     /*
@@ -208,7 +208,7 @@ public class StructTest {
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {ParserException.class},
             expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3:6: " +
-            "missing \\{'boolean', 'int', 'float', 'string', 'blob'\\} before 'Person'")
+            "missing \\{'int', 'float', 'boolean', 'string', 'blob'\\} before 'Person'")
     public void testStructConstant() {
         BTestUtils.getProgramFile("lang/structs/constants");
     }

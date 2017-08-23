@@ -3,7 +3,7 @@ import ballerina.lang.messages;
 import ballerina.net.jms;
 import ballerina.net.http;
 
-@jms:config {
+@jms:configuration {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl:
            "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
@@ -30,7 +30,6 @@ service<jms> jmsService {
         // send the JSON payload to the HTTP endpoint
         http:ClientConnector nyseEP2 = 
                         create http:ClientConnector("http://localhost:8080");
-        message response = 
-                      http:ClientConnector.post(nyseEP2, "/my-webapp/echo", m);
+        message response = nyseEP2.post("/my-webapp/echo", m);
     }
 }

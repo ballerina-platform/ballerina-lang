@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-public class ConstDef extends VariableDef implements CompilationUnit {
+public class ConstDef extends SimpleVariableDef implements CompilationUnit {
 
     private List<AnnotationAttachment> annotations;
     private VariableDefStmt variableDefStmt;

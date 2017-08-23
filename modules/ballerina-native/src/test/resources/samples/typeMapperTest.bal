@@ -15,9 +15,3 @@ function stringtojson(string value)(json) {
     result = (json) value;
     return result;
 }
-
-function jsontostring(json value)(string) {
-    string result;
-    result, _ = (string)value;
-    return result;
-}

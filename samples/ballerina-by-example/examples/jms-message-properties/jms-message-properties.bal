@@ -2,7 +2,7 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.jms;
 
-@jms:config {
+@jms:configuration {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
            "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
@@ -31,7 +31,7 @@ service<jms> jmsService {
                          "connectionFactoryType" :"queue"};
 
         jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
-        jms:ClientConnector.send(jmsEP, "MySecondQueue", responseMessage);
+        jmsEP.send("MySecondQueue", responseMessage);
 
     }
 }
