@@ -20,33 +20,78 @@ import React from 'react';
 import './variable-endpoint.css';
 
 export default class VariableEndpoint extends React.Component {
-    render() {
-        const { variable, makeConnectPoint, type, endpointKind, level, id, removeTypeCallbackFunc } = this.props;
+   constructor(props, context) {
+      super(props, context);
+      this.state = {
+          onEdit: false,
+          statement: this.props.variable.varDeclarationString
+      };
 
+        this.handleChange = this.handleChange.bind(this);
+        this.onEdit = this.onEdit.bind(this);
+        this.onComplete = this.onComplete.bind(this);
+    }
+
+    componentWillUnmount() {
+        const { id, onRemove } = this.props;
+        onRemove(id);
+    }
+
+    render() {
+        const { variable, makeConnectPoint, level, id, removeTypeCallbackFunc, onClick, onRemove,
+            updateVariable, isFolded, } = this.props;
         let iconType = 'fw-variable';
+        let className = 'transform-endpoint variable';
 
         if (variable.type === 'struct') {
             iconType = 'fw-struct';
+            className += ' transform-endpoint-struct'
+
+            if(isFolded){
+                className += '-folded'
+            }
         }
 
-        variable.endpointKind = endpointKind;
+        let folderLeft =  level*13 + 2;
+
+        const variableRoot = variable.root || variable;
+        if(variableRoot.endpointKind === 'output' ) {
+            folderLeft += 30;
+        }
 
         return (
-            <div className='transform-endpoint variable'>
-                <span style={{ paddingLeft: level > 0 ? ((level - 1) * 20) : 0 }}>
-                    {(level > 0) && <span className='tree-view-icon'>└</span>}
-                    <span className='variable-icon btn'>
+            <div className={className} style={{ paddingLeft: level > 0 ? ((level - 1) * 13) + 7 : 7 }}>
+                <span >
+                    {(variable.type === 'struct' || variable.isField) && <span className='folder'
+                        style={{ left: folderLeft }} onClick={e => {onClick && onClick(variable.name)}}/>}
+                    {(level > 0) && <span className='tree-view-icon'></span>}
+                    <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
-                    <span className='variable-content'>
-                        {variable.name &&
+                    <span className='variable-content' onClick={e => {onClick && onClick(variable.name)}}>
+                        {!this.state.onEdit && variable.displayName &&
                             <span className='property-name'>
-                                {variable.name}:
+                                {variable.displayName}:
                             </span>
                         }
-                        <span className='property-type'>
-                            {variable.typeName || variable.type}
-                        </span>
+                        {!this.state.onEdit &&
+                          <span className='property-type'>
+                              {variable.typeName || variable.type}
+                          </span>
+                        }
+                        {this.props.variable.varDeclarationString && !this.state.onEdit &&
+                            <span>
+                              <i className='btn fw fw-edit' onClick={this.onEdit}></i>
+                            </span>
+                        }
+                        { this.state.onEdit &&
+                          <input  type='text' className='variable-edit-text' value={this.state.statement} onChange={this.handleChange} />
+                        }
+                        { this.state.onEdit &&
+                          <span>
+                            <i className='btn fw fw-check' onClick={this.onComplete}></i>
+                          </span>
+                        }
                     </span>
                 </span>
                 <span id={variable.id + '-button'} className='btn connect-point'>
@@ -58,5 +103,20 @@ export default class VariableEndpoint extends React.Component {
                 </span>
             </div>
         );
+    }
+    handleChange(e) {
+      this.setState({statement: e.target.value});
+    }
+
+    onEdit() {
+      this.setState({
+          onEdit: true
+      });
+    }
+    onComplete(){
+      this.setState({
+          onEdit: false
+      });
+      this.props.updateVariable(this.props.variable.name, this.state.statement);
     }
 }

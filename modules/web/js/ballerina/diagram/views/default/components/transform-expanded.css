@@ -22,7 +22,7 @@
 }
 
 .transformOverlay .react-autosuggest__container {
-    width: 270px;
+    width: 300px;
     float: left;
 }
 
@@ -53,4 +53,11 @@
 .transform-con-remove {
     font-size: 0.94em;
     color: #666769;
+}
+
+.variable-edit-text {
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 180px;
+    max-width: 250px;
 }

@@ -18,36 +18,31 @@
 
 import React from 'react';
 import VariableEndpoint from './variable-endpoint.jsx';
+import _ from 'lodash';
 import './tree.css';
 
 export default class Tree extends React.Component {
     renderStruct(endpoint, level) {
+        const { foldedEndpoints, foldEndpoint } = this.props;
         return (<div key={endpoint.name}>
             {
-                this.renderEndpoint(endpoint, (endpoint.isInner ? 'property' : 'struct-head'), level)
+                this.renderEndpoint(endpoint, (endpoint.isField ? 'property' : 'struct-head'),
+                    level, foldEndpoint, Boolean(foldedEndpoints[endpoint.name]))
             }
             {
-                endpoint.properties.map((property) => {
-                    if (property.innerType) {
-                        property.innerType.root = endpoint.root || endpoint;
-                        return this.renderStruct(property.innerType, level + 1);
+                !foldedEndpoints[endpoint.name] && endpoint.properties.map((property) => {
+                    if (property.type === 'struct') {
+                        return this.renderStruct(property, level + 1);
                     }
-                    property.root = endpoint.root || endpoint;
                     return this.renderEndpoint(property, 'property', level + 1);
                 })
             }
         </div>);
     }
 
-    renderEndpoint(endpoint, kind, level) {
-        const { endpoints, type, makeConnectPoint, viewId } = this.props;
-        const paramNamePrefix = endpoint.paramName ? `${endpoint.paramName}:` : '';
-        const key = `${paramNamePrefix}${endpoint.fieldName || endpoint.name || endpoint.index}:${viewId}`;
-
-        let endpointKind = kind;
-        if (type === 'param' || type === 'return') {
-            endpointKind = `function-${kind}`;
-        }
+    renderEndpoint(endpoint, kind, level, onClick, isFolded) {
+        const { endpoints, type, makeConnectPoint, onEndpointRemove, viewId, updateVariable } = this.props;
+        const key = `${endpoint.name}:${viewId}`;
 
         return (
             <VariableEndpoint
@@ -55,9 +50,12 @@ export default class Tree extends React.Component {
                 id={key}
                 type={type}
                 variable={endpoint}
-                endpointKind={endpointKind}
                 makeConnectPoint={makeConnectPoint}
                 level={level}
+                onClick={onClick}
+                onRemove={onEndpointRemove}
+                updateVariable={updateVariable}
+                isFolded={isFolded}
             />
         );
     }

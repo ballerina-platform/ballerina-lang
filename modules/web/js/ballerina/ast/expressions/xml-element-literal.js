@@ -81,19 +81,7 @@ class XMLElementLiteral extends Expression {
         }
 
         if (ASTFactory.isXMLSequenceLiteral(this.children[1]) && this.children[1].children.length > 0) {
-            this.children[1].children.forEach((child) => {
-                if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
-                    expression += `{{${child.getVariableName()}}}`;
-                } else if (ASTFactory.isBasicLiteralExpression(child)) {
-                    expression += `${child.getBasicLiteralValue()}`;
-                } else if (ASTFactory.isXMLElementLiteral(child)) {
-                    expression += child.getExpressionString(true);
-                } else if (ASTFactory.isBinaryExpression(child)) {
-                    expression += child.getExpressionString(true);
-                } else if (ASTFactory.isXMLTextLiteral(child)) {
-                    expression += child.getExpressionString(true);
-                }
-            });
+            expression += this.children[1].getExpressionString(true);
         } else if (ASTFactory.isXMLQNameExpression(this.children[1])) {
             if (ASTFactory.isBasicLiteralExpression(this.children[1])) {
                 expression += `</${this.children[1]._localName}>`;

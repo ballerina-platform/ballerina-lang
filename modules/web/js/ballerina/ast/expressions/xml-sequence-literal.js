@@ -24,23 +24,36 @@ import ASTFactory from './../ast-factory';
  * @class XMLSequenceLiteral
  * */
 class XMLSequenceLiteral extends Expression {
+    /**
+     * constructor for xml sequence literal.
+     * @param {object} args - argument for the sequence literal.
+     * */
     constructor(args) {
         super('XMLSequenceLiteral');
         this.type_name = _.get(args, 'type_name', '');
     }
 
-    getExpressionString() {
-        let expression = `${this.type_name} \``;
+    /**
+     * get the expression string.
+     * @param {boolean} isTemplate - is template.
+     * @return {string} expression strings.
+     * */
+    getExpressionString(isTemplate) {
+        let expression = isTemplate ? '' : `${this.type_name} \``;
         this.children.forEach((child) => {
             if (ASTFactory.isBasicLiteralExpression(child)) {
                 expression += `${child.getBasicLiteralValue()}`;
             } else if (ASTFactory.isSimpleVariableReferenceExpression(child)) {
                 expression += `{{${child.getVariableName()}}}`;
             } else if (ASTFactory.isBinaryExpression(child)) {
-                expression += `${child.getExpressionString(true)}`;
+                expression += `{{${child.getExpressionString()}}}`;
+            } else if (ASTFactory.isXMLElementLiteral(child)) {
+                expression += child.getExpressionString(true);
+            } else if (ASTFactory.isXMLTextLiteral(child)) {
+                expression += child.getExpressionString(true);
             }
         });
-        expression += '`';
+        expression += isTemplate ? '' : '`';
         return expression;
     }
 
