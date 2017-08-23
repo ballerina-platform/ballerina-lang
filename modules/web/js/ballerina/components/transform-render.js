@@ -138,31 +138,6 @@ class TransformRender {
         };
     }
 
-    /**
-    * Remove a type from the mapper UI
-    * @param {string} name identifier of the type
-    */
-    removeType(name) {
-        _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
-            if (con.sourceId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                _.forEach($('.jtk-droppable'), (element) => {
-                    if (element.id.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                        this.jsPlumbInstance.remove(element.id);
-                    }
-                });
-                this.unmarkConnected(con.targetId);
-            } else if (con.targetId.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                _.forEach($('.jtk-droppable'), (element) => {
-                    if (element.id.split(this.viewIdSeperator)[0].split(this.idNameSeperator)[0] == name) {
-                        this.jsPlumbInstance.remove(element.id);
-                    }
-                });
-                this.jsPlumbInstance.remove(con.targetId);
-                this.unmarkConnected(con.sourceId);
-            }
-        });
-    }
-
     remove(elementId) {
         this.jsPlumbInstance.remove(elementId);
     }
