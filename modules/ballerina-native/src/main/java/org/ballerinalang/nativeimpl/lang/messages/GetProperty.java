@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.lang.messages;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -40,7 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         functionName = "getProperty",
         args = {@Argument(name = "msg", type = TypeEnum.MESSAGE),
                 @Argument(name = "propertyName", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)}, // TODO: Ballerina only supports string properties ATM
+        returnType = {@ReturnType(type = TypeEnum.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
@@ -49,7 +48,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         value = "The current message object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "The name of the property") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "propertyValue",
         value = "The property value") })
 public class GetProperty extends AbstractNativeFunction {
 
@@ -64,8 +63,8 @@ public class GetProperty extends AbstractNativeFunction {
             return VOID_RETURN;
         }
 
-        if (propertyValue instanceof String) {
-            return getBValues(new BString((String) propertyValue));
+        if (propertyValue instanceof BValue) {
+            return getBValues((BValue) propertyValue);
         } else {
             throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
         }
