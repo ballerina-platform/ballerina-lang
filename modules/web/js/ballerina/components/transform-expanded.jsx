@@ -527,7 +527,8 @@ class TransformExpanded extends React.Component {
     }
 
     removeSourceType(removedType) {
-        _.remove(this.state.vertices, (vertex) => { return vertex.name === removedType.name; });
+        _.remove(this.state.vertices, (vertex) => { return vertex.name === removedType.name
+                                                            && vertex.varDeclarationString; });
         this.props.model.removeInput(removedType);
 
     }
@@ -616,7 +617,7 @@ class TransformExpanded extends React.Component {
                         const variableType = {};
                         variableType.name = arg.name;
                         variableType.displayName = arg.name;
-                        variableType.varDeclarationString = false;
+                        variableType.varDeclarationString = '';
                         _.forEach(varDefinations, (varDef) => {
                             if(variableType.name  == varDef.getLeftExpression().getVariableName()) {
                                variableType.varDeclarationString =  varDef.getStatementString();
