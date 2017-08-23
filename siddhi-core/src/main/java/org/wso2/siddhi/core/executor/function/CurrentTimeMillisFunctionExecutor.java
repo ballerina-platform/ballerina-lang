@@ -33,8 +33,7 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.util.Map;
 
 /**
- * Executor class for Siddhi cast function. Converts the given parameter according to the castTo parameter.
- * Incompatible arguments cause {@link ClassCastException} if further processed.
+ * Executor class for getting Siddhi application timestamp.
  */
 @Extension(
         name = "currentTimeMillis",

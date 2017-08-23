@@ -22,6 +22,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -30,17 +31,6 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.SystemParameter;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
-import org.wso2.siddhi.core.function.Script;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
-import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.stream.input.source.SourceMapper;
-import org.wso2.siddhi.core.stream.output.sink.Sink;
-import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
-import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.doc.gen.commons.metadata.ExampleMetaData;
 import org.wso2.siddhi.doc.gen.commons.metadata.ExtensionMetaData;
 import org.wso2.siddhi.doc.gen.commons.metadata.ExtensionType;
@@ -52,15 +42,18 @@ import org.wso2.siddhi.doc.gen.core.freemarker.FormatDescriptionMethod;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -78,24 +71,6 @@ import java.util.Objects;
  * Utility class for getting the meta data for the extension processors in Siddhi
  */
 public class DocumentationUtils {
-    private static Map<ExtensionType, Class<?>> superClassMap;
-
-    static {
-        // Populating the processor super class map
-        superClassMap = new HashMap<>();
-        superClassMap.put(ExtensionType.FUNCTION, FunctionExecutor.class);
-        superClassMap.put(ExtensionType.ATTRIBUTE_AGGREGATOR, AttributeAggregator.class);
-        superClassMap.put(ExtensionType.WINDOW, WindowProcessor.class);
-        superClassMap.put(ExtensionType.STREAM_FUNCTION, StreamFunctionProcessor.class);
-        superClassMap.put(ExtensionType.STREAM_PROCESSOR, StreamProcessor.class);
-        superClassMap.put(ExtensionType.SOURCE, Source.class);
-        superClassMap.put(ExtensionType.SINK, Sink.class);
-        superClassMap.put(ExtensionType.SOURCE_MAPPER, SourceMapper.class);
-        superClassMap.put(ExtensionType.SINK_MAPPER, SinkMapper.class);
-        superClassMap.put(ExtensionType.STORE, Table.class);
-        superClassMap.put(ExtensionType.SCRIPT, Script.class);
-    }
-
     private DocumentationUtils() {   // To prevent instantiating utils class
     }
 
@@ -106,6 +81,8 @@ public class DocumentationUtils {
      * @param targetDirectoryPath The path of the target directory of the maven module containing extensions
      * @param logger              The maven plugin logger
      * @return NamespaceMetaData namespace meta data list
+     * @throws MojoFailureException   If this fails to access project dependencies
+     * @throws MojoExecutionException If the classes directory from which classes are loaded is invalid
      */
     public static List<NamespaceMetaData> getExtensionMetaData(String targetDirectoryPath,
                                                                List<String> runtimeClasspathElements,
@@ -174,75 +151,111 @@ public class DocumentationUtils {
     /**
      * Update the documentation home page
      *
-     * @param readMeFile                 The path to the read me file
-     * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
-     * @param homePageFileName           The name of the documentation file that will be generated
-     * @param mkdocsConfigFile           The name of the mkdocs file
-     * @param logger                     The maven plugin logger
+     * @param inputFile                  The path to the input file
+     * @param outputFile                 The path to the output file
+     * @param extensionRepositoryName    The name of  the extension repository
+     * @param latestDocumentationVersion The version of the latest documentation generated
+     * @param namespaceMetaDataList      Metadata in this repository
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    public static void updateHomePage(File readMeFile, String documentationBaseDirectory,
-                                      String homePageFileName, File mkdocsConfigFile, Log logger)
+    public static void updateHeadingsInMarkdownFile(File inputFile, File outputFile,
+                                                    String extensionRepositoryName,
+                                                    String latestDocumentationVersion,
+                                                    List<NamespaceMetaData> namespaceMetaDataList)
             throws MojoFailureException {
         // Retrieving the content of the README.md file
-        List<String> readMeFileLines = new ArrayList<>();
+        List<String> inputFileLines = new ArrayList<>();
         try {
-            readMeFileLines = Files.readLines(readMeFile, Constants.DEFAULT_CHARSET);
+            inputFileLines = Files.readLines(inputFile, Constants.DEFAULT_CHARSET);
         } catch (IOException ignored) {
-        }
-
-        // Retrieving the documentation file names
-        File documentationDirectory = new File(documentationBaseDirectory
-                + File.separator + Constants.API_SUB_DIRECTORY);
-        String[] documentationFiles = documentationDirectory.list();
-
-        // Getting only the markdown files
-        List<String> documentationFilesList = new ArrayList<>();
-        if (documentationFiles != null) {
-            for (String documentationFile : documentationFiles) {
-                if (documentationFile.endsWith(Constants.MARKDOWN_FILE_EXTENSION)) {
-                    documentationFilesList.add(documentationFile);
-                }
-            }
         }
 
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
-        rootDataModel.put("readMeFileLines", readMeFileLines);
-        rootDataModel.put("documentationFiles", documentationFilesList);
+        rootDataModel.put("inputFileLines", inputFileLines);
+        rootDataModel.put("extensionRepositoryName", extensionRepositoryName);
+        rootDataModel.put("latestDocumentationVersion", latestDocumentationVersion);
+        rootDataModel.put("metaData", namespaceMetaDataList);
+        rootDataModel.put("formatDescription", new FormatDescriptionMethod());
 
         generateFileFromTemplate(
-                Constants.MARKDOWN_HOME_PAGE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
+                Constants.MARKDOWN_HEADINGS_UPDATE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
-                rootDataModel, documentationBaseDirectory,
-                homePageFileName + Constants.MARKDOWN_FILE_EXTENSION
+                rootDataModel, outputFile.getParent(), outputFile.getName()
+        );
+    }
+
+    /**
+     * Remove the snapshot version documentation files from docs/api directory
+     *
+     * @param mkdocsConfigFile           The mkdocs configuration file
+     * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
+     * @param logger                     The maven plugin logger
+     */
+    public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String  documentationBaseDirectory, Log logger) {
+        // Retrieving the documentation file names
+        File apiDocsDirectory = new File(documentationBaseDirectory
+                + File.separator + Constants.API_SUB_DIRECTORY);
+        String[] documentationFileNames = apiDocsDirectory.list(
+                (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
         );
 
-        // Adding the links in the home page to the mkdocs config
-        try {
-            updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationFilesList);
-        } catch (FileNotFoundException e) {
-            logger.warn("Unable to find mkdocs configuration file: " + mkdocsConfigFile.getAbsolutePath()
-                    + ". Mkdocs configuration file not updated.");
+        if (documentationFileNames != null) {
+            // Removing snapshot files and creating a list of the files that are left out
+            for (String documentationFileName : documentationFileNames) {
+                if (documentationFileName.endsWith(Constants.SNAPSHOT_VERSION_POSTFIX
+                        + Constants.MARKDOWN_FILE_EXTENSION)) {
+                    // Removing the snapshot documentation file
+                    File documentationFile = new File(apiDocsDirectory.getAbsolutePath()
+                            + File.separator + documentationFileName);
+                    if (!documentationFile.delete()) {
+                        logger.warn("Failed to delete SNAPSHOT documentation file "
+                                + documentationFile.getAbsolutePath());
+                    }
+                }
+            }
+
+            // Updating the links in the home page to the mkdocs config
+            try {
+                updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationBaseDirectory);
+            } catch (FileNotFoundException e) {
+                logger.warn("Unable to find mkdocs configuration file: "
+                        + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
+            }
         }
     }
 
     /**
      * This add a new page to the list of pages in the mkdocs configuration
      *
-     * @param mkdocsConfigFile    The mkdocs configuration file
-     * @param apiDirectoryContent The contents of the api directory
+     * @param mkdocsConfigFile           The mkdocs configuration file
+     * @param documentationBaseDirectory The base directory of the documentation
+     * @throws FileNotFoundException If mkdocs configuration file is not found
      */
-    private static void updateAPIPagesInMkdocsConfig(File mkdocsConfigFile, List<String> apiDirectoryContent)
-            throws MojoFailureException, FileNotFoundException {
+    public static void updateAPIPagesInMkdocsConfig(File mkdocsConfigFile, String documentationBaseDirectory)
+            throws FileNotFoundException {
+        // Retrieving the documentation file names
+        File documentationDirectory = new File(documentationBaseDirectory
+                + File.separator + Constants.API_SUB_DIRECTORY);
+        String[] documentationFiles = documentationDirectory.list(
+                (directory, fileName) -> fileName.endsWith(Constants.MARKDOWN_FILE_EXTENSION)
+        );
+
+        List<String> apiDirectoryContent;
+        if (documentationFiles == null) {
+            apiDirectoryContent = new ArrayList<>();
+        } else {
+            apiDirectoryContent = Arrays.asList(documentationFiles);
+            apiDirectoryContent.sort(String::compareTo);
+        }
+
         // Creating yaml parser
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(dumperOptions);
 
         // Reading the mkdocs configuration
-        Map<String, Object> yamlConfig;
-        yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
+        Map<String, Object> yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
                 new FileInputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
         );
 
@@ -287,6 +300,7 @@ public class DocumentationUtils {
      * @param extensionRepositoryOwner   The extension repository owner's name
      * @param documentationBaseDirectory The output directory path in which the extension index will be generated
      * @param extensionsIndexFileName    The name of the index file that will be generated
+     * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void createExtensionsIndex(List<String> extensionRepositories, String extensionRepositoryOwner,
                                              String documentationBaseDirectory, String extensionsIndexFileName)
@@ -317,21 +331,69 @@ public class DocumentationUtils {
     }
 
     /**
+     * Deploy the mkdocs website on GitHub pages
+     *
+     * @param mkdocsConfigFile The mkdocs configuration file
+     * @param version          The version of the documentation
+     * @param logger           The maven logger
+     */
+    public static void deployMkdocsOnGitHubPages(File mkdocsConfigFile, String version, Log logger) {
+        try {
+            executeCommand(new String[] {Constants.MKDOCS_COMMAND,
+                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND,
+                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT,
+                    mkdocsConfigFile.getAbsolutePath(),
+                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_MESSAGE_ARGUMENT,
+                    String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version)}, logger);
+        } catch (Throwable t) {
+            logger.warn("Failed to execute mkdocs gh-deploy. Skipping deployment of documentation.", t);
+        }
+    }
+
+    /**
+     * Commit the documentation directory and the mkdocs config file
+     *
+     * @param docsDirectory    The docs drectory
+     * @param mkdocsConfigFile The mkdocs configuration file
+     * @param readmeFile       The read me file
+     * @param version          The version of the documentation
+     * @param logger           The maven logger
+     */
+    public static void updateDocumentationOnGitHub(String docsDirectory, File mkdocsConfigFile, File readmeFile,
+                                                   String version, Log logger) {
+        try {
+            executeCommand(new String[] {Constants.GIT_COMMAND,
+                    Constants.GIT_ADD_COMMAND,
+                    docsDirectory}, logger);
+            executeCommand(new String[] {Constants.GIT_COMMAND,
+                    Constants.GIT_COMMIT_COMMAND,
+                    Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
+                    String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
+                    Constants.GIT_COMMIT_COMMAND_FILES_ARGUMENT,
+                    docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
+            executeCommand(new String[] {Constants.GIT_COMMAND,
+                    Constants.GIT_PUSH_COMMAND,
+                    Constants.GIT_PUSH_COMMAND_REMOTE,
+                    Constants.GIT_PUSH_COMMAND_REMOTE_BRANCH}, logger);
+        } catch (Throwable t) {
+            logger.warn("Failed to update the documentation on GitHub repository", t);
+        }
+    }
+
+    /**
      * Search for class files in the directory and add extensions from them
      * This method recursively searches the sub directories
      *
-     * @param directory             The directory from which the extension metadata will be loaded
-     * @param classesDirectoryPath  The absolute path to the classes directory in the target folder in the module
-     * @param urlClassLoader        The url class loader which should be used for loading the classes
-     * @param namespaceMetaDataList List of namespace meta data
-     * @param logger                The maven logger
-     * @throws MojoExecutionException If failed to
+     * @param moduleTargetClassesDirectory The directory from which the extension metadata will be loaded
+     * @param classesDirectoryPath         The absolute path to the classes directory in the target folder in the module
+     * @param urlClassLoader               The url class loader which should be used for loading the classes
+     * @param namespaceMetaDataList        List of namespace meta data
+     * @param logger                       The maven logger
      */
-    private static void addExtensionInDirectory(File directory, String classesDirectoryPath,
+    private static void addExtensionInDirectory(File moduleTargetClassesDirectory, String classesDirectoryPath,
                                                 ClassLoader urlClassLoader,
-                                                List<NamespaceMetaData> namespaceMetaDataList, Log logger)
-            throws MojoExecutionException {
-        File[] innerFiles = directory.listFiles();
+                                                List<NamespaceMetaData> namespaceMetaDataList, Log logger) {
+        File[] innerFiles = moduleTargetClassesDirectory.listFiles();
         if (innerFiles != null) {
             for (File innerFile : innerFiles) {
                 if (innerFile.isDirectory()) {
@@ -354,11 +416,9 @@ public class DocumentationUtils {
      * @param urlClassLoader        The url class loader which should be used for loading the classes
      * @param namespaceMetaDataList List of namespace meta data
      * @param logger                The maven logger
-     * @throws MojoExecutionException If failed to load class
      */
     private static void addExtensionInFile(File file, String classesDirectoryPath, ClassLoader urlClassLoader,
-                                           List<NamespaceMetaData> namespaceMetaDataList, Log logger)
-            throws MojoExecutionException {
+                                           List<NamespaceMetaData> namespaceMetaDataList, Log logger) {
         String filePath = file.getAbsolutePath();
         if (filePath.endsWith(Constants.CLASS_FILE_EXTENSION) &&
                 filePath.length() > classesDirectoryPath.length()) {
@@ -389,9 +449,7 @@ public class DocumentationUtils {
      * @param logger         The maven plugin logger
      */
     private static void addExtensionMetaDataIntoNamespaceList(List<NamespaceMetaData> namespaceList,
-                                                              Class<?> extensionClass,
-                                                              Log logger)
-            throws MojoExecutionException {
+                                                              Class<?> extensionClass, Log logger) {
         Extension extensionAnnotation = extensionClass.getAnnotation(Extension.class);
 
         if (extensionAnnotation != null) {      // Discarding extension classes without annotation
@@ -399,7 +457,7 @@ public class DocumentationUtils {
 
             // Finding extension type
             String extensionType = null;
-            for (Map.Entry<ExtensionType, Class<?>> entry : superClassMap.entrySet()) {
+            for (Map.Entry<ExtensionType, Class<?>> entry : ExtensionType.getSuperClassMap().entrySet()) {
                 Class<?> superClass = entry.getValue();
                 if (superClass.isAssignableFrom(extensionClass) && superClass != extensionClass) {
                     extensionType = entry.getKey().getValue();
@@ -513,7 +571,7 @@ public class DocumentationUtils {
      * @param outputFileName  The name of the file that will be generated
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    private static void generateFileFromTemplate(String templateFile, Object dataModel,
+    private static void generateFileFromTemplate(String templateFile, Map<String, Object> dataModel,
                                                  String outputDirectory, String outputFileName)
             throws MojoFailureException {
         // Creating the free marker configuration
@@ -525,25 +583,45 @@ public class DocumentationUtils {
                 File.separator + Constants.TEMPLATES_DIRECTORY
         );
 
+        // Adding the constants to the freemarker data model
+        Map<String, String> constantsClassFieldMap = new HashMap<>();
+        for (Field field : Constants.class.getDeclaredFields()) {
+            try {
+                constantsClassFieldMap.put(field.getName(), field.get(null).toString());
+            } catch (IllegalAccessException ignored) {  // Ignoring inaccessible variables
+            }
+        }
+        dataModel.put("CONSTANTS", constantsClassFieldMap);
+
+        // Adding the ExtensionType enum values to the freemarker data model
+        Map<String, String> extensionTypeEnumMap = new HashMap<>();
+        for (Field field : ExtensionType.class.getDeclaredFields()) {
+            try {
+                extensionTypeEnumMap.put(field.getName(), ((ExtensionType) field.get(null)).getValue());
+            } catch (IllegalAccessException ignored) {  // Ignoring inaccessible variables
+            }
+        }
+        dataModel.put("EXTENSION_TYPE", extensionTypeEnumMap);
+
         try {
             // Fetching the template
             Template template = cfg.getTemplate(templateFile);
 
             // Generating empty documentation files
-            File file = new File(outputDirectory + File.separator + outputFileName);
-            if (!file.getParentFile().exists()) {
-                if (!file.getParentFile().mkdirs()) {
-                    throw new MojoFailureException("Unable to create directory " + file.getParentFile());
+            File outputFile = new File(outputDirectory + File.separator + outputFileName);
+            if (!outputFile.getParentFile().exists()) {
+                if (!outputFile.getParentFile().mkdirs()) {
+                    throw new MojoFailureException("Unable to create directory " + outputFile.getParentFile());
                 }
             }
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    throw new MojoFailureException("Unable to create file " + file.getAbsolutePath());
+            if (!outputFile.exists()) {
+                if (!outputFile.createNewFile()) {
+                    throw new MojoFailureException("Unable to create file " + outputFile.getAbsolutePath());
                 }
             }
 
             // Writing to the documentation file
-            try (OutputStream outputStream = new FileOutputStream(file)) {
+            try (OutputStream outputStream = new FileOutputStream(outputFile)) {
                 try (Writer writer = new OutputStreamWriter(outputStream, Charset.defaultCharset())) {
                     template.process(dataModel, writer);
                 }
@@ -552,6 +630,39 @@ public class DocumentationUtils {
             }
         } catch (IOException e) {
             throw new MojoFailureException("Unable to find template file " + templateFile, e);
+        }
+    }
+
+    /**
+     * Executing a command
+     *
+     * @param command The command to be executed
+     * @param logger  The maven plugin logger
+     * @throws Throwable if any error occurs during the execution of the command
+     */
+    private static void executeCommand(String[] command, Log logger) throws Throwable {
+        logger.info("Executing: " + String.join(" ", command));
+        Process process = Runtime.getRuntime().exec(command);
+
+        // Logging the output of the command execution
+        InputStream[] inputStreams = new InputStream[] {process.getInputStream(), process.getErrorStream()};
+        BufferedReader bufferedReader = null;
+        try {
+            for (InputStream inputStream : inputStreams) {
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Constants.DEFAULT_CHARSET));
+                String commandOutput;
+                while (true) {
+                    commandOutput = bufferedReader.readLine();
+                    if (commandOutput == null) {
+                        break;
+                    }
+
+                    logger.info(commandOutput);
+                }
+            }
+            process.waitFor();
+        } finally {
+            IOUtils.closeQuietly(bufferedReader);
         }
     }
 }

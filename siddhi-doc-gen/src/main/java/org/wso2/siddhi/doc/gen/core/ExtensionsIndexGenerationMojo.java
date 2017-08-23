@@ -33,7 +33,11 @@ import java.util.List;
 /**
  * Mojo for creating an index Siddhi documentation
  */
-@Mojo(name = "generate-extensions-index", defaultPhase = LifecyclePhase.INSTALL)
+@Mojo(
+        name = "generate-extensions-index",
+        aggregator = true,
+        defaultPhase = LifecyclePhase.INSTALL
+)
 public class ExtensionsIndexGenerationMojo extends AbstractMojo {
     /**
      * The directory in which the documentation will be generated
@@ -44,13 +48,13 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
     /**
      * The extension repository owner
      */
-    @Parameter(property = "extension.repository.owner", defaultValue = "wso2-extensions")
+    @Parameter(property = "extension.repository.owner")
     private String extensionRepositoryOwner;
 
     /**
      * The extension repository names
      */
-    @Parameter(property = "extension.repositories")
+    @Parameter(property = "extension.repositories", required = true)
     private List<String> extensionRepositories;
 
     /**
@@ -68,31 +72,39 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Finding the root maven project
+        MavenProject rootMavenProject = mavenProject;
+        while (rootMavenProject.getParent().getBasedir() != null) {
+            rootMavenProject = rootMavenProject.getParent();
+        }
+
         // Checking if extension repositories and repository owner had been added in the configuration
         if (extensionRepositories == null || extensionRepositories.size() == 0) {
             throw new MojoExecutionException("extensionRepositories configuration is required to use goal " +
                     "generate-extensions-index");
         }
+
+        // Setting the extension repository owner if not set by the user
         if (extensionRepositoryOwner == null) {
             extensionRepositoryOwner = Constants.GITHUB_OWNER_WSO2_EXTENSIONS;
         }
 
         // Setting the documentation output directory if not set by user
-        String docGenPath;
+        String docGenBasePath;
         if (docGenBaseDirectory != null) {
-            docGenPath = docGenBaseDirectory.getAbsolutePath();
+            docGenBasePath = docGenBaseDirectory.getAbsolutePath();
         } else {
-            docGenPath = mavenProject.getParent().getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
+            docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
-        // Setting the documentation output file name if not set by user
+        // Setting the extension index output file name if not set by user
         if (indexGenFileName == null) {
             indexGenFileName = Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE;
         }
 
         // Creating a extensions index
         DocumentationUtils.createExtensionsIndex(
-                extensionRepositories, extensionRepositoryOwner, docGenPath, indexGenFileName
+                extensionRepositories, extensionRepositoryOwner, docGenBasePath, indexGenFileName
         );
     }
 }

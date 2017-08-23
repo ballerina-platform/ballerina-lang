@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.util.config;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,5 +42,16 @@ public class InMemoryConfigReader implements ConfigReader {
         } else {
             return defaultValue;
         }
+    }
+
+    @Override
+    public Map<String, String> getAllConfigs() {
+        Map<String, String> map = new HashMap<>();
+        for (Map.Entry<String, String> config : configs.entrySet()) {
+            if (config.getKey().startsWith(keyPrefix + ".")) {
+                map.put(config.getKey().replaceFirst(keyPrefix + ".", ""), config.getValue());
+            }
+        }
+        return map;
     }
 }

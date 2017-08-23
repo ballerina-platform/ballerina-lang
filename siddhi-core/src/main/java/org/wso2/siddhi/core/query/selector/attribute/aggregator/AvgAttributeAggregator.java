@@ -188,7 +188,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         @Override
         public void restoreState(Map<String, Object> state) {
             value = (double) state.get("Value");
-            count = (int) state.get("Count");
+            count = (long) state.get("Count");
         }
     }
 
@@ -240,7 +240,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         @Override
         public void restoreState(Map<String, Object> state) {
             value = (double) state.get("Value");
-            count = (int) state.get("Count");
+            count = (long) state.get("Count");
         }
     }
 
@@ -292,7 +292,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         @Override
         public void restoreState(Map<String, Object> state) {
             value = (double) state.get("Value");
-            count = (int) state.get("Count");
+            count = (long) state.get("Count");
         }
 
     }
@@ -345,7 +345,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         @Override
         public void restoreState(Map<String, Object> state) {
             value = (double) state.get("Value");
-            count = (int) state.get("Count");
+            count = (long) state.get("Count");
         }
 
     }

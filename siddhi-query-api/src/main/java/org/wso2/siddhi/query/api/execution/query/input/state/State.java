@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.state;
 
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
@@ -54,21 +55,39 @@ public class State {
         return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.OR, streamStateElement2, time);
     }
 
-    public static StateElement logicalNot(StreamStateElement notStreamStateElement,
-                                          TimeConstant time) {
-        return new LogicalStateElement(null, LogicalStateElement.Type.NOT, notStreamStateElement, time);
+    public static AbsentStreamStateElement logicalNot(StreamStateElement streamStateElement) {
+        if (streamStateElement.getBasicSingleInputStream().getStreamReferenceId() != null) {
+            throw new SiddhiAppValidationException("NOT pattern cannot have reference id but found " +
+                    streamStateElement.getBasicSingleInputStream().getStreamReferenceId());
+        }
+        return new AbsentStreamStateElement(streamStateElement.getBasicSingleInputStream());
     }
 
-    public static StateElement logicalNotAnd(StreamStateElement notStreamStateElement,
-                                             StreamStateElement andStreamStateElement,
-                                             TimeConstant time) {
-        return new LogicalStateElement(andStreamStateElement, LogicalStateElement.Type.NOT, notStreamStateElement,
-                time);
+    public static AbsentStreamStateElement logicalNot(StreamStateElement streamStateElement, TimeConstant time) {
+        if (streamStateElement.getBasicSingleInputStream().getStreamReferenceId() != null) {
+            throw new SiddhiAppValidationException("NOT pattern cannot have reference id but found " +
+                    streamStateElement.getBasicSingleInputStream().getStreamReferenceId());
+        }
+        return new AbsentStreamStateElement(streamStateElement.getBasicSingleInputStream(), time);
     }
 
-    public static StateElement logicalNotAnd(StreamStateElement notStreamStateElement,
-                                             StreamStateElement andStreamStateElement) {
-        return new LogicalStateElement(andStreamStateElement, LogicalStateElement.Type.NOT, notStreamStateElement);
+    public static StateElement logicalNotAnd(AbsentStreamStateElement streamStateElement1,
+                                             StreamStateElement streamStateElement2) {
+
+        if (streamStateElement2 instanceof AbsentStreamStateElement) {
+            // not A for 1 sec and not B for 1 sec
+            return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND,
+                    streamStateElement2);
+        }
+        if (streamStateElement1.getWaitingTime() == null) {
+            // not A and B
+            return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND,
+                    streamStateElement2);
+        } else {
+            // not A for 1 sec and B
+            return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND,
+                    streamStateElement2);
+        }
     }
 
     public static StateElement next(StateElement stateElement,
