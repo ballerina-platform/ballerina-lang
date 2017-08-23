@@ -36,6 +36,7 @@ class ClearOffset {
 
     beginVisit(node) {
         node.viewState.offSet = 0;
+        node.viewState.hidden = false;
     }
 
     endVisit(node) {
