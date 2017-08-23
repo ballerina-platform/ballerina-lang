@@ -50,8 +50,8 @@ class RetryStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
-                designer={this.designer}
-                mode={this.mode}
+                designer={this.props.designer}
+                mode={this.props.mode}
             />
         );
     }

@@ -55,7 +55,7 @@ class WorkerDeclaration extends React.Component {
         statementContainerBBoxClone.w += connectorOffset;
         const workerScopeContainerBBox = this.props.model.viewState.components.workerScopeContainer;
         const workerBBox = {};
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
         const nodeFactory = ASTFactory;
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;

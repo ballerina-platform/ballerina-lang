@@ -69,7 +69,7 @@ class ElseIfStatement extends React.Component {
             setterMethod: this.props.model.setConditionFromString,
         };
 
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
 
         const addElseIfBtn = (
             <g onClick={this.onAddElseIfClick}>

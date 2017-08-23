@@ -47,7 +47,7 @@ class TimeoutStatement extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.designer, this.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
         const props = this.props;
         const parameterBbox = this.props.model.viewState.components.param;
 

@@ -124,8 +124,8 @@ class ConnectorDeclaration extends React.Component {
                         viewState={model.viewState.components.statementViewState}
                         expression={connectorName}
                         editorOptions={this.editorOptions}
-                        designer={this.designer}
-                        mode={this.mode}
+                        designer={this.props.designer}
+                        mode={this.props.mode}
                     />
                 }
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
