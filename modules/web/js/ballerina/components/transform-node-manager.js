@@ -438,6 +438,7 @@ class TransformNodeManager {
                      node.removeChild(child, true);
                      node.addChild(variableDefinitionStatement, index, true);
                   } else if(BallerinaASTFactory.isAssignmentStatement(child)
+                              && BallerinaASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
                               && child.getRightExpression().getVariableName() == varName) {
                       child.removeChild(child.children[1], true);
                       const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
