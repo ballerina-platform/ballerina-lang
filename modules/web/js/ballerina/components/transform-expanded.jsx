@@ -633,7 +633,7 @@ class TransformExpanded extends React.Component {
                                 arg.constraint.packageName, arg.constraint.type);
                             if (constraintDef !== undefined) {
                                 const constraintVar = this.transformNodeManager.getStructType(
-                                    arg.name, variableType.type, constraintDef, 'vertex');
+                                    arg.name, variableType.type, constraintDef);
                                 // For constraint types, the field types must be the same type as the variable and
                                 // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
                                 // type has to be json and not string. Hence converting all field types to variable
