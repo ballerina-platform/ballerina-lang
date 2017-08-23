@@ -6,7 +6,7 @@ import ballerina.net.http;
 import ballerina.lang.messages;
 
 @http:configuration {basePath:"/hello"}
-service<http> HelloService {
+service<http> helloWorld {
 
     @http:resourceConfig {
         methods:["GET"],
