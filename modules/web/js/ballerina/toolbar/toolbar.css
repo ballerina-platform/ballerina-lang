@@ -1,38 +1,42 @@
 #toolbar-container {
-    background-color: #16191d;
-    height: 32px;
+    background-color: #3c3f41;
+    height: 30px;
     overflow: hidden;
-    line-height: 31px;
-    font-size: 12px;
-    border-width: 1px;
-    border-style: solid;
+    line-height: 30px;
+    font-size: 13px;
+    border-top: 1px solid #555;
+    border-bottom:1px solid #303334;
 }
 
 #toolbar-palette{
     float:left;
     color:#d0cfcf;
-    padding-left: 40px;
-    padding-right: 40px;
-    font-size: 12px;
+    padding-left: 4px;
+    padding-right: 20px;
+    font-size: 13px;
 }
 
 #toolbar-palette .toolbar-icons{
     float: left;
-    width:45px;
-    height:32px;
+    width:35px;
+    height:30px;
     text-align: center;
 }
 
-#toolbar-palette .internal-separator{
+.toolbar-icons i{
+    font-size: 13px;
+}
+
+.internal-separator{
     border-right-style: dashed;
     border-color: #363836;
 }
-#toolbar-palette .section-separator{
-    border-right-style: solid;
-    border-color: #363836;
+
+.section-separator{
+    border-right: 1px solid #6f6f6f;
 }
 .toolbar-icons:hover{
-    background-color: #3c3c3c;
+    background-color: #5A5C5E;
     cursor: pointer;
 }
 
@@ -51,7 +55,8 @@
     color: white;
     text-decoration: none;
     display: block;
-    height: 30px;
+    height: 24px;
+    line-height: 24px;
 }
 
 .show {display:block;}
@@ -64,7 +69,6 @@
 #toolbar-palette .list {
     list-style: none;
     padding: 0;
-    padding-top: 10px;
 }
 #toolbar-palette .link {
     padding-left: 10px;
@@ -77,9 +81,13 @@
 #toolbar-palette .btn-debug-action-toolbar{
     width:40px;
     margin:0px !important;
-    background-color: #333;
+    background-color: #3c3f41;
     color: white;
     font-size: 12px;
+}
+
+.btn-debug-action-toolbar:hover{
+    background-color: #5A5C5E;
 }
 
 #debugger-tools{
@@ -108,5 +116,5 @@
     margin-left: 5px;
     white-space: nowrap;
     float: left;
-    color: #545353;
+    color: #c7c7c7;
 }
