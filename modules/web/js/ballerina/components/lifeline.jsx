@@ -25,7 +25,7 @@ import * as DesignerDefaults from './../configs/designer-defaults';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import ReactDOM from 'react-dom';
 import ActionBox from './action-box';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import { SOURCE_VIEW } from './../views/ballerina-file-editor.jsx';
 import _ from 'lodash';
 

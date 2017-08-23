@@ -25,7 +25,7 @@ import './block-statement-decorator.css';
 import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import Breakpoint from './breakpoint';
 import breakpointHOC from './../../debugger/breakpoint-hoc';
 

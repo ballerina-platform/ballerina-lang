@@ -26,7 +26,7 @@ import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import { getComponentForNodeArray } from './utils';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
 
 /**

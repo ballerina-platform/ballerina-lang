@@ -21,7 +21,7 @@ import _ from 'lodash';
 import AssignmentStatementAST from './../ast/statements/assignment-statement';
 import MessageManager from './../visitors/message-manager';
 import DragDropManager from '../tool-palette/drag-drop-manager';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ASTFactory from '../ast/ast-factory';

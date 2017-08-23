@@ -27,7 +27,7 @@ import MessageManager from './../visitors/message-manager';
 import './statement-decorator.css';
 import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
-import ActiveArbiter from './active-arbiter';
+import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import breakpointHOC from './../../debugger/breakpoint-hoc';
 import ASTFactory from '../ast/ast-factory.js';
 
