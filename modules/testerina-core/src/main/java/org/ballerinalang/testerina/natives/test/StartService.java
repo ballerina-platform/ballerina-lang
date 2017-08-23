@@ -18,6 +18,7 @@
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -32,13 +33,15 @@ import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.core.TesterinaUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
@@ -125,40 +128,58 @@ public class StartService extends AbstractNativeFunction {
     private void startService(ProgramFile programFile, ServiceInfo matchingService) {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
 
+        if (!programFile.isServiceEPAvailable()) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
+
+        // Get the service package
+        PackageInfo servicesPackage = programFile.getEntryPackage();
+        if (servicesPackage == null) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
+
+        // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
         bContext.disableNonBlocking = true;
 
-        PackageInfo packageInfo = matchingService.getPackageInfo();
+        // Invoke package init function
+        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
 
-        BLangFunctions.invokeFunction(programFile, packageInfo.getInitFunctionInfo(), bContext);
-        BLangFunctions.invokeFunction(programFile, matchingService.getInitFunctionInfo(), bContext);
-        DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                                                                                 dispatcher.serviceRegistered(
-                                                                                         matchingService));
+        int serviceCount = 0;
+            // Invoke service init function
+            bContext.setServiceInfo(matchingService);
+            BLangFunctions.invokeFunction(programFile, matchingService.getInitFunctionInfo(), bContext);
+            if (bContext.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
+
+            if (!DispatcherRegistry.getInstance().protocolPkgExist(matchingService.getProtocolPkgPath())) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
+                        matchingService.getProtocolPkgPath());
+            }
+            // Deploy service
+            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(matchingService.getProtocolPkgPath())
+                    .serviceRegistered(matchingService);
+            serviceCount++;
+
+        if (serviceCount == 0) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
 
         try {
             List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance()
                     .startPendingConnectors();
-            clearPendingConnectors();
-            startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " 
-                    + serverConnector));
+            startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
+                    serverConnector));
+
+            // Starting up HTTP Server connectors
+            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
+                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
+            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
+                    serverConnector));
         } catch (ServerConnectorException e) {
             throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Temporary fix until we have a ballerina release with this fix
-     * https://github.com/ballerinalang/ballerina/pull/1962
-     *
-     */
-    private void clearPendingConnectors() {
-        try {
-            List startupDelayedServerConnectors = TesterinaUtils
-                    .getField(BallerinaConnectorManager.getInstance(), "startupDelayedServerConnectors", List.class);
-            startupDelayedServerConnectors.clear();
-        } catch (NoSuchFieldException e) {
-            //ignore
         }
     }
 

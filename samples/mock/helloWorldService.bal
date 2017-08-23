@@ -7,8 +7,10 @@ import ballerina.net.http;
 service<http> helloWorld {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
 
-    @http:GET{}
-    @http:Path{ value: "/"}
+    @http:resourceConfig{
+        methods:["GET"],
+        path:"/"
+    }
     resource sayHello(message m) {
         string action1;
         message beRep = {};
