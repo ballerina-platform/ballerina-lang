@@ -19,22 +19,20 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.ImportPackageNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BLangImportPackage extends BLangNode implements ImportPackageNode {
+    
     public List<BLangIdentifier> nameComps;
     public BLangIdentifier version;
     public BLangIdentifier alias;
 
-    public BLangImportPackage(List<BLangIdentifier> nameComps,
-                              BLangIdentifier version,
-                              BLangIdentifier alias) {
-        this.nameComps = nameComps;
-        this.version = version;
-        this.alias = alias;
+    public BLangImportPackage() {
+        this.nameComps = new ArrayList<>();
     }
 
     @Override
@@ -56,4 +54,5 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+    
 }

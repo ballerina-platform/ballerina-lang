@@ -18,8 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.VariableNode;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,19 +32,16 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangStruct extends BLangNode implements StructNode {
+    
     public BLangIdentifier name;
     public List<BLangVariable> fields;
-    public long flags;
+    public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BLangStruct(BLangIdentifier name,
-                       List<BLangVariable> fields,
-                       long flags,
-                       List<BLangAnnotationAttachment> annAttachments) {
-        this.name = name;
-        this.fields = fields;
-        this.flags = flags;
-        this.annAttachments = annAttachments;
+    public BLangStruct() {
+        this.fields = new ArrayList<>();
+        this.flags = new HashSet<>();
+        this.annAttachments = new ArrayList<>();
     }
 
     @Override
@@ -51,19 +53,40 @@ public class BLangStruct extends BLangNode implements StructNode {
     public List<BLangVariable> getFields() {
         return fields;
     }
+    
+    @Override
+    public void addField(VariableNode var) {
+        this.getFields().add((BLangVariable) var);
+    }
 
     @Override
     public Set<Flag> getFlags() {
-        return null;
+        return flags;
     }
 
     @Override
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
+    
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
+    }
+
+    @Override
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
+    }
+    
 }

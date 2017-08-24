@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -27,11 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
  * @since 0.94
  */
 public class BLangVariableDef extends BLangStatement implements VariableDefinitionNode {
+    
     public BLangVariable var;
-
-    public BLangVariableDef(BLangVariable variable) {
-        this.var = variable;
-    }
 
     @Override
     public BLangVariable getVariable() {
@@ -42,4 +40,10 @@ public class BLangVariableDef extends BLangStatement implements VariableDefiniti
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void setVariable(VariableNode var) {
+        this.var = (BLangVariable) var;
+    }
+    
 }

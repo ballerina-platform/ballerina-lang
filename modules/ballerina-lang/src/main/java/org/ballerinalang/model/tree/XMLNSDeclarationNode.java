@@ -21,7 +21,13 @@ package org.ballerinalang.model.tree;
  * @since 0.94
  */
 public interface XMLNSDeclarationNode extends Node {
+    
     IdentifierNode getNamespaceURI();
+    
+    void setNamespaceURI(IdentifierNode namespaceURI);
 
     IdentifierNode getPrefix();
+    
+    void setPrefix(IdentifierNode prefix);
+    
 }

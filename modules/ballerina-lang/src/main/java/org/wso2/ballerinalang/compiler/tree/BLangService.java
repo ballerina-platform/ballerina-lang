@@ -18,8 +18,14 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.VariableNode;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,56 +33,79 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangService extends BLangNode implements ServiceNode {
+    
     public BLangIdentifier name;
     public BLangIdentifier protocolPkgIdentifier;
     public List<BLangVariable> vars;
     public List<BLangResource> resources;
-    public long flags;
+    public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-
-    public BLangService(BLangIdentifier name,
-                        BLangIdentifier protocolPkgIdentifier,
-                        List<BLangVariable> vars,
-                        List<BLangResource> resources,
-                        long flags,
-                        List<BLangAnnotationAttachment> annAttachments) {
-        this.name = name;
-        this.protocolPkgIdentifier = protocolPkgIdentifier;
-        this.vars = vars;
-        this.resources = resources;
-        this.flags = flags;
-        this.annAttachments = annAttachments;
+    public BLangService() {
+        this.vars = new ArrayList<>();
+        this.resources = new ArrayList<>();
+        this.flags = new HashSet<>();
+        this.annAttachments = new ArrayList<>();
     }
-
+    
     @Override
     public BLangIdentifier getName() {
         return name;
+    }
+    
+    @Override
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
     }
 
     @Override
     public BLangIdentifier getProtocolPackageIdentifier() {
         return protocolPkgIdentifier;
     }
+    
+    @Override
+    public void setProtocolPackageIdentifier(IdentifierNode protocolPkgIdentifier) {
+        this.protocolPkgIdentifier = (BLangIdentifier) protocolPkgIdentifier;
+    }
 
     @Override
     public List<BLangVariable> getVariables() {
         return vars;
+    }
+    
+    @Override
+    public void addVariable(VariableNode var) {
+        this.getVariables().add((BLangVariable) var);
     }
 
     @Override
     public List<BLangResource> getResources() {
         return resources;
     }
+    
+    @Override
+    public void addResource(ResourceNode resource) {
+        this.getResources().add((BLangResource) resource);
+    }
 
     @Override
     public Set<Flag> getFlags() {
         return null;
     }
+    
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
+    }
 
     @Override
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
+    }
+    
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
 
     @Override

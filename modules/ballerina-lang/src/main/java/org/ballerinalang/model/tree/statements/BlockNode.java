@@ -23,5 +23,9 @@ import java.util.List;
  * @since 0.94
  */
 public interface BlockNode extends StatementNode {
+    
     List<? extends StatementNode> getStatements();
+    
+    void addStatement(StatementNode statement);
+    
 }

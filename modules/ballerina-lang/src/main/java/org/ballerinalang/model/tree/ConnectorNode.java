@@ -23,11 +23,21 @@ import java.util.List;
  * @since 0.94
  */
 public interface ConnectorNode extends AnnotatableNode {
+    
     IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
     List<? extends VariableNode> getParameters();
+    
+    void addParameter(VariableNode param);
 
     List<? extends VariableNode> getVariables();
+    
+    void addVariable(VariableNode var);
 
     List<? extends ActionNode> getActions();
+    
+    void addAction(ActionNode action);
+    
 }

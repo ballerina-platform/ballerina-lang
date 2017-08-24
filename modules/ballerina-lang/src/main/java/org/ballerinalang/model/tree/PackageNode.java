@@ -23,9 +23,14 @@ import java.util.List;
  * @since 0.94
  */
 public interface PackageNode extends Node {
+    
     List<? extends IdentifierNode> getNameComponents();
+    
+    void addNameComponent(IdentifierNode nameComponent);
 
     IdentifierNode getVersion();
+    
+    void setVersion(IdentifierNode version);
 
     // We also need to main the list of files..
 
@@ -44,4 +49,5 @@ public interface PackageNode extends Node {
     List<? extends StructNode> getStructs();
 
     List<? extends AnnotationNode> getAnnotations();
+    
 }

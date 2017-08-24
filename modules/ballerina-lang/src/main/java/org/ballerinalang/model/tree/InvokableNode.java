@@ -25,11 +25,21 @@ import java.util.List;
  * @since 0.94
  */
 public interface InvokableNode extends AnnotatableNode {
+    
     IdentifierNode getName();
 
+    void setName(IdentifierNode name);
+    
     List<? extends VariableNode> getParameters();
-
+    
+    void addParameter(VariableNode param);
+    
     List<? extends VariableNode> getReturnParameters();
-
+    
+    void addReturnParameter(VariableNode retParam);
+    
     BlockNode getBody();
+    
+    void setBody(BlockNode body);
+    
 }

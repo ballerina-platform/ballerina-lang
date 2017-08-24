@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
@@ -33,13 +34,22 @@ public class BLangPackageBuilder {
     
     private Stack<TypeNode> typeNodeStack = new Stack<>();
     
+    //private Stack<BlockNode> blockNodeStack = new Stack<>();
+    
+    //private InvokableNode currentInvokableNode;
+        
     public BLangPackageBuilder(PackageNode pkgNode) {
         //this.pkgNode = pkgNode;
     }
     
     public void addValueType(String valueType) {
-        ValueTypeNode valueTypeNode = TreeBuilder.createValueTypeNode(valueType);
+        ValueTypeNode valueTypeNode = TreeBuilder.createValueTypeNode();
+        valueTypeNode.setTypeKind(TreeUtils.stringToTypeKind(valueType));
         this.typeNodeStack.push(valueTypeNode);
+    }
+    
+    public void startFunctionDef() {
+        //this.currentInvokableNode = TreeBuilder.createFunctionNode();
     }
     
 }

@@ -23,5 +23,9 @@ import org.ballerinalang.model.elements.TypeKind;
  * @since 0.94
  */
 public interface ValueTypeNode extends TypeNode {
+    
     TypeKind getTypeKind();
+    
+    void setTypeKind(TypeKind typeKind);
+    
 }

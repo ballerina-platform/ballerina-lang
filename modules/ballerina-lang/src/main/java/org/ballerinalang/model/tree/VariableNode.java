@@ -24,9 +24,17 @@ import org.ballerinalang.model.tree.types.TypeNode;
  * @since 0.94
  */
 public interface VariableNode extends AnnotatableNode {
+    
     TypeNode getType();
+    
+    void setType(TypeNode type);
 
     IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
     ExpressionNode getInitialExpression();
+    
+    void setInitialExpression(ExpressionNode expr);
+    
 }

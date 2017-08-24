@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.elements.TypeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
@@ -30,14 +31,32 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.management.PlatformLoggingMXBean;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This contains model tree related utility functions. 
  */
 public class TreeUtils {
+    
+    private static Map<String, TypeKind> stringTypeKindMap = new HashMap<>();
+    
+    static {
+        stringTypeKindMap.put("int", TypeKind.INT);
+        stringTypeKindMap.put("float", TypeKind.FLOAT);
+        stringTypeKindMap.put("boolean", TypeKind.BOOLEAN);
+        stringTypeKindMap.put("string", TypeKind.STRING);
+        stringTypeKindMap.put("blob", TypeKind.BLOB);
+        stringTypeKindMap.put("json", TypeKind.JSON);
+        stringTypeKindMap.put("xml", TypeKind.XML);
+        stringTypeKindMap.put("datatable", TypeKind.DATATABLE);
+    }
 
     public static PackageNode loadPackageModel(PackageSourceRepository repo, PackageID pkgID) {
-        PackageNode pkgNode = TreeBuilder.createPackageNode(pkgID.getNameComps(), pkgID.getVersion());
+        PackageNode pkgNode = TreeBuilder.createPackageNode();
+        pkgNode.setVersion(pkgID.getVersion());
+        pkgID.getNameComps().stream().forEach(e -> pkgNode.addNameComponent(e));
         PackageSource pkgSource = repo.getPackageSource(pkgID);
         if (pkgSource == null) {
             return null;
@@ -59,6 +78,10 @@ public class TreeUtils {
         } catch (IOException e) {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
         }
+    }
+    
+    public static TypeKind stringToTypeKind(String typeName) {
+        return stringTypeKindMap.get(typeName);
     }
     
 }

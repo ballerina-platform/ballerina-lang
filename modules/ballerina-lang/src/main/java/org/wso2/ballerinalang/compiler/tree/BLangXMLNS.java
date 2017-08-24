@@ -17,19 +17,16 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 
 /**
  * @since 0.94
  */
 public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
+    
     public BLangIdentifier namespaceURI;
     public BLangIdentifier prefix;
-
-    public BLangXMLNS(BLangIdentifier namespaceURI, BLangIdentifier prefix) {
-        this.namespaceURI = namespaceURI;
-        this.prefix = prefix;
-    }
 
     @Override
     public BLangIdentifier getNamespaceURI() {
@@ -45,4 +42,15 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void setNamespaceURI(IdentifierNode namespaceURI) {
+        this.namespaceURI = (BLangIdentifier) namespaceURI;
+    }
+
+    @Override
+    public void setPrefix(IdentifierNode prefix) {
+        this.prefix = (BLangIdentifier) prefix;
+    }
+    
 }

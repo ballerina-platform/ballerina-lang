@@ -24,14 +24,17 @@ import org.ballerinalang.model.tree.types.ValueTypeNode;
  * @since 0.94
  */
 public class BLangValueType extends BLangType implements ValueTypeNode {
+    
     public TypeKind typeKind;
-
-    public BLangValueType(TypeKind typeKind) {
-        this.typeKind = typeKind;
-    }
 
     @Override
     public TypeKind getTypeKind() {
         return typeKind;
     }
+
+    @Override
+    public void setTypeKind(TypeKind typeKind) {
+        this.typeKind = typeKind;
+    }
+    
 }

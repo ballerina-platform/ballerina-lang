@@ -25,5 +25,9 @@ import org.ballerinalang.model.tree.VariableNode;
  * @since 0.94
  */
 public interface VariableDefinitionNode extends StatementNode {
+    
     VariableNode getVariable();
+    
+    void setVariable(VariableNode var);
+    
 }

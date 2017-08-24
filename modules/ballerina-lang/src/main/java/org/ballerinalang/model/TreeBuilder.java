@@ -17,39 +17,29 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,60 +49,44 @@ import java.util.List;
  */
 public class TreeBuilder {
 
-    @SuppressWarnings("unchecked")
-    public static PackageNode createPackageNode(List<? extends IdentifierNode> nameComps, IdentifierNode version) {
-        return new BLangPackage((List<BLangIdentifier>) nameComps, (BLangIdentifier) version, 
-                new ArrayList<BLangImportPackage>(), new ArrayList<BLangXMLNS>(), new ArrayList<BLangVariable>(), 
-                new ArrayList<BLangService>(), new ArrayList<BLangConnector>(), new ArrayList<BLangFunction>(), 
-                new ArrayList<BLangStruct>(), new ArrayList<BLangAnnotation>());
+    public static PackageNode createPackageNode() {
+        return new BLangPackage();
     }
     
-    public static IdentifierNode createIdentifierNode(String value, boolean isLiteral) {
-        return new BLangIdentifier(value, isLiteral);
+    public static IdentifierNode createIdentifierNode() {
+        return new BLangIdentifier();
     }
     
-    @SuppressWarnings("unchecked")
-    public static ImportPackageNode createImportPackageNode(List<? extends IdentifierNode> nameComps,
-            IdentifierNode version, IdentifierNode alias) {
-        return new BLangImportPackage((List<BLangIdentifier>) nameComps, 
-                (BLangIdentifier) version, (BLangIdentifier) alias);
+    public static ImportPackageNode createImportPackageNode() {
+        return new BLangImportPackage();
     }
     
-    public static XMLNSDeclarationNode createXMLNSNode(IdentifierNode namespaceURI, IdentifierNode prefix) {
-        return new BLangXMLNS((BLangIdentifier) namespaceURI, (BLangIdentifier) prefix);
+    public static XMLNSDeclarationNode createXMLNSNode() {
+        return new BLangXMLNS();
     }
     
-    @SuppressWarnings("unchecked")
-    public static VariableNode createVariableNode(TypeNode type, IdentifierNode name, 
-            ExpressionNode expr, long flags, List<? extends AnnotationAttachmentNode> annAttachments) {
-        return new BLangVariable((BLangType) type, (BLangIdentifier) name, (BLangExpression) expr, flags, 
-                (List<BLangAnnotationAttachment>) annAttachments);
+    public static VariableNode createVariableNode() {
+        return new BLangVariable();
     }
     
-    @SuppressWarnings("unchecked")
-    public static FunctionNode createFunctionNode(IdentifierNode name, List<? extends VariableNode> params, 
-            List<? extends VariableNode> retParams, BlockNode body, long flags, 
-            List<? extends AnnotationAttachmentNode> annAttachments) {
-        return new BLangFunction((BLangIdentifier) name, (List<BLangVariable>) params, 
-                (List<BLangVariable>) retParams, (BLangBlockStmt) body, flags, 
-                (List<BLangAnnotationAttachment>) annAttachments);
+    public static FunctionNode createFunctionNode() {
+        return new BLangFunction();
     }
     
-    @SuppressWarnings("unchecked")
-    public static BlockNode createBlockNode(List<? extends StatementNode> statements) {
-        return new BLangBlockStmt((List<BLangStatement>) statements);
+    public static BlockNode createBlockNode() {
+        return new BLangBlockStmt();
     }
     
-    public static LiteralNode createLiteralExpression(Object value) {
-        return new BLangLiteral(value);
+    public static LiteralNode createLiteralExpression() {
+        return new BLangLiteral();
     }
     
-    public static VariableDefinitionNode createVariableDefinitionNode(VariableNode variable) {
-        return new BLangVariableDef((BLangVariable) variable);
+    public static VariableDefinitionNode createVariableDefinitionNode() {
+        return new BLangVariableDef();
     }
     
-    public static ValueTypeNode createValueTypeNode(String valueType) {
-        return null;
+    public static ValueTypeNode createValueTypeNode() {
+        return new BLangValueType();
     }
     
 }

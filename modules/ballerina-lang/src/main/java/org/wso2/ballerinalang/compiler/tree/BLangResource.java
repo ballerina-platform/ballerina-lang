@@ -18,23 +18,11 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.ResourceNode;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-
-import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BLangResource extends BLangInvokable implements ResourceNode {
-
-    public BLangResource(BLangIdentifier name,
-                         List<BLangVariable> params,
-                         List<BLangVariable> retParams,
-                         BLangBlockStmt body,
-                         long flags,
-                         List<BLangAnnotationAttachment> annAttachments) {
-        super(name, params, retParams, body, flags, annAttachments);
-    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

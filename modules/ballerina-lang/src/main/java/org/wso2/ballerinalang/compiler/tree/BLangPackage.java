@@ -20,12 +20,14 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.PackageNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
+    
     public List<BLangIdentifier> nameComps;
     public BLangIdentifier version;
     public List<BLangImportPackage> imports;
@@ -37,30 +39,20 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStruct> structs;
     public List<BLangAnnotation> annotations;
 
-    public BLangPackage(List<BLangIdentifier> nameComps,
-                        BLangIdentifier version,
-                        List<BLangImportPackage> imports,
-                        List<BLangXMLNS> xmlnsList,
-                        List<BLangVariable> globalVars,
-                        List<BLangService> services,
-                        List<BLangConnector> connectors,
-                        List<BLangFunction> functions,
-                        List<BLangStruct> structs,
-                        List<BLangAnnotation> annotations) {
-        this.nameComps = nameComps;
-        this.version = version;
-        this.imports = imports;
-        this.xmlnsList = xmlnsList;
-        this.globalVars = globalVars;
-        this.services = services;
-        this.connectors = connectors;
-        this.functions = functions;
-        this.structs = structs;
-        this.annotations = annotations;
+    public BLangPackage() {
+        this.nameComps = new ArrayList<>();
+        this.imports = new ArrayList<>();
+        this.xmlnsList = new ArrayList<>();
+        this.globalVars = new ArrayList<>();
+        this.services = new ArrayList<>();
+        this.connectors = new ArrayList<>();
+        this.functions = new ArrayList<>();
+        this.structs = new ArrayList<>();
+        this.annotations = new ArrayList<>();
     }
 
     @Override
-    public List<? extends IdentifierNode> getNameComponents() {
+    public List<BLangIdentifier> getNameComponents() {
         return nameComps;
     }
 
@@ -113,4 +105,15 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void addNameComponent(IdentifierNode nameComponent) {
+        this.getNameComponents().add((BLangIdentifier) nameComponent);
+    }
+
+    @Override
+    public void setVersion(IdentifierNode version) {
+        this.version = (BLangIdentifier) version;
+    }
+    
 }

@@ -23,11 +23,21 @@ import java.util.List;
  * @since 0.94
  */
 public interface ServiceNode extends AnnotatableNode {
+    
     IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
     IdentifierNode getProtocolPackageIdentifier();
+    
+    void setProtocolPackageIdentifier(IdentifierNode protocolPkgIdentifier);
 
     List<? extends VariableNode> getVariables();
+    
+    void addVariable(VariableNode var);
 
     List<? extends ResourceNode> getResources();
+    
+    void addResource(ResourceNode resource);
+    
 }

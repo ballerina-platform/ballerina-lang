@@ -23,7 +23,13 @@ import java.util.List;
  * @since 0.94
  */
 public interface StructNode extends AnnotatableNode {
+    
     IdentifierNode getName();
+    
+    public void setName(IdentifierNode name);
 
     List<? extends VariableNode> getFields();
+    
+    void addField(VariableNode field);
+    
 }

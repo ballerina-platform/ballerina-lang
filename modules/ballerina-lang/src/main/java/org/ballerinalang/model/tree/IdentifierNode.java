@@ -21,7 +21,13 @@ package org.ballerinalang.model.tree;
  * @since 0.94
  */
 public interface IdentifierNode {
+    
     String getValue();
+    
+    void setValue(String value);
 
     boolean isLiteral();
+    
+    void setLiteral(boolean isLiteral);
+    
 }

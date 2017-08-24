@@ -27,6 +27,10 @@ import java.util.Set;
  */
 public interface AnnotatableNode extends Node {
     Set<? extends Flag> getFlags();
+    
+    void addFlag(Flag flag);
 
     List<? extends AnnotationAttachmentNode> getAnnotationAttachments();
+    
+    void addAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 }

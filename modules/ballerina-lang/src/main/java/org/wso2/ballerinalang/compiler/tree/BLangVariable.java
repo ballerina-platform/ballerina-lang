@@ -18,10 +18,15 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,22 +34,15 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangVariable extends BLangNode implements VariableNode {
+    
     public BLangType type;
     public BLangIdentifier name;
     public BLangExpression expr;
-    public long flags;
+    public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BLangVariable(BLangType type,
-                         BLangIdentifier name,
-                         BLangExpression expr,
-                         long flags,
-                         List<BLangAnnotationAttachment> annAttachments) {
-        this.type = type;
-        this.name = name;
-        this.expr = expr;
-        this.flags = flags;
-        this.annAttachments = annAttachments;
+    public BLangVariable() {
+        this.annAttachments = new ArrayList<>();
     }
 
     @Override
@@ -64,8 +62,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
 
     @Override
     public Set<Flag> getFlags() {
-        // Convert flags long value to a set of Flags
-        return null;
+        return flags;
     }
 
     @Override
@@ -77,4 +74,30 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.flags.add(flag);
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
+    }
+
+    @Override
+    public void setType(TypeNode type) {
+        this.type = (BLangType) type;
+    }
+
+    @Override
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
+    }
+
+    @Override
+    public void setInitialExpression(ExpressionNode expr) {
+        this.expr = (BLangExpression) expr;
+    }
+    
 }

@@ -21,5 +21,9 @@ package org.ballerinalang.model.tree.expressions;
  * @since 0.94
  */
 public interface LiteralNode extends ExpressionNode {
+    
     Object getValue();
+    
+    void setValue(Object value);
+    
 }

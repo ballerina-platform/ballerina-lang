@@ -23,26 +23,32 @@ import org.ballerinalang.model.tree.IdentifierNode;
  * @since 0.94
  */
 public class BLangIdentifier extends BLangNode implements IdentifierNode {
+    
     public String value;
     public boolean isLiteral;
-
-    public BLangIdentifier(String value, boolean isLiteral) {
-        this.value = value;
-        this.isLiteral = isLiteral;
-    }
 
     @Override
     public String getValue() {
         return value;
+    }
+    
+    @Override
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public boolean isLiteral() {
         return isLiteral;
     }
+    
+    public void setLiteral(boolean isLiteral) {
+        this.isLiteral = isLiteral;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+    
 }

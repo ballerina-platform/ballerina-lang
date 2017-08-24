@@ -18,8 +18,14 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.VariableNode;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,51 +37,75 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangVariable> params;
     public List<BLangVariable> vars;
     public List<BLangAction> actions;
-    public long flags;
+    public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BLangConnector(BLangIdentifier name,
-                          List<BLangVariable> params,
-                          List<BLangVariable> vars,
-                          List<BLangAction> actions,
-                          long flags,
-                          List<BLangAnnotationAttachment> annAttachments) {
-        this.name = name;
-        this.params = params;
-        this.vars = vars;
-        this.actions = actions;
-        this.flags = flags;
-        this.annAttachments = annAttachments;
+    public BLangConnector() {
+        this.params = new ArrayList<>();
+        this.vars = new ArrayList<>();
+        this.actions = new ArrayList<>();
+        this.flags = new HashSet<>();
+        this.annAttachments = new ArrayList<>();
     }
 
     @Override
     public BLangIdentifier getName() {
         return name;
     }
+    
+    @Override
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
+    }
 
     @Override
     public List<BLangVariable> getParameters() {
         return params;
+    }
+    
+    @Override
+    public void addParameter(VariableNode param) {
+        this.getParameters().add((BLangVariable) param);
     }
 
     @Override
     public List<BLangVariable> getVariables() {
         return vars;
     }
+    
+    @Override
+    public void addVariable(VariableNode var) {
+        this.getVariables().add((BLangVariable) var);
+    }
 
     @Override
     public List<BLangAction> getActions() {
         return actions;
     }
+    
+    @Override
+    public void addAction(ActionNode action) {
+        this.getActions().add((BLangAction) action);
+    }
 
     @Override
     public Set<Flag> getFlags() {
-        return null;
+        return flags;
+    }
+    
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
     }
 
     @Override
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
+    }
+    
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
     }
 
     @Override
