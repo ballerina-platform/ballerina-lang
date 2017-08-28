@@ -65,5 +65,5 @@ Now that you have added a service, you must set up this service so that it can b
 1. Add an annotation to the service itself by clicking the label in the service and selecting `ballerina.net.http` from the dropdown.
 
     ![alt text](../images/AddAnnotation2.png)
-1. Add a path
+1. Add a HTTP Path from the dropdown that appears.
     ![alt text](../images/AddPath.png)
