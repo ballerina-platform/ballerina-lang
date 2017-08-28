@@ -73,5 +73,10 @@ Now that you have added a service, you must set up this service so that it can b
 
 ## View the Swagger definition for your service
 
-1. Click the Swagger definition icon on the right of your service.
+If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
+
+1. Click the Swagger definition icon on the right of your service to view the Swagger definition. You can switch back to the **Design View** or **Source View** by clicking the buttons at the bottom right of your screen.
     ![alt text](../images/SwaggerView.png)
+    The Swagger UI Editor provides numerous usage options to easily interact with APIs.
+    ![alt text](../images/SwaggerUI.png)
+1. 
