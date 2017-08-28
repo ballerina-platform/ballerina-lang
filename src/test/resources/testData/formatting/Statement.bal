@@ -3,18 +3,34 @@
 function test () {
 
      iterate     (       string         s       :      list      )      {
-
+         // test
            }
 
        while       (    a        !=         null        )        {
-
-        if      (        a       >         10      )     {
-                 continue        ;
-        } else      {
-                     break       ;
-        }
-
+           // test
+            if  (a  >   10  ) {
+           // test
+                 continue;
+           }    else if  (a == 10) {
+           // test
+               break;
+           }    else    {
+           // test
+               break;
+           }
+           // test
       }
+
+     try    {
+         // test
+         string  s = "10";
+         var    i, _     = (string)s;
+         // test
+     }  catch     (errors:Error e) {
+     // test
+     }   finally    {
+     // test
+     }
 
      throw           exception         ;
 

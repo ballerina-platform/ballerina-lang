@@ -143,7 +143,8 @@ public class BallerinaAnnotator implements Annotator {
 
             AnnotationAttributeNode annotationAttributeNode = PsiTreeUtil.getParentOfType(element,
                     AnnotationAttributeNode.class);
-            if (annotationAttributeNode != null) {
+            boolean canHighlightParameters = canHighlightParameters(element);
+            if (canHighlightParameters && annotationAttributeNode != null) {
                 // Annotate query parameters in annotation attachments.
                 matcher = QUERY_PARAMETERS_PATTERN.matcher(text);
                 // Get the start offset of the element.
@@ -175,7 +176,7 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
 
-            if (annotationAttributeNode != null) {
+            if (canHighlightParameters && annotationAttributeNode != null) {
                 // Annotate query parameters in annotation attachments.
                 matcher = PATH_PARAMETERS_PATTERN.matcher(text);
                 // Get the start offset of the element.
@@ -226,6 +227,39 @@ public class BallerinaAnnotator implements Annotator {
         } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_START) {
             annotateStringLiteral(element, holder);
         }
+    }
+
+    /**
+     * Checks whether the query,path parameters can be highlighted in the given element.
+     *
+     * @param element element which needs to be checked
+     * @return {@code true} if parameters can be highlighted, {@code false} otherwise.
+     */
+    private boolean canHighlightParameters(@NotNull PsiElement element) {
+        AnnotationAttributeNode annotationAttributeNode = PsiTreeUtil.getParentOfType(element,
+                AnnotationAttributeNode.class);
+        if (annotationAttributeNode == null) {
+            return false;
+        }
+        AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(annotationAttributeNode,
+                AnnotationAttachmentNode.class);
+        if (annotationAttachmentNode == null) {
+            return false;
+        }
+        AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.getChildOfType(annotationAttachmentNode,
+                AnnotationReferenceNode.class);
+        if (annotationReferenceNode == null) {
+            return false;
+        }
+        IdentifierPSINode annotationName = PsiTreeUtil.getChildOfType(annotationReferenceNode,
+                IdentifierPSINode.class);
+        if (annotationName == null) {
+            return false;
+        }
+        if ("resourceConfig".equals(annotationName.getText())) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isMatchingParamAvailable(@NotNull AnnotationAttributeNode annotationAttributeNode,

@@ -260,11 +260,13 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         PsiElement namedIdentifierDefNode = null;
 
         if (parent instanceof ExpressionListNode || parent instanceof FunctionInvocationStatementNode
-                || parent instanceof ConnectorInitExpressionNode || parent instanceof ExpressionNode) {
+                || parent instanceof ExpressionNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
         } else if (parent instanceof NameReferenceNode || parent instanceof FunctionReferenceNode
                 || parent instanceof ConnectorReferenceNode || parent instanceof ActionInvocationNode) {
             namedIdentifierDefNode = parent;
+        } else if (parent instanceof ConnectorInitExpressionNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, ConnectorReferenceNode.class);
         }
 
         PsiElement nameIdentifier = null;
@@ -292,10 +294,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 isResolved = true;
                 // Resolved element will be the identifier of the function node. So we get the parent
                 // node (FunctionDefinitionNode).
-                PsiElement functionNode = resolvedElement.getParent();
+                PsiElement definitionNode = resolvedElement.getParent();
                 // Since we need the ParameterListNode, search for ParameterListNode child node.
                 ParameterListNode parameterListNode =
-                        PsiTreeUtil.findChildOfType(functionNode, ParameterListNode.class);
+                        PsiTreeUtil.findChildOfType(definitionNode, ParameterListNode.class);
                 // Add to the list if the result is not null.
                 if (parameterListNode != null) {
                     list.add(parameterListNode);

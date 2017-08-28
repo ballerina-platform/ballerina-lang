@@ -22,8 +22,10 @@ import com.intellij.execution.actions.RunConfigurationProducer;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -66,7 +68,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             isPackageDeclared = true;
         }
         // Get the package path node. We need this to get the package path of the file.
-        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType
+                (packageDeclarationNode, FullyQualifiedPackageNameNode.class);
         if (fullyQualifiedPackageNameNode != null) {
             // Regardless of the OS, separator character will be "/".
             packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
@@ -124,6 +127,17 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
         } else {
             configuration.setPackage("");
         }
+
+        // Set the working directory. If this is not set, package in sub modules will not run properly.
+        Module module = ModuleUtilCore.findModuleForPsiElement(file);
+        if (module == null) {
+            return;
+        }
+        VirtualFile moduleFile = module.getModuleFile();
+        if (moduleFile == null) {
+            return;
+        }
+        configuration.setWorkingDirectory(moduleFile.getParent().getPath());
     }
 
     @NotNull

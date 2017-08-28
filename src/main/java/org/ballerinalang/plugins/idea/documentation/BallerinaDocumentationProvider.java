@@ -263,7 +263,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         if (typeListNode != null) {
             // Each parameter will be of type TypeNameNode. So we get all return types.
             Collection<TypeNameNode> typeNameNodes =
-                    PsiTreeUtil.findChildrenOfType(typeListNode, TypeNameNode.class);
+                    PsiTreeUtil.getChildrenOfTypeAsList(typeListNode, TypeNameNode.class);
             // Add each TypeNameNode to the result list.
             typeNameNodes.forEach(typeNameNode -> results.add(typeNameNode.getText()));
             // Return the results.
