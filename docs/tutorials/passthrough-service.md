@@ -67,5 +67,10 @@ Now that you have added a service, you must set up this service so that it can b
     ![alt text](../images/AddAnnotation2.png)
 1. Add a HTTP Path from the dropdown that appears.
     ![alt text](../images/AddPath.png)
-1. Add a value of `/title` to the path variable. This enables the Ballerina service and the resource to be mapped properly to the title of the book. This is linked to the URL to be called `http://localhost:9090/books/title`.
+1. Click the `+` sign next to `@Http:Path` and select value in the dropdown that appears. Define the value as `/title` and assign it to the HTTP Path variable. This enables the Ballerina service and the resource to be mapped properly to the title of the book. This is linked to the URL to be called: `http://localhost:9090/books/title`.
     ![alt text](../images/AddValuetoPath2.png)
+
+### View the Swagger definition for your service
+
+1. Click the Swagger definition icon on the right of your service.
+    ![alt text](../images/SwaggerView.png)
