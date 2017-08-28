@@ -72,7 +72,7 @@ class ToolView extends React.Component {
                 { tool.iconImage &&
                 <img src={tool.iconImage}
                     id={`${tool.id}Icon`}
-                    style={{ width:'16px'}}
+                    style={{ width:'13px'}}
                 />
                 }                
                 <i className={tool.getChildrenIcon} />

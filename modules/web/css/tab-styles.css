@@ -89,6 +89,10 @@ button.close {
     background: none;
 }
 
+#tabs-container {
+    border-top: 1px solid #282828;
+}
+
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li:first-child {
     border-left: none;
 }
