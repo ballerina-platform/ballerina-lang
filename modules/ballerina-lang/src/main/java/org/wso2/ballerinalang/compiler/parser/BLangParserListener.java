@@ -20,9 +20,12 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+
+import java.io.PrintStream;
 
 /**
  * @since 0.94
@@ -35,15 +38,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder = new BLangPackageBuilder(pkgNode);
     }
     
-    
     @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) { 
-        
+        this.pkgBuilder.startParamList();
     }
     
     @Override 
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
-        
+        this.pkgBuilder.addParam(ctx.Identifier().getText());
     }
     
     /**
@@ -147,7 +149,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { }
+    @Override public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { 
+        this.pkgBuilder.startBlock();
+    }
     /**
      * {@inheritDoc}
      *
@@ -159,13 +163,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { }
+    @Override public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { 
+        this.pkgBuilder.startFunctionDef();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { }
+    @Override public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { 
+        this.pkgBuilder.endFunctionDef();
+    }
     /**
      * {@inheritDoc}
      *
@@ -189,7 +197,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { }
+    @Override public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { 
+        this.pkgBuilder.endCallableUnitSignature();
+    }
     /**
      * {@inheritDoc}
      *
@@ -484,6 +494,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterTypeName(BallerinaParser.TypeNameContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
@@ -498,6 +509,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
     }
+    
     /**
      * {@inheritDoc}
      *
@@ -510,7 +522,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitReferenceTypeName(BallerinaParser.ReferenceTypeNameContext ctx) { 
-        System.out.println("exitReferenceTypeName");
+        log("exitReferenceTypeName");
     }
     /**
      * {@inheritDoc}
@@ -531,7 +543,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitBuiltInReferenceTypeName(BallerinaParser.BuiltInReferenceTypeNameContext ctx) { 
-        System.out.println("exitBuiltInReferenceTypeName");
+        log("exitBuiltInReferenceTypeName");
     }
     /**
      * {@inheritDoc}
@@ -545,7 +557,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) { 
-        System.out.println("exitFunctionTypeName");
+        log("exitFunctionTypeName");
     }
     /**
      * {@inheritDoc}
@@ -697,12 +709,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { }
+    @Override public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { 
+        this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText());
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -780,13 +796,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { }
+    @Override public void enterAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { 
+        log("assignmentStatement");
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { }
+    @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { 
+        log("exitAssignmentStatement");
+    }
     /**
      * {@inheritDoc}
      *
@@ -1614,7 +1634,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) { }
+    @Override public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) { 
+        this.pkgBuilder.endReturnParams();
+    }
     /**
      * {@inheritDoc}
      *
@@ -1664,7 +1686,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx) { }
+    @Override public void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx) {
+        TerminalNode node;
+        if ((node = ctx.IntegerLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(Integer.parseInt(node.getText()));
+        } else if ((node = ctx.FloatingPointLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(Double.parseDouble(node.getText()));
+        } else if ((node = ctx.BooleanLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(Boolean.parseBoolean(node.getText()));
+        } else if ((node = ctx.QuotedStringLiteral()) != null) {
+            String text = node.getText();
+            text = text.substring(1, text.length() - 1);
+            text = StringEscapeUtils.unescapeJava(text);
+            this.pkgBuilder.addLiteralValue(text);
+        } else if ((node = ctx.NullLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(null);
+        }
+    }
     /**
      * {@inheritDoc}
      *
@@ -1906,5 +1944,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void visitErrorNode(ErrorNode node) { }
+    
+    private void log(Object value) {
+        PrintStream writer = System.out;
+        writer.println(value);
+    }
     
 }

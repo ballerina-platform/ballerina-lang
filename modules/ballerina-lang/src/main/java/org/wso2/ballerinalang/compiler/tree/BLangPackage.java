@@ -17,8 +17,16 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +122,46 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public void setVersion(IdentifierNode version) {
         this.version = (BLangIdentifier) version;
+    }
+
+    @Override
+    public void addImport(ImportPackageNode importPkg) {
+        this.imports.add((BLangImportPackage) importPkg);
+    }
+
+    @Override
+    public void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl) {
+        this.xmlnsList.add((BLangXMLNS) xmlnsDecl);
+    }
+
+    @Override
+    public void addGlobalVariable(VariableNode globalVar) {
+        this.globalVars.add((BLangVariable) globalVar);
+    }
+
+    @Override
+    public void addService(ServiceNode service) {
+        this.services.add((BLangService) service);
+    }
+
+    @Override
+    public void addConnector(ConnectorNode connector) {
+        this.connectors.add((BLangConnector) connector); 
+    }
+
+    @Override
+    public void addFunction(FunctionNode function) {
+        this.functions.add((BLangFunction) function);
+    }
+
+    @Override
+    public void addStruct(StructNode struct) {
+        this.structs.add((BLangStruct) struct);
+    }
+
+    @Override
+    public void addAnnotation(AnnotatableNode annotation) {
+        this.annotations.add((BLangAnnotation) annotation);
     }
     
 }

@@ -35,19 +35,35 @@ public interface PackageNode extends Node {
     // We also need to main the list of files..
 
     List<? extends ImportPackageNode> getImports();
+    
+    void addImport(ImportPackageNode importPkg);
 
     List<? extends XMLNSDeclarationNode> getNamespaceDeclarations();
+    
+    void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 
     List<? extends VariableNode> getGlobalVariables();
+    
+    void addGlobalVariable(VariableNode globalVar);
 
     List<? extends ServiceNode> getServices();
+    
+    void addService(ServiceNode service);
 
     List<? extends ConnectorNode> getConnectors();
+    
+    void addConnector(ConnectorNode connector);
 
     List<? extends FunctionNode> getFunctions();
+    
+    void addFunction(FunctionNode function);
 
     List<? extends StructNode> getStructs();
+    
+    void addStruct(StructNode struct);
 
     List<? extends AnnotationNode> getAnnotations();
+    
+    void addAnnotation(AnnotatableNode annotation);
     
 }

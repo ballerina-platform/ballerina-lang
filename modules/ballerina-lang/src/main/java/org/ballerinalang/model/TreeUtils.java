@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.management.PlatformLoggingMXBean;
 import java.util.HashMap;
 import java.util.Map;
 
