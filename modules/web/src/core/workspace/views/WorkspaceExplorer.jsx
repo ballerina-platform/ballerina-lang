@@ -21,6 +21,7 @@ class WorkspaceExplorer extends View {
     render() {
         return (
             <div>
+                Explorer
             </div>
         );
     }

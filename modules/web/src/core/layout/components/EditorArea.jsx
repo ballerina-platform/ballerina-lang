@@ -56,19 +56,13 @@ class EditorArea extends React.Component {
         });
 
         return (
-            <div
-                className="editor-area"
-                ref={(ref) => {
-                    this.container = ref;
-                }
-                }
-            >
+            <div className="editor-area" >
                 <Tabs
                     defaultActiveKey={this.state.openedFiles[0]}
                     onChange={() => {}}
                     renderTabBar={() =>
                         (
-                            <ScrollableInkTabBar     />
+                            <ScrollableInkTabBar />
                         )
                     }
                     renderTabContent={() =>

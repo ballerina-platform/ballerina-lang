@@ -111,6 +111,7 @@ class App extends React.Component {
                         {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
                     </LeftPanel>
                     <SplitPane
+                        ref={(ref) => { this.topBottomSplitPane = ref; }}
                         className="top-bottom-split-pane"
                         split="horizontal"
                         primary="second"
@@ -123,9 +124,30 @@ class App extends React.Component {
                         onChange={
                             size => this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, size)
                         }
+                        onDragFinished={() => {
+                            this.topBottomSplitPane.setState({
+                                resized: false,
+                                draggedSize: undefined,
+                            });
+                        }
+                        }
                     >
                         <EditorArea />
-                        <BottomPanel />
+                        <BottomPanel
+                            onActiveViewChange={
+                                (newView) => {
+                                    this.setState({
+                                        showBottomPanel: !_.isNil(newView),
+                                    });
+                                    this.topBottomSplitPane.setState({
+                                        resized: false,
+                                        draggedSize: undefined,
+                                    });
+                                }
+                            }
+                        >
+                            {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
+                        </BottomPanel>
                     </SplitPane>
                 </SplitPane>
             </div>

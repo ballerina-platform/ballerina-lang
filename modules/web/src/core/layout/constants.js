@@ -9,6 +9,7 @@ export const HISTORY = {
     BOTTOM_PANEL_SIZE: 'bottom-split-pane-size',
     ACTIVE_LEFT_PANEL_VIEW: 'active-left-panel-view',
     BOTTOM_PANEL_ACTIVE: 'bottom-panel-active',
+    ACTIVE_BOTTOM_PANEL_VIEW: 'active-bottom-panel-view',
 };
 
 export const REGIONS = {

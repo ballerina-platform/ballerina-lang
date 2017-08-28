@@ -21,6 +21,7 @@ class DebuggerPanel extends View {
     render() {
         return (
             <div>
+                Debugger
             </div>
         );
     }
