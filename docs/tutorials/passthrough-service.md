@@ -63,5 +63,7 @@ Now that you have added a service, you must set up this service so that it can b
 1. Enter the base path as `/books` to define `http://localhost:9090/books` as the service.
     ![alt text](../images/BasePathBooksService.png)
 1. Add an annotation to the service itself by clicking the label in the service and selecting `ballerina.net.http` from the dropdown.
+
     ![alt text](../images/AddAnnotation2.png)
-1. 
+1. Add a path
+    ![alt text](../images/AddPath.png)
