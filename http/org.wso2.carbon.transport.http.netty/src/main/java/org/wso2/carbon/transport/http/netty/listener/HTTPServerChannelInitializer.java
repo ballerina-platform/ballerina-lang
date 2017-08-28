@@ -37,7 +37,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLEngine;
 
 /**
  * A class that responsible for build server side channels.
@@ -50,7 +49,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private ConnectionManager connectionManager;
     private ServerConnectorFuture serverConnectorFuture;
     private SSLConfig sslConfig;
-    private SSLEngine sslEngine;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
     private String interfaceId;
@@ -134,10 +132,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
         this.serverConnectorFuture = serverConnectorFuture;
-    }
-
-    public void setSslEngine(SSLEngine sslEngine) {
-        this.sslEngine = sslEngine;
     }
 
     public void setIdleTimeout(int idleTimeout) {
