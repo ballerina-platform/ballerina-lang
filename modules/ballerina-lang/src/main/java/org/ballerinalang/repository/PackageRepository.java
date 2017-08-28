@@ -20,19 +20,19 @@ package org.ballerinalang.repository;
 import org.ballerinalang.model.elements.PackageID;
 
 /**
- * This represents a package source repository. For example, implementation can be used to
- * fetch source code from the file system, network etc...
+ * This represents a package repository. For example, implementation can be used to
+ * fetch source code / compiled objects from the file system, network etc...
  * 
  * @since 0.94
  */
-public interface PackageSourceRepository {
+public interface PackageRepository {
     
     /**
-     * Looks up and returns a {@link PackageSource} given the package identifier.
+     * Looks up and returns a {@link PackageBinary} given the package identifier.
      * 
-     * @param pkgID the package ID
-     * @return The package source is returned if it's available, or else, null will be returned.
+     * @param pkgId the package identifier
+     * @return The package binary is returned if it's available, or else, null will be returned.
      */
-    PackageSource getPackageSource(PackageID pkgID);
-
+    PackageBinary loadPackage(PackageID pkgId);
+    
 }

@@ -33,7 +33,7 @@ public interface PackageSource {
      * 
      * @return the package ID
      */
-    PackageID getPackageID();
+    PackageID getPackageId();
     
     /**
      * Returns the package source entry names this package holds.
@@ -62,6 +62,6 @@ public interface PackageSource {
      * 
      * @return the package repository
      */
-    PackageSourceRepository getPackageRepository();
+    PackageRepository getPackageRepository();
     
 }

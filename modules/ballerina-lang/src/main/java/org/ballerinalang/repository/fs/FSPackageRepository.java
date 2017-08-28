@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.repository.fs;
 
+import org.ballerinalang.compiler.BLangCompiler;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
-import org.ballerinalang.repository.PackageSourceRepository;
-import org.ballerinalang.repository.UserPackageSourceRepository;
+import org.ballerinalang.repository.PackageBinary;
+import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.repository.UserPackageRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,27 +34,39 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This represents a local file system based {@link PackageSourceRepository}.
+ * This represents a local file system based {@link PackageRepository}.
  * 
  * @since 0.94
  */
-public class FSPackageSourceRepository extends UserPackageSourceRepository {
+public class FSPackageRepository extends UserPackageRepository {
 
     private Path basePath;
     
-    public FSPackageSourceRepository(PackageSourceRepository systemRepo, 
-            PackageSourceRepository parentRepo, Path basePath) {
+    public FSPackageRepository(PackageRepository systemRepo, 
+            PackageRepository parentRepo, Path basePath) {
         super(systemRepo, parentRepo);
         this.basePath = basePath;
     }
     
-    @Override
-    public PackageSource lookupPackageSource(PackageID pkgID) {
+    private PackageSource lookupPackageSource(PackageID pkgID) {
         Path path = this.generatePath(pkgID);
         if (!Files.isDirectory(path)) {
             return null;
         }
         return new FSPackageSource(pkgID, path);
+    }
+    
+    @Override
+    public PackageBinary lookupPackage(PackageID pkgID) {
+        PackageBinary result = null;
+        //TODO check compiled packages first
+        if (result == null) {
+            PackageSource source = this.lookupPackageSource(pkgID);
+            if (source != null) {
+                result = BLangCompiler.compile(this, source);
+            }
+        }
+        return result;
     }
     
     private Path generatePath(PackageID pkgID) {
@@ -78,7 +92,7 @@ public class FSPackageSourceRepository extends UserPackageSourceRepository {
         }
         
         @Override
-        public PackageID getPackageID() {
+        public PackageID getPackageId() {
             return pkgID;
         }
         
@@ -147,8 +161,8 @@ public class FSPackageSourceRepository extends UserPackageSourceRepository {
         }
 
         @Override
-        public PackageSourceRepository getPackageRepository() {
-            return FSPackageSourceRepository.this;
+        public PackageRepository getPackageRepository() {
+            return FSPackageRepository.this;
         }
         
     }

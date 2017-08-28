@@ -19,9 +19,9 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.repository.PackageSourceRepository;
-import org.ballerinalang.repository.fs.FSPackageSourceRepository;
+import org.ballerinalang.repository.PackageBinary;
+import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.repository.fs.FSPackageRepository;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.io.PrintStream;
@@ -35,7 +35,7 @@ import java.util.List;
 public class BTester {
     
     public static void main(String[] args) throws Exception {
-        PackageSourceRepository repo = new FSPackageSourceRepository(null, null, Paths.get("/home/laf/Desktop/test"));
+        PackageRepository repo = new FSPackageRepository(null, null, Paths.get("/home/laf/Desktop/test"));
         List<IdentifierNode> nameComps = new ArrayList<>();
         BLangIdentifier id1 = new BLangIdentifier();
         id1.setValue("a");
@@ -45,9 +45,9 @@ public class BTester {
         nameComps.add(id2);
         BLangIdentifier id3 = new BLangIdentifier();
         id3.setValue("1.0.0");
-        PackageID pkgID = new PackageID(nameComps, id3);
-        PackageNode pkgNode = TreeUtils.loadPackageModel(repo, pkgID);
-        log(pkgNode.getFunctions().get(0).getBody().getStatements().get(0));
+        PackageID pkgId = new PackageID(nameComps, id3);
+        PackageBinary pkgBinary = repo.loadPackage(pkgId);
+        log("* PackageBinary: " + pkgBinary);
     }
     
     public static void log(Object value) {

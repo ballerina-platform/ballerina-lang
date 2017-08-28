@@ -20,36 +20,36 @@ package org.ballerinalang.repository;
 import org.ballerinalang.model.elements.PackageID;
 
 /**
- * User package source repository class, which contains the most common 
- * used features of a package source repository as a hierarchical lookup structure,
- * starting initially from a system package source repository.
+ * User package repository class, which contains the most common 
+ * used features of a package repository as a hierarchical lookup structure,
+ * starting initially from a system package repository.
  * 
  * @since 0.94
  */
-public abstract class UserPackageSourceRepository implements PackageSourceRepository {
+public abstract class UserPackageRepository implements PackageRepository {
 
     private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina";
 
-    private PackageSourceRepository systemRepo;
+    private PackageRepository systemRepo;
     
-    private PackageSourceRepository parentRepo;
+    private PackageRepository parentRepo;
     
-    public UserPackageSourceRepository(PackageSourceRepository systemRepo, PackageSourceRepository parentRepo) {
+    public UserPackageRepository(PackageRepository systemRepo, PackageRepository parentRepo) {
         this.systemRepo = systemRepo;
         this.parentRepo = parentRepo;
     }
     
-    public abstract PackageSource lookupPackageSource(PackageID pkgID);
+    public abstract PackageBinary lookupPackage(PackageID pkgID);
     
     @Override
-    public PackageSource getPackageSource(PackageID pkgID) {
-        PackageSource result;
+    public PackageBinary loadPackage(PackageID pkgID) {
+        PackageBinary result;
         if (this.isSystemPackage(pkgID)) {
-            result = this.systemRepo.getPackageSource(pkgID);
+            result = this.systemRepo.loadPackage(pkgID);
         } else {
-            result = this.lookupPackageSource(pkgID);
+            result = this.lookupPackage(pkgID);
             if (result == null && this.parentRepo != null) {
-                result = this.parentRepo.getPackageSource(pkgID);
+                result = this.parentRepo.loadPackage(pkgID);
             }
         }
         return result;
