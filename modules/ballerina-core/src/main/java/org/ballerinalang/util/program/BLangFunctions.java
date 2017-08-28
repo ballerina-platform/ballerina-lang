@@ -171,7 +171,7 @@ public class BLangFunctions {
         if (functionInfo.getWorkerInfoEntries().length > 0) {
             // Execute workers
             BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, context, defaultWorkerInfo,
-                    args, retRegs);
+                    args, retRegs, null);
         } else {
             org.ballerinalang.bre.bvm.StackFrame calleeSF =
                     new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);

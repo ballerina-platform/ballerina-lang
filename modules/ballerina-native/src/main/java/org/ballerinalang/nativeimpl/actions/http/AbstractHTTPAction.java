@@ -32,6 +32,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -132,21 +137,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
-            org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
-                    getClientConnector(Constants.PROTOCOL_HTTP);
-
-            if (clientConnector == null) {
-                throw new BallerinaException("Http client connector is not available");
-            }
-
             Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
-            if (sourceHandler != null) {
-                context.setProperty(Constants.SRC_HANDLER, sourceHandler);
-            } else {
+            if (sourceHandler == null) {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
-            clientConnector.send(message, balConnectorCallback);
+            HttpClientConnector clientConnector =
+                    BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
+            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+            HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+            future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
 
             // Wait till Response comes
             long startTime = System.currentTimeMillis();
@@ -164,8 +164,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             handleTransportException(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), context);
@@ -176,21 +174,21 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
             throws ClientConnectorException {
         balConnectorCallback.setNonBlockingExecution(true);
-        org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
-                getClientConnector(Constants.PROTOCOL_HTTP);
 
-        if (clientConnector == null) {
-            throw new BallerinaException("Http client connector is not available");
+        try {
+            Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+            if (sourceHandler == null) {
+                message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
+            }
+
+            HttpClientConnector clientConnector =
+                    BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
+            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+            HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+            future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
+        } catch (Exception e) {
+            throw new BallerinaException("Failed to send message to the backend", e, context);
         }
-
-        Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
-        if (sourceHandler != null) {
-            context.setProperty(Constants.SRC_HANDLER, sourceHandler);
-        } else {
-            message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
-        }
-
-        clientConnector.send(message, balConnectorCallback);
     }
 
     @Override
@@ -217,6 +215,25 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         } else {
             String msg = "Invalid message received for the action invocation";
             throw new BallerinaException(msg);
+        }
+    }
+
+    private static class HTTPClientConnectorLister implements HttpConnectorListener {
+
+        private final BalConnectorCallback balConnectorCallback;
+
+        private HTTPClientConnectorLister(BalConnectorCallback balConnectorCallback) {
+            this.balConnectorCallback = balConnectorCallback;
+        }
+
+        @Override
+        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+            balConnectorCallback.done(httpCarbonMessage);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+
         }
     }
 

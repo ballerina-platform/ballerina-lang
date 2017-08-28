@@ -37,7 +37,7 @@ function testRead(string sourcePath, blob data) {
 function testCreate(string targetPath) {
     ftp:ClientConnector ftpConnector = create ftp:ClientConnector();
     files:File target = {path : targetPath};
-    ftpConnector.createFile(target, "file");
+    ftpConnector.createFile(target, false);
 }
 
 function testIsExist(string targetPath) {

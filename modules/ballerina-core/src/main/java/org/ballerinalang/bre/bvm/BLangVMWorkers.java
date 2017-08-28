@@ -44,6 +44,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -61,11 +63,12 @@ public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                             StackFrame callerSF, int[] argRegs,
-                                            Context bContext, WorkerInfo defaultWorkerInfo, int[] retRegs) {
+                                            Context bContext, WorkerInfo defaultWorkerInfo, int[] retRegs,
+                              Map<String, Object> properties) {
 
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         List<WorkerExecutor> workerRunnerList = new ArrayList<>();
-        BlockingQueue<BRefValueArray> resultChannel = new LinkedBlockingQueue<>();
+        BlockingQueue<StackFrame> resultChannel = new LinkedBlockingQueue<>();
 
         BLangVM bLangVM = new BLangVM(programFile);
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
@@ -82,6 +85,10 @@ public class BLangVMWorkers {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+            if (properties != null) {
+                properties.forEach((property, value) -> workerContext.setProperty(property, value));
+            }
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
             controlStack.pushFrame(callerSF);
@@ -109,7 +116,8 @@ public class BLangVMWorkers {
         try {
             // Taking the results from the blocking queue. Whoever puts results in to this queue will win the
             // return race.
-            resultChannel.take();
+            StackFrame resultFrame = resultChannel.take();
+            
 
         } catch (InterruptedException e) {
             //Ignore the error here
@@ -118,12 +126,21 @@ public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                               StackFrame callerSF, Context bContext, WorkerInfo defaultWorkerInfo, BValue[] args,
-                              int[] retRegs) {
+                              int[] retRegs, Map<String, Object> properties) {
 
         //BType[] paramTypes = callableUnitInfo.getParamTypes();
         List<WorkerExecutor> workerRunnerList = new ArrayList<>();
-        BlockingQueue<BRefValueArray> resultChannel = new LinkedBlockingQueue<>();
+        BlockingQueue<StackFrame> resultChannel = new LinkedBlockingQueue<>();
 
+        Context workerContextDefault = new Context(programFile);
+        WorkerCallback workerCallbackDefault = new WorkerCallback(workerContextDefault);
+        workerContextDefault.setBalCallback(workerCallbackDefault);
+        workerContextDefault.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+        ControlStackNew controlStackNewDefault = workerContextDefault.getControlStackNew();
+        org.ballerinalang.bre.bvm.StackFrame callerSFDefault =
+                new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
+        controlStackNewDefault.pushFrame(callerSFDefault);
         BLangVM bLangVM = new BLangVM(programFile);
         createWorkerStackFrame(callableUnitInfo, bContext, defaultWorkerInfo, args, retRegs);
         BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
@@ -137,7 +154,9 @@ public class BLangVMWorkers {
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
 
             ControlStackNew controlStackNew = workerContext.getControlStackNew();
-            controlStackNew.pushFrame(callerSF);
+            org.ballerinalang.bre.bvm.StackFrame callerSFWorker =
+                    new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
+            controlStackNew.pushFrame(callerSFWorker);
 
             createWorkerStackFrame(callableUnitInfo, workerContext, workerInfo, args, retRegs);
 
@@ -258,6 +277,11 @@ public class BLangVMWorkers {
         return result;
     }
 
+    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF,
+                                                                                                    int[] argRegs) {
+        invoke(programFile, callableUnitInfo, callerSF, argRegs, null, null, null, null);
+    }
+
     static class WorkerExecutor implements Callable<WorkerResult> {
 
         private static final Logger log = LoggerFactory.getLogger(WorkerExecutor.class);
@@ -266,7 +290,7 @@ public class BLangVMWorkers {
         private BLangVM bLangVM;
         private Context bContext;
         private WorkerInfo workerInfo;
-        private BlockingQueue<BRefValueArray> resultChannel;
+        private BlockingQueue<StackFrame> resultChannel;
         BType[] returnTypes;
 
         public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo) {
@@ -276,7 +300,7 @@ public class BLangVMWorkers {
         }
 
         public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo,
-                              BlockingQueue<BRefValueArray> resultChannel, BType[] returnTypes) {
+                              BlockingQueue<StackFrame> resultChannel, BType[] returnTypes) {
             this.bLangVM = bLangVM;
             this.bContext = bContext;
             this.workerInfo = workerInfo;
@@ -324,7 +348,7 @@ public class BLangVMWorkers {
                     bContext.getControlStackNew().getCurrentFrame() != null &&
                     bContext.getControlStackNew().getCurrentFrame().isCalleeReturned()) {
                 try {
-                    resultChannel.put(bRefValueArray);
+                    resultChannel.put(bContext.getControlStackNew().getCurrentFrame());
                 } catch (InterruptedException e) {
                     // Ignore the error. May be someone else is trying to add to the channel.
                 }

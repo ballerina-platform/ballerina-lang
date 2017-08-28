@@ -146,7 +146,7 @@ public class BLangProgramRunner {
 
         if (mainFuncInfo.getWorkerInfoEntries().length > 0) {
             BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, bContext, defaultWorkerInfo,
-             valueArgs, new int[0]);
+             valueArgs, new int[0], null);
         } else {
             BLangVM bLangVM = new BLangVM(programFile);
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());

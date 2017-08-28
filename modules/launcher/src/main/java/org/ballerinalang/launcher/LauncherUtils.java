@@ -42,6 +42,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -80,10 +81,13 @@ public class LauncherUtils {
         BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
         BLangProgramRunner.runMain(programFile, args);
-        //return;
-        //Runtime.getRuntime().exit(0);
 
-        ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
+        try {
+            ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
+            ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex) {
+            // Ignore the error
+        }
         Runtime.getRuntime().exit(0);
 
     }
@@ -103,6 +107,12 @@ public class LauncherUtils {
                     .startPendingConnectors();
             startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
                     serverConnector));
+
+            // Starting up HTTP Server connectors
+            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
+                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
+            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
+                                                                                       serverConnector));
         } catch (ServerConnectorException e) {
             throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
         }

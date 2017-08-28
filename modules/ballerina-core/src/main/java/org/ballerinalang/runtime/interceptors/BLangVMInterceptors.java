@@ -82,7 +82,7 @@ public interface BLangVMInterceptors {
             BValue[] valueArgs = {bMessage};
             // Execute workers
             BLangVMWorkers.invoke(serviceInterceptor.getProgramFile(), functionInfo,
-                    callerSF, context, defaultWorkerInfo, valueArgs, retRegs);
+                    callerSF, context, defaultWorkerInfo, valueArgs, retRegs, null);
         } else {
             StackFrame calleeSF = new StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
             controlStackNew.pushFrame(calleeSF);
