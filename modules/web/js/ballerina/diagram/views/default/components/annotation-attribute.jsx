@@ -20,14 +20,14 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationAttachment from './annotation-attachment';
-import AnnotationAttributeAST from './../../../../ast/annotations/annotation-attribute';
+import AnnotationAttributeAST from 'ballerina/ast/annotations/annotation-attribute';
 import AnnotationAttributeBValue from './annotation-attribute-b-value';
 import AnnotationAttributeKey from './annotation-attribute-key';
 import { addAttribute, deleteNode, getArrayValue } from './utils/annotation-button-events';
-import AnnotationHelper from '../../../../env/helpers/annotation-helper';
-import EnvAnnotationDefinition from './../../../../env/annotation-definition';
-import PopoutButton from './popout-button';
-import { util } from './../../../../visitors/sizing-utils';
+import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
+import EnvAnnotationDefinition from 'ballerina/env/annotation-definition';
+import ActionMenu from './action-menu';
+import { util } from './../sizing-util';
 
 /**
  * React component for an annoation attribute.
@@ -174,8 +174,8 @@ class AnnotationAttribute extends React.Component {
                     model={attribute}
                     annotationDefinitionModel={
                         AnnotationHelper.getAnnotationDefinition(
-                                                    this.context.environment, annotationAttachment.getFullPackageName(),
-                                                    annotationAttachment.getName())}
+                            this.context.environment, annotationAttachment.getFullPackageName(),
+                            annotationAttachment.getName())}
                 />);
             });
         }
@@ -198,21 +198,22 @@ class AnnotationAttribute extends React.Component {
      */
     renderAnnotationAttributeValue(attributeValue) {
         if (attributeValue.isBValue()) {
-            const buttons = [];
+            const actionMenuItems = [];
             // Delete button.
             const deleteButton = {
-                icon: 'fw-cancel',
+                key: attributeValue.getID(),
+                icon: 'fw-delete',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(attributeValue);
                 },
             };
-            buttons.push(deleteButton);
+            actionMenuItems.push(deleteButton);
             return (<li key={attributeValue.getID()}>
                 <ul>
-                    <li>
+                    <li className='action-menu-wrapper'>
+                        <ActionMenu items={actionMenuItems} />
                         <AnnotationAttributeBValue model={attributeValue.getChildren()[0]} />
-                        <PopoutButton buttons={buttons} />
                     </li>
                 </ul>
             </li>);
@@ -253,27 +254,28 @@ class AnnotationAttribute extends React.Component {
     render() {
         const key = this.renderKey();
         const attributeValue = this.props.model.getValue();
-        let errorClass;
         if (attributeValue.isBValue()) {
-            const buttons = [];
+            const actionMenuItems = [];
             // Delete button.
             const deleteButton = {
-                icon: 'fw-cancel',
+                key: this.props.model.getID(),
+                icon: 'fw-delete',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(this.props.model);
                 },
             };
-            buttons.push(deleteButton);
+            actionMenuItems.push(deleteButton);
 
             const bValue = attributeValue.getChildren()[0];
             if (this.state.isBValueEdit) {
                 const width = util.getTextWidth(this.state.bValueText, 150, 1000);
                 return (
-                    <ul
-                        className="attribute-value-bvalue"
-                    >
-                        <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                    <ul className="attribute-value-bvalue">
+                        <li className={cn('action-menu-wrapper',
+                            { 'annotation-attribute-error': this.state.hasError })}
+                        >
+                            <ActionMenu items={actionMenuItems} />
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 <input
@@ -287,7 +289,6 @@ class AnnotationAttribute extends React.Component {
                                     style={{ width: parseInt(width.w + 20, 10) }}
                                 />
                             </span>
-                            <PopoutButton buttons={buttons} />
                         </li>
                     </ul>
                 );
@@ -295,18 +296,16 @@ class AnnotationAttribute extends React.Component {
 
             if (bValue.getStringValue() === undefined || bValue.getStringValue() === '') {
                 return (
-                    <ul
-                        className="attribute-value-bvalue"
-                    >
+                    <ul className="attribute-value-bvalue">
                         <li
-                            className={cn({ 'annotation-attribute-error': this.state.hasError })}
+                            className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}
                             onClick={() => this.onBValueEdit(false)}
                         >
+                            <ActionMenu items={actionMenuItems} />
                             {key}
                             <span className="annotation-attribute-value-wrapper">
                                 {bValue.getStringValue()}
                             </span>
-                            <PopoutButton buttons={buttons} />
                         </li>
                     </ul>
                 );
@@ -315,12 +314,12 @@ class AnnotationAttribute extends React.Component {
                 <ul
                     className="attribute-value-bvalue"
                 >
-                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                    <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
+                        <ActionMenu items={actionMenuItems} />
                         {key}
                         <span className="annotation-attribute-value-wrapper" onClick={() => this.onBValueEdit(true)}>
                             {bValue.getStringValue()}
                         </span>
-                        <PopoutButton buttons={buttons} />
                     </li>
                 </ul>
             );
@@ -328,40 +327,40 @@ class AnnotationAttribute extends React.Component {
             const annotationAttachment = attributeValue.getChildren()[0];
             const packageName = (<span>{annotationAttachment.getPackageName()}</span>);
             const name = (<span>{annotationAttachment.getName()}</span>);
-            const addPopButton = [];
-            const deletePopButton = [];
+            const actionMenuItems = [];
             const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
-                                                this.context.environment, annotationAttachment.getFullPackageName(),
-                                                annotationAttachment.getName());
+                this.context.environment, annotationAttachment.getFullPackageName(),
+                annotationAttachment.getName());
             if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
                 // Add attribute button
                 const addAttributeButton = {
+                    key: this.props.model.getID(),
                     icon: 'fw-add',
                     text: 'Add Attribute',
                     onClick: () => {
                         addAttribute(annotationAttachment);
                     },
                 };
-                addPopButton.push(addAttributeButton);
+                actionMenuItems.push(addAttributeButton);
             }
             // Delete button.
             const deleteButton = {
-                icon: 'fw-cancel',
+                key: this.props.model.getID(),
+                icon: 'fw-delete',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(this.props.model);
                 },
             };
-            deletePopButton.push(deleteButton);
-
+            actionMenuItems.push(deleteButton);
             const attributes = this.props.model.getViewState().collapsed ? [] :
                 this.renderAnnotationAttributes(annotationAttachment);
-
             return (
                 <ul
                     className="attribute-value-annotation"
                 >
-                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                    <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
+                        <ActionMenu items={actionMenuItems} />
                         <CSSTransitionGroup
                             component="span"
                             transitionName="annotation-expand"
@@ -380,8 +379,6 @@ class AnnotationAttribute extends React.Component {
                             @{packageName}
                         </span>
                         :{name}
-                        <PopoutButton buttons={addPopButton} />
-                        <PopoutButton buttons={deletePopButton} />
                         <span className='annotation-attachment-badge hide'>
                             <i className="fw fw-annotation-badge" />
                         </span>
@@ -390,17 +387,18 @@ class AnnotationAttribute extends React.Component {
                 </ul>
             );
         } else if (attributeValue.isArray()) {
-            const addPopButton = [];
-            const deletePopButton = [];
+            const actionMenuItems = [];
             // Delete button.
             const deleteButton = {
-                icon: 'fw-cancel',
+                key: this.props.model.getID(),
+                icon: 'fw-delete',
                 text: 'Delete',
                 onClick: () => {
                     deleteNode(this.props.model);
                 },
             };
             const addNewToArray = {
+                key: this.props.model.getID(),
                 icon: 'fw-add',
                 text: 'Add Value',
                 onClick: () => {
@@ -408,19 +406,18 @@ class AnnotationAttribute extends React.Component {
                         this.context.environment, this.props.model.getKey(), this.props.annotationDefinitionModel));
                 },
             };
-            addPopButton.push(addNewToArray);
-            deletePopButton.push(deleteButton);
-
+            actionMenuItems.push(addNewToArray);
+            actionMenuItems.push(deleteButton);
             const arrayValues = this.props.model.getViewState().collapsed ? [] :
                 attributeValue.getChildren().map((annotationAttributeValue) => {
                     return this.renderAnnotationAttributeValue(annotationAttributeValue);
                 });
-
             return (
                 <ul
                     className="attribute-value-array"
                 >
-                    <li className={cn({ 'annotation-attribute-error': this.state.hasError })}>
+                    <li className={cn('action-menu-wrapper', { 'annotation-attribute-error': this.state.hasError })}>
+                        <ActionMenu items={actionMenuItems} />
                         <CSSTransitionGroup
                             component="span"
                             transitionName="annotation-expand"
@@ -435,8 +432,6 @@ class AnnotationAttribute extends React.Component {
                             />
                         </CSSTransitionGroup>
                         {key}
-                        <PopoutButton buttons={addPopButton} />
-                        <PopoutButton buttons={deletePopButton} />
                         <span className='annotation-attribute-array-badge hide'>
                             <i className="fw fw-annotation-attribute-array-badge" />
                         </span>

@@ -1052,11 +1052,7 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 }
 
 .annotation-container ul > li {
-    padding-left: 20px;
-}
-
-.annotation-container > ul > li {
-    padding-left: 0px;
+    padding-left: 28px;
 }
 
 .annotation-add-at-sign {
@@ -1223,3 +1219,113 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 .bal-file-editor {
     height: 100%;
 }
+
+
+/**  Action Menu **/
+.action-menu {
+    opacity: 0;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #f39c12;
+    will-change: transform;
+    transition: 0.3s all ease;
+    cursor: pointer;
+    z-index: 999;
+    color: white;
+    line-height: 20px;
+    font-size: 10px;
+    overflow: hidden;
+    animation: collapse .3s ease;
+}
+
+.action-menu > .icon {
+    text-align: center;
+    opacity: 1;
+    transition: opacity .25s ease-in-out;
+}
+
+.action-menu > .menu {
+    opacity: 0;
+    transition: opacity .25s ease-in-out;
+    font-size: 12px;
+}
+
+.action-menu > .menu > ul,
+.action-menu > .menu > ul > li {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.action-menu > .menu > ul > li {
+    padding: 0 10px;
+    color: #444;
+    line-height: 25px;
+    color: #fff;
+}
+
+.action-menu > .menu > ul > li:hover {
+    background: #f39c12;
+}
+
+.action-menu > .menu > ul > li > .icon {
+    padding-right: 5px;
+}
+
+.action-menu-wrapper.expanded > .action-menu {
+    border-radius: 0;
+    bottom: 0;
+    height: 75px;
+    width: 135px;
+    background: #565656;
+    animation: expand .3s ease;
+    right: calc(100% + 2px);
+/*                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.35);*/
+}
+
+@keyframes collapse {
+    0%, 10% {
+        right: calc(100% - 10px);
+    }
+    20%, 40% {
+        right: calc(100% - 10px);
+    }
+}
+
+@keyframes expand {
+    0%, 80% {
+        right: calc(100% + 2px);
+    }
+    90%, 100% {
+        right: calc(100% + 2px);
+        width: 135px;
+        bottom: 0;
+        background: #565656;
+    }
+}
+
+.action-menu-wrapper.expanded > .action-menu > .icon {
+    opacity: 0;
+    display: none;
+}
+
+.action-menu-wrapper.expanded > .action-menu > .menu {
+    opacity: 1;
+}
+
+.action-menu-wrapper {
+    position: relative;
+    /* top: 495px;
+    left: 437px; */
+}
+
+.action-menu-wrapper:hover > .action-menu,
+.action-menu-wrapper.edit > .action-menu {
+    opacity: 1;
+}
+
+/** End of Action Menu **/

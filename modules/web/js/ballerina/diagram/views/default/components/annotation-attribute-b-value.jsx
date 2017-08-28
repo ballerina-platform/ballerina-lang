@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import BValueAST from './../../../../ast/b-value';
+import BValueAST from 'ballerina/ast/b-value';
 
 /**
  * React component of a b-value that is being used in an annotation attribute.
@@ -39,7 +39,7 @@ class AnnotationAttributeBValue extends React.Component {
             this.state = {
                 isInEdit: true,
                 bValueText: '',
-                focusBValueInput: false,
+                focusBValueInput: true,
             };
         } else {
             this.state = {
@@ -49,6 +49,7 @@ class AnnotationAttributeBValue extends React.Component {
             };
         }
 
+        this.bValueInput = undefined;
         this.onBValueChange = this.onBValueChange.bind(this);
         this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
         this.onEdit = this.onEdit.bind(this);
@@ -94,6 +95,9 @@ class AnnotationAttributeBValue extends React.Component {
             isInEdit: false,
             focusBValueInput: false,
         });
+        if (this.state.bValueText.trim() === '') {
+            this.props.model.getParent().removeChild(this.props.model);
+        }
     }
 
     /**
