@@ -85,9 +85,12 @@ class TransformExpanded extends React.Component {
     }
 
     foldEndpoint(key) {
-        this.setState({foldedEndpoints: _.extend(
-            this.state.foldedEndpoints, {[key]: !this.state.foldedEndpoints[key]})}
-        )
+        this.setState(
+            {
+                foldedEndpoints: _.extend(this.state.foldedEndpoints, {
+                    [key]: !this.state.foldedEndpoints[key],
+                }),
+            });
     }
 
     removeEndpoint(key) {
@@ -491,7 +494,7 @@ class TransformExpanded extends React.Component {
                 name: variableDefinitionStatement.getVariableDef().getName(),
                 displayName: variableDefinitionStatement.getVariableDef().getName(),
                 type: variableDefinitionStatement.getVariableDef().getTypeName(),
-                varDeclarationString: variableDefinitionStatement.getStatementString()
+                varDeclarationString: variableDefinitionStatement.getStatementString(),
             });
             this.state.vertices.push(varVertex);
             this.addSource(variableDefinitionStatement.getVariableDef().getName());
@@ -527,10 +530,10 @@ class TransformExpanded extends React.Component {
     }
 
     removeSourceType(removedType) {
-        _.remove(this.state.vertices, (vertex) => { return vertex.name === removedType.name
-                                                            && vertex.varDeclarationString; });
+        _.remove(this.state.vertices, (vertex) => {
+            return vertex.name === removedType.name && vertex.varDeclarationString;
+        });
         this.props.model.removeInput(removedType);
-
     }
 
     removeTargetType(removedType) {
@@ -620,8 +623,8 @@ class TransformExpanded extends React.Component {
                         variableType.displayName = arg.name;
                         variableType.varDeclarationString = '';
                         _.forEach(varDefinations, (varDef) => {
-                            if(variableType.name  == varDef.getLeftExpression().getVariableName()) {
-                               variableType.varDeclarationString =  varDef.getStatementString();
+                            if (variableType.name === varDef.getLeftExpression().getVariableName()) {
+                                variableType.varDeclarationString = varDef.getStatementString();
                             }
                         });
 
@@ -753,8 +756,8 @@ class TransformExpanded extends React.Component {
     }
 
     updateVariable(varName, statementString) {
-      this.transformNodeManager.updateVariable(this.props.model, varName, statementString);
-      this.loadVertices();
+        this.transformNodeManager.updateVariable(this.props.model, varName, statementString);
+        this.loadVertices();
     }
 
     render() {
