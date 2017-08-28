@@ -1329,3 +1329,24 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 }
 
 /** End of Action Menu **/
+
+.annotation-attribute-array-badge {
+    cursor: inherit !important;
+    border-radius: 50%;
+    border: 1px solid #666769;
+    padding-left: 7px;
+    color: #666769;
+}
+
+.annotation-attribute-array-badge .open-bracket {
+    clip-path: inset(0px 7px 0px 0px);
+    font-size: 9px;
+    margin-right: -11px;
+    padding-left: 5px;
+}
+
+.annotation-attribute-array-badge .close-bracket {
+    clip-path: inset(0px 0px 0px 7px);
+    font-size: 9px;
+    margin-right: -2px;
+}

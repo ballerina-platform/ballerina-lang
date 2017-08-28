@@ -406,8 +406,8 @@ class AnnotationAttribute extends React.Component {
                         this.context.environment, this.props.model.getKey(), this.props.annotationDefinitionModel));
                 },
             };
-            actionMenuItems.push(addNewToArray);
             actionMenuItems.push(deleteButton);
+            actionMenuItems.push(addNewToArray);
             const arrayValues = this.props.model.getViewState().collapsed ? [] :
                 attributeValue.getChildren().map((annotationAttributeValue) => {
                     return this.renderAnnotationAttributeValue(annotationAttributeValue);
@@ -432,8 +432,10 @@ class AnnotationAttribute extends React.Component {
                             />
                         </CSSTransitionGroup>
                         {key}
-                        <span className='annotation-attribute-array-badge hide'>
-                            <i className="fw fw-annotation-attribute-array-badge" />
+                        <span className='annotation-attribute-array-badge'>
+                            {/* <i className='fw fw-square-outline open-bracket' /> */}
+                            {/* <i className='fw fw-square-outline close-bracket' /> */}
+                            [ ]
                         </span>
                     </li>
                     {arrayValues}
