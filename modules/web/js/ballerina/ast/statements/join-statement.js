@@ -242,6 +242,18 @@ class JoinStatement extends Statement {
             });
         }
     }
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    canBeParentOf(node) {
+        return ASTFactory.isVariableDeclaration(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isStatement(node);
+    }
 }
 
 export default JoinStatement;

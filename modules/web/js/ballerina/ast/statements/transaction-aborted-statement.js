@@ -147,6 +147,19 @@ class TransactionAbortedStatement extends Statement {
             });
         }
     }
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    canBeParentOf(node) {
+        return ASTFactory.isConnectorDeclaration(node)
+            || ASTFactory.isVariableDeclaration(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isStatement(node);
+    }
 }
 
 export default TransactionAbortedStatement;

@@ -77,7 +77,7 @@ class FailedStatement extends Statement {
         if (ASTFactory.isRetry(child)) {
             canBeAParent = this.filterChildren(retry => ASTFactory.isRetry(retry)).length === 0;
         } else {
-            canBeAParent = ASTFactory.isStatement(child);
+            canBeAParent = ASTFactory.isStatement(child) || ASTFactory.isConnectorDeclaration(child);
         }
         return canBeAParent;
     }
