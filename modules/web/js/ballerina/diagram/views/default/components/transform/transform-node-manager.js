@@ -17,8 +17,8 @@
  */
 
 import _ from 'lodash';
-import BallerinaASTFactory from '../../../../ast/ast-factory';
-import DefaultBallerinaASTFactory from '../../../../ast/default-ast-factory';
+import BallerinaASTFactory from '../../../../../ast/ast-factory';
+import DefaultBallerinaASTFactory from '../../../../../ast/default-ast-factory';
 
 /**
  * Transform node managing class
