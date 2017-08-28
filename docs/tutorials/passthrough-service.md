@@ -6,17 +6,18 @@ Now that you have [written your first program](../first-program.md) and [written
 
 This tutorial consists of the following main sections.
 
-- [Set up a service for integration](set-up-a-service-for-integration)
+- [About service URLs](about-service-urls)
+- [Add a service](add-a-service)
+- [Add integration logic to your service](add-integration-logic-to-your-service)
+- [View the Swagger definition for your service](view-the-swagger-definition-for-your-service)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write your first program](../first-program.md) and [write a main program](../main-program.md) as some concepts are explored in detail in those tutorials.
-
-## Set up a service for integration
 
 When defining a Ballerina program as a service instead of an executable program, the `service` construct acts as the top-level container that holds all the integration logic and can interact with the rest of the world. Its base path is the context part of the URL that clients use when sending requests to the service. You create one service per Ballerina program file.
 
 A service is a container of `resources`, each of which defines the logic for handling one type of request. Services are singletons, so all variables defined within a service scope are shared across all resource invocations. A service can have state for as long as it's active.
 
-### About service URLs
+## About service URLs
 
 In this tutorial, the service and the resource are also represented by the URL that you are calling. For example, the basepath for a resource can be as follows: 
 
@@ -34,7 +35,7 @@ If you are accessing a resource within this service, like book titles for exampl
 
 This is how resources and services can equate to the URL that you are calling.
 
-### Add a service
+## Add a service
 
 1. To define a service in the Composer, drag the service from the tool palette to the canvas. You can then set the base path annotation using the `Annotations` button in the upper right corner of the service, and define any variables the service needs by clicking the `Variables` button in the upper left corner. 
 
@@ -47,7 +48,7 @@ This is how resources and services can equate to the URL that you are calling.
     
     You can start adding your integration logic.
 
-### Add integration logic to your service
+## Add integration logic to your service
 
 Now that you have added a service, you must set up this service so that it can be used in your integration scenario.
 
@@ -70,7 +71,7 @@ Now that you have added a service, you must set up this service so that it can b
 1. Click the `+` sign next to `@Http:Path` and select value in the dropdown that appears. Define the value as `/title` and assign it to the HTTP Path variable. This enables the Ballerina service and the resource to be mapped properly to the title of the book. This is linked to the URL to be called: `http://localhost:9090/books/title`.
     ![alt text](../images/AddValuetoPath2.png)
 
-### View the Swagger definition for your service
+## View the Swagger definition for your service
 
 1. Click the Swagger definition icon on the right of your service.
     ![alt text](../images/SwaggerView.png)
