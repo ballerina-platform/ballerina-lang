@@ -81,4 +81,5 @@ If your Ballerina program contains services and resources, you can view the gene
     
     The Swagger UI Editor provides numerous usage options to easily interact with APIs.
     ![alt text](../images/SwaggerUI.png)
-1. 
+1. Click `GET` to see the details in the Swagger UI.
+    ![alt text](../images/SwaggerGET.png)
