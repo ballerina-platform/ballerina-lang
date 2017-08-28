@@ -42,16 +42,15 @@ service<http> PeopleManagementService {
         path:"/employee/"
     }
     @doc:Description {
-        value: "Resource to get employee for the person by index which" +
-        " can be invoked with /people/employee?index={index}"
+        value: "Resource to get employee for the person by index which can be invoked with /people/employee?index={index}"
     }
     resource getEmployee (message m, @http:QueryParam {value:"index"}
                                      int index) {
-        //Define a struct constrained by Employee struct. With this constraint, the json, employeeJson can only
-        // contain the fields of Employee struct
+        //Define a struct constrained by Employee struct. With this constraint, the 'json', employeeJson can only
+        // contain the fields of Employee struct.
         json<Employee> employeeJson = {};
 
-        // Transform statement to construct the employeeJson json with Person with the given index from the people array
+        // Transform statement to construct the employeeJson 'json' with Person with the given index from the people array.
         transform {
             // split name from " " to separate first and last names
             string[] _temp = strings:split(people[index].name, " ");
@@ -63,7 +62,7 @@ service<http> PeopleManagementService {
             // E.g. : employeeJson.city will give an error as "unknown field 'city' in json with struct constraint 'Employee'"
         }
 
-        // Set the new employeeJson as the payload
+        // Set the new employeeJson as the payload.
         messages:setJsonPayload(m, employeeJson);
         reply m;
     }
@@ -73,16 +72,15 @@ service<http> PeopleManagementService {
         path:"/update"
     }
     @doc:Description {
-        value: "Resource to update person by index which can be invoked with " +
-        "/people/update?index={index}"
+        value: "Resource to update person by index which can be invoked with /people/update?index={index}"
     }
     resource updatePerson (message m, @http:QueryParam{value:"index"}
                                       int index) {
-        //Get the json payload from the request message m
+        //Get the JSON payload from the request message m.
         json j = messages:getJsonPayload(m);
         var jsonPerson, _ = (json<Person>)j;
 
-        // Define an error that can be used during conversion from json to person struct.
+        // Define an error that can be used during conversion from JSON to person struct.
 
         transform {
             people[index].name, _ = (string) jsonPerson.name;
@@ -92,10 +90,10 @@ service<http> PeopleManagementService {
             // E.g. : employeeJson.address will give an error as "unknown field 'address' in json with struct constraint 'Person'"
         }
 
-        //empty the message
+        //Empty the message
         m = {};
 
-        // set the status code to 202 Accepted
+        //Set the status code to 202 Accepted.
         http:setStatusCode(m, 202);
         reply m;
     }
@@ -109,16 +107,16 @@ service<http> PeopleManagementService {
         value: "Get all people which can be invoked as /people/"
     }
     resource GetPeople (message m) {
-        // define empty json array
+        // Define empty JSON array
         json jsonResponse = [];
         int index = 0;
         while (index < lengthof people) {
-            // convert each person from people array to a json and set to the array
+            // Convert each person from people array to a JSON and set to the array.
             jsonResponse[index], _ = <json>people[index];
             index = index + 1;
         }
 
-        // set the people array as the json response in the message
+        // Set the people array as the JSON response in the message.
         messages:setJsonPayload(m, jsonResponse);
         reply m;
     }
