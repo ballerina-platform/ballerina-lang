@@ -30,10 +30,12 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -45,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -70,19 +71,33 @@ public class BLangVMWorkers {
         List<WorkerExecutor> workerRunnerList = new ArrayList<>();
         BlockingQueue<StackFrame> resultChannel = new LinkedBlockingQueue<>();
 
+        Context workerContextDefault = new Context(programFile);
+        DefaultBalCallback workerCallbackDefault = new DefaultBalCallback(bContext.getBalCallback());
+        workerContextDefault.setBalCallback(workerCallbackDefault);
+        workerContextDefault.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+        if (properties != null) {
+            properties.forEach((property, value) -> workerContextDefault.setProperty(property, value));
+        }
+
+        ControlStackNew controlStackNewDefault = workerContextDefault.getControlStackNew();
+        org.ballerinalang.bre.bvm.StackFrame callerSFDefault =
+                new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
+        controlStackNewDefault.pushFrame(callerSFDefault);
         BLangVM bLangVM = new BLangVM(programFile);
+
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
                 new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
         bContext.getControlStackNew().pushFrame(calleeSF);
-        BLangVM.copyArgValuesWorker(callerSF, calleeSF, argRegs, paramTypes);
 
+        BLangVM.copyArgValuesWorker(callerSF, calleeSF, argRegs, paramTypes);
         BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                bContext, defaultWorkerInfo, resultChannel, callableUnitInfo.getRetParamTypes());
+                workerContextDefault, defaultWorkerInfo, resultChannel, callableUnitInfo.getRetParamTypes());
         workerRunnerList.add(workerRunner);
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
             Context workerContext = new Context(programFile);
-            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            DefaultBalCallback workerCallback = new DefaultBalCallback(bContext.getBalCallback());
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
 
@@ -90,11 +105,13 @@ public class BLangVMWorkers {
                 properties.forEach((property, value) -> workerContext.setProperty(property, value));
             }
 
-            ControlStackNew controlStack = workerContext.getControlStackNew();
-            controlStack.pushFrame(callerSF);
+            ControlStackNew controlStackNew = workerContext.getControlStackNew();
+            org.ballerinalang.bre.bvm.StackFrame callerSFWorker =
+                    new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
+            controlStackNew.pushFrame(callerSFWorker);
 
             StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, retRegs);
-            controlStack.pushFrame(workerCalleeSF);
+            controlStackNew.pushFrame(workerCalleeSF);
 
             // Copy arg values from the current StackFrame to the new StackFrame
             // TODO fix this. Move the copyArgValues method to another util function
@@ -116,7 +133,53 @@ public class BLangVMWorkers {
         try {
             // Taking the results from the blocking queue. Whoever puts results in to this queue will win the
             // return race.
-            StackFrame resultFrame = resultChannel.take();
+            StackFrame stackFrame = resultChannel.poll(10000, TimeUnit.MILLISECONDS);
+            if (stackFrame != null) {
+                int longParamCount = 0;
+                int doubleParamCount = 0;
+                int stringParamCount = 0;
+                int intParamCount = 0;
+                int refParamCount = 0;
+                int byteParamCount = 0;
+                BType[] returnTypes = callableUnitInfo.getRetParamTypes();
+                //bContext.getControlStackNew().popFrame();
+
+                for (int i = 0; i < returnTypes.length; i++) {
+                    BType argType = returnTypes[i];
+                    switch (argType.getTag()) {
+                        case TypeTags.INT_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().longRegs[longParamCount] =
+                                    stackFrame.getLongRegs()[longParamCount];
+                            longParamCount++;
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().doubleRegs[doubleParamCount] =
+                                    stackFrame.getDoubleRegs()[doubleParamCount];
+                            doubleParamCount++;
+                            break;
+                        case TypeTags.STRING_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().stringRegs[stringParamCount] =
+                                    stackFrame.getStringRegs()[stringParamCount];
+                            stringParamCount++;
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().intRegs[intParamCount] =
+                                    stackFrame.getIntRegs()[intParamCount];
+                            intParamCount++;
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().byteRegs[byteParamCount] =
+                                    stackFrame.getByteRegs()[byteParamCount];
+                            byteParamCount++;
+                            break;
+                        default:
+                            bContext.getControlStackNew().getCurrentFrame().refRegs[refParamCount] =
+                                    stackFrame.getRefRegs()[refParamCount];
+                            refParamCount++;
+                            break;
+                    }
+                }
+            }
             
 
         } catch (InterruptedException e) {
@@ -133,25 +196,35 @@ public class BLangVMWorkers {
         BlockingQueue<StackFrame> resultChannel = new LinkedBlockingQueue<>();
 
         Context workerContextDefault = new Context(programFile);
-        WorkerCallback workerCallbackDefault = new WorkerCallback(workerContextDefault);
+        //WorkerCallback workerCallbackDefault = new WorkerCallback(workerContextDefault);
+        DefaultBalCallback workerCallbackDefault = new DefaultBalCallback(bContext.getBalCallback());
         workerContextDefault.setBalCallback(workerCallbackDefault);
         workerContextDefault.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+        if (properties != null) {
+            properties.forEach((property, value) -> workerContextDefault.setProperty(property, value));
+        }
 
         ControlStackNew controlStackNewDefault = workerContextDefault.getControlStackNew();
         org.ballerinalang.bre.bvm.StackFrame callerSFDefault =
                 new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
         controlStackNewDefault.pushFrame(callerSFDefault);
         BLangVM bLangVM = new BLangVM(programFile);
-        createWorkerStackFrame(callableUnitInfo, bContext, defaultWorkerInfo, args, retRegs);
+        createWorkerStackFrame(callableUnitInfo, workerContextDefault, defaultWorkerInfo, args, retRegs);
         BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                bContext, defaultWorkerInfo, resultChannel, callableUnitInfo.getRetParamTypes());
+                workerContextDefault, defaultWorkerInfo, resultChannel, callableUnitInfo.getRetParamTypes());
         workerRunnerList.add(workerRunner);
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
             Context workerContext = new Context(programFile);
-            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            //WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            DefaultBalCallback workerCallback = new DefaultBalCallback(bContext.getBalCallback());
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+            if (properties != null) {
+                properties.forEach((property, value) -> workerContext.setProperty(property, value));
+            }
 
             ControlStackNew controlStackNew = workerContext.getControlStackNew();
             org.ballerinalang.bre.bvm.StackFrame callerSFWorker =
@@ -184,7 +257,58 @@ public class BLangVMWorkers {
         try {
             // Taking the results from the blocking queue. Whoever puts results in to this queue will win the
             // return race.
-            resultChannel.take();
+            StackFrame stackFrame = resultChannel.poll(10000, TimeUnit.MILLISECONDS);
+            if (stackFrame != null) {
+                int longParamCount = 0;
+                int doubleParamCount = 0;
+                int stringParamCount = 0;
+                int intParamCount = 0;
+                int refParamCount = 0;
+                int byteParamCount = 0;
+                BType[] returnTypes = callableUnitInfo.getRetParamTypes();
+                if (callableUnitInfo instanceof ResourceInfo && returnTypes.length == 0) {
+                    returnTypes = new BType[1];
+                    BType msgType = BTypes.getTypeFromName("message");
+                    returnTypes[0] = msgType;
+                }
+                //bContext.getControlStackNew().popFrame();
+
+                for (int i = 0; i < returnTypes.length; i++) {
+                    BType argType = returnTypes[i];
+                    switch (argType.getTag()) {
+                        case TypeTags.INT_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().longRegs[longParamCount] =
+                                    stackFrame.getLongRegs()[longParamCount];
+                            longParamCount++;
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().doubleRegs[doubleParamCount] =
+                                    stackFrame.getDoubleRegs()[doubleParamCount];
+                            doubleParamCount++;
+                            break;
+                        case TypeTags.STRING_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().stringRegs[stringParamCount] =
+                                    stackFrame.getStringRegs()[stringParamCount];
+                            stringParamCount++;
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().intRegs[intParamCount] =
+                                    stackFrame.getIntRegs()[intParamCount];
+                            intParamCount++;
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            bContext.getControlStackNew().getCurrentFrame().byteRegs[byteParamCount] =
+                                    stackFrame.getByteRegs()[byteParamCount];
+                            byteParamCount++;
+                            break;
+                        default:
+                            bContext.getControlStackNew().getCurrentFrame().refRegs[refParamCount] =
+                                    stackFrame.getRefRegs()[refParamCount];
+                            refParamCount++;
+                            break;
+                    }
+                }
+            }
 
         } catch (InterruptedException e) {
             //Ignore the error here
@@ -344,7 +468,17 @@ public class BLangVMWorkers {
                 }
             }
 
-            if (resultChannel != null && bContext.getControlStackNew() != null &&
+            if (returnTypes != null && returnTypes.length > 0 && resultChannel != null &&
+                    bContext.getControlStackNew() != null &&
+                    bContext.getControlStackNew().getCurrentFrame() != null &&
+                    bContext.getControlStackNew().getCurrentFrame().isCalleeReturned()) {
+                try {
+                    resultChannel.put(bContext.getControlStackNew().getCurrentFrame());
+                } catch (InterruptedException e) {
+                    // Ignore the error. May be someone else is trying to add to the channel.
+                }
+            } else if (returnTypes != null && returnTypes.length == 0 &&
+                    bContext.getControlStackNew() != null &&
                     bContext.getControlStackNew().getCurrentFrame() != null &&
                     bContext.getControlStackNew().getCurrentFrame().isCalleeReturned()) {
                 try {

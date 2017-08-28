@@ -726,6 +726,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.REP:
                     handleReply(operands, sf);
+                    sf.setCalleeReturned(true);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -733,6 +734,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
                     break;
                 case InstructionCodes.FRET:
@@ -741,6 +743,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
                     break;
                 case InstructionCodes.SRET:
@@ -757,6 +760,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
                     break;
                 case InstructionCodes.LRET:
@@ -765,6 +769,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
                     break;
                 case InstructionCodes.RRET:
@@ -773,6 +778,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
                     break;
                 case InstructionCodes.RET:
