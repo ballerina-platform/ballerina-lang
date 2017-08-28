@@ -15,7 +15,10 @@
 
 function collectArgs() {
     # Running Ballerina bal file or compiled balx, balx has priority
-    arg_str=$(find /ballerina/files -type f -name "*.balx" && find /ballerina/files -type f -name "*.bal")
+    arg_str=$(find /ballerina/files -type f -name "*.balx" -print | head -n 1)
+    if [ -z "$arg_str" ]; then
+        arg_str=$(find /ballerina/files -type f -name "*.bal" -print | head -n 1)
+    fi
 }
 
 collectArgs

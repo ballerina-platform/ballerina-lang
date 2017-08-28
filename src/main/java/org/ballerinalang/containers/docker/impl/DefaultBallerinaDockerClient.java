@@ -278,7 +278,6 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
 
         imageName = getImageName(serviceName, imageName, imageVersion);
 
-
         if (!Files.exists(ballerinaConfig)) {
             throw new BallerinaDockerClientException("Cannot find Ballerina file: " + ballerinaConfig.toString());
         }
