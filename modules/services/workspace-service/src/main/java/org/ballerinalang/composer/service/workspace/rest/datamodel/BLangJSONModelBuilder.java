@@ -21,7 +21,7 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.composer.service.workspace.api.StringUtil;
+import org.ballerinalang.composer.service.workspace.common.StringUtil;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;

@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.workspace.utils;
 
 import com.google.gson.JsonArray;
-import org.ballerinalang.composer.service.workspace.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.program.BLangPrograms;

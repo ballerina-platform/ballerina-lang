@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.composer.service.workspace.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerErrorStrategy;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerModelBuilder;
 import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;

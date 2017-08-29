@@ -23,7 +23,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
-import org.ballerinalang.composer.service.workspace.api.PackagesApi;
 import org.ballerinalang.composer.service.workspace.langserver.LangServerManager;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
@@ -182,7 +181,6 @@ public class WorkspaceServiceRunner {
                 .addExceptionMapper(new DefaultExceptionMapper())
                 .deploy(workspaceService)
                 .deploy(new BLangFileRestService())
-                .deploy(new PackagesApi())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
                 .deploy(new BallerinaProgramService())
                 .deploy(new TypeLatticeService())

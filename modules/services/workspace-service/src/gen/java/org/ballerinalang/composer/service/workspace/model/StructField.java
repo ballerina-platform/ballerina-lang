@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 /**
  * Struct Field.

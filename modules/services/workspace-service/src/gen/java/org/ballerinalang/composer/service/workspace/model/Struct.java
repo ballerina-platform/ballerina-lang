@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,6 @@ import java.util.List;
 /**
  * Struct.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2017-01-27T07:45:46.625Z")
 public class Struct {
 
     private String name;

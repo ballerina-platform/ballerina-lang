@@ -43,8 +43,8 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentI
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentPositionParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
-import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
 import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggester;
 import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggesterImpl;

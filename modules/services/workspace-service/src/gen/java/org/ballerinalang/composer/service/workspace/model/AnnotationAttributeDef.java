@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Annotation attribute value.
  */
 public class AnnotationAttributeDef {
-    @JsonProperty("bType")
     private String bType = null;
-    
-    @JsonProperty("arrayType")
+
     private boolean arrayType;
-    
-    @JsonProperty("packagePath")
+
     private String packagePath = null;
-    
-    @JsonProperty("identifier")
+
     private String identifier = null;
     
     public String getbType() {
