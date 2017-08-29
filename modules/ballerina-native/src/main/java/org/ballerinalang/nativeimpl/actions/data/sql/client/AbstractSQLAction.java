@@ -20,12 +20,19 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -86,7 +93,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
-            stmt = getPreparedStatement(conn, datasource, query);
+            String processedQuery = createProcessedQueryString(query, parameters);
+            stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
             BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
@@ -104,7 +112,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
-            stmt = conn.prepareStatement(query);
+            String processedQuery = createProcessedQueryString(query, parameters);
+            stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
@@ -124,6 +133,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
+            String processedQuery = createProcessedQueryString(query, parameters);
             int keyColumnCount = 0;
             if (keyColumns != null) {
                 keyColumnCount = (int) keyColumns.size();
@@ -133,9 +143,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 for (int i = 0; i < keyColumnCount; i++) {
                     columnArray[i] = keyColumns.get(i);
                 }
-                stmt = conn.prepareStatement(query, columnArray);
+                stmt = conn.prepareStatement(processedQuery, columnArray);
             } else {
-                stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             }
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
@@ -208,6 +218,69 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             setConnectionAutoCommit(conn, true);
             SQLDatasourceUtils.cleanupConnection(null, stmt, conn, false);
         }
+    }
+
+    private String createProcessedQueryString(String query, BRefValueArray parameters) {
+        String currentQuery = query;
+        int start = 0;
+        Object[] vals;
+        int count;
+        int paramCount = (int) parameters.size();
+        for (int i = 0; i < paramCount; i++) {
+            BStruct paramValue = (BStruct) parameters.get(i);
+            BValue value = paramValue.getRefField(0);
+            String sqlType = paramValue.getStringField(0);
+            if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
+                    .equals(sqlType)) {
+                count = (int) ((BNewArray) value).size();
+            } else {
+                count = 1;
+            }
+            vals = this.expandQuery(start, count, currentQuery);
+            start = (Integer) vals[0];
+            currentQuery = (String) vals[1];
+        }
+        return currentQuery;
+    }
+
+    /**
+     * Given the starting position, this method searches for the first occurrence
+     * of "?" and replace it with `count` "?"'s. Returns [0] - end position of
+     * "?"'s, [1] - modified query.
+     */
+    private Object[] expandQuery(int start, int count, String query) {
+        StringBuilder result = new StringBuilder();
+        int n = query.length();
+        boolean doubleQuoteExists = false;
+        boolean singleQuoteExists = false;
+        int end = n;
+        for (int i = start; i < n; i++) {
+            if (query.charAt(i) == '\'') {
+                singleQuoteExists = !singleQuoteExists;
+            } else if (query.charAt(i) == '\"') {
+                doubleQuoteExists = !doubleQuoteExists;
+            } else if (query.charAt(i) == '?' && !(doubleQuoteExists || singleQuoteExists)) {
+                result.append(query.substring(0, i));
+                result.append(this.generateQuestionMarks(count));
+                end = result.length() + 1;
+                if (i + 1 < n) {
+                    result.append(query.substring(i + 1));
+                }
+                break;
+            }
+        }
+        return new Object[] { end, result.toString() };
+    }
+
+    private String generateQuestionMarks(int n) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            builder.append(Constants.QUESTION_MARK);
+            if (i + 1 < n) {
+                builder.append(",");
+            }
+        }
+        return builder.toString();
     }
 
     private void setConnectionAutoCommit(Connection conn, boolean status) {
@@ -322,13 +395,45 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params) {
         int paramCount = (int) params.size();
+        int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
-            BStruct paramValue = (BStruct) params.get(index);
-            String sqlType = paramValue.getStringField(0);
-            BValue value = paramValue.getRefField(0);
-            int direction = (int) paramValue.getIntField(0);
-            String structuredSQLType = paramValue.getStringField(1);
-            setParameter(conn, stmt, sqlType, value, direction, index, structuredSQLType);
+            BStruct paramStruct = (BStruct) params.get(index);
+            String sqlType = paramStruct.getStringField(0);
+            BValue value = paramStruct.getRefField(0);
+            int direction = (int) paramStruct.getIntField(0);
+            String structuredSQLType = paramStruct.getStringField(1);
+            if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
+                    .equals(sqlType)) {
+                int arrayLength = (int) ((BNewArray) value).size();
+                int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+                for (int i = 0; i < arrayLength; i++) {
+                    BValue paramValue;
+                    switch (typeTag) {
+                    case TypeTags.INT_TAG:
+                        paramValue = new BInteger(((BIntArray) value).get(i));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        paramValue = new BFloat(((BFloatArray) value).get(i));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        paramValue = new BString(((BStringArray) value).get(i));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        paramValue = new BBlob(((BBlobArray) value).get(i));
+                        break;
+                    default:
+                        throw new BallerinaException("unsupported array type for parameter index " + index);
+                    }
+                    setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal, structuredSQLType);
+                    currentOrdinal++;
+                }
+            } else {
+                setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, structuredSQLType);
+                currentOrdinal++;
+            }
         }
     }
 
