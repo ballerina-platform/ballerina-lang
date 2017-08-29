@@ -81,7 +81,12 @@ class FileTree extends React.Component {
                 listFiles(node.id, ['.bal'])
                     .then((data) => {
                         node.loading = false;
-                        node.children = data;
+                        if (_.isEmpty(data)) {
+                            delete node.children;
+                            node.toggled = false;
+                        } else {
+                            node.children = data;
+                        }
                         this.forceUpdate();
                     });
             }
