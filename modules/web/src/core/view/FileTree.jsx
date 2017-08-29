@@ -13,7 +13,7 @@ const decorators = {
         );
     },
     Header: ({ style, node }) => {
-        const icon = node.children ? 'folder' : 'document';
+        const icon = node.type !== 'file' ? 'folder' : 'document';
         const marginLeft = node.children ? '0' : '20px';
         return (
             <div className="unseletable-content" style={style.base}>
@@ -78,7 +78,7 @@ class FileTree extends React.Component {
             node.toggled = toggled;
             if (_.isEmpty(node.children)) {
                 node.loading = true;
-                listFiles(node.id, 'bal')
+                listFiles(node.id, ['.bal'])
                     .then((data) => {
                         node.loading = false;
                         node.children = data;
