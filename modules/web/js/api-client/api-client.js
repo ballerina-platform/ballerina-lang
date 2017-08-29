@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import axios from 'axios';
 import $ from 'jquery';
 import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
@@ -203,6 +204,27 @@ export function getFSRoots() {
 
     return new Promise((resolve, reject) => {
         axios.get(endpoint, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+/**
+ * Get File List
+ */
+export function listFiles(path, extensions) {
+    const endpoint = `${getServiceEndpoint('workspace')}/listFiles`;
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+    const params = {
+        path: btoa(path),
+        extensions: _.join(extensions, ','),
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers, params })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
