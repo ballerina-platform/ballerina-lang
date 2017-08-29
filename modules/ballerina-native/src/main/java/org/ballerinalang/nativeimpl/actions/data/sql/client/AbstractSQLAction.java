@@ -231,7 +231,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             BValue value = paramValue.getRefField(0);
             String sqlType = paramValue.getStringField(0);
             if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                    .equals(sqlType)) {
+                    .equalsIgnoreCase(sqlType)) {
                 count = (int) ((BNewArray) value).size();
             } else {
                 count = 1;
@@ -403,7 +403,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             int direction = (int) paramStruct.getIntField(0);
             String structuredSQLType = paramStruct.getStringField(1);
             if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                    .equals(sqlType)) {
+                    .equalsIgnoreCase(sqlType)) {
                 int arrayLength = (int) ((BNewArray) value).size();
                 int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
                 for (int i = 0; i < arrayLength; i++) {

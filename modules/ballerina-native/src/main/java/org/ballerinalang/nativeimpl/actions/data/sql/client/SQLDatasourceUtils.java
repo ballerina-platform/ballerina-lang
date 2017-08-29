@@ -17,10 +17,17 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -623,24 +630,24 @@ public class SQLDatasourceUtils {
 
     public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
             int sqlType, String structuredSQLType) {
-        Object[] val = null;
-        if (value != null) {
-            val = value.stringValue().split(",");
+        Object[] arrayData = getArrayData(value);
+        Object[] arrayValue = (Object[]) arrayData[0];
+        if (structuredSQLType.isEmpty()) {
+            structuredSQLType = (String) arrayData[1];
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (arrayValue == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Array array = conn.createArrayOf(structuredSQLType, val);
+                    Array array = conn.createArrayOf(structuredSQLType, arrayValue);
                     stmt.setArray(index + 1, array);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (arrayValue == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Array array = conn.createArrayOf(structuredSQLType, val);
+                    Array array = conn.createArrayOf(structuredSQLType, arrayValue);
                     stmt.setArray(index + 1, array);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
@@ -651,6 +658,54 @@ public class SQLDatasourceUtils {
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in set array value to statement: " + e.getMessage(), e);
+        }
+    }
+
+    private static Object[] getArrayData(BValue value) {
+        if (value == null || value.getType().getTag() != TypeTags.ARRAY_TAG) {
+            return new Object[] { null, null };
+        }
+        int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+        Object[] arrayData;
+        int arrayLength;
+        switch (typeTag) {
+        case TypeTags.INT_TAG:
+            arrayLength = (int) ((BIntArray) value).size();
+            arrayData = new Long[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BIntArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.BIGINT };
+        case TypeTags.FLOAT_TAG:
+            arrayLength = (int) ((BFloatArray) value).size();
+            arrayData = new Double[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BFloatArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.DOUBLE };
+        case TypeTags.STRING_TAG:
+            arrayLength = (int) ((BStringArray) value).size();
+            arrayData = new String[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BStringArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.VARCHAR };
+        case TypeTags.BOOLEAN_TAG:
+            arrayLength = (int) ((BBooleanArray) value).size();
+            arrayData = new Boolean[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.BOOLEAN };
+        case TypeTags.BLOB_TAG:
+            arrayLength = (int) ((BBlobArray) value).size();
+            arrayData = new Blob[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BBlobArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
+        default:
+            throw new BallerinaException("unsupported data type for array parameter");
         }
     }
 
