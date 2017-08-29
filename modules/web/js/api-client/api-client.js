@@ -192,6 +192,24 @@ export function getPackages() {
     });
 }
 
+/**
+ * Get FS Roots
+ */
+export function getFSRoots() {
+    const endpoint = `${getServiceEndpoint('workspace')}/root`;
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+
 export function getSwaggerDefinition(ballerinaSource, serviceName) {
     const endpoint = `${getServiceEndpoint('swagger')}/ballerina-to-swagger?serviceName=${serviceName}`;
     const headers = {

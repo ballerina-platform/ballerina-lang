@@ -1,8 +1,22 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Tree, { TreeNode } from 'rc-tree';
-import 'rc-tree/assets/index.css';
-import {  } from 'api-client/api-client';
+import { Treebeard } from 'react-treebeard';
+import { getFSRoots } from 'api-client/api-client';
+
+const decorators = {
+    Header: ({ style, node }) => {
+        const icon = node.children ? 'folder' : 'document';
+        return (
+            <div className="unseletable-content" style={style.base}>
+                <div style={style.title}>
+                    <i className={`fw fw-${icon}`} style={{ marginRight: '5px' }} />
+                    {node.text}
+                </div>
+            </div>
+        );
+    },
+};
 
 /**
  * File Tree
@@ -10,13 +24,49 @@ import {  } from 'api-client/api-client';
 class FileTree extends React.Component {
 
     /**
-     * Load data asynchronusly
-     * @param {String} treeNode Node to load data
+     * @inheritdoc
      */
-    onLoadData(treeNode) {
-        return new Promise((resolve, reject) => {
-            
-        });
+    constructor(props) {
+        super(props);
+        this.state = {
+            data: [],
+        };
+        this.onToggle = this.onToggle.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const setDecorator = (node) => {
+            node.decorators = decorators;
+            if (node.children && _.isArray(node.children)) {
+                node.children.forEach(setDecorator);
+            }
+        };
+        getFSRoots()
+            .then((data) => {
+                data.forEach(setDecorator);
+                this.setState({
+                    data,
+                });
+            });
+    }
+
+    /**
+     * On Node Toggole
+     * @param {Object} node node object
+     * @param {Boolean} toggled toggled state
+     */
+    onToggle(node, toggled) {
+        if (this.state.cursor) {
+            this.state.cursor.active = false;
+        }
+        node.active = true;
+        if (node.children) {
+            node.toggled = toggled;
+        }
+        this.setState({ cursor: node });
     }
 
     /**
@@ -25,23 +75,10 @@ class FileTree extends React.Component {
     render() {
         return (
             <div className="file-tree">
-                <Tree
-                    showLine="true"
-                    defaultExpandAll={false}
-                    defaultExpandedKeys={['p1']}
-                    loadData={this.onLoadData}
-                >
-                    <TreeNode title="parent 1" key="p1">
-                        <TreeNode key="p10" title="leaf" />
-                        <TreeNode title="parent 1-1" key="p11">
-                            <TreeNode title="parent 2-1" key="p21">
-                                <TreeNode title="leaf" />
-                                <TreeNode title="leaf" />
-                            </TreeNode>
-                            <TreeNode key="p22" title="leaf" />
-                        </TreeNode>
-                    </TreeNode>
-                </Tree>
+                <Treebeard
+                    data={this.state.data}
+                    onToggle={this.onToggle}
+                />
             </div>
         );
     }
