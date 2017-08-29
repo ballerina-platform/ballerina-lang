@@ -355,8 +355,6 @@
         <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
 
         <javax.jms.version>2.0.1</javax.jms.version>
-        <!--Remove this later-->
-        <checkstyle.skip>true</checkstyle.skip>
     </properties>
 
 </project>
