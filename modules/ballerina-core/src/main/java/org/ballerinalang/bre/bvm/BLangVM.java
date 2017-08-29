@@ -752,6 +752,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
                     break;
                 case InstructionCodes.BRET:
@@ -2979,7 +2980,6 @@ public class BLangVM {
         StackFrame currentSF = controlStack.popFrame();
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
-            callersSF.setCalleeReturned(true);
             // TODO Improve
             this.constPool = callersSF.packageInfo.getConstPoolEntries();
             this.code = callersSF.packageInfo.getInstructions();
