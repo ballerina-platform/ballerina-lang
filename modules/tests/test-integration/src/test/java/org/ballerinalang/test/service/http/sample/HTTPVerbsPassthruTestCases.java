@@ -18,11 +18,15 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +35,15 @@ import java.util.Map;
  * Testing the passthrough service for Head method
  */
 public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
+    private ServerInstance ballerinaServer;
+
+    @BeforeClass
+    private void setup() throws Exception {
+        ballerinaServer = ServerInstance.initBallerinaServer();
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "httpService" + File.separator + "httpMethodTest.bal").getAbsolutePath();
+        ballerinaServer.startBallerinaServer(balFile);
+    }
 
     @Test(description = "Test simple passthrough test case For HEAD with URL. /sampleHead")
     public void testPassthroughSampleForHEAD() throws IOException {
@@ -75,5 +88,10 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get("Method"), "any", "Header mismatched");
         Assert.assertEquals(response.getData(), "default", "Message content mismatched");
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        ballerinaServer.stopServer();
     }
 }
