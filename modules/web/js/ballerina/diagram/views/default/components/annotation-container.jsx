@@ -21,7 +21,7 @@ import Autosuggest from 'react-autosuggest';
 import ASTFactory from '../../../../ast/ast-factory';
 import BallerinaASTRoot from './../../../../ast/ballerina-ast-root';
 import { getComponentForNodeArray } from './../../../diagram-util';
-import AnnotationContainerUtil from '../../../../components/utils/annotation-container';
+import AnnotationContainerUtil from './utils/annotation-container';
 import AnnotationHelper from './../../../../env/helpers/annotation-helper';
 
 /**

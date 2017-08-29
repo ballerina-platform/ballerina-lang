@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import CanvasDecorator from '../components/canvas-decorator';
+import CanvasDecorator from './views/default/components/canvas-decorator';
 import PositionVisitor from './position-visitor';
 import DimensionVisitor from './dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
