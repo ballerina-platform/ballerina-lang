@@ -325,7 +325,7 @@ public class BallerinaConnectorManager {
         this.connectorManager.registerClientConnector(clientConnector);
     }
 
-    public HttpClientConnector getHTTPHttpClientConnector(boolean isHttps) {
+    public HttpClientConnector getHttpClientConnector(boolean isHttps) {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPMessageUtil.getSenderConfiguration(trpConfig, isHttps);
