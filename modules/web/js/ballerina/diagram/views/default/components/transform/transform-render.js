@@ -76,8 +76,6 @@ class TransformRender {
             if (!_.isUndefined(ev)) {
                 const input = params.connection.getParameters().input;
                 const output = params.connection.getParameters().output;
-                const sourceType = input.type;
-                const targetType = output.type;
                 const connection = this.getConnectionObject(input, output);
                 this.midpoint += this.midpointVariance;
                 this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
@@ -112,7 +110,7 @@ class TransformRender {
     * Disconnects all the connection created.
     * This does not remove the associated children from the model
     */
-    disconnectAll(connection) {
+    disconnectAll() {
         this.midpoint = 0.1;
         this.jsPlumbInstance.detachEveryConnection();
     }
@@ -124,11 +122,11 @@ class TransformRender {
     * @returns connectionObject
     */
     getConnectionObject(source, target) {
-        if(source.isField) {
+        if (source.isField) {
             source.endpointKind = source.root.endpointKind;
         }
 
-        if(target.isField) {
+        if (target.isField) {
             target.endpointKind = target.root.endpointKind;
         }
 
@@ -142,15 +140,15 @@ class TransformRender {
         this.jsPlumbInstance.remove(elementId);
     }
 
-    addConnection(sourceId, targetId, folded=false) {
+    addConnection(sourceId, targetId, folded = false) {
         this.midpoint += this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint)});
+        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         const options = {
             source: sourceId,
             target: targetId,
         };
 
-        if(folded) {
+        if (folded) {
             options.paintStyle = {
                 strokeWidth: 1,
                 stroke: '#666769',
@@ -158,7 +156,7 @@ class TransformRender {
                 outlineStroke: '#F7F7F7',
                 outlineWidth: 2,
                 dashstyle: '4',
-            }
+            };
 
             options.parameters = options.parameters || {};
             options.parameters.isFolded = true;
@@ -176,9 +174,9 @@ class TransformRender {
             return;
         }
         connection.bind('mouseover', (conn, e) => {
-            if(connection.getParameters().isFolded){
+            if (connection.getParameters().isFolded) {
                 return;
-            };
+            }
 
             if (!this.container.find('#' + this.contextMenu).is(':visible')) {
                 const contextMenuDiv = this.container.find('#' + this.contextMenu);
@@ -242,23 +240,6 @@ class TransformRender {
         });
     }
 
-    /**
-     * Checks given types are valid to connect
-     * @param  {string} sourceType type name of the source
-     * @param  {string} targetType type name of the target
-     * @return Boolean             is valid
-     */
-    isValidTypes(sourceType, targetType) {
-        let isValid;
-        if (sourceType === 'struct' || targetType === 'struct') {
-            isValid = input.typeName == output.typeName;
-        } else {
-            isValid = sourceType === targetType || sourceType === 'any' || targetType === 'any'
-                || sourceType === 'json' || targetType === 'json';
-        }
-        return isValid;
-    }
-
 /**
  * Reposition function nodes and redraw connections accordingly
  * @param {string} viewId type mapper view identifier
@@ -268,16 +249,13 @@ class TransformRender {
         this.viewId = viewId;
         const funcs = this.container.find('.middle-content  > .func');
         let yFunctionPointer = 20;
-        let ySourcePointer = 0;
-        let yTargetPointer = 0;
         const functionGap = 0;
-        const svgLines =   $('#'+this.placeHolderName+'-'+viewId+' > svg');
+        const svgLines = $('#' + this.placeHolderName + '-' + viewId + ' > svg');
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
             // Get bottom and right values relative to the type mapper parent div
             const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom -
                 (this.container.find('.middle-content').position().top + 120);
-            const right = svgLine.getBoundingClientRect().right;
             // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
             if (arrowBotton > yFunctionPointer && svgLine.getBoundingClientRect().width > 400) {
                 yFunctionPointer = arrowBotton;
@@ -310,33 +288,33 @@ class TransformRender {
    * mark specified endpoint in the UI
    * @param  {string} endpointId endpoint identifier to be marked
    */
-  markConnected(endpointId){
-    this.container.find(document.getElementById(endpointId)).removeClass("fw-circle-outline").addClass("fw-circle");
-  }
+    markConnected(endpointId) {
+        this.container.find(document.getElementById(endpointId)).removeClass('fw-circle-outline').addClass('fw-circle');
+    }
 
   /**
    * unmark specified endpoint in the UI
    * @param  {string} endpointId endpoint identifier to be unmarked
    */
-  unmarkConnected(endpointId){
-    this.container.find(document.getElementById(endpointId)).removeClass("fw-circle").addClass("fw-circle-outline");
-  }
+    unmarkConnected(endpointId) {
+        this.container.find(document.getElementById(endpointId)).removeClass('fw-circle').addClass('fw-circle-outline');
+    }
 
   /**
    * show with fade in effect
    * @param  {object} contextMenuDiv menu div to be shown
    */
-  showConnectContextMenu(contextMenuDiv) {
-      contextMenuDiv.fadeIn(200);
-  }
+    showConnectContextMenu(contextMenuDiv) {
+        contextMenuDiv.fadeIn(200);
+    }
 
   /**
    * hide with fade out effect
    * @param  {object} contextMenuDiv menu div to be hidden
    */
-  hideConnectContextMenu(contextMenuDiv) {
-      contextMenuDiv.fadeOut(200);
-  }
+    hideConnectContextMenu(contextMenuDiv) {
+        contextMenuDiv.fadeOut(200);
+    }
 
 }
 
