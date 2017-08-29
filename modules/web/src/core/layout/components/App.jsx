@@ -8,6 +8,11 @@ import BottomPanel from './BottomPanel';
 import Header from './Header';
 import { REGIONS, HISTORY } from './../constants';
 
+const leftPanelDefaultSize = 300;
+const leftPanelMaxSize = 700;
+const bottomPanelDefaultSize = 300;
+const bottomPanelMaxSize = 700;
+
 /**
  * React component for App.
  *
@@ -22,10 +27,26 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         const { history } = this.props.appContext.pref;
+        const showLeftPanel = !_.isNil(history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW));
+        const leftPanelSize = showLeftPanel
+                                    ? (parseInt(this.props.appContext
+                                        .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10)
+                                            || leftPanelDefaultSize)
+                                    : 0;
+        const showBottomPanel = !_.isNil(history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW));
+        const bottomPanelSize = showBottomPanel
+                                    ? (parseInt(this.props.appContext
+                                        .pref.history.get(HISTORY.BOTTOM_PANEL_SIZE), 10)
+                                            || bottomPanelDefaultSize)
+                                    : 0;
         this.state = {
-            showLeftPanel: !_.isNil(history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW)),
-            showBottomPanel: history.get(HISTORY.BOTTOM_PANEL_ACTIVE),
+            showLeftPanel,
+            leftPanelSize,
+            showBottomPanel,
+            bottomPanelSize,
         };
+        this.leftRightSplitPane = undefined;
+        this.topBottomSplitPane = undefined;
     }
 
     /**
@@ -73,21 +94,17 @@ class App extends React.Component {
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split="vertical"
                     className="left-right-split-pane"
-                    minSize={this.state.showLeftPanel ? 300 : 0}
-                    maxSize={700}
-                    defaultSize={
-                        this.state.showLeftPanel
-                            ? (parseInt(this.props.appContext
-                                .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10) || 300)
-                            : 0
-                    }
-                    onChange={
-                        size => this.props.appContext.pref.history.put(HISTORY.LEFT_PANEL_SIZE, size)
-                    }
-                    onDragFinished={() => {
+                    minSize={this.state.showLeftPanel ? leftPanelDefaultSize : 0}
+                    maxSize={leftPanelMaxSize}
+                    defaultSize={this.state.leftPanelSize}
+                    onDragFinished={(size) => {
+                        this.props.appContext.pref.history.put(HISTORY.LEFT_PANEL_SIZE, size);
                         this.leftRightSplitPane.setState({
                             resized: false,
                             draggedSize: undefined,
+                        });
+                        this.setState({
+                            leftPanelSize: size,
                         });
                     }
                     }
@@ -96,11 +113,24 @@ class App extends React.Component {
                     }
                 >
                     <LeftPanel
+                        width={this.state.leftPanelSize}
+                        height={
+                            1000
+                        }
                         onActiveViewChange={
                             (newView) => {
-                                this.setState({
-                                    showLeftPanel: !_.isNil(newView),
-                                });
+                                if (_.isNil(newView)) {
+                                    this.setState({
+                                        showLeftPanel: false,
+                                        leftPanelSize: 0,
+                                    });
+                                } else {
+                                    this.setState({
+                                        showLeftPanel: true,
+                                        leftPanelSize: this.props.appContext.pref.history.get(HISTORY.LEFT_PANEL_SIZE)
+                                                            || leftPanelDefaultSize,
+                                    });
+                                }
                                 this.leftRightSplitPane.setState({
                                     resized: false,
                                     draggedSize: undefined,
@@ -115,19 +145,17 @@ class App extends React.Component {
                         className="top-bottom-split-pane"
                         split="horizontal"
                         primary="second"
-                        minSize={300}
-                        maxSize={700}
-                        defaultSize={
-                            parseInt(this.props.appContext
-                                    .pref.history.get(HISTORY.BOTTOM_PANEL_SIZE), 10) || 300
-                        }
-                        onChange={
-                            size => this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, size)
-                        }
-                        onDragFinished={() => {
+                        minSize={this.state.showBottomPanel ? bottomPanelDefaultSize : 0}
+                        maxSize={bottomPanelMaxSize}
+                        defaultSize={this.state.bottomPanelSize}
+                        onDragFinished={(size) => {
+                            this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, size);
                             this.topBottomSplitPane.setState({
                                 resized: false,
                                 draggedSize: undefined,
+                            });
+                            this.setState({
+                                bottomPanelSize: size,
                             });
                         }
                         }
@@ -136,9 +164,18 @@ class App extends React.Component {
                         <BottomPanel
                             onActiveViewChange={
                                 (newView) => {
-                                    this.setState({
-                                        showBottomPanel: !_.isNil(newView),
-                                    });
+                                    if (_.isNil(newView)) {
+                                        this.setState({
+                                            showBottomPanel: false,
+                                            bottomPanelSize: 0,
+                                        });
+                                    } else {
+                                        this.setState({
+                                            showBottomPanel: true,
+                                            bottomPanelSize: this.props.appContext.pref.history.get(HISTORY.BOTTOM_PANEL_SIZE)
+                                                                || leftPanelDefaultSize,
+                                        });
+                                    }
                                     this.topBottomSplitPane.setState({
                                         resized: false,
                                         draggedSize: undefined,

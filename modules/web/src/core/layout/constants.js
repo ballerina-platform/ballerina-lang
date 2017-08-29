@@ -8,7 +8,6 @@ export const HISTORY = {
     LEFT_PANEL_SIZE: 'left-split-pane-size',
     BOTTOM_PANEL_SIZE: 'bottom-split-pane-size',
     ACTIVE_LEFT_PANEL_VIEW: 'active-left-panel-view',
-    BOTTOM_PANEL_ACTIVE: 'bottom-panel-active',
     ACTIVE_BOTTOM_PANEL_VIEW: 'active-bottom-panel-view',
 };
 

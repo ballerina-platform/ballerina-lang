@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import ActivityBar from './ActivityBar';
 import { HISTORY } from './../constants';
@@ -49,7 +50,14 @@ class LeftPanel extends React.Component {
                 <Tab.Pane key={id} eventKey={id}>
                     <div>
                         <div className="panel-title">{panelTitle}</div>
-                        <div className="panel-content">{view}</div>
+                        <Scrollbars
+                            style={{
+                                width: this.props.width,
+                                height: this.props.height,
+                            }}
+                        >
+                            <div className="panel-content">{view}</div>
+                        </Scrollbars>
                     </div>
                 </Tab.Pane>
             ));
