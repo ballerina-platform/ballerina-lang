@@ -86,11 +86,11 @@ public class SiddhiExtensionLoader {
             if (!siddhiExtensionAnnotation.name().isEmpty()) {
                 Class previousClass = null;
                 if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
-                    String elementKey = siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
+                    String key = siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
                             siddhiExtensionAnnotation.name();
-                    Class elementValue = siddhiExtensionsMap.get(elementKey);
-                    if (elementValue == null) {
-                        previousClass = siddhiExtensionsMap.put(elementKey, extensionClass);
+                    Class existingValue = siddhiExtensionsMap.get(key);
+                    if (existingValue == null) {
+                        previousClass = siddhiExtensionsMap.put(key, extensionClass);
                     }
                     if (previousClass != null) {
                         log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
