@@ -325,10 +325,10 @@ public class BallerinaConnectorManager {
         this.connectorManager.registerClientConnector(clientConnector);
     }
 
-    public HttpClientConnector getHTTPHttpClientConnector() {
+    public HttpClientConnector getHTTPHttpClientConnector(boolean isHttps) {
         Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
-                HTTPMessageUtil.getSenderConfiguration(trpConfig);
+                HTTPMessageUtil.getSenderConfiguration(trpConfig, isHttps);
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);
