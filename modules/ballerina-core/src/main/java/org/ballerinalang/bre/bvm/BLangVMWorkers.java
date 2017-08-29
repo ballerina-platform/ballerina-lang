@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
@@ -65,34 +64,49 @@ public class BLangVMWorkers {
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                             StackFrame callerSF, int[] argRegs,
                                             Context bContext, WorkerInfo defaultWorkerInfo, int[] retRegs,
-                              Map<String, Object> properties) {
+                              int retAddrs, Map<String, Object> properties) {
 
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         List<WorkerExecutor> workerRunnerList = new ArrayList<>();
         BlockingQueue<StackFrame> resultChannel = new LinkedBlockingQueue<>();
 
-        Context workerContextDefault = new Context(programFile);
-        DefaultBalCallback workerCallbackDefault = new DefaultBalCallback(bContext.getBalCallback());
-        workerContextDefault.setBalCallback(workerCallbackDefault);
-        workerContextDefault.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+        Context defaultWorkerContext = new Context(programFile);
+        DefaultBalCallback defaultWorkerCallback = new DefaultBalCallback(bContext.getBalCallback());
+        defaultWorkerContext.setBalCallback(defaultWorkerCallback);
+        defaultWorkerContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
 
         if (properties != null) {
-            properties.forEach((property, value) -> workerContextDefault.setProperty(property, value));
+            properties.forEach((property, value) -> defaultWorkerContext.setProperty(property, value));
         }
 
-        ControlStackNew controlStackNewDefault = workerContextDefault.getControlStackNew();
+        ControlStackNew defaultControlStack = defaultWorkerContext.getControlStackNew();
         org.ballerinalang.bre.bvm.StackFrame callerSFDefault =
                 new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
-        controlStackNewDefault.pushFrame(callerSFDefault);
-        BLangVM bLangVM = new BLangVM(programFile);
+        defaultControlStack.pushFrame(callerSFDefault);
+
+        int longRegCount = callerSF.getLongRegs().length;
+        int doubleRegCount = callerSF.getDoubleRegs().length;
+        int stringRegCount = callerSF.getStringRegs().length;
+        int intRegCount = callerSF.getIntRegs().length;
+        int refRegCount = callerSF.getRefRegs().length;
+        int byteRegCount = callerSF.getByteRegs().length;
+
+        callerSFDefault.setLongRegs(new long[longRegCount]);
+        callerSFDefault.setDoubleRegs(new double[doubleRegCount]);
+        callerSFDefault.setStringRegs(new String[stringRegCount]);
+        callerSFDefault.setIntRegs(new int[intRegCount]);
+        callerSFDefault.setRefRegs(new BRefType[refRegCount]);
+        callerSFDefault.setByteRegs(new byte[byteRegCount][]);
 
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
                 new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
-        bContext.getControlStackNew().pushFrame(calleeSF);
+        defaultControlStack.pushFrame(calleeSF);
 
         BLangVM.copyArgValuesWorker(callerSF, calleeSF, argRegs, paramTypes);
+
+        BLangVM bLangVM = new BLangVM(programFile);
         BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                workerContextDefault, defaultWorkerInfo, resultChannel, callableUnitInfo.getRetParamTypes());
+                defaultWorkerContext, defaultWorkerInfo, resultChannel, callableUnitInfo.getRetParamTypes());
         workerRunnerList.add(workerRunner);
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
@@ -107,8 +121,15 @@ public class BLangVMWorkers {
 
             ControlStackNew controlStackNew = workerContext.getControlStackNew();
             org.ballerinalang.bre.bvm.StackFrame callerSFWorker =
-                    new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
+                    new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, workerInfo, -1, retRegs);
             controlStackNew.pushFrame(callerSFWorker);
+
+            callerSFWorker.setLongRegs(new long[longRegCount]);
+            callerSFWorker.setDoubleRegs(new double[doubleRegCount]);
+            callerSFWorker.setStringRegs(new String[stringRegCount]);
+            callerSFWorker.setIntRegs(new int[intRegCount]);
+            callerSFWorker.setRefRegs(new BRefType[refRegCount]);
+            callerSFWorker.setByteRegs(new byte[byteRegCount][]);
 
             StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, retRegs);
             controlStackNew.pushFrame(workerCalleeSF);
@@ -135,52 +156,82 @@ public class BLangVMWorkers {
             // return race.
             StackFrame stackFrame = resultChannel.poll(10000, TimeUnit.MILLISECONDS);
             if (stackFrame != null) {
-                int longParamCount = 0;
-                int doubleParamCount = 0;
-                int stringParamCount = 0;
-                int intParamCount = 0;
-                int refParamCount = 0;
-                int byteParamCount = 0;
-                BType[] returnTypes = callableUnitInfo.getRetParamTypes();
-                //bContext.getControlStackNew().popFrame();
+//                int longParamCount = 0;
+//                int doubleParamCount = 0;
+//                int stringParamCount = 0;
+//                int intParamCount = 0;
+//                int refParamCount = 0;
+//                int byteParamCount = 0;
+//                BType[] returnTypes = callableUnitInfo.getRetParamTypes();
 
-                for (int i = 0; i < returnTypes.length; i++) {
-                    BType argType = returnTypes[i];
-                    switch (argType.getTag()) {
-                        case TypeTags.INT_TAG:
-                            bContext.getControlStackNew().getCurrentFrame().longRegs[longParamCount] =
-                                    stackFrame.getLongRegs()[longParamCount];
-                            longParamCount++;
-                            break;
-                        case TypeTags.FLOAT_TAG:
-                            bContext.getControlStackNew().getCurrentFrame().doubleRegs[doubleParamCount] =
-                                    stackFrame.getDoubleRegs()[doubleParamCount];
-                            doubleParamCount++;
-                            break;
-                        case TypeTags.STRING_TAG:
-                            bContext.getControlStackNew().getCurrentFrame().stringRegs[stringParamCount] =
-                                    stackFrame.getStringRegs()[stringParamCount];
-                            stringParamCount++;
-                            break;
-                        case TypeTags.BOOLEAN_TAG:
-                            bContext.getControlStackNew().getCurrentFrame().intRegs[intParamCount] =
-                                    stackFrame.getIntRegs()[intParamCount];
-                            intParamCount++;
-                            break;
-                        case TypeTags.BLOB_TAG:
-                            bContext.getControlStackNew().getCurrentFrame().byteRegs[byteParamCount] =
-                                    stackFrame.getByteRegs()[byteParamCount];
-                            byteParamCount++;
-                            break;
-                        default:
-                            bContext.getControlStackNew().getCurrentFrame().refRegs[refParamCount] =
-                                    stackFrame.getRefRegs()[refParamCount];
-                            refParamCount++;
-                            break;
+                for (int i = 0; i < longRegCount; i++) {
+                        callerSF.longRegs[i] = stackFrame.getLongRegs()[i];
+                }
+
+                for (int i = 0; i < doubleRegCount; i++) {
+                        callerSF.doubleRegs[i] = stackFrame.getDoubleRegs()[i];
+                }
+
+                for (int i = 0; i < stringRegCount; i++) {
+                    if (stackFrame.getStringRegs()[i] != null) {
+                        callerSF.stringRegs[i] = stackFrame.getStringRegs()[i];
                     }
                 }
+
+                for (int i = 0; i < intRegCount; i++) {
+                        callerSF.intRegs[i] = stackFrame.getIntRegs()[i];
+                }
+
+                for (int i = 0; i < refRegCount; i++) {
+                    if (stackFrame.getRefRegs()[i] != null) {
+                        callerSF.refRegs[i] = stackFrame.getRefRegs()[i];
+                    }
+                }
+
+                for (int i = 0; i < byteRegCount; i++) {
+                    if (stackFrame.getByteRegs()[i] != null) {
+                        callerSF.byteRegs[i] = stackFrame.getByteRegs()[i];
+                    }
+                }
+//                bContext.getControlStackNew().currentFrame = stackFrame;
+//
+//                for (int i = 0; i < returnTypes.length; i++) {
+//                    BType argType = returnTypes[i];
+//                    switch (argType.getTag()) {
+//                        case TypeTags.INT_TAG:
+//                            bContext.getControlStackNew().getCurrentFrame().longRegs[longParamCount] =
+//                                    stackFrame.getLongRegs()[longParamCount];
+//                            longParamCount++;
+//                            break;
+//                        case TypeTags.FLOAT_TAG:
+//                            bContext.getControlStackNew().getCurrentFrame().doubleRegs[doubleParamCount] =
+//                                    stackFrame.getDoubleRegs()[doubleParamCount];
+//                            doubleParamCount++;
+//                            break;
+//                        case TypeTags.STRING_TAG:
+//                            bContext.getControlStackNew().getCurrentFrame().stringRegs[stringParamCount] =
+//                                    stackFrame.getStringRegs()[stringParamCount];
+//                            stringParamCount++;
+//                            break;
+//                        case TypeTags.BOOLEAN_TAG:
+//                            bContext.getControlStackNew().getCurrentFrame().intRegs[intParamCount] =
+//                                    stackFrame.getIntRegs()[intParamCount];
+//                            intParamCount++;
+//                            break;
+//                        case TypeTags.BLOB_TAG:
+//                            bContext.getControlStackNew().getCurrentFrame().byteRegs[byteParamCount] =
+//                                    stackFrame.getByteRegs()[byteParamCount];
+//                            byteParamCount++;
+//                            break;
+//                        default:
+//                            bContext.getControlStackNew().getCurrentFrame().refRegs[refParamCount] =
+//                                    stackFrame.getRefRegs()[refParamCount];
+//                            refParamCount++;
+//                            break;
+//                    }
+//                }
             }
-            
+
 
         } catch (InterruptedException e) {
             //Ignore the error here
@@ -228,7 +279,7 @@ public class BLangVMWorkers {
 
             ControlStackNew controlStackNew = workerContext.getControlStackNew();
             org.ballerinalang.bre.bvm.StackFrame callerSFWorker =
-                    new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, defaultWorkerInfo, -1, retRegs);
+                    new org.ballerinalang.bre.bvm.StackFrame(callableUnitInfo, workerInfo, -1, retRegs);
             controlStackNew.pushFrame(callerSFWorker);
 
             createWorkerStackFrame(callableUnitInfo, workerContext, workerInfo, args, retRegs);
@@ -403,7 +454,7 @@ public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF,
                                                                                                     int[] argRegs) {
-        invoke(programFile, callableUnitInfo, callerSF, argRegs, null, null, null, null);
+        invoke(programFile, callableUnitInfo, callerSF, argRegs, null, null, null, -1, null);
     }
 
     static class WorkerExecutor implements Callable<WorkerResult> {

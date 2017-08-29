@@ -4095,20 +4095,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                     isWorkerReturning = true;
                 }
             }
-//            if (isWorkerReturning) {
-//                return;
-//            }
+
             if (!(callableUnit instanceof Worker) && !isWorkerReturning) {
                 throw BLangExceptionHelper.getSemanticError(callableUnit.getNodeLocation(),
                         SemanticErrors.MISSING_RETURN_STATEMENT);
             } else {
                 for (Worker worker : callableUnit.getWorkers()) {
-                    if (worker.getCallableUnitBody().isAlwaysReturns()) {
-                        checkAndAddReturnStmt(worker);
-                    }
+                    checkAndAddReturnStmt(worker);
                 }
-
             }
+
         } else if (blockStmt.isAlwaysReturns()) {
             return;
         }

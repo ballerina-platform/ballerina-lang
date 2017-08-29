@@ -2609,7 +2609,7 @@ public class BLangVM {
 
             // Invoke other workers
             BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo,
-                    funcCallCPEntry.getRetRegs(), null);
+                    funcCallCPEntry.getRetRegs(), ip, null);
         } else {
 
             StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
@@ -2641,7 +2641,7 @@ public class BLangVM {
 
             // Invoke other workers
             BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context,
-                    defaultWorkerInfo, funcCallCPEntry.getRetRegs(), null);
+                    defaultWorkerInfo, funcCallCPEntry.getRetRegs(), ip, null);
         } else {
 
             StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
@@ -3581,7 +3581,6 @@ public class BLangVM {
             if (match != null) {
                 break;
             }
-
             controlStack.popFrame();
             context.setError(currentFrame.errorThrown);
             if (controlStack.getCurrentFrame() == null) {
