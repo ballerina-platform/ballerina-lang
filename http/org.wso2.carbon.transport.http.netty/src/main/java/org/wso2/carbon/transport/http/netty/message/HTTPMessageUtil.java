@@ -131,14 +131,18 @@ public class HTTPMessageUtil {
      * Extract sender configuration from transport configuration.
      *
      * @param transportsConfiguration {@link TransportsConfiguration} which sender configurations should be extracted.
+     * @param isHttps
      * @return extracted {@link SenderConfiguration}.
      */
-    public static SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
+    public static SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration,
+                                                             boolean isHttps) {
         Map<String, SenderConfiguration> senderConfigurations =
                 transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
                         .toMap(senderConf ->
                                 senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
-        return senderConfigurations.get("http");
+
+        return isHttps ?
+                senderConfigurations.get(Constants.PROTOCOL_HTTPS) : senderConfigurations.get(Constants.PROTOCOL_HTTP);
     }
 
     /**

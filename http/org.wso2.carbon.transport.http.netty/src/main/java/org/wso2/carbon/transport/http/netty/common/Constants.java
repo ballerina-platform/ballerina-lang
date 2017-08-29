@@ -134,7 +134,9 @@ public final class Constants {
 
     public static final String PROTOCOL = "PROTOCOL";
 
-    public static final String PROTOCOL_NAME = "http";
+    public static final String PROTOCOL_HTTP = "http";
+
+    public static final String PROTOCOL_HTTPS = "https";
 
     public static final String HTTP_PROTOCOL = "HTTP_PROTOCOL";
 

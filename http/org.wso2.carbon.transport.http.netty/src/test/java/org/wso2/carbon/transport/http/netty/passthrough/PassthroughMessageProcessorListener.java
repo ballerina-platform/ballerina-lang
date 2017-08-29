@@ -70,7 +70,10 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
 
                 }
 
-                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+                String protocol = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
+                boolean isHttps = Constants.PROTOCOL_HTTPS.equals(protocol) ? true : false;
+                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration,
+                                                                                                 isHttps);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 clientConnector =

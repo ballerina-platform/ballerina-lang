@@ -170,7 +170,7 @@ public class HTTP2ResponseCallback implements CarbonCallback {
                 .method(Util.getStringValue(msg, Constants.HTTP_METHOD, DEFAULT_HTTP_METHOD_POST))
                 .path(msg.getProperty(Constants.TO) != null ? msg.getProperty(Constants.TO).toString() : "/")
                 .scheme(msg.getProperty(Constants.SCHEME) != null ? msg.getProperty(Constants.SCHEME).toString()
-                        : Constants.PROTOCOL_NAME);
+                        : Constants.PROTOCOL_HTTP);
         //set Authority Header
         if (msg.getProperty(Constants.AUTHORITY) != null) {
             http2Headers.authority(Constants.AUTHORITY);
