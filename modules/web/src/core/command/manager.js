@@ -80,7 +80,7 @@ class CommandManager extends Plugin {
                     key, label,
                 };
                 Mousetrap.bind(key, (e) => {
-                    this.commandChannel.trigger(cmd);
+                    this.commandChannel.trigger(cmd.id);
                     e.preventDefault();
                     e.stopPropagation();
                 });
