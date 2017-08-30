@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class UpdateOrInsertTableTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -147,16 +147,16 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(3, inEventCount);
+                                AssertJUnit.assertSame(3, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -186,9 +186,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -225,16 +225,16 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(3, inEventCount);
+                                AssertJUnit.assertSame(3, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -263,15 +263,15 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void updateOrInsertTableTest5() throws InterruptedException {
         log.info("updateOrInsertTableTest5");
 
@@ -322,9 +322,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", false, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", false, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -368,16 +368,16 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(3, inEventCount);
+                                AssertJUnit.assertSame(3, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -407,9 +407,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -454,13 +454,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -489,9 +489,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -530,13 +530,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 155.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 155.6f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -564,9 +564,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -611,13 +611,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 155.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 155.6f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -646,9 +646,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -693,13 +693,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -728,9 +728,9 @@ public class UpdateOrInsertTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 

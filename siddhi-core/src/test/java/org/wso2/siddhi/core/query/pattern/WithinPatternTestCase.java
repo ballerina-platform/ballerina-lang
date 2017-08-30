@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.pattern;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -37,7 +37,7 @@ public class WithinPatternTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -67,7 +67,7 @@ public class WithinPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"GOOG", "IBM"}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"GOOG", "IBM"}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -90,9 +90,9 @@ public class WithinPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -121,7 +121,7 @@ public class WithinPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"GOOG", "IBM"}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"GOOG", "IBM"}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -144,9 +144,9 @@ public class WithinPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -175,7 +175,7 @@ public class WithinPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -202,9 +202,9 @@ public class WithinPatternTestCase {
         stream2.send(new Object[]{"IBM", 57.7f, 100});
         Thread.sleep(600);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

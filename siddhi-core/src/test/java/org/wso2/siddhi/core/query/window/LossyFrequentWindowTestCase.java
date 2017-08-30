@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class LossyFrequentWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void initialize() {
         eventArrived = false;
         inEventCount = 0;
@@ -87,9 +87,9 @@ public class LossyFrequentWindowTestCase {
         inputHandler.send(new Object[]{"1124-3244-2432-4126", 78.36f});
 
         Thread.sleep(1000);
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Event count", 100, inEventCount);
-        Assert.assertEquals("Out Event count", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("In Event count", 100, inEventCount);
+        AssertJUnit.assertEquals("Out Event count", 0, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 
@@ -139,8 +139,8 @@ public class LossyFrequentWindowTestCase {
             // window during first iteration because 1+0<5*0.25
         }
         Thread.sleep(1000);
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Out Event count", 1, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Out Event count", 1, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 
@@ -189,9 +189,9 @@ public class LossyFrequentWindowTestCase {
             // only consider cardNo
         }
         Thread.sleep(1000);
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Event count", 101, inEventCount);
-        Assert.assertEquals("Out Event count", 1, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("In Event count", 101, inEventCount);
+        AssertJUnit.assertEquals("Out Event count", 1, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 

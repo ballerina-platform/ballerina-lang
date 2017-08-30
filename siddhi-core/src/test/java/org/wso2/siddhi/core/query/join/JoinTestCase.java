@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.join;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class JoinTestCase {
     private AtomicInteger removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = new AtomicInteger(0);
         removeEventCount = new AtomicInteger(0);
@@ -87,9 +87,9 @@ public class JoinTestCase {
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 6000);
             SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 6000);
-            Assert.assertEquals(2, inEventCount.get());
-            Assert.assertEquals(2, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(2, inEventCount.get());
+            AssertJUnit.assertEquals(2, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -137,9 +137,9 @@ public class JoinTestCase {
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
-            Assert.assertEquals(2, inEventCount.get());
-            Assert.assertEquals(2, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(2, inEventCount.get());
+            AssertJUnit.assertEquals(2, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -183,9 +183,9 @@ public class JoinTestCase {
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
-            Assert.assertEquals(2, inEventCount.get());
-            Assert.assertEquals(2, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(2, inEventCount.get());
+            AssertJUnit.assertEquals(2, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -214,14 +214,14 @@ public class JoinTestCase {
                     EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         for (Event event : inEvents) {
-                            org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
+                            org.testng.AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
                                     (0)));
                         }
                         inEventCount.addAndGet(inEvents.length);
                     }
                     if (removeEvents != null) {
                         for (Event event : removeEvents) {
-                            org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
+                            org.testng.AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
                                     (0)));
                         }
                         removeEventCount.getAndAdd(removeEvents.length);
@@ -241,9 +241,9 @@ public class JoinTestCase {
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
-            Assert.assertEquals(2, inEventCount.get());
-            Assert.assertEquals(2, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(2, inEventCount.get());
+            AssertJUnit.assertEquals(2, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -280,13 +280,13 @@ public class JoinTestCase {
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(500);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void joinTest6() throws InterruptedException {
         log.info("Join test6");
 
@@ -303,7 +303,7 @@ public class JoinTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void joinTest7() throws InterruptedException {
         log.info("Join test7");
 
@@ -351,7 +351,7 @@ public class JoinTestCase {
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(500);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -388,7 +388,7 @@ public class JoinTestCase {
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(500);
-            Assert.assertFalse(eventArrived);
+            AssertJUnit.assertFalse(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -432,9 +432,9 @@ public class JoinTestCase {
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("inEventCount", 2, inEventCount.get());
-            Assert.assertEquals("removeEventCount", 0, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals("inEventCount", 2, inEventCount.get());
+            AssertJUnit.assertEquals("removeEventCount", 0, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -479,9 +479,9 @@ public class JoinTestCase {
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
-            Assert.assertEquals("inEventCount", 2, inEventCount.get());
-            Assert.assertEquals("removeEventCount", 2, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals("inEventCount", 2, inEventCount.get());
+            AssertJUnit.assertEquals("removeEventCount", 2, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -524,15 +524,15 @@ public class JoinTestCase {
             twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            Assert.assertEquals("inEventCount", 1, inEventCount.get());
-            Assert.assertEquals("removeEventCount", 0, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals("inEventCount", 1, inEventCount.get());
+            AssertJUnit.assertEquals("removeEventCount", 0, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void joinTest13() throws InterruptedException {
         log.info("Join test13");
 
@@ -594,7 +594,7 @@ public class JoinTestCase {
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
             orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
-            Assert.assertEquals("Event Arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Event Arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -640,7 +640,7 @@ public class JoinTestCase {
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
             orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
-            Assert.assertEquals("Event Arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Event Arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -687,7 +687,7 @@ public class JoinTestCase {
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
             orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
-            Assert.assertEquals("Event Arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Event Arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -732,7 +732,7 @@ public class JoinTestCase {
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
             orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
-            Assert.assertEquals("Event Arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Event Arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -786,10 +786,10 @@ public class JoinTestCase {
                     inEventCount.incrementAndGet();
                     if (inEventCount.get() == 1) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 4L);
                     } else {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 3L);
                     }
                 }
             });
@@ -799,10 +799,10 @@ public class JoinTestCase {
                     removeEventCount.incrementAndGet();
                     if (removeEventCount.get() == 1) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 4L);
                     } else {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 4L);
                     }
                 }
             });
@@ -855,10 +855,10 @@ public class JoinTestCase {
                     inEventCount.incrementAndGet();
                     if (inEventCount.get() == 1) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 3L);
                     } else {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 2L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 2L);
                     }
                 }
             });
@@ -912,10 +912,10 @@ public class JoinTestCase {
                     inEventCount.incrementAndGet();
                     if (inEventCount.get() == 1) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 3L);
                     } else {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
-                        Assert.assertTrue((Long) inEvents[0].getData(0) == 2L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(0) == 2L);
                     }
                 }
             });

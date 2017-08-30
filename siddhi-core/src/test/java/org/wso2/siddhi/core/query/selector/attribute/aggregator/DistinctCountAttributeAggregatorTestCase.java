@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -31,7 +31,7 @@ public class DistinctCountAttributeAggregatorTestCase {
     private static final Logger log = Logger.getLogger(DistinctCountAttributeAggregatorTestCase.class);
     private volatile int count;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
     }
@@ -58,9 +58,9 @@ public class DistinctCountAttributeAggregatorTestCase {
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
                 for (org.wso2.siddhi.core.event.Event event : events) {
-                    Assert.assertEquals("User ID", "USER_1", event.getData(0));
-                    Assert.assertEquals("Page ID", "WEB_PAGE_4", event.getData(1));
-                    Assert.assertEquals("Distinct Pages", 4L, event.getData(2));
+                    AssertJUnit.assertEquals("User ID", "USER_1", event.getData(0));
+                    AssertJUnit.assertEquals("Page ID", "WEB_PAGE_4", event.getData(1));
+                    AssertJUnit.assertEquals("Distinct Pages", 4L, event.getData(2));
                     count++;
                 }
             }
@@ -91,6 +91,6 @@ public class DistinctCountAttributeAggregatorTestCase {
 
         Thread.sleep(2000);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals("Event count", 1, count);
+        AssertJUnit.assertEquals("Event count", 1, count);
     }
 }

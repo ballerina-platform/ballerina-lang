@@ -20,9 +20,9 @@ package org.wso2.siddhi.core.query.ratelimit;
 
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -37,7 +37,7 @@ public class TimeOutputRateLimitTestCase {
     private volatile int removeEventCount;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -74,7 +74,7 @@ public class TimeOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -96,8 +96,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.40"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 6, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 6, count);
         siddhiAppRuntime.shutdown();
 
     }
@@ -131,7 +131,7 @@ public class TimeOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -153,8 +153,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.40"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 6, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 6, count);
         siddhiAppRuntime.shutdown();
 
     }
@@ -188,7 +188,7 @@ public class TimeOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -210,8 +210,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 8, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 8, count);
         siddhiAppRuntime.shutdown();
 
     }
@@ -244,10 +244,10 @@ public class TimeOutputRateLimitTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
-                    Assert.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.9".equals(inEvents[0]
+                    AssertJUnit.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.9".equals(inEvents[0]
                             .getData(0)) || "192.10.1.30".equals(inEvents[0].getData(0)));
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -267,8 +267,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 3, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 3, count);
 
         siddhiAppRuntime.shutdown();
 
@@ -302,11 +302,11 @@ public class TimeOutputRateLimitTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
-                    Assert.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.3".equals(inEvents[0]
+                    AssertJUnit.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.3".equals(inEvents[0]
                             .getData(0)) || "192.10.1.4".equals(inEvents[0].getData(0)) || "192.10.1.30".equals
                             (inEvents[0].getData(0)));
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -326,8 +326,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event value", 3 <= count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertTrue("Number of output event value", 3 <= count);
 
         siddhiAppRuntime.shutdown();
 
@@ -363,7 +363,7 @@ public class TimeOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -385,8 +385,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 6, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 6, count);
 
         siddhiAppRuntime.shutdown();
 
@@ -422,7 +422,7 @@ public class TimeOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -444,8 +444,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 6, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 6, count);
 
         siddhiAppRuntime.shutdown();
 
@@ -481,7 +481,7 @@ public class TimeOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count += inEvents.length;
                 } else {
-                    Assert.fail("Remove events emitted");
+                    AssertJUnit.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -503,8 +503,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1200);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 5, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 5, count);
 
         siddhiAppRuntime.shutdown();
 
@@ -540,7 +540,7 @@ public class TimeOutputRateLimitTestCase {
                 if (removeEvents != null) {
                     count += removeEvents.length;
                 } else {
-                    Assert.fail("inEvents emitted");
+                    AssertJUnit.fail("inEvents emitted");
                 }
                 eventArrived = true;
             }
@@ -562,8 +562,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1100);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 4, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 4, count);
 
         siddhiAppRuntime.shutdown();
 
@@ -599,7 +599,7 @@ public class TimeOutputRateLimitTestCase {
                 if (removeEvents != null) {
                     count += removeEvents.length;
                 } else {
-                    Assert.fail("inEvents emitted");
+                    AssertJUnit.fail("inEvents emitted");
                 }
                 eventArrived = true;
             }
@@ -621,8 +621,8 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1100);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 4, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output event value", 4, count);
 
         siddhiAppRuntime.shutdown();
 
@@ -681,9 +681,9 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1100);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output in event value", 5, inEventCount);
-        Assert.assertEquals("Number of output remove event value", 2, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output in event value", 5, inEventCount);
+        AssertJUnit.assertEquals("Number of output remove event value", 2, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 
@@ -742,9 +742,9 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1100);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output in event value", 4, inEventCount);
-        Assert.assertEquals("Number of output remove event value", 3, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output in event value", 4, inEventCount);
+        AssertJUnit.assertEquals("Number of output remove event value", 3, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 
@@ -803,9 +803,9 @@ public class TimeOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.30"});
         Thread.sleep(1100);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output in event value", 6, inEventCount);
-        Assert.assertEquals("Number of output remove event value", 3, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of output in event value", 6, inEventCount);
+        AssertJUnit.assertEquals("Number of output remove event value", 3, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 

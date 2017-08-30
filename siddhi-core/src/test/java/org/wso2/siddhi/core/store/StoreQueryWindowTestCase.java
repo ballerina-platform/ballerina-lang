@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.store;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class StoreQueryWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -71,19 +71,19 @@ public class StoreQueryWindowTestCase {
         Event[] events = siddhiAppRuntime.query("" +
                 "from StockWindow ");
         EventPrinter.print(events);
-        Assert.assertEquals(2, events.length);
+        AssertJUnit.assertEquals(2, events.length);
 
         events = siddhiAppRuntime.query("" +
                 "from StockWindow " +
                 "on price > 75 ");
         EventPrinter.print(events);
-        Assert.assertEquals(1, events.length);
+        AssertJUnit.assertEquals(1, events.length);
 
         events = siddhiAppRuntime.query("" +
                 "from StockWindow " +
                 "on price > volume*3/4  ");
         EventPrinter.print(events);
-        Assert.assertEquals(1, events.length);
+        AssertJUnit.assertEquals(1, events.length);
 
         siddhiAppRuntime.shutdown();
 
@@ -119,8 +119,8 @@ public class StoreQueryWindowTestCase {
                 "on price > 75 " +
                 "select symbol, volume ");
         EventPrinter.print(events);
-        Assert.assertEquals(1, events.length);
-        Assert.assertEquals(2, events[0].getData().length);
+        AssertJUnit.assertEquals(1, events.length);
+        AssertJUnit.assertEquals(2, events[0].getData().length);
 
         events = siddhiAppRuntime.query("" +
                 "from StockWindow " +
@@ -128,7 +128,7 @@ public class StoreQueryWindowTestCase {
                 "select symbol, volume " +
                 "having symbol == 'WSO2' ");
         EventPrinter.print(events);
-        Assert.assertEquals(2, events.length);
+        AssertJUnit.assertEquals(2, events.length);
 
         siddhiAppRuntime.shutdown();
 
@@ -166,8 +166,8 @@ public class StoreQueryWindowTestCase {
                 "group by symbol " +
                 "having totalVolume >150 ");
         EventPrinter.print(events);
-        Assert.assertEquals(1, events.length);
-        Assert.assertEquals(200L, events[0].getData(1));
+        AssertJUnit.assertEquals(1, events.length);
+        AssertJUnit.assertEquals(200L, events[0].getData(1));
 
         events = siddhiAppRuntime.query("" +
                 "from StockWindow " +
@@ -175,12 +175,12 @@ public class StoreQueryWindowTestCase {
                 "select symbol, sum(volume) as totalVolume " +
                 "group by symbol  ");
         EventPrinter.print(events);
-        Assert.assertEquals(2, events.length);
+        AssertJUnit.assertEquals(2, events.length);
 
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = StoreQueryCreationException.class)
+    @Test(expectedExceptions = StoreQueryCreationException.class)
     public void test5() throws InterruptedException {
         log.info("Test5 table");
 
@@ -201,8 +201,8 @@ public class StoreQueryWindowTestCase {
                     "group by symbol " +
                     "having totalVolume >150 ");
             EventPrinter.print(events);
-            Assert.assertEquals(1, events.length);
-            Assert.assertEquals(200L, events[0].getData(1));
+            AssertJUnit.assertEquals(1, events.length);
+            AssertJUnit.assertEquals(200L, events[0].getData(1));
 
         } finally {
             siddhiAppRuntime.shutdown();

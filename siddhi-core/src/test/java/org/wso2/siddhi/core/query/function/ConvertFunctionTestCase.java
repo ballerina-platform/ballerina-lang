@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +34,7 @@ public class ConvertFunctionTestCase {
     private static final Logger log = Logger.getLogger(ConvertFunctionTestCase.class);
     private int count;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
     }
@@ -65,13 +65,13 @@ public class ConvertFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof String);
-                    Assert.assertTrue(inEvent.getData(1) instanceof Float);
-                    Assert.assertTrue(inEvent.getData(2) instanceof Double);
-                    Assert.assertTrue(inEvent.getData(3) instanceof Integer);
-                    Assert.assertTrue(inEvent.getData(4) instanceof Long);
-                    Assert.assertTrue(inEvent.getData(5) instanceof Boolean);
-                    Assert.assertTrue(inEvent.getData(6) == null);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof String);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof Float);
+                    AssertJUnit.assertTrue(inEvent.getData(2) instanceof Double);
+                    AssertJUnit.assertTrue(inEvent.getData(3) instanceof Integer);
+                    AssertJUnit.assertTrue(inEvent.getData(4) instanceof Long);
+                    AssertJUnit.assertTrue(inEvent.getData(5) instanceof Boolean);
+                    AssertJUnit.assertTrue(inEvent.getData(6) == null);
                 }
             }
         });
@@ -79,7 +79,7 @@ public class ConvertFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5L, true, null});
         Thread.sleep(100);
-        Assert.assertEquals(1, count);
+        AssertJUnit.assertEquals(1, count);
         siddhiAppRuntime.shutdown();
     }
 
@@ -123,54 +123,54 @@ public class ConvertFunctionTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 count++;
-                Assert.assertTrue(inEvents[0].getData(0) instanceof String);
-                Assert.assertTrue(inEvents[0].getData(1) == null);
-                Assert.assertTrue(inEvents[0].getData(2) == null);
-                Assert.assertTrue(inEvents[0].getData(3) == null);
-                Assert.assertTrue(inEvents[0].getData(4) == null);
-                Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && !((Boolean) inEvents[0].getData(5)));
+                AssertJUnit.assertTrue(inEvents[0].getData(0) instanceof String);
+                AssertJUnit.assertTrue(inEvents[0].getData(1) == null);
+                AssertJUnit.assertTrue(inEvents[0].getData(2) == null);
+                AssertJUnit.assertTrue(inEvents[0].getData(3) == null);
+                AssertJUnit.assertTrue(inEvents[0].getData(4) == null);
+                AssertJUnit.assertTrue(inEvents[0].getData(5) instanceof Boolean && !((Boolean) inEvents[0].getData(5)));
 
-                Assert.assertTrue(inEvents[0].getData(6) instanceof String);
-                Assert.assertTrue(inEvents[0].getData(7) instanceof Float);
-                Assert.assertTrue(inEvents[0].getData(8) instanceof Double);
-                Assert.assertTrue(inEvents[0].getData(9) instanceof Integer);
-                Assert.assertTrue(inEvents[0].getData(10) instanceof Long);
-                Assert.assertTrue(inEvents[0].getData(11) instanceof Boolean && !((Boolean) inEvents[0].getData(11)));
+                AssertJUnit.assertTrue(inEvents[0].getData(6) instanceof String);
+                AssertJUnit.assertTrue(inEvents[0].getData(7) instanceof Float);
+                AssertJUnit.assertTrue(inEvents[0].getData(8) instanceof Double);
+                AssertJUnit.assertTrue(inEvents[0].getData(9) instanceof Integer);
+                AssertJUnit.assertTrue(inEvents[0].getData(10) instanceof Long);
+                AssertJUnit.assertTrue(inEvents[0].getData(11) instanceof Boolean && !((Boolean) inEvents[0].getData(11)));
 
-                Assert.assertTrue(inEvents[0].getData(12) instanceof String);
-                Assert.assertTrue(inEvents[0].getData(13) instanceof Float);
-                Assert.assertTrue(inEvents[0].getData(14) instanceof Double);
-                Assert.assertTrue(inEvents[0].getData(15) instanceof Integer);
-                Assert.assertTrue(inEvents[0].getData(16) instanceof Long);
-                Assert.assertTrue(inEvents[0].getData(17) instanceof Boolean && !((Boolean) inEvents[0].getData(17)));
+                AssertJUnit.assertTrue(inEvents[0].getData(12) instanceof String);
+                AssertJUnit.assertTrue(inEvents[0].getData(13) instanceof Float);
+                AssertJUnit.assertTrue(inEvents[0].getData(14) instanceof Double);
+                AssertJUnit.assertTrue(inEvents[0].getData(15) instanceof Integer);
+                AssertJUnit.assertTrue(inEvents[0].getData(16) instanceof Long);
+                AssertJUnit.assertTrue(inEvents[0].getData(17) instanceof Boolean && !((Boolean) inEvents[0].getData(17)));
 
-                Assert.assertTrue(inEvents[0].getData(18) instanceof String);
-                Assert.assertTrue(inEvents[0].getData(19) instanceof Float);
-                Assert.assertTrue(inEvents[0].getData(20) instanceof Double);
-                Assert.assertTrue(inEvents[0].getData(21) instanceof Integer);
-                Assert.assertTrue(inEvents[0].getData(22) instanceof Long);
-                Assert.assertTrue(inEvents[0].getData(23) instanceof Boolean && !((Boolean) inEvents[0].getData(23)));
+                AssertJUnit.assertTrue(inEvents[0].getData(18) instanceof String);
+                AssertJUnit.assertTrue(inEvents[0].getData(19) instanceof Float);
+                AssertJUnit.assertTrue(inEvents[0].getData(20) instanceof Double);
+                AssertJUnit.assertTrue(inEvents[0].getData(21) instanceof Integer);
+                AssertJUnit.assertTrue(inEvents[0].getData(22) instanceof Long);
+                AssertJUnit.assertTrue(inEvents[0].getData(23) instanceof Boolean && !((Boolean) inEvents[0].getData(23)));
 
-                Assert.assertTrue(inEvents[0].getData(24) instanceof String);
-                Assert.assertTrue(inEvents[0].getData(25) instanceof Float);
-                Assert.assertTrue(inEvents[0].getData(26) instanceof Double);
-                Assert.assertTrue(inEvents[0].getData(27) instanceof Integer);
-                Assert.assertTrue(inEvents[0].getData(28) instanceof Long);
-                Assert.assertTrue(inEvents[0].getData(29) instanceof Boolean && !((Boolean) inEvents[0].getData(29)));
+                AssertJUnit.assertTrue(inEvents[0].getData(24) instanceof String);
+                AssertJUnit.assertTrue(inEvents[0].getData(25) instanceof Float);
+                AssertJUnit.assertTrue(inEvents[0].getData(26) instanceof Double);
+                AssertJUnit.assertTrue(inEvents[0].getData(27) instanceof Integer);
+                AssertJUnit.assertTrue(inEvents[0].getData(28) instanceof Long);
+                AssertJUnit.assertTrue(inEvents[0].getData(29) instanceof Boolean && !((Boolean) inEvents[0].getData(29)));
 
-                Assert.assertTrue(inEvents[0].getData(30) instanceof String);
-                Assert.assertTrue(inEvents[0].getData(31) instanceof Float);
-                Assert.assertTrue(inEvents[0].getData(32) instanceof Double);
-                Assert.assertTrue(inEvents[0].getData(33) instanceof Integer);
-                Assert.assertTrue(inEvents[0].getData(34) instanceof Long);
-                Assert.assertTrue(inEvents[0].getData(35) instanceof Boolean && ((Boolean) inEvents[0].getData(35)));
+                AssertJUnit.assertTrue(inEvents[0].getData(30) instanceof String);
+                AssertJUnit.assertTrue(inEvents[0].getData(31) instanceof Float);
+                AssertJUnit.assertTrue(inEvents[0].getData(32) instanceof Double);
+                AssertJUnit.assertTrue(inEvents[0].getData(33) instanceof Integer);
+                AssertJUnit.assertTrue(inEvents[0].getData(34) instanceof Long);
+                AssertJUnit.assertTrue(inEvents[0].getData(35) instanceof Boolean && ((Boolean) inEvents[0].getData(35)));
             }
         });
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5L, true});
         Thread.sleep(100);
-        Assert.assertEquals(1, count);
+        AssertJUnit.assertEquals(1, count);
         siddhiAppRuntime.shutdown();
     }
 
@@ -199,24 +199,24 @@ public class ConvertFunctionTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 count++;
-                Assert.assertTrue(inEvents[0].getData(0) instanceof Boolean && (Boolean) inEvents[0].getData(0));
-                Assert.assertTrue(inEvents[0].getData(1) instanceof Boolean && (Boolean) inEvents[0].getData(1));
-                Assert.assertTrue(inEvents[0].getData(2) instanceof Boolean && (Boolean) inEvents[0].getData(2));
-                Assert.assertTrue(inEvents[0].getData(3) instanceof Boolean && (Boolean) inEvents[0].getData(3));
-                Assert.assertTrue(inEvents[0].getData(4) instanceof Boolean && (Boolean) inEvents[0].getData(4));
-                Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && (Boolean) inEvents[0].getData(5));
+                AssertJUnit.assertTrue(inEvents[0].getData(0) instanceof Boolean && (Boolean) inEvents[0].getData(0));
+                AssertJUnit.assertTrue(inEvents[0].getData(1) instanceof Boolean && (Boolean) inEvents[0].getData(1));
+                AssertJUnit.assertTrue(inEvents[0].getData(2) instanceof Boolean && (Boolean) inEvents[0].getData(2));
+                AssertJUnit.assertTrue(inEvents[0].getData(3) instanceof Boolean && (Boolean) inEvents[0].getData(3));
+                AssertJUnit.assertTrue(inEvents[0].getData(4) instanceof Boolean && (Boolean) inEvents[0].getData(4));
+                AssertJUnit.assertTrue(inEvents[0].getData(5) instanceof Boolean && (Boolean) inEvents[0].getData(5));
             }
         });
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
-        Assert.assertEquals(1, count);
+        AssertJUnit.assertEquals(1, count);
         siddhiAppRuntime.shutdown();
     }
 
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void convertFunctionTest4() throws InterruptedException {
         log.info("convert function test 4");
 
@@ -247,11 +247,11 @@ public class ConvertFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
-        Assert.assertEquals(0, count);
+        AssertJUnit.assertEquals(0, count);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void convertFunctionTest5() throws InterruptedException {
         log.info("convert function test 5");
 
@@ -282,11 +282,11 @@ public class ConvertFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
-        Assert.assertEquals(0, count);
+        AssertJUnit.assertEquals(0, count);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void convertFunctionTest6() throws InterruptedException {
         log.info("convert function test 6");
 
@@ -317,7 +317,7 @@ public class ConvertFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
-        Assert.assertEquals(0, count);
+        AssertJUnit.assertEquals(0, count);
         siddhiAppRuntime.shutdown();
     }
 }

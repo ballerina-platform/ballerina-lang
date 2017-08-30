@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class ExternalTimeWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -85,9 +85,9 @@ public class ExternalTimeWindowTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Events ", 5, inEventCount);
-        Assert.assertEquals("Remove Events ", 4, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("In Events ", 5, inEventCount);
+        AssertJUnit.assertEquals("Remove Events ", 4, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 

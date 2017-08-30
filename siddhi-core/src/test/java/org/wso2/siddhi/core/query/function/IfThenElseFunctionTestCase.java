@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +34,7 @@ public class IfThenElseFunctionTestCase {
 
     private int count;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
     }
@@ -60,15 +60,15 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof Double);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof String);
                     if (count == 1) {
-                        Assert.assertEquals(50.4, inEvent.getData(0));
-                        Assert.assertEquals("High", inEvent.getData(1));
+                        AssertJUnit.assertEquals(50.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("High", inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(20.4, inEvent.getData(0));
-                        Assert.assertEquals("Low", inEvent.getData(1));
+                        AssertJUnit.assertEquals(20.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Low", inEvent.getData(1));
                     }
 
                 }
@@ -82,10 +82,10 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertEquals(2, count);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void ifFunctionExtensionTestCase2() throws InterruptedException {
         log.info("IfThenElseFunctionExtension TestCase2");
 
@@ -106,15 +106,15 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof Double);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof String);
                     if (count == 1) {
-                        Assert.assertEquals(50.4, inEvent.getData(0));
-                        Assert.assertEquals("High", inEvent.getData(1));
+                        AssertJUnit.assertEquals(50.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("High", inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(20.4, inEvent.getData(0));
-                        Assert.assertEquals("Low", inEvent.getData(1));
+                        AssertJUnit.assertEquals(20.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Low", inEvent.getData(1));
                     }
 
                 }
@@ -128,10 +128,10 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertEquals(2, count);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void ifFunctionExtensionTestCase3() throws InterruptedException {
         log.info("IfThenElseFunctionExtension TestCase3");
 
@@ -152,15 +152,15 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof Double);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof String);
                     if (count == 1) {
-                        Assert.assertEquals(50.4, inEvent.getData(0));
-                        Assert.assertEquals("High", inEvent.getData(1));
+                        AssertJUnit.assertEquals(50.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("High", inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(20.4, inEvent.getData(0));
-                        Assert.assertEquals("Low", inEvent.getData(1));
+                        AssertJUnit.assertEquals(20.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Low", inEvent.getData(1));
                     }
 
                 }
@@ -174,10 +174,10 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertEquals(2, count);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void ifFunctionExtensionTestCase4() throws InterruptedException {
         log.info("IfThenElseFunctionExtension TestCase4");
 
@@ -198,15 +198,15 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof Double);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof String);
                     if (count == 1) {
-                        Assert.assertEquals(50.4, inEvent.getData(0));
-                        Assert.assertEquals("High", inEvent.getData(1));
+                        AssertJUnit.assertEquals(50.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("High", inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(20.4, inEvent.getData(0));
-                        Assert.assertEquals("Low", inEvent.getData(1));
+                        AssertJUnit.assertEquals(20.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Low", inEvent.getData(1));
                     }
 
                 }
@@ -220,7 +220,7 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertEquals(2, count);
     }
 
     @Test
@@ -244,15 +244,15 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof Integer);
-                    Assert.assertTrue(inEvent.getData(1) instanceof Integer);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof Integer);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof Integer);
                     if (count == 1) {
-                        Assert.assertEquals(50, inEvent.getData(0));
-                        Assert.assertEquals(250, inEvent.getData(1));
+                        AssertJUnit.assertEquals(50, inEvent.getData(0));
+                        AssertJUnit.assertEquals(250, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(20, inEvent.getData(0));
-                        Assert.assertEquals(200, inEvent.getData(1));
+                        AssertJUnit.assertEquals(20, inEvent.getData(0));
+                        AssertJUnit.assertEquals(200, inEvent.getData(1));
                     }
 
                 }
@@ -266,7 +266,7 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{20});
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertEquals(2, count);
     }
 
     @Test
@@ -290,15 +290,15 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    AssertJUnit.assertTrue(inEvent.getData(0) instanceof Double);
+                    AssertJUnit.assertTrue(inEvent.getData(1) instanceof String);
                     if (count == 1) {
-                        Assert.assertEquals(50.4, inEvent.getData(0));
-                        Assert.assertEquals("High", inEvent.getData(1));
+                        AssertJUnit.assertEquals(50.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("High", inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(20.4, inEvent.getData(0));
-                        Assert.assertEquals("Low", inEvent.getData(1));
+                        AssertJUnit.assertEquals(20.4, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Low", inEvent.getData(1));
                     }
 
                 }
@@ -312,6 +312,6 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertEquals(2, count);
     }
 }

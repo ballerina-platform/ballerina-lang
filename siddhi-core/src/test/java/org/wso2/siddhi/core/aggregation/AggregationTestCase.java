@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.aggregation;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -38,7 +38,7 @@ public class AggregationTestCase {
     private AtomicInteger inEventCount;
     private AtomicInteger removeEventCount;
     private boolean eventArrived;
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = new AtomicInteger(0);
         removeEventCount = new AtomicInteger(0);
@@ -633,9 +633,9 @@ public class AggregationTestCase {
                     "2017-06-01 09:35:52 +05:30", "seconds"});
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 6000);
             SiddhiTestHelper.waitForEvents(100, 1, removeEventCount, 6000);
-            Assert.assertEquals(1, inEventCount.get());
-            Assert.assertEquals(1, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(1, inEventCount.get());
+            AssertJUnit.assertEquals(1, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }

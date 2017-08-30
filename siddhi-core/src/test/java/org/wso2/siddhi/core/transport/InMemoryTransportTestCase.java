@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.transport;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class InMemoryTransportTestCase {
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
-    @Before
+    @BeforeMethod
     public void init() {
         wso2Count.set(0);
         ibmCount.set(0);
@@ -99,8 +99,8 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        AssertJUnit.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 1, ibmCount.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -162,8 +162,8 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 0, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 3, ibmCount.get());
+        AssertJUnit.assertEquals("Number of WSO2 events", 0, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 3, ibmCount.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -196,13 +196,13 @@ public class InMemoryTransportTestCase {
                 for (Event event : events) {
                     switch (wso2Count.incrementAndGet()) {
                         case 1:
-                            org.junit.Assert.assertEquals(55.6f, event.getData(1));
+                            org.testng.AssertJUnit.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            org.junit.Assert.assertEquals(57.6f, event.getData(1));
+                            org.testng.AssertJUnit.assertEquals(57.6f, event.getData(1));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -216,8 +216,8 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 0, ibmCount.get());
+        AssertJUnit.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 0, ibmCount.get());
         siddhiAppRuntime.shutdown();
 
     }
@@ -276,8 +276,8 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        AssertJUnit.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 1, ibmCount.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -344,8 +344,8 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        AssertJUnit.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 1, ibmCount.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -353,7 +353,7 @@ public class InMemoryTransportTestCase {
         InMemoryBroker.unsubscribe(subscriptionIBM);
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void inMemoryTestCase3() throws InterruptedException {
         log.info("Test inMemory 3");
 
@@ -374,7 +374,7 @@ public class InMemoryTransportTestCase {
 
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void inMemoryTestCase4() throws InterruptedException {
         log.info("Test inMemory 4");
 
@@ -443,7 +443,7 @@ public class InMemoryTransportTestCase {
                 EventPrinter.print(events);
                 wso2Count.incrementAndGet();
                 for (Event event : events) {
-                    Assert.assertArrayEquals(event.getData(), new Object[]{"hi", "test", 100L});
+                    AssertJUnit.assertArrayEquals(event.getData(), new Object[]{"hi", "test", 100L});
                 }
             }
         });
@@ -454,7 +454,7 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 3, wso2Count.get());
+        AssertJUnit.assertEquals("Number of events", 3, wso2Count.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -484,7 +484,7 @@ public class InMemoryTransportTestCase {
                 EventPrinter.print(events);
                 wso2Count.incrementAndGet();
                 for (Event event : events) {
-                    Assert.assertArrayEquals(event.getData(), new Object[]{"hi", "test", 100L});
+                    AssertJUnit.assertArrayEquals(event.getData(), new Object[]{"hi", "test", 100L});
                 }
             }
         });
@@ -493,7 +493,7 @@ public class InMemoryTransportTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 0, wso2Count.get());
+        AssertJUnit.assertEquals("Number of events", 0, wso2Count.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -555,9 +555,9 @@ public class InMemoryTransportTestCase {
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 1, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 2, ibmCount.get());
-        Assert.assertEquals("Number of errors", 2, TestFailingInMemorySink.numberOfErrorOccurred);
+        AssertJUnit.assertEquals("Number of WSO2 events", 1, wso2Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 2, ibmCount.get());
+        AssertJUnit.assertEquals("Number of errors", 2, TestFailingInMemorySink.numberOfErrorOccurred);
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -609,13 +609,13 @@ public class InMemoryTransportTestCase {
         InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of errors", 1, TestFailingInMemorySource.numberOfErrorOccurred);
+        AssertJUnit.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+        AssertJUnit.assertEquals("Number of errors", 1, TestFailingInMemorySource.numberOfErrorOccurred);
         siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void inMemoryTestCase8() throws InterruptedException {
         log.info("Test inMemory 8");
 
@@ -637,7 +637,7 @@ public class InMemoryTransportTestCase {
 
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void inMemoryTestCase9() throws InterruptedException {
         log.info("Test inMemory 9");
 

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -47,7 +47,7 @@ public class ExternalTimeBatchWindowTestCase {
     private long sum;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -80,7 +80,7 @@ public class ExternalTimeBatchWindowTestCase {
         }
 
         Thread.sleep(1000);
-        Assert.assertFalse("Event happens inner external time batch window, should not have event recieved in " +
+        AssertJUnit.assertFalse("Event happens inner external time batch window, should not have event recieved in " +
                 "callback!", recieved.get());
 
         runtime.shutdown();
@@ -112,16 +112,16 @@ public class ExternalTimeBatchWindowTestCase {
         runtime.addCallback("query", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                Assert.assertEquals(1, inEvents.length);
+                AssertJUnit.assertEquals(1, inEvents.length);
                 recCount.incrementAndGet();
                 double avgCpu = (Double) inEvents[0].getData()[0];
                 if (recCount.get() == 1) {
-                    Assert.assertEquals(15, avgCpu, 0);
+                    AssertJUnit.assertEquals(15, avgCpu, 0);
                 } else if (recCount.get() == 2) {
-                    Assert.assertEquals(85, avgCpu, 0);
+                    AssertJUnit.assertEquals(85, avgCpu, 0);
                 }
                 long count = (Long) inEvents[0].getData()[1];
-                Assert.assertEquals(3, count);
+                AssertJUnit.assertEquals(3, count);
             }
         });
 
@@ -146,7 +146,7 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals(2, recCount.get());
+        AssertJUnit.assertEquals(2, recCount.get());
     }
 
     @Test
@@ -215,8 +215,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         plan.shutdown();
         Thread.sleep(1000);
-        Assert.assertEquals(round * eventsPerRound + eventsPerRound, counter.get());
-        Assert.assertEquals(round, queryWideCounter.get());
+        AssertJUnit.assertEquals(round * eventsPerRound + eventsPerRound, counter.get());
+        AssertJUnit.assertEquals(round, queryWideCounter.get());
     }
 
     // one round of sending events
@@ -252,11 +252,11 @@ public class ExternalTimeBatchWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (count == 0) {
-                    Assert.assertEquals(1, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(1, inEvents[0].getData(0));
                 } else if (count == 1) {
-                    Assert.assertEquals(6, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(6, inEvents[0].getData(0));
                 } else if (count == 2) {
-                    Assert.assertEquals(13, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(13, inEvents[0].getData(0));
                 }
                 count += 1;
             }
@@ -312,11 +312,11 @@ public class ExternalTimeBatchWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (count == 0) {
-                    Assert.assertEquals(0L, inEvents[0].getData(0));
-                    Assert.assertEquals(11L, inEvents[inEvents.length - 1].getData(0));
+                    AssertJUnit.assertEquals(0L, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(11L, inEvents[inEvents.length - 1].getData(0));
                 }
                 if (count == 1) {
-                    Assert.assertEquals(12L, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(12L, inEvents[0].getData(0));
                 }
                 count += 1;
 
@@ -350,15 +350,15 @@ public class ExternalTimeBatchWindowTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 if (count == 0) {
-                    Assert.assertEquals(1, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(1, inEvents[0].getData(0));
                 } else if (count == 1) {
-                    Assert.assertEquals(6, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(6, inEvents[0].getData(0));
                 } else if (count == 2) {
-                    Assert.assertEquals(11, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(11, inEvents[0].getData(0));
                 } else if (count == 3) {
-                    Assert.assertEquals(14, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(14, inEvents[0].getData(0));
                 } else if (count == 4) {
-                    Assert.assertEquals(15, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(15, inEvents[0].getData(0));
                 }
                 count += 1;
             }
@@ -446,9 +446,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 2, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
     }
 
@@ -496,9 +496,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 2, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -549,9 +549,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 3, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 3, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -603,9 +603,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 3, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 3, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -653,9 +653,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(5000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 1, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 1, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
     }
@@ -705,9 +705,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(5000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 2, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -763,9 +763,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 4, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 4, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -797,15 +797,15 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4L, event.getData(2));
+                        AssertJUnit.assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(3L, event.getData(2));
+                        AssertJUnit.assertEquals(3L, event.getData(2));
                     } else if (inEventCount == 3) {
-                        Assert.assertEquals(5L, event.getData(2));
+                        AssertJUnit.assertEquals(5L, event.getData(2));
                     } else if (inEventCount == 4) {
-                        Assert.assertEquals(7L, event.getData(2));
+                        AssertJUnit.assertEquals(7L, event.getData(2));
                     } else if (inEventCount == 5) {
-                        Assert.assertEquals(2L, event.getData(2));
+                        AssertJUnit.assertEquals(2L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -834,9 +834,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 5, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 5, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
     }
 
@@ -904,7 +904,7 @@ public class ExternalTimeBatchWindowTestCase {
 
 
         Thread.sleep(10000);
-        Assert.assertEquals(10 * 10000, sum);
+        AssertJUnit.assertEquals(10 * 10000, sum);
         siddhiAppRuntime.shutdown();
     }
 
@@ -934,15 +934,15 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4L, event.getData(2));
+                        AssertJUnit.assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(3L, event.getData(2));
+                        AssertJUnit.assertEquals(3L, event.getData(2));
                     } else if (inEventCount == 3) {
-                        Assert.assertEquals(5L, event.getData(2));
+                        AssertJUnit.assertEquals(5L, event.getData(2));
                     } else if (inEventCount == 4) {
-                        Assert.assertEquals(7L, event.getData(2));
+                        AssertJUnit.assertEquals(7L, event.getData(2));
                     } else if (inEventCount == 5) {
-                        Assert.assertEquals(2L, event.getData(2));
+                        AssertJUnit.assertEquals(2L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -971,9 +971,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 5, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 5, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
     }
 
@@ -1003,9 +1003,9 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4L, event.getData(2));
+                        AssertJUnit.assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(7L, event.getData(2));
+                        AssertJUnit.assertEquals(7L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -1034,9 +1034,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 2, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
     }
 
@@ -1080,9 +1080,9 @@ public class ExternalTimeBatchWindowTestCase {
             cseEventStreamHandler.send(new Object[]{1366335805341L, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541L, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            org.junit.Assert.assertEquals(2, inEventCount);
-            org.junit.Assert.assertEquals(0, removeEventCount);
-            org.junit.Assert.assertTrue(eventArrived);
+            org.testng.AssertJUnit.assertEquals(2, inEventCount);
+            org.testng.AssertJUnit.assertEquals(0, removeEventCount);
+            org.testng.AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1128,9 +1128,9 @@ public class ExternalTimeBatchWindowTestCase {
             cseEventStreamHandler.send(new Object[]{1366335805341L, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541L, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            org.junit.Assert.assertEquals(2, inEventCount);
-            org.junit.Assert.assertEquals(1, removeEventCount);
-            org.junit.Assert.assertTrue(eventArrived);
+            org.testng.AssertJUnit.assertEquals(2, inEventCount);
+            org.testng.AssertJUnit.assertEquals(1, removeEventCount);
+            org.testng.AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1180,9 +1180,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 2, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
     }
 
@@ -1232,9 +1232,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 4, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 4, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -1263,13 +1263,13 @@ public class ExternalTimeBatchWindowTestCase {
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     for (Event event : inEvents) {
-                        Assert.assertTrue(((Long) event.getData(0)) % 100 == 0);
+                        AssertJUnit.assertTrue(((Long) event.getData(0)) % 100 == 0);
                     }
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                     for (Event event : removeEvents) {
-                        Assert.assertTrue(((Long) event.getData(0)) % 100 == 0);
+                        AssertJUnit.assertTrue(((Long) event.getData(0)) % 100 == 0);
                     }
                 }
                 eventArrived = true;
@@ -1292,9 +1292,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 4, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 4, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 
@@ -1324,13 +1324,13 @@ public class ExternalTimeBatchWindowTestCase {
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     for (Event event : inEvents) {
-                        Assert.assertTrue(((Long) event.getData(0)) % 100 != 0);
+                        AssertJUnit.assertTrue(((Long) event.getData(0)) % 100 != 0);
                     }
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                     for (Event event : removeEvents) {
-                        Assert.assertTrue(((Long) event.getData(0)) % 100 != 0);
+                        AssertJUnit.assertTrue(((Long) event.getData(0)) % 100 != 0);
                     }
                 }
 
@@ -1354,9 +1354,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
-        org.junit.Assert.assertEquals("In Events ", 4, inEventCount);
-        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("In Events ", 4, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Remove Events ", 0, removeEventCount);
         siddhiAppRuntime.shutdown();
 
 

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -42,7 +42,7 @@ public class LocgicalTableTestCase {
     private boolean eventArrived;
     private List<Object[]> inEventsList;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount.set(0);
         removeEventCount = 0;
@@ -110,10 +110,10 @@ public class LocgicalTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -177,10 +177,10 @@ public class LocgicalTableTestCase {
                     new Object[]{"GOOG", 300L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -245,10 +245,10 @@ public class LocgicalTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -313,10 +313,10 @@ public class LocgicalTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -379,11 +379,11 @@ public class LocgicalTableTestCase {
                     new Object[]{"IBM", 50L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -449,10 +449,10 @@ public class LocgicalTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }

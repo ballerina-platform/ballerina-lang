@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +34,7 @@ public class CronWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -81,8 +81,8 @@ public class CronWindowTestCase {
         inputHandler.send(new Object[]{"IBM43", 700f, 0});
         inputHandler.send(new Object[]{"WSO4343", 60.5f, 1});
         Thread.sleep(7000);
-        Assert.assertEquals(6, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -123,8 +123,8 @@ public class CronWindowTestCase {
         inputHandler.send(new Object[]{"IBM43", 700f, 0});
         inputHandler.send(new Object[]{"WSO4343", 60.5f, 1});
         Thread.sleep(7000);
-        Assert.assertEquals(4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

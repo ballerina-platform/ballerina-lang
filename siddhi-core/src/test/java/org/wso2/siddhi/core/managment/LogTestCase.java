@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -38,7 +38,7 @@ public class LogTestCase {
     private long firstValue;
     private long lastValue;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -92,6 +92,6 @@ public class LogTestCase {
         Thread.sleep(100);
 
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(true, eventArrived);
     }
 }

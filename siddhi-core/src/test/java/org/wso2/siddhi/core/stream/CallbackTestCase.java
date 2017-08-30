@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.stream;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -41,7 +41,7 @@ public class CallbackTestCase {
     private volatile int count;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -92,13 +92,13 @@ public class CallbackTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = QueryNotExistException.class)
+    @Test(expectedExceptions = QueryNotExistException.class)
     public void callbackTest2() throws InterruptedException {
         log.info("callback test2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -127,7 +127,7 @@ public class CallbackTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DefinitionNotExistException.class)
+    @Test(expectedExceptions = DefinitionNotExistException.class)
     public void callbackTest3() throws InterruptedException {
         log.info("callback test3");
         SiddhiManager siddhiManager = new SiddhiManager();

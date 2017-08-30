@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -42,7 +42,7 @@ public class PersistenceTestCase {
     private long firstValue;
     private Long lastValue;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -76,7 +76,7 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                     lastValue = (Long) inEvent.getData(2);
                 }
             }
@@ -93,8 +93,8 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(new Long(200), lastValue);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(new Long(200), lastValue);
 
         //persisting
         Thread.sleep(500);
@@ -123,9 +123,9 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertTrue(count <= 6);
-        Assert.assertEquals(new Long(400), lastValue);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertTrue(count <= 6);
+        AssertJUnit.assertEquals(new Long(400), lastValue);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 
@@ -158,7 +158,7 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, inEvent.getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, inEvent.getData());
                 }
             }
         };
@@ -177,8 +177,8 @@ public class PersistenceTestCase {
         stream1.send(new Object[]{"GOOG", 13.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 0, count);
-        Assert.assertEquals("Event arrived", false, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, count);
+        AssertJUnit.assertEquals("Event arrived", false, eventArrived);
 
         //persisting
         Thread.sleep(500);
@@ -207,12 +207,12 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertEquals("Number of success events", 1, count);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, count);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
     }
 
-    @Test(expected = NoPersistenceStoreException.class)
+    @Test(expectedExceptions = NoPersistenceStoreException.class)
     public void persistenceTest3() throws Exception {
         log.info("persistence test 3 - no store defined");
 
@@ -238,7 +238,7 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, inEvent.getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, inEvent.getData());
                 }
             }
         };
@@ -257,8 +257,8 @@ public class PersistenceTestCase {
         stream1.send(new Object[]{"GOOG", 13.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 0, count);
-        Assert.assertEquals("Event arrived", false, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, count);
+        AssertJUnit.assertEquals("Event arrived", false, eventArrived);
 
         //persisting
         Thread.sleep(500);
@@ -301,7 +301,7 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                     lastValue = (Long) inEvent.getData(2);
                 }
             }
@@ -318,8 +318,8 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(new Long(200), lastValue);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(new Long(200), lastValue);
 
         //persisting
         Thread.sleep(500);
@@ -344,8 +344,8 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertEquals(new Long(400), lastValue);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(new Long(400), lastValue);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 
@@ -376,7 +376,7 @@ public class PersistenceTestCase {
                 if (inEvents != null) {
                     for (Event inEvent : inEvents) {
                         count++;
-                        Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
+                        AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                         firstValue = (Long) inEvent.getData(2);
                     }
                 }
@@ -400,8 +400,8 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(firstValue, 200);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(firstValue, 200);
 
         //persisting
         Thread.sleep(500);
@@ -426,9 +426,9 @@ public class PersistenceTestCase {
         Thread.sleep(15000);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertEquals(400, firstValue);
-        Assert.assertEquals(null, lastValue);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(400, firstValue);
+        AssertJUnit.assertEquals(null, lastValue);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 
@@ -458,7 +458,7 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                 }
             }
         };
@@ -474,8 +474,8 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         Thread.sleep(500);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, count);
 
         //persisting
         Thread.sleep(500);
@@ -504,8 +504,8 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertEquals(count, 6);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(count, 6);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 
@@ -537,12 +537,12 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                     if (count == 5) {
-                        Assert.assertEquals(300L, inEvent.getData(2));
+                        AssertJUnit.assertEquals(300L, inEvent.getData(2));
                     }
                     if (count == 6) {
-                        Assert.assertEquals(100L, inEvent.getData(2));
+                        AssertJUnit.assertEquals(100L, inEvent.getData(2));
                     }
                 }
             }
@@ -562,8 +562,8 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"IBM", 75.3f, 100, currentTime + 3000});
 
         Thread.sleep(500);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
 
         //persisting
         Thread.sleep(500);
@@ -590,8 +590,8 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertEquals(count, 6);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(count, 6);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 
@@ -621,7 +621,7 @@ public class PersistenceTestCase {
                 eventArrived = true;
                 for (Event inEvent : inEvents) {
                     count++;
-                    Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                     lastValue = (Long) inEvent.getData(2);
                 }
             }
@@ -638,8 +638,8 @@ public class PersistenceTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(new Long(200), lastValue);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(new Long(200), lastValue);
 
         //persisting
         Thread.sleep(500);
@@ -668,9 +668,9 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        Assert.assertTrue(count == 6);
-        Assert.assertEquals(new Long(400), lastValue);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertTrue(count == 6);
+        AssertJUnit.assertEquals(new Long(400), lastValue);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 

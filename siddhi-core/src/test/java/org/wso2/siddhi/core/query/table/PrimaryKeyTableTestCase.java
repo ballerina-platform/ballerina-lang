@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -45,7 +45,7 @@ public class PrimaryKeyTableTestCase {
     private boolean eventArrived;
     private List<Object[]> inEventsList;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount.set(0);
         removeEventCount = 0;
@@ -110,10 +110,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -174,11 +174,11 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"GOOG", "WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -244,13 +244,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"FOO", "GOOG", 50L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(2, 3), expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -312,11 +312,11 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"IBM", "GOOG", 50L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -378,11 +378,11 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"IBM", "GOOG", 50L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -444,11 +444,11 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"IBM", "ABC", 70L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -510,11 +510,11 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"IBM", "WSO2", 200L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -578,11 +578,11 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"IBM", "WSO2", 200L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -657,10 +657,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -731,10 +731,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"IBM", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -810,13 +810,13 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(2, 4), expected2));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -891,13 +891,13 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(2, 4), expected2));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -968,11 +968,11 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1043,11 +1043,11 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1120,13 +1120,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"WSO2", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
                     expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1198,13 +1198,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
                     expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1276,13 +1276,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
                     expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1354,13 +1354,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
                     expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1433,13 +1433,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"WSO2", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
                     expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1513,13 +1513,13 @@ public class PrimaryKeyTableTestCase {
             expected2.add(new Object[]{"WSO2", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 3), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(3, 4),
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(3, 4),
                     expected2));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1578,11 +1578,11 @@ public class PrimaryKeyTableTestCase {
             expected1.add(new Object[]{"WSO2", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected1));
-            Assert.assertEquals("Number of success events", 1, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 1, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1643,11 +1643,11 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1707,11 +1707,11 @@ public class PrimaryKeyTableTestCase {
             expected.add(new Object[]{"FOO", 500L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1771,11 +1771,11 @@ public class PrimaryKeyTableTestCase {
             expected.add(new Object[]{"FOO", 170L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 1, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 1, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1835,11 +1835,11 @@ public class PrimaryKeyTableTestCase {
             expected.add(new Object[]{"FOO", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1899,11 +1899,11 @@ public class PrimaryKeyTableTestCase {
             expected.add(new Object[]{"FOO", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
                     expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -1948,13 +1948,13 @@ public class PrimaryKeyTableTestCase {
                             inEventCount.incrementAndGet();
                             switch (inEventCount.get()) {
                                 case 1:
-                                    Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(2, inEventCount.get());
+                                    AssertJUnit.assertSame(2, inEventCount.get());
                             }
                         }
                         eventArrived = true;
@@ -1980,15 +1980,15 @@ public class PrimaryKeyTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 300L, 55.6f});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
-    @Test(expected = AttributeNotExistException.class)
+    @Test(expectedExceptions = AttributeNotExistException.class)
     public void primaryKeyTableTest28() throws InterruptedException {
         log.info("primaryKeyTableTest28");
 
@@ -2013,7 +2013,7 @@ public class PrimaryKeyTableTestCase {
         }
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void primaryKeyTableTest29() throws InterruptedException {
         log.info("primaryKeyTableTest29");
 
@@ -2039,7 +2039,7 @@ public class PrimaryKeyTableTestCase {
         }
     }
 
-    @Test(expected = DuplicateAnnotationException.class)
+    @Test(expectedExceptions = DuplicateAnnotationException.class)
     public void primaryKeyTableTest31() throws InterruptedException {
         log.info("primaryKeyTableTest31");
 
@@ -2065,7 +2065,7 @@ public class PrimaryKeyTableTestCase {
         }
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void primaryKeyTableTest32() throws InterruptedException {
         log.info("primaryKeyTableTest32");
 
@@ -2091,7 +2091,7 @@ public class PrimaryKeyTableTestCase {
         }
     }
 
-    @Test(expected = AttributeNotExistException.class)
+    @Test(expectedExceptions = AttributeNotExistException.class)
     public void primaryKeyTableTest33() throws InterruptedException {
         log.info("primaryKeyTableTest33");
 
@@ -2170,10 +2170,10 @@ public class PrimaryKeyTableTestCase {
             expected.add(new Object[]{1, 100L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 1, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 1, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -2253,8 +2253,8 @@ public class PrimaryKeyTableTestCase {
             }
             long timeDiff1 = System.currentTimeMillis() - startTime1;
 
-            Assert.assertEquals("Indexing is faster", true, timeDiff1 < timeDiff);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("Indexing is faster", true, timeDiff1 < timeDiff);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -2317,10 +2317,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -2384,10 +2384,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -2453,10 +2453,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -2522,10 +2522,10 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 2, inEventCount.get());
-            Assert.assertEquals("Number of remove events", 0, removeEventCount);
-            Assert.assertEquals("Event arrived", true, eventArrived);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }

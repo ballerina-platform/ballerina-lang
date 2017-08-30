@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -43,7 +43,7 @@ public class FunctionTestCase {
     private int count;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -83,15 +83,15 @@ public class FunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(55.6f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(55.6f, inEvent.getData()[1]);
                     } else if (count == 2) {
-                        Assert.assertEquals(65.7f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(65.7f, inEvent.getData()[1]);
                     } else if (count == 3) {
-                        Assert.assertEquals(23.6f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(23.6f, inEvent.getData()[1]);
                     } else if (count == 4) {
-                        Assert.assertEquals(34.6f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(34.6f, inEvent.getData()[1]);
                     } else if (count == 5) {
-                        Assert.assertNull(inEvent.getData()[1]);
+                        AssertJUnit.assertNull(inEvent.getData()[1]);
                     }
                 }
             }
@@ -107,12 +107,12 @@ public class FunctionTestCase {
         inputHandler.send(new Object[]{"WSO2", null, 34.6f});
         inputHandler.send(new Object[]{"WSO2", null, null});
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void functionTest2() throws InterruptedException {
         log.info("function test 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -131,13 +131,13 @@ public class FunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(50.0f, inEvent.getData()[1]);
                     } else if (count == 2) {
-                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(70.0f, inEvent.getData()[1]);
                     } else if (count == 3) {
-                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(44.0f, inEvent.getData()[1]);
                     } else if (count == 4) {
-                        Assert.assertEquals(null, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(null, inEvent.getData()[1]);
                     }
                 }
             }
@@ -150,7 +150,7 @@ public class FunctionTestCase {
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200L, 56});
         Thread.sleep(100);
-        Assert.assertEquals(4, count);
+        AssertJUnit.assertEquals(4, count);
         siddhiAppRuntime.shutdown();
 
     }
@@ -176,11 +176,11 @@ public class FunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(50.0f, inEvent.getData()[1]);
                     } else if (count == 2) {
-                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(70.0f, inEvent.getData()[1]);
                     } else if (count == 3) {
-                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                        AssertJUnit.assertEquals(44.0f, inEvent.getData()[1]);
                     }
                 }
             }
@@ -193,7 +193,7 @@ public class FunctionTestCase {
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200L, 56});
         Thread.sleep(100);
-        org.junit.Assert.assertEquals(3, count);
+        org.testng.AssertJUnit.assertEquals(3, count);
         siddhiAppRuntime.shutdown();
 
     }

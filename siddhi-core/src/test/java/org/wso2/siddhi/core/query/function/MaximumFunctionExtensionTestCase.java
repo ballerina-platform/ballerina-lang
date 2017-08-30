@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class MaximumFunctionExtensionTestCase {
     private volatile int count;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -63,25 +63,25 @@ public class MaximumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36.75, event.getData(0));
+                            AssertJUnit.assertEquals(36.75, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(38.12, event.getData(0));
+                            AssertJUnit.assertEquals(38.12, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39.25, event.getData(0));
+                            AssertJUnit.assertEquals(39.25, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(37.75, event.getData(0));
+                            AssertJUnit.assertEquals(37.75, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(38.12, event.getData(0));
+                            AssertJUnit.assertEquals(38.12, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(40.0, event.getData(0));
+                            AssertJUnit.assertEquals(40.0, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -98,13 +98,13 @@ public class MaximumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{38.12, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testMaxFunctionExtension2() throws InterruptedException {
         log.info("MaximumFunctionExecutor TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -138,16 +138,16 @@ public class MaximumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(74, event.getData(0));
+                            AssertJUnit.assertEquals(74, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(78, event.getData(0));
+                            AssertJUnit.assertEquals(78, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39, event.getData(0));
+                            AssertJUnit.assertEquals(39, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -161,8 +161,8 @@ public class MaximumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{9, 39, 38});
 
         Thread.sleep(300);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -188,25 +188,25 @@ public class MaximumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36.75f, event.getData(0));
+                            AssertJUnit.assertEquals(36.75f, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(38.12f, event.getData(0));
+                            AssertJUnit.assertEquals(38.12f, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39.25f, event.getData(0));
+                            AssertJUnit.assertEquals(39.25f, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(37.75f, event.getData(0));
+                            AssertJUnit.assertEquals(37.75f, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(38.12f, event.getData(0));
+                            AssertJUnit.assertEquals(38.12f, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(40.0f, event.getData(0));
+                            AssertJUnit.assertEquals(40.0f, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -223,8 +223,8 @@ public class MaximumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{38.12, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -250,16 +250,16 @@ public class MaximumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(74L, event.getData(0));
+                            AssertJUnit.assertEquals(74L, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(78L, event.getData(0));
+                            AssertJUnit.assertEquals(78L, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39L, event.getData(0));
+                            AssertJUnit.assertEquals(39L, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -273,8 +273,8 @@ public class MaximumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{9, 39, 38});
 
         Thread.sleep(300);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -300,25 +300,25 @@ public class MaximumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36.75, event.getData(0));
+                            AssertJUnit.assertEquals(36.75, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(38.12, event.getData(0));
+                            AssertJUnit.assertEquals(38.12, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39.25, event.getData(0));
+                            AssertJUnit.assertEquals(39.25, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(37.75, event.getData(0));
+                            AssertJUnit.assertEquals(37.75, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(38.12, event.getData(0));
+                            AssertJUnit.assertEquals(38.12, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(40.0, event.getData(0));
+                            AssertJUnit.assertEquals(40.0, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -335,8 +335,8 @@ public class MaximumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{38.12, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

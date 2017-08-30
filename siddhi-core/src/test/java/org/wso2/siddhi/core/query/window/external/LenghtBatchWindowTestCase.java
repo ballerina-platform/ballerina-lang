@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -37,7 +37,7 @@ public class LenghtBatchWindowTestCase {
     private int count;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         inEventCount = 0;
@@ -72,7 +72,7 @@ public class LenghtBatchWindowTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.fail("No events should arrive");
+                AssertJUnit.fail("No events should arrive");
                 inEventCount = inEventCount + inEvents.length;
                 eventArrived = true;
             }
@@ -84,8 +84,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(500);
-        Assert.assertEquals(0, inEventCount);
-        Assert.assertFalse(eventArrived);
+        AssertJUnit.assertEquals(0, inEventCount);
+        AssertJUnit.assertFalse(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -112,7 +112,7 @@ public class LenghtBatchWindowTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     count++;
-                    Assert.assertEquals("In event order", count, event.getData(2));
+                    AssertJUnit.assertEquals("In event order", count, event.getData(2));
                 }
                 eventArrived = true;
             }
@@ -127,8 +127,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
-        Assert.assertEquals("Total event count", 4, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals("Total event count", 4, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -158,18 +158,18 @@ public class LenghtBatchWindowTestCase {
                 for (Event event : events) {
                     if ((count / length) % 2 == 1) {
                         removeEventCount++;
-                        Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
+                        AssertJUnit.assertEquals("Remove event order", removeEventCount, event.getData(2));
                         if (removeEventCount == 1) {
-                            Assert.assertEquals("Expired event triggering position", length, inEventCount);
+                            AssertJUnit.assertEquals("Expired event triggering position", length, inEventCount);
                         }
                     } else {
                         inEventCount++;
-                        Assert.assertEquals("In event order", inEventCount, event.getData(2));
+                        AssertJUnit.assertEquals("In event order", inEventCount, event.getData(2));
                     }
                     count++;
                 }
 
-                Assert.assertEquals("No of emitted events at window expiration", inEventCount - length,
+                AssertJUnit.assertEquals("No of emitted events at window expiration", inEventCount - length,
                         removeEventCount);
                 eventArrived = true;
             }
@@ -184,9 +184,9 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
-        Assert.assertEquals("In event count", 6, inEventCount);
-        Assert.assertEquals("Remove event count", 4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals("In event count", 6, inEventCount);
+        AssertJUnit.assertEquals("Remove event count", 4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -210,10 +210,10 @@ public class LenghtBatchWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    Assert.assertEquals("Events cannot be expired", false, event.isExpired());
+                    AssertJUnit.assertEquals("Events cannot be expired", false, event.isExpired());
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(100.0, event.getData(1));
+                        AssertJUnit.assertEquals(100.0, event.getData(1));
                     }
                 }
 
@@ -231,8 +231,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60f, 1});
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(1, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
 
     }
 
@@ -259,7 +259,7 @@ public class LenghtBatchWindowTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     count++;
-                    Assert.assertEquals("Remove event order", count, event.getData(2));
+                    AssertJUnit.assertEquals("Remove event order", count, event.getData(2));
                 }
                 eventArrived = true;
             }
@@ -274,8 +274,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
-        Assert.assertEquals("Remove event count", 4, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals("Remove event count", 4, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -299,12 +299,12 @@ public class LenghtBatchWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    Assert.assertEquals("Events cannot be expired", false, event.isExpired());
+                    AssertJUnit.assertEquals("Events cannot be expired", false, event.isExpired());
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(100.0, event.getData(1));
+                        AssertJUnit.assertEquals(100.0, event.getData(1));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(240.0, event.getData(1));
+                        AssertJUnit.assertEquals(240.0, event.getData(1));
                     }
                 }
 
@@ -325,8 +325,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 80f, 1});
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
 
     }
 
@@ -349,13 +349,13 @@ public class LenghtBatchWindowTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.assertEquals("Events cannot be expired", false, removeEvents != null);
+                AssertJUnit.assertEquals("Events cannot be expired", false, removeEvents != null);
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(100.0, event.getData(1));
+                        AssertJUnit.assertEquals(100.0, event.getData(1));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(240.0, event.getData(1));
+                        AssertJUnit.assertEquals(240.0, event.getData(1));
                     }
                 }
 
@@ -377,8 +377,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 80f, 1});
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
 
     }
 
@@ -433,9 +433,9 @@ public class LenghtBatchWindowTestCase {
             Thread.sleep(500);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            Assert.assertEquals(4, inEventCount);
-            Assert.assertEquals(2, removeEventCount);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(4, inEventCount);
+            AssertJUnit.assertEquals(2, removeEventCount);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -493,9 +493,9 @@ public class LenghtBatchWindowTestCase {
             Thread.sleep(500);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            Assert.assertEquals(4, inEventCount);
-            Assert.assertEquals(0, removeEventCount);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(4, inEventCount);
+            AssertJUnit.assertEquals(0, removeEventCount);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.aggregator;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class MaxForeverAggregatorExtensionTestCase {
     private volatile int count;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -64,25 +64,25 @@ public class MaxForeverAggregatorExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36.0, event.getData(0));
+                            AssertJUnit.assertEquals(36.0, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37.88, event.getData(0));
+                            AssertJUnit.assertEquals(37.88, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39.0, event.getData(0));
+                            AssertJUnit.assertEquals(39.0, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(39.0, event.getData(0));
+                            AssertJUnit.assertEquals(39.0, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(39.0, event.getData(0));
+                            AssertJUnit.assertEquals(39.0, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(39.0, event.getData(0));
+                            AssertJUnit.assertEquals(39.0, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -99,8 +99,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         inputHandler.send(new Object[]{38.12d, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -126,16 +126,16 @@ public class MaxForeverAggregatorExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36, event.getData(0));
+                            AssertJUnit.assertEquals(36, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(78, event.getData(0));
+                            AssertJUnit.assertEquals(78, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(78, event.getData(0));
+                            AssertJUnit.assertEquals(78, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -149,8 +149,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         inputHandler.send(new Object[]{9, 39, 38});
 
         Thread.sleep(300);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -177,25 +177,25 @@ public class MaxForeverAggregatorExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36f, event.getData(0));
+                            AssertJUnit.assertEquals(36f, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37.88f, event.getData(0));
+                            AssertJUnit.assertEquals(37.88f, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39.00f, event.getData(0));
+                            AssertJUnit.assertEquals(39.00f, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(39.00f, event.getData(0));
+                            AssertJUnit.assertEquals(39.00f, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(39.00f, event.getData(0));
+                            AssertJUnit.assertEquals(39.00f, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(39.00f, event.getData(0));
+                            AssertJUnit.assertEquals(39.00f, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -212,8 +212,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         inputHandler.send(new Object[]{38.12f, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -239,16 +239,16 @@ public class MaxForeverAggregatorExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36L, event.getData(0));
+                            AssertJUnit.assertEquals(36L, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(78L, event.getData(0));
+                            AssertJUnit.assertEquals(78L, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(78L, event.getData(0));
+                            AssertJUnit.assertEquals(78L, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -262,14 +262,14 @@ public class MaxForeverAggregatorExtensionTestCase {
         inputHandler.send(new Object[]{9L, 39, 38});
 
         Thread.sleep(300);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
 
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testMaxForeverAggregatorExtension5() throws InterruptedException {
         log.info("MaxForeverAggregator TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();

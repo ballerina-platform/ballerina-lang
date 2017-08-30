@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class SortWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -87,9 +87,9 @@ public class SortWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 55.6f, 20L});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 40L});
         Thread.sleep(1000);
-        Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(5, inEventCount);
+        AssertJUnit.assertEquals(3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -140,9 +140,9 @@ public class SortWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 100, 20L});
         inputHandler.send(new Object[]{"WSO2", 50, 50L});
         Thread.sleep(1000);
-        Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(5, inEventCount);
+        AssertJUnit.assertEquals(3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

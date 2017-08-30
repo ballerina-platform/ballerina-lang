@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.pattern;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class ComplexPatternTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -74,13 +74,13 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{55.6f, 55.7f, null, 57.7f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{55.6f, 55.7f, null, 57.7f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{54.0f, 57.7f, null, 59.7f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{54.0f, 57.7f, null, 59.7f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -110,9 +110,9 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"IBM", 59.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -143,10 +143,10 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{55.6f, 54.0f, 53.6f, 57.0f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{55.6f, 54.0f, 53.6f, 57.0f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -172,9 +172,9 @@ public class ComplexPatternTestCase {
         stream1.send(new Object[]{"GOOG", 57f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -206,16 +206,16 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"ADP", "WSO2", "AMZN"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"ADP", "WSO2", "AMZN"}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "QQQ", "CSCO"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", "QQQ", "CSCO"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(3, inEventCount);
+                                AssertJUnit.assertSame(3, inEventCount);
                         }
                     }
                 }
@@ -248,9 +248,9 @@ public class ComplexPatternTestCase {
         stream1.send(new Object[]{"WSO2", 53.7f, 200});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -282,13 +282,13 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "DDD", 60}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", "DDD", 60}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                 }
@@ -319,9 +319,9 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"DOX", 16.2f, 25});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -353,10 +353,10 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -387,9 +387,9 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"DOX", 16.2f, 25});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -420,13 +420,13 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBN", "DDD", 70}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBN", "DDD", 70}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                 }
@@ -458,9 +458,9 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"DOX", 16.2f, 25});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class DeleteFromTableTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -190,16 +190,16 @@ public class DeleteFromTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM"}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2"}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(3, inEventCount);
+                                AssertJUnit.assertSame(3, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -228,9 +228,9 @@ public class DeleteFromTableTestCase {
 
         Thread.sleep(500);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
 
@@ -287,7 +287,7 @@ public class DeleteFromTableTestCase {
         countStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
-        Assert.assertEquals(2, inEventCount);
+        AssertJUnit.assertEquals(2, inEventCount);
         siddhiAppRuntime.shutdown();
 
     }

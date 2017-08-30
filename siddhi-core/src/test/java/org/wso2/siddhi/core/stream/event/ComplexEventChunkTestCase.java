@@ -18,9 +18,9 @@
 
 package org.wso2.siddhi.core.stream.event;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
@@ -32,7 +32,7 @@ public class ComplexEventChunkTestCase {
     private int count;
     private StreamEventConverter streamEventConverter;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         streamEventConverter = new ZeroStreamEventConverter();
@@ -61,9 +61,9 @@ public class ComplexEventChunkTestCase {
         while (streamEventChunk.hasNext()) {
             count++;
             StreamEvent event = streamEventChunk.next();
-            Assert.assertEquals(count * 1L, event.getOutputData()[2]);
+            AssertJUnit.assertEquals(count * 1L, event.getOutputData()[2]);
         }
-        Assert.assertEquals(3, count);
+        AssertJUnit.assertEquals(3, count);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ComplexEventChunkTestCase {
                 streamEventChunk.remove();
             }
         }
-        Assert.assertEquals(streamEvent2, streamEventChunk.getFirst());
+        AssertJUnit.assertEquals(streamEvent2, streamEventChunk.getFirst());
     }
 
     @Test
@@ -126,8 +126,8 @@ public class ComplexEventChunkTestCase {
             }
         }
         StreamEvent streamEvent = streamEventChunk.getFirst();
-        Assert.assertEquals(streamEvent3, streamEvent);
-        Assert.assertEquals(streamEvent4, streamEvent.getNext());
+        AssertJUnit.assertEquals(streamEvent3, streamEvent);
+        AssertJUnit.assertEquals(streamEvent4, streamEvent.getNext());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class ComplexEventChunkTestCase {
             streamEventChunk.remove();
         }
 
-        Assert.assertNull(streamEventChunk.getFirst());
+        AssertJUnit.assertNull(streamEventChunk.getFirst());
     }
 
     @Test
@@ -192,12 +192,12 @@ public class ComplexEventChunkTestCase {
             }
         }
         StreamEvent streamEvent = streamEventChunk.getFirst();
-        Assert.assertEquals(streamEvent1, streamEvent);
-        Assert.assertEquals(streamEvent3, streamEvent.getNext());
-        Assert.assertNull(streamEvent.getNext().getNext());
+        AssertJUnit.assertEquals(streamEvent1, streamEvent);
+        AssertJUnit.assertEquals(streamEvent3, streamEvent.getNext());
+        AssertJUnit.assertNull(streamEvent.getNext().getNext());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expectedExceptions = IllegalStateException.class)
     public void eventChunkRemoveTest5() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
         streamEvent1.setOutputData(new Object[]{"IBM", 700L, 100L});

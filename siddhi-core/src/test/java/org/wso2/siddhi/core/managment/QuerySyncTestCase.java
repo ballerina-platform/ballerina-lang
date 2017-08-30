@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class QuerySyncTestCase {
     private boolean eventArrived;
     private AtomicInteger count;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = new AtomicInteger(0);
         inEventCount = new AtomicInteger(0);
@@ -72,7 +72,7 @@ public class QuerySyncTestCase {
                     inEventCount.addAndGet(inEvents.length);
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount.get() > removeEventCount
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount.get() > removeEventCount
                             .get());
                     removeEventCount.addAndGet(removeEvents.length);
                 }
@@ -86,9 +86,9 @@ public class QuerySyncTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(4000);
-        Assert.assertEquals(2, inEventCount.get());
-        Assert.assertEquals(2, removeEventCount.get());
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, inEventCount.get());
+        AssertJUnit.assertEquals(2, removeEventCount.get());
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -123,10 +123,10 @@ public class QuerySyncTestCase {
                 eventArrived = true;
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        Assert.fail("Remove events emitted");
+                        AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData
+                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData
                                 (0)));
                     }
                 }
@@ -148,8 +148,8 @@ public class QuerySyncTestCase {
 
         siddhiAppRuntime.shutdown();
 
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event value", 3 == count.get());
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertTrue("Number of output event value", 3 == count.get());
 
     }
 
@@ -196,9 +196,9 @@ public class QuerySyncTestCase {
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
-            Assert.assertEquals(2, inEventCount.get());
-            Assert.assertEquals(2, removeEventCount.get());
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(2, inEventCount.get());
+            AssertJUnit.assertEquals(2, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -231,13 +231,13 @@ public class QuerySyncTestCase {
                         inEventCount.incrementAndGet();
                         switch (inEventCount.get()) {
                             case 1:
-                                org.junit.Assert.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f}, event.getData());
+                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f}, event.getData());
                                 break;
                             case 2:
-                                org.junit.Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, event.getData());
+                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, event.getData());
                                 break;
                             default:
-                                org.junit.Assert.assertSame(2, inEventCount);
+                                org.testng.AssertJUnit.assertSame(2, inEventCount);
                         }
 
                     }
@@ -267,9 +267,9 @@ public class QuerySyncTestCase {
         stream2.send(new Object[]{"IBM", 57.7f, 100});
         Thread.sleep(100);
 
-        org.junit.Assert.assertEquals("Number of success events", 2, inEventCount.get());
-        org.junit.Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+        org.testng.AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount.get());
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.extension;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class ExtensionTestCase {
     private volatile int count;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -60,7 +60,7 @@ public class ExtensionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 3) {
-                    Assert.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
+                    AssertJUnit.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
                 }
                 eventArrived = true;
             }
@@ -75,8 +75,8 @@ public class ExtensionTestCase {
         Thread.sleep(100);
         inputHandler.send(new Object[]{"ABC", 60.5f, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -100,11 +100,11 @@ public class ExtensionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(800L, inEvent.getData(1));
+                        AssertJUnit.assertEquals(800L, inEvent.getData(1));
                     } else if (count == 2) {
-                        Assert.assertEquals(805L, inEvent.getData(1));
+                        AssertJUnit.assertEquals(805L, inEvent.getData(1));
                     } else if (count == 3) {
-                        Assert.assertEquals(260L, inEvent.getData(1));
+                        AssertJUnit.assertEquals(260L, inEvent.getData(1));
                     }
                 }
                 eventArrived = true;
@@ -118,8 +118,8 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2", 605L, 200L});
         inputHandler.send(new Object[]{"ABC", 60L, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -147,7 +147,7 @@ public class ExtensionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 3) {
-                    Assert.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
+                    AssertJUnit.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
                 }
                 eventArrived = true;
             }
@@ -162,8 +162,8 @@ public class ExtensionTestCase {
         Thread.sleep(100);
         inputHandler.send(new Object[]{"ABC", 60.5f, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -187,11 +187,11 @@ public class ExtensionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(800L, inEvent.getData(0));
+                        AssertJUnit.assertEquals(800L, inEvent.getData(0));
                     } else if (count == 2) {
-                        Assert.assertEquals(805L, inEvent.getData(0));
+                        AssertJUnit.assertEquals(805L, inEvent.getData(0));
                     } else if (count == 3) {
-                        Assert.assertEquals(260L, inEvent.getData(0));
+                        AssertJUnit.assertEquals(260L, inEvent.getData(0));
                     }
                 }
                 eventArrived = true;
@@ -205,8 +205,8 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{605L, 200L});
         inputHandler.send(new Object[]{60L, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -237,7 +237,7 @@ public class ExtensionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 3) {
-                    Assert.assertEquals("WSO2ABC-abc", inEvents[inEvents.length - 1].getData(1));
+                    AssertJUnit.assertEquals("WSO2ABC-abc", inEvents[inEvents.length - 1].getData(1));
                 }
                 eventArrived = true;
             }
@@ -252,8 +252,8 @@ public class ExtensionTestCase {
         Thread.sleep(100);
         inputHandler.send(new Object[]{"ABC", 60.5f, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 }

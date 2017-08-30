@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.join;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class OuterJoinTestCase {
     private int inEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         eventArrived = false;
@@ -65,24 +65,24 @@ public class OuterJoinTestCase {
                 for (Event inEvent : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals(null, inEvent.getData(1));
-                        Assert.assertEquals(55.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals(null, inEvent.getData(1));
+                        AssertJUnit.assertEquals(55.6f, inEvent.getData(2));
                     }
                     if (inEventCount == 2) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(55.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(55.6f, inEvent.getData(2));
                     }
                     if (inEventCount == 3) {
-                        Assert.assertEquals("IBM", inEvent.getData(0));
-                        Assert.assertEquals(null, inEvent.getData(1));
-                        Assert.assertEquals(75.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("IBM", inEvent.getData(0));
+                        AssertJUnit.assertEquals(null, inEvent.getData(1));
+                        AssertJUnit.assertEquals(75.6f, inEvent.getData(2));
                     }
                     if (inEventCount == 4) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(57.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(57.6f, inEvent.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -97,8 +97,8 @@ public class OuterJoinTestCase {
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(500);
-        Assert.assertEquals(4, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -126,22 +126,22 @@ public class OuterJoinTestCase {
                 for (Event inEvent : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(null, inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(null, inEvent.getData(2));
-                        Assert.assertEquals("WSO2", inEvent.getData(3));
+                        AssertJUnit.assertEquals(null, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(null, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(3));
                     }
                     if (inEventCount == 2) {
-                        Assert.assertEquals(null, inEvent.getData(0));
-                        Assert.assertEquals("Welcome", inEvent.getData(1));
-                        Assert.assertEquals(null, inEvent.getData(2));
-                        Assert.assertEquals("IBM", inEvent.getData(3));
+                        AssertJUnit.assertEquals(null, inEvent.getData(0));
+                        AssertJUnit.assertEquals("Welcome", inEvent.getData(1));
+                        AssertJUnit.assertEquals(null, inEvent.getData(2));
+                        AssertJUnit.assertEquals("IBM", inEvent.getData(3));
                     }
                     if (inEventCount == 3) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(57.6f, inEvent.getData(2));
-                        Assert.assertEquals("WSO2", inEvent.getData(3));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(57.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(3));
                     }
                 }
                 eventArrived = true;
@@ -157,8 +157,8 @@ public class OuterJoinTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Welcome", "IBM"});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(500);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -186,22 +186,22 @@ public class OuterJoinTestCase {
                 for (Event inEvent : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals(null, inEvent.getData(1));
-                        Assert.assertEquals(57.6f, inEvent.getData(2));
-                        Assert.assertEquals(null, inEvent.getData(3));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals(null, inEvent.getData(1));
+                        AssertJUnit.assertEquals(57.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals(null, inEvent.getData(3));
                     }
                     if (inEventCount == 2) {
-                        Assert.assertEquals("IBM", inEvent.getData(0));
-                        Assert.assertEquals(null, inEvent.getData(1));
-                        Assert.assertEquals(47.6f, inEvent.getData(2));
-                        Assert.assertEquals(null, inEvent.getData(3));
+                        AssertJUnit.assertEquals("IBM", inEvent.getData(0));
+                        AssertJUnit.assertEquals(null, inEvent.getData(1));
+                        AssertJUnit.assertEquals(47.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals(null, inEvent.getData(3));
                     }
                     if (inEventCount == 3) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(57.6f, inEvent.getData(2));
-                        Assert.assertEquals("WSO2", inEvent.getData(3));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(57.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(3));
                     }
                 }
                 eventArrived = true;
@@ -217,12 +217,12 @@ public class OuterJoinTestCase {
         cseEventStreamHandler.send(new Object[]{"IBM", 47.6f, 200});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         Thread.sleep(500);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void joinTest4() throws InterruptedException {
         log.info("Outer Join test4");
 
@@ -242,7 +242,7 @@ public class OuterJoinTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void joinTest5() throws InterruptedException {
         log.info("Outer Join test5");
 
@@ -292,7 +292,7 @@ public class OuterJoinTestCase {
         cseEventStreamHandler.send(new Object[]{"IBM", 57.6f, 100});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(500);
-        Assert.assertFalse(eventArrived);
+        AssertJUnit.assertFalse(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -325,7 +325,7 @@ public class OuterJoinTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Welcome", "BMW"});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         Thread.sleep(500);
-        Assert.assertFalse(eventArrived);
+        AssertJUnit.assertFalse(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -352,14 +352,14 @@ public class OuterJoinTestCase {
                 for (Event inEvent : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(55.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(55.6f, inEvent.getData(2));
                     }
                     if (inEventCount == 2) {
-                        Assert.assertEquals("WSO2", inEvent.getData(0));
-                        Assert.assertEquals("Hello World", inEvent.getData(1));
-                        Assert.assertEquals(57.6f, inEvent.getData(2));
+                        AssertJUnit.assertEquals("WSO2", inEvent.getData(0));
+                        AssertJUnit.assertEquals("Hello World", inEvent.getData(1));
+                        AssertJUnit.assertEquals(57.6f, inEvent.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -376,8 +376,8 @@ public class OuterJoinTestCase {
         Thread.sleep(500);
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(2000);
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -413,7 +413,7 @@ public class OuterJoinTestCase {
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(500);
-        Assert.assertFalse(eventArrived);
+        AssertJUnit.assertFalse(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 }

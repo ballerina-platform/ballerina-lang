@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.streamfunction;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +34,7 @@ public class Pol2CartFunctionTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -60,8 +60,8 @@ public class Pol2CartFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
-                    Assert.assertEquals(5, Math.round((Double) inEvents[0].getData(1)));
+                    AssertJUnit.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
+                    AssertJUnit.assertEquals(5, Math.round((Double) inEvents[0].getData(1)));
 
                 }
                 eventArrived = true;
@@ -73,8 +73,8 @@ public class Pol2CartFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{22.6, 13.0});
         Thread.sleep(100);
-        Assert.assertEquals(1, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -98,8 +98,8 @@ public class Pol2CartFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
-                    Assert.assertEquals(7, Math.round((Double) inEvents[0].getData(1)));
+                    AssertJUnit.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
+                    AssertJUnit.assertEquals(7, Math.round((Double) inEvents[0].getData(1)));
 
                 }
                 eventArrived = true;
@@ -111,8 +111,8 @@ public class Pol2CartFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{22.6, 13.0, 7.0});
         Thread.sleep(100);
-        Assert.assertEquals(1, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -136,8 +136,8 @@ public class Pol2CartFunctionTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
-                    Assert.assertEquals(5, Math.round((Double) inEvents[0].getData(1)));
+                    AssertJUnit.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
+                    AssertJUnit.assertEquals(5, Math.round((Double) inEvents[0].getData(1)));
 
                 }
                 eventArrived = true;
@@ -149,8 +149,8 @@ public class Pol2CartFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{22.6, 13.0});
         Thread.sleep(100);
-        Assert.assertEquals(1, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

@@ -20,9 +20,9 @@ package org.wso2.siddhi.core.stream;
 
 import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -42,7 +42,7 @@ public class ExceptionHandlerTestCase {
     private volatile boolean failedCaught;
     private SiddhiManager siddhiManager;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = new AtomicInteger(0);
         eventArrived = false;
@@ -95,7 +95,7 @@ public class ExceptionHandlerTestCase {
             inputHandler.send(new Object[]{"BAD_3", "WSO2", 700f});
             Thread.sleep(100);
         } catch (Exception ex) {
-            Assert.fail("Disruptor exception can't be caught by try-catch");
+            AssertJUnit.fail("Disruptor exception can't be caught by try-catch");
             throw ex;
         }
         // Send 2 valid events
@@ -125,10 +125,10 @@ public class ExceptionHandlerTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 6, count, 60000);
 
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(6, count.get());
-        Assert.assertFalse(failedCaught);
-        Assert.assertEquals(0, failedCount.get());
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count.get());
+        AssertJUnit.assertFalse(failedCaught);
+        AssertJUnit.assertEquals(0, failedCount.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -165,10 +165,10 @@ public class ExceptionHandlerTestCase {
         SiddhiTestHelper.waitForEvents(100, 2, failedCount, 60000);
 
         // No following events can be processed correctly
-        Assert.assertTrue("Should properly process all the 4 valid events", eventArrived);
-        Assert.assertEquals("Should properly process all the 4 valid events", 4, count.get());
-        Assert.assertTrue("Exception is properly handled thrown by 2 invalid events", failedCaught);
-        Assert.assertEquals("Exception is properly handled thrown by 2 invalid events", 2, failedCount.get());
+        AssertJUnit.assertTrue("Should properly process all the 4 valid events", eventArrived);
+        AssertJUnit.assertEquals("Should properly process all the 4 valid events", 4, count.get());
+        AssertJUnit.assertTrue("Exception is properly handled thrown by 2 invalid events", failedCaught);
+        AssertJUnit.assertEquals("Exception is properly handled thrown by 2 invalid events", 2, failedCount.get());
         siddhiAppRuntime.shutdown();
     }
 }

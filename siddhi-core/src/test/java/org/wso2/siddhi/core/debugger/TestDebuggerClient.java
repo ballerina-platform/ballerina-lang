@@ -18,10 +18,10 @@
 package org.wso2.siddhi.core.debugger;
 
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,12 +35,12 @@ public class TestDebuggerClient {
     private final InputStream originalIn = System.in;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
-    @Before
+    @BeforeMethod
     public void setUpStreams() {
         System.setOut(new PrintStream(outContent));
     }
 
-    @After
+    @AfterMethod
     public void cleanUpStreams() {
         System.setOut(originalOut);
         System.setIn(originalIn);
@@ -64,7 +64,7 @@ public class TestDebuggerClient {
         String output = outContent.toString();
         log.info(output);
 
-        Assert.assertEquals("Incorrect number of debug points", 4, countMatches(output, "@Debug"));
+        AssertJUnit.assertEquals("Incorrect number of debug points", 4, countMatches(output, "@Debug"));
     }
 
     /**

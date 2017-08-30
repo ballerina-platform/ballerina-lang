@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.sequence.absent;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -49,7 +49,7 @@ public class EveryAbsentSequenceTestCase {
     private boolean eventArrived;
     private List<AssertionError> assertionErrors = new ArrayList<>();
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -86,9 +86,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -126,9 +126,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -165,9 +165,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -208,9 +208,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -247,9 +247,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -291,9 +291,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -334,9 +334,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -375,9 +375,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -420,9 +420,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -463,9 +463,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -506,9 +506,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -554,9 +554,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -590,9 +590,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -633,9 +633,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -676,9 +676,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -716,9 +716,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -762,9 +762,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event not arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -806,9 +806,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -850,9 +850,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -896,9 +896,9 @@ public class EveryAbsentSequenceTestCase {
         for (AssertionError e : this.assertionErrors) {
             throw e;
         }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -916,7 +916,7 @@ public class EveryAbsentSequenceTestCase {
                         inEventCount++;
                         if (noOfExpectedEvents > 0 && inEventCount <= noOfExpectedEvents) {
                             try {
-                                Assert.assertArrayEquals(expected[inEventCount - 1], event.getData());
+                                AssertJUnit.assertArrayEquals(expected[inEventCount - 1], event.getData());
                             } catch (AssertionError e) {
                                 assertionErrors.add(e);
                             }

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.pattern;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class CountPatternTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -67,7 +67,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 47.8f, null, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 47.8f, null, 45.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -95,9 +95,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -126,7 +126,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -154,9 +154,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -185,7 +185,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.8f, null, null, 55.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.8f, null, null, 55.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -209,9 +209,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -238,7 +238,7 @@ public class CountPatternTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.fail();
+                AssertJUnit.fail();
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -260,9 +260,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", false, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", false, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -291,7 +291,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 23.7f, 24.7f, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 23.7f, 24.7f, 45.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -325,9 +325,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -355,7 +355,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 55.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 55.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -379,9 +379,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -409,7 +409,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{null, null, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{null, null, 45.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -427,9 +427,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -457,7 +457,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, null, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, null, 45.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -479,9 +479,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -512,10 +512,10 @@ public class CountPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", "GOOG", "WSO2"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", "GOOG", "WSO2"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -537,9 +537,9 @@ public class CountPatternTestCase {
         eventStream.send(new Object[]{"WSO2", 176.6f, 65});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -570,10 +570,10 @@ public class CountPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", null, "GOOG"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", null, "GOOG"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -595,9 +595,9 @@ public class CountPatternTestCase {
         eventStream.send(new Object[]{"WSO2", 21f, 61});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -628,10 +628,10 @@ public class CountPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", null, "GOOG"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", null, "GOOG"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -653,9 +653,9 @@ public class CountPatternTestCase {
         eventStream.send(new Object[]{"WSO2", 21f, 61});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -686,10 +686,10 @@ public class CountPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                 }
@@ -712,9 +712,9 @@ public class CountPatternTestCase {
         eventStream.send(new Object[]{"WSO2", 21f, 61});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -746,27 +746,27 @@ public class CountPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{100, 200, 300, 400, 500, null, null}, event
+                                AssertJUnit.assertArrayEquals(new Object[]{100, 200, 300, 400, 500, null, null}, event
                                         .getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{200, 300, 400, 500, 600, null, null}, event
+                                AssertJUnit.assertArrayEquals(new Object[]{200, 300, 400, 500, 600, null, null}, event
                                         .getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{300, 400, 500, 600, 700, null, null}, event
+                                AssertJUnit.assertArrayEquals(new Object[]{300, 400, 500, 600, 700, null, null}, event
                                         .getData());
                                 break;
                             case 4:
-                                Assert.assertArrayEquals(new Object[]{400, 500, 600, 700, 800, null, null}, event
+                                AssertJUnit.assertArrayEquals(new Object[]{400, 500, 600, 700, 800, null, null}, event
                                         .getData());
                                 break;
                             case 5:
-                                Assert.assertArrayEquals(new Object[]{500, 600, 700, 800, 900, null, null}, event
+                                AssertJUnit.assertArrayEquals(new Object[]{500, 600, 700, 800, 900, null, null}, event
                                         .getData());
                                 break;
                             default:
-                                Assert.assertSame(5, inEventCount);
+                                AssertJUnit.assertSame(5, inEventCount);
                         }
                     }
                 }
@@ -798,9 +798,9 @@ public class CountPatternTestCase {
         eventStream.send(new Object[]{"IBM", 75.6f, 900});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 5, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 5, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -832,7 +832,7 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{25.6f, 23.6f, null, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 23.6f, null, 45.7f}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -856,9 +856,9 @@ public class CountPatternTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
