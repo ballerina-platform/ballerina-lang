@@ -2602,15 +2602,8 @@ public class BLangVM {
         }
 
         if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
-            //ControlStackNew controlStack = context.getControlStackNew();
-//            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
-//                    funcCallCPEntry.getRetRegs());
-//            controlStack.pushFrame(workerCalleeSF);
-//            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
-
-            // Invoke other workers
             BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo,
-                    funcCallCPEntry.getRetRegs(), ip, null);
+                    funcCallCPEntry.getRetRegs(), null);
         } else {
 
             StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
@@ -2634,15 +2627,9 @@ public class BLangVM {
         WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
 
         if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
-            //ControlStackNew controlStack = context.getControlStackNew();
-//            StackFrame workerCalleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, -1,
-//                    funcCallCPEntry.getRetRegs());
-//            controlStack.pushFrame(workerCalleeSF);
-//            copyArgValues(callerSF, workerCalleeSF, argRegs, paramTypes);
-
             // Invoke other workers
             BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context,
-                    defaultWorkerInfo, funcCallCPEntry.getRetRegs(), ip, null);
+                    defaultWorkerInfo, funcCallCPEntry.getRetRegs(), null);
         } else {
 
             StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());

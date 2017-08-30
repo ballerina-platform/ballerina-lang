@@ -81,7 +81,6 @@ public class LauncherUtils {
         BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
         BLangProgramRunner.runMain(programFile, args);
-
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
@@ -89,7 +88,6 @@ public class LauncherUtils {
             // Ignore the error
         }
         Runtime.getRuntime().exit(0);
-
     }
 
     private static void runServices(ProgramFile programFile) {

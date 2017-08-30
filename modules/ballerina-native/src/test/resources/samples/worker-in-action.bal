@@ -15,8 +15,6 @@ connector TestConnector(string param1, string param2, int param3) {
           system:println("Doing something else");
           system:println("Doing another thing");
           result <- sampleWorker;
-          system:println("Printing the result");
-          system:println(result);
           return result;
 
           worker sampleWorker {
@@ -63,7 +61,6 @@ function testAction1() (message) {
 
     request = {};
     value = testConnector.action1(request);
-    system:println(value);
     return value;
 }
 

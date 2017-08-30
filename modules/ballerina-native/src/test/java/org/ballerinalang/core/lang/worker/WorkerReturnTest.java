@@ -48,6 +48,13 @@ public class WorkerReturnTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
     }
 
+    @Test(description = "Test returning void from multiple workers")
+    public void testReturnVoidMultipleWorkers() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testReturnVoidMultipleWorkers", args);
+        Assert.assertEquals(returns.length, 0);
+    }
+
     @Test(description = "Test negative condition of no worker returns",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "worker-return-negative-test.bal:3: " +

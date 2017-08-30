@@ -137,12 +137,6 @@ public class BLangProgramRunner {
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         controlStackNew.pushFrame(stackFrame);
 
-        // Execute workers
-//        StackFrame callerSF = new StackFrame(programFile.getEntryPackage(), -1, new int[0]);
-//        callerSF.setRefRegs(new BRefType[1]);
-//        callerSF.getRefRegs()[0] = arrayArgs;
-//        int[] argRegs = {0};
-
         if (mainFuncInfo.getWorkerInfoEntries().length > 0) {
             BLangVMWorkers.invoke(programFile, mainFuncInfo, stackFrame, bContext, defaultWorkerInfo,
              valueArgs, new int[0], null);

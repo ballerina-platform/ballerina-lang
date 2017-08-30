@@ -11,19 +11,16 @@ function testParallelWorkers (message msg) (int) {
     //This statement will be executed by the default worker.
     system:println("Hello, World! #m");
 
-    //message m = {};
     system:sleep(1000);
     return 5;
     //Workers don’t need to be explicitly started. They start at the same time as the default worker.
     worker w2 {
         system:println("Hello, World! #n");
-        //message m1 = {};
         return 6;
     }
 
     worker w3 {
         system:println("Hello, World! #k");
-        //message m2 = {};
         return 7;
     }
 
