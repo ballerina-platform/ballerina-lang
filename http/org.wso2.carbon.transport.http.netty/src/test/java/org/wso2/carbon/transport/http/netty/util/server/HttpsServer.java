@@ -75,7 +75,7 @@ public class HttpsServer implements TestServer {
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, ctPass);
 
-            sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext = SSLContext.getInstance("TLS");
             sslContext.init(kmf.getKeyManagers(), null, null);
             httpServerInitializer = new HTTPServerInitializer();
             httpServerInitializer.setSslContext(sslContext);
