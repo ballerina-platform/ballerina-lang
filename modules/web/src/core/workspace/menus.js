@@ -1,6 +1,5 @@
-import { MENUS, COMMANDS, LABELS, DIALOGS } from './constants';
+import { MENUS, COMMANDS, LABELS } from './constants';
 import { MENU_DEF_TYPES } from './../menu/constants';
-import { COMMANDS as LAYOUT_COMMANDS } from './../layout/constants'
 
 /**
  * Provides menu definitions of workspace plugin.
@@ -26,10 +25,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: (appContext) => {
                 return true;
             },
-            command: LAYOUT_COMMANDS.POPUP_DIALOG,
-            commandArgs: {
-                id: DIALOGS.OPEN_FILE,
-            },
+            command: COMMANDS.SHOW_FILE_OPEN_WIZARD,
             icon: 'document',
             type: MENU_DEF_TYPES.ITEM,
         },
