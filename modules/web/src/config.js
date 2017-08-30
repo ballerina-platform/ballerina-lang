@@ -9,6 +9,7 @@ export default {
     pluginConfigs: {
         [LAYOUT_MANAGER_PLUGIN_ID]: {
             container: 'app-container',
+            dialogContainer: 'dialog-container',
         },
     },
 };

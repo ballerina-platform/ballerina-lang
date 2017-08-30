@@ -30,9 +30,11 @@ export function getHandlerDefinitions(layoutManager) {
                 const { id } = args;
                 const dialogDef = _.find(layoutManager.dialogs, ['id', id]);
                 if (dialogDef) {
+                    const container = document.getElementById(layoutManager.config.dialogContainer);
                     const { component, propsProvider } = dialogDef;
                     const root = React.createElement(component, propsProvider(), null);
-                    ReactDOM.render(root, document.getElementById(layoutManager.config.container));
+                    ReactDOM.unmountComponentAtNode(container);
+                    ReactDOM.render(root, container);
                 } else {
                     log.error(`A Dialog with id ${id} is not found`);
                 }
