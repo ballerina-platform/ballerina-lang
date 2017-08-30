@@ -149,6 +149,7 @@ class Application {
         const commands = _.get(contributions, CONTRIBUTIONS.COMMANDS, []);
         const handlers = _.get(contributions, CONTRIBUTIONS.HANDLERS, []);
         const views = _.get(contributions, CONTRIBUTIONS.VIEWS, []);
+        const dialogs = _.get(contributions, CONTRIBUTIONS.DIALOGS, []);
         const menus = _.get(contributions, CONTRIBUTIONS.MENUS, []);
 
         commands.forEach((commandDef) => {
@@ -162,6 +163,10 @@ class Application {
 
         views.forEach((viewDef) => {
             this.layoutManager.addViewToLayout(viewDef);
+        });
+
+        dialogs.forEach((dialogDef) => {
+            this.layoutManager.registerDialog(dialogDef);
         });
 
         menus.forEach((menuDef) => {

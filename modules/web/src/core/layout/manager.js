@@ -39,6 +39,7 @@ class LayoutManagerPlugin extends Plugin {
      */
     constructor() {
         super();
+        this.dialogs = [];
         this.layout = {
             [REGIONS.HEADER]: [],
             [REGIONS.ACTIVITY_BAR]: [],
@@ -71,6 +72,14 @@ class LayoutManagerPlugin extends Plugin {
      */
     addViewToLayout(view) {
         this.layout[view.region].push(view);
+    }
+
+    /**
+     * Register a dialog
+     * @param {Object} dialog Dialog Definition
+     */
+    registerDialog(dialog) {
+        this.dialogs.push(dialog);
     }
 
     /**

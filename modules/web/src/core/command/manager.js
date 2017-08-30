@@ -145,9 +145,9 @@ class CommandManager extends Plugin {
                 const argTypes = cmd.argTypes;
                 if (!_.isNil(argTypes)) {
                     // validate command args
-                    PropTypes.checkPropTypes(argTypes, args, 'command-args', cmd);
+                    PropTypes.checkPropTypes(argTypes, ...args, 'command-args', cmdID);
                 }
-                this.commandChannel.trigger(cmdID, args);
+                this.commandChannel.trigger(cmdID, ...args);
             }
         }
     }

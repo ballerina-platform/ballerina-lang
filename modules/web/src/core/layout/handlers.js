@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import _ from 'lodash';
+import log from 'log';
 import { COMMANDS } from './constants';
 
 /**
@@ -18,6 +22,19 @@ export function getHandlerDefinitions(layoutManager) {
             cmdID: COMMANDS.HIDE_VIEW,
             handler: (id) => {
                 // TODO
+            },
+        },
+        {
+            cmdID: COMMANDS.POPUP_DIALOG,
+            handler: (id) => {
+                const dialogDef = _.find(layoutManager.dialogs, ['id', id]);
+                if (dialogDef) {
+                    const { component, propsProvider } = dialogDef;
+                    const root = React.createElement(component, propsProvider(), null);
+                    ReactDOM.render(root, document.getElementById(layoutManager.config.container));
+                } else {
+                    log.error(`A Dialog with id ${id} is not found`);
+                }
             },
         },
     ];

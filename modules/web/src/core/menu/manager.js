@@ -123,9 +123,7 @@ class ApplicationMenuPlugin extends Plugin {
                     component: AppMenuView,
                     propsProvider: () => {
                         return {
-                            dispatch: (...args) => {
-                                this.appContext.command.dispatch(args);
-                            },
+                            dispatch: this.appContext.command.dispatch,
                             menu: this.roots,
                             getLabelForCommand: (cmdID) => {
                                 const cmd = this.appContext.command.findCommand(cmdID);

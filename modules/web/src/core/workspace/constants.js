@@ -22,4 +22,8 @@ export const LABELS = {
     SHOW_FOLDER_OPEN_WIZARD: 'Open Program Directory',
 };
 
+export const DIALOGS = {
+    OPEN_FILE: 'composer.dialog.open-file',
+};
+
 export const PLUGIN_ID = 'composer.plugin.workspace.manager';

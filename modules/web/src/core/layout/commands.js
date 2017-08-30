@@ -21,5 +21,11 @@ export function getCommandDefinitions() {
                 id: PropTypes.string.isRequired,
             },
         },
+        {
+            id: COMMANDS.POPUP_DIALOG,
+            argTypes: {
+                id: PropTypes.string.isRequired,
+            },
+        },
     ];
 }

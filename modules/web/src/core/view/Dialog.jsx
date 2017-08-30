@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import View from './view';
 
 /**
@@ -28,7 +29,7 @@ class Dialog extends View {
                 </Modal.Header>
 
                 <Modal.Body>
-                    {this.props.message}
+                    {this.props.children}
                 </Modal.Body>
 
                 <Modal.Footer>
@@ -39,5 +40,11 @@ class Dialog extends View {
         );
     }
 }
+
+Dialog.propTypes = {
+    title: PropTypes.node.isRequired,
+    children: PropTypes.node.isRequired,
+    actions: PropTypes.node.isRequired,
+};
 
 export default Dialog;
