@@ -15,8 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import Visitors from './dimension-calculator/components';
 
 /**
  * This will vist the tree to clear any offsets.

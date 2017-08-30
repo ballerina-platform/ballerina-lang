@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
-import org.ballerinalang.composer.service.workspace.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.SymbolScope;
 

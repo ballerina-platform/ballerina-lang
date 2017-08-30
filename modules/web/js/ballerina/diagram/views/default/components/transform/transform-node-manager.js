@@ -451,9 +451,17 @@ class TransformNodeManager {
         });
     }
 
-    addNewVariable() {
-        const varNameRegex = new RegExp('tempVar[\\d]*');
-        const varDefStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isVariableDefinitionStatement);
+    addNewVariable(type) {
+        let variableName = 'tempVar';
+        let node = this._transformStmt;
+        let newVarIndex = 0;
+        if (type === 'target') {
+            node = this._transformStmt.getParent();
+            variableName = 'var';
+            newVarIndex = this._transformStmt.getParent().getIndexOfChild(this._transformStmt);
+        }
+        const varNameRegex = new RegExp(variableName + '[\\d]*');
+        const varDefStmts = node.filterChildren(BallerinaASTFactory.isVariableDefinitionStatement);
         const tempVarIdentifiers = varDefStmts.filter((varDef) => {
             return varNameRegex.test(varDef.getIdentifier());
         }).map((varDef) => {
@@ -462,12 +470,13 @@ class TransformNodeManager {
 
         let index = 0;
         if (tempVarIdentifiers.length > 0) {
-            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(7), 10) + 1;
+            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1]
+                    .substring(variableName.length), 10) + 1;
         }
-        const varName = 'tempVar' + index;
+        const varName = variableName + index;
         const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
         variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
-        this._transformStmt.addChild(variableDefinitionStatement, 0);
+        node.addChild(variableDefinitionStatement, newVarIndex);
         return variableDefinitionStatement;
     }
 
@@ -485,17 +494,24 @@ class TransformNodeManager {
         }
     }
 
-    updateVariable(node, varName, statementString) {
+    updateVariable(node, varName, statementString, type) {
         const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
+        let varDefNode = node;
+        let entities = node.getInput();
+        if (type === 'target') {
+            varDefNode = node.getParent();
+            entities = node.getOutput();
+        }
+
         variableDefinitionStatement.setStatementFromString(statementString);
         if (variableDefinitionStatement.children.length > 0) {
             const newVarName = variableDefinitionStatement.getVariableDef().getName();
-            _.forEach(node.getChildren(), (child) => {
+            _.forEach(varDefNode.getChildren(), (child) => {
                 if (BallerinaASTFactory.isVariableDefinitionStatement(child)
                       && child.getLeftExpression().getVariableName() === varName) {
-                    const index = node.getIndexOfChild(child);
-                    node.removeChild(child, true);
-                    node.addChild(variableDefinitionStatement, index, true);
+                    const index = varDefNode.getIndexOfChild(child);
+                    varDefNode.removeChild(child, true);
+                    varDefNode.addChild(variableDefinitionStatement, index, true);
                 } else if (BallerinaASTFactory.isAssignmentStatement(child)
                               && BallerinaASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
                               && child.getRightExpression().getVariableName() === varName) {
@@ -505,15 +521,18 @@ class TransformNodeManager {
                     child.addChild(variableReferenceExpression, 1, true);
                 }
             });
-            const inputs = node.getInput();
-            _.forEach(node.getInput(), (input, i) => {
-                if (input.getVariableName() == varName) {
+            _.forEach(entities, (input, i) => {
+                if (input.getVariableName() === varName) {
                     const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
                     variableReferenceExpression.setExpressionFromString(newVarName);
-                    inputs[i] = variableReferenceExpression;
+                    entities[i] = variableReferenceExpression;
                 }
             });
-            node.setInput(inputs);
+            if (type === 'target') {
+                node.setOutput(entities);
+            } else {
+                node.setInput(entities);
+            }
             node.trigger('tree-modified', {
                 origin: this,
                 type: 'variable-update',

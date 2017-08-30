@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
+import { util } from './../../sizing-util';
 
 /**
  * AutoSuggest wrapper for html
@@ -188,7 +189,23 @@ class AutoSuggestHtml extends React.Component {
      * @memberOf AutoSuggestHtml
      * */
     renderSuggestion(suggestion) {
-        return <span>{suggestion.name}</span>;
+        const value = this.state.inputValue;
+        const sugName = suggestion.name;
+        const parts = sugName.split(value);
+        const highlightedString = [];
+
+        parts.forEach((p, i) => {
+            highlightedString.push(<span key={i}>{p}</span>);
+            if (i < parts.length - 1) {
+                highlightedString.push(<span key={i + 100}><b>{value}</b></span>);
+            }
+        });
+
+        return (
+            <span>
+                {highlightedString}
+            </span>
+        );
     }
 
     /**

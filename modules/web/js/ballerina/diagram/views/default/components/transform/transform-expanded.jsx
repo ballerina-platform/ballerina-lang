@@ -489,7 +489,7 @@ class TransformExpanded extends React.Component {
 
     onSourceSelect(e, { suggestionValue }) {
         if (suggestionValue === '') {
-            const variableDefinitionStatement = this.transformNodeManager.addNewVariable();
+            const variableDefinitionStatement = this.transformNodeManager.addNewVariable('source');
             const varVertex = ({
                 name: variableDefinitionStatement.getVariableDef().getName(),
                 displayName: variableDefinitionStatement.getVariableDef().getName(),
@@ -507,10 +507,22 @@ class TransformExpanded extends React.Component {
     }
 
     onTargetSelect(e, { suggestionValue }) {
-        this.setState({
-            selectedTarget: suggestionValue,
-        });
-        this.addTarget(suggestionValue);
+        if (suggestionValue === '') {
+            const variableDefinitionStatement = this.transformNodeManager.addNewVariable('target');
+            const varVertex = ({
+                name: variableDefinitionStatement.getVariableDef().getName(),
+                displayName: variableDefinitionStatement.getVariableDef().getName(),
+                type: variableDefinitionStatement.getVariableDef().getTypeName(),
+                varDeclarationString: variableDefinitionStatement.getStatementString(),
+            });
+            this.state.vertices.push(varVertex);
+            this.addTarget(variableDefinitionStatement.getVariableDef().getName());
+        } else {
+            this.setState({
+                selectedTarget: suggestionValue,
+            });
+            this.addTarget(suggestionValue);
+        }
     }
 
     onSourceInputEnter() {
@@ -755,8 +767,8 @@ class TransformExpanded extends React.Component {
         return functions;
     }
 
-    updateVariable(varName, statementString) {
-        this.transformNodeManager.updateVariable(this.props.model, varName, statementString);
+    updateVariable(varName, statementString, type) {
+        this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type);
         this.loadVertices();
     }
 
