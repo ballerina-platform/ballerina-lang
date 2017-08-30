@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import ASTFactory from 'ballerina/ast/ast-factory';
 import BallerinaASTRoot from 'ballerina/ast/ballerina-ast-root';
 import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
@@ -193,7 +194,8 @@ class AnnotationContainer extends React.Component {
         };
 
         // Getting the components for the annotation of the current model.
-        const annotations = getComponentForNodeArray(this.props.model.getAnnotations(), this.props.designer, this.props.mode);
+        const annotations = getComponentForNodeArray(this.props.model.getAnnotations(), this.props.designer,
+                                                                                                    this.props.mode);
 
         if (this.state.hasPackageNameSelected) {
             return (<div style={style} className="annotation-container">
@@ -236,6 +238,13 @@ class AnnotationContainer extends React.Component {
 
 AnnotationContainer.propTypes = {
     model: PropTypes.instanceOf(AnnotationContainerUtil).isRequired,
+    designer: PropTypes.instanceOf(Object),
+    mode: PropTypes.string,
+};
+
+AnnotationContainer.defaultProps = {
+    designer: undefined,
+    mode: 'default',
 };
 
 AnnotationContainer.contextTypes = {

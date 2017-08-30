@@ -20,11 +20,11 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import AnnotationAttachmentAST from 'ballerina/ast/annotations/annotation-attachment';
+import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
+import ASTFactory from 'ballerina/ast/ast-factory';
 import AnnotationAttribute from './annotation-attribute';
 import { deleteNode, addAttribute } from './utils/annotation-button-events';
-import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
 import AutoSuggestHtml from './utils/autosuggest-html';
-import ASTFactory from 'ballerina/ast/ast-factory';
 import ActionMenu from './action-menu';
 
 /**
