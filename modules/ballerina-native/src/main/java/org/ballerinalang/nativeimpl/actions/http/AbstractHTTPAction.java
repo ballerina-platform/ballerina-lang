@@ -142,11 +142,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
-            String protocol = (String) message.getProperty(Constants.PROTOCOL);
-            boolean isHttps = Constants.PROTOCOL_HTTPS.equals(protocol) ? true : false;
-
+            String scheme = (String) message.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    BallerinaConnectorManager.getInstance().getHttpClientConnector(isHttps);
+                    BallerinaConnectorManager.getInstance().getHttpClientConnector(scheme);
             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
             future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
@@ -184,11 +182,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
-            String protocol = (String) message.getProperty(Constants.PROTOCOL);
-            boolean isHttps = Constants.PROTOCOL_HTTPS.equals(protocol) ? true : false;
-
+            String scheme = (String) message.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    BallerinaConnectorManager.getInstance().getHttpClientConnector(isHttps);
+                    BallerinaConnectorManager.getInstance().getHttpClientConnector(scheme);
             HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
             future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
