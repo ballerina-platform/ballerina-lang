@@ -148,8 +148,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         } else if (msg instanceof CloseWebSocketFrame) {
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
-            PingWebSocketFrame pingWebSocketFrame = (PingWebSocketFrame) msg;
-            ctx.channel().writeAndFlush(new PongWebSocketFrame(pingWebSocketFrame.content()));
+            notifyPingMessage((PingWebSocketFrame) msg);
         } else if (msg instanceof PongWebSocketFrame) {
             notifyPongMessage((PongWebSocketFrame) msg);
         }
@@ -192,6 +191,16 @@ public class WebSocketSourceHandler extends SourceHandler {
                 new WebSocketCloseMessageImpl(statusCode, reasonText);
         webSocketCloseMessage = setupCommonProperties(webSocketCloseMessage);
         connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
+    }
+
+    private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws ServerConnectorException {
+        //Control message for WebSocket is Pong Message
+        ByteBuf byteBuf = pingWebSocketFrame.content();
+        ByteBuffer byteBuffer = byteBuf.nioBuffer();
+        WebSocketMessageImpl webSocketControlMessage =
+                new WebSocketControlMessageImpl(WebSocketControlSignal.PING, byteBuffer);
+        webSocketControlMessage = setupCommonProperties(webSocketControlMessage);
+        connectorFuture.notifyWSListener((WebSocketControlMessage) webSocketControlMessage);
     }
 
     private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws ServerConnectorException {

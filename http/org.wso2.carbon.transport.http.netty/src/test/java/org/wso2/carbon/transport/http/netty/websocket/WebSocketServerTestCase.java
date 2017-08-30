@@ -51,7 +51,6 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     private WebSocketClient primaryClient = new WebSocketClient();
     private WebSocketClient secondaryClient = new WebSocketClient();
     private ServerConnector serverConnector;
-    private WebSocketTestServerConnectorListener connectorListener;
 
     @BeforeClass
     public void setup() throws InterruptedException {

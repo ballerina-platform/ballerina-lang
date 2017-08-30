@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -94,6 +95,16 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             boolean isPongReceived = true;
+            return;
+        }
+
+        if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
+            Session session = controlMessage.getChannelSession();
+            try {
+                session.getBasicRemote().sendPong(controlMessage.getPayload());
+            } catch (IOException e) {
+                Assert.assertTrue(false, "Could not send the message.");
+            }
         }
     }
 
