@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -28,6 +29,7 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -629,12 +631,10 @@ public class SQLDatasourceUtils {
     }
 
     public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
-            int sqlType, String structuredSQLType) {
+            int sqlType, String structuredSQLType1) {
         Object[] arrayData = getArrayData(value);
         Object[] arrayValue = (Object[]) arrayData[0];
-        if (structuredSQLType.isEmpty()) {
-            structuredSQLType = (String) arrayData[1];
-        }
+        String structuredSQLType = (String) arrayData[1];
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (arrayValue == null) {
@@ -710,26 +710,23 @@ public class SQLDatasourceUtils {
     }
 
     public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
-            int direction, int sqlType, String structuredSQLType) {
-        structuredSQLType = structuredSQLType.toUpperCase(Locale.getDefault());
-        Object[] val = null;
-        if (value != null) {
-            val = value.stringValue().split(",");
-        }
-
+            int direction, int sqlType, String structuredSQLType1) {
+        Object[] structData = getStructData(value);
+        Object[] dataArray = (Object[]) structData[0];
+        String structuredSQLType = (String) structData[1];
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (dataArray == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    Struct struct = conn.createStruct(structuredSQLType, dataArray);
                     stmt.setObject(index + 1, struct);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (dataArray == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    Struct struct = conn.createStruct(structuredSQLType, dataArray);
                     stmt.setObject(index + 1, struct);
                 }
                 ((CallableStatement) stmt)
@@ -743,6 +740,51 @@ public class SQLDatasourceUtils {
             throw new BallerinaException("error in set struct value to statement: " + e.getMessage(), e);
         }
     }
+
+    private static Object[] getStructData(BValue value) {
+        if (value == null || value.getType().getTag() != TypeTags.STRUCT_TAG) {
+            return new Object[] { null, null };
+        }
+        String structuredSQLType = value.getType().getName().toUpperCase(Locale.getDefault());
+        BStructType.StructField[] structFields = ((BStructType) value.getType()).getStructFields();
+        int fieldCount = structFields.length;
+        Object[] structData = new Object[fieldCount];
+        int intFieldIndex = 0;
+        int floatFieldIndex = 0;
+        int stringFieldIndex = 0;
+        int booleanFieldIndex = 0;
+        int blobFieldIndex = 0;
+        for (int i = 0; i < fieldCount; ++i) {
+            BStructType.StructField field = structFields[i];
+            int typeTag = field.getFieldType().getTag();
+            switch (typeTag) {
+            case TypeTags.INT_TAG:
+                structData[i] = ((BStruct) value).getIntField(intFieldIndex);
+                ++intFieldIndex;
+                break;
+            case TypeTags.FLOAT_TAG:
+                structData[i] = ((BStruct) value).getFloatField(floatFieldIndex);
+                ++floatFieldIndex;
+                break;
+            case TypeTags.STRING_TAG:
+                structData[i] = ((BStruct) value).getStringField(stringFieldIndex);
+                ++stringFieldIndex;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                structData[i] = ((BStruct) value).getBooleanField(booleanFieldIndex) > 0;
+                ++booleanFieldIndex;
+                break;
+            case TypeTags.BLOB_TAG:
+                structData[i] = ((BStruct) value).getBlobField(blobFieldIndex);
+                ++blobFieldIndex;
+                break;
+            default:
+                throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
+            }
+        }
+        return new Object[] { structData, structuredSQLType };
+    }
+
 
     /**
      * This will close Database connection, statement and the resultset.
