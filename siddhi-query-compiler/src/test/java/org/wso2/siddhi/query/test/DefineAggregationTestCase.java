@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.query.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
@@ -53,7 +53,7 @@ public class DefineAggregationTestCase {
                 .aggregateBy(Expression.variable("timestamp"))
                 .every(TimePeriod.range(TimePeriod.Duration.SECONDS, TimePeriod.Duration.DAYS));
 
-        Assert.assertEquals(aggregationDefinition, aggregationDefinitionQuery);
+        AssertJUnit.assertEquals(aggregationDefinition, aggregationDefinitionQuery);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class DefineAggregationTestCase {
                 .aggregateBy(Expression.variable("timestamp")).every(TimePeriod.interval(TimePeriod.Duration.SECONDS,
                         TimePeriod.Duration.MINUTES, TimePeriod.Duration.HOURS));
 
-        Assert.assertEquals(aggregationDefinition, aggregationDefinitionQuery);
+        AssertJUnit.assertEquals(aggregationDefinition, aggregationDefinitionQuery);
 
     }
 
@@ -111,7 +111,7 @@ public class DefineAggregationTestCase {
                 ).
                 insertInto("fooBar");
 
-        Assert.assertEquals(queryApi, query);
+        AssertJUnit.assertEquals(queryApi, query);
 
     }
 

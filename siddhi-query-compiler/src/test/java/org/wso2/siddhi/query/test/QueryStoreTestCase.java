@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.query.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
@@ -40,7 +40,7 @@ public class QueryStoreTestCase {
                 "group by symbol " +
                 "having (price >= 20) ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         StoreQuery api = StoreQuery.query().
                 from(
@@ -61,7 +61,7 @@ public class QueryStoreTestCase {
                                 )
                 );
 
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
 
 
     }
@@ -75,7 +75,7 @@ public class QueryStoreTestCase {
                 "group by symbol " +
                 "having (7 > price) ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
 
         StoreQuery api = StoreQuery.query().
@@ -94,7 +94,7 @@ public class QueryStoreTestCase {
                                 )
                 );
 
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class QueryStoreTestCase {
                 "group by symbol " +
                 "having (7 > price) ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         StoreQuery api = StoreQuery.query().
                 from(
@@ -125,7 +125,7 @@ public class QueryStoreTestCase {
                                                 Expression.variable("price"))
                                 )
                 );
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
 
     }
 
@@ -141,7 +141,7 @@ public class QueryStoreTestCase {
                 "group by symbol " +
                 "having (7 > price) ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         StoreQuery api = StoreQuery.query().
                 from(
@@ -161,7 +161,7 @@ public class QueryStoreTestCase {
                                                 Expression.variable("price"))
                                 )
                 );
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
 
     }
 

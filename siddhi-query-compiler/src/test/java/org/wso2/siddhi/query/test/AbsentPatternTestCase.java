@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.query.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.state.State;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -32,7 +32,7 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class AbsentPatternTestCase {
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void test1() throws SiddhiParserException {
 
         SiddhiCompiler.parseQuery("from e1=Stream1[price>20] -> not Stream2[price>e1.price] " +
@@ -40,7 +40,7 @@ public class AbsentPatternTestCase {
                 "insert into OutputStream ;");
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void test2() throws SiddhiParserException {
 
         SiddhiCompiler.parseQuery("from e1=Stream1[price>20] -> not e2=Stream2[price>e1.price] for 1 sec " +
@@ -48,7 +48,7 @@ public class AbsentPatternTestCase {
                 "insert into OutputStream ;");
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void test3() throws SiddhiParserException {
 
         SiddhiCompiler.parseQuery("from not Stream1[price>20] for 1 sec -> not Stream2[price>e1.price] for 1 sec " +
@@ -61,7 +61,7 @@ public class AbsentPatternTestCase {
         Query query = SiddhiCompiler.parseQuery("from e1=Stream1[price>20] -> not Stream2[price>e1.price] for 2 sec " +
                 "select e1.symbol as symbol1 " +
                 "insert into OutputStream ;");
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query();
         api.from(
@@ -79,7 +79,7 @@ public class AbsentPatternTestCase {
                 .select(Selector.selector().select("symbol1", Expression.variable("symbol").ofStream("e1")))
                 .insertInto("OutputStream");
 
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
 }
