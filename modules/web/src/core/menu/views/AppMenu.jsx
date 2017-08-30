@@ -27,9 +27,9 @@ class ApplicationMenu extends View {
      * @param {Object} evt
      */
     onMenuItemClick(evt) {
-        const { item: { props: { menuDef: { command, commandArgs = [], type } } } } = evt;
+        const { item: { props: { menuDef: { command, commandArgs = {}, type } } } } = evt;
         if (type === MENU_DEF_TYPES.ITEM) {
-            this.props.dispatch(command, ...commandArgs);
+            this.props.dispatch(command, commandArgs);
             this.setState({
                 activeKeys: [],
             });

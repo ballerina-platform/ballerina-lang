@@ -27,7 +27,9 @@ export function getMenuDefinitions(workspaceManager) {
                 return true;
             },
             command: LAYOUT_COMMANDS.POPUP_DIALOG,
-            commandArgs: [DIALOGS.OPEN_FILE],
+            commandArgs: {
+                id: DIALOGS.OPEN_FILE,
+            },
             icon: 'document',
             type: MENU_DEF_TYPES.ITEM,
         },

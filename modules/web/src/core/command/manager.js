@@ -135,19 +135,19 @@ class CommandManager extends Plugin {
      * Dispatch a command with given args
      *
      * @param {String} cmdID command ID
-     * @param {any[]} args args for the command handler
+     * @param {Object} args args for the command handler
      *
      */
-    dispatch(cmdID, ...args) {
+    dispatch(cmdID, args) {
         if (!_.isUndefined(cmdID)) {
             const cmd = _.find(this.commands, ['id', cmdID]);
             if (!_.isNil(cmd)) {
                 const argTypes = cmd.argTypes;
                 if (!_.isNil(argTypes)) {
                     // validate command args
-                    PropTypes.checkPropTypes(argTypes, ...args, 'command-args', cmdID);
+                    PropTypes.checkPropTypes(argTypes, args, 'command argument', cmdID + ' command');
                 }
-                this.commandChannel.trigger(cmdID, ...args);
+                this.commandChannel.trigger(cmdID, args);
             }
         }
     }

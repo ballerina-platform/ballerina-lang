@@ -26,7 +26,8 @@ export function getHandlerDefinitions(layoutManager) {
         },
         {
             cmdID: COMMANDS.POPUP_DIALOG,
-            handler: (id) => {
+            handler: (args) => {
+                const { id } = args;
                 const dialogDef = _.find(layoutManager.dialogs, ['id', id]);
                 if (dialogDef) {
                     const { component, propsProvider } = dialogDef;
