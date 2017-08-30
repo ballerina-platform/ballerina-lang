@@ -16,7 +16,7 @@
  * under the License.
  */
 import ASTFactory from '../ast/ast-factory';
-import AnnotationContainer from '../components/utils/annotation-container';
+import AnnotationContainer from '../diagram/views/default/components/utils/annotation-container';
 
 class AnnotationRenderingVisitor {
 
