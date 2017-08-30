@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,28 +23,13 @@ import java.util.Objects;
 /**
  * ModelPackage.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2017-01-27T07:45:46.625Z")
 public class ModelPackage   {
-  @JsonProperty("name")
   private String name = null;
-
-  @JsonProperty("description")
   private String description = null;
-
-  @JsonProperty("version")
   private String version = null;
-
-  @JsonProperty("connectors")
   private List<Connector> connectors = new ArrayList<Connector>();
-
-  @JsonProperty("functions")
   private List<Function> functions = new ArrayList<Function>();
-
-  @JsonProperty("structs")
   private List<Struct> structs = new ArrayList<Struct>();
-
-  @JsonProperty("annotations")
   private List<AnnotationDef> annotations = new ArrayList<AnnotationDef>();
 
   public ModelPackage name(String name) {
@@ -59,7 +41,6 @@ public class ModelPackage   {
    * Get name.
    * @return name
   **/
-  @ApiModelProperty(example = "CalculatorAPI", required = true, value = "")
   public String getName() {
     return name;
   }
@@ -77,7 +58,6 @@ public class ModelPackage   {
    * Get description.
    * @return description
   **/
-  @ApiModelProperty(example = "A calculator API that supports basic operations", value = "")
   public String getDescription() {
     return description;
   }
@@ -95,7 +75,6 @@ public class ModelPackage   {
    * Get version.
    * @return version
   **/
-  @ApiModelProperty(example = "1.0.0", value = "")
   public String getVersion() {
     return version;
   }
@@ -118,7 +97,6 @@ public class ModelPackage   {
    * List of connectors available in the package.
    * @return connectors
   **/
-  @ApiModelProperty(value = "List of connectors available in the package")
   public List<Connector> getConnectors() {
     return connectors;
   }
@@ -161,7 +139,6 @@ public class ModelPackage   {
    * List of **public** functions available in the package.
    * @return functions
   **/
-  @ApiModelProperty(value = "List of **public** functions available in the package")
   public List<Function> getFunctions() {
     return functions;
   }
@@ -170,7 +147,6 @@ public class ModelPackage   {
     this.functions = functions;
   }
 
-  @ApiModelProperty(value = "List of **public** structs avaialble in the package")
   public List<Struct> getStructs() {
     return structs;
   }
@@ -179,7 +155,6 @@ public class ModelPackage   {
     this.structs = structs;
   }
 
-  @ApiModelProperty(value = "List of **public** annotations avaialble in the package")
   public List<AnnotationDef> getAnnotations() {
     return annotations;
   }

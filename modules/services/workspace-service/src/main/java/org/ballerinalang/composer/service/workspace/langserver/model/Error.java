@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +23,15 @@ import java.util.Objects;
 /**
  * Error.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2017-01-27T07:45:46.625Z")
 public class Error   {
-  @JsonProperty("code")
   private Long code = null;
 
-  @JsonProperty("message")
   private String message = null;
 
-  @JsonProperty("description")
   private String description = null;
 
-  @JsonProperty("moreInfo")
   private String moreInfo = null;
 
-  @JsonProperty("error")
   private List<ErrorListItem> error = new ArrayList<ErrorListItem>();
 
   public Error code(Long code) {
@@ -53,7 +43,6 @@ public class Error   {
    * Get code.
    * @return code
   **/
-  @ApiModelProperty(required = true, value = "")
   public Long getCode() {
     return code;
   }
@@ -71,7 +60,6 @@ public class Error   {
    * Error message.
    * @return message
   **/
-  @ApiModelProperty(required = true, value = "Error message.")
   public String getMessage() {
     return message;
   }
@@ -89,7 +77,6 @@ public class Error   {
    * A detail description about the error message. 
    * @return description
   **/
-  @ApiModelProperty(value = "A detail description about the error message. ")
   public String getDescription() {
     return description;
   }
@@ -107,7 +94,6 @@ public class Error   {
    * Preferably an url with more details about the error. 
    * @return moreInfo
   **/
-  @ApiModelProperty(value = "Preferably an url with more details about the error. ")
   public String getMoreInfo() {
     return moreInfo;
   }
@@ -130,8 +116,6 @@ public class Error   {
    * If there are more than one error list them out. For example, list out validation errors by each field. 
    * @return error
   **/
-  @ApiModelProperty(value = "If there are more than one error list them out. For example, list out validation errors " +
-                            "by each field. ")
   public List<ErrorListItem> getError() {
     return error;
   }

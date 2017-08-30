@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
@@ -26,19 +25,11 @@ import java.util.Objects;
 /**
  * PackageList.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2017-01-27T07:45:46.625Z")
 public class PackageList   {
-  @JsonProperty("count")
   private Integer count = null;
-
-  @JsonProperty("next")
   private String next = null;
-
-  @JsonProperty("previous")
   private String previous = null;
 
-  @JsonProperty("list")
   private List<ModelPackage> list = new ArrayList<ModelPackage>();
 
   public PackageList count(Integer count) {
@@ -47,10 +38,9 @@ public class PackageList   {
   }
 
    /**
-   * Number of APIs returned. 
+   * Number of APIs returned.
    * @return count
   **/
-  @ApiModelProperty(example = "1", value = "Number of APIs returned. ")
   public Integer getCount() {
     return count;
   }
@@ -65,11 +55,9 @@ public class PackageList   {
   }
 
    /**
-   * Link to the next subset of resources qualified. Empty if no more resources are to be returned. 
+   * Link to the next subset of resources qualified. Empty if no more resources are to be returned.
    * @return next
   **/
-  @ApiModelProperty(
-          value = "Link to the next subset of resources qualified. Empty if no more resources are to be returned. ")
   public String getNext() {
     return next;
   }
@@ -84,12 +72,9 @@ public class PackageList   {
   }
 
    /**
-   * Link to the previous subset of resources qualified. Empty if current subset is the first subset returned. 
+   * Link to the previous subset of resources qualified. Empty if current subset is the first subset returned.
    * @return previous
   **/
-  @ApiModelProperty(
-          value = "Link to the previous subset of resources qualified. Empty if current subset is the first " +
-                  " subset returned. ")
   public String getPrevious() {
     return previous;
   }

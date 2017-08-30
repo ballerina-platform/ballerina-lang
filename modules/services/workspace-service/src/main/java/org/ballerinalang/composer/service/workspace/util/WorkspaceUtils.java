@@ -15,15 +15,15 @@
  */
 package org.ballerinalang.composer.service.workspace.util;
 
-import org.ballerinalang.composer.service.workspace.model.Action;
-import org.ballerinalang.composer.service.workspace.model.AnnotationAttachment;
-import org.ballerinalang.composer.service.workspace.model.AnnotationDef;
-import org.ballerinalang.composer.service.workspace.model.Connector;
-import org.ballerinalang.composer.service.workspace.model.Function;
-import org.ballerinalang.composer.service.workspace.model.ModelPackage;
-import org.ballerinalang.composer.service.workspace.model.Parameter;
-import org.ballerinalang.composer.service.workspace.model.Struct;
-import org.ballerinalang.composer.service.workspace.model.StructField;
+import org.ballerinalang.composer.service.workspace.langserver.model.Action;
+import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationAttachment;
+import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationDef;
+import org.ballerinalang.composer.service.workspace.langserver.model.Connector;
+import org.ballerinalang.composer.service.workspace.langserver.model.Function;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langserver.model.Parameter;
+import org.ballerinalang.composer.service.workspace.langserver.model.Struct;
+import org.ballerinalang.composer.service.workspace.langserver.model.StructField;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaAction;

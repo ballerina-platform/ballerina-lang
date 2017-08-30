@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,40 +24,37 @@ import java.util.List;
  * Represents the value of a annotation's attribute pair.
  */
 public class AnnotationAttributeValue {
-    
-    @JsonProperty("bValue")
+
     private String bValue;
-    
-    @JsonProperty("annotationValue")
+
     private AnnotationAttachment annotationValue;
-    
-    @JsonProperty("valueArray")
+
     private List<AnnotationAttributeValue> valueArray;
-    
+
     public String getBValue() {
         return bValue;
     }
-    
+
     public void setBValue(String bValue) {
         this.bValue = bValue;
     }
-    
+
     public AnnotationAttachment getAnnotationValue() {
         return annotationValue;
     }
-    
+
     public void setAnnotationValue(AnnotationAttachment annotationValue) {
         this.annotationValue = annotationValue;
     }
-    
+
     public List<AnnotationAttributeValue> getValueArray() {
         return valueArray;
     }
-    
+
     public void setValueArray(List<AnnotationAttributeValue> valueArray) {
         this.valueArray = valueArray;
     }
-    
+
     /**
      * Adds a value to array type value.
      * @param annotationAttributeValue The attribute to be added.
@@ -67,10 +63,10 @@ public class AnnotationAttributeValue {
         if (null == this.valueArray) {
             this.valueArray = new ArrayList<>();
         }
-        
+
         this.valueArray.add(annotationAttributeValue);
     }
-    
+
     /**
      * Converts a {@link org.ballerinalang.model.AnnotationAttributeValue} to {@link AnnotationAttributeValue}.
      * @param annotationAttributeValue The model to be converted.

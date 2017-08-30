@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.ballerinalang.model.AnnotationAttachmentPoint;
 
 import java.util.HashMap;
@@ -26,19 +25,14 @@ import java.util.Map;
  * Represents an annotation attached to certain objects({@link Action}, {@link Connector}).
  */
 public class AnnotationAttachment {
-    @JsonProperty("name")
     private String name;
-    
-    @JsonProperty("packageName")
+
     private String packageName;
-    
-    @JsonProperty("packagePath")
+
     private String packagePath;
-    
-    @JsonProperty("attachedPoint")
+
     private String attachedPoint;
-    
-    @JsonProperty("attributeNameValPairs")
+
     private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap();
     
     public String getName() {

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.ballerinalang.model.AnnotationAttachmentPoint;
 
 import java.util.ArrayList;
@@ -25,19 +24,14 @@ import java.util.List;
 /**
  * This class represents an Annotation definition that is used for package API.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date =
-        "2017-01-27T07:45:46.625Z")
+
 public class AnnotationDef {
-    @JsonProperty("packagePath")
     private String packagePath = null;
-    
-    @JsonProperty("name")
+
     private String name = null;
-    
-    @JsonProperty("attachmentPoints")
+
     private List<String> attachmentPoints = new ArrayList<String>();
-    
-    @JsonProperty("annotationAttributeDefs")
+
     private List<AnnotationAttributeDef> annotationAttributeDefs = new ArrayList<>();
     
     /**

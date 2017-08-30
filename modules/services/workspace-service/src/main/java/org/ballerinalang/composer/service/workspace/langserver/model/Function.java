@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +23,16 @@ import java.util.Objects;
 /**
  * Function.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-                            date = "2017-01-27T07:45:46.625Z")
+
 public class Function {
-    @JsonProperty("name")
     private String name = null;
 
-    @JsonProperty("description")
     private String description = null;
 
-    @JsonProperty("annotations")
     private List<AnnotationAttachment> annotations = new ArrayList<>();
 
-    @JsonProperty("parameters")
     private List<Parameter> parameters = new ArrayList<Parameter>();
 
-    @JsonProperty("returnParams")
     private List<Parameter> returnParams = new ArrayList<Parameter>();
 
     public Function name(String name) {
@@ -54,7 +45,6 @@ public class Function {
      *
      * @return name
      **/
-    @ApiModelProperty(value = "")
     public String getName() {
         return name;
     }
@@ -73,7 +63,6 @@ public class Function {
      *
      * @return description
      **/
-    @ApiModelProperty(value = "")
     public String getDescription() {
         return description;
     }
@@ -97,7 +86,6 @@ public class Function {
      *
      * @return annotations
      **/
-    @ApiModelProperty(value = "")
     public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
@@ -121,7 +109,6 @@ public class Function {
      *
      * @return parameters
      **/
-    @ApiModelProperty(value = "")
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -145,7 +132,6 @@ public class Function {
      *
      * @return returnParams
      **/
-    @ApiModelProperty(value = "")
     public List<Parameter> getReturnParams() {
         return returnParams;
     }

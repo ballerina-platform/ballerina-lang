@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +23,15 @@ import java.util.Objects;
 /**
  * Connector.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2017-01-27T07:45:46.625Z")
 public class Connector {
-    @JsonProperty("name")
     private String name = null;
 
-    @JsonProperty("annotations")
     private List<AnnotationAttachment> annotations = new ArrayList<>();
 
-    @JsonProperty("returnParams")
     private List<Parameter> returnParameters = new ArrayList<>();
 
-    @JsonProperty("parameters")
     private List<Parameter> parameters = new ArrayList<Parameter>();
 
-    @JsonProperty("actions")
     private List<Action> actions = new ArrayList<Action>();
 
     public Connector name(String name) {
@@ -54,7 +44,6 @@ public class Connector {
      *
      * @return name
      **/
-    @ApiModelProperty(value = "")
     public String getName() {
         return name;
     }
@@ -78,7 +67,6 @@ public class Connector {
      *
      * @return annotations
      **/
-    @ApiModelProperty(value = "")
     public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
@@ -102,7 +90,6 @@ public class Connector {
      *
      * @return parameters
      **/
-    @ApiModelProperty(value = "")
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -126,7 +113,6 @@ public class Connector {
      *
      * @return actions
      **/
-    @ApiModelProperty(value = "")
     public List<Action> getActions() {
         return actions;
     }
@@ -135,7 +121,6 @@ public class Connector {
         this.actions = actions;
     }
 
-    @ApiModelProperty(value = "")
     public List<Parameter> getReturnParameters() {
         return returnParameters;
     }

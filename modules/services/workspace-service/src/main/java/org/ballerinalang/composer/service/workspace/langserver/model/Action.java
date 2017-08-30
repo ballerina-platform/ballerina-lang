@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +23,10 @@ import java.util.Objects;
 /**
  * Action.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-                            date = "2017-01-27T07:45:46.625Z")
 public class Action {
-    @JsonProperty("name")
     private String name = null;
-
-    @JsonProperty("annotations")
     private List<AnnotationAttachment> annotations = new ArrayList<>();
-
-    @JsonProperty("parameters")
     private List<Parameter> parameters = new ArrayList<Parameter>();
-
-    @JsonProperty("returnParams")
     private List<Parameter> returnParams = new ArrayList<Parameter>();
 
     public Action name(String name) {
@@ -51,7 +39,6 @@ public class Action {
      *
      * @return name
      **/
-    @ApiModelProperty(value = "")
     public String getName() {
         return name;
     }
@@ -75,7 +62,6 @@ public class Action {
      *
      * @return annotations
      **/
-    @ApiModelProperty(value = "")
     public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
@@ -99,7 +85,6 @@ public class Action {
      *
      * @return parameters
      **/
-    @ApiModelProperty(value = "")
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -124,7 +109,6 @@ public class Action {
      *
      * @return returnParams
      **/
-    @ApiModelProperty(value = "")
     public List<Parameter> getReturnParams() {
         return returnParams;
     }
