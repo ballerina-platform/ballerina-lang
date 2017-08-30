@@ -28,99 +28,78 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.FileInputStream;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 /**
  * A Simple HTTP Server
  */
-public class HTTPServer {
+public class HttpsServer implements TestServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HTTPServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpsServer.class);
 
-    private int port = 9000;
+    private int port = 9002;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
     private int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
-    private int backLog = 100;
-    private int connectionTimeOut = 15000;
-    private boolean tcpNoDelay = true;
-    private boolean isKeepAlive = true;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private SSLContext sslContext;
     private HTTPServerInitializer httpServerInitializer;
 
-    public HTTPServer(int port) {
+    String ksName = "src/test/resources/simple-test-config/wso2carbon.jks";
+    char ksPass[] = "wso2carbon".toCharArray();
+    char ctPass[] = "wso2carbon".toCharArray();
+
+    public HttpsServer(int port) {
         this.port = port;
     }
 
     /**
-     * Start the HTTPServer
+     * Start the HttpServer
      */
     public void start() {
         bossGroup = new NioEventLoopGroup(this.bossGroupSize);
         workerGroup = new NioEventLoopGroup(this.workerGroupSize);
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.option(ChannelOption.SO_BACKLOG, backLog);
-            b.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
-            b.option(ChannelOption.SO_KEEPALIVE, isKeepAlive);
-            b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeOut);
+            b.option(ChannelOption.SO_BACKLOG, 100);
+            b.childOption(ChannelOption.TCP_NODELAY, true);
+            b.option(ChannelOption.SO_KEEPALIVE, true);
+            b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
+
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(new FileInputStream(ksName), ksPass);
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            kmf.init(ks, ctPass);
+
+            sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(kmf.getKeyManagers(), null, null);
             httpServerInitializer = new HTTPServerInitializer();
             httpServerInitializer.setSslContext(sslContext);
+
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(httpServerInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
-            logger.info("HTTPServer started on port " + port);
-        } catch (InterruptedException e) {
+            logger.info("HttpServer started on port " + port);
+        } catch (Exception e) {
             logger.error("HTTP Server cannot start on port " + port);
         }
     }
 
     /**
-     * Shutdown the HTTPServer
+     * Shutdown the HttpServer
      */
     public void shutdown() throws InterruptedException {
         bossGroup.shutdownGracefully().sync();
         workerGroup.shutdownGracefully().sync();
-        logger.info("HTTPServer shutdown ");
-    }
-
-    public void setBossGroupSize(int bossGroupSize) {
-        this.bossGroupSize = bossGroupSize;
-    }
-
-    public void setWorkerGroupSize(int workerGroupSize) {
-        this.workerGroupSize = workerGroupSize;
-    }
-
-    public void setBackLog(int backLog) {
-        this.backLog = backLog;
-    }
-
-    public void setConnectionTimeOut(int connectionTimeOut) {
-        this.connectionTimeOut = connectionTimeOut;
-    }
-
-    public void setTcpNoDelay(boolean tcpNoDelay) {
-        this.tcpNoDelay = tcpNoDelay;
-    }
-
-    public void setKeepAlive(boolean isKeepAlive) {
-        this.isKeepAlive = isKeepAlive;
-    }
-
-    public void setSslContext(SSLContext sslContext) {
-        this.sslContext = sslContext;
+        logger.info("HttpServer shutdown ");
     }
 
     public void setMessage(String message, String contentType) {
         httpServerInitializer.setMessage(message, contentType);
 
     }
-
-    public void setResponseCode(int responseCode) {
-        httpServerInitializer.setResponseCode(responseCode);
-    }
-
 }

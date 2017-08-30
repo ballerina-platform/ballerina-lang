@@ -70,7 +70,7 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 outputStream.flush();
                 httpRequestMessage.setEndOfMsgAdded(true);
                 httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();

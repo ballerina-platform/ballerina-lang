@@ -26,16 +26,16 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ServerThread extends Thread {
     CountDownLatch latch;
-    HTTPServer httpServer;
+    TestServer testServer;
 
-    public ServerThread(CountDownLatch countDownLatch, HTTPServer httpServer) {
+    public ServerThread(CountDownLatch countDownLatch, TestServer testServer) {
         this.latch = countDownLatch;
-        this.httpServer = httpServer;
+        this.testServer = testServer;
     }
 
     @Override
     public void run() {
-        httpServer.start();
+        testServer.start();
         latch.countDown();
     }
 }

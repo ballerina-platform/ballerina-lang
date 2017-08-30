@@ -33,7 +33,7 @@ package org.wso2.carbon.transport.http.netty.http2;
 //import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 //import org.wso2.carbon.transport.http.netty.util.TestUtil;
 //import org.wso2.carbon.transport.http.netty.util.client.http2.HTTP2Client;
-//import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+//import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 //
 //import java.util.List;
 //
@@ -49,7 +49,7 @@ public class HTTP2RequestResponseTestCase {
 
 //    private static final Logger log = LoggerFactory.getLogger(HTTP2RequestResponseTestCase.class);
 //    private List<HTTPServerConnector> serverConnectors;
-//    private HTTPServer httpServer;
+//    private HttpServer httpServer;
 //    HTTP2Client http2Client = null;
 //    private CarbonMessageProcessor carbonMessageProcessor;
 //

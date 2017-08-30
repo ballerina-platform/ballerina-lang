@@ -133,16 +133,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     if (msg instanceof LastHttpContent) {
                         cMsg.setEndOfMsgAdded(true);
                         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtSourceRequestSending(cMsg);
                         }
-
                     }
                 }
             }
         }
-
     }
 
     /**

@@ -135,7 +135,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                     newMsg.addMessageBody(byteBuffer1);
                     newMsg.setEndOfMsgAdded(true);
                     newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                    newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                    newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
                     Map<String, Object> transportProperties = new HashMap<>();
                     Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -290,7 +290,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
     //                        newMsg.addMessageBody(byteBuffer1);
     //                        newMsg.setEndOfMsgAdded(true);
     //                        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-    //                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+    //                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
     //                        RequestResponseCreationListener.EngineCallBack engineCallBack =
     //                                new RequestResponseCreationListener.EngineCallBack(requestValue, carbonCallback);
     //                        clientConnector.send(newMsg, engineCallBack);

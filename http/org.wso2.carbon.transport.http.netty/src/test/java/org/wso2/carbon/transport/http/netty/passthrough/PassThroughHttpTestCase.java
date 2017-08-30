@@ -19,8 +19,6 @@
 package org.wso2.carbon.transport.http.netty.passthrough;
 
 import io.netty.handler.codec.http.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,7 +28,7 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -44,13 +42,9 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class PassThroughHttpTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
-
     private List<ServerConnector> serverConnectors;
-
     private static final String testValue = "Test Message";
-
-    private HTTPServer httpServer;
+    private HttpServer httpServer;
 
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
@@ -60,7 +54,7 @@ public class PassThroughHttpTestCase {
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
         serverConnectors = TestUtil.startConnectors(
                 configuration, new PassthroughMessageProcessorListener(configuration));
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
     }
 
     @Test
@@ -91,5 +85,4 @@ public class PassThroughHttpTestCase {
     public void cleanUp() throws ServerConnectorException {
         TestUtil.cleanUp(serverConnectors, httpServer);
     }
-
 }
