@@ -34,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClien
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import javax.net.ssl.SSLException;
@@ -65,12 +66,12 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     }
 
     @Test
-    public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException {
+    public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException, ProtocolException {
         assertTrue(primaryClient.handhshake());
     }
 
     @Test
-    public void testText() throws URISyntaxException, InterruptedException, SSLException {
+    public void testText() throws URISyntaxException, InterruptedException, SSLException, ProtocolException {
         primaryClient.handhshake();
         String textSent = "test";
         primaryClient.sendText(textSent);
@@ -94,7 +95,7 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
      * client indicating the state of the secondary client.
      */
     @Test
-    public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException {
+    public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
         primaryClient.handhshake();
         secondaryClient.handhshake();
         assertWebSocketClientTextMessage(primaryClient, WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
@@ -108,7 +109,8 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
      * client indicating the state of the secondary client.
      */
     @Test
-    public void testClientCloseConnection() throws InterruptedException, URISyntaxException, SSLException {
+    public void testClientCloseConnection()
+            throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
         primaryClient.handhshake();
         secondaryClient.handhshake();
         secondaryClient.shutDown();

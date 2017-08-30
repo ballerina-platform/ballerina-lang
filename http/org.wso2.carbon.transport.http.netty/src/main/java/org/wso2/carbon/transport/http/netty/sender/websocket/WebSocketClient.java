@@ -41,6 +41,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
@@ -62,7 +63,7 @@ public class WebSocketClient {
     private boolean handshakeDone = false;
 
     private final String url;
-    private final String subprotocol;
+    private final String subprotocols;
     private final String target;
     private final boolean allowExtensions;
     private final Map<String, String> headers;
@@ -73,18 +74,18 @@ public class WebSocketClient {
      *
      * @param url url of the remote endpoint.
      * @param target target for the inbound messages from the remote server.
-     * @param subprotocol the negotiable sub-protocol if server is asking for it.
+     * @param subprotocols the negotiable sub-protocol if server is asking for it.
      * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
      * @param sourceHandler {@link WebSocketSourceHandler} for pass through purposes.
      * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
+    public WebSocketClient(String url, String target, String subprotocols, boolean allowExtensions,
                            Map<String, String> headers, WebSocketSourceHandler sourceHandler,
                            WebSocketConnectorListener connectorListener) {
         this.url = url;
         this.target = target;
-        this.subprotocol = subprotocol;
+        this.subprotocols = subprotocols;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
         this.sourceHandler = sourceHandler;
@@ -140,9 +141,8 @@ public class WebSocketClient {
         );
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, subprotocol,
-                                             connectorListener);
+                uri, WebSocketVersion.V13, subprotocols, allowExtensions, httpHeaders);
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, connectorListener);
 
         try {
             Bootstrap b = new Bootstrap();
@@ -165,7 +165,12 @@ public class WebSocketClient {
 
             channel = b.connect(uri.getHost(), port).sync().channel();
             handler.handshakeFuture().sync();
-            return handler.getChannelSession();
+            WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
+            String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+            handler.setActualSubProtocol(actualSubProtocol);
+            session.setNegotiatedSubProtocol(actualSubProtocol);
+            session.setIsOpen(true);
+            return session;
         } catch (Throwable t) {
             throw new InterruptedException("Couldn't connect to the remote server.");
         }

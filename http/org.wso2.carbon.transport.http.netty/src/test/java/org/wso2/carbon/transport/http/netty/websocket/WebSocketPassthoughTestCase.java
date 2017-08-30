@@ -34,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import javax.net.ssl.SSLException;
 
@@ -65,7 +66,7 @@ public class WebSocketPassthoughTestCase extends WebSocketTestCase {
     }
 
     @Test
-    public void testTextPassthrough() throws InterruptedException, SSLException, URISyntaxException {
+    public void testTextPassthrough() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
         webSocketClient.handhshake();
         String text = "hello-pass-through";
         webSocketClient.sendText(text);

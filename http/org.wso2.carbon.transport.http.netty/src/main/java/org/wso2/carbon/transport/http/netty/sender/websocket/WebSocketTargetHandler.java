@@ -75,20 +75,19 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketSourceHandler sourceHandler;
     private final WebSocketConnectorListener connectorListener;
     private final String target;
-    private final String subProtocol;
+    private String actualSubProtocol = null;
     private WebSocketSessionImpl channelSession;
     private WebSocketSessionImpl serverSession;
     private ChannelPromise handshakeFuture;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  boolean isSecure, String requestedUri, String target, String subProtocol,
+                                  boolean isSecure, String requestedUri, String target,
                                   WebSocketConnectorListener webSocketConnectorListener) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
         this.isSecure = isSecure;
         this.requestedUri = requestedUri;
         this.target = target;
-        this.subProtocol = subProtocol;
         this.connectorListener = webSocketConnectorListener;
         handshakeFuture = null;
     }
@@ -103,6 +102,10 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
 
     public Session getServerSession() {
         return  serverSession;
+    }
+
+    public void setActualSubProtocol(String actualSubProtocol) {
+        this.actualSubProtocol = actualSubProtocol;
     }
 
     @Override
@@ -229,7 +232,7 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
 
     private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketChannelContext,
                                                        ChannelHandlerContext ctx) {
-        webSocketChannelContext.setSubProtocol(subProtocol);
+        webSocketChannelContext.setSubProtocol(actualSubProtocol);
         webSocketChannelContext.setTarget(target);
         webSocketChannelContext.setIsConnectionSecured(isSecure);
         webSocketChannelContext.setChannelSession(channelSession);
@@ -248,7 +251,6 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
-            log.error("Handshake failed : " + cause.getMessage(), cause);
             handshakeFuture.setFailure(cause);
         }
         ctx.close();

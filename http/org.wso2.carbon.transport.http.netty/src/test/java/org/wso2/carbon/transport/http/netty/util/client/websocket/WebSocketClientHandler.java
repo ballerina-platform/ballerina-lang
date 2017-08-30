@@ -34,6 +34,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 
 import java.nio.ByteBuffer;
 
@@ -50,7 +51,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
-    private boolean isOpen = false;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -69,14 +69,12 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         handshaker.handshake(ctx.channel());
-        isOpen = true;
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
         logger.debug("WebSocket Client disconnected!");
         ctx.channel().close().sync();
-        isOpen = false;
     }
 
     @Override
@@ -132,7 +130,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
-            logger.error("Handshake failed : " + cause.getMessage(), cause);
             handshakeFuture.setFailure(cause);
         }
         ctx.close();
@@ -141,9 +138,5 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void shutDown() throws InterruptedException {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame());
         ctx.channel().closeFuture().sync();
-    }
-
-    public boolean isOpen() {
-        return isOpen;
     }
 }

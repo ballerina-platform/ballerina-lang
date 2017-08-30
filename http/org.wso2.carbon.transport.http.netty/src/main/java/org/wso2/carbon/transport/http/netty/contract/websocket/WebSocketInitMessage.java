@@ -37,14 +37,27 @@ public interface WebSocketInitMessage extends WebSocketMessage {
     Session handshake() throws ProtocolException;
 
     /**
+     * Complete the handshake of a given request. There will not be a idle timeout for the connection if this
+     * method is used.
+     *
+     * @param subProtocols Sub-Protocols which ara allowed by the service.
+     * @param allowExtensions whether the extensions are allowed or not.
+     * @return the Server session for the newly created WebSocket connection.
+     * @throws ProtocolException if error occurred while proceeding with the handshake.
+     */
+    Session handshake(String[] subProtocols, boolean allowExtensions) throws ProtocolException;
+
+    /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for
      * given time period.
      *
+     * @param subProtocols Sub-Protocols which ara allowed by the service.
+     * @param allowExtensions whether the extensions are allowed or not.
      * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
      * @return the Server session for the newly created WebSocket connection.
      * @throws ProtocolException if error occurred while proceeding with the handshake.
      */
-    Session handshake(int idleTimeout) throws ProtocolException;
+    Session handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout) throws ProtocolException;
 
     /**
      * Cancel the handshake.

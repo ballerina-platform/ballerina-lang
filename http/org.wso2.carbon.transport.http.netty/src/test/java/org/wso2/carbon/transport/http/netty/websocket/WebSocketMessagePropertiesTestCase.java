@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryI
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,14 +66,34 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
 
     @Test
     public void testProperties() throws InterruptedException, SSLException, URISyntaxException {
-        String subProtocol = "xml";
+        // Testing normal scenarios.
+        String subProtocol = "xml, json, xmlx";
         Map<String, String> customHeaders = new HashMap<>();
         customHeaders.put("check-sub-protocol", "true");
         customHeaders.put("message-type", "websocket");
         customHeaders.put("message-sender", "wso2");
         WebSocketClient wsClient = new WebSocketClient(subProtocol, customHeaders);
-        wsClient.handhshake();
+        try {
+            wsClient.handhshake();
+        } catch (ProtocolException e) {
+            Assert.assertTrue(false);
+        }
         wsClient.sendText("Hi backend");
+        wsClient.shutDown();
+
+
+        // Testing invalid subprotocol
+        subProtocol = "xmlx, json";
+        customHeaders.put("check-sub-protocol", "true");
+        customHeaders.put("message-type", "websocket");
+        customHeaders.put("message-sender", "wso2");
+        wsClient = new WebSocketClient(subProtocol, customHeaders);
+        try {
+            wsClient.handhshake();
+            Assert.assertTrue(false);
+        } catch (ProtocolException e) {
+            Assert.assertTrue(true);
+        }
         wsClient.shutDown();
     }
 

@@ -110,7 +110,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
              */
             HttpRequest httpRequest = (HttpRequest) msg;
             HttpHeaders headers = httpRequest.headers();
-            if (isConnectionUpgrade(headers) &&
+            String httpMethod = httpRequest.method().name();
+            if (httpMethod.equalsIgnoreCase("GET") && isConnectionUpgrade(headers) &&
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
                 log.debug("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
@@ -172,7 +173,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
 
         String uri = httpRequest.uri();
-        String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
         WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
 
         Map<String, String> headers = new HashMap<>();
@@ -180,13 +180,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 header -> headers.put(header.getKey(), header.getValue())
         );
         WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           headers, ctx, interfaceId);
+                new WebSocketSourceHandler(serverConnectorFuture, isSecured, channelSession, httpRequest,
+                                           headers, connectionManager, ctx, interfaceId);
         WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
                                                                             headers);
 
         // Setting common properties for init message
-        initMessage.setSubProtocol(subProtocol);
         initMessage.setChannelSession(channelSession);
         initMessage.setIsServerMessage(true);
         initMessage.setTarget(httpRequest.uri());

@@ -44,16 +44,16 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     private final boolean isSecure;
     private final URI requestedUri;
     private final String sessionId;
-    private boolean isOpen;
+    private String negotiatedSubProtocol = null;
+    private boolean isOpen = false;
     private Map<String, Object> userProperties = new HashMap<>();
 
-    public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure,
-                                String requestedUri, String sessionId) throws URISyntaxException {
+    public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure, String requestedUri,
+                                String sessionId) throws URISyntaxException {
         this.ctx = ctx;
         this.isSecure = isSecure;
         this.requestedUri = new URI(requestedUri);
         this.sessionId = sessionId;
-        this.isOpen = true;
     }
 
     @Override
@@ -82,6 +82,15 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     @Override
     public URI getRequestURI() {
         return requestedUri;
+    }
+
+    @Override
+    public String getNegotiatedSubprotocol() {
+        return negotiatedSubProtocol;
+    }
+
+    public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
+        this.negotiatedSubProtocol = negotiatedSubProtocol;
     }
 
     @Override

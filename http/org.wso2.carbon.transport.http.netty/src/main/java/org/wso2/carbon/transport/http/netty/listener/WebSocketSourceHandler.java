@@ -65,15 +65,14 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
-    private final String subProtocol;
     private final WebSocketSessionImpl channelSession;
     private final List<Session> clientSessionsList = new LinkedList<>();
     private final Map<String, String> headers;
     private final String interfaceId;
+    private String subProtocol = null;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
-     * @param subProtocol the sub-protocol which the client is registering.
      * @param isSecured indication of whether the connection is secured or not.
      * @param channelSession session relates to the channel.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
@@ -82,13 +81,12 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param interfaceId given ID for the socket interface.
      * @throws Exception if any error occurred during construction of {@link WebSocketSourceHandler}.
      */
-    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
+    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
                                   Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId)
             throws Exception {
         super(new HttpWsServerConnectorFuture(), interfaceId);
         this.connectorFuture = connectorFuture;
-        this.subProtocol = subProtocol;
         this.isSecured = isSecured;
         this.channelSession = channelSession;
         this.ctx = ctx;
@@ -122,6 +120,14 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     public WebSocketSessionImpl getChannelSession() {
         return channelSession;
+    }
+
+    /**
+     * Set if there is any negotiated sub protocol.
+     * @param negotiatedSubProtocol negotiated sub protocol for a given connection.
+     */
+    public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
+        this.subProtocol = negotiatedSubProtocol;
     }
 
     @Override

@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -88,7 +89,7 @@ public class WebSocketClient {
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
-    public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException {
+    public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
         boolean isDone;
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
@@ -159,8 +160,8 @@ public class WebSocketClient {
             logger.debug("WebSocket Handshake successful : " + isDone);
             return isDone;
         } catch (Exception e) {
-            logger.error("Handshake unsuccessful : " + e.getMessage(), e);
-            return false;
+            logger.error("Handshake unsuccessful : " + e.getMessage());
+            throw new ProtocolException("Protocol exception: " + e.getMessage());
         }
     }
 
@@ -220,15 +221,6 @@ public class WebSocketClient {
     public void shutDown() throws InterruptedException {
         handler.shutDown();
         group.shutdownGracefully();
-    }
-
-    /**
-     * Check whether the handshake is successful of not.
-     *
-     * @return true if the handshake is successful.
-     */
-    public boolean isHandshakeSuccessful() {
-        return isHandshakeSuccessful;
     }
 
 }

@@ -35,11 +35,17 @@ public final class WebSocketRemoteServer {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketRemoteServer.class);
 
     private final int port;
+    private String subProtocols = null;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
     public WebSocketRemoteServer(int port) {
         this.port = port;
+    }
+
+    public WebSocketRemoteServer(int port, String subProtocols) {
+        this.port = port;
+        this.subProtocols = subProtocols;
     }
 
     public void run() throws InterruptedException {
@@ -50,7 +56,7 @@ public final class WebSocketRemoteServer {
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
          .channel(NioServerSocketChannel.class)
-         .childHandler(new WebSocketRemoteServerInitializer(sslCtx));
+         .childHandler(new WebSocketRemoteServerInitializer(sslCtx, subProtocols));
 
         b.bind(port).sync();
         logger.info("WebSocket remote server started listening on port " + port);

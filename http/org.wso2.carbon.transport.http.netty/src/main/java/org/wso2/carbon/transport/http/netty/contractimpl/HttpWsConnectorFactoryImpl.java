@@ -72,7 +72,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
 
     @Override
     public WebSocketClientConnector createWsClientConnector(Map<String, Object> senderProperties) {
-        String subProtocol = (String) senderProperties.get(Constants.WEBSOCKET_SUBPROTOCOLS);
+        String subProtocols = (String) senderProperties.get(Constants.WEBSOCKET_SUBPROTOCOLS);
         String remoteUrl = (String) senderProperties.get(Constants.REMOTE_ADDRESS);
         String target = (String) senderProperties.get(Constants.TO);
 
@@ -90,6 +90,6 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
                     (WebSocketSourceHandler) webSocketMessage.getProperty(Constants.SRC_HANDLER);
         }
 
-        return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocol, allowExtensions, sourceHandler);
+        return new WebSocketClientConnectorImpl(remoteUrl, target, subProtocols, allowExtensions, sourceHandler);
     }
 }
