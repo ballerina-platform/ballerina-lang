@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.query.api;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -34,7 +34,7 @@ public class DefineTriggerTestCase {
                 .Time.day(5).value()));
     }
 
-    @Test(expected = DuplicateAttributeException.class)
+    @Test(expectedExceptions = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
         TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute
                 .Type.INT).attribute("volume", Attribute.Type.FLOAT);

@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.query.api;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
