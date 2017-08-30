@@ -94,10 +94,8 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
 
                 }
 
-                String protocol = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                boolean isHttps = Constants.PROTOCOL_HTTPS.equals(protocol) ? true : false;
-                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration,
-                                                                                                 isHttps);
+                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
+                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =

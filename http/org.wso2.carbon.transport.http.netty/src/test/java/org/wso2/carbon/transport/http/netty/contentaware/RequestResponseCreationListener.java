@@ -145,10 +145,9 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                     }
 
-                    String protocol = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                    boolean isHttps = Constants.PROTOCOL_HTTPS.equals(protocol) ? true : false;
+                    String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
                     SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration,
-                                                                                                     isHttps);
+                                                                                                     scheme);
 
                     HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                     HttpClientConnector clientConnector =

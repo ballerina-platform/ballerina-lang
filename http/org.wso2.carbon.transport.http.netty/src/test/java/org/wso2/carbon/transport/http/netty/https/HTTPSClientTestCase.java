@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
@@ -62,7 +63,7 @@ public class HTTPSClientTestCase {
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPMessageUtil.getTransportProperties(transportsConfiguration),
-                HTTPMessageUtil.getSenderConfiguration(transportsConfiguration, true));
+                HTTPMessageUtil.getSenderConfiguration(transportsConfiguration, Constants.PROTOCOL_HTTPS));
     }
 
     @Test
