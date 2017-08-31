@@ -401,7 +401,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             String sqlType = paramStruct.getStringField(0);
             BValue value = paramStruct.getRefField(0);
             int direction = (int) paramStruct.getIntField(0);
-            String structuredSQLType = paramStruct.getStringField(1);
             if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
                     .equalsIgnoreCase(sqlType)) {
                 int arrayLength = (int) ((BNewArray) value).size();
@@ -427,18 +426,18 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                     default:
                         throw new BallerinaException("unsupported array type for parameter index " + index);
                     }
-                    setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal, structuredSQLType);
+                    setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
                     currentOrdinal++;
                 }
             } else {
-                setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, structuredSQLType);
+                setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
                 currentOrdinal++;
             }
         }
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,
-            int index, String structuredSQLType) {
+            int index) {
         if (sqlType == null || sqlType.isEmpty()) {
             SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -518,11 +517,11 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 SQLDatasourceUtils.setNClobValue(stmt, value, index, direction, Types.NCLOB);
                 break;
             case Constants.SQLDataTypes.ARRAY:
-                SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, structuredSQLType);
+                SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY);
                 break;
             case Constants.SQLDataTypes.STRUCT:
                 SQLDatasourceUtils
-                        .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT, structuredSQLType);
+                        .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT);
                 break;
             default:
                 throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);

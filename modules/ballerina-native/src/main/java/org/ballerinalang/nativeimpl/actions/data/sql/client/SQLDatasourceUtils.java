@@ -631,7 +631,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
-            int sqlType, String structuredSQLType1) {
+            int sqlType) {
         Object[] arrayData = getArrayData(value);
         Object[] arrayValue = (Object[]) arrayData[0];
         String structuredSQLType = (String) arrayData[1];
@@ -710,7 +710,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
-            int direction, int sqlType, String structuredSQLType1) {
+            int direction, int sqlType) {
         Object[] structData = getStructData(value);
         Object[] dataArray = (Object[]) structData[0];
         String structuredSQLType = (String) structData[1];

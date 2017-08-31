@@ -6,12 +6,10 @@ import ballerina.doc;
 @doc:Field {value:"sqlType : The data type of the corresponding SQL parameter"}
 @doc:Field {value:"value: Value of paramter pass into the SQL query"}
 @doc:Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
-@doc:Field {value:"structuredType: Underline SQL type to be used for parameter of SQL array type or custom structure type to be used with struct type"}
 struct Parameter {
 	string sqlType;
 	any value;
 	int direction;
-	string structuredType;
 }
 
 @doc:Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
