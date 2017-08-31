@@ -10,6 +10,7 @@ This tutorial consists of the following main sections.
 - [Add a service](add-a-service)
 - [Add integration logic to your service](add-integration-logic-to-your-service)
 - [View the Swagger definition for your service](view-the-swagger-definition-for-your-service)
+- [Add a client connector](add-a-client-connector)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write your first program](../first-program.md) and [write a main program](../main-program.md) as some concepts are explored in detail in those tutorials.
 
@@ -75,6 +76,8 @@ Now that you have added a service, you must set up this service so that it can b
 
 If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
+You can also import Swagger files by clicking **File** in the top menu and selecting **Import Swagger**.
+
 1. Click the Swagger definition icon on the right of your service to view the Swagger definition. You can switch back to the **Design View** or **Source View** by clicking the buttons at the bottom right of your screen.
 
     ![alt text](../images/SwaggerView.png)
@@ -83,3 +86,13 @@ If your Ballerina program contains services and resources, you can view the gene
     ![alt text](../images/SwaggerUI.png)
 1. Click `GET` to see the details in the Swagger UI.
     ![alt text](../images/SwaggerGET.png)
+
+## Add a client connector
+
+Now that you have added a service, you need a connector to connect to the external books API.
+
+1. On the tool palette, click **More Connectors** to see a list of all available connectors.
+    ![alt text](../images/MoreConnectors.png)
+1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
+    ![alt text](../images/addConnector.gif)
+1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
