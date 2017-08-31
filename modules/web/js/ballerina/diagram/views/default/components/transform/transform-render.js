@@ -230,12 +230,15 @@ class TransformRender {
      * @param {any} element
      * @param {any} output
      */
-    addTarget(element, output) {
+    addTarget(element, output, validateCallback) {
         this.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ['Left'],
             parameters: {
                 output,
+            },
+            beforeDrop: (params) => {
+                return validateCallback(params.connection.getParameters().input.type, output.type);
             },
         });
     }
