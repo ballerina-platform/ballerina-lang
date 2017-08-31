@@ -27,6 +27,7 @@ import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS } from './constants
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
+import FolderOpenDialog from './dialogs/FolderOpenDialog';
 
 /**
  * Workspace Manager is responsible for managing workspace.
@@ -35,6 +36,9 @@ import FileOpenDialog from './dialogs/FileOpenDialog';
  */
 class WorkspaceManagerPlugin extends Plugin {
 
+    /**
+     * @inheritdoc
+     */
     constructor() {
         super();
         this.menuItems = [];
@@ -85,6 +89,14 @@ class WorkspaceManagerPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.OPEN_FILE,
                     component: FileOpenDialog,
+                    propsProvider: () => {
+                        return {
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.OPEN_FOLDER,
+                    component: FolderOpenDialog,
                     propsProvider: () => {
                         return {
                         };

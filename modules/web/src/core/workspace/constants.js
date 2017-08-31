@@ -24,6 +24,7 @@ export const LABELS = {
 
 export const DIALOGS = {
     OPEN_FILE: 'composer.dialog.open-file',
+    OPEN_FOLDER: 'composer.dialog.open-folder',
 };
 
 export const PLUGIN_ID = 'composer.plugin.workspace.manager';

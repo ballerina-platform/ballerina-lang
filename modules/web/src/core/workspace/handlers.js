@@ -30,8 +30,10 @@ export function getHandlerDefinitions(workspaceManager) {
         },
         {
             cmdID: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
-            handler: {
-                default: 'ctrl+shift+o',
+            handler: () => {
+                const { command: { dispatch } } = workspaceManager.appContext;
+                const id = DIALOGS.OPEN_FOLDER;
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
             },
         },
     ];

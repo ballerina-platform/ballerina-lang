@@ -17,17 +17,17 @@ class FileOpenDialog extends React.Component {
         super(props);
         this.state = {
             selectedNode: undefined,
-            filePath: '',
             showDialog: true,
+            folderPath: '',
         };
-        this.onFileOpen = this.onFileOpen.bind(this);
+        this.onFolderOpen = this.onFolderOpen.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
     }
 
     /**
      * Called when user clicks open
      */
-    onFileOpen() {
+    onFolderOpen() {
         this.setState({
             showDialog: false,
         });
@@ -49,12 +49,12 @@ class FileOpenDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Open File"
+                title="Open Program Directory"
                 actions={
                     <Button
                         bsStyle="primary"
-                        onClick={this.onFileOpen}
-                        disabled={this.state.filePath === ''}
+                        onClick={this.onFolderOpen}
+                        disabled={this.state.folderPath === ''}
                     >
                         Open
                     </Button>
@@ -63,20 +63,20 @@ class FileOpenDialog extends React.Component {
                 onHide={this.onDialogHide}
             >
                 <Form horizontal>
-                    <FormGroup controlId="filePath">
+                    <FormGroup controlId="folderPath">
                         <Col componentClass={ControlLabel} sm={2}>
-                            File Path
+                            Location
                         </Col>
                         <Col sm={10}>
                             <FormControl
-                                value={this.state.filePath}
+                                value={this.state.folderPath}
                                 onChange={(evt) => {
                                     this.setState({
-                                        filePath: evt.target.value,
+                                        folderPath: evt.target.value,
                                     });
                                 }}
                                 type="text"
-                                placeholder="eg: /home/user/ballerina-services/routing.bal"
+                                placeholder="eg: /home/user/ballerina-services/routing"
                             />
                         </Col>
                     </FormGroup>
@@ -86,7 +86,7 @@ class FileOpenDialog extends React.Component {
                         (node) => {
                             this.setState({
                                 selectedNode: node,
-                                filePath: node.id,
+                                folderPath: node.id,
                             });
                         }
                     }
@@ -95,9 +95,5 @@ class FileOpenDialog extends React.Component {
         );
     }
 }
-
-FileOpenDialog.propTypes = {
-    title: PropTypes.node,
-};
 
 export default FileOpenDialog;

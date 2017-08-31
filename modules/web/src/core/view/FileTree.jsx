@@ -34,6 +34,8 @@ const decorators = {
     },
 };
 
+// A symbol to represent file system root
+const FS_ROOT = '#';
 const color = '#c7c7c7';
 const highlightColor = '#232323';
 const theme = {
@@ -134,7 +136,8 @@ class FileTree extends React.Component {
      * @inheritdoc
      */
     componentDidMount() {
-        getFSRoots()
+        const loadData = this.props.root === FS_ROOT ? getFSRoots() : listFiles(this.props.root);
+        loadData
             .then((data) => {
                 this.setState({
                     data,
@@ -170,6 +173,7 @@ class FileTree extends React.Component {
             }
         }
         this.setState({ cursor: node });
+        this.props.onSelect(node);
     }
 
     /**
@@ -201,7 +205,13 @@ class FileTree extends React.Component {
 }
 
 FileTree.propTypes = {
-    root: PropTypes.string.isRequired,
+    onSelect: PropTypes.func,
+    root: PropTypes.string,
+};
+
+FileTree.defaultProps = {
+    onSelect: () => {},
+    root: FS_ROOT,
 };
 
 export default FileTree;

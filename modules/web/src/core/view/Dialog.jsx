@@ -1,21 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
-import View from './view';
+import { Modal, Button } from 'react-bootstrap';
 
 /**
  * Base class for popup dialogs
  * @extends React.Component
  */
-class Dialog extends View {
+class Dialog extends React.Component {
 
     /**
-     * Method to get the unique ID of the dialog.
-     *
-     * @returns {String} A unique ID for the Dialog
+     * @inheritdoc
      */
-    getID() {
-        return 'composer.dialog.generic';
+    constructor(props) {
+        super(props);
+        this.close = this.close.bind(this);
+    }
+
+    /**
+     * Close dialog
+     */
+    close() {
+        this.props.onHide();
     }
 
     /**
@@ -23,28 +28,38 @@ class Dialog extends View {
      */
     render() {
         return (
-            <Modal.Dialog>
-                <Modal.Header>
+            <Modal show={this.props.show} onHide={this.close}>
+                <Modal.Header closeButton>
                     <Modal.Title>{this.props.title}</Modal.Title>
+                    <hr className="modal-body-seperator" />
                 </Modal.Header>
-
                 <Modal.Body>
                     {this.props.children}
                 </Modal.Body>
-
                 <Modal.Footer>
                     {this.props.actions}
+                    {this.props.closeAction &&
+                        <Button onClick={this.close}>Close</Button>
+                    }
                 </Modal.Footer>
-
-            </Modal.Dialog>
+            </Modal>
         );
     }
 }
 
 Dialog.propTypes = {
+    show: PropTypes.bool,
+    closeAction: PropTypes.bool,
+    onHide: PropTypes.func,
     title: PropTypes.node.isRequired,
     children: PropTypes.node.isRequired,
     actions: PropTypes.node.isRequired,
+};
+
+Dialog.defaultProps = {
+    show: true,
+    closeAction: false,
+    onHide: () => {},
 };
 
 export default Dialog;

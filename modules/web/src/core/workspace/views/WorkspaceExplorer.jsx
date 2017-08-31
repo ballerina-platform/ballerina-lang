@@ -28,4 +28,11 @@ class WorkspaceExplorer extends View {
     }
 }
 
+WorkspaceExplorer.contextTypes = {
+    history: PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
+};
+
 export default WorkspaceExplorer;
