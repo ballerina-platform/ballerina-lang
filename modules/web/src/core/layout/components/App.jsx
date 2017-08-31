@@ -55,6 +55,7 @@ class App extends React.Component {
     getChildContext() {
         return {
             history: this.props.appContext.pref.history,
+            command: this.props.appContext.command,
         };
     }
 
@@ -201,6 +202,10 @@ App.childContextTypes = {
     history: PropTypes.shape({
         put: PropTypes.func,
         get: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
     }).isRequired,
 };
 

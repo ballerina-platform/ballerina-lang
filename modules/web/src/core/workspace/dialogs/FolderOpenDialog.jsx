@@ -7,10 +7,10 @@ import FileTree from './../../view/FileTree';
 const FOLDER_TYPE = 'folder';
 
 /**
- * File Open Wizard Dialog
+ * Folder Open Wizard Dialog
  * @extends React.Component
  */
-class FileOpenDialog extends React.Component {
+class FolderOpenDialog extends React.Component {
 
     /**
      * @inheritdoc
@@ -37,10 +37,18 @@ class FileOpenDialog extends React.Component {
                 error: `${id} is not a folder`,
             });
         } else {
-            this.setState({
-                error: '',
-                showDialog: false,
-            });
+            this.props.appContext.workspace.openFolder(id)
+                .then(() => {
+                    this.setState({
+                        error: '',
+                        showDialog: false,
+                    });
+                })
+                .catch((error) => {
+                    this.setState({
+                        error,
+                    });
+                });
         }
     }
 
@@ -111,4 +119,8 @@ class FileOpenDialog extends React.Component {
     }
 }
 
-export default FileOpenDialog;
+FolderOpenDialog.propTypes = {
+    appContext: PropTypes.objectOf(Object).isRequired,
+};
+
+export default FolderOpenDialog;

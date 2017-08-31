@@ -21,6 +21,9 @@ class LeftPanel extends React.Component {
         this.state = {
             activeView: context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW) || null,
         };
+        context.command.on('update-left-panel', () => {
+            this.forceUpdate();
+        });
     }
 
     /**
@@ -104,6 +107,10 @@ LeftPanel.contextTypes = {
     history: PropTypes.shape({
         put: PropTypes.func,
         get: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
     }).isRequired,
 };
 

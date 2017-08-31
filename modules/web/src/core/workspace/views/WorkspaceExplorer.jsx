@@ -20,13 +20,27 @@ class WorkspaceExplorer extends View {
      * @inheritdoc
      */
     render() {
+        const trees = [];
+        this.props.folders.forEach((folder) => {
+            trees.push((
+                <FileTree root={folder} key={folder} />
+            ));
+        });
         return (
             <div>
-                <FileTree root="/home/kavith" />
+                {trees}
             </div>
         );
     }
 }
+
+WorkspaceExplorer.propTypes = {
+    folders: PropTypes.arrayOf(PropTypes.string),
+};
+
+WorkspaceExplorer.defaultProps = {
+    folders: [],
+};
 
 WorkspaceExplorer.contextTypes = {
     history: PropTypes.shape({

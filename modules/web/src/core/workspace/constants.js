@@ -27,4 +27,9 @@ export const DIALOGS = {
     OPEN_FOLDER: 'composer.dialog.open-folder',
 };
 
+export const HISTORY = {
+    OPENED_FILES: 'composer.workspace.opened-files',
+    OPENED_FOLDERS: 'composer.workspace.opened-folders',
+};
+
 export const PLUGIN_ID = 'composer.plugin.workspace.manager';

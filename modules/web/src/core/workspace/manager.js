@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
@@ -23,11 +24,12 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY } from './constants';
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
 import FolderOpenDialog from './dialogs/FolderOpenDialog';
+import { create, update, read, remove } from './fs-util';
 
 /**
  * Workspace Manager is responsible for managing workspace.
@@ -39,9 +41,10 @@ class WorkspaceManagerPlugin extends Plugin {
     /**
      * @inheritdoc
      */
-    constructor() {
-        super();
-        this.menuItems = [];
+    constructor(props) {
+        super(props);
+        this.openedFolders = [];
+        this.openedFiles = [];
     }
 
     /**
@@ -49,6 +52,77 @@ class WorkspaceManagerPlugin extends Plugin {
      */
     getID() {
         return PLUGIN_ID;
+    }
+
+    /**
+     * Opens a file using related editor
+     *
+     * @param {String} filePath Path of the file.
+     * @return {Promise} Resolves or reject with error.
+     */
+    openFile(filePath) {
+        return new Promise();
+    }
+
+    /**
+     * Close an opened file
+     *
+     * @param {String} filePath Path of the file.
+     * @return {Promise} Resolves or reject with error.
+     */
+    closeFile(filePath) {
+        return new Promise();
+    }
+
+    /**
+     * Opens a folder in explorer
+     *
+     * @param {String} folderPath Path of the folder.
+     * @return {Promise} Resolves or reject with error.
+     */
+    openFolder(folderPath) {
+        return new Promise((resolve, reject) => {
+            // add path to opened folders list - if not added alreadt
+            if (_.findIndex(this.openedFolders, folder => folder === folderPath) === -1) {
+                this.openedFolders.push(folderPath);
+                const { pref: { history }, command: { dispatch } } = this.appContext;
+                history.put(HISTORY.OPENED_FOLDERS, this.openedFolders);
+                dispatch('update-left-panel');
+            }
+            resolve();
+        });
+    }
+
+    /**
+     * Close an opened folder from explorer
+     *
+     * @param {String} folderPath Path of the folder.
+     * @return {Promise} Resolves or reject with error.
+     */
+    closeFolder(folderPath) {
+        return new Promise();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    init(config) {
+        super.init(config);
+        return {
+            openFile: this.openFile.bind(this),
+            openFolder: this.openFolder.bind(this),
+            closeFile: this.closeFile.bind(this),
+            closeFolder: this.closeFolder.bind(this),
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
+    activate(appContext) {
+        super.activate(appContext);
+        const { pref: { history } } = appContext;
+        this.openedFolders = history.get(HISTORY.OPENED_FOLDERS) || [];
     }
 
     /**
@@ -66,6 +140,7 @@ class WorkspaceManagerPlugin extends Plugin {
                     component: WorkspaceExplorer,
                     propsProvider: () => {
                         return {
+                            folders: this.openedFolders,
                         };
                     },
                     region: REGIONS.LEFT_PANEL,
@@ -91,6 +166,7 @@ class WorkspaceManagerPlugin extends Plugin {
                     component: FileOpenDialog,
                     propsProvider: () => {
                         return {
+                            appContext: this.appContext,
                         };
                     },
                 },
@@ -99,6 +175,7 @@ class WorkspaceManagerPlugin extends Plugin {
                     component: FolderOpenDialog,
                     propsProvider: () => {
                         return {
+                            appContext: this.appContext,
                         };
                     },
                 },

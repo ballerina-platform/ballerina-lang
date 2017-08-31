@@ -29,11 +29,6 @@ import { deriveShortcut, deriveShortcutLabel } from './shortcut-util';
  */
 class CommandManager extends Plugin {
 
-    constructor() {
-        super();
-        this.dispatch = this.dispatch.bind(this);
-    }
-
     /**
      * @inheritdoc
      */
@@ -49,7 +44,8 @@ class CommandManager extends Plugin {
         this.commandChannel = new CommandChannel();
         this.commands = [];
         return {
-            dispatch: this.dispatch,
+            on: this.registerHandler.bind(this),
+            dispatch: this.dispatch.bind(this),
             findCommand: (cmdID) => {
                 const cmdIndex = _.findIndex(this.commands, ['id', cmdID]);
                 return cmdIndex !== -1 ? this.commands[cmdIndex] : undefined;
