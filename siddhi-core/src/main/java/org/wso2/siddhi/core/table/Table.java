@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
@@ -56,12 +57,14 @@ public abstract class Table implements FindableProcessor {
     private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private ScheduledExecutorService scheduledExecutorService;
+    private SiddhiAppContext siddhiAppContext;
 
     public void initTable(TableDefinition tableDefinition, StreamEventPool storeEventPool,
                           StreamEventCloner storeEventCloner,
                           ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
+        this.siddhiAppContext = siddhiAppContext;
         init(tableDefinition, storeEventPool, storeEventCloner, configReader, siddhiAppContext);
     }
 
@@ -79,14 +82,16 @@ public abstract class Table implements FindableProcessor {
                 add(addingEventChunk);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 addEvents(addingEventChunk);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
-                    "' as its still trying to reconnect!, events dropped '" + addingEventChunk + "'");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
+                    tableDefinition.getId() + "' as its still trying to reconnect!, events dropped '" +
+                    addingEventChunk + "'");
         } else {
             connectWithRetry();
             addEvents(addingEventChunk);
@@ -101,14 +106,15 @@ public abstract class Table implements FindableProcessor {
                 return find(compiledCondition, matchingEvent);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 return find(matchingEvent, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" +
-                      tableDefinition.getId() + "' as its still trying to reconnect!");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Find operation failed for event '" +
+                    matchingEvent + "', at Table '" + tableDefinition.getId() + "' as its still trying to reconnect!");
             return null;
         } else {
             connectWithRetry();
@@ -125,14 +131,16 @@ public abstract class Table implements FindableProcessor {
                 delete(deletingEventChunk, compiledCondition);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 deleteEvents(deletingEventChunk, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
-                    "' as its still trying to reconnect!, events dropped '" + deletingEventChunk + "'");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
+                    tableDefinition.getId() + "' as its still trying to reconnect!, events dropped '" +
+                    deletingEventChunk + "'");
         } else {
             connectWithRetry();
             deleteEvents(deletingEventChunk, compiledCondition);
@@ -151,14 +159,16 @@ public abstract class Table implements FindableProcessor {
                 update(updatingEventChunk, compiledCondition, compiledUpdateSet);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
-                    "' as its still trying to reconnect!, events dropped '" + updatingEventChunk + "'");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
+                    tableDefinition.getId() + "' as its still trying to reconnect!, events dropped '" +
+                    updatingEventChunk + "'");
         } else {
             connectWithRetry();
             updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
@@ -180,15 +190,17 @@ public abstract class Table implements FindableProcessor {
                         addingStreamEventExtractor);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                         addingStreamEventExtractor);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
-                    "' as its still trying to reconnect!, events dropped '" + updateOrAddingEventChunk + "'");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
+                    tableDefinition.getId() + "' as its still trying to reconnect!, events dropped '" +
+                    updateOrAddingEventChunk + "'");
         } else {
             connectWithRetry();
             updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
@@ -208,14 +220,16 @@ public abstract class Table implements FindableProcessor {
                 return contains(matchingEvent, compiledCondition);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 return containsEvent(matchingEvent, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
-                    "' as its still trying to reconnect!, event matching failed for event '" + matchingEvent + "'");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
+                    tableDefinition.getId() + "' as its still trying to reconnect!, event matching failed for event '"
+                    + matchingEvent + "'.");
             return false;
         } else {
             connectWithRetry();
@@ -235,8 +249,9 @@ public abstract class Table implements FindableProcessor {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) + " Error while " +
+                        "connecting to Table '" + tableDefinition.getId() + "', will retry in '" +
+                        backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -245,8 +260,8 @@ public abstract class Table implements FindableProcessor {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
-                        "', " + e.getMessage() + ".", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " . Error while connecting to Table '" + tableDefinition.getId() + "'.", e);
                 throw e;
             }
         }
@@ -267,10 +282,10 @@ public abstract class Table implements FindableProcessor {
      * @return
      */
     public abstract CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
-                                       MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                       SiddhiAppContext siddhiAppContext,
-                                       List<VariableExpressionExecutor> variableExpressionExecutors,
-                                       Map<String, Table> tableMap, String queryName);
+                                                       MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                                       SiddhiAppContext siddhiAppContext,
+                                                       List<VariableExpressionExecutor> variableExpressionExecutors,
+                                                       Map<String, Table> tableMap, String queryName);
 
     protected abstract void connect() throws ConnectionUnavailableException;
 

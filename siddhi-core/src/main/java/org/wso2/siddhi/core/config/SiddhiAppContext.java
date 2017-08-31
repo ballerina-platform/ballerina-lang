@@ -60,6 +60,7 @@ public class SiddhiAppContext {
     private Map<String, Script> scriptFunctionMap;
     private ExceptionHandler<Object> disruptorExceptionHandler;
     private int bufferSize;
+    private String siddhiAppString;
 
     public SiddhiAppContext() {
         this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
@@ -216,5 +217,13 @@ public class SiddhiAppContext {
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public String getSiddhiAppString() {
+        return siddhiAppString;
+    }
+
+    public void setSiddhiAppString(String siddhiAppString) {
+        this.siddhiAppString = siddhiAppString;
     }
 }

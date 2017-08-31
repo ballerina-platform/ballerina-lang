@@ -17,19 +17,20 @@
  */
 package org.wso2.siddhi.query.api.execution.query.selection;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-
-import java.io.Serializable;
 
 /**
  * Query output stream attributes
  */
-public class OutputAttribute implements Serializable {
+public class OutputAttribute implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private String rename;
     private Expression expression;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public OutputAttribute(String rename, Expression expression) {
         this.rename = rename;
@@ -83,5 +84,25 @@ public class OutputAttribute implements Serializable {
         int result = rename != null ? rename.hashCode() : 0;
         result = 31 * result + (expression != null ? expression.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

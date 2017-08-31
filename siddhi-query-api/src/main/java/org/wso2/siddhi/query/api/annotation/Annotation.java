@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.query.api.annotation;
 
-import java.io.Serializable;
+import org.wso2.siddhi.query.api.SiddhiElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,12 +26,14 @@ import java.util.stream.Collectors;
 /**
  * Annotation for siddhi functions and extensions
  */
-public class Annotation implements Serializable {
+public class Annotation implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private String name;
     private ArrayList<Element> elements = new ArrayList<Element>();
     private ArrayList<Annotation> annotations = new ArrayList<Annotation>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public Annotation(String name) {
         this.name = name;
@@ -138,5 +141,25 @@ public class Annotation implements Serializable {
         result = 31 * result + (elements != null ? elements.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

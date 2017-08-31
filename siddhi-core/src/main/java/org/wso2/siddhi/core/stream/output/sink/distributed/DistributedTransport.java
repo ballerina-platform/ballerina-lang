@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -47,9 +48,9 @@ public abstract class DistributedTransport extends Sink {
      *
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
      * @param optionHolder           Option holder containing static and dynamic options related to the
-     * {@link Sink}
-     * @param sinkConfigReader this hold the {@link Sink} extensions configuration reader.
-     * @param siddhiAppContext   Context of the siddhi app which this output sink belongs to
+     *                               {@link Sink}
+     * @param sinkConfigReader       this hold the {@link Sink} extensions configuration reader.
+     * @param siddhiAppContext       Context of the siddhi app which this output sink belongs to
      */
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
@@ -63,20 +64,20 @@ public abstract class DistributedTransport extends Sink {
     /**
      * This is method contains the additional parameters which require to initialize distributed transport
      *
-     * @param streamDefinition Definition of the stream this sink instance is publishing to
-     * @param type Type of the transport that (e.g., TCP, JMS)
-     * @param transportOptionHolder Option holder for carrying options for the transport
-     * @param sinkConfigReader  This hold the {@link Sink} extensions configuration reader for the sink
-     * @param sinkMapper Hold the mapper that's used in this sink
-     * @param mapType Type of the mapper
-     * @param mapOptionHolder Options of the mapper
-     * @param payloadTemplate The template of the payload message
-     * @param mapperConfigReader This hold the {@link Sink} extensions configuration reader for the mapper
-     * @param siddhiAppContext The siddhi app context
+     * @param streamDefinition         Definition of the stream this sink instance is publishing to
+     * @param type                     Type of the transport that (e.g., TCP, JMS)
+     * @param transportOptionHolder    Option holder for carrying options for the transport
+     * @param sinkConfigReader         This hold the {@link Sink} extensions configuration reader for the sink
+     * @param sinkMapper               Hold the mapper that's used in this sink
+     * @param mapType                  Type of the mapper
+     * @param mapOptionHolder          Options of the mapper
+     * @param payloadTemplate          The template of the payload message
+     * @param mapperConfigReader       This hold the {@link Sink} extensions configuration reader for the mapper
+     * @param siddhiAppContext         The siddhi app context
      * @param destinationOptionHolders List of option holders containing the options mentioned in @destination
-     * @param sinkAnnotation The annotation of the Sink
-     * @param strategy Publishing strategy to be used by the distributed transport
-     * @param supportedDynamicOptions List of supported dynamic options
+     * @param sinkAnnotation           The annotation of the Sink
+     * @param strategy                 Publishing strategy to be used by the distributed transport
+     * @param supportedDynamicOptions  List of supported dynamic options
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader,
@@ -90,7 +91,7 @@ public abstract class DistributedTransport extends Sink {
         init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
                 payloadTemplate, mapperConfigReader, siddhiAppContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
-                      siddhiAppContext);
+                siddhiAppContext);
     }
 
     @Override
@@ -107,13 +108,15 @@ public abstract class DistributedTransport extends Sink {
                     errorMessages = new StringBuilder();
                 }
                 errorMessages.append("[Destination ").append(destinationId).append("]:").append(e.getMessage());
-                log.warn("Failed to publish destination ID " + destinationId);
+                log.warn(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) + " Failed to publish destination ID "
+                        + destinationId);
             }
         }
 
         if (errorCount > 0) {
-            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size() + " connections"
-                    + " failed while trying to publish with following error messages:" + errorMessages.toString());
+            throw new ConnectionUnavailableException("Error on '" + siddhiAppContext.getName() + "'. " + errorCount +
+                    "/" + destinationsToPublish.size() + " connections failed while trying to publish with following" +
+                    " error messages:" + errorMessages.toString());
         }
     }
 

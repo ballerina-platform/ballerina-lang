@@ -97,28 +97,32 @@ public class DefinitionParserHelper {
                 StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingTableDefinition +
-                    ", hence cannot add " + definition);
+                    ", hence cannot add " + definition, definition.getQueryContextStartIndex(),
+                    definition.getQueryContextEndIndex());
         }
         AbstractDefinition existingStreamDefinition = streamDefinitionMap.get(definition.getId());
         if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition
                 instanceof TableDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingStreamDefinition +
-                    ", hence cannot add " + definition);
+                    ", hence cannot add " + definition, definition.getQueryContextStartIndex(),
+                    definition.getQueryContextEndIndex());
         }
         AbstractDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
         if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition
                 instanceof WindowDefinition)) {
             throw new DuplicateDefinitionException("Window Definition with same Window Id '" +
                     definition.getId() + "' already exist : " + existingWindowDefinition +
-                    ", hence cannot add " + definition);
+                    ", hence cannot add " + definition, definition.getQueryContextStartIndex(),
+                    definition.getQueryContextEndIndex());
         }
         AbstractDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
         if (existingAggregationDefinition != null
                 && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
             throw new DuplicateDefinitionException(
                     "Aggregation Definition with same Aggregation Id '" + definition.getId() + "' already exist : "
-                            + existingWindowDefinition + ", hence cannot add " + definition);
+                            + existingWindowDefinition + ", hence cannot add " + definition,
+                    definition.getQueryContextStartIndex(), definition.getQueryContextEndIndex());
         }
     }
 
@@ -137,7 +141,9 @@ public class DefinitionParserHelper {
                                             AbstractDefinition existingStream) {
         if (!existingStream.equalsIgnoreAnnotations(outputStreamDefinition)) {
             throw new DuplicateDefinitionException("Different definition same as output stream definition :" +
-                    outputStreamDefinition + " already exist as:" + existingStream);
+                    outputStreamDefinition + " already exist as:" + existingStream,
+                    outputStreamDefinition.getQueryContextStartIndex(),
+                    outputStreamDefinition.getQueryContextEndIndex());
         }
     }
 
@@ -168,12 +174,14 @@ public class DefinitionParserHelper {
                             .extractStoreConfigs(tableRef);
                     if (storeConfigs.size() == 0) {
                         throw new SiddhiAppCreationException("The store element of the name '" + tableRef + "' is " +
-                                "not defined in the configurations file.");
+                                "not defined in the configurations file.", annotation.getQueryContextStartIndex(),
+                                annotation.getQueryContextEndIndex());
                     } else {
                         final String tableTypeFromRef = storeConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                         if (tableTypeFromRef == null || tableTypeFromRef.equals("")) {
                             throw new SiddhiAppCreationException("Table type must be defined in the store element of " +
-                                    "name '" + tableRef + "' in the configurations file.");
+                                    "name '" + tableRef + "' in the configurations file.",
+                                    annotation.getQueryContextStartIndex(), annotation.getQueryContextEndIndex());
                         } else {
                             Map<String, String> collect = annotation.getElements().stream()
                                     .collect(Collectors.toMap(Element::getKey, Element::getValue));
@@ -343,7 +351,8 @@ public class DefinitionParserHelper {
                     SourceMapper sourceMapper = (SourceMapper) SiddhiClassLoader.loadExtensionImplementation(
                             mapperExtension, SourceMapperExecutorExtensionHolder.getInstance(siddhiAppContext));
 
-                    validateSourceMapperCompatibility(streamDefinition, sourceType, mapType, source, sourceMapper);
+                    validateSourceMapperCompatibility(streamDefinition, sourceType, mapType, source, sourceMapper,
+                            sourceAnnotation);
 
                     OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
                             source.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
@@ -372,14 +381,16 @@ public class DefinitionParserHelper {
                         eventSources.add(source);
                     }
                 } else {
-                    throw new SiddhiAppCreationException("Both @Sink(type=) and @map(type=) are required.");
+                    throw new SiddhiAppCreationException("Both @Sink(type=) and @map(type=) are required.",
+                            sourceAnnotation.getQueryContextStartIndex(), sourceAnnotation.getQueryContextEndIndex());
                 }
             }
         }
     }
 
     private static void validateSourceMapperCompatibility(StreamDefinition streamDefinition, String sourceType,
-                                                          String mapType, Source source, SourceMapper sourceMapper) {
+                                                          String mapType, Source source, SourceMapper sourceMapper,
+                                                          Annotation sourceAnnotation) {
         Class[] inputEventClasses = sourceMapper.getSupportedInputEventClasses();
         Class[] outputEventClasses = source.getOutputEventClasses();
 
@@ -401,11 +412,11 @@ public class DefinitionParserHelper {
             }
         }
         if (!matchingSinkAndMapperClasses) {
-            throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', " +
-                    "source '" + sourceType + "' produces incompatible '" +
-                    Arrays.deepToString(outputEventClasses) +
+            throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', source '" + sourceType
+                    + "' produces incompatible '" + Arrays.deepToString(outputEventClasses) +
                     "' classes, while it's source mapper '" + mapType + "' can only consume '" +
-                    Arrays.deepToString(inputEventClasses) + "' classes.");
+                    Arrays.deepToString(inputEventClasses) + "' classes.",
+                    sourceAnnotation.getQueryContextStartIndex(), sourceAnnotation.getQueryContextEndIndex());
         }
     }
 
@@ -516,7 +527,8 @@ public class DefinitionParserHelper {
                                     mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
                         }
 
-                        validateSinkMapperCompatibility(streamDefinition, sinkType, mapType, sink, sinkMapper);
+                        validateSinkMapperCompatibility(streamDefinition, sinkType, mapType, sink, sinkMapper,
+                                sinkAnnotation);
 
                         // Setting the output group determiner
                         OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
@@ -535,14 +547,16 @@ public class DefinitionParserHelper {
                         }
                     }
                 } else {
-                    throw new SiddhiAppCreationException("Both @sink(type=) and @map(type=) are required.");
+                    throw new SiddhiAppCreationException("Both @sink(type=) and @map(type=) are required.",
+                            sinkAnnotation.getQueryContextStartIndex(), sinkAnnotation.getQueryContextEndIndex());
                 }
             }
         }
     }
 
     private static void validateSinkMapperCompatibility(StreamDefinition streamDefinition, String sinkType,
-                                                        String mapType, Sink sink, SinkMapper sinkMapper) {
+                                                        String mapType, Sink sink, SinkMapper sinkMapper,
+                                                        Annotation sinkAnnotation) {
         Class[] inputEventClasses = sink.getSupportedInputEventClasses();
         Class[] outputEventClasses = sinkMapper.getOutputEventClasses();
 
@@ -567,7 +581,8 @@ public class DefinitionParserHelper {
             throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', " +
                     "sink mapper '" + mapType + "' processes '" + Arrays.deepToString(outputEventClasses) +
                     "' classes but it's sink '" + sinkType + "' cannot not consume any of those class, where " +
-                    "sink can only consume '" + Arrays.deepToString(inputEventClasses) + "' classes.");
+                    "sink can only consume '" + Arrays.deepToString(inputEventClasses) + "' classes.",
+                    sinkAnnotation.getQueryContextStartIndex(), sinkAnnotation.getQueryContextEndIndex());
         }
     }
 
@@ -615,7 +630,8 @@ public class DefinitionParserHelper {
         } else {
             throw new SiddhiAppCreationException("Malformed '" + typeName + "' annotation type '" + typeValue + "' "
                     + "provided, for annotation '" + annotation + "' on stream '" + streamDefinition.getId() + "', "
-                    + "it should be either '<namespace>:<name>' or '<name>'");
+                    + "it should be either '<namespace>:<name>' or '<name>'",
+                    annotation.getQueryContextStartIndex(), annotation.getQueryContextEndIndex());
         }
         return new Extension() {
             @Override
@@ -641,15 +657,17 @@ public class DefinitionParserHelper {
             for (Element element : attributeAnnotations.get(0).getElements()) {
                 if (element.getKey() == null) {
                     if (attributesNameDefined != null && attributesNameDefined) {
-                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined atstream'" +
-                                streamDefinition.getId() + "', some attributes are defined and some are not defined.");
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream'" +
+                                streamDefinition.getId() + "', some attributes are defined and some are not defined.",
+                                element.getQueryContextStartIndex(), element.getQueryContextEndIndex());
                     }
                     attributesNameDefined = false;
                     elementList.add(element.getValue());
                 } else {
                     if (attributesNameDefined != null && !attributesNameDefined) {
                         throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
-                                streamDefinition.getId() + "', some attributes are defined and some are not defined.");
+                                streamDefinition.getId() + "', some attributes are defined and some are not defined.",
+                                element.getQueryContextStartIndex(), element.getQueryContextEndIndex());
                     }
                     attributesNameDefined = true;
                     elementMap.put(element.getKey(), element.getValue());
@@ -662,7 +680,8 @@ public class DefinitionParserHelper {
                     String value = elementMap.get(attribute.getName());
                     if (value == null) {
                         throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
-                                streamDefinition.getId() + "', attribute '" + attribute.getName() + "' is not mapped.");
+                                streamDefinition.getId() + "', attribute '" + attribute.getName() + "' is not mapped.",
+                                mapAnnotation.getQueryContextStartIndex(), mapAnnotation.getQueryContextEndIndex());
                     }
                     assignMapping(attributesHolder, elementMap, i, attribute);
                 }
@@ -671,7 +690,8 @@ public class DefinitionParserHelper {
                 if (elementList.size() != attributeList.size()) {
                     throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
                             streamDefinition.getId() + "', '" + elementList.size() + "' mapping attributes are " +
-                            "provided but expected attributes are '" + attributeList.size() + "'.");
+                            "provided but expected attributes are '" + attributeList.size() + "'.",
+                            mapAnnotation.getQueryContextStartIndex(), mapAnnotation.getQueryContextEndIndex());
                 }
                 for (int i = 0; i < attributeList.size(); i++) {
                     Attribute attribute = attributeList.get(i);
@@ -700,11 +720,12 @@ public class DefinitionParserHelper {
             if (elements.size() == 1) {
                 return elements.get(0).getValue();
             } else {
-                throw new SiddhiAppCreationException("@payload() annotation should only contain single element.");
+                throw new SiddhiAppCreationException("@payload() annotation should only contain single element.",
+                        mapAnnotation.getQueryContextStartIndex(), mapAnnotation.getQueryContextEndIndex());
             }
         } else if (attributeAnnotations.size() > 1) {
             throw new SiddhiAppCreationException("@map() annotation should only contain single @payload() " +
-                    "annotation.");
+                    "annotation.", mapAnnotation.getQueryContextStartIndex(), mapAnnotation.getQueryContextEndIndex());
         } else {
             return null;
         }
@@ -727,10 +748,9 @@ public class DefinitionParserHelper {
                     dynamicOptions.put(element.getKey(), element.getValue());
                 } else {
                     throw new SiddhiAppCreationException("'" + element.getKey() + "' is not a supported " +
-                            "DynamicOption " +
-                            "for the Extension '" + extension.namespace() + ":" + extension.name() + "', it only " +
-                            "supports "
-                            + "following as its DynamicOptions: " + supportedDynamicOptionList);
+                            "DynamicOption " + "for the Extension '" + extension.namespace() + ":" + extension.name() +
+                            "', it only supports following as its DynamicOptions: " + supportedDynamicOptionList,
+                            annotation.getQueryContextStartIndex(), annotation.getQueryContextEndIndex());
                 }
             } else {
                 options.put(element.getKey(), element.getValue());
@@ -754,7 +774,6 @@ public class DefinitionParserHelper {
                     return true;
                 }
             }
-
             for (String key : optionHolder.getStaticOptionsKeys()) {
                 if (!dynamicOptions.contains(key)) {
                     return true;

@@ -33,7 +33,7 @@ public class SiddhiErrorListener extends BaseErrorListener {
                             int line, int charPositionInLine,
                             String msg, RecognitionException e) {
 
-        throw new SiddhiParserException("You have an error in your SiddhiQL at line " + line + ":" +
-                charPositionInLine + ", " + msg);
+        throw new SiddhiParserException("Syntax error in SiddhiQL, " + msg + ".", new int[]{line, 0},
+                new int[]{line, charPositionInLine});
     }
 }

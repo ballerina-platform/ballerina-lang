@@ -34,6 +34,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
@@ -51,8 +52,8 @@ public class CronEventTrigger implements EventTrigger, Job {
     private String jobGroup = "TriggerGroup";
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
-            streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext,
+                     StreamJunction streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.siddhiAppContext = siddhiAppContext;
@@ -92,7 +93,8 @@ public class CronEventTrigger implements EventTrigger, Job {
                 scheduler.deleteJob(new JobKey(jobName, jobGroup));
             }
         } catch (SchedulerException e) {
-            LOG.error("Error while removing the cron trigger job, " + e.getMessage(), e);
+            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Error while removing the cron trigger job '" + jobGroup + "':'" + jobName + "'", e);
         }
     }
 
@@ -123,8 +125,8 @@ public class CronEventTrigger implements EventTrigger, Job {
             scheduler.scheduleJob(job, trigger);
 
         } catch (SchedulerException e) {
-            LOG.error("Error while instantiating quartz scheduler for trigger '" + triggerDefinition.getId() + "'," +
-                    e.getMessage(), e);
+            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Error while instantiating quartz scheduler for trigger '" + triggerDefinition.getId() + "'.", e);
         }
     }
 

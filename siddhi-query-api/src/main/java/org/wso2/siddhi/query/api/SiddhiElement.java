@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,17 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.exception;
+
+package org.wso2.siddhi.query.api;
+
+
+import java.io.Serializable;
 
 /**
- * Exception thrown when unsupported attribute type assigned to an attribute
+ * Siddhi query elements having context
  */
-public class UnsupportedAttributeTypeException extends SiddhiAppValidationException {
+public interface SiddhiElement extends Serializable {
 
-    public UnsupportedAttributeTypeException(String message) {
-        super(message);
-    }
+    int[] getQueryContextStartIndex();
 
+    void setQueryContextStartIndex(int[] lineAndColumn);
+
+    int[] getQueryContextEndIndex();
+
+    void setQueryContextEndIndex(int[] lineAndColumn);
 }
-
-

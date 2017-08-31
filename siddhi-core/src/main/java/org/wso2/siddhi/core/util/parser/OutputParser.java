@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
-import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.DeleteTableCallback;
@@ -132,7 +131,8 @@ public class OutputParser {
                         for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                             if (!tableDefinition.getAttributeList().contains(attribute)) {
                                 throw new SiddhiAppCreationException("Attribute " + attribute + " does not exist on " +
-                                        "Event Table " + tableDefinition);
+                                        "Event Table " + tableDefinition, outStream.getQueryContextStartIndex(),
+                                        outStream.getQueryContextEndIndex());
                             }
                         }
                     }
@@ -143,7 +143,8 @@ public class OutputParser {
                     for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                         if (!tableDefinition.getAttributeList().contains(attribute)) {
                             throw new SiddhiAppCreationException("Attribute " + attribute + " does not exist on " +
-                                    "Event Table " + tableDefinition);
+                                    "Event Table " + tableDefinition, outStream.getQueryContextStartIndex(),
+                                    outStream.getQueryContextEndIndex());
                         }
                     }
                 }
@@ -151,71 +152,89 @@ public class OutputParser {
                 if (outStream instanceof DeleteStream) {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledCondition compiledCondition = table.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
-                                matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0,
+                                        table.getTableDefinition(), 0);
+                        CompiledCondition compiledCondition = table.compileCondition((((DeleteStream) outStream).
+                                        getOnDeleteExpression()), matchingMetaInfoHolder, siddhiAppContext,
+                                null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
-                        return new DeleteTableCallback(table, compiledCondition, matchingMetaInfoHolder.getMatchingStreamEventIndex(),
-                                convertToStreamEvent, stateEventPool, streamEventPool, streamEventConverter);
+                        return new DeleteTableCallback(table, compiledCondition, matchingMetaInfoHolder.
+                                getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool, streamEventPool,
+                                streamEventConverter);
                     } catch (SiddhiAppValidationException e) {
-                        throw new SiddhiAppCreationException("Cannot create delete for table '" + outStream.getId
-                                () + "', " + e.getMessage(), e);
+                        throw new SiddhiAppCreationException("Cannot create delete for table '" + outStream.getId() +
+                                "', " + e.getMessageWithOutContext(), e, e.getQueryContextStartIndex(),
+                                e.getQueryContextEndIndex(), siddhiAppContext.getName(),
+                                siddhiAppContext.getSiddhiAppString());
                     }
                 } else if (outStream instanceof UpdateStream) {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledCondition compiledCondition = table.compileCondition((((UpdateStream) outStream).getOnUpdateExpression()),
-                                matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0,
+                                        table.getTableDefinition(), 0);
+                        CompiledCondition compiledCondition = table.compileCondition((((UpdateStream) outStream).
+                                        getOnUpdateExpression()), matchingMetaInfoHolder, siddhiAppContext,
+                                null, tableMap, queryName);
                         UpdateSet updateSet = ((UpdateStream) outStream).getUpdateSet();
                         if (updateSet == null) {
                             updateSet = new UpdateSet();
-                            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
+                            for (Attribute attribute : matchingMetaInfoHolder.getMatchingStreamDefinition().
+                                    getAttributeList()) {
                                 updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
                             }
                         }
-                        CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
+                        CompiledUpdateSet compiledUpdateSet = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
                                 siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateTableCallback(table, compiledCondition, compiledUpdateSet,
-                                matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
-                                streamEventPool, streamEventConverter);
+                                matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent,
+                                stateEventPool, streamEventPool, streamEventConverter);
                     } catch (SiddhiAppValidationException e) {
-                        throw new SiddhiAppCreationException("Cannot create update for table '" + outStream.getId
-                                () + "', " + e.getMessage(), e);
+                        throw new SiddhiAppCreationException("Cannot create update for table '" + outStream.getId() +
+                                "', " + e.getMessageWithOutContext(), e, e.getQueryContextStartIndex(),
+                                e.getQueryContextEndIndex(), siddhiAppContext);
                     }
                 } else {
                     DefinitionParserHelper.validateOutputStream(outputStreamDefinition, table.getTableDefinition
                             ());
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, table.getTableDefinition(), 0);
-                        CompiledCondition compiledCondition = table.compileCondition((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
-                                matchingMetaInfoHolder, siddhiAppContext, null, tableMap, queryName);
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0,
+                                        table.getTableDefinition(), 0);
+                        CompiledCondition compiledCondition = table.
+                                compileCondition((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
+                                        matchingMetaInfoHolder, siddhiAppContext, null,
+                                        tableMap, queryName);
                         UpdateSet updateSet = ((UpdateOrInsertStream) outStream).getUpdateSet();
                         if (updateSet == null) {
                             updateSet = new UpdateSet();
-                            for (Attribute attribute: matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList()) {
+                            for (Attribute attribute : matchingMetaInfoHolder.getMatchingStreamDefinition().
+                                    getAttributeList()) {
                                 updateSet.set(new Variable(attribute.getName()), new Variable(attribute.getName()));
                             }
                         }
-                        CompiledUpdateSet compiledUpdateSet  = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
+                        CompiledUpdateSet compiledUpdateSet = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
                                 siddhiAppContext, null, tableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateOrInsertTableCallback(table, compiledCondition, compiledUpdateSet,
-                                matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
-                                streamEventPool, streamEventConverter);
+                                matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent,
+                                stateEventPool, streamEventPool, streamEventConverter);
 
                     } catch (SiddhiAppValidationException e) {
                         throw new SiddhiAppCreationException("Cannot create update or insert into for table '" +
-                                outStream.getId() + "', " + e.getMessage(), e);
+                                outStream.getId() + "', " + e.getMessageWithOutContext(), e,
+                                e.getQueryContextStartIndex(), e.getQueryContextEndIndex(), siddhiAppContext);
                     }
                 }
             } else {
-                throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
+                throw new SiddhiAppCreationException("Event table with id :" + id + " does not exist",
+                        outStream.getQueryContextStartIndex(),
+                        outStream.getQueryContextEndIndex());
             }
         } else {
-            throw new SiddhiAppCreationException(outStream.getClass().getName() + " not supported");
+            throw new SiddhiAppCreationException(outStream.getClass().getName() + " not supported",
+                    outStream.getQueryContextStartIndex(),
+                    outStream.getQueryContextEndIndex());
         }
 
     }
@@ -240,7 +259,8 @@ public class OutputParser {
             return insertIntoStreamCallback;
 
         } else {
-            throw new SiddhiAppCreationException(outStream.getClass().getName() + " not supported");
+            throw new SiddhiAppCreationException(outStream.getClass().getName() + " not supported",
+                    outStream.getQueryContextStartIndex(), outStream.getQueryContextEndIndex());
         }
     }
 

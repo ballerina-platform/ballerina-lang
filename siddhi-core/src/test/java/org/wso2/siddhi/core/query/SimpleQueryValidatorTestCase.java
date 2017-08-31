@@ -39,7 +39,8 @@ public class SimpleQueryValidatorTestCase {
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol1,price,volume insert " +
                 "into outputStream ;";
 
-        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query), siddhiContext);
+        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
+                cseEventStream + query, siddhiContext);
     }
 
     @Test(expected = SiddhiAppValidationException.class)
@@ -49,7 +50,8 @@ public class SimpleQueryValidatorTestCase {
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert " +
                 "into outputStream ;";
 
-        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + duplicateStream + query), siddhiContext);
+        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + duplicateStream + query),
+                cseEventStream + query, siddhiContext);
     }
 
     @Test(expected = SiddhiAppValidationException.class)
@@ -58,7 +60,8 @@ public class SimpleQueryValidatorTestCase {
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price," +
                 "volume insert into outputStream ;";
 
-        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query), siddhiContext);
+        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
+                cseEventStream + query, siddhiContext);
     }
 
     @Test(expected = SiddhiAppValidationException.class)
@@ -67,7 +70,8 @@ public class SimpleQueryValidatorTestCase {
         String query = "@info(name = 'query1') from cseEventStream[not(price)] select symbol,price,volume insert into" +
                 " outputStream ;";
 
-        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query), siddhiContext);
+        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
+                cseEventStream + query, siddhiContext);
 
     }
 
@@ -78,7 +82,8 @@ public class SimpleQueryValidatorTestCase {
         String query = "@info(name = 'query1') from cseEventStream[available] select symbol,price,volume insert into " +
                 "outputStream ;";
 
-        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query), siddhiContext);
+        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
+                cseEventStream + query, siddhiContext);
     }
 
     @Test
@@ -88,6 +93,7 @@ public class SimpleQueryValidatorTestCase {
         String query = "@info(name = 'query1') from cseEventStream[available and price>50] select symbol,price,volume" +
                 " insert into outputStream ;";
 
-        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query), siddhiContext);
+        SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
+                cseEventStream + query, siddhiContext);
     }
 }

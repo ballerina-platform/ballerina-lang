@@ -41,6 +41,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 
 import java.util.HashMap;
@@ -116,7 +117,8 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
                 scheduler.deleteJob(new JobKey(jobName, jobGroup));
             }
         } catch (SchedulerException e) {
-            log.error("Error while removing the cron job : " + e.getMessage(), e);
+            log.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Error while removing the cron job '" + jobGroup + ":'" + jobName + "'.", e);
         }
     }
 

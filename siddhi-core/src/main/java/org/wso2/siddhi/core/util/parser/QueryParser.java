@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
@@ -35,6 +34,7 @@ import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
@@ -214,18 +214,16 @@ public class QueryParser {
 
         } catch (DuplicateDefinitionException e) {
             if (nameElement != null) {
-                throw new DuplicateDefinitionException(e.getMessage() + ", when creating query " + nameElement
-                        .getValue(), e);
+                throw new DuplicateDefinitionException(e.getMessageWithOutContext() + ", when creating query " +
+                        nameElement.getValue(), e, e.getQueryContextStartIndex(), e.getQueryContextEndIndex(),
+                        siddhiAppContext.getName(), siddhiAppContext.getSiddhiAppString());
             } else {
-                throw new DuplicateDefinitionException(e.getMessage(), e);
+                throw new DuplicateDefinitionException(e.getMessage(), e, e.getQueryContextStartIndex(),
+                        e.getQueryContextEndIndex(), siddhiAppContext.getName(), siddhiAppContext.getSiddhiAppString());
             }
-        } catch (RuntimeException e) {
-            if (nameElement != null) {
-                throw new SiddhiAppCreationException(e.getMessage() + ", when creating query " + nameElement
-                        .getValue(), e);
-            } else {
-                throw new SiddhiAppCreationException(e.getMessage(), e);
-            }
+        } catch (Throwable t) {
+            ExceptionUtil.populateQueryContext(t, query, siddhiAppContext);
+            throw t;
         }
         return queryRuntime;
     }

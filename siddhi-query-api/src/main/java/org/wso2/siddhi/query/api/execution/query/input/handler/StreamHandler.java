@@ -17,12 +17,13 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.handler;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 /**
  * Stream handler that does manipulations on stream in Siddhi queries
  */
-public interface StreamHandler {
+public interface StreamHandler extends SiddhiElement {
 
     public Expression[] getParameters();
 }

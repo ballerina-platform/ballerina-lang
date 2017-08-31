@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
@@ -55,8 +56,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected int attributeExpressionLength;
     protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
-    private ConfigReader configReader;
     protected String queryName;
+    private ConfigReader configReader;
     private boolean outputExpectsExpiredEvents;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition,
@@ -77,8 +78,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             }
             siddhiAppContext.getSnapshotService().addSnapshotable(queryName, this);
             this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, configReader,
-                                             siddhiAppContext,
-                                             outputExpectsExpiredEvents);
+                    siddhiAppContext,
+                    outputExpectsExpiredEvents);
 
             siddhiAppContext.addEternalReferencedHolder(this);
 
@@ -101,8 +102,9 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
-     * @param configReader this hold the {@link AbstractStreamProcessor} extensions configuration reader.
-     * @param siddhiAppContext         the context of the siddhi app
+     * @param configReader                 this hold the {@link AbstractStreamProcessor} extensions configuration
+     *                                     reader.
+     * @param siddhiAppContext             the context of the siddhi app
      * @param outputExpectsExpiredEvents   is output expects ExpiredEvents   @return the additional output attributes
      *                                     introduced by the function
      * @return list of attributes.
@@ -117,8 +119,9 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
         try {
             processEventChunk(streamEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
         } catch (RuntimeException e) {
-            log.error("Dropping event chunk " + streamEventChunk + ", error in processing " + this.getClass()
-                    .getCanonicalName() + ", " + e.getMessage(), e);
+            log.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Dropping event chunk " + streamEventChunk + ", error in processing " + this.getClass()
+                    .getCanonicalName() + ".", e);
         }
     }
 
@@ -159,8 +162,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             abstractStreamProcessor.siddhiAppContext = siddhiAppContext;
             abstractStreamProcessor.elementId = elementId + "-" + key;
             abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader,
-                                         siddhiAppContext,
-                                         outputExpectsExpiredEvents);
+                    siddhiAppContext,
+                    outputExpectsExpiredEvents);
             abstractStreamProcessor.start();
             return abstractStreamProcessor;
 
@@ -172,8 +175,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     public void constructStreamEventPopulater(MetaStreamEvent metaStreamEvent, int streamEventChainIndex) {
         if (this.complexEventPopulater == null) {
             this.complexEventPopulater = StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,
-                                                                                             streamEventChainIndex,
-                                                                                             additionalAttributes);
+                    streamEventChainIndex,
+                    additionalAttributes);
         }
     }
 

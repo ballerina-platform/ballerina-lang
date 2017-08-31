@@ -144,7 +144,8 @@ public class SelectorParser {
                                 definitions.add(aMetaStreamEvent.getLastInputDefinition());
                             }
                             throw new DuplicateAttributeException("Duplicate attribute exist in streams " +
-                                    definitions);
+                                    definitions, attribute.getQueryContextStartIndex(),
+                                    attribute.getQueryContextEndIndex());
                         }
                     }
                 }

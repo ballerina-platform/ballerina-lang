@@ -33,7 +33,9 @@ public class AnonymousInputStream extends SingleInputStream {
     public AnonymousInputStream(Query query) {
         super("Anonymous-" + UUID.randomUUID());
         if (query.getOutputStream() != null && !(query.getOutputStream() instanceof ReturnStream)) {
-            throw new SiddhiAppValidationException("OutputStream of the query is not on type Return!");
+            throw new SiddhiAppValidationException("OutputStream of the query is not on type Return!",
+                    query.getOutputStream().getQueryContextStartIndex(),
+                    query.getOutputStream().getQueryContextEndIndex());
         }
         this.query = query;
 

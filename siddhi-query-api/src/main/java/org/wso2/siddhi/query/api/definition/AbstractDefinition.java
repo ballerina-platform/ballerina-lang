@@ -17,22 +17,24 @@
  */
 package org.wso2.siddhi.query.api.definition;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Abstract definition used for Streams, Tables and other common artifacts
  */
-public abstract class AbstractDefinition implements Serializable {
+public abstract class AbstractDefinition implements SiddhiElement {
 
     protected String id;
     protected List<Attribute> attributeList = new ArrayList<Attribute>();
     protected List<Annotation> annotations = new ArrayList<Annotation>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     protected AbstractDefinition() {
 
@@ -66,7 +68,8 @@ public abstract class AbstractDefinition implements Serializable {
         for (Attribute attribute : attributeList) {
             if (attribute.getName().equals(attributeName)) {
                 throw new DuplicateAttributeException("'" + attributeName + "' is already defined for with type '" +
-                        attribute.getType() + "' for '" + id + "'; " + this.toString());
+                        attribute.getType() + "' for '" + id + "'; " + this.toString(),
+                        attribute.getQueryContextStartIndex(), attribute.getQueryContextEndIndex());
             }
         }
     }
@@ -161,5 +164,25 @@ public abstract class AbstractDefinition implements Serializable {
         }
 
         return true;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }
