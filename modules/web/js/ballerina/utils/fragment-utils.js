@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-import $ from 'jquery';
+import { parseFragment } from 'js/api-client/api-client';
 
 /**
  * Class for fragment utils.
@@ -122,23 +122,7 @@ class FragmentUtils {
      * @return {object} fragment details to be sent to fragment parser.
      * */
     static parseFragment(fragment) {
-        let data = {};
-        $.ajax({
-            type: 'POST',
-            context: this,
-            url: 'http://localhost:8289/ballerina/model/parse-fragment',
-            data: JSON.stringify(fragment),
-            contentType: 'application/json; charset=utf-8',
-            async: false,
-            dataType: 'json',
-            success(response) {
-                data = response;
-            },
-            error() {
-                data = { error: 'Unable to call fragment parser Backend.' };
-            },
-        });
-        return data;
+        return parseFragment(fragment);
     }
 }
 
