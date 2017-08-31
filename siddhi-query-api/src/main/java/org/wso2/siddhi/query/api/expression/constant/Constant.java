@@ -17,9 +17,11 @@
  */
 package org.wso2.siddhi.query.api.expression.constant;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
+
 /**
  * Constant
  */
-public interface Constant {
+public interface Constant extends SiddhiElement {
 
 }
