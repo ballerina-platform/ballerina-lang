@@ -59,7 +59,7 @@ public class LauncherConstants {
                                                       "ballerina runtime.";
 
     public static final String SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG = "ballerina: started server " +
-                                                                                    "connector http-";
+                                                                                    "connector";
     public static final String SERVER_CONNECTOR_STARTED_LOG = "ballerina: started server connector";
     public static final String TERMINATE_MESSAGE = "Program Terminated.";
     public static final String UNSUPPORTED_OPERATING_SYSTEM = "Unsupported operating system";
