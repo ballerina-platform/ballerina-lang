@@ -22,7 +22,7 @@ class WorkspaceExplorer extends View {
     render() {
         return (
             <div>
-                <FileTree />
+                <FileTree root="/home/kavith" />
             </div>
         );
     }

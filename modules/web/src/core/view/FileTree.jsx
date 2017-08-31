@@ -136,9 +136,20 @@ class FileTree extends React.Component {
      * @inheritdoc
      */
     componentDidMount() {
-        const loadData = this.props.root === FS_ROOT ? getFSRoots() : listFiles(this.props.root);
+        const isFSRoot = this.props.root === FS_ROOT;
+        const loadData = isFSRoot ? getFSRoots() : listFiles(this.props.root);
+        // wrap custom roots with a single root node
+        const wrapWithCustomRoot = (children) => {
+            return [{
+                text: this.props.root,
+                id: this.props.root,
+                type: 'folder',
+                children,
+            }];
+        };
         loadData
-            .then((data) => {
+            .then((tree) => {
+                const data = isFSRoot ? tree : wrapWithCustomRoot(tree);
                 this.setState({
                     data,
                 });
