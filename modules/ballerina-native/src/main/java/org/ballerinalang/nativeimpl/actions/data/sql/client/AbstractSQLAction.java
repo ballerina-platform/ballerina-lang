@@ -220,6 +220,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
+    /**
+     * If there are any arrays of parameter for types other than sql array, the given query is expanded by adding "?" s
+     * to .match with the array size.
+     */
     private String createProcessedQueryString(String query, BRefValueArray parameters) {
         String currentQuery = query;
         int start = 0;
@@ -244,9 +248,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     /**
-     * Given the starting position, this method searches for the first occurrence
-     * of "?" and replace it with `count` "?"'s. Returns [0] - end position of
-     * "?"'s, [1] - modified query.
+     * Search for the first occurrence of "?" from the given starting point and replace it with given number of "?"'s.
      */
     private Object[] expandQuery(int start, int count, String query) {
         StringBuilder result = new StringBuilder();
