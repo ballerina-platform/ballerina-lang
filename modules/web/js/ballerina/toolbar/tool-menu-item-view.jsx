@@ -16,7 +16,6 @@
  * under the License.
  */
 import React from 'react';
-import * as callbackFunction from './toolbar-callback-functions';
 
 /**
  * Tool Component which render a tool in toolbar.
@@ -25,13 +24,14 @@ import * as callbackFunction from './toolbar-callback-functions';
  * @extends {React.Component}
  */
 class ToolMenuItem extends React.Component {
+
     constructor() {
         super();
-        this.onClickMenuItem = this.onClickMenuItem.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
-    onClickMenuItem(app, callback) {
-        callbackFunction[callback](app);
+    handleClick() {
+        this.props.onToolClick(this.props.id);
     }
     /**
      * Render tool view.
@@ -41,16 +41,18 @@ class ToolMenuItem extends React.Component {
      * @memberof Tool
      */
     render() {
-        const item = this.props.menuItem;
-        const callBackFunctionForTool = this.props.callBack;
-        const app = this.props.app;
         return (
-            <li id={item.id}>
-                <a onClick={() => { this.onClickMenuItem(app, callBackFunctionForTool); }} className="link">
-                    <span> {item.name}</span>
+            <li
+                id={this.props.id}
+                title=''
+            >
+                <a
+                    className='link'
+                    onClick={this.handleClick}
+                >
+                    <span> {this.props.name}</span>
                 </a>
             </li>
-
         );
     }
 }

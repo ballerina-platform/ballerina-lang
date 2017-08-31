@@ -22,7 +22,6 @@ import Backbone from 'backbone';
 import _ from 'lodash';
 import alerts from 'alerts';
 import LaunchManager from './launch-manager';
-import * as toolbarFunctions from './../ballerina/toolbar/toolbar-callback-functions';
 
 const Launcher = Backbone.View.extend({
     /**
@@ -115,11 +114,9 @@ const Launcher = Backbone.View.extend({
 
         LaunchManager.on('execution-started', () => {
             this.renderBody();
-            toolbarFunctions.addStopApplication();
         });
         LaunchManager.on('execution-ended', () => {
             this.renderBody();
-            toolbarFunctions.removeStopApplication();
         });
         LaunchManager.on('try-it-url-received', () => { this.renderBody(); });
         LaunchManager.on('session-terminated', () => { this.renderBody(); });
