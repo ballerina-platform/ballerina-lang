@@ -50,10 +50,10 @@ class PreferencesManagerPlugin extends Plugin {
         super.init(config);
         return {
             put: (key, value) => {
-                localStorage.setItem(`${PREF_KEY_PREFIX}-${key}`, value);
+                localStorage.setItem(`${PREF_KEY_PREFIX}-${key}`, JSON.stringify(value));
             },
             get: (key) => {
-                return localStorage.getItem(`${PREF_KEY_PREFIX}-${key}`);
+                return JSON.parse(localStorage.getItem(`${PREF_KEY_PREFIX}-${key}`));
             },
             history: {
                 put: (key, value) => {
@@ -61,11 +61,11 @@ class PreferencesManagerPlugin extends Plugin {
                     if (_.isNil(value)) {
                         localStorage.removeItem(itemKey);
                     } else {
-                        localStorage.setItem(itemKey, value);
+                        localStorage.setItem(itemKey, JSON.stringify(value));
                     }
                 },
                 get: (key) => {
-                    return localStorage.getItem(`${HISTORY_KEY_PREFIX}-${key}`);
+                    return JSON.parse(localStorage.getItem(`${HISTORY_KEY_PREFIX}-${key}`));
                 },
             },
         };
