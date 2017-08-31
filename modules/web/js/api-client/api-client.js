@@ -16,6 +16,7 @@
  * under the License.
  */
 import axios from 'axios';
+import $ from 'jquery';
 import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
 
 // updating this with endpoints upon initial fetchConfigs()
@@ -225,4 +226,32 @@ export function getTypeLattice() {
                 resolve(response.data);
             }).catch(error => reject(error));
     });
+}
+
+/**
+ * parse fragment.
+ *
+ * @param {string} fragment - source fragment.
+ * @return {object} fragment details to be sent to fragment parser.
+ * */
+
+// TODO: Use axios and Promises for api call
+export function parseFragment(fragment) {
+    let data = {};
+    $.ajax({
+        type: 'POST',
+        context: this,
+        url: getServiceEndpoint('fragmentParser'),
+        data: JSON.stringify(fragment),
+        contentType: 'application/json; charset=utf-8',
+        async: false,
+        dataType: 'json',
+        success(response) {
+            data = response;
+        },
+        error() {
+            data = { error: 'Unable to call fragment parser Backend.' };
+        },
+    });
+    return data;
 }
