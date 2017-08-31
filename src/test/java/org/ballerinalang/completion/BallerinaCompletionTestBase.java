@@ -22,9 +22,33 @@ import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFixtureTestCase {
+
+    static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
+            "function", "connector", "struct", "typemapper", "annotation");
+    static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
+    static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "json", "datatable");
+    static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
+    static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
+    static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
+            "worker", "transform", "transaction", "failed", "aborted", "committed", "abort", "try", "catch", "finally",
+            "iterate", "while", "continue", "break", "throw");
+    static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
+
+    static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
+
+    void doTestFile(String... expectedLookups) {
+        String testName = getTestName(false);
+        myFixture.configureByFile(testName + ".bal");
+        myFixture.complete(CompletionType.BASIC, 1);
+        List<String> lookupElementStrings = myFixture.getLookupElementStrings();
+        assertNotNull(lookupElementStrings);
+        assertSameElements(lookupElementStrings, expectedLookups);
+    }
 
     void doTest(String fileContent, String... expectedLookups) {
         if (fileContent != null) {
