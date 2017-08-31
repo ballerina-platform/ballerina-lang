@@ -1,6 +1,7 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
 import ballerina.lang.errors;
+import ballerina.lang.time;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -214,6 +215,28 @@ function testQueryParameters () (string firstName) {
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = ?", parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
+    }
+    testDB.close ();
+    return;
+}
+
+function testArrayofQueryParameters () (string firstName) {
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+
+    int[] test = [1,4343];
+    sql:Parameter p1 = {sqlType:"varchar", value:"John", direction:0};
+    sql:Parameter para0 = {sqlType:"varchar", value:"John", direction:0};
+    sql:Parameter para1 = {sqlType:"integer", value:test, direction:0};
+    sql:Parameter[] parameters = [para0,para1];
+    datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or registrationID in(?)", parameters);
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -459,13 +482,19 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
                                                             "TEST_SQL_CONNECTOR", "SA", "", properties);
 
+    int[] intArray = [1];
+    int[] longArray = [1503383034226, 1503383034224, 1503383034225];
+    float[] floatArray = [245.23, 5559.49, 8796.123];
+    float[] doubleArray = [1503383034226.23,  1503383034224.43, 1503383034225.123];
+    boolean[] boolArray = [true, false, true];
+    string[] stringArray = ["Hello","Ballerina"];
     sql:Parameter para1 = {sqlType:"integer", value:2, direction:0};
-    sql:Parameter para2 = {sqlType:"array", value:"1", direction:0, structuredType:"integer"};
-    sql:Parameter para3 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:0, structuredType:"bigint"};
-    sql:Parameter para4 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"float"};
-    sql:Parameter para5 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"double"};
-    sql:Parameter para6 = {sqlType:"array", value:"TRUE, FALSE, TRUE", direction:0, structuredType:"boolean"};
-    sql:Parameter para7 = {sqlType:"array", value:"Hello,Ballerina", direction:0, structuredType:"varchar"};
+    sql:Parameter para2 = {sqlType:"array", value:intArray, direction:0};
+    sql:Parameter para3 = {sqlType:"array", value:longArray, direction:0};
+    sql:Parameter para4 = {sqlType:"array", value:floatArray, direction:0};
+    sql:Parameter para5 = {sqlType:"array", value:doubleArray, direction:0};
+    sql:Parameter para6 = {sqlType:"array", value:boolArray, direction:0};
+    sql:Parameter para7 = {sqlType:"array", value:stringArray, direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
 
     insertCount = testDB.update ("INSERT INTO ArrayTypes (row_id, int_array, long_array,
@@ -514,12 +543,12 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 
     sql:Parameter para1 = {sqlType:"integer", value:3, direction:0};
     sql:Parameter para2 = {sqlType:"integer", direction:1};
-    sql:Parameter para3 = {sqlType:"array", value:"10,20,30", direction:2, structuredType:"integer"};
-    sql:Parameter para4 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:2, structuredType:"bigint"};
-    sql:Parameter para5 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2, structuredType:"float"};
-    sql:Parameter para6 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2, structuredType:"double"};
-    sql:Parameter para7 = {sqlType:"array", value:"FALSE, FALSE, TRUE", direction:2, structuredType:"boolean"};
-    sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2, structuredType:"varchar"};
+    sql:Parameter para3 = {sqlType:"array", value:"10,20,30", direction:2};
+    sql:Parameter para4 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:2};
+    sql:Parameter para5 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2};
+    sql:Parameter para6 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2};
+    sql:Parameter para7 = {sqlType:"array", value:"FALSE, FALSE, TRUE", direction:2};
+    sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
     testDB.call ("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
@@ -556,10 +585,15 @@ function testBatchUpdate () (int[]) {
     return updateCount;
 }
 
+struct Time {
+    string s;
+}
+
 function testDateTimeInParameters () (int[]) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
                                                             "TEST_SQL_CONNECTOR", "SA", "", properties);
+    string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
     int[] returnValues = [];
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter para2 = {sqlType:"date", value:"2017-01-30-08:01", direction:0};
@@ -568,8 +602,7 @@ function testDateTimeInParameters () (int[]) {
     sql:Parameter para5 = {sqlType:"datetime", value:"2017-01-30T13:27:01.999999Z", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount1 = testDB.update("Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type)
-                                     values (?,?,?,?,?)", parameters);
+    int insertCount1 = testDB.update(stmt, parameters);
     returnValues[0] = insertCount1;
 
     para1 = {sqlType:"integer", value:2, direction:0};
@@ -579,9 +612,21 @@ function testDateTimeInParameters () (int[]) {
     para5 = {sqlType:"datetime", value:"-2017-01-30T13:27:01.999999-08:30", direction:0};
     parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount2 = testDB.update("Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type)
-                                     values (?,?,?,?,?)", parameters);
+    int insertCount2 = testDB.update(stmt, parameters);
     returnValues[1] = insertCount2;
+
+
+    time:Time currentTime = time:currentTime();
+    para1 = {sqlType:"integer", value:3};
+    para2 = {sqlType:"date", value:currentTime};
+    para3 = {sqlType:"time", value:currentTime};
+    para4 = {sqlType:"timestamp", value:currentTime};
+    para5 = {sqlType:"datetime", value:currentTime};
+    parameters = [para1, para2, para3, para4, para5];
+
+    int insertCount3 = testDB.update(stmt, parameters);
+    returnValues[2] = insertCount3;
+
     testDB.close();
     return returnValues;
 }
@@ -619,7 +664,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
     return;
 }
 
-function testInvalidDBType () (string firstName) {
+function testInvalidDBType () {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector("TESTDB", "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA",
                                                             "", properties);
@@ -628,4 +673,15 @@ function testInvalidDBType () (string firstName) {
     testDB.update ("Insert into Customers(firstName) values ('James')",parameters);
     testDB.close ();
     return;
+}
+
+function testStructOutParameters() (any) {
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:Parameter para1 = {sqlType:"struct", direction:1};
+    sql:Parameter[] parameters = [para1];
+    testDB.call("{call TestStructOut(?)}", parameters);
+    testDB.close();
+    return para1.value;
 }

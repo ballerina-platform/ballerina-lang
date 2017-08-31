@@ -106,4 +106,6 @@ public final class Constants {
     public static final String DATASOURCE_KEY = "datasource_key";
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
+    public static final String STRUCT_TIME = "Time";
+    public static final String STRUCT_TIME_PACKAGE = "ballerina.lang.time";
 }

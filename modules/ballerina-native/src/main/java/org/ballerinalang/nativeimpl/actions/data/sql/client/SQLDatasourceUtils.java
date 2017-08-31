@@ -293,7 +293,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set TinyInt value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set tinyint value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -329,7 +329,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("Invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Small Int value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set smallint value to statement." + e.getMessage(), e);
         }
     }
 
@@ -365,7 +365,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set Big Int value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set bigint value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -398,20 +398,25 @@ public class SQLDatasourceUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set float value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set float value to statement." + e.getMessage(), e);
         }
     }
 
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            if (value instanceof BInteger) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
+                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+                val = new Date(((BStruct) value).getIntField(0));
+            } else if (value instanceof BInteger) {
                 val = new Date(((BInteger) value).intValue());
             } else if (value instanceof BString) {
                 val = SQLDatasourceUtils.convertToDate(value.stringValue());
+            } else {
+                throw new BallerinaException("invalid input type for date parameter with index: " + index);
             }
         }
         try {
@@ -442,10 +447,15 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
-            if (value instanceof BInteger) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
+                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+                val = new Timestamp(((BStruct) value).getIntField(0));
+            } else if (value instanceof BInteger) {
                 val = new Timestamp(((BInteger) value).intValue());
             } else if (value instanceof BString) {
                 val = SQLDatasourceUtils.convertToTimeStamp(value.stringValue());
+            } else {
+                throw new BallerinaException("invalid input type for timestamp parameter with index: " + index);
             }
         }
         try {
@@ -468,7 +478,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -476,7 +486,10 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
-            if (value instanceof BInteger) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
+                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+                val = new Time(((BStruct) value).getIntField(0));
+            } else if (value instanceof BInteger) {
                 val = new Time(((BInteger) value).intValue());
             } else if (value instanceof BString) {
                 val = SQLDatasourceUtils.convertToTime(value.stringValue());
@@ -502,7 +515,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -876,7 +889,7 @@ public class SQLDatasourceUtils {
             }
             return sb.toString();
         } catch (IOException | SQLException e) {
-            throw new BallerinaException("error occurred while reading CLOB value: " + e.getMessage(), e);
+            throw new BallerinaException("error occurred while reading clob value: " + e.getMessage(), e);
         }
     }
 
@@ -900,7 +913,7 @@ public class SQLDatasourceUtils {
                     new String(data.getBytes(1L, (int) data.length()), Charset.defaultCharset()));
             return new String(encode, Charset.defaultCharset());
         } catch (SQLException e) {
-            throw new BallerinaException("error occurred while reading BLOB value", e);
+            throw new BallerinaException("error occurred while reading blob value", e);
         }
     }
 

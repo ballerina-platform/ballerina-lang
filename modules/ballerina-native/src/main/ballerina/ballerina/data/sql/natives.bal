@@ -3,7 +3,7 @@ package ballerina.data.sql;
 import ballerina.doc;
 
 @doc:Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
-@doc:Field {value:"sqlType : The data type of the corresponding SQL parameter"}
+@doc:Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @doc:Field {value:"value: Value of paramter pass into the SQL query"}
 @doc:Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
 struct Parameter {
