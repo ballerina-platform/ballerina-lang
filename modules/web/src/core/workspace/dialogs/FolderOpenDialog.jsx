@@ -4,6 +4,8 @@ import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-b
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/FileTree';
 
+const FOLDER_TYPE = 'folder';
+
 /**
  * File Open Wizard Dialog
  * @extends React.Component
@@ -16,6 +18,7 @@ class FileOpenDialog extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            error: '',
             selectedNode: undefined,
             showDialog: true,
             folderPath: '',
@@ -28,9 +31,17 @@ class FileOpenDialog extends React.Component {
      * Called when user clicks open
      */
     onFolderOpen() {
-        this.setState({
-            showDialog: false,
-        });
+        const { selectedNode: { type, id } } = this.state;
+        if (type !== FOLDER_TYPE) {
+            this.setState({
+                error: `${id} is not a folder`,
+            });
+        } else {
+            this.setState({
+                error: '',
+                showDialog: false,
+            });
+        }
     }
 
     /**
@@ -38,6 +49,7 @@ class FileOpenDialog extends React.Component {
      */
     onDialogHide() {
         this.setState({
+            error: '',
             showDialog: false,
         });
     }
@@ -61,6 +73,7 @@ class FileOpenDialog extends React.Component {
                 }
                 closeAction
                 onHide={this.onDialogHide}
+                error={this.state.error}
             >
                 <Form horizontal>
                     <FormGroup controlId="folderPath">
@@ -72,6 +85,7 @@ class FileOpenDialog extends React.Component {
                                 value={this.state.folderPath}
                                 onChange={(evt) => {
                                     this.setState({
+                                        error: '',
                                         folderPath: evt.target.value,
                                     });
                                 }}
@@ -85,6 +99,7 @@ class FileOpenDialog extends React.Component {
                     onSelect={
                         (node) => {
                             this.setState({
+                                error: '',
                                 selectedNode: node,
                                 folderPath: node.id,
                             });

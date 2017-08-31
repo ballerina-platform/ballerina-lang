@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Alert } from 'react-bootstrap';
 
 /**
  * Base class for popup dialogs
@@ -31,6 +31,11 @@ class Dialog extends React.Component {
             <Modal show={this.props.show} onHide={this.close}>
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.title}</Modal.Title>
+                    {this.props.error !== '' &&
+                        <Alert bsStyle="danger">
+                            {this.props.error}
+                        </Alert>
+                    }
                     <hr className="modal-body-seperator" />
                 </Modal.Header>
                 <Modal.Body>
@@ -54,12 +59,14 @@ Dialog.propTypes = {
     title: PropTypes.node.isRequired,
     children: PropTypes.node.isRequired,
     actions: PropTypes.node.isRequired,
+    error: PropTypes.node,
 };
 
 Dialog.defaultProps = {
     show: true,
     closeAction: false,
     onHide: () => {},
+    error: '',
 };
 
 export default Dialog;
