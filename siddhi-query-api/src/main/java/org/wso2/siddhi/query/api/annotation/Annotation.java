@@ -107,11 +107,31 @@ public class Annotation implements SiddhiElement {
 
     @Override
     public String toString() {
-        return "Annotation{" +
-                "name='" + name + '\'' +
-                ", elements=" + elements +
-                ", annotations=" + annotations +
-                '}';
+        StringBuilder definitionBuilder = new StringBuilder("@").append(name).append("( ");
+        if (elements != null && elements.size() > 0) {
+            boolean isFirst = true;
+            for (Element element : elements) {
+                if (!isFirst) {
+                    definitionBuilder.append(", ");
+                } else {
+                    isFirst = false;
+                }
+                definitionBuilder.append(element.toString());
+            }
+        }
+        if (annotations != null && annotations.size() > 0) {
+            boolean isFirst = true;
+            for (Annotation annotation : annotations) {
+                if (!isFirst) {
+                    definitionBuilder.append(", ");
+                } else {
+                    isFirst = false;
+                }
+                definitionBuilder.append(annotation.toString());
+            }
+        }
+        definitionBuilder.append(")");
+        return definitionBuilder.toString();
     }
 
     @Override

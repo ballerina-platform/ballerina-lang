@@ -239,8 +239,8 @@ public class SiddhiAppRuntime {
         } catch (RuntimeException e) {
             if (e instanceof SiddhiAppContextException) {
                 throw new StoreQueryCreationException(((SiddhiAppContextException) e).getMessageWithOutContext(), e,
-                        ((SiddhiAppCreationException) e).getQueryContextStartIndex(),
-                        ((SiddhiAppCreationException) e).getQueryContextEndIndex(), null, storeQueryString);
+                        ((SiddhiAppContextException) e).getQueryContextStartIndex(),
+                        ((SiddhiAppContextException) e).getQueryContextEndIndex(), null, storeQueryString);
             }
             throw new StoreQueryCreationException(e.getMessage(), e);
         } finally {

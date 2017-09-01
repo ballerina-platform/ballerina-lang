@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -64,7 +65,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
                                             ExpressionExecutor[] attributeExpressionExecutors,
                                             ConfigReader configReader, SiddhiAppContext
                                                     siddhiAppContext, boolean outputExpectsExpiredEvents,
-                                            String queryName) {
+                                            String queryName, SiddhiElement siddhiElement) {
         this.configReader = configReader;
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         try {
@@ -84,6 +85,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             siddhiAppContext.addEternalReferencedHolder(this);
 
             StreamDefinition outputDefinition = StreamDefinition.id(inputDefinition.getId());
+            outputDefinition.setQueryContextStartIndex(siddhiElement.getQueryContextStartIndex());
+            outputDefinition.setQueryContextEndIndex(siddhiElement.getQueryContextEndIndex());
             for (Attribute attribute : inputDefinition.getAttributeList()) {
                 outputDefinition.attribute(attribute.getName(), attribute.getType());
             }

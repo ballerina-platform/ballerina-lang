@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.query;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
@@ -45,16 +46,16 @@ public class SimpleQueryValidatorTestCase {
 
     @Test(expected = SiddhiAppValidationException.class)
     public void testQueryWithDuplicateDefinition() throws InterruptedException {
-        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream \n cseEventStream (symbol string, price float, volume long);";
         String duplicateStream = "define stream outputStream (symbol string, price float);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert " +
                 "into outputStream ;";
 
         SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + duplicateStream + query),
-                cseEventStream + query, siddhiContext);
+                cseEventStream + duplicateStream + query, siddhiContext);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testInvalidFilterCondition1() throws InterruptedException {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price," +
@@ -64,7 +65,7 @@ public class SimpleQueryValidatorTestCase {
                 cseEventStream + query, siddhiContext);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testInvalidFilterCondition2() throws InterruptedException {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[not(price)] select symbol,price,volume insert into" +
@@ -72,7 +73,6 @@ public class SimpleQueryValidatorTestCase {
 
         SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
                 cseEventStream + query, siddhiContext);
-
     }
 
     @Test

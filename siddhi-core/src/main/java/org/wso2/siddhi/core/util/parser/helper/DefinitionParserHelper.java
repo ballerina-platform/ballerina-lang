@@ -140,8 +140,8 @@ public class DefinitionParserHelper {
     public static void validateOutputStream(StreamDefinition outputStreamDefinition,
                                             AbstractDefinition existingStream) {
         if (!existingStream.equalsIgnoreAnnotations(outputStreamDefinition)) {
-            throw new DuplicateDefinitionException("Different definition same as output stream definition :" +
-                    outputStreamDefinition + " already exist as:" + existingStream,
+            throw new DuplicateDefinitionException("Different definition same as output stream definition '" +
+                    outputStreamDefinition + "' already exist as '" + existingStream + "'",
                     outputStreamDefinition.getQueryContextStartIndex(),
                     outputStreamDefinition.getQueryContextEndIndex());
         }

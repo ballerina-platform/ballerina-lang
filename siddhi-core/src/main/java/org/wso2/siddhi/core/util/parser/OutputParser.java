@@ -103,6 +103,8 @@ public class OutputParser {
                 tableMetaStreamEvent.addOutputData(attribute);
                 matchingTableDefinition.attribute(attribute.getName(), attribute.getType());
             }
+            matchingTableDefinition.setQueryContextStartIndex(outStream.getQueryContextStartIndex());
+            matchingTableDefinition.setQueryContextEndIndex(outStream.getQueryContextEndIndex());
             tableMetaStreamEvent.addInputDefinition(matchingTableDefinition);
 
             streamEventPool = new StreamEventPool(tableMetaStreamEvent, 10);

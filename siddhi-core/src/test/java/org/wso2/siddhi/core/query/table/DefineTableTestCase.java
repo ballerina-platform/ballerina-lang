@@ -237,7 +237,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testQuery15() throws InterruptedException {
         log.info("testTableDefinition15 - OUT 0");
 

@@ -106,11 +106,25 @@ public abstract class AbstractDefinition implements SiddhiElement {
 
     @Override
     public String toString() {
-        return "AbstractDefinition{" +
-                "id='" + id + '\'' +
-                ", attributeList=" + attributeList +
-                ", annotations=" + annotations +
-                '}';
+        StringBuilder definitionBuilder = new StringBuilder();
+        if (annotations != null && annotations.size() > 0) {
+            for (Annotation annotation : annotations) {
+                definitionBuilder.append(annotation.toString());
+            }
+        }
+        definitionBuilder.append("define stream ").append(id).append(" (");
+        boolean isFirst = true;
+        for (Attribute attribute : attributeList) {
+            if (!isFirst) {
+                definitionBuilder.append(", ");
+            } else {
+                isFirst = false;
+            }
+            definitionBuilder.append(attribute.getName()).append(" ").
+                    append(attribute.getType().toString().toLowerCase());
+        }
+        definitionBuilder.append(")");
+        return definitionBuilder.toString();
     }
 
     @Override

@@ -140,6 +140,8 @@ public class SiddhiApp implements SiddhiElement {
         }
         StreamDefinition streamDefinition = StreamDefinition.id(triggerDefinition.getId()).attribute(SiddhiConstants
                 .TRIGGERED_TIME, Attribute.Type.LONG);
+        streamDefinition.setQueryContextStartIndex(triggerDefinition.getQueryContextStartIndex());
+        streamDefinition.setQueryContextEndIndex(triggerDefinition.getQueryContextEndIndex());
         try {
             checkDuplicateDefinition(streamDefinition);
         } catch (DuplicateDefinitionException e) {

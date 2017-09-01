@@ -2885,7 +2885,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             siddhiElement.setQueryContextStartIndex(new int[]{ctx.getStart().getLine(),
                     ctx.getStart().getCharPositionInLine()});
             siddhiElement.setQueryContextEndIndex(new int[]{ctx.getStop().getLine(),
-                    ctx.getStop().getCharPositionInLine()});
+                    ctx.getStop().getCharPositionInLine() + 1 + ctx.getStop().getStopIndex()
+                            - ctx.getStop().getStartIndex()});
         }
     }
 

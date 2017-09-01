@@ -153,6 +153,8 @@ public class AggregationParser {
                     incomingExpressionExecutors, incrementalAttributeAggregators);
 
             StreamDefinition incomingOutputStreamDefinition = StreamDefinition.id("");
+            incomingOutputStreamDefinition.setQueryContextStartIndex(aggregationDefinition.getQueryContextStartIndex());
+            incomingOutputStreamDefinition.setQueryContextEndIndex(aggregationDefinition.getQueryContextEndIndex());
             MetaStreamEvent processedMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : incomingMetaStreamEvent.getOutputData()) {
                 incomingOutputStreamDefinition.attribute(attribute.getName(), attribute.getType());

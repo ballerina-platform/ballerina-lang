@@ -82,9 +82,9 @@ public class SelectorParser {
         containsAggregatorThreadLocal.remove();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, siddhiAppContext);
         List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, siddhiAppContext,
-                metaComplexEvent, tableMap, variableExpressionExecutors, queryName);
-        querySelector.setAttributeProcessorList(attributeProcessors, "true".equals(containsAggregatorThreadLocal.get
-                ()));
+                metaComplexEvent, tableMap, variableExpressionExecutors, outputStream, queryName);
+        querySelector.setAttributeProcessorList(attributeProcessors, "true".equals(containsAggregatorThreadLocal.
+                get()));
         containsAggregatorThreadLocal.remove();
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(),
                 metaComplexEvent, siddhiAppContext, tableMap, variableExpressionExecutors, queryName);
@@ -94,8 +94,6 @@ public class SelectorParser {
             querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaComplexEvent,
                     null, variableExpressionExecutors, siddhiAppContext, queryName));
         }
-
-
         return querySelector;
     }
 
@@ -108,6 +106,7 @@ public class SelectorParser {
      * @param metaComplexEvent            meta ComplexEvent
      * @param tableMap                    Table Map
      * @param variableExpressionExecutors list of VariableExpressionExecutors
+     * @param outputStream
      * @return list of AttributeProcessors
      */
     private static List<AttributeProcessor> getAttributeProcessors(Selector selector, String id,
@@ -115,12 +114,14 @@ public class SelectorParser {
                                                                    MetaComplexEvent metaComplexEvent,
                                                                    Map<String, Table> tableMap,
                                                                    List<VariableExpressionExecutor>
-                                                                           variableExpressionExecutors, String
-                                                                           queryName) {
+                                                                           variableExpressionExecutors,
+                                                                   OutputStream outputStream,
+                                                                   String queryName) {
 
         List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
         StreamDefinition outputDefinition = StreamDefinition.id(id);
-
+        outputDefinition.setQueryContextStartIndex(outputStream.getQueryContextStartIndex());
+        outputDefinition.setQueryContextEndIndex(outputStream.getQueryContextEndIndex());
         List<OutputAttribute> outputAttributes = selector.getSelectionList();
         if (selector.getSelectionList().size() == 0) {
             if (metaComplexEvent instanceof MetaStreamEvent) {
@@ -144,8 +145,8 @@ public class SelectorParser {
                                 definitions.add(aMetaStreamEvent.getLastInputDefinition());
                             }
                             throw new DuplicateAttributeException("Duplicate attribute exist in streams " +
-                                    definitions, attribute.getQueryContextStartIndex(),
-                                    attribute.getQueryContextEndIndex());
+                                    definitions, outputStream.getQueryContextStartIndex(),
+                                    outputStream.getQueryContextEndIndex());
                         }
                     }
                 }

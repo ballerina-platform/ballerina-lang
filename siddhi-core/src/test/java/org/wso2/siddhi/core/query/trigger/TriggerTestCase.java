@@ -194,7 +194,7 @@ public class TriggerTestCase {
                     count++;
                     if (count > 1) {
                         float triggerTimeDiff = timestamp / 1000 - lastTimeStamp / 1000;
-                        Assert.assertEquals(1.0f, triggerTimeDiff);
+                        Assert.assertTrue(1.0f == triggerTimeDiff);
                     }
                     lastTimeStamp = timestamp;
                 }

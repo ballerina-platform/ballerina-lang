@@ -132,8 +132,6 @@ public class CronEventTrigger implements EventTrigger, Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-
-
         JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
         CronEventTrigger cronEventTrigger = (CronEventTrigger) dataMap.get("trigger");
         if (LOG.isDebugEnabled()) {
