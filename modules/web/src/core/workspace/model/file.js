@@ -11,14 +11,15 @@ class File extends EventChannel {
      * File Constructor
      * @param {Object} args File Details
      */
-    constructor({ path, name, content, isPersisted, lastPersisted, isDirty }) {
+    constructor({ path, name, extension, content, isPersisted, lastPersisted, isDirty }) {
         super();
         this._path = path || 'temp';
         this._name = name || 'untitled';
+        this._ext = extension || 'bal';
         this._content = content || '';
-        this._isPersisted = isPersisted || false;
+        this._isPersisted = !_.isNil(isPersisted) ? isPersisted : false;
         this._lastPersisted = lastPersisted || _.now();
-        this._isDirty = isDirty || true;
+        this._isDirty = !_.isNil(isDirty) ? isDirty : true;
     }
 
     /**
@@ -126,6 +127,20 @@ class File extends EventChannel {
     set isDirty(isDirty) {
         this._isDirty = isDirty;
         this.trigger(EVENTS.DIRTY_STATE_CHANGE, isDirty);
+    }
+
+     /**
+     * Returns extension
+     */
+    get ext() {
+        return this._ext;
+    }
+
+    /**
+     * Sets extension
+     */
+    set extension(ext) {
+        this._ext = ext;
     }
 }
 

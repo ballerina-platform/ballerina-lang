@@ -1,13 +1,32 @@
-import { getServiceEndpoint } from 'api-client/api-client';
+import { getServiceEndpoint, getPathSeperator } from 'api-client/api-client';
+import _ from 'lodash';
+import axios from 'axios';
+import File from './model/file';
+
+const COMMON_HEADERS = {
+    'content-type': 'text/plain; charset=utf-8',
+};
+
+const WORKSPACE_SERVICE = 'workspace';
 
 /**
- * Reads the content of given file.
+ * Reads a file from file system.
  *
  * @param {String} filePath Path of the file
- * @returns {Promise} Resolves file content or reject with error.
+ * @returns {Promise} Resolves {File} or reject with error.
  */
 export function read(filePath) {
-    return new Promise();
+    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/read`;
+    return new Promise((resolve, reject) => {
+        axios.post(serviceEP, filePath, { headers: COMMON_HEADERS })
+            .then((response) => {
+                const { content } = response.data;
+                const pathArray = _.split(filePath, getPathSeperator());
+                const name = _.last(pathArray);
+                const path = _.join(_.take(pathArray, pathArray.length - 1), getPathSeperator());
+                resolve(new File({ content, name, path, isPersisted: true, isDirty: false }));
+            }).catch(error => reject(error));
+    });
 }
 
 

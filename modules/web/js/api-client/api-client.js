@@ -22,6 +22,7 @@ import { getLangServerClientInstance } from './../langserver/lang-server-client-
 
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
+let pathSeperator = '/'; // FIXME: IMPORTANT: Get this from BE (otherwise cloud will be broken)
 
 /**
  * Gives the endpoint for a paticular backend service
@@ -294,4 +295,11 @@ export function parseFragment(fragment) {
         },
     });
     return data;
+}
+
+/**
+ * Returns native path seperator of backend
+ */
+export function getPathSeperator() {
+    return pathSeperator;
 }

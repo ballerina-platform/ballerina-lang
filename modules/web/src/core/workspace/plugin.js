@@ -30,6 +30,7 @@ import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
 import FolderOpenDialog from './dialogs/FolderOpenDialog';
 import { create, update, read, remove } from './fs-util';
+import File from './model/file';
 
 /**
  * Workspace Plugin is responsible for managing workspace.
@@ -63,13 +64,20 @@ class WorkspacePlugin extends Plugin {
      */
     openFile(filePath, type = 'bal') {
         return new Promise((resolve, reject) => {
-            // add path to opened file list - if not added already
+            // if not already opened
             if (_.findIndex(this.openedFiles, file => file === filePath) === -1) {
-                this.openedFiles.push(filePath);
-                const { pref: { history } } = this.appContext;
-                history.put(HISTORY.OPENED_FILES, this.openedFiles);
+                read(filePath)
+                    .then((file) => {
+                        file.extension = type;
+                        this.openedFiles.push(file);
+                        const { pref: { history } } = this.appContext;
+                        history.put(HISTORY.OPENED_FILES, this.openedFiles);
+                        resolve(file);
+                    })
+                    .catch(reject);
+            } else {
+                reject(`File ${filePath} is already opened.`);
             }
-            resolve();
         });
     }
 
@@ -132,7 +140,11 @@ class WorkspacePlugin extends Plugin {
         super.activate(appContext);
         const { pref: { history } } = appContext;
         this.openedFolders = history.get(HISTORY.OPENED_FOLDERS) || [];
-        this.openedFiles = history.get(HISTORY.OPENED_FILES) || [];
+        // make File objects for each serialized file
+        const serializedFiles = history.get(HISTORY.OPENED_FILES) || [];
+        this.openedFiles = serializedFiles.map((serializedFile) => {
+            return Object.assign(new File({}), serializedFile);
+        });
     }
 
     /**

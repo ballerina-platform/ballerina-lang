@@ -7,5 +7,6 @@ export const CONTEXT_NAMESPACES = {
     LAYOUT: 'layout',
     MENU: 'menu',
     WORKSPACE: 'workspace',
+    EDITOR: 'editor',
     PREFERENCES: 'pref',
 };
