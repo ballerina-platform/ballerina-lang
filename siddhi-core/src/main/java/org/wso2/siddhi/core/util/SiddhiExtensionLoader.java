@@ -84,24 +84,26 @@ public class SiddhiExtensionLoader {
         Extension siddhiExtensionAnnotation = (Extension) extensionClass.getAnnotation(Extension.class);
         if (siddhiExtensionAnnotation != null) {
             if (!siddhiExtensionAnnotation.name().isEmpty()) {
-                Class previousClass;
+                Class previousClass = null;
                 if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
-                    previousClass = siddhiExtensionsMap.putIfAbsent(siddhiExtensionAnnotation.namespace() +
-                                                                            SiddhiConstants.EXTENSION_SEPARATOR +
-                                                                            siddhiExtensionAnnotation.name(),
-                                                                    extensionClass);
+                    String key = siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
+                            siddhiExtensionAnnotation.name();
+                    Class existingValue = siddhiExtensionsMap.get(key);
+                    if (existingValue == null) {
+                        previousClass = siddhiExtensionsMap.put(key, extensionClass);
+                    }
                     if (previousClass != null) {
                         log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
-                                         "loaded with the same namespace and name '" +
-                                         siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
-                                         siddhiExtensionAnnotation.name() + "'");
+                                "loaded with the same namespace and name '" +
+                                siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
+                                siddhiExtensionAnnotation.name() + "'");
                     }
                 } else {
                     previousClass = siddhiExtensionsMap.put(siddhiExtensionAnnotation.name(), extensionClass);
                     if (previousClass != null) {
                         log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
-                                         "loaded with the " +
-                                         "same name '" + siddhiExtensionAnnotation.name() + "'");
+                                "loaded with the " +
+                                "same name '" + siddhiExtensionAnnotation.name() + "'");
                     }
                 }
             } else {
@@ -109,7 +111,7 @@ public class SiddhiExtensionLoader {
             }
         } else {
             log.error("Unable to load extension " + extensionClass.getName() + ", empty name element given in " +
-                              "Extension annotation.");
+                    "Extension annotation.");
         }
     }
 
