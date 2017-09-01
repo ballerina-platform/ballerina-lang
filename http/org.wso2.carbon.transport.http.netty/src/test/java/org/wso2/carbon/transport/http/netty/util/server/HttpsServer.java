@@ -95,7 +95,7 @@ public class HttpsServer implements TestServer {
     public void shutdown() throws InterruptedException {
         bossGroup.shutdownGracefully().sync();
         workerGroup.shutdownGracefully().sync();
-        logger.info("HttpServer shutdown ");
+        logger.info("HttpsServer shutdown ");
     }
 
     public void setMessage(String message, String contentType) {
