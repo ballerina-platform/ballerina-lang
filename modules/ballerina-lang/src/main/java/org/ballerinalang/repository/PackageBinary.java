@@ -23,7 +23,7 @@ package org.ballerinalang.repository;
 public interface PackageBinary extends PackageEntity {
     
     /**
-     * Returns the ballerina binary package contents.
+     * Returns the Ballerina binary package contents.
      * 
      * @return the binary package content
      */

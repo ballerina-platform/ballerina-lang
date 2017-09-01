@@ -24,15 +24,13 @@ import java.util.List;
  */
 public interface PackageNode extends Node {
     
-    List<? extends IdentifierNode> getNameComponents();
+    List<CompilationUnitNode> getCompilationUnits();
     
-    void addNameComponent(IdentifierNode nameComponent);
-
-    IdentifierNode getVersion();
+    void addCompilationUnit(CompilationUnitNode compUnit);
     
-    void setVersion(IdentifierNode version);
-
-    // We also need to main the list of files..
+    void setPackageDeclaration(PackageDeclarationNode pkgDecl);
+    
+    PackageDeclarationNode getPackageDeclaration();
 
     List<? extends ImportPackageNode> getImports();
     

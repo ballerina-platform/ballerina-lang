@@ -66,7 +66,6 @@ public class BLangCompiler {
         this.programRepo = this.loadFSProgramRepository(basePath);
     }
 
-
     private PackageRepository loadFSProgramRepository(Path basePath) {
         return new CompositePackageRepository(this.loadSystemRepository(), this.loadUserRepository(), 
                 new FSPackageRepository(basePath));
@@ -101,8 +100,9 @@ public class BLangCompiler {
     
     private void sourceCompile(PackageSource pkgSource) {
         log("* Package Source: " + pkgSource);
-        PackageNode pkgNode = parser.parse(pkgSource);
+        PackageNode pkgNode = this.parser.parse(pkgSource);
         log("* Package Node: " + pkgNode);
+        log("* Compilation Unit Count: " + pkgNode.getCompilationUnits().size());
     }
 
     // TODO Define Scopes and Symbols

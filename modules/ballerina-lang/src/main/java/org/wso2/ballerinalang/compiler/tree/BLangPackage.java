@@ -18,10 +18,11 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -36,8 +37,8 @@ import java.util.List;
  */
 public class BLangPackage extends BLangNode implements PackageNode {
     
-    public List<BLangIdentifier> nameComps;
-    public BLangIdentifier version;
+    public List<CompilationUnitNode> compUnits;
+    public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangVariable> globalVars;
@@ -48,7 +49,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangAnnotation> annotations;
 
     public BLangPackage() {
-        this.nameComps = new ArrayList<>();
+        this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
         this.globalVars = new ArrayList<>();
@@ -60,15 +61,15 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangIdentifier> getNameComponents() {
-        return nameComps;
+    public List<CompilationUnitNode> getCompilationUnits() {
+        return compUnits;
     }
 
     @Override
-    public IdentifierNode getVersion() {
-        return version;
+    public void addCompilationUnit(CompilationUnitNode compUnit) {
+        this.compUnits.add(compUnit);
     }
-
+    
     @Override
     public List<BLangImportPackage> getImports() {
         return imports;
@@ -115,16 +116,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addNameComponent(IdentifierNode nameComponent) {
-        this.getNameComponents().add((BLangIdentifier) nameComponent);
-    }
-
-    @Override
-    public void setVersion(IdentifierNode version) {
-        this.version = (BLangIdentifier) version;
-    }
-
-    @Override
     public void addImport(ImportPackageNode importPkg) {
         this.imports.add((BLangImportPackage) importPkg);
     }
@@ -163,5 +154,15 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addAnnotation(AnnotatableNode annotation) {
         this.annotations.add((BLangAnnotation) annotation);
     }
-    
+
+    @Override
+    public void setPackageDeclaration(PackageDeclarationNode pkgDecl) {
+        this.pkgDecl = (BLangPackageDeclaration) pkgDecl;
+    }
+
+    @Override
+    public PackageDeclarationNode getPackageDeclaration() {
+        return pkgDecl;
+    }
+
 }

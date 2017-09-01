@@ -17,9 +17,11 @@
 */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
@@ -27,10 +29,12 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -45,8 +49,16 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  */
 public class TreeBuilder {
 
+    public static CompilationUnitNode createCompilationUnit() {
+        return new BLangCompilationUnit();
+    }
+    
     public static PackageNode createPackageNode() {
         return new BLangPackage();
+    }
+    
+    public static PackageDeclarationNode createPackageDeclarationNode() {
+        return new BLangPackageDeclaration();
     }
     
     public static IdentifierNode createIdentifierNode() {

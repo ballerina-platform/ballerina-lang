@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
@@ -58,23 +58,23 @@ public class BLangParser {
 
     public PackageNode parse(PackageSource pkgSource) {
         PackageNode pkgNode = TreeBuilder.createPackageNode();
-        PackageID pkgId = pkgSource.getPackageId();
-        pkgNode.setVersion(pkgId.getVersion());
-        pkgId.getNameComps().stream().forEach(e -> pkgNode.addNameComponent(e));
-        pkgSource.getPackageSourceEntries().forEach(e -> populatePackageModel(pkgNode, e));
+        pkgSource.getPackageSourceEntries().forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
         return pkgNode;
     }
     
-    private void populatePackageModel(PackageNode pkgNode, PackageSourceEntry sourceEntry) { 
+    private CompilationUnitNode generateCompilationUnit(PackageSourceEntry sourceEntry) { 
         try {
             ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
             ais.name = sourceEntry.getEntryName();
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
-            BLangParserListener listener = new BLangParserListener(pkgNode);
+            CompilationUnitNode compUnit = TreeBuilder.createCompilationUnit();
+            compUnit.setName(sourceEntry.getEntryName());
+            BLangParserListener listener = new BLangParserListener(compUnit);
             parser.addParseListener(listener);
             parser.compilationUnit();
+            return compUnit;
         } catch (IOException e) {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
         }

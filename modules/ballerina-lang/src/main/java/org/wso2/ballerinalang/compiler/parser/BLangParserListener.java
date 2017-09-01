@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 
@@ -34,8 +34,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private BLangPackageBuilder pkgBuilder;
 
-    public BLangParserListener(PackageNode pkgNode) {
-        this.pkgBuilder = new BLangPackageBuilder(pkgNode);
+    public BLangParserListener(CompilationUnitNode compUnit) {
+        this.pkgBuilder = new BLangPackageBuilder(compUnit);
     }
     
     @Override

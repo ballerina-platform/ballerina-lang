@@ -19,10 +19,10 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvocableNode;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
@@ -42,7 +42,7 @@ import java.util.Stack;
  */
 public class BLangPackageBuilder {
 
-    private PackageNode pkgNode;
+    private CompilationUnitNode compUnit;
 
     private Stack<TypeNode> typeNodeStack = new Stack<>();
 
@@ -56,8 +56,8 @@ public class BLangPackageBuilder {
 
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
-    public BLangPackageBuilder(PackageNode pkgNode) {
-        this.pkgNode = pkgNode;
+    public BLangPackageBuilder(CompilationUnitNode compUnit) {
+        this.compUnit = compUnit;
     }
 
     public void addValueType(String valueType) {
@@ -135,7 +135,7 @@ public class BLangPackageBuilder {
 
     public void endFunctionDef() {
         this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
-        this.pkgNode.addFunction((FunctionNode) this.invokableNodeStack.pop());
+        this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
     }
 
 }

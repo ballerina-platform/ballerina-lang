@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode {
+public interface ServiceNode extends AnnotatableNode, TopLevelNode {
     
     IdentifierNode getName();
     
