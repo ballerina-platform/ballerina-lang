@@ -15,17 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.util;
 
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.PackageFile;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public abstract class BLangPackageFile implements PackageFile {
+
+    public Kind kind;
+    public String name;
+
+    @Override
+    public Kind getKind() {
+        return kind;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }

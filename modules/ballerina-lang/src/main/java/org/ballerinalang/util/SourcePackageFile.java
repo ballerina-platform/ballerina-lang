@@ -15,17 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.ballerinalang.util;
 
-import org.ballerinalang.model.types.TypeKind;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
+ * {@code SourcePackageFile} represents a package directory.
+ *
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface SourcePackageFile extends PackageFile {
+
+    /**
+     * {@code SourceFile} represents a single .bal file in a package directory.
+     *
+     * @since 0.94
+     */
+    interface SourceFile {
+        String getName();
+
+        InputStream getInputStream() throws IOException;
+    }
+
+    List<? extends SourceFile> getSourceFiles();
 }

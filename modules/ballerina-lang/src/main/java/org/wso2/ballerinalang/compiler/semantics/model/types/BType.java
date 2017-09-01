@@ -15,17 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.ValueType;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public class BType implements ValueType {
+
+    public int tag;
+    public TypeKind kind;
+
+    @Override
+    public TypeKind getKind() {
+        return null;
+    }
 }

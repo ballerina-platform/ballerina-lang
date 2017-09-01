@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 /**
  * @since 0.94
  */
-public class BLangFunction extends BLangInvokable implements FunctionNode {
+public class BLangFunction extends BLangInvocable implements FunctionNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

@@ -15,17 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
-
-import org.ballerinalang.model.types.TypeKind;
+package org.ballerinalang.util;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface PackageFile {
+
+    /**
+     * @since 0.94
+     */
+    enum Kind {
+        SOURCE(".bal"),
+        COMPILED(".balo");
+
+        public final String extension;
+
+        private Kind(String extension) {
+            this.extension = extension;
+        }
+    }
+
+    Kind getKind();
+
+    String getName();
 }

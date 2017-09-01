@@ -15,10 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.elements;
+package org.ballerinalang.model.symbols;
 
 /**
  * @since 0.94
  */
-public interface Type {
+public enum SymbolKind {
+    PACKAGE,
+    STRUCT,
+    CONNECTOR,
+    ACTION,
+    SERVICE,
+    RESOURCE,
+    FUNCTION,
+    ANNOTATION,
+    CONSTANT,
+    PACKAGE_VARIABLE,
+
+    PARAMETER,
+    LOCAL_VARIABLE,
+    SERVICE_VARIABLE,
+    CONNECTOR_VARIABLE
 }

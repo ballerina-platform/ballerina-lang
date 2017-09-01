@@ -15,41 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.elements;
+package org.ballerinalang.model.types;
 
 /**
- * {@code TypeKind} represents kind of a type.
+ * {@code NullType} represents the type of the expression 'null'.
  *
  * @since 0.94
  */
-public enum TypeKind {
-    /**
-     * The <em>integer</em> value type.
-     */
-    INT,
-
-    /**
-     * The <em>float</em> value type.
-     */
-    FLOAT,
-
-    /**
-     * The <em>string</em> value type.
-     */
-    STRING,
-
-    /**
-     * The <em>boolean</em> value type.
-     */
-    BOOLEAN,
-
-    /**
-     * The <em>blob</em> value type.
-     */
-    BLOB,
-
-    MESSAGE,
-    DATATABLE,
-    JSON,
-    XML;
+public interface NullType extends ReferenceType {
 }

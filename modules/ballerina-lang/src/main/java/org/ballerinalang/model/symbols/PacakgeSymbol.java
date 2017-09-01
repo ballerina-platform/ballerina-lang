@@ -15,31 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
-
-import org.ballerinalang.model.tree.statements.BlockNode;
-
-import java.util.List;
+package org.ballerinalang.model.symbols;
 
 /**
  * @since 0.94
  */
-public interface InvokableNode extends AnnotatableNode {
-    
-    IdentifierNode getName();
+public interface PacakgeSymbol extends Symbol {
 
-    void setName(IdentifierNode name);
-    
-    List<? extends VariableNode> getParameters();
-    
-    void addParameter(VariableNode param);
-    
-    List<? extends VariableNode> getReturnParameters();
-    
-    void addReturnParameter(VariableNode retParam);
-    
-    BlockNode getBody();
-    
-    void setBody(BlockNode body);
-    
+    /**
+     * Returns {@code true} if this is the default package and {@code false} otherwise.
+     * Default package is the package which does not have a package declaration.
+     *
+     * @return {@code true} if this is the default package and {@code false} otherwise.
+     */
+    boolean isDefault();
 }

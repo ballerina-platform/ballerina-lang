@@ -15,26 +15,42 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.types;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.tree.types.ValueTypeNode;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.Symbol;
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.Type;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.94
  */
-public class BLangValueType extends BLangType implements ValueTypeNode {
-    
-    public TypeKind typeKind;
-
+public class BSymbol implements Symbol {
     @Override
-    public TypeKind getTypeKind() {
-        return typeKind;
+    public SymbolKind getKind() {
+        return null;
     }
 
     @Override
-    public void setTypeKind(TypeKind typeKind) {
-        this.typeKind = typeKind;
+    public Type getType() {
+        return null;
     }
-    
+
+    @Override
+    public Set<Flag> getFlags() {
+        return null;
+    }
+
+    @Override
+    public Symbol getEnclosingSymbol() {
+        return null;
+    }
+
+    @Override
+    public List<? extends Symbol> getEnclosedSymbols() {
+        return null;
+    }
 }

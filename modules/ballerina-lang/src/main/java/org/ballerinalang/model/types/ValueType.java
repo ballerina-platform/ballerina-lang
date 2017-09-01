@@ -15,17 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
-
-import org.ballerinalang.model.types.TypeKind;
+package org.ballerinalang.model.types;
 
 /**
+ * {@code ValueType} represents a value type in Ballerina.
+ * <p>
+ * {@code int}, {@code float}, {@code string}, {@code boolean}, and {@code blob}.
+ *
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface ValueType extends Type {
 }

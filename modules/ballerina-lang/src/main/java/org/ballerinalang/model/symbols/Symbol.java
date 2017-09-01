@@ -15,17 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.ballerinalang.model.symbols;
 
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.types.Type;
+
+import java.util.List;
+import java.util.Set;
 
 /**
+ * {@code Symbol} represents a Ballerina program symbol such as a variable, function,
+ * connector, action, or package.
+ *
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface Symbol {
+    SymbolKind getKind();
+
+    Type getType();
+
+    Set<Flag> getFlags();
+
+    Symbol getEnclosingSymbol();
+
+    List<? extends Symbol> getEnclosedSymbols();
 }

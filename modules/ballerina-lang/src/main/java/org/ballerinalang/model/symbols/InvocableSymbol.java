@@ -15,17 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.ballerinalang.model.symbols;
 
-import org.ballerinalang.model.types.TypeKind;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface InvocableSymbol extends Symbol {
+
+    List<? extends VariableSymbol> getParameters();
+
+    List<? extends VariableSymbol> getReturnParameters();
+
 }

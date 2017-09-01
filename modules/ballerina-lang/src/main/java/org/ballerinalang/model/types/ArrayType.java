@@ -15,17 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
-
-import org.ballerinalang.model.types.TypeKind;
+package org.ballerinalang.model.types;
 
 /**
+ * {@code ArrayType} represents an array type in Ballerina.
+ *
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface ArrayType extends ReferenceType {
+    Type getElementType();
 }

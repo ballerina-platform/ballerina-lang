@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model;
+package org.ballerinalang.util;
 
 /**
  * @since 0.94
  */
-public class Symbol {
+public interface CompiledPackageFile extends PackageFile {
 }

@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.ResourceNode;
 /**
  * @since 0.94
  */
-public class BLangResource extends BLangInvokable implements ResourceNode {
+public class BLangResource extends BLangInvocable implements ResourceNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.elements.TypeKind;
+import org.ballerinalang.model.types.TypeKind;
 
 import java.util.HashMap;
 import java.util.Map;

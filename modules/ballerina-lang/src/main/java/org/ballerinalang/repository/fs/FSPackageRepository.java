@@ -19,10 +19,10 @@ package org.ballerinalang.repository.fs;
 
 import org.ballerinalang.compiler.BLangCompiler;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.repository.PackageSource;
+import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.UserPackageRepository;
 
 import java.io.File;

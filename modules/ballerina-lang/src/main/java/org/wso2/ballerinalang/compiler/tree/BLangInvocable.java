@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.InvokableNode;
+import org.ballerinalang.model.tree.InvocableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public abstract class BLangInvokable extends BLangNode implements InvokableNode {
+public abstract class BLangInvocable extends BLangNode implements InvocableNode {
     
     public BLangIdentifier name;
     public List<BLangVariable> params;
@@ -42,7 +42,7 @@ public abstract class BLangInvokable extends BLangNode implements InvokableNode 
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BLangInvokable() {
+    public BLangInvocable() {
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();

@@ -21,7 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.InvokableNode;
+import org.ballerinalang.model.tree.InvocableNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -37,62 +37,64 @@ import java.util.Stack;
 
 /**
  * This class builds the package AST of a Ballerina source file.
+ *
+ * @since 0.94
  */
 public class BLangPackageBuilder {
 
     private PackageNode pkgNode;
-    
+
     private Stack<TypeNode> typeNodeStack = new Stack<>();
-    
+
     private Stack<BlockNode> blockNodeStack = new Stack<>();
-    
+
     private Stack<List<VariableNode>> paramListStack = new Stack<>();
-    
+
     private Stack<List<VariableNode>> retParamListStack = new Stack<>();
-    
-    private Stack<InvokableNode> invokableNodeStack = new Stack<>();
-    
+
+    private Stack<InvocableNode> invokableNodeStack = new Stack<>();
+
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
-            
+
     public BLangPackageBuilder(PackageNode pkgNode) {
         this.pkgNode = pkgNode;
     }
-    
+
     public void addValueType(String valueType) {
         ValueTypeNode valueTypeNode = TreeBuilder.createValueTypeNode();
         valueTypeNode.setTypeKind(TreeUtils.stringToTypeKind(valueType));
         this.typeNodeStack.push(valueTypeNode);
     }
-    
+
     public void startParamList() {
         this.paramListStack.add(new ArrayList<>());
     }
-    
+
     public void startFunctionDef() {
         this.invokableNodeStack.push(TreeBuilder.createFunctionNode());
     }
-    
+
     public void startBlock() {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
     }
-    
+
     public void endReturnParams() {
         this.retParamListStack.push(this.paramListStack.pop());
     }
-    
+
     private IdentifierNode createIdentifier(String identifier) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         node.setValue(identifier);
         return node;
     }
-    
+
     public void addParam(String identifier) {
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(this.createIdentifier(identifier));
         var.setType(this.typeNodeStack.pop());
         this.paramListStack.peek().add(var);
     }
-    
+
     private List<VariableNode> getLastParamsList() {
         if (this.paramListStack.empty()) {
             return new ArrayList<>(0);
@@ -100,7 +102,7 @@ public class BLangPackageBuilder {
             return this.paramListStack.pop();
         }
     }
-    
+
     private List<VariableNode> getLastRetParamsList() {
         if (this.retParamListStack.empty()) {
             return new ArrayList<>(0);
@@ -108,13 +110,13 @@ public class BLangPackageBuilder {
             return this.retParamListStack.pop();
         }
     }
-    
+
     public void endCallableUnitSignature() {
-        InvokableNode invNode = this.invokableNodeStack.peek();
+        InvocableNode invNode = this.invokableNodeStack.peek();
         this.getLastParamsList().stream().forEach(e -> invNode.addParameter(e));
         this.getLastRetParamsList().stream().forEach(e -> invNode.addReturnParameter(e));
     }
-    
+
     public void addVariableDefStatement(String identifier) {
         VariableDefinitionNode varDefNode = TreeBuilder.createVariableDefinitionNode();
         VariableNode var = TreeBuilder.createVariableNode();
@@ -124,16 +126,16 @@ public class BLangPackageBuilder {
         varDefNode.setVariable(var);
         this.blockNodeStack.peek().addStatement(varDefNode);
     }
-    
+
     public void addLiteralValue(Object value) {
         LiteralNode litExpr = TreeBuilder.createLiteralExpression();
         litExpr.setValue(value);
         this.exprNodeStack.push(litExpr);
     }
-    
+
     public void endFunctionDef() {
         this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
         this.pkgNode.addFunction((FunctionNode) this.invokableNodeStack.pop());
     }
-    
+
 }

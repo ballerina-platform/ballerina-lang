@@ -15,17 +15,35 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.wso2.ballerinalang.compiler.util;
 
-import org.ballerinalang.model.types.TypeKind;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public class CompilerContext {
+
+    private Map<Key<?>, Object> props = new HashMap<>();
+
+    public CompilerContext() {
+    }
+
+    public <V> void put(Key<V> key, V value) {
+        // TODO Check for duplicates
+        props.put(key, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <V> V get(Key<V> key) {
+        return (V) props.get(key);
+    }
+
+    /**
+     * @param <K> key
+     * @since 0.94
+     */
+    public static class Key<K> {
+    }
 }

@@ -15,17 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
-
-import org.ballerinalang.model.types.TypeKind;
+package org.ballerinalang.model.symbols;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
-    
-    TypeKind getTypeKind();
-    
-    void setTypeKind(TypeKind typeKind);
-    
+public interface VariableSymbol extends Symbol {
+    /**
+     * Returns the value of this variable if the is a constant.
+     *
+     * @return the value of this variable if this is a constant, else return null.
+     */
+    Object getConstValue();
 }

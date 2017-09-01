@@ -15,17 +15,31 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
+package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.tree.statements.BlockNode;
+
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface ValueTypeNode extends TypeNode {
+public interface InvocableNode extends AnnotatableNode {
     
-    TypeKind getTypeKind();
+    IdentifierNode getName();
+
+    void setName(IdentifierNode name);
     
-    void setTypeKind(TypeKind typeKind);
+    List<? extends VariableNode> getParameters();
+    
+    void addParameter(VariableNode param);
+    
+    List<? extends VariableNode> getReturnParameters();
+    
+    void addReturnParameter(VariableNode retParam);
+    
+    BlockNode getBody();
+    
+    void setBody(BlockNode body);
     
 }
