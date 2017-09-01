@@ -21,7 +21,6 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import alerts from 'alerts';
 import DebugManager from './debug-manager';
-import * as toolbarFunctions from './../ballerina/toolbar/toolbar-callback-functions';
 
 /**
  * @description Debugger toolbar
@@ -146,7 +145,6 @@ class Tools extends EventChannel {
         this.active = false;
         this.navigation = true;
         this.render();
-        toolbarFunctions.removeDebuggingToolbar();
     }
     showWaiting() {
         this.waiting = true;
@@ -353,7 +351,6 @@ class Tools extends EventChannel {
      * @memberof Tools
      */
     connectionStarted() {
-        toolbarFunctions.showDebuggerToolbar();
         this.waiting = false;
         this.render();
 

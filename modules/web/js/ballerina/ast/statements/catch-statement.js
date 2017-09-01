@@ -136,6 +136,19 @@ class CatchStatement extends ConditionalStatement {
         const statementStartSegment = 'catch' + this.getWSRegion(1) + '(' + this.getWSRegion(2);
         return this.getPosition().startOffset + statementStartSegment.length;
     }
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    canBeParentOf(node) {
+        return ASTFactory.isConnectorDeclaration(node)
+            || ASTFactory.isVariableDeclaration(node)
+            || ASTFactory.isWorkerDeclaration(node)
+            || ASTFactory.isStatement(node);
+    }
 }
 
 export default CatchStatement;

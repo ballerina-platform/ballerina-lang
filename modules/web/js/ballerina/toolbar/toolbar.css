@@ -5,14 +5,12 @@
     line-height: 30px;
     font-size: 13px;
     border-top: 1px solid #555;
-    /* border-bottom:1px solid #303334; */
 }
 
 #toolbar-palette{
     float:left;
     color:#d0cfcf;
     padding-left: 4px;
-    padding-right: 20px;
     font-size: 13px;
 }
 
@@ -21,8 +19,21 @@
     width:35px;
     height:30px;
     text-align: center;
+    margin:0px !important;
+    background-color: #3c3f41;
+    color: white;
+    font-size: 13px;
 }
 
+#toolbar-palette .toolbar-icons:hover ,
+#toolbar-palette .toolbar-icons:active,
+#toolbar-palette .toolbar-icons:target,
+#toolbar-palette .toolbar-icons:focus{
+
+    background: #232323;
+    transition: all 250ms ease 0s;
+    color: #fff;
+}
 .toolbar-icons i{
     font-size: 13px;
 }
@@ -35,9 +46,24 @@
 .section-separator{
     border-right: 1px solid #6f6f6f;
 }
+
+.section-separator-left{
+    border-left: 1px solid #6f6f6f;
+}
+
 .toolbar-icons:hover{
     background-color: #5A5C5E;
-    cursor: pointer;
+}
+
+.disabledDebug{
+    pointer-events:none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.disabledDebugToolbar{
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /*Drop down for menu items in toolbar*/
@@ -55,27 +81,28 @@
     color: white;
     text-decoration: none;
     display: block;
-    height: 24px;
-    line-height: 24px;
+    min-height: 25px;
+    line-height: 25px;
 }
 
 .show {display:block;}
 
 .dropdown-content a:hover {
-    background-color: #e2e2e2;
+    background-color: #999;
     color:#000d0e;
 }
 
 #toolbar-palette .list {
     list-style: none;
-    padding: 0;
+    padding: 0px;
+    margin:0px;
 }
 #toolbar-palette .link {
     padding-left: 10px;
 }
 #toolbar-palette .more{
     font-size: 8px;
-    padding-left: 4px;
+    padding-left: 3px;
 }
 
 #toolbar-palette .btn-debug-action-toolbar{
@@ -92,9 +119,13 @@
 
 #debugger-tools{
     float: left;
-    height:31px;
+    width:176px;
+    height:30px;
     text-align: center;
-    width: 200px;
+    margin:0px !important;
+    background-color: #3c3f41;
+    color: white;
+    font-size: 13px;
 }
 
 #toolbar-palette .stop{
@@ -117,4 +148,28 @@
     white-space: nowrap;
     float: left;
     color: #c7c7c7;
+}
+
+#main-debug-toolbar{
+    float: left;
+}
+
+#fileHandlingTools{
+    float:left;
+}
+
+#undoRedoTools{
+    float:left;
+}
+
+#diagramRenderTools{
+    float:left;
+}
+
+#start-tool{
+    float: left;
+}
+
+#launcher-debug{
+    float: left;
 }
