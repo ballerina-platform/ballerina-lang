@@ -3,20 +3,24 @@ import chai, {expect} from 'chai';
 import {render, shallow} from 'enzyme';
 import chaiJestSnapshot from "chai-jest-snapshot";
 import toJson from 'enzyme-to-json';
+import {fetchConfigs, parseContent} from 'api-client/api-client';
 import ASTFactory from '../../js/ballerina/ast/ast-factory';
 import DefaultASTFactory from '../../js/ballerina/ast/default-ast-factory';
-import AssignmentStatement from '../../js/ballerina/components/assignment-statement';
+import AssignmentStatement from '../../js/ballerina/diagram/views/default/components/assignment-statement';
 import SimpleBBox from '../../js/ballerina/ast/simple-bounding-box';
 import DragDropManager from '../../js/ballerina/tool-palette/drag-drop-manager';
-import VariableDefinitionStatement from './../../js/ballerina/components/variable-definition-statement';
-import ReturnStatement from '../../js/ballerina/components/return-statement';
-import BreakStatement from '../../js/ballerina/components/break-statement';
-import IfElseStatement from '../../js/ballerina/components/if-else-statement';
+import VariableDefinitionStatement from './../../js/ballerina/diagram/views/default/components/variable-definition-statement';
+import ReturnStatement from '../../js/ballerina/diagram/views/default/components/return-statement';
+import BreakStatement from '../../js/ballerina/diagram/views/default/components/break-statement';
+import IfElseStatement from '../../js/ballerina/diagram/views/default/components/if-else-statement';
 
 chai.use(chaiJestSnapshot);
 
 describe('component tests', function () {
-    before(function () {
+    before(function (beforeAllDone) {
+        fetchConfigs()
+            .then(() => beforeAllDone())
+            .catch(beforeAllDone);
         chaiJestSnapshot.resetSnapshotRegistry();
     });
 
