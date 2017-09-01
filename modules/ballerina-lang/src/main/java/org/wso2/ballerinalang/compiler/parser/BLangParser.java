@@ -20,19 +20,24 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.repository.PackageSource;
+import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.util.BLangSourcePackageFile;
-import org.wso2.ballerinalang.compiler.util.BLangSourcePackageFile.BLangSourceFile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
+ * This represents the Ballerina source parser.
+ * 
  * @since 0.94
  */
 public class BLangParser {
+    
     private static final CompilerContext.Key<BLangParser> parserKey = new CompilerContext.Key<>();
 
     private CompilerContext context;
@@ -51,19 +56,19 @@ public class BLangParser {
         this.context.put(parserKey, this);
     }
 
-    public PackageNode parse(BLangSourcePackageFile sourcePackageFile) {
+    public PackageNode parse(PackageSource pkgSource) {
         PackageNode pkgNode = TreeBuilder.createPackageNode();
-        for (BLangSourceFile sourceFile : sourcePackageFile.getSourceFiles()) {
-            parseSourceFile(pkgNode, sourceFile);
-        }
-
+        PackageID pkgId = pkgSource.getPackageId();
+        pkgNode.setVersion(pkgId.getVersion());
+        pkgId.getNameComps().stream().forEach(e -> pkgNode.addNameComponent(e));
+        pkgSource.getPackageSourceEntries().forEach(e -> populatePackageModel(pkgNode, e));
         return pkgNode;
     }
-
-    private void parseSourceFile(PackageNode pkgNode, BLangSourceFile sourceFile) {
+    
+    private void populatePackageModel(PackageNode pkgNode, PackageSourceEntry sourceEntry) { 
         try {
-            ANTLRInputStream ais = new ANTLRInputStream(sourceFile.getInputStream());
-            ais.name = sourceFile.getName();
+            ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
+            ais.name = sourceEntry.getEntryName();
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
@@ -74,4 +79,5 @@ public class BLangParser {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
         }
     }
+    
 }

@@ -17,19 +17,18 @@
 */
 package org.ballerinalang.repository.fs;
 
-import org.ballerinalang.compiler.BLangCompiler;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageBinary;
+import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
-import org.ballerinalang.repository.UserPackageRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,13 +37,11 @@ import java.util.stream.Collectors;
  * 
  * @since 0.94
  */
-public class FSPackageRepository extends UserPackageRepository {
+public class FSPackageRepository implements PackageRepository {
 
     private Path basePath;
     
-    public FSPackageRepository(PackageRepository systemRepo, 
-            PackageRepository parentRepo, Path basePath) {
-        super(systemRepo, parentRepo);
+    public FSPackageRepository(Path basePath) {
         this.basePath = basePath;
     }
     
@@ -56,15 +53,30 @@ public class FSPackageRepository extends UserPackageRepository {
         return new FSPackageSource(pkgID, path);
     }
     
+    private PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
+        Path path = this.generatePath(pkgID);
+        if (!Files.isDirectory(path)) {
+            return null;
+        }
+        return new FSPackageSource(pkgID, path, entryName);
+    }
+    
     @Override
-    public PackageBinary lookupPackage(PackageID pkgID) {
-        PackageBinary result = null;
+    public PackageEntity loadPackage(PackageID pkgID) {
+        PackageEntity result = null;
         //TODO check compiled packages first
         if (result == null) {
-            PackageSource source = this.lookupPackageSource(pkgID);
-            if (source != null) {
-                result = BLangCompiler.compile(this, source);
-            }
+            result = this.lookupPackageSource(pkgID);
+        }
+        return result;
+    }
+    
+    @Override
+    public PackageEntity loadPackage(PackageID pkgID, String entryName) {
+        PackageEntity result = null;
+        //TODO check compiled packages first
+        if (result == null) {
+            result = this.lookupPackageSource(pkgID, entryName);
         }
         return result;
     }
@@ -86,9 +98,20 @@ public class FSPackageRepository extends UserPackageRepository {
         
         private Path pkgPath;
         
+        private List<String> cachedEntryNames;
+                
         public FSPackageSource(PackageID pkgID, Path pkgPath) {
             this.pkgID = pkgID;
             this.pkgPath = pkgPath;
+        }
+        
+        public FSPackageSource(PackageID pkgID, Path pkgPath, String entryName) {
+            this.pkgID = pkgID;
+            this.pkgPath = pkgPath;
+            if (!Files.exists(pkgPath.resolve(entryName))) {
+                throw new RuntimeException("The entry name: " + entryName + " does not exist at package: " + pkgID);
+            }
+            this.cachedEntryNames = Arrays.asList(entryName);
         }
         
         @Override
@@ -98,17 +121,19 @@ public class FSPackageRepository extends UserPackageRepository {
         
         @Override
         public List<String> getEntryNames() {
-            try {
-                List<Path> files = Files.walk(this.pkgPath).filter(
-                        Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
-                        collect(Collectors.toList());
-                List<String> result = new ArrayList<>(files.size());
-                files.stream().forEach(e -> result.add(e.getFileName().toString()));
-                return result;
-            } catch (IOException e) {
-                throw new RuntimeException("Error in listing packages at '" + this.pkgID + 
-                        "': " + e.getMessage(), e);
+            if (this.cachedEntryNames == null) {
+                try {
+                    List<Path> files = Files.walk(this.pkgPath).filter(
+                            Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
+                            collect(Collectors.toList());
+                    this.cachedEntryNames = new ArrayList<>(files.size());
+                    files.stream().forEach(e -> this.cachedEntryNames.add(e.getFileName().toString()));
+                } catch (IOException e) {
+                    throw new RuntimeException("Error in listing packages at '" + this.pkgID + 
+                            "': " + e.getMessage(), e);
+                }
             }
+            return this.cachedEntryNames;
         }
 
         @Override
@@ -163,6 +188,16 @@ public class FSPackageRepository extends UserPackageRepository {
         @Override
         public PackageRepository getPackageRepository() {
             return FSPackageRepository.this;
+        }
+
+        @Override
+        public Kind getKind() {
+            return Kind.SOURCE;
+        }
+
+        @Override
+        public String getName() {
+            return this.getPackageId().toString();
         }
         
     }

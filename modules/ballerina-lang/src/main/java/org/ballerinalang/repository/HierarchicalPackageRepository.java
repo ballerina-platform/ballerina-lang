@@ -20,13 +20,13 @@ package org.ballerinalang.repository;
 import org.ballerinalang.model.elements.PackageID;
 
 /**
- * User package repository class, which contains the most common 
+ * Hierarchical package repository class, which contains the most common 
  * used features of a package repository as a hierarchical lookup structure,
  * starting initially from a system package repository.
  * 
  * @since 0.94
  */
-public abstract class UserPackageRepository implements PackageRepository {
+public abstract class HierarchicalPackageRepository implements PackageRepository {
 
     private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina";
 
@@ -34,22 +34,38 @@ public abstract class UserPackageRepository implements PackageRepository {
     
     private PackageRepository parentRepo;
     
-    public UserPackageRepository(PackageRepository systemRepo, PackageRepository parentRepo) {
+    public HierarchicalPackageRepository(PackageRepository systemRepo, PackageRepository parentRepo) {
         this.systemRepo = systemRepo;
         this.parentRepo = parentRepo;
     }
     
-    public abstract PackageBinary lookupPackage(PackageID pkgID);
+    public abstract PackageEntity lookupPackage(PackageID pkgId);
+    
+    public abstract PackageEntity lookupPackage(PackageID pkgId, String entryName);
     
     @Override
-    public PackageBinary loadPackage(PackageID pkgID) {
-        PackageBinary result;
-        if (this.isSystemPackage(pkgID)) {
-            result = this.systemRepo.loadPackage(pkgID);
+    public PackageEntity loadPackage(PackageID pkgId) {
+        PackageEntity result;
+        if (this.isSystemPackage(pkgId)) {
+            result = this.systemRepo.loadPackage(pkgId);
         } else {
-            result = this.lookupPackage(pkgID);
+            result = this.lookupPackage(pkgId);
             if (result == null && this.parentRepo != null) {
-                result = this.parentRepo.loadPackage(pkgID);
+                result = this.parentRepo.loadPackage(pkgId);
+            }
+        }
+        return result;
+    }
+    
+    @Override
+    public PackageEntity loadPackage(PackageID pkgID, String entryName) {
+        PackageEntity result;
+        if (this.isSystemPackage(pkgID)) {
+            result = this.systemRepo.loadPackage(pkgID, entryName);
+        } else {
+            result = this.lookupPackage(pkgID, entryName);
+            if (result == null && this.parentRepo != null) {
+                result = this.parentRepo.loadPackage(pkgID, entryName);
             }
         }
         return result;

@@ -17,12 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
-import org.ballerinalang.util.PackageFile;
+import org.ballerinalang.repository.PackageEntity;
 
 /**
  * @since 0.94
  */
-public abstract class BLangPackageFile implements PackageFile {
+public abstract class BLangPackageFile implements PackageEntity {
 
     public Kind kind;
     public String name;

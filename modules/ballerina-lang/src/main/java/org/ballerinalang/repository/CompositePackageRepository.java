@@ -20,28 +20,28 @@ package org.ballerinalang.repository;
 import org.ballerinalang.model.elements.PackageID;
 
 /**
- * This represents a package repository. For example, implementation can be used to
- * fetch source code / compiled objects from the file system, network etc...
+ * This represents a composite {@link HierarchicalPackageRepository} which will encapsulate a given
+ * {@link PackageRepository}.
  * 
  * @since 0.94
  */
-public interface PackageRepository {
+public class CompositePackageRepository extends HierarchicalPackageRepository {
     
-    /**
-     * Looks up and returns a {@link PackageEntity} given the package identifier.
-     * 
-     * @param pkgId the package identifier
-     * @return The package entity is returned if it's available, or else, null will be returned.
-     */
-    PackageEntity loadPackage(PackageID pkgId);
-    
-    /**
-     * Looks up and return a {@link PackageEntity} given the package identifier,
-     * and its specific entry.
-     * 
-     * @param entryName the entry name
-     * @return
-     */
-    PackageEntity loadPackage(PackageID pkgId, String entryName);
-    
+    private PackageRepository myRepo;
+
+    public CompositePackageRepository(PackageRepository systemRepo, PackageRepository parentRepo, PackageRepository myRepo) {
+        super(systemRepo, parentRepo);
+        this.myRepo = myRepo;
+    }
+
+    @Override
+    public PackageEntity lookupPackage(PackageID pkgId) {
+        return this.myRepo.loadPackage(pkgId);
+    }
+
+    @Override
+    public PackageEntity lookupPackage(PackageID pkgId, String entryName) {
+        return this.myRepo.loadPackage(pkgId, entryName);
+    }
+
 }

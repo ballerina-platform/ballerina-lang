@@ -26,7 +26,7 @@ import java.util.List;
  * 
  * @since 0.94
  */
-public interface PackageSource {
+public interface PackageSource extends PackageEntity {
 
     /**
      * Returns the package identifier package source belongs to.

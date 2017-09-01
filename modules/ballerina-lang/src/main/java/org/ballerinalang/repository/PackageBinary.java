@@ -20,7 +20,14 @@ package org.ballerinalang.repository;
 /**
  * @since 0.94
  */
-public interface PackageBinary {
+public interface PackageBinary extends PackageEntity {
+    
+    /**
+     * Returns the ballerina binary package contents.
+     * 
+     * @return the binary package content
+     */
+    byte[] getBinaryContent();
     
     /**
      * Returns the package repository this package binary was loaded from.

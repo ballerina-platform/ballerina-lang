@@ -17,17 +17,8 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.repository.PackageBinary;
-import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.repository.fs.FSPackageRepository;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import org.wso2.ballerinalang.compiler.BLangCompiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
  * Tester class.
@@ -35,24 +26,7 @@ import java.util.List;
 public class BTester {
     
     public static void main(String[] args) throws Exception {
-        PackageRepository repo = new FSPackageRepository(null, null, Paths.get("/home/laf/Desktop/test"));
-        List<IdentifierNode> nameComps = new ArrayList<>();
-        BLangIdentifier id1 = new BLangIdentifier();
-        id1.setValue("a");
-        BLangIdentifier id2 = new BLangIdentifier();
-        id2.setValue("b");
-        nameComps.add(id1);
-        nameComps.add(id2);
-        BLangIdentifier id3 = new BLangIdentifier();
-        id3.setValue("1.0.0");
-        PackageID pkgId = new PackageID(nameComps, id3);
-        PackageBinary pkgBinary = repo.loadPackage(pkgId);
-        log("* PackageBinary: " + pkgBinary);
-    }
-    
-    public static void log(Object value) {
-        PrintStream writer = System.out;
-        writer.println(value);
+        BLangCompiler.getInstance(new CompilerContext()).compile();
     }
 
 }

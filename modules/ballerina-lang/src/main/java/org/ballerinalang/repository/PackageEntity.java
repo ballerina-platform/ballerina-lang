@@ -15,28 +15,31 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util.repo;
-
-import org.ballerinalang.util.PackageRepository;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+package org.ballerinalang.repository;
 
 /**
+ * This represents a package file, which is the artifact being loaded from a {@link PackageRepository}.
+ * 
  * @since 0.94
  */
-public abstract class BasePackageRepository implements PackageRepository {
+public interface PackageEntity {
 
-    protected InputStream getInputStream(Path filePath) {
-        try {
-            return Files.newInputStream(filePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
-        } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + filePath +
-                    " reason: " + e.getMessage(), e);
+    /**
+     * @since 0.94
+     */
+    enum Kind {
+        SOURCE(".bal"),
+        COMPILED(".balo");
+
+        public final String extension;
+
+        private Kind(String extension) {
+            this.extension = extension;
         }
     }
+
+    Kind getKind();
+
+    String getName();
+    
 }
