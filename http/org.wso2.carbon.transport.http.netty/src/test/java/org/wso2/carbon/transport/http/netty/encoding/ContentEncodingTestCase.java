@@ -30,7 +30,7 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -48,7 +48,7 @@ public class ContentEncodingTestCase {
     private HttpConnectorListener httpConnectorListener;
     private TransportsConfiguration configuration;
 
-    private HTTPServer httpServer;
+    private HttpServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
     private static final Logger log = LoggerFactory.getLogger(ContentEncodingTestCase.class);
@@ -59,7 +59,7 @@ public class ContentEncodingTestCase {
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
         serverConnectors = TestUtil.startConnectors(
                 configuration, new ContentReadingListener());
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT);
     }
 
     @Test

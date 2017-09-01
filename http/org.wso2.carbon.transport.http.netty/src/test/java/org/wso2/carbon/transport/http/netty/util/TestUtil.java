@@ -36,7 +36,8 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryI
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
+import org.wso2.carbon.transport.http.netty.util.server.HttpsServer;
 import org.wso2.carbon.transport.http.netty.util.server.ServerThread;
 
 import java.io.IOException;
@@ -61,14 +62,15 @@ public class TestUtil {
 
     private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
 
-    public static final int TEST_SERVER_PORT = 9000;
+    public static final int TEST_HTTP_SERVER_PORT = 9000;
+    public static final int TEST_HTTPS_SERVER_PORT = 9004;
     public static final String TEST_HOST = "localhost";
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
     private static List<ServerConnector> connectors;
     private static List<ServerConnectorFuture> futures;
 
-    public static void cleanUp(List<ServerConnector> serverConnectors, HTTPServer httpServer)
+    public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer)
             throws ServerConnectorException {
         for (ServerConnector httpServerConnector : serverConnectors) {
             httpServerConnector.stop();
@@ -120,8 +122,8 @@ public class TestUtil {
         return connectors;
     }
 
-    public static HTTPServer startHTTPServer(int port) {
-        HTTPServer httpServer = new HTTPServer(port);
+    public static HttpServer startHTTPServer(int port) {
+        HttpServer httpServer = new HttpServer(port);
         CountDownLatch latch = new CountDownLatch(1);
 
         ServerThread serverThread = new ServerThread(latch, httpServer);
@@ -134,8 +136,22 @@ public class TestUtil {
         return httpServer;
     }
 
-    public static HTTPServer startHTTPServer(int port, String message, String contentType) {
-        HTTPServer httpServer = new HTTPServer(port);
+    public static HttpServer startHTTPServer(int port, String message, String contentType) {
+        HttpServer httpServer = new HttpServer(port);
+        CountDownLatch latch = new CountDownLatch(1);
+        ServerThread serverThread = new ServerThread(latch, httpServer);
+        try {
+            serverThread.start();
+            latch.await();
+            httpServer.setMessage(message, contentType);
+        } catch (Exception e) {
+            log.error("Thread Interrupted while sleeping ", e);
+        }
+        return httpServer;
+    }
+
+    public static HttpsServer startHttpsServer(int port, String message, String contentType) {
+        HttpsServer httpServer = new HttpsServer(port);
         CountDownLatch latch = new CountDownLatch(1);
         ServerThread serverThread = new ServerThread(latch, httpServer);
         try {

@@ -75,7 +75,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 outputStream.flush();
                 newMsg.setEndOfMsgAdded(true);
                 newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
                 HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
 

@@ -60,7 +60,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-            httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+            httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
             try {
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
