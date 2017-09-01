@@ -48,10 +48,29 @@ class TransformNodeManager {
      */
     getCompatibility(source, target) {
         const compatibility = this._typeLattice.getCompatibility(source, target);
-        if (!compatibility || (source === target)) {
+
+        if (compatibility) {
+            return compatibility;
+        }
+
+        if (source === target) {
             return { safe: true, type: 'implicit' };
         }
-        return compatibility;
+
+        // If the source and target are builtin types, we consider the mapping illegal
+        // if it is not available in the type lattice.
+        const builtInTypes = this._environment.getTypes();
+        if (builtInTypes.includes(source) && builtInTypes.includes(target)) {
+            return undefined;
+        }
+        return { safe: true, type: 'implicit' };
+    }
+
+    isConnectionValid(source, target) {
+        if (this.getCompatibility(source, target)) {
+            return true;
+        }
+        return false;
     }
 
     getVertexExpression(name, isField) {
@@ -71,6 +90,10 @@ class TransformNodeManager {
         let sourceExpression;
         let targetExpression;
         const compatibility = this.getCompatibility(source.type, target.type);
+
+        if (!compatibility) {
+            return;
+        }
 
         if (source.endpointKind === 'input') {
             sourceExpression = this.getCompatibleSourceExpression(
@@ -420,6 +443,14 @@ class TransformNodeManager {
         return typeCastExp;
     }
 
+    /**
+     * If the target is a cast expression, we need to find the underlying expression
+     * that needs to be mapped in the view. Similarly if the source is a temp variable,
+     * corresponding expression that needs to be mapped is also found here.
+     * @param {Expression} expression lhs or rhs expression
+     * @returns {Expression} mapping expression
+     * @memberof TransformNodeManager
+     */
     getMappingExpression(expression) {
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             return expression;

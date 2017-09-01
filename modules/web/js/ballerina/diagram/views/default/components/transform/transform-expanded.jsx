@@ -384,7 +384,8 @@ class TransformExpanded extends React.Component {
         targetKeys.forEach((key) => {
             const { element, output } = this.targetElements[key];
             if (element) {
-                this.mapper.addTarget(element, output);
+                this.mapper.addTarget(element, output,
+                    this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
             } else {
                 delete this.targetElements[key];
             }
