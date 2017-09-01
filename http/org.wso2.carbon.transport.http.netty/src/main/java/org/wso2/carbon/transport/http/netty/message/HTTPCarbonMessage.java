@@ -229,6 +229,36 @@ public class HTTPCarbonMessage extends CarbonMessage {
         garbageCollected.forEach(content -> content.release());
     }
 
+    public HTTPCarbonMessage cloneWithData() {
+        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        // Add message body
+        int length = getFullMessageLength();
+        List<ByteBuffer> fullMessage = getFullMessageBody();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+        fullMessage.forEach(buffer -> byteBuffer.put(buffer));
+        byteBuffer.flip();
+        cMsg.addMessageBody(byteBuffer);
+        cMsg.setEndOfMsgAdded(true);
+        // set headers
+        cMsg.setHeaders(getHeaders().getAll());
+        // Set properties
+        getProperties().entrySet().forEach(
+                entry -> cMsg.setProperty(entry.getKey(), entry.getValue())
+        );
+        return cMsg;
+    }
+
+    public HTTPCarbonMessage cloneWithoutData() {
+        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        // set headers
+        cMsg.setHeaders(getHeaders().getAll());
+        // Set properties
+        getProperties().entrySet().forEach(
+                entry -> cMsg.setProperty(entry.getKey(), entry.getValue())
+        );
+        return cMsg;
+    }
+
     public ServerConnectorFuture getHTTPConnectorFuture() {
         return this.serverConnectorFuture;
     }
