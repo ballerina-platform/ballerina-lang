@@ -29,11 +29,4 @@ public interface PackageBinary extends PackageEntity {
      */
     byte[] getBinaryContent();
     
-    /**
-     * Returns the package repository this package binary was loaded from.
-     * 
-     * @return the package repository
-     */
-    PackageRepository getPackageRepository();
-    
 }

@@ -42,4 +42,11 @@ public interface PackageEntity {
 
     String getName();
     
+    /**
+     * Returns the {@link PackageRepository} where this package was loaded from.
+     * 
+     * @return the package repository
+     */
+    PackageRepository getPackageRepository();
+    
 }

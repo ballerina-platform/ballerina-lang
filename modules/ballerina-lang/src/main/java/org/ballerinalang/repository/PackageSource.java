@@ -57,11 +57,4 @@ public interface PackageSource extends PackageEntity {
      */
     List<PackageSourceEntry> getPackageSourceEntries();
     
-    /**
-     * Returns the package repository this package source was loaded from.
-     * 
-     * @return the package repository
-     */
-    PackageRepository getPackageRepository();
-    
 }
