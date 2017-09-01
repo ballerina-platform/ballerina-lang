@@ -62,7 +62,9 @@ class EditorTabs extends View {
             const { component } = editor;
             return (
                 <TabPane tab={tabTitle(file)} data-extra="tabpane" key={`${file.fullPath}`} >
-                    <component file={file} />
+                    <div>
+                                <p>{file.content}</p>
+                            </div>
                 </TabPane>
             );
         };

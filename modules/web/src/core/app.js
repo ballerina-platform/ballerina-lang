@@ -155,6 +155,7 @@ class Application {
         const views = _.get(contributions, CONTRIBUTIONS.VIEWS, []);
         const dialogs = _.get(contributions, CONTRIBUTIONS.DIALOGS, []);
         const menus = _.get(contributions, CONTRIBUTIONS.MENUS, []);
+        const editors = _.get(contributions, CONTRIBUTIONS.EDITORS, []);
 
         commands.forEach((commandDef) => {
             this.commandPlugin.registerCommand(commandDef);
@@ -175,6 +176,10 @@ class Application {
 
         menus.forEach((menuDef) => {
             this.menuPlugin.addMenu(menuDef);
+        });
+
+        editors.forEach((editorDef) => {
+            this.editorPlugin.registerEditor(editorDef);
         });
     }
 
