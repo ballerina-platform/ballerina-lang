@@ -23,7 +23,6 @@ import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -53,7 +52,7 @@ public class ContentReadingListener implements HttpConnectorListener {
                 String response = new String(ByteStreams.toByteArray(inputStream), Charset.defaultCharset());
                 String alteredContent = "Altered " + response + " content";
 
-                CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpMessage);
+                CarbonMessage newMsg = httpMessage.cloneWithoutData();
                 newMsg.addMessageBody(ByteBuffer.wrap(alteredContent.getBytes(Charset.defaultCharset())));
                 newMsg.setEndOfMsgAdded(true);
 

@@ -85,7 +85,6 @@ public class HttpToWebSocketProtocolSwitchTestCase {
         urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
         Assert.assertEquals(urlConn.getResponseCode(), 200);
         Assert.assertEquals(urlConn.getResponseMessage(), "OK");
-        Assert.assertEquals(urlConn.getHeaderField("upgrade"), null);
         Assert.assertEquals(urlConn.getHeaderField("connection"), "keep-alive");
         Assert.assertTrue(urlConn.getHeaderField("sec-websocket-accept") == null);
     }

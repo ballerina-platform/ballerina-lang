@@ -23,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -68,7 +67,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
             try {
                 InputStream inputStream = httpRequest.getInputStream();
 
-                CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpRequest);
+                CarbonMessage newMsg = httpRequest.cloneWithoutData();
                 OutputStream outputStream = newMsg.getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
@@ -99,7 +98,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                         executor.execute(() -> {
                             InputStream inputStream = httpMessage.getInputStream();
 
-                            CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpMessage);
+                            CarbonMessage newMsg = httpMessage.cloneWithoutData();
                             OutputStream outputStream = newMsg.getOutputStream();
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputStream);

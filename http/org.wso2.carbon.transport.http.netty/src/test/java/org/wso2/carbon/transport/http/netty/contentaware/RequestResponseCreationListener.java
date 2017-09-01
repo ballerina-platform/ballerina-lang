@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.contentaware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -90,7 +89,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                 byteBuff.put(array);
                 byteBuff.flip();
-                CarbonMessage carbonMessage = MessageUtil.cloneCarbonMessageWithOutData(httpResponse);
+                CarbonMessage carbonMessage = httpResponse.cloneWithoutData();
                 if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                     carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
                 }
@@ -125,7 +124,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                     String requestValue = new String(byteBuffer.array());
                     byte[] arry = responseValue.getBytes("UTF-8");
 
-                    CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpRequest);
+                    CarbonMessage newMsg = httpRequest.cloneWithoutData();
                     if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                         newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
                     }
@@ -174,8 +173,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                                     ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                                     byteBuff.put(array);
                                     byteBuff.flip();
-                                    CarbonMessage carbonMessage = MessageUtil
-                                            .cloneCarbonMessageWithOutData(httpResponse);
+                                    CarbonMessage carbonMessage = httpResponse.cloneWithoutData();
                                     if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                                         carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
                                                 String.valueOf(array.length));
