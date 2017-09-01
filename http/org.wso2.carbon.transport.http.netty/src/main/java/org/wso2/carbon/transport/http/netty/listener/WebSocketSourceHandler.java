@@ -200,7 +200,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     }
 
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws ServerConnectorException {
-        //Control message for WebSocket is Pong Message
+        //Control message for WebSocket is Ping Message
         ByteBuf byteBuf = pingWebSocketFrame.content();
         ByteBuffer byteBuffer = byteBuf.nioBuffer();
         WebSocketMessageImpl webSocketControlMessage =

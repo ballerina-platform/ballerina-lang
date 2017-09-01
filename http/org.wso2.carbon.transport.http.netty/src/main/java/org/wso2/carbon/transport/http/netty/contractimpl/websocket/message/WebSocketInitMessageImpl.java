@@ -138,14 +138,15 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
     }
 
     private String getSubProtocolsStr(String[] subProtocols) {
-        String subProtocolsStr = null;
-        if (subProtocols != null) {
-            subProtocolsStr = "";
-            for (String subProtocol : subProtocols) {
-                subProtocolsStr = subProtocolsStr.concat(subProtocol + ",");
-            }
-            subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() -1);
+        if (subProtocols == null || subProtocols.length == 0) {
+            return null;
         }
+
+        String subProtocolsStr = "";
+        for (String subProtocol : subProtocols) {
+            subProtocolsStr = subProtocolsStr.concat(subProtocol + ",");
+        }
+        subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() -1);
         return subProtocolsStr;
     }
 }
