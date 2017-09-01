@@ -29,11 +29,11 @@ import { PLUGIN_ID, VIEW_IDS, MENU_DEF_TYPES } from './constants';
 import AppMenuView from './views/AppMenu';
 
 /**
- * ApplicationMenuPlugin is responsible for rendering menu items.
+ * MenuPlugin is responsible for rendering menu items.
  *
- * @class ApplicationMenuPlugin
+ * @class MenuPlugin
  */
-class ApplicationMenuPlugin extends Plugin {
+class MenuPlugin extends Plugin {
 
     constructor() {
         super();
@@ -139,4 +139,4 @@ class ApplicationMenuPlugin extends Plugin {
     }
 }
 
-export default ApplicationMenuPlugin;
+export default MenuPlugin;

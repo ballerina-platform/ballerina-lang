@@ -21,13 +21,13 @@ import Plugin from './plugin/plugin';
 import { ACTIVATION_POLICIES, CONTRIBUTIONS } from './plugin/constants';
 import { CONTEXT_NAMESPACES } from './constants';
 
-import CommandManager from './command/manager';
-import LayoutManager from './layout/manager';
-import MenuManager from './menu/manager';
-import WorkspaceManager from './workspace/manager';
+import CommandPlugin from './command/plugin';
+import LayoutPlugin from './layout/plugin';
+import MenuPlugin from './menu/plugin';
+import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
-import Debugger from './debugger/debugger';
-import PreferencesManager from './preferences/manager';
+import DebuggerPlugin from './debugger/plugin';
+import PreferencesPlugin from './preferences/plugin';
 import { makeImutable } from './utils/object-utils';
 
 /**
@@ -57,24 +57,24 @@ class Application {
         };
 
         // Initialize core plugins first
-        this.commandManager = new CommandManager();
-        this.layoutManager = new LayoutManager();
-        this.menuManager = new MenuManager();
-        this.workspaceManager = new WorkspaceManager();
+        this.commandPlugin = new CommandPlugin();
+        this.layoutPlugin = new LayoutPlugin();
+        this.menuPlugin = new MenuPlugin();
+        this.workspacePlugin = new WorkspacePlugin();
         this.editorPlugin = new EditorPlugin();
-        this.debugger = new Debugger();
-        this.preferencesManager = new PreferencesManager();
+        this.debuggerPlugin = new DebuggerPlugin();
+        this.preferencesPlugin = new PreferencesPlugin();
 
         // Unless the necessities to keep direct references within app
         // & to be the very first set of plugins to be init/activate,
         // core plugins will be same as other plugins
-        this.loadPlugin(this.commandManager);
-        this.loadPlugin(this.layoutManager);
-        this.loadPlugin(this.menuManager);
-        this.loadPlugin(this.workspaceManager);
+        this.loadPlugin(this.commandPlugin);
+        this.loadPlugin(this.layoutPlugin);
+        this.loadPlugin(this.menuPlugin);
+        this.loadPlugin(this.workspacePlugin);
         this.loadPlugin(this.editorPlugin);
-        this.loadPlugin(this.debugger);
-        this.loadPlugin(this.preferencesManager);
+        this.loadPlugin(this.debuggerPlugin);
+        this.loadPlugin(this.preferencesPlugin);
 
         // load plugins contributed via config
         this.loadOtherPlugins();
@@ -82,17 +82,17 @@ class Application {
         // make contexts from core plugins
         // available via shorter namespaces
         this.appContext[CONTEXT_NAMESPACES.COMMAND] = this.appContext
-                    .pluginContexts[this.commandManager.getID()];
+                    .pluginContexts[this.commandPlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.LAYOUT] = this.appContext
-                    .pluginContexts[this.layoutManager.getID()];
+                    .pluginContexts[this.layoutPlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.MENU] = this.appContext
-                    .pluginContexts[this.menuManager.getID()];
+                    .pluginContexts[this.menuPlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.WORKSPACE] = this.appContext
-                    .pluginContexts[this.workspaceManager.getID()];
+                    .pluginContexts[this.workspacePlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.EDITOR] = this.appContext
                     .pluginContexts[this.editorPlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.PREFERENCES] = this.appContext
-                    .pluginContexts[this.preferencesManager.getID()];
+                    .pluginContexts[this.preferencesPlugin.getID()];
 
         // Since now we have loaded all the plugins
         // Make appContext object read only.
@@ -157,24 +157,24 @@ class Application {
         const menus = _.get(contributions, CONTRIBUTIONS.MENUS, []);
 
         commands.forEach((commandDef) => {
-            this.commandManager.registerCommand(commandDef);
+            this.commandPlugin.registerCommand(commandDef);
         });
 
         handlers.forEach((handlerDef) => {
             const { cmdID, handler, context } = handlerDef;
-            this.commandManager.registerHandler(cmdID, handler, context);
+            this.commandPlugin.registerHandler(cmdID, handler, context);
         });
 
         views.forEach((viewDef) => {
-            this.layoutManager.addViewToLayout(viewDef);
+            this.layoutPlugin.addViewToLayout(viewDef);
         });
 
         dialogs.forEach((dialogDef) => {
-            this.layoutManager.registerDialog(dialogDef);
+            this.layoutPlugin.registerDialog(dialogDef);
         });
 
         menus.forEach((menuDef) => {
-            this.menuManager.addMenu(menuDef);
+            this.menuPlugin.addMenu(menuDef);
         });
     }
 
@@ -189,7 +189,7 @@ class Application {
                 plugin.activate(this.appContext);
             }
         });
-        this.layoutManager.render();
+        this.layoutPlugin.render();
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.
         this.hidePreLoader();

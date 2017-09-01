@@ -28,11 +28,11 @@ import { getHandlerDefinitions } from './handlers';
 import { REGIONS, PLUGIN_ID } from './constants';
 
 /**
- * LayoutManagerPlugin is responsible for loading view components in to the layout.
+ * LayoutPlugin is responsible for loading view components in to the layout.
  *
- * @class LayoutManagerPlugin
+ * @class LayoutPlugin
  */
-class LayoutManagerPlugin extends Plugin {
+class LayoutPlugin extends Plugin {
 
     /**
      * Bind this context for handlers
@@ -104,9 +104,9 @@ class LayoutManagerPlugin extends Plugin {
 
 }
 
-LayoutManagerPlugin.configTypes = {
+LayoutPlugin.configTypes = {
     layout: PropTypes.object,
     container: PropTypes.string.isRequired,
 };
 
-export default LayoutManagerPlugin;
+export default LayoutPlugin;

@@ -32,11 +32,11 @@ import FolderOpenDialog from './dialogs/FolderOpenDialog';
 import { create, update, read, remove } from './fs-util';
 
 /**
- * Workspace Manager is responsible for managing workspace.
+ * Workspace Plugin is responsible for managing workspace.
  *
- * @class WorkspaceManagerPlugin
+ * @class WorkspacePlugin
  */
-class WorkspaceManagerPlugin extends Plugin {
+class WorkspacePlugin extends Plugin {
 
     /**
      * @inheritdoc
@@ -194,4 +194,4 @@ class WorkspaceManagerPlugin extends Plugin {
     }
 }
 
-export default WorkspaceManagerPlugin;
+export default WorkspacePlugin;

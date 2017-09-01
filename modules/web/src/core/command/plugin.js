@@ -25,9 +25,9 @@ import Plugin from './../plugin/plugin';
 import { deriveShortcut, deriveShortcutLabel } from './shortcut-util';
 
 /**
- * Command Manager
+ * CommandPlugin
  */
-class CommandManager extends Plugin {
+class CommandPlugin extends Plugin {
 
     /**
      * @inheritdoc
@@ -158,4 +158,4 @@ class CommandManager extends Plugin {
     }
 }
 
-export default CommandManager;
+export default CommandPlugin;

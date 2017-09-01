@@ -34,7 +34,7 @@ const HISTORY_KEY_PREFIX = 'composer-history';
  *
  * @class PreferencesPlugin
  */
-class PreferencesManagerPlugin extends Plugin {
+class PreferencesPlugin extends Plugin {
 
     /**
      * @inheritdoc
@@ -94,4 +94,4 @@ class PreferencesManagerPlugin extends Plugin {
     }
 }
 
-export default PreferencesManagerPlugin;
+export default PreferencesPlugin;
