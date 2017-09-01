@@ -161,7 +161,9 @@ class App extends React.Component {
                         }
                         }
                     >
-                        <EditorArea />
+                        <EditorArea>
+                            {this.getViewsForRegion(REGIONS.EDITOR_AREA)}
+                        </EditorArea>
                         <BottomPanel
                             onActiveViewChange={
                                 (newView) => {

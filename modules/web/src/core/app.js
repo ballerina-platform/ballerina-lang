@@ -25,6 +25,7 @@ import CommandManager from './command/manager';
 import LayoutManager from './layout/manager';
 import MenuManager from './menu/manager';
 import WorkspaceManager from './workspace/manager';
+import EditorPlugin from './editor/plugin';
 import Debugger from './debugger/debugger';
 import PreferencesManager from './preferences/manager';
 import { makeImutable } from './utils/object-utils';
@@ -60,6 +61,7 @@ class Application {
         this.layoutManager = new LayoutManager();
         this.menuManager = new MenuManager();
         this.workspaceManager = new WorkspaceManager();
+        this.editorPlugin = new EditorPlugin();
         this.debugger = new Debugger();
         this.preferencesManager = new PreferencesManager();
 
@@ -70,6 +72,7 @@ class Application {
         this.loadPlugin(this.layoutManager);
         this.loadPlugin(this.menuManager);
         this.loadPlugin(this.workspaceManager);
+        this.loadPlugin(this.editorPlugin);
         this.loadPlugin(this.debugger);
         this.loadPlugin(this.preferencesManager);
 
@@ -86,6 +89,8 @@ class Application {
                     .pluginContexts[this.menuManager.getID()];
         this.appContext[CONTEXT_NAMESPACES.WORKSPACE] = this.appContext
                     .pluginContexts[this.workspaceManager.getID()];
+        this.appContext[CONTEXT_NAMESPACES.EDITOR] = this.appContext
+                    .pluginContexts[this.editorPlugin.getID()];
         this.appContext[CONTEXT_NAMESPACES.PREFERENCES] = this.appContext
                     .pluginContexts[this.preferencesManager.getID()];
 

@@ -62,7 +62,15 @@ class WorkspaceManagerPlugin extends Plugin {
      * @return {Promise} Resolves or reject with error.
      */
     openFile(filePath, type = 'bal') {
-        return new Promise();
+        return new Promise((resolve, reject) => {
+            // add path to opened file list - if not added already
+            if (_.findIndex(this.openedFiles, file => file === filePath) === -1) {
+                this.openedFiles.push(filePath);
+                const { pref: { history } } = this.appContext;
+                history.put(HISTORY.OPENED_FILES, this.openedFiles);
+            }
+            resolve();
+        });
     }
 
     /**
@@ -124,6 +132,7 @@ class WorkspaceManagerPlugin extends Plugin {
         super.activate(appContext);
         const { pref: { history } } = appContext;
         this.openedFolders = history.get(HISTORY.OPENED_FOLDERS) || [];
+        this.openedFiles = history.get(HISTORY.OPENED_FILES) || [];
     }
 
     /**
