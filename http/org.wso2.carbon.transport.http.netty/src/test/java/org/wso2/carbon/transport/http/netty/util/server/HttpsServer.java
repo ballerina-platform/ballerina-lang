@@ -35,13 +35,13 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 /**
- * A Simple HTTP Server
+ * A Simple HTTPS Server
  */
 public class HttpsServer implements TestServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpsServer.class);
 
-    private int port = 9002;
+    private int port = TestUtil.TEST_HTTPS_SERVER_PORT;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
     private int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
     private EventLoopGroup bossGroup;
@@ -58,7 +58,7 @@ public class HttpsServer implements TestServer {
     }
 
     /**
-     * Start the HttpServer
+     * Start the HttpsServer
      */
     public void start() {
         bossGroup = new NioEventLoopGroup(this.bossGroupSize);
@@ -90,7 +90,7 @@ public class HttpsServer implements TestServer {
     }
 
     /**
-     * Shutdown the HttpServer
+     * Shutdown the HttpsServer
      */
     public void shutdown() throws InterruptedException {
         bossGroup.shutdownGracefully().sync();
@@ -100,6 +100,5 @@ public class HttpsServer implements TestServer {
 
     public void setMessage(String message, String contentType) {
         httpServerInitializer.setMessage(message, contentType);
-
     }
 }
