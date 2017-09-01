@@ -37,10 +37,18 @@ class FileOpenDialog extends React.Component {
                 error: `${id} is not a file`,
             });
         } else {
-            this.setState({
-                error: '',
-                showDialog: false,
-            });
+            this.props.workspaceManager.openFile(id)
+                .then(() => {
+                    this.setState({
+                        error: '',
+                        showDialog: false,
+                    });
+                })
+                .catch((error) => {
+                    this.setState({
+                        error,
+                    });
+                });
         }
     }
 
@@ -112,7 +120,7 @@ class FileOpenDialog extends React.Component {
 }
 
 FileOpenDialog.propTypes = {
-    title: PropTypes.node,
+    workspaceManager: PropTypes.objectOf(Object).isRequired,
 };
 
 export default FileOpenDialog;

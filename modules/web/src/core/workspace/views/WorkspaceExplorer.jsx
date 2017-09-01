@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import View from './../../view/view';
 import FileTree from './../../view/FileTree';
 import { VIEWS, EVENTS } from './../constants';
-import Manager from './../manager';
 
 /**
  * Woprkspace Explorer
@@ -47,7 +46,7 @@ class WorkspaceExplorer extends View {
 }
 
 WorkspaceExplorer.propTypes = {
-    workspaceManager: PropTypes.objectOf(Manager).isRequired,
+    workspaceManager: PropTypes.objectOf(Object).isRequired,
 };
 
 WorkspaceExplorer.contextTypes = {

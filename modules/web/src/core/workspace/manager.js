@@ -58,9 +58,10 @@ class WorkspaceManagerPlugin extends Plugin {
      * Opens a file using related editor
      *
      * @param {String} filePath Path of the file.
+     * @param {String} type type of the file.
      * @return {Promise} Resolves or reject with error.
      */
-    openFile(filePath) {
+    openFile(filePath, type = 'bal') {
         return new Promise();
     }
 
@@ -166,7 +167,7 @@ class WorkspaceManagerPlugin extends Plugin {
                     component: FileOpenDialog,
                     propsProvider: () => {
                         return {
-                            appContext: this.appContext,
+                            workspaceManager: this,
                         };
                     },
                 },
@@ -175,7 +176,7 @@ class WorkspaceManagerPlugin extends Plugin {
                     component: FolderOpenDialog,
                     propsProvider: () => {
                         return {
-                            appContext: this.appContext,
+                            workspaceManager: this,
                         };
                     },
                 },

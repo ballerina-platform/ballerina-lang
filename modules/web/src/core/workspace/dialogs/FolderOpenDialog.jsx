@@ -37,7 +37,7 @@ class FolderOpenDialog extends React.Component {
                 error: `${id} is not a folder`,
             });
         } else {
-            this.props.appContext.workspace.openFolder(id)
+            this.props.workspaceManager.openFolder(id)
                 .then(() => {
                     this.setState({
                         error: '',
@@ -120,7 +120,7 @@ class FolderOpenDialog extends React.Component {
 }
 
 FolderOpenDialog.propTypes = {
-    appContext: PropTypes.objectOf(Object).isRequired,
+    workspaceManager: PropTypes.objectOf(Object).isRequired,
 };
 
 export default FolderOpenDialog;
