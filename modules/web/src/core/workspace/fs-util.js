@@ -24,7 +24,8 @@ export function read(filePath) {
                 const pathArray = _.split(filePath, getPathSeperator());
                 const name = _.last(pathArray);
                 const path = _.join(_.take(pathArray, pathArray.length - 1), getPathSeperator());
-                resolve(new File({ content, name, path, isPersisted: true, isDirty: false }));
+                const fullPath = filePath;
+                resolve(new File({ content, name, fullPath, path, isPersisted: true, isDirty: false }));
             }).catch(error => reject(error));
     });
 }

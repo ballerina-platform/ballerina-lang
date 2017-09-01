@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import log from 'log';
 import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
@@ -24,7 +25,7 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, EVENTS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, COMMANDS } from './constants';
 
 import EditorTabs from './views/EditorTabs';
 
@@ -40,6 +41,7 @@ class EditorPlugin extends Plugin {
      */
     constructor(props) {
         super(props);
+        this.editors = [];
     }
 
     /**
@@ -50,11 +52,39 @@ class EditorPlugin extends Plugin {
     }
 
     /**
+     * Register an editor contribution.
+     *
+     * @param {Object} editorDef Editor Definition
+     */
+    registerEditor(editorDef) {
+        if (_.findIndex(this.editors, ['id', editorDef.id]) === -1) {
+            this.editors.push(editorDef);
+        } else {
+            log.error(`Duplicate editor def found with ID ${editorDef.id}.`);
+        }
+    }
+
+    /**
+     * Open given file using relavant editor.
+     *
+     * @param {File} file File object
+     */
+    open(file) {
+        const editor = _.find(this.editors, ['extension', file.extension]);
+        if (!_.isNil(editor)) {
+            this.appContext.command.dispatch(COMMANDS.OPEN_FILE_IN_EDITOR, { file, editor });
+        } else {
+            log.error(`No editor is found to open file type ${file.extension}`);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     init(config) {
         super.init(config);
         return {
+            open: this.open.bind(this),
         };
     }
 

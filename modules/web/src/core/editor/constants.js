@@ -1,4 +1,6 @@
-export const COMMANDS = {};
+export const COMMANDS = {
+    OPEN_FILE_IN_EDITOR: 'open-file-in-editor',
+};
 
 export const EVENTS = {};
 

@@ -7,7 +7,7 @@ import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
 import FileTree from './../../view/FileTree';
-import { VIEWS, EVENTS } from './../constants';
+import { VIEWS, EVENTS, COMMANDS } from './../constants';
 
 /**
  * Editor Tabs
@@ -27,22 +27,28 @@ class EditorTabs extends View {
     constructor(props) {
         super(props);
         this.state = {
-            openedFiles: _.times(2, i => `test${i}.bal`),
+            openedEditors: [],
         };
+        const { command: { on } } = this.props.editorPlugin.appContext;
+        on(COMMANDS.OPEN_FILE_IN_EDITOR, (args) => {
+            this.setState({
+                openedEditors: this.state.openedEditors.push(args),
+            });
+        });
     }
 
     /**
      * @inheritdoc
      */
     render() {
-        const onTabClose = (file) => {
-            _.remove(this.state.openedFiles, item => item === file);
+        const onTabClose = (sfile) => {
+            _.remove(this.state.openedEditors, ({ file }) => file.fullPath === sfile.fullPath);
             this.forceUpdate();
         };
         const tabTitle = file => (
             <div data-extra="tab-bar-title">
                 <i className="fw fw-ballerina tab-icon" />
-                {file}
+                {file.name}
                 <button
                     type="button"
                     className="close close-tab pull-right"
@@ -52,20 +58,24 @@ class EditorTabs extends View {
                 </button>
             </div>
         );
-        const makeTabPane = file => (
-            <TabPane tab={tabTitle(file)} data-extra="tabpane" key={`${file}`}>
-            </TabPane>
-        );
+        const makeTabPane = (file, editor) => {
+            const { component } = editor;
+            return (
+                <TabPane tab={tabTitle(file)} data-extra="tabpane" key={`${file.fullPath}`} >
+                    <component file={file} />
+                </TabPane>
+            );
+        };
 
         const tabs = [];
-        this.state.openedFiles.forEach((file) => {
-            tabs.push(makeTabPane(file));
+        this.state.openedEditors.forEach(({ file, editor }) => {
+            tabs.push(makeTabPane(file, editor));
         });
 
         return (
             <div className="editor-area" >
                 <Tabs
-                    defaultActiveKey={this.state.openedFiles[0]}
+                    defaultActiveKey={this.state.openedEditors[0]}
                     onChange={() => {}}
                     renderTabBar={() =>
                         (

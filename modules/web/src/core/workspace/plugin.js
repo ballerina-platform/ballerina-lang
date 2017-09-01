@@ -70,8 +70,9 @@ class WorkspacePlugin extends Plugin {
                     .then((file) => {
                         file.extension = type;
                         this.openedFiles.push(file);
-                        const { pref: { history } } = this.appContext;
+                        const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles);
+                        editor.open(file);
                         resolve(file);
                     })
                     .catch(reject);
