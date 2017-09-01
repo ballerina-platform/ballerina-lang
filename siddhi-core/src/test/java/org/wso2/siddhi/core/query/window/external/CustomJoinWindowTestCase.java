@@ -703,5 +703,5 @@ public class CustomJoinWindowTestCase {
             siddhiAppRuntime.shutdown();
         }
     }
-    
+
 }

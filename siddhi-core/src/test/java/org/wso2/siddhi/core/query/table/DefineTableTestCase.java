@@ -30,7 +30,6 @@ import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.HashMap;
