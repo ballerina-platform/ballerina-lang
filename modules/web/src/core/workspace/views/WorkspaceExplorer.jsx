@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import View from './../../view/view';
 import FileTree from './../../view/FileTree';
-import { VIEWS } from './../constants';
+import { VIEWS, EVENTS } from './../constants';
+import Manager from './../manager';
 
 /**
  * Woprkspace Explorer
@@ -19,9 +20,20 @@ class WorkspaceExplorer extends View {
     /**
      * @inheritdoc
      */
+    constructor(props) {
+        super(props);
+        props.workspaceManager.on(EVENTS.OPEN_FOLDER, () => {
+            this.forceUpdate();
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
     render() {
         const trees = [];
-        this.props.folders.forEach((folder) => {
+        const { openedFolders } = this.props.workspaceManager;
+        openedFolders.forEach((folder) => {
             trees.push((
                 <FileTree root={folder} key={folder} />
             ));
@@ -35,11 +47,7 @@ class WorkspaceExplorer extends View {
 }
 
 WorkspaceExplorer.propTypes = {
-    folders: PropTypes.arrayOf(PropTypes.string),
-};
-
-WorkspaceExplorer.defaultProps = {
-    folders: [],
+    workspaceManager: PropTypes.objectOf(Manager).isRequired,
 };
 
 WorkspaceExplorer.contextTypes = {

@@ -5,6 +5,11 @@ export const COMMANDS = {
     SHOW_FOLDER_OPEN_WIZARD: 'show-folder-open-wizard',
 };
 
+export const EVENTS = {
+    OPEN_FOLDER: 'open-folder',
+    OPEN_FILE: 'open-file',
+};
+
 export const VIEWS = {
     EXPLORER: 'composer.view.workspace.explorer',
     EXPLORER_OPEN_ACTIVTY: 'composer.view.workspace.explorer.open.activity',

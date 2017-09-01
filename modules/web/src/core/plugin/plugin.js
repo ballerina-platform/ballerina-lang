@@ -1,11 +1,13 @@
 import PropTypes from 'prop-types';
+import EventChannel from 'event_channel';
 
 import { ACTIVATION_POLICIES } from './constants';
 
 /**
  * Base class for the plugins
+ * @extends {EventChannel}
  */
-class Plugin {
+class Plugin extends EventChannel {
 
     /**
      * Method to get the unique ID of the plugin.

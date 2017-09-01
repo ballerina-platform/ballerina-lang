@@ -21,9 +21,6 @@ class LeftPanel extends React.Component {
         this.state = {
             activeView: context.history.get(HISTORY.ACTIVE_LEFT_PANEL_VIEW) || null,
         };
-        context.command.on('update-left-panel', () => {
-            this.forceUpdate();
-        });
     }
 
     /**

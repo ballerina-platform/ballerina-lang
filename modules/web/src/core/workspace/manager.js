@@ -24,7 +24,7 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, EVENTS } from './constants';
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
@@ -85,9 +85,9 @@ class WorkspaceManagerPlugin extends Plugin {
             // add path to opened folders list - if not added alreadt
             if (_.findIndex(this.openedFolders, folder => folder === folderPath) === -1) {
                 this.openedFolders.push(folderPath);
-                const { pref: { history }, command: { dispatch } } = this.appContext;
+                const { pref: { history } } = this.appContext;
                 history.put(HISTORY.OPENED_FOLDERS, this.openedFolders);
-                dispatch('update-left-panel');
+                this.trigger(EVENTS.OPEN_FOLDER, folderPath);
             }
             resolve();
         });
@@ -140,7 +140,7 @@ class WorkspaceManagerPlugin extends Plugin {
                     component: WorkspaceExplorer,
                     propsProvider: () => {
                         return {
-                            folders: this.openedFolders,
+                            workspaceManager: this,
                         };
                     },
                     region: REGIONS.LEFT_PANEL,
