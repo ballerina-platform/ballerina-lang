@@ -17,7 +17,6 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import 'css/preloader.css';
 import Plugin from './plugin/plugin';
 import { ACTIVATION_POLICIES, CONTRIBUTIONS } from './plugin/constants';
 import { CONTEXT_NAMESPACES } from './constants';
