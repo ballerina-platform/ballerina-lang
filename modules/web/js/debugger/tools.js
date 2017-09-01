@@ -177,6 +177,7 @@ class Tools extends EventChannel {
         this.container.on('click', '.btn-config', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            this.appArgsDialog.find('#form-run-application-with-args .removable').remove();
             this.appArgsDialog.modal('show');
         });
         const self = this;
@@ -212,16 +213,12 @@ class Tools extends EventChannel {
             if (activeTab && activeTab.getFile()) {
                 const uniqueId = this.getFileUniqueId(activeTab.getFile());
                 const argsString = this.application.browserStorage.get(`launcher-app-configs-${uniqueId}`) || '';
-                const currentArgs = argsString.split(' ');
+                const currentArgs = argsString ? argsString.split(' ') : [];
                 _.each(currentArgs, (arg, i) => {
-                    if (i === 0) {
-                        $('#form-run-application-with-args input[type=\'text\']').get(0).value = arg;
-                    } else {
-                        $(wrapper).append(`<div class="removable">
+                    $(wrapper).append(`<div class="removable">
                             <input type="text" name="applicationArgs[]" class="form-control" value="${arg}"/>
                             <button class="remove_field btn-file-dialog">Remove</button>
                         </div>`);
-                    }
                 });
             }
         });

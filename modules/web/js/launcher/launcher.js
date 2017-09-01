@@ -124,6 +124,7 @@ const Launcher = Backbone.View.extend({
         this._$parent_el.on('click', '.btn-config', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            this.appArgsDialog.find('#form-run-application-with-args .removable').remove();
             this.appArgsDialog.modal('show');
         });
     },
