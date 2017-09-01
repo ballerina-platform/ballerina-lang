@@ -62,7 +62,7 @@ public class WebSocketClient {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
 
     private final String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                                TestUtil.TEST_HOST, 9009, "test"));
+                                                  TestUtil.TEST_HOST, TestUtil.TEST_DEFAULT_INTERFACE_PORT, "test"));
     private final String subProtocol;
     private Map<String, String> customHeaders = new HashMap<>();
 
@@ -70,8 +70,6 @@ public class WebSocketClient {
     private WebSocketClientHandler handler;
     private EventLoopGroup group;
     private boolean isHandshakeSuccessful = false;
-
-
 
     public WebSocketClient() {
         this.subProtocol = null;

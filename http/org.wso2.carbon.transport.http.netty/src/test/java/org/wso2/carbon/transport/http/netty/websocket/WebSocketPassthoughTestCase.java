@@ -31,6 +31,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
@@ -46,7 +47,7 @@ public class WebSocketPassthoughTestCase extends WebSocketTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
+    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT);
 
     private WebSocketClient webSocketClient = new WebSocketClient();
     private ServerConnector serverConnector;
@@ -57,7 +58,7 @@ public class WebSocketPassthoughTestCase extends WebSocketTestCase {
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(9009);
+        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                   listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();

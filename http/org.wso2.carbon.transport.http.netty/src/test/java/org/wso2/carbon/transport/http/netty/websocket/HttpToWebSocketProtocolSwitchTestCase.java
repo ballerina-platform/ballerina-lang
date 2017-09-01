@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -41,7 +42,7 @@ import java.net.URL;
 public class HttpToWebSocketProtocolSwitchTestCase {
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 9009));
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));
     private ServerConnector serverConnector;
 
     @BeforeClass
@@ -49,7 +50,7 @@ public class HttpToWebSocketProtocolSwitchTestCase {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(9009);
+        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();

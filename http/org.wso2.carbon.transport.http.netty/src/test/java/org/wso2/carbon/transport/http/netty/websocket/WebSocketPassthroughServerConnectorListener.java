@@ -32,6 +32,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
 import java.net.ProtocolException;
@@ -54,7 +55,9 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
             Map<String, Object> senderProperties = new HashMap<>();
-            senderProperties.put(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
+            String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
+                                             TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
+            senderProperties.put(Constants.REMOTE_ADDRESS, remoteUrl);
             senderProperties.put(Constants.TO, "myService");
             senderProperties.put(Constants.WEBSOCKET_MESSAGE, initMessage);
             WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(senderProperties);
