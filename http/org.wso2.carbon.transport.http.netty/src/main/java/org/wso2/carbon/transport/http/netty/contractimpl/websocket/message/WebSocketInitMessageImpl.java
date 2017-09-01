@@ -20,7 +20,6 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket.message;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpRequest;
@@ -146,7 +145,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         for (String subProtocol : subProtocols) {
             subProtocolsStr = subProtocolsStr.concat(subProtocol + ",");
         }
-        subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() -1);
+        subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() - 1);
         return subProtocolsStr;
     }
 }

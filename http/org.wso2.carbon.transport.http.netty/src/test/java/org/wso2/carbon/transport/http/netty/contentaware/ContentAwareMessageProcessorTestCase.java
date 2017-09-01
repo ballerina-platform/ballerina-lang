@@ -50,7 +50,7 @@ public class ContentAwareMessageProcessorTestCase {
     private HttpConnectorListener httpConnectorListener;
     private TransportsConfiguration configuration;
 
-    private HTTPServer httpServer;
+    private HttpServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));
 
     @BeforeClass
