@@ -37,6 +37,8 @@ class Plugin extends EventChannel {
 
     /**
      * This is the starting point of any given plugin.
+     * If there are overridden configs provided for the plugin,
+     * those will be provided here.
      *
      * @param {Object} config Specic configurations for the plugin
      *                        This will be derived using unique plugin ID
@@ -55,13 +57,22 @@ class Plugin extends EventChannel {
     /**
      * Plugin Activate Hook.
      * This method will be called when the app is finished
-     * initializing all the plugins.
+     * initializing all the plugins and appContext is filled with all
+     * public APIs available from plugins. However, app is still not rendered.
      *
      * @param {Object} appContext Application Context
      * @param {CommandChannel} appContext.commandChannel Command Channel
      */
     activate(appContext) {
         this.appContext = appContext;
+    }
+
+    /**
+     * This hook will be invoked once the app is finished doing initial rendering.
+     * Here, you know for sure that dom is rendered and you can use UI dependant APIs.
+     */
+    onAfterInitialRender() {
+
     }
 
     /**

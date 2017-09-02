@@ -24,6 +24,17 @@ class WorkspaceExplorer extends View {
         props.workspaceManager.on(EVENTS.OPEN_FOLDER, () => {
             this.forceUpdate();
         });
+        this.onOpen = this.onOpen.bind(this);
+    }
+
+    /**
+     * On double click on tree node
+     * @param {Object} node tree node
+     */
+    onOpen(node) {
+        if (node.type === 'file') {
+            this.props.workspaceManager.openFile(node.id);
+        }
     }
 
     /**
@@ -34,7 +45,7 @@ class WorkspaceExplorer extends View {
         const { openedFolders } = this.props.workspaceManager;
         openedFolders.forEach((folder) => {
             trees.push((
-                <FileTree root={folder} key={folder} />
+                <FileTree root={folder} key={folder} onOpen={this.onOpen} />
             ));
         });
         return (

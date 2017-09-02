@@ -68,11 +68,12 @@ class EditorPlugin extends Plugin {
      * Open given file using relavant editor.
      *
      * @param {File} file File object
+     * @param {boolean} activateEditor Indicate whether to activate this editor
      */
-    open(file) {
+    open(file, activateEditor = true) {
         const editor = _.find(this.editors, ['extension', file.extension]);
         if (!_.isNil(editor)) {
-            this.appContext.command.dispatch(COMMANDS.OPEN_FILE_IN_EDITOR, { file, editor });
+            this.appContext.command.dispatch(COMMANDS.OPEN_FILE_IN_EDITOR, { file, editor, activateEditor });
         } else {
             log.error(`No editor is found to open file type ${file.extension}`);
         }

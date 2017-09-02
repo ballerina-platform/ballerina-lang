@@ -1,30 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import Plugin from './../../core/plugin/plugin';
 import { CONTRIBUTIONS } from './../../core/plugin/constants';
+import Editor from './editor/Editor';
+import { PLUGIN_ID, EDITOR_ID } from './constants';
 
+/**
+ * Plugin for Ballerina Lang
+ */
 class BallerinaPlugin extends Plugin {
 
+    /**
+     * @inheritdoc
+     */
     getID() {
-        return 'composer.plugin.lang.ballerina';
+        return PLUGIN_ID;
     }
 
-    init(){}
-
-    activate(){}
-
+    /**
+     * @inheritdoc
+     */
     getContributions() {
         return {
             [CONTRIBUTIONS.EDITORS]: [
                 {
-                    id: 'composer.editor.ballerina',
+                    id: EDITOR_ID,
                     extension: 'bal',
-                    component: (props) => {
-                        return (
-                            <div>
-                                <p>{props.file.content}</p>
-                            </div>
-                        );
+                    component: Editor,
+                    customPropsProvider: () => {
+                        return {
+
+                        };
                     },
                 },
             ],

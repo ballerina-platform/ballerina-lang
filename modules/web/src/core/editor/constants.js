@@ -14,6 +14,8 @@ export const LABELS = {};
 
 export const DIALOGS = {};
 
-export const HISTORY = {};
+export const HISTORY = {
+    ACTIVE_EDITOR: 'composer.plugin.editor.active-editor',
+};
 
 export const PLUGIN_ID = 'composer.plugin.editor';

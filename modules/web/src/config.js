@@ -3,7 +3,7 @@ import BallerinaPlugin from './plugins/ballerina/plugin';
 
 export default {
     app: {
-        plugins: [new BallerinaPlugin()],
+        plugins: [BallerinaPlugin],
     },
     // provide plugin specific configs - if any.
     // plugin-id will be the key

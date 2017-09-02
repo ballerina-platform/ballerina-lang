@@ -113,6 +113,16 @@ class FileOpenDialog extends React.Component {
                             });
                         }
                     }
+                    onOpen={
+                        (node) => {
+                            this.setState({
+                                error: '',
+                                selectedNode: node,
+                                filePath: node.id,
+                            });
+                            this.onFileOpen();
+                        }
+                    }
                 />
             </Dialog>
         );

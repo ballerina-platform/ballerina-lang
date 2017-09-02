@@ -4,15 +4,34 @@ import PropTypes from 'prop-types';
 import { Treebeard, decorators as Decorators } from 'react-treebeard';
 import { getFSRoots, listFiles } from 'api-client/api-client';
 
-const decorators = {
-    Container: (props) => {
+/**
+ * Container Decorator
+ */
+class Container extends React.Component {
+
+    /**
+     * @inheritdoc
+     */
+    render() {
         return (
-            <div className="file-tree-item">
+            <div className="file-tree-item" onDoubleClick={() => this.context.onOpen(this.props.node)} >
                 <div className="whole-row" />
-                <Decorators.Container {...props} />
+                <Decorators.Container {...this.props} />
             </div>
         );
-    },
+    }
+}
+
+Container.propTypes = {
+    node: PropTypes.objectOf(Object).isRequired,
+};
+
+Container.contextTypes = {
+    onOpen: PropTypes.func.isRequired,
+};
+
+const decorators = {
+    Container,
     Loading: (props) => {
         return (
             <div style={props.style}>
@@ -135,6 +154,15 @@ class FileTree extends React.Component {
     /**
      * @inheritdoc
      */
+    getChildContext() {
+        return {
+            onOpen: this.props.onOpen,
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
     componentDidMount() {
         const isFSRoot = this.props.root === FS_ROOT;
         const loadData = isFSRoot ? getFSRoots() : listFiles(this.props.root);
@@ -216,13 +244,19 @@ class FileTree extends React.Component {
 }
 
 FileTree.propTypes = {
+    onOpen: PropTypes.func,
     onSelect: PropTypes.func,
     root: PropTypes.string,
 };
 
 FileTree.defaultProps = {
+    onOpen: () => {},
     onSelect: () => {},
     root: FS_ROOT,
+};
+
+FileTree.childContextTypes = {
+    onOpen: PropTypes.func.isRequired,
 };
 
 export default FileTree;

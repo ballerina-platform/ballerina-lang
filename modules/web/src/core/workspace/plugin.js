@@ -75,7 +75,7 @@ class WorkspacePlugin extends Plugin {
                         editor.open(file);
                         resolve(file);
                     })
-                    .catch(reject);
+                    .catch(err => reject(JSON.stringify(err)));
             } else {
                 reject(`File ${filePath} is already opened.`);
             }
@@ -88,8 +88,16 @@ class WorkspacePlugin extends Plugin {
      * @param {String} filePath Path of the file.
      * @return {Promise} Resolves or reject with error.
      */
-    closeFile(filePath) {
-        return new Promise();
+    closeFile(file) {
+        return new Promise((resolve, reject) => {
+            if (this.openedFiles.includes(file)) {
+                _.remove(this.openedFiles, file);
+                const { pref: { history } } = this.appContext;
+                history.put(HISTORY.OPENED_FILES, this.openedFiles);
+            } else {
+                reject(`File ${file.fullPath} cannot be found in opened file set.`);
+            }
+        });
     }
 
     /**
@@ -145,6 +153,20 @@ class WorkspacePlugin extends Plugin {
         const serializedFiles = history.get(HISTORY.OPENED_FILES) || [];
         this.openedFiles = serializedFiles.map((serializedFile) => {
             return Object.assign(new File({}), serializedFile);
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    onAfterInitialRender() {
+        const { editor } = this.appContext;
+        this.openedFiles.forEach((file) => {
+            // no need to activate this editor
+            // as this is loading from history.
+            // Editor plugin will decide which editor
+            // to activate depending on editor tabs history
+            editor.open(file, false);
         });
     }
 

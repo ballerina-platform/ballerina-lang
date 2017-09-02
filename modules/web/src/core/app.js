@@ -107,8 +107,8 @@ class Application {
     loadOtherPlugins() {
         const { app: { plugins } } = this.config;
         if (_.isArray(plugins)) {
-            plugins.forEach((plugin) => {
-                this.loadPlugin(plugin);
+            plugins.forEach((ExternalPlugin) => {
+                this.loadPlugin(new ExternalPlugin());
             });
         }
     }
@@ -198,6 +198,9 @@ class Application {
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.
         this.hidePreLoader();
+        this.plugins.forEach((plugin) => {
+            plugin.onAfterInitialRender();
+        });
     }
 
     /**

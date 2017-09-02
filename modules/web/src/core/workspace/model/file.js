@@ -11,9 +11,9 @@ class File extends EventChannel {
      * File Constructor
      * @param {Object} args File Details
      */
-    constructor({ fullpath, path, name, extension, content, isPersisted, lastPersisted, isDirty }) {
+    constructor({ fullPath, path, name, extension, content, isPersisted, lastPersisted, isDirty }) {
         super();
-        this._fullpath = fullpath || 'temp/untitled';
+        this._fullPath = fullPath || 'temp/untitled';
         this._path = path || 'temp';
         this._name = name || 'untitled';
         this._ext = extension || 'bal';
@@ -24,17 +24,17 @@ class File extends EventChannel {
     }
 
     /**
-     * Returns fullpath
+     * Returns fullPath
      */
-    get fullpath() {
-        return this._fullpath;
+    get fullPath() {
+        return this._fullPath;
     }
 
     /**
-     * Sets fullpath
+     * Sets fullPath
      */
-    set fullpath(newPath) {
-        this._fullpath = newPath;
+    set fullPath(newPath) {
+        this._fullPath = newPath;
     }
 
     /**

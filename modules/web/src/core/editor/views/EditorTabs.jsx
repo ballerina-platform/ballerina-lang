@@ -6,8 +6,7 @@ import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
-import FileTree from './../../view/FileTree';
-import { VIEWS, EVENTS, COMMANDS } from './../constants';
+import { VIEWS, HISTORY, COMMANDS } from './../constants';
 
 /**
  * Editor Tabs
@@ -26,24 +25,49 @@ class EditorTabs extends View {
      */
     constructor(props) {
         super(props);
+        const { command: { on }, pref: { history } } = this.props.editorPlugin.appContext;
+        on(COMMANDS.OPEN_FILE_IN_EDITOR, (args) => {
+            const { activateEditor } = args;
+            const { openedEditors } = this.state;
+            openedEditors.push(args);
+            if (activateEditor || _.isNil(this.state.activeEditor)) {
+                this.setActiveEditor(args.file.fullPath);
+            } else {
+                this.forceUpdate();
+            }
+        });
         this.state = {
+            activeEditor: history.get(HISTORY.ACTIVE_EDITOR),
             openedEditors: [],
         };
-        const { command: { on } } = this.props.editorPlugin.appContext;
-        on(COMMANDS.OPEN_FILE_IN_EDITOR, (args) => {
-            this.setState({
-                openedEditors: this.state.openedEditors.push(args),
-            });
-        });
+    }
+
+    /**
+     * Set Active editor
+     * @param {String} filePath Path
+     */
+    setActiveEditor(path) {
+        const { pref: { history } } = this.props.editorPlugin.appContext;
+        history.put(HISTORY.ACTIVE_EDITOR, path);
+        this.state.activeEditor = path;
+        this.forceUpdate();
     }
 
     /**
      * @inheritdoc
      */
     render() {
-        const onTabClose = (sfile) => {
-            _.remove(this.state.openedEditors, ({ file }) => file.fullPath === sfile.fullPath);
-            this.forceUpdate();
+        const { workspace } = this.props.editorPlugin.appContext;
+        const onTabClose = (targetFile) => {
+            const searchByFilePath = ({ file }) => file.fullPath === targetFile.fullPath;
+            const editorIndex = _.findIndex(this.state.openedEditors, searchByFilePath);
+            const newEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
+            const newEditorKey = !_.isNil(this.state.openedEditors[newEditorIndex])
+                                    ? this.state.openedEditors[newEditorIndex].file.fullPath
+                                    : undefined;
+            _.remove(this.state.openedEditors, searchByFilePath);
+            this.setActiveEditor(newEditorKey);
+            workspace.closeFile(targetFile);
         };
         const tabTitle = file => (
             <div data-extra="tab-bar-title">
@@ -59,12 +83,10 @@ class EditorTabs extends View {
             </div>
         );
         const makeTabPane = (file, editor) => {
-            const { component } = editor;
+            const { customPropsProvider } = editor;
             return (
-                <TabPane tab={tabTitle(file)} data-extra="tabpane" key={`${file.fullPath}`} >
-                    <div>
-                                <p>{file.content}</p>
-                            </div>
+                <TabPane tab={tabTitle(file)} data-extra="tabpane" key={file.fullPath} >
+                    <editor.component file={file} {...customPropsProvider()} />
                 </TabPane>
             );
         };
@@ -77,8 +99,10 @@ class EditorTabs extends View {
         return (
             <div className="editor-area" >
                 <Tabs
-                    defaultActiveKey={this.state.openedEditors[0]}
-                    onChange={() => {}}
+                    activeKey={this.state.activeEditor}
+                    onChange={(key) => {
+                        this.setActiveEditor(key);
+                    }}
                     renderTabBar={() =>
                         (
                             <ScrollableInkTabBar />
