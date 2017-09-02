@@ -31,7 +31,6 @@ public class Element implements SiddhiElement {
     private int[] queryContextEndIndex;
 
     public Element(String key, String value) {
-
         this.key = key;
         this.value = value;
     }
@@ -46,10 +45,11 @@ public class Element implements SiddhiElement {
 
     @Override
     public String toString() {
-        return "Element{" +
-                "key='" + key + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+        if (key != null) {
+            return key + " = '" + value + "'";
+        } else {
+            return "'" + value + "'";
+        }
     }
 
     @Override
