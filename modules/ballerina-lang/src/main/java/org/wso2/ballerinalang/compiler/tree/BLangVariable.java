@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -34,7 +35,7 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangVariable extends BLangNode implements VariableNode {
-    
+
     public BLangType type;
     public BLangIdentifier name;
     public BLangExpression expr;
@@ -99,5 +100,9 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public void setInitialExpression(ExpressionNode expr) {
         this.expr = (BLangExpression) expr;
     }
-    
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.VARIABLE;
+    }
 }

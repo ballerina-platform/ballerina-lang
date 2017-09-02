@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.NodeKind;
 
 /**
  * @since 0.94
@@ -27,5 +28,10 @@ public class BLangAction extends BLangInvokableNode implements ActionNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.ACTION;
     }
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 
 /**
  * @since 0.94
@@ -50,5 +51,9 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
-    
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.IDENTIFIER;
+    }
 }

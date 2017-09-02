@@ -23,45 +23,45 @@ import java.util.List;
  * @since 0.94
  */
 public interface PackageNode extends Node {
-    
-    List<CompilationUnitNode> getCompilationUnits();
-    
+
+    List<? extends CompilationUnitNode> getCompilationUnits();
+
     void addCompilationUnit(CompilationUnitNode compUnit);
-    
+
     void setPackageDeclaration(PackageDeclarationNode pkgDecl);
-    
+
     PackageDeclarationNode getPackageDeclaration();
 
     List<? extends ImportPackageNode> getImports();
-    
+
     void addImport(ImportPackageNode importPkg);
 
     List<? extends XMLNSDeclarationNode> getNamespaceDeclarations();
-    
+
     void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 
     List<? extends VariableNode> getGlobalVariables();
-    
+
     void addGlobalVariable(VariableNode globalVar);
 
     List<? extends ServiceNode> getServices();
-    
+
     void addService(ServiceNode service);
 
     List<? extends ConnectorNode> getConnectors();
-    
+
     void addConnector(ConnectorNode connector);
 
     List<? extends FunctionNode> getFunctions();
-    
+
     void addFunction(FunctionNode function);
 
     List<? extends StructNode> getStructs();
-    
+
     void addStruct(StructNode struct);
 
     List<? extends AnnotationNode> getAnnotations();
-    
+
     void addAnnotation(AnnotatableNode annotation);
-    
+
 }

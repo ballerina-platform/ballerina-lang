@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -27,5 +28,10 @@ public class BLangAbort extends BLangStatement implements AbortNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.ABORT;
     }
 }

@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -24,12 +26,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.List;
+
 /**
  * @since 0.94
  */
 public class SymbolEnter extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SymbolEnter> symbolEnterKey = new CompilerContext.Key<>();
+
+    // Private Log
 
     private CompilerContext context;
 
@@ -46,7 +52,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.context = context;
     }
 
-    public void enterPackage(BLangPackage pkgNode) {
+    public void definePackage(BLangPackage pkgNode) {
 
     }
 
@@ -64,5 +70,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         throw new AssertionError();
+    }
+
+    // TODO Consider move this method to some other place
+    private void populatePackageNode(BLangPackage pkgNode) {
+        List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
+        compUnits.forEach(compUnit -> populatePackageNode(pkgNode, compUnit));
+    }
+
+    private void populatePackageNode(BLangPackage pkgNode, BLangCompilationUnit compUnit) {
+        List<TopLevelNode> nodes = compUnit.getTopLevelNodes();
     }
 }

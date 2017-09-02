@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -45,5 +46,9 @@ public class BLangVariableDef extends BLangStatement implements VariableDefiniti
     public void setVariable(VariableNode var) {
         this.var = (BLangVariable) var;
     }
-    
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.VARIABLE;
+    }
 }

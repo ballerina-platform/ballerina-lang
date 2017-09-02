@@ -23,4 +23,11 @@ package org.ballerinalang.model.tree;
 public interface Node {
 
     // TODO DD Visitor method..  location and whitespaces
+
+    /**
+     * Returns the kind of this node.
+     *
+     * @return the kind of this node.
+     */
+    NodeKind getKind();
 }

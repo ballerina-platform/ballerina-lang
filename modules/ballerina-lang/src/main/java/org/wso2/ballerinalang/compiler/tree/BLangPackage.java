@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -36,8 +37,8 @@ import java.util.List;
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
-    
-    public List<CompilationUnitNode> compUnits;
+
+    public List<BLangCompilationUnit> compUnits;
     public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
@@ -61,15 +62,15 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<CompilationUnitNode> getCompilationUnits() {
+    public List<BLangCompilationUnit> getCompilationUnits() {
         return compUnits;
     }
 
     @Override
     public void addCompilationUnit(CompilationUnitNode compUnit) {
-        this.compUnits.add(compUnit);
+        this.compUnits.add((BLangCompilationUnit) compUnit);
     }
-    
+
     @Override
     public List<BLangImportPackage> getImports() {
         return imports;
@@ -137,7 +138,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     @Override
     public void addConnector(ConnectorNode connector) {
-        this.connectors.add((BLangConnector) connector); 
+        this.connectors.add((BLangConnector) connector);
     }
 
     @Override
@@ -165,4 +166,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return pkgDecl;
     }
 
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.PACKAGE;
+    }
 }

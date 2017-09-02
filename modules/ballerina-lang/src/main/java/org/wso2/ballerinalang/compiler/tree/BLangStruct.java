@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 
@@ -32,7 +33,7 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangStruct extends BLangNode implements StructNode {
-    
+
     public BLangIdentifier name;
     public List<BLangVariable> fields;
     public Set<Flag> flags;
@@ -53,7 +54,7 @@ public class BLangStruct extends BLangNode implements StructNode {
     public List<BLangVariable> getFields() {
         return fields;
     }
-    
+
     @Override
     public void addField(VariableNode var) {
         this.getFields().add((BLangVariable) var);
@@ -68,7 +69,7 @@ public class BLangStruct extends BLangNode implements StructNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
-    
+
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
@@ -88,5 +89,9 @@ public class BLangStruct extends BLangNode implements StructNode {
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
     }
-    
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.STRUCT;
+    }
 }

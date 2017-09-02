@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 
 /**
@@ -26,7 +27,7 @@ import org.ballerinalang.model.tree.PackageDeclarationNode;
 public class BLangPackageDeclaration implements PackageDeclarationNode {
 
     public PackageID pkgId;
-    
+
     @Override
     public PackageID getPackageID() {
         return pkgId;
@@ -36,10 +37,14 @@ public class BLangPackageDeclaration implements PackageDeclarationNode {
     public void setPackageID(PackageID pkgId) {
         this.pkgId = pkgId;
     }
-    
+
     @Override
     public String toString() {
         return "BLangPackageDeclaration: " + this.pkgId;
     }
 
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.PACKAGE_DECLARATION;
+    }
 }

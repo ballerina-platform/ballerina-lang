@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.CommentNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -38,5 +39,10 @@ public class BLangComment extends BLangStatement implements CommentNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.COMMENT;
     }
 }
