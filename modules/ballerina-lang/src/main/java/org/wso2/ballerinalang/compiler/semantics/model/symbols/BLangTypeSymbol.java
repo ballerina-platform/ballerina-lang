@@ -17,40 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
-import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.Type;
-
-import java.util.List;
-import java.util.Set;
-
 /**
  * @since 0.94
  */
-public class BSymbol implements Symbol {
-    @Override
-    public SymbolKind getKind() {
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        return null;
-    }
-
-    @Override
-    public Set<Flag> getFlags() {
-        return null;
-    }
-
-    @Override
-    public Symbol getEnclosingSymbol() {
-        return null;
-    }
-
-    @Override
-    public List<? extends Symbol> getEnclosedSymbols() {
-        return null;
-    }
+public class BLangTypeSymbol extends BLangSymbol {
 }

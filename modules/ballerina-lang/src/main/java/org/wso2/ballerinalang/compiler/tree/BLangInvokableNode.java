@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public abstract class BLangInvocable extends BLangNode implements InvocableNode {
+public abstract class BLangInvokableNode extends BLangNode implements InvocableNode {
     
     public BLangIdentifier name;
     public List<BLangVariable> params;
@@ -42,7 +42,7 @@ public abstract class BLangInvocable extends BLangNode implements InvocableNode 
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BLangInvocable() {
+    public BLangInvokableNode() {
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();

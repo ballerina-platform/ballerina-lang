@@ -35,5 +35,7 @@ public enum SymbolKind {
     PARAMETER,
     LOCAL_VARIABLE,
     SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE
+    CONNECTOR_VARIABLE,
+
+    OTHER
 }

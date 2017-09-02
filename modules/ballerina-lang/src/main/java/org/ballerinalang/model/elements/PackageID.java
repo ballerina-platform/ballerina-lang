@@ -33,11 +33,27 @@ public class PackageID {
     private String stringName;
         
     private IdentifierNode version;
-    
+
+    private String packageName;
+    private String packageVersion;
+
     public PackageID(List<IdentifierNode> nameComps, IdentifierNode version) {
         this.nameComps = nameComps;
         this.version = version;
         this.populateNameCompsAsString();
+    }
+
+    public PackageID(String packageName, String packageVersion) {
+        this.packageName = packageName;
+        this.packageVersion = packageVersion;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getPackageVersion() {
+        return packageVersion;
     }
 
     public List<IdentifierNode> getNameComps() {

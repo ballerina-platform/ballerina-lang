@@ -26,6 +26,7 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.fs.FSPackageRepository;
 import org.wso2.ballerinalang.compiler.parser.BLangParser;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -44,8 +45,9 @@ public class BLangCompiler {
     private CompilerContext context;
     
     private BLangParser parser;
-    
+
     private PackageRepository programRepo;
+    private SymbolEnter symbolEnter;
 
     public static BLangCompiler getInstance(CompilerContext context) {
         BLangCompiler compiler = context.get(bLangCompilerKey);
@@ -62,8 +64,10 @@ public class BLangCompiler {
 
         this.parser = BLangParser.getInstance(context);
         
-        Path basePath = Paths.get("/home/laf/Desktop/test");
+        Path basePath = Paths.get("/Users/sameera/rewrite-compiler/bal");
         this.programRepo = this.loadFSProgramRepository(basePath);
+        parser = BLangParser.getInstance(context);
+        symbolEnter = SymbolEnter.getInstance(context);
     }
 
 
