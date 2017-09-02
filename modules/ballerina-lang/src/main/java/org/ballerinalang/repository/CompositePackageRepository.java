@@ -29,8 +29,8 @@ public class CompositePackageRepository extends HierarchicalPackageRepository {
     
     private PackageRepository myRepo;
 
-    public CompositePackageRepository(PackageRepository systemRepo, PackageRepository parentRepo, 
-            PackageRepository myRepo) {
+    public CompositePackageRepository(PackageRepository systemRepo,
+                                      PackageRepository parentRepo, PackageRepository myRepo) {
         super(systemRepo, parentRepo);
         this.myRepo = myRepo;
     }

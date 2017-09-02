@@ -15,17 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
-
-import org.ballerinalang.model.tree.ResourceNode;
+package org.ballerinalang.model;
 
 /**
  * @since 0.94
  */
-public class BLangResource extends BLangInvokableNode implements ResourceNode {
+public interface Name {
 
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+    String getValue();
 }

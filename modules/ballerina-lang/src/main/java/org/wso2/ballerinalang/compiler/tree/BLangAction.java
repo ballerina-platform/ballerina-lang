@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.ActionNode;
 /**
  * @since 0.94
  */
-public class BLangAction extends BLangInvocable implements ActionNode {
+public class BLangAction extends BLangInvokableNode implements ActionNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
