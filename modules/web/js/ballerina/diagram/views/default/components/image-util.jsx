@@ -16,6 +16,8 @@
  * under the License.
  */
 
+import $ from 'jquery';
+
 /**
  * Gets the base name of a file.
  *
@@ -62,6 +64,39 @@ class ImageUtils {
      */
     static getSVGIconString(iconName) {
         return images[iconName];
+    }
+
+    /**
+     * Get the connector icon from service
+     * @param {string} connectorName - connector name
+     * @returns {object} - server response data
+     */
+    static getConnectorIcon(connectorName) {
+        const requestJson = {
+            connectorName: connectorName,
+            iconPath: 'testPath',
+        };
+        let data = {};
+        $.ajax({
+            type: 'POST',
+            context: this,
+            url: 'http://localhost:8289/file/connector/icon',
+            data: JSON.stringify(requestJson),
+            contentType: 'application/json; charset=utf-8',
+            async: false,
+            dataType: 'json',
+            success(response) {
+                if (response.status === 'success') {
+                    data = response.content;
+                } else {
+                    data = this.getSVGIconString('tool-icons/connector-white');
+                }
+            },
+            error() {
+                data = this.getSVGIconString('tool-icons/connector-white');
+            },
+        });
+        return data;
     }
 }
 
