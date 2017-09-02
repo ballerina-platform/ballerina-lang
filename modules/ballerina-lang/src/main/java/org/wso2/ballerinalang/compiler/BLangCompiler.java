@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.repository.CompositePackageRepository;
 import org.ballerinalang.repository.PackageEntity;
@@ -102,7 +103,10 @@ public class BLangCompiler {
         log("* Package Source: " + pkgSource);
         PackageNode pkgNode = this.parser.parse(pkgSource);
         log("* Package Node: " + pkgNode);
-        log("* Compilation Unit Count: " + pkgNode.getCompilationUnits().size());
+        log("* Compilation Units:");
+        for (CompilationUnitNode cu : pkgNode.getCompilationUnits()) {
+            log("- '" + cu.getName() + "' -> Top Level Elements: " + cu.getTopLevelNodes());
+        }
     }
 
     // TODO Define Scopes and Symbols

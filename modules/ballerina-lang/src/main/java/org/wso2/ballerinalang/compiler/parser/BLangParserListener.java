@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
@@ -71,7 +73,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) { }
+    @Override public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
+        this.pkgBuilder.populatePackageDeclaration();
+    }
     /**
      * {@inheritDoc}
      *
@@ -83,7 +87,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitPackageName(BallerinaParser.PackageNameContext ctx) { }
+    @Override public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
+        List<String> nameComps = new ArrayList<>();
+        ctx.Identifier().stream().forEach(e -> nameComps.add(e.getText()));
+        String version;
+        if (ctx.version() != null) {
+            version = ctx.version().Identifier().getText();
+        } else {
+            version = null;
+        }
+        this.pkgBuilder.addPackageId(nameComps, version);
+    }
     /**
      * {@inheritDoc}
      *

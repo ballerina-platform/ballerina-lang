@@ -19,10 +19,12 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvocableNode;
+import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
@@ -55,6 +57,8 @@ public class BLangPackageBuilder {
     private Stack<InvocableNode> invokableNodeStack = new Stack<>();
 
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
+    
+    private Stack<PackageID> pkgIdStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -136,6 +140,29 @@ public class BLangPackageBuilder {
     public void endFunctionDef() {
         this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
         this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
+    }
+    
+    public void addPackageId(List<String> nameComps, String version) {
+        List<IdentifierNode> nameCompNodes = new ArrayList<>();
+        IdentifierNode versionNode;
+        if (version != null) {
+            versionNode = TreeBuilder.createIdentifierNode();
+            versionNode.setValue(version);
+        } else {
+            versionNode = null;
+        }
+        nameComps.stream().forEach(e -> {
+            IdentifierNode node = TreeBuilder.createIdentifierNode();
+            node.setValue(e);
+            nameCompNodes.add(node);
+        });
+        this.pkgIdStack.add(new PackageID(nameCompNodes, versionNode));
+    }
+    
+    public void populatePackageDeclaration() {
+        PackageDeclarationNode pkgDecl = TreeBuilder.createPackageDeclarationNode();
+        pkgDecl.setPackageID(this.pkgIdStack.pop());
+        this.compUnit.addTopLevelNode(pkgDecl);
     }
 
 }

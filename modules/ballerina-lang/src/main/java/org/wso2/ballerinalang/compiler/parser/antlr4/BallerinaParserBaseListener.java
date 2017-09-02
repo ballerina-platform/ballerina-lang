@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/laf/dev/wso2/ballerina-1/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public abstract class BallerinaParserBaseListener implements BallerinaParserListener {
+public class BallerinaParserBaseListener implements BallerinaParserListener {
 	/**
 	 * {@inheritDoc}
 	 *
@@ -47,6 +47,18 @@ public abstract class BallerinaParserBaseListener implements BallerinaParserList
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPackageName(BallerinaParser.PackageNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVersion(BallerinaParser.VersionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVersion(BallerinaParser.VersionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

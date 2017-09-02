@@ -23,6 +23,7 @@ TYPEMAPPER  : 'typemapper' ;
 WORKER      : 'worker' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
+VERSION     : 'version';
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;

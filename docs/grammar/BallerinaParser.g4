@@ -21,7 +21,11 @@ packageDeclaration
     ;
 
 packageName
-    :   Identifier (DOT Identifier)*
+    :   Identifier (DOT Identifier)* version?
+    ;
+
+version
+    : (VERSION Identifier)
     ;
 
 importDeclaration

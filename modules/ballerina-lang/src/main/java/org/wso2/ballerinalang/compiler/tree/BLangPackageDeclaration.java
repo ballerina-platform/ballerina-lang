@@ -36,5 +36,10 @@ public class BLangPackageDeclaration implements PackageDeclarationNode {
     public void setPackageID(PackageID pkgId) {
         this.pkgId = pkgId;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangPackageDeclaration: " + this.pkgId;
+    }
 
 }
