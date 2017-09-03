@@ -356,7 +356,7 @@ function testINParameters () (int) {
     return insertCount;
 }
 
-function testNullINParameters () (int) {
+function testNullINParameterValues () (int) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
                                                             "TEST_SQL_CONNECTOR", "SA", "", properties);
@@ -382,6 +382,23 @@ function testNullINParameters () (int) {
     int insertCount = testDB.update ("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+    testDB.close ();
+    return insertCount;
+}
+
+
+function testNullINParameters () (int) {
+    sql:ConnectionProperties properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+
+    sql:Parameter paraID = {sqlType:"integer", value:10, direction:0};
+
+    sql:Parameter[] parameters = [paraID, null, null, null, null, null, null, null,
+                                  null, null, null, null, null, null, null];
+    int insertCount = testDB.update ("INSERT INTO DataTypeTable (row_id,int_type, long_type,
+    float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
+    smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
     testDB.close ();
     return insertCount;
 }

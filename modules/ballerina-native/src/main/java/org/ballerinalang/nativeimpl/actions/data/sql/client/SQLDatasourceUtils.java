@@ -674,6 +674,14 @@ public class SQLDatasourceUtils {
         }
     }
 
+    public static void setNullObject(PreparedStatement stmt, int index) {
+        try {
+            stmt.setObject(index + 1, null);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set null to parameter with index: " + index);
+        }
+    }
+
     private static Object[] getArrayData(BValue value) {
         if (value == null || value.getType().getTag() != TypeTags.ARRAY_TAG) {
             return new Object[] { null, null };

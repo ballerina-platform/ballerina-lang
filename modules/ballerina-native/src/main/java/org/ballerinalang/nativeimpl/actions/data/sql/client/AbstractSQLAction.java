@@ -222,7 +222,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     /**
      * If there are any arrays of parameter for types other than sql array, the given query is expanded by adding "?" s
-     * to .match with the array size.
+     * to match with the array size.
      */
     private String createProcessedQueryString(String query, BRefValueArray parameters) {
         String currentQuery = query;
@@ -232,17 +232,19 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int paramCount = (int) parameters.size();
         for (int i = 0; i < paramCount; i++) {
             BStruct paramValue = (BStruct) parameters.get(i);
-            BValue value = paramValue.getRefField(0);
-            String sqlType = paramValue.getStringField(0);
-            if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                    .equalsIgnoreCase(sqlType)) {
-                count = (int) ((BNewArray) value).size();
-            } else {
-                count = 1;
+            if (paramValue != null) {
+                BValue value = paramValue.getRefField(0);
+                String sqlType = paramValue.getStringField(0);
+                if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
+                        .equalsIgnoreCase(sqlType)) {
+                    count = (int) ((BNewArray) value).size();
+                } else {
+                    count = 1;
+                }
+                vals = this.expandQuery(start, count, currentQuery);
+                start = (Integer) vals[0];
+                currentQuery = (String) vals[1];
             }
-            vals = this.expandQuery(start, count, currentQuery);
-            start = (Integer) vals[0];
-            currentQuery = (String) vals[1];
         }
         return currentQuery;
     }
@@ -400,39 +402,45 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
             BStruct paramStruct = (BStruct) params.get(index);
-            String sqlType = paramStruct.getStringField(0);
-            BValue value = paramStruct.getRefField(0);
-            int direction = (int) paramStruct.getIntField(0);
-            if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                    .equalsIgnoreCase(sqlType)) {
-                int arrayLength = (int) ((BNewArray) value).size();
-                int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
-                for (int i = 0; i < arrayLength; i++) {
-                    BValue paramValue;
-                    switch (typeTag) {
-                    case TypeTags.INT_TAG:
-                        paramValue = new BInteger(((BIntArray) value).get(i));
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        paramValue = new BFloat(((BFloatArray) value).get(i));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        paramValue = new BString(((BStringArray) value).get(i));
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
-                        break;
-                    case TypeTags.BLOB_TAG:
-                        paramValue = new BBlob(((BBlobArray) value).get(i));
-                        break;
-                    default:
-                        throw new BallerinaException("unsupported array type for parameter index " + index);
+            if (paramStruct != null) {
+                String sqlType = paramStruct.getStringField(0);
+                BValue value = paramStruct.getRefField(0);
+                int direction = (int) paramStruct.getIntField(0);
+                //If the parameter is an array and sql type is not "array" then treat it as an array of parameters
+                if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
+                        .equalsIgnoreCase(sqlType)) {
+                    int arrayLength = (int) ((BNewArray) value).size();
+                    int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+                    for (int i = 0; i < arrayLength; i++) {
+                        BValue paramValue;
+                        switch (typeTag) {
+                        case TypeTags.INT_TAG:
+                            paramValue = new BInteger(((BIntArray) value).get(i));
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            paramValue = new BFloat(((BFloatArray) value).get(i));
+                            break;
+                        case TypeTags.STRING_TAG:
+                            paramValue = new BString(((BStringArray) value).get(i));
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            paramValue = new BBlob(((BBlobArray) value).get(i));
+                            break;
+                        default:
+                            throw new BallerinaException("unsupported array type for parameter index " + index);
+                        }
+                        setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
+                        currentOrdinal++;
                     }
-                    setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
+                } else {
+                    setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
                     currentOrdinal++;
                 }
             } else {
-                setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
+                SQLDatasourceUtils.setNullObject(stmt, index);
                 currentOrdinal++;
             }
         }
@@ -535,10 +543,15 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
-            String sqlType = paramValue.getStringField(0);
-            int direction = (int) paramValue.getIntField(0);
-            if (direction == Constants.QueryParamDirection.INOUT || direction == Constants.QueryParamDirection.OUT) {
-                setOutParameterValue(stmt, sqlType, index, paramValue);
+            if (paramValue != null) {
+                String sqlType = paramValue.getStringField(0);
+                int direction = (int) paramValue.getIntField(0);
+                if (direction == Constants.QueryParamDirection.INOUT
+                        || direction == Constants.QueryParamDirection.OUT) {
+                    setOutParameterValue(stmt, sqlType, index, paramValue);
+                }
+            } else {
+                throw new BallerinaException("out value cannot set for null parameter with index: " + index);
             }
         }
     }

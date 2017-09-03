@@ -221,6 +221,13 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testNullINParameterValues() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testNullINParameterValues");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testNullINParameters() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];
