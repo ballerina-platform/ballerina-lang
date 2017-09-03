@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * WebSocket test class the Protocol switch from HTTP to WebSocket, WebSocket Listener.
+ * HTTP connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
 public class HttpToWebSocketProtocolSwitchHttpListener implements HttpConnectorListener {
     private static final Logger logger = LoggerFactory.getLogger(HttpToWebSocketProtocolSwitchHttpListener.class);

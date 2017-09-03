@@ -31,7 +31,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMess
 import java.io.IOException;
 
 /**
- * WebSocket test class the Protocol switch from HTTP to WebSocket, WebSocket Listener.
+ * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
 public class HttpToWebSocketProtocolSwitchWebSocketListener implements WebSocketConnectorListener {
 
