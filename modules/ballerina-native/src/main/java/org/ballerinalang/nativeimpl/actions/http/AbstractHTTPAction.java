@@ -237,7 +237,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-
+            throw new BallerinaException(throwable.getMessage());
         }
     }
 
