@@ -49,8 +49,6 @@ class AnnotationContainer extends React.Component {
             selectedIdentifierValue: '',
             shownIdentifierSuggestions: [],
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
 
         this.onPackageNameChange = this.onPackageNameChange.bind(this);
         this.onPackageNameBlur = this.onPackageNameBlur.bind(this);
@@ -194,8 +192,7 @@ class AnnotationContainer extends React.Component {
         };
 
         // Getting the components for the annotation of the current model.
-        const annotations = getComponentForNodeArray(this.props.model.getAnnotations(), this.props.designer,
-                                                                                                    this.props.mode);
+        const annotations = getComponentForNodeArray(this.props.model.getAnnotations(), this.context.mode);
 
         if (this.state.hasPackageNameSelected) {
             return (<div style={style} className="annotation-container">
@@ -238,19 +235,13 @@ class AnnotationContainer extends React.Component {
 
 AnnotationContainer.propTypes = {
     model: PropTypes.instanceOf(AnnotationContainerUtil).isRequired,
-    designer: PropTypes.instanceOf(Object),
-    mode: PropTypes.string,
-};
-
-AnnotationContainer.defaultProps = {
-    designer: undefined,
-    mode: 'default',
 };
 
 AnnotationContainer.contextTypes = {
     // Used for accessing ast-root to add imports
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
+    mode: PropTypes.string,
 };
 
 export default AnnotationContainer;

@@ -49,8 +49,6 @@ class ServiceDefinition extends React.Component {
         super(props);
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -118,7 +116,7 @@ class ServiceDefinition extends React.Component {
         /**
          * Here we skip rendering the variables
          */
-        const children = getComponentForNodeArray(childrenWithNoVariables, this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(childrenWithNoVariables, this.context.mode);
 
         const expandedVariablesBBox = {
             x: bBox.x + DesignerDefaults.panel.body.padding.left,
@@ -196,6 +194,7 @@ ServiceDefinition.propTypes = {
 
 ServiceDefinition.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    mode: PropTypes.string,
 };
 
 export default ServiceDefinition;

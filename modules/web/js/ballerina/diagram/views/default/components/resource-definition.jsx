@@ -18,6 +18,7 @@
 
 import React from 'react';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
@@ -32,8 +33,6 @@ class ResourceDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     canDropToPanelBody(nodeBeingDragged) {
@@ -66,7 +65,7 @@ class ResourceDefinition extends React.Component {
         };
 
 
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
@@ -127,5 +126,9 @@ class ResourceDefinition extends React.Component {
             </g>);
     }
 }
+
+ResourceDefinition.contextTypes = {
+    mode: PropTypes.string,
+};
 
 export default ResourceDefinition;

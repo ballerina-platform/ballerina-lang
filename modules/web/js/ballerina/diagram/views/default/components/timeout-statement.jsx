@@ -36,8 +36,6 @@ class TimeoutStatement extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -47,7 +45,7 @@ class TimeoutStatement extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         const props = this.props;
         const parameterBbox = this.props.model.viewState.components.param;
 
@@ -100,5 +98,8 @@ TimeoutStatement.propTypes = {
     model: PropTypes.instanceOf(TimeoutStatementAST).isRequired,
 };
 
+TimeoutStatement.contextTypes = {
+    mode: PropTypes.string,
+};
 
 export default TimeoutStatement;

@@ -19,7 +19,7 @@ function requireAll(requireContext) {
     return comp;
 }
 
-function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
+function getComponentForNodeArray(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
@@ -38,8 +38,6 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
             return React.createElement(Hidden,{
                 model: child,
                 key: child.getID(),
-                designer: designer,
-                mode: mode,
             });
         }
 
@@ -50,8 +48,6 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
                 // set the key to prevent warning
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
-                designer: designer,
-                mode: mode,
             }, null);
         } else if (components.default[compName]) {
             return React.createElement(components.default[compName], {
@@ -59,8 +55,6 @@ function getComponentForNodeArray(nodeArray, designer, mode = 'default') {
                 // set the key to prevent warning
                 // see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
                 key: child.getID(),
-                designer: designer,
-                mode: mode,
             }, null);
         }
     });

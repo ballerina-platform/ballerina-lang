@@ -32,8 +32,6 @@ class WhileStatement extends React.Component {
     constructor(props) {
         super(props);
         this.state = { innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     render() {
@@ -51,7 +49,7 @@ class WhileStatement extends React.Component {
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
             + ((innerDropZoneDropNotAllowed) ? ' block' : '');
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
 
         this.editorOptions = {
             propertyType: 'text',
@@ -86,7 +84,8 @@ WhileStatement.propTypes = {
 };
 
 WhileStatement.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    mode: PropTypes.string,
 };
 
 export default WhileStatement;

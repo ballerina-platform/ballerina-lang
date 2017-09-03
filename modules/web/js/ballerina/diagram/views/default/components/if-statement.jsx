@@ -34,8 +34,6 @@ class IfStatement extends React.Component {
             getterMethod: props.model.getConditionString,
             setterMethod: props.model.setConditionFromString,
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }
 
@@ -61,7 +59,7 @@ class IfStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>
                 <rect
@@ -108,5 +106,8 @@ IfStatement.propTypes = {
     }),
 };
 
+IfStatement.contextTypes = {
+    mode: PropTypes.string,
+};
 
 export default IfStatement;
