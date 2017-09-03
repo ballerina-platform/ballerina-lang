@@ -2305,6 +2305,7 @@ public class BLangVM {
 
         switch (holder.getCurrentCommand()) {
             case RESUME:
+                holder.setLastLine(null);
                 break;
             case STEP_IN:
                 debugHit(currentExecLine, holder);

@@ -140,6 +140,7 @@ under the License.
     <test name="ballerina-debugger-test-suite">
         <classes>
             <class name="org.ballerinalang.debug.VMDebuggerTryCatchTest"/>
+            <class name="org.ballerinalang.debug.VMDebuggerScenarioTest"/>
         </classes>
     </test>
 

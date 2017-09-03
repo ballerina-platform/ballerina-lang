@@ -32,7 +32,7 @@ function main (string[] args) {
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a datatable.
-    datatable dt = empDB.select("SELECT * from employees", params);
+    datatable dt = empDB.select("SELECT * from EMPLOYEE", params);
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
     while (datatables:hasNext(dt)) {
