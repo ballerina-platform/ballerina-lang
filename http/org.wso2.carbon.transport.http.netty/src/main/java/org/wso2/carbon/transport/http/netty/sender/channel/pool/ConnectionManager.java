@@ -20,8 +20,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -37,8 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A class which handles connection pool management.
  */
 public class ConnectionManager {
-
-    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
     private EventLoopGroup clientEventGroup;
     private PoolConfiguration poolConfiguration;
@@ -58,30 +54,12 @@ public class ConnectionManager {
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
-        GenericObjectPool.Config config = new GenericObjectPool.Config();
-        config.maxActive = poolConfiguration.getMaxActivePerPool();
-        config.maxIdle = poolConfiguration.getMaxIdlePerPool();
-        config.minIdle = poolConfiguration.getMinIdlePerPool();
-        config.testOnBorrow = poolConfiguration.isTestOnBorrow();
-        config.testWhileIdle = poolConfiguration.isTestWhileIdle();
-        config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
-        config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
-        config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
-        config.maxWait = poolConfiguration.getMaxWait();
-        return new GenericObjectPool(poolableTargetChannelFactory, config);
+        return new GenericObjectPool(poolableTargetChannelFactory, instantiateAndConfigureConfig());
     }
 
     private GenericObjectPool createPoolForRoutePerSrcHndlr(GenericObjectPool genericObjectPool) {
-        GenericObjectPool.Config config = new GenericObjectPool.Config();
-        config.maxActive = poolConfiguration.getMaxActivePerPool();
-        config.maxIdle = poolConfiguration.getMaxIdlePerPool();
-        config.minIdle = poolConfiguration.getMinIdlePerPool();
-        config.testOnBorrow = poolConfiguration.isTestOnBorrow();
-        config.testWhileIdle = poolConfiguration.isTestWhileIdle();
-        config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
-        config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
-        config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
-        return new GenericObjectPool(new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool), config);
+        return new GenericObjectPool(new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool),
+                instantiateAndConfigureConfig());
     }
 
     public static ConnectionManager getInstance() {
@@ -166,7 +144,8 @@ public class ConnectionManager {
         }
 
         TargetChannel targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
-        targetChannel.setHttpRoute(httpRoute);
+        targetChannel.setCorrelatedSource(sourceHandler);
+        targetChannel.setConnectionManager(this);
         return targetChannel;
     }
 
@@ -215,16 +194,27 @@ public class ConnectionManager {
         }
     }
 
-    public PoolConfiguration getPoolConfiguration() {
-        return poolConfiguration;
-    }
-
     /**
      * Connection pool management policies for  target channels.
      */
     public enum PoolManagementPolicy {
         GLOBAL_ENDPOINT_CONNECTION_CACHING,
         LOCK_DEFAULT_POOLING,
+    }
+
+    private GenericObjectPool.Config instantiateAndConfigureConfig() {
+        GenericObjectPool.Config config = new GenericObjectPool.Config();
+        config.maxActive = poolConfiguration.getMaxActivePerPool();
+        config.maxIdle = poolConfiguration.getMaxIdlePerPool();
+        config.minIdle = poolConfiguration.getMinIdlePerPool();
+        config.testOnBorrow = poolConfiguration.isTestOnBorrow();
+        config.testWhileIdle = poolConfiguration.isTestWhileIdle();
+        config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
+        config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
+        config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
+        config.maxWait = poolConfiguration.getMaxWait();
+
+        return config;
     }
 
 }
