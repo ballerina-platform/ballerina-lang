@@ -67,7 +67,8 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 47.8f, null, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 47.8f, null, 45.7f},
+                            inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -291,7 +292,8 @@ public class CountPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 23.7f, 24.7f, 45.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{25.6f, 47.6f, 23.7f, 24.7f, 45.7f},
+                            inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;

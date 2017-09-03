@@ -126,8 +126,8 @@ public class QuerySyncTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) ||
+                                "192.10.1.4".equals(event.getData(0)));
                     }
                 }
             }
@@ -231,10 +231,12 @@ public class QuerySyncTestCase {
                         inEventCount.incrementAndGet();
                         switch (inEventCount.get()) {
                             case 1:
-                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f}, event.getData());
+                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f},
+                                        event.getData());
                                 break;
                             case 2:
-                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, event.getData());
+                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f},
+                                        event.getData());
                                 break;
                             default:
                                 org.testng.AssertJUnit.assertSame(2, inEventCount);

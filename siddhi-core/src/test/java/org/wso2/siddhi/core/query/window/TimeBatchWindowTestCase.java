@@ -404,7 +404,8 @@ public class TimeBatchWindowTestCase {
 //                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
 //                    // checking whether events are emitted close to a round time with 10% error.
 //                    long timestamp = removeEvents[0].getTimestamp();
-//                    AssertJUnit.assertTrue("Remove events timestamps are close to round times", (timestamp % 1000) < 100);
+//                    AssertJUnit.assertTrue("Remove events timestamps are close to round times",
+//                            (timestamp % 1000) < 100);
 //                    removeEventCount = removeEventCount + removeEvents.length;
 //                }
 //                eventArrived = true;

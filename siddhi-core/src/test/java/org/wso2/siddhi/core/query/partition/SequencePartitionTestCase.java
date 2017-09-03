@@ -778,10 +778,12 @@ public class SequencePartitionTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                AssertJUnit.assertArrayEquals(new Object[]{29.6f, 35.6f, 57.6f, 47.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{29.6f, 35.6f, 57.6f, 47.6f},
+                                        event.getData());
                                 break;
                             case 2:
-                                AssertJUnit.assertArrayEquals(new Object[]{129.6f, 135.6f, 157.6f, 147.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{129.6f, 135.6f, 157.6f, 147.6f},
+                                        event.getData());
                                 break;
                             default:
                                 AssertJUnit.assertSame(2, inEventCount);

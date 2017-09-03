@@ -244,8 +244,9 @@ public class TimeOutputRateLimitTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
-                    AssertJUnit.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.9".equals(inEvents[0]
-                            .getData(0)) || "192.10.1.30".equals(inEvents[0].getData(0)));
+                    AssertJUnit.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) ||
+                            "192.10.1.9".equals(inEvents[0].getData(0)) ||
+                            "192.10.1.30".equals(inEvents[0].getData(0)));
                 } else {
                     AssertJUnit.fail("Remove events emitted");
                 }
@@ -302,9 +303,9 @@ public class TimeOutputRateLimitTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count += inEvents.length;
-                    AssertJUnit.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) || "192.10.1.3".equals(inEvents[0]
-                            .getData(0)) || "192.10.1.4".equals(inEvents[0].getData(0)) || "192.10.1.30".equals
-                            (inEvents[0].getData(0)));
+                    AssertJUnit.assertTrue("192.10.1.5".equals(inEvents[0].getData(0)) ||
+                            "192.10.1.3".equals(inEvents[0].getData(0)) || "192.10.1.4".equals(inEvents[0].getData(0))
+                            || "192.10.1.30".equals(inEvents[0].getData(0)));
                 } else {
                     AssertJUnit.fail("Remove events emitted");
                 }

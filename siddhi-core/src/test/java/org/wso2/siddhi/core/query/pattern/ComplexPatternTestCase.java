@@ -143,7 +143,8 @@ public class ComplexPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                AssertJUnit.assertArrayEquals(new Object[]{55.6f, 54.0f, 53.6f, 57.0f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{55.6f, 54.0f, 53.6f, 57.0f},
+                                        event.getData());
                                 break;
                             default:
                                 AssertJUnit.assertSame(1, inEventCount);

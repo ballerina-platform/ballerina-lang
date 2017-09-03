@@ -128,42 +128,48 @@ public class ConvertFunctionTestCase {
                 AssertJUnit.assertTrue(inEvents[0].getData(2) == null);
                 AssertJUnit.assertTrue(inEvents[0].getData(3) == null);
                 AssertJUnit.assertTrue(inEvents[0].getData(4) == null);
-                AssertJUnit.assertTrue(inEvents[0].getData(5) instanceof Boolean && !((Boolean) inEvents[0].getData(5)));
+                AssertJUnit.assertTrue(inEvents[0].getData(5) instanceof Boolean &&
+                        !((Boolean) inEvents[0].getData(5)));
 
                 AssertJUnit.assertTrue(inEvents[0].getData(6) instanceof String);
                 AssertJUnit.assertTrue(inEvents[0].getData(7) instanceof Float);
                 AssertJUnit.assertTrue(inEvents[0].getData(8) instanceof Double);
                 AssertJUnit.assertTrue(inEvents[0].getData(9) instanceof Integer);
                 AssertJUnit.assertTrue(inEvents[0].getData(10) instanceof Long);
-                AssertJUnit.assertTrue(inEvents[0].getData(11) instanceof Boolean && !((Boolean) inEvents[0].getData(11)));
+                AssertJUnit.assertTrue(inEvents[0].getData(11) instanceof Boolean &&
+                        !((Boolean) inEvents[0].getData(11)));
 
                 AssertJUnit.assertTrue(inEvents[0].getData(12) instanceof String);
                 AssertJUnit.assertTrue(inEvents[0].getData(13) instanceof Float);
                 AssertJUnit.assertTrue(inEvents[0].getData(14) instanceof Double);
                 AssertJUnit.assertTrue(inEvents[0].getData(15) instanceof Integer);
                 AssertJUnit.assertTrue(inEvents[0].getData(16) instanceof Long);
-                AssertJUnit.assertTrue(inEvents[0].getData(17) instanceof Boolean && !((Boolean) inEvents[0].getData(17)));
+                AssertJUnit.assertTrue(inEvents[0].getData(17) instanceof Boolean &&
+                        !((Boolean) inEvents[0].getData(17)));
 
                 AssertJUnit.assertTrue(inEvents[0].getData(18) instanceof String);
                 AssertJUnit.assertTrue(inEvents[0].getData(19) instanceof Float);
                 AssertJUnit.assertTrue(inEvents[0].getData(20) instanceof Double);
                 AssertJUnit.assertTrue(inEvents[0].getData(21) instanceof Integer);
                 AssertJUnit.assertTrue(inEvents[0].getData(22) instanceof Long);
-                AssertJUnit.assertTrue(inEvents[0].getData(23) instanceof Boolean && !((Boolean) inEvents[0].getData(23)));
+                AssertJUnit.assertTrue(inEvents[0].getData(23) instanceof Boolean &&
+                        !((Boolean) inEvents[0].getData(23)));
 
                 AssertJUnit.assertTrue(inEvents[0].getData(24) instanceof String);
                 AssertJUnit.assertTrue(inEvents[0].getData(25) instanceof Float);
                 AssertJUnit.assertTrue(inEvents[0].getData(26) instanceof Double);
                 AssertJUnit.assertTrue(inEvents[0].getData(27) instanceof Integer);
                 AssertJUnit.assertTrue(inEvents[0].getData(28) instanceof Long);
-                AssertJUnit.assertTrue(inEvents[0].getData(29) instanceof Boolean && !((Boolean) inEvents[0].getData(29)));
+                AssertJUnit.assertTrue(inEvents[0].getData(29) instanceof Boolean &&
+                        !((Boolean) inEvents[0].getData(29)));
 
                 AssertJUnit.assertTrue(inEvents[0].getData(30) instanceof String);
                 AssertJUnit.assertTrue(inEvents[0].getData(31) instanceof Float);
                 AssertJUnit.assertTrue(inEvents[0].getData(32) instanceof Double);
                 AssertJUnit.assertTrue(inEvents[0].getData(33) instanceof Integer);
                 AssertJUnit.assertTrue(inEvents[0].getData(34) instanceof Long);
-                AssertJUnit.assertTrue(inEvents[0].getData(35) instanceof Boolean && ((Boolean) inEvents[0].getData(35)));
+                AssertJUnit.assertTrue(inEvents[0].getData(35) instanceof Boolean &&
+                        ((Boolean) inEvents[0].getData(35)));
             }
         });
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");

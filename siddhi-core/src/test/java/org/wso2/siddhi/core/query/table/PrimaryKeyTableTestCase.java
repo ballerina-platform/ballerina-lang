@@ -810,10 +810,10 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            AssertJUnit.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
-                    .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
-                    .subList(2, 4), expected2));
+            AssertJUnit.assertEquals("In first events matched", true,
+                    SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
+            AssertJUnit.assertEquals("In second events matched", true,
+                    SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
             AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -891,10 +891,10 @@ public class PrimaryKeyTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            AssertJUnit.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
-                    .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
-                    .subList(2, 4), expected2));
+            AssertJUnit.assertEquals("In first events matched", true,
+                    SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
+            AssertJUnit.assertEquals("In second events matched", true,
+                    SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
             AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -1122,8 +1122,8 @@ public class PrimaryKeyTableTestCase {
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
-                    expected2));
+            AssertJUnit.assertEquals("In events matched", true,
+                    SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
             AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -1200,8 +1200,8 @@ public class PrimaryKeyTableTestCase {
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
-                    expected2));
+            AssertJUnit.assertEquals("In events matched", true,
+                    SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
             AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -1278,8 +1278,8 @@ public class PrimaryKeyTableTestCase {
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
-                    expected2));
+            AssertJUnit.assertEquals("In events matched", true,
+                    SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
             AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -1356,8 +1356,8 @@ public class PrimaryKeyTableTestCase {
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
-                    expected2));
+            AssertJUnit.assertEquals("In events matched", true,
+                    SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
             AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -1435,8 +1435,8 @@ public class PrimaryKeyTableTestCase {
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 2), expected1));
-            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
-                    expected2));
+            AssertJUnit.assertEquals("In events matched", true,
+                    SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
             AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
@@ -1515,8 +1515,8 @@ public class PrimaryKeyTableTestCase {
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
                     .subList(0, 3), expected1));
-            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(3, 4),
-                    expected2));
+            AssertJUnit.assertEquals("In events matched", true,
+                    SiddhiTestHelper.isEventsMatch(inEventsList.subList(3, 4), expected2));
             AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);

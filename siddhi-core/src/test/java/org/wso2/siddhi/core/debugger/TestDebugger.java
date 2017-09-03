@@ -96,16 +96,16 @@ public class TestDebugger {
                             event.getOutputData());
                 } else if (count == 2) {
                     AssertJUnit.assertEquals("Incorrect break point", "query 1OUT", queryName + queryTerminal);
-                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 50f, 60},
-                            event.getOutputData());
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 50f,
+                            60}, event.getOutputData());
                 } else if (count == 3) {
                     AssertJUnit.assertEquals("Incorrect break point", "query 1IN", queryName + queryTerminal);
                     AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
                             event.getOutputData());
                 } else if (count == 4) {
                     AssertJUnit.assertEquals("Incorrect break point", "query 1OUT", queryName + queryTerminal);
-                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 70f, 40},
-                            event.getOutputData());
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2",
+                            70f, 40}, event.getOutputData());
                 }
                 debugger.next();
             }
@@ -356,8 +356,8 @@ public class TestDebugger {
                             event.getOutputData());
                 } else if (count == 2) {
                     AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 70f, 40},
-                            event.getOutputData());
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2",
+                            70f, 40}, event.getOutputData());
                 }
 
                 debugger.play();

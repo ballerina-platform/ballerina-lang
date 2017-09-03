@@ -692,7 +692,8 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                AssertJUnit.assertArrayEquals(new Object[]{29.6f, 35.6f, 57.6f, 47.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{29.6f, 35.6f, 57.6f, 47.6f},
+                                        event.getData());
                                 break;
                             default:
                                 AssertJUnit.assertSame(1, inEventCount);
@@ -1102,7 +1103,8 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                AssertJUnit.assertArrayEquals(new Object[]{25.0f, 35.6f, 57.6f, 47.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{25.0f, 35.6f, 57.6f, 47.6f},
+                                        event.getData());
                                 break;
                             default:
                                 AssertJUnit.assertSame(1, inEventCount);
@@ -1237,7 +1239,8 @@ public class SequenceTestCase {
                                 AssertJUnit.assertArrayEquals(new Object[]{25.0f, 35.6f, null, 25.5f}, event.getData());
                                 break;
                             case 2:
-                                AssertJUnit.assertArrayEquals(new Object[]{25.5f, 57.6f, 58.6f, 47.6f}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{25.5f, 57.6f, 58.6f, 47.6f},
+                                        event.getData());
                                 break;
                             case 3:
                                 AssertJUnit.assertArrayEquals(new Object[]{27.6f, 49.6f, null, 45.6f}, event.getData());
@@ -1476,12 +1479,12 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                AssertJUnit.assertArrayEquals(new Object[]{25.0f, 35.6f, null, null, 35.6f, 29.5f}, event
-                                        .getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{25.0f, 35.6f, null, null, 35.6f, 29.5f},
+                                        event.getData());
                                 break;
                             case 2:
-                                AssertJUnit.assertArrayEquals(new Object[]{29.5f, 57.6f, null, 57.6f, 58.6f, 57.7f}, event
-                                        .getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{29.5f, 57.6f, null, 57.6f, 58.6f, 57.7f},
+                                        event.getData());
                                 break;
                             default:
                                 AssertJUnit.assertSame(2, inEventCount);
@@ -1557,8 +1560,8 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                AssertJUnit.assertArrayEquals(new Object[]{43.6f, 57.7f, null, 57.7f, 58.7f, 45.6f}, event
-                                        .getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{43.6f, 57.7f, null, 57.7f, 58.7f, 45.6f},
+                                        event.getData());
                                 break;
                             default:
                                 AssertJUnit.assertSame(1, inEventCount);

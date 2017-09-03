@@ -214,15 +214,15 @@ public class JoinTestCase {
                     EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         for (Event event : inEvents) {
-                            org.testng.AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
-                                    (0)));
+                            org.testng.AssertJUnit.assertTrue("IBM".equals(event.getData(0)) ||
+                                    "WSO2".equals(event.getData(0)));
                         }
                         inEventCount.addAndGet(inEvents.length);
                     }
                     if (removeEvents != null) {
                         for (Event event : removeEvents) {
-                            org.testng.AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
-                                    (0)));
+                            org.testng.AssertJUnit.assertTrue("IBM".equals(event.getData(0)) ||
+                                    "WSO2".equals(event.getData(0)));
                         }
                         removeEventCount.getAndAdd(removeEvents.length);
                     }

@@ -190,8 +190,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) ||
+                                "192.10.1.4".equals(event.getData(0)));
                     }
                 }
             }
@@ -251,8 +251,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         value++;
-                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
-                                (0)) || "192.10.1.4".equals(event.getData(0)));
+                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) ||
+                                "192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
                     }
                 }
             }
@@ -314,8 +314,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         value++;
-                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) ||
+                                "192.10.1.3".equals(event.getData(0)));
 
                     }
                 }
@@ -600,8 +600,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) ||
+                                "192.10.1.3".equals(event.getData(0)));
                     }
                 }
             }
@@ -655,8 +655,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) ||
+                                "192.10.1.3".equals(event.getData(0)));
                     }
                 }
             }
@@ -757,8 +757,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.5".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) ||
+                                "192.10.1.5".equals(event.getData(0)));
                     }
                 }
             }
@@ -811,8 +811,8 @@ public class SnapshotOutputRateLimitTestCase {
                         AssertJUnit.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.5".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.3".equals(event.getData(0)) ||
+                                "192.10.1.5".equals(event.getData(0)));
                     }
                 }
             }
@@ -917,8 +917,8 @@ public class SnapshotOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count.incrementAndGet();
                     for (Event event : inEvents) {
-                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
-                                (0)));
+                        AssertJUnit.assertTrue("192.10.1.5".equals(event.getData(0)) ||
+                                "192.10.1.3".equals(event.getData(0)));
                     }
                     value += inEvents.length;
                 }
@@ -1152,12 +1152,16 @@ public class SnapshotOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count.incrementAndGet();
                     if (count.get() == 1 || count.get() == 2) {
-                        AssertJUnit.assertTrue((Long) inEvents[0].getData(1) == 3L && (Long) inEvents[1].getData(1) == 6L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(1) == 3L &&
+                                (Long) inEvents[1].getData(1) == 6L);
                     } else if (count.get() == 3 || count.get() == 4 || count.get() == 5) {
-                        AssertJUnit.assertTrue((Long) inEvents[0].getData(1) == 5L && (Long) inEvents[1].getData(1) == 16L);
-                        AssertJUnit.assertTrue((Long) inEvents[2].getData(1) == 5L && (Long) inEvents[3].getData(1) == 16L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(1) == 5L &&
+                                (Long) inEvents[1].getData(1) == 16L);
+                        AssertJUnit.assertTrue((Long) inEvents[2].getData(1) == 5L &&
+                                (Long) inEvents[3].getData(1) == 16L);
                     } else if (count.get() == 6 || count.get() == 7) {
-                        AssertJUnit.assertTrue((Long) inEvents[0].getData(1) == 2L && (Long) inEvents[1].getData(1) == 10L);
+                        AssertJUnit.assertTrue((Long) inEvents[0].getData(1) == 2L &&
+                                (Long) inEvents[1].getData(1) == 10L);
                     }
                     value += inEvents.length;
                 }
