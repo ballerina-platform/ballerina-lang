@@ -18,8 +18,10 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 
 import java.util.List;
 
@@ -31,15 +33,17 @@ public class InputEventHandler {
     private static final Logger LOG = Logger.getLogger(InputEventHandler.class);
     private final ThreadLocal<String[]> trpProperties;
     private String sourceType;
+    private SiddhiAppContext siddhiAppContext;
     private InputHandler inputHandler;
     private List<AttributeMapping> transportMapping;
 
     InputEventHandler(InputHandler inputHandler, List<AttributeMapping> transportMapping,
-                      ThreadLocal<String[]> trpProperties, String sourceType) {
+                      ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext) {
         this.inputHandler = inputHandler;
         this.transportMapping = transportMapping;
         this.trpProperties = trpProperties;
         this.sourceType = sourceType;
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     public void sendEvent(Event event) throws InterruptedException {
@@ -52,8 +56,9 @@ public class InputEventHandler {
             }
             inputHandler.send(event);
         } catch (RuntimeException e) {
-            LOG.error("Error in applying transport property mapping for '" + sourceType
-                    + "' source at '" + inputHandler.getStreamId() + "' stream, " + e.getMessage(), e);
+            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Error in applying transport property mapping for '" + sourceType
+                    + "' source at '" + inputHandler.getStreamId() + "' stream.", e);
         } finally {
             trpProperties.remove();
         }
@@ -71,8 +76,9 @@ public class InputEventHandler {
             }
             inputHandler.send(events);
         } catch (RuntimeException e) {
-            LOG.error("Error in applying transport property mapping for '" + sourceType
-                    + "' source at '" + inputHandler.getStreamId() + "' stream, " + e.getMessage(), e);
+            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Error in applying transport property mapping for '" + sourceType
+                    + "' source at '" + inputHandler.getStreamId() + "' stream.", e);
         } finally {
             trpProperties.remove();
         }

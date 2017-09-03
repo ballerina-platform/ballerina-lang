@@ -26,7 +26,10 @@ import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
  */
 public class AbsentStreamStateElement extends StreamStateElement {
 
+    private static final long serialVersionUID = 1L;
     private TimeConstant waitingTime;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public AbsentStreamStateElement(BasicSingleInputStream basicSingleInputStream) {
         super(basicSingleInputStream);
@@ -67,5 +70,25 @@ public class AbsentStreamStateElement extends StreamStateElement {
         int result = super.hashCode();
         result = 31 * result + (waitingTime != null ? waitingTime.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

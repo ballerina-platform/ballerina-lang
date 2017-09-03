@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
@@ -81,14 +82,13 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
     /**
      * The initialization method for FunctionExecutor, this method will be called before the other methods
-     *  @param attributeExpressionExecutors are the executors of each function parameters
-     * @param configReader This hold the {@link FunctionExecutor} extensions configuration reader.
-     * @param siddhiAppContext         the context of the siddhi app
+     *
+     * @param attributeExpressionExecutors are the executors of each function parameters
+     * @param configReader                 This hold the {@link FunctionExecutor} extensions configuration reader.
+     * @param siddhiAppContext             the context of the siddhi app
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                 SiddhiAppContext
-                                         siddhiAppContext);
-
+                                 SiddhiAppContext siddhiAppContext);
 
     /**
      * The main execution method which will be called upon event arrival
@@ -112,12 +112,12 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                     return execute(data);
             }
         } catch (Exception e) {
-            log.error("Exception on siddhi app '" + siddhiAppContext.getName() + "' on class '" + this
-                    .getClass().getName() + "', " + e.getMessage(), e);
+            log.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Exception on class '" + this
+                    .getClass().getName() + "'.", e);
             return null;
         }
     }
-
 
     /**
      * The main execution method which will be called upon event arrival

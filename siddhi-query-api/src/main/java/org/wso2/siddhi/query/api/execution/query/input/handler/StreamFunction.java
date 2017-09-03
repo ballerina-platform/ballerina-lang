@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.handler;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.extension.Extension;
 
@@ -25,12 +26,14 @@ import java.util.Arrays;
 /**
  * Siddhi stream function
  */
-public class StreamFunction implements StreamHandler, Extension {
+public class StreamFunction implements StreamHandler, Extension, SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private String namespace = "";
     private String function;
     private Expression[] parameters;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public StreamFunction(String namespace, String function, Expression[] parameters) {
         this.namespace = namespace;
@@ -102,5 +105,25 @@ public class StreamFunction implements StreamHandler, Extension {
         result = 31 * result + (function != null ? function.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(parameters);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

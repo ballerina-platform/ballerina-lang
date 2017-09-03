@@ -41,10 +41,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  Siddhi siddhi app
+ * Siddhi siddhi app
  */
-public class SiddhiApp {
+public class SiddhiApp implements SiddhiElement {
 
+    private static final long serialVersionUID = 1L;
     private Map<String, StreamDefinition> streamDefinitionMap = new HashMap<String, StreamDefinition>();
     private Map<String, TableDefinition> tableDefinitionMap = new HashMap<String, TableDefinition>();
     private Map<String, WindowDefinition> windowDefinitionMap = new HashMap<String, WindowDefinition>();
@@ -54,6 +55,8 @@ public class SiddhiApp {
     private List<String> executionElementNameList = new ArrayList<String>();
     private List<Annotation> annotations = new ArrayList<Annotation>();
     private Map<String, FunctionDefinition> functionDefinitionMap = new HashMap<String, FunctionDefinition>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public SiddhiApp(String name) {
         annotations.add(Annotation.annotation("info").element("name", name));
@@ -82,7 +85,8 @@ public class SiddhiApp {
         if (streamDefinition == null) {
             throw new SiddhiAppValidationException("Stream Definition should not be null");
         } else if (streamDefinition.getId() == null) {
-            throw new SiddhiAppValidationException("Stream Id should not be null for Stream Definition");
+            throw new SiddhiAppValidationException("Stream Id should not be null for Stream Definition",
+                    streamDefinition.getQueryContextStartIndex(), streamDefinition.getQueryContextEndIndex());
         }
         checkDuplicateDefinition(streamDefinition);
         this.streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
@@ -94,7 +98,8 @@ public class SiddhiApp {
             throw new SiddhiAppValidationException("Aggregation Definition should not be null");
         }
         if (aggregationDefinition.getId() == null) {
-            throw new SiddhiAppValidationException("Aggregation Id should not be null for Aggregation Definition");
+            throw new SiddhiAppValidationException("Aggregation Id should not be null for Aggregation Definition",
+                    aggregationDefinition.getQueryContextStartIndex(), aggregationDefinition.getQueryContextEndIndex());
         }
         checkDuplicateDefinition(aggregationDefinition);
         this.aggregationDefinitionMap.put(aggregationDefinition.getId(), aggregationDefinition);
@@ -106,7 +111,8 @@ public class SiddhiApp {
         if (tableDefinition == null) {
             throw new SiddhiAppValidationException("Table Definition should not be null");
         } else if (tableDefinition.getId() == null) {
-            throw new SiddhiAppValidationException("Table Id should not be null for Table Definition");
+            throw new SiddhiAppValidationException("Table Id should not be null for Table Definition",
+                    tableDefinition.getQueryContextStartIndex(), tableDefinition.getQueryContextEndIndex());
         }
         checkDuplicateDefinition(tableDefinition);
         this.tableDefinitionMap.put(tableDefinition.getId(), tableDefinition);
@@ -117,7 +123,8 @@ public class SiddhiApp {
         if (windowDefinition == null) {
             throw new SiddhiAppValidationException("Window Definition should not be null");
         } else if (windowDefinition.getId() == null) {
-            throw new SiddhiAppValidationException("Window Id should not be null for Window Definition");
+            throw new SiddhiAppValidationException("Window Id should not be null for Window Definition",
+                    windowDefinition.getQueryContextStartIndex(), windowDefinition.getQueryContextEndIndex());
         }
         checkDuplicateDefinition(windowDefinition);
         this.windowDefinitionMap.put(windowDefinition.getId(), windowDefinition);
@@ -128,21 +135,26 @@ public class SiddhiApp {
         if (triggerDefinition == null) {
             throw new SiddhiAppValidationException("Trigger Definition should not be null");
         } else if (triggerDefinition.getId() == null) {
-            throw new SiddhiAppValidationException("Trigger Id should not be null for Trigger Definition");
+            throw new SiddhiAppValidationException("Trigger Id should not be null for Trigger Definition",
+                    triggerDefinition.getQueryContextStartIndex(), triggerDefinition.getQueryContextEndIndex());
         }
         StreamDefinition streamDefinition = StreamDefinition.id(triggerDefinition.getId()).attribute(SiddhiConstants
                 .TRIGGERED_TIME, Attribute.Type.LONG);
+        streamDefinition.setQueryContextStartIndex(triggerDefinition.getQueryContextStartIndex());
+        streamDefinition.setQueryContextEndIndex(triggerDefinition.getQueryContextEndIndex());
         try {
             checkDuplicateDefinition(streamDefinition);
         } catch (DuplicateDefinitionException e) {
             throw new DuplicateDefinitionException("Trigger '" + triggerDefinition.getId() + "' cannot be defined as," +
-                    " " + e.getMessage(), e);
+                    " " + e.getMessageWithOutContext(), e, triggerDefinition.getQueryContextStartIndex(),
+                    triggerDefinition.getQueryContextEndIndex());
         }
         if (triggerDefinitionMap.containsKey(triggerDefinition.getId())) {
             throw new DuplicateDefinitionException("Trigger Definition with same Id '" +
-                    triggerDefinition.getId() + "' already exist '" + triggerDefinitionMap.get(triggerDefinition
-                    .getId()) +
-                    "', hence cannot add '" + triggerDefinition + "'");
+                    triggerDefinition.getId() + "' already exist '" + triggerDefinitionMap.get(
+                    triggerDefinition.getId()) + "', hence cannot add '" + triggerDefinition + "'",
+                    triggerDefinition.getQueryContextStartIndex(),
+                    triggerDefinition.getQueryContextEndIndex());
         }
         this.triggerDefinitionMap.put(triggerDefinition.getId(), triggerDefinition);
         this.streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
@@ -155,27 +167,31 @@ public class SiddhiApp {
                 StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingTableDefinition +
-                    ", hence cannot add " + definition);
+                    ", hence cannot add " + definition, definition.getQueryContextStartIndex(),
+                    definition.getQueryContextEndIndex());
         }
         StreamDefinition existingStreamDefinition = streamDefinitionMap.get(definition.getId());
         if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition
                 instanceof TableDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingStreamDefinition +
-                    ", hence cannot add " + definition);
+                    ", hence cannot add " + definition, definition.getQueryContextStartIndex(),
+                    definition.getQueryContextEndIndex());
         }
         WindowDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
         if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition
                 instanceof WindowDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Window Id '" +
                     definition.getId() + "' already exist : " + existingWindowDefinition +
-                    ", hence cannot add " + definition);
+                    ", hence cannot add " + definition, definition.getQueryContextStartIndex(),
+                    definition.getQueryContextEndIndex());
         }
         AggregationDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
         if (existingAggregationDefinition != null
                 && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
             throw new DuplicateDefinitionException("Aggregate Definition with same Aggregate Id '" + definition.getId()
-                    + "' already exist : " + existingAggregationDefinition + ", hence cannot add " + definition);
+                    + "' already exist : " + existingAggregationDefinition + ", hence cannot add " + definition,
+                    definition.getQueryContextStartIndex(), definition.getQueryContextEndIndex());
         }
     }
 
@@ -190,8 +206,9 @@ public class SiddhiApp {
             name = element.getValue();
         }
         if (name != null && executionElementNameList.contains(name)) {
-throw new SiddhiAppValidationException(
-                    "Cannot add Query as another Execution Element already uses " + "its name=" + name);
+            throw new SiddhiAppValidationException(
+                    "Cannot add Query as another Execution Element already uses " + "its name=" + name,
+                    element.getQueryContextStartIndex(), element.getQueryContextEndIndex());
         }
         executionElementNameList.add(name);
         this.executionElementList.add(query);
@@ -209,8 +226,9 @@ throw new SiddhiAppValidationException(
             name = element.getValue();
         }
         if (name != null && executionElementNameList.contains(name)) {
-throw new SiddhiAppValidationException(
-                    "Cannot add Partition as another Execution Element already " + "uses its name=" + name);
+            throw new SiddhiAppValidationException(
+                    "Cannot add Partition as another Execution Element already " + "uses its name=" + name,
+                    element.getQueryContextStartIndex(), element.getQueryContextEndIndex());
         }
         executionElementNameList.add(name);
         this.executionElementList.add(partition);
@@ -252,7 +270,7 @@ throw new SiddhiAppValidationException(
 
     @Override
     public String toString() {
-return "SiddhiApp{" + "streamDefinitionMap=" + streamDefinitionMap + ", tableDefinitionMap="
+        return "SiddhiApp{" + "streamDefinitionMap=" + streamDefinitionMap + ", tableDefinitionMap="
                 + tableDefinitionMap + ", windowDefinitionMap=" + windowDefinitionMap + ", aggregationDefinitionMap="
                 + aggregationDefinitionMap + ", executionElementList=" + executionElementList
                 + ", executionElementNameList=" + executionElementNameList + ", annotations=" + annotations + '}';
@@ -310,13 +328,17 @@ return "SiddhiApp{" + "streamDefinitionMap=" + streamDefinitionMap + ", tableDef
         if (functionDefinition == null) {
             throw new SiddhiAppValidationException("Function Definition should not be null");
         } else if (functionDefinition.getId() == null) {
-            throw new SiddhiAppValidationException("Function Id should not be null for Function Definition");
+            throw new SiddhiAppValidationException("Function Id should not be null for Function Definition",
+                    functionDefinition.getQueryContextStartIndex(), functionDefinition.getQueryContextEndIndex());
         } else if (functionDefinition.getReturnType() == null) {
-            throw new SiddhiAppValidationException("Return type should not be null for Function Definition");
+            throw new SiddhiAppValidationException("Return type should not be null for Function Definition",
+                    functionDefinition.getQueryContextStartIndex(), functionDefinition.getQueryContextEndIndex());
         } else if (functionDefinition.getBody() == null) {
-            throw new SiddhiAppValidationException("Body should not be null for Function Definition");
+            throw new SiddhiAppValidationException("Body should not be null for Function Definition",
+                    functionDefinition.getQueryContextStartIndex(), functionDefinition.getQueryContextEndIndex());
         } else if (functionDefinition.getLanguage() == null) {
-            throw new SiddhiAppValidationException("Language should not be null for Function Definition");
+            throw new SiddhiAppValidationException("Language should not be null for Function Definition",
+                    functionDefinition.getQueryContextStartIndex(), functionDefinition.getQueryContextEndIndex());
         }
         checkDuplicateFunctionExist(functionDefinition);
         this.functionDefinitionMap.put(functionDefinition.getId(), functionDefinition);
@@ -325,9 +347,28 @@ return "SiddhiApp{" + "streamDefinitionMap=" + streamDefinitionMap + ", tableDef
     private void checkDuplicateFunctionExist(FunctionDefinition functionDefinition) {
         if (this.functionDefinitionMap.get(functionDefinition.getId()) != null) {
             throw new DuplicateDefinitionException("The function definition with the same id exists " +
-                    functionDefinition.getId());
+                    functionDefinition.getId(), functionDefinition.getQueryContextStartIndex(),
+                    functionDefinition.getQueryContextEndIndex());
         }
     }
 
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
 
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
+    }
 }

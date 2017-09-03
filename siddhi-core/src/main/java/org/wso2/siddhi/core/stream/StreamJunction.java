@@ -84,7 +84,7 @@ public class StreamJunction {
         }
         try {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
-                                                                   streamDefinition.getAnnotations());
+                    streamDefinition.getAnnotations());
             async = siddhiAppContext.isAsync();
             if (annotation != null) {
                 async = true;
@@ -95,7 +95,9 @@ public class StreamJunction {
             }
 
         } catch (DuplicateAnnotationException e) {
-            throw new DuplicateAnnotationException(e.getMessage() + " for the same Stream " + streamDefinition.getId());
+            throw new DuplicateAnnotationException(e.getMessageWithOutContext() + " for the same Stream " +
+                    streamDefinition.getId(), e, e.getQueryContextStartIndex(), e.getQueryContextEndIndex(),
+                    siddhiAppContext.getName(), siddhiAppContext.getSiddhiAppString());
         }
         isTraceEnabled = log.isTraceEnabled();
     }
@@ -236,15 +238,15 @@ public class StreamJunction {
                 if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
                     ProducerType producerType = ProducerType.MULTI;
                     disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
-                                                     bufferSize, executorService, producerType,
-                                                     new BlockingWaitStrategy());
+                            bufferSize, executorService, producerType,
+                            new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(siddhiAppContext.getDisruptorExceptionHandler());
                     break;
                 }
             }
             if (disruptor == null) {
                 disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
-                                                 bufferSize, executorService);
+                        bufferSize, executorService);
                 disruptor.handleExceptionsWith(siddhiAppContext.getDisruptorExceptionHandler());
             }
             for (Receiver receiver : receivers) {

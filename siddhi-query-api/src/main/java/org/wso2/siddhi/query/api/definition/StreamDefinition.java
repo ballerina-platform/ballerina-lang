@@ -48,14 +48,4 @@ public class StreamDefinition extends AbstractDefinition {
         return this;
     }
 
-
-    @Override
-    public String toString() {
-        return "StreamDefinition{" +
-                "id='" + id + '\'' +
-                ", attributeList=" + attributeList +
-                ", annotations=" + annotations +
-                '}';
-    }
-
 }

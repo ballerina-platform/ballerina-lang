@@ -24,8 +24,11 @@ import org.wso2.siddhi.query.api.expression.Expression;
  * Partition type supporting values
  */
 public class ValuePartitionType implements PartitionType {
+    private static final long serialVersionUID = 1L;
     private Expression expression;
     private String streamId;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public ValuePartitionType(String streamId, Expression expression) {
         this.streamId = streamId;
@@ -74,5 +77,25 @@ public class ValuePartitionType implements PartitionType {
         int result = expression.hashCode();
         result = 31 * result + streamId.hashCode();
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

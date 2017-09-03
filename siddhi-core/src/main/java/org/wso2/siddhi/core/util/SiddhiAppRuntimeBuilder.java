@@ -178,8 +178,8 @@ public class SiddhiAppRuntimeBuilder {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition
-                    .getId()));
+            DefinitionParserHelper.validateOutputStream(streamDefinition,
+                    streamDefinitionMap.get(streamDefinition.getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
 
             if (outputStreamJunction == null) {

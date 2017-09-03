@@ -36,6 +36,7 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -199,7 +200,7 @@ public class SingleInputStreamParser {
                     generateConfigReader(((Window) streamHandler).getNamespace(),
                             ((Window) streamHandler).getName());
             windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors,
-                    configReader, siddhiAppContext, outputExpectsExpiredEvents, queryName);
+                    configReader, siddhiAppContext, outputExpectsExpiredEvents, queryName, streamHandler);
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {
@@ -215,10 +216,11 @@ public class SingleInputStreamParser {
                     metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent
                                     .getLastInputDefinition(),
                             attributeExpressionExecutors, configReader, siddhiAppContext,
-                            outputExpectsExpiredEvents, queryName));
+                            outputExpectsExpiredEvents, queryName, streamHandler));
                     return abstractStreamProcessor;
                 } catch (SiddhiAppCreationException e) {
                     if (!e.isClassLoadingIssue()) {
+                        ExceptionUtil.populateQueryContext(e, streamHandler, siddhiAppContext);
                         throw e;
                     }
                 }
@@ -227,12 +229,12 @@ public class SingleInputStreamParser {
                     (Extension) streamHandler,
                     StreamFunctionProcessorExtensionHolder.getInstance(siddhiAppContext));
             metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent
-                            .getLastInputDefinition(),
-                    attributeExpressionExecutors, configReader, siddhiAppContext, outputExpectsExpiredEvents,
-                    queryName));
+                            .getLastInputDefinition(), attributeExpressionExecutors, configReader, siddhiAppContext,
+                    outputExpectsExpiredEvents, queryName, streamHandler));
             return abstractStreamProcessor;
         } else {
-            throw new IllegalStateException(streamHandler.getClass().getName() + " is not supported");
+            throw new SiddhiAppCreationException(streamHandler.getClass().getName() + " is not supported",
+                    streamHandler.getQueryContextStartIndex(), streamHandler.getQueryContextEndIndex());
         }
     }
 
@@ -272,7 +274,8 @@ public class SingleInputStreamParser {
             metaStreamEvent.addInputDefinition(inputDefinition);
         } else {
             throw new SiddhiAppCreationException("Stream/table/window/aggregation definition with ID '" +
-                    inputStream.getStreamId() + "' has not been defined");
+                    inputStream.getStreamId() + "' has not been defined", inputStream.getQueryContextStartIndex(),
+                    inputStream.getQueryContextEndIndex());
         }
 
         if ((inputStream.getStreamReferenceId() != null) &&

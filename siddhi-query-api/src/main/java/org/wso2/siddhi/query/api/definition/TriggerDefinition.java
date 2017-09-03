@@ -18,16 +18,20 @@
 
 package org.wso2.siddhi.query.api.definition;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
  * Siddhi Trigger Definition
  */
-public class TriggerDefinition {
+public class TriggerDefinition implements SiddhiElement {
 
+    private static final long serialVersionUID = 1L;
     private String id;
     private Long atEvery;
     private String at;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public TriggerDefinition() {
     }
@@ -65,5 +69,25 @@ public class TriggerDefinition {
     public TriggerDefinition atEvery(TimeConstant time) {
         this.atEvery = time.value();
         return this;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

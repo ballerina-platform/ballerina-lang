@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 public class ValidateTestCase {
     private static final Logger log = Logger.getLogger(ValidateTestCase.class);
@@ -60,7 +60,7 @@ public class ValidateTestCase {
     }
 
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void validateTest2() throws InterruptedException {
         log.info("validate test2");
         SiddhiManager siddhiManager = new SiddhiManager();

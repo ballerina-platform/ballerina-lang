@@ -26,13 +26,6 @@ public class UnsupportedAttributeTypeException extends SiddhiAppValidationExcept
         super(message);
     }
 
-    public UnsupportedAttributeTypeException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
-
-    public UnsupportedAttributeTypeException(Throwable throwable) {
-        super(throwable);
-    }
 }
 
 

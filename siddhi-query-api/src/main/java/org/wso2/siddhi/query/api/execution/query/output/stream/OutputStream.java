@@ -17,16 +17,18 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.stream;
 
-import java.io.Serializable;
+import org.wso2.siddhi.query.api.SiddhiElement;
 
 /**
  * Query output stream
  */
-public abstract class OutputStream implements Serializable {
+public abstract class OutputStream implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     protected String id;
     protected OutputEventType outputEventType;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public String getId() {
         return id;
@@ -78,6 +80,26 @@ public abstract class OutputStream implements Serializable {
         int result = outputEventType != null ? outputEventType.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 
     /**

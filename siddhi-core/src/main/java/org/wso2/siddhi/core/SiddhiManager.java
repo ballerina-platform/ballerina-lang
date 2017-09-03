@@ -53,7 +53,11 @@ public class SiddhiManager {
     }
 
     public SiddhiAppRuntime createSiddhiAppRuntime(SiddhiApp siddhiApp) {
-        SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder = SiddhiAppParser.parse(siddhiApp,
+        return createSiddhiAppRuntime(siddhiApp, null);
+    }
+
+    private SiddhiAppRuntime createSiddhiAppRuntime(SiddhiApp siddhiApp, String siddhiAppString) {
+        SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder = SiddhiAppParser.parse(siddhiApp, siddhiAppString,
                 siddhiContext);
         siddhiAppRuntimeBuilder.setSiddhiAppRuntimeMap(siddhiAppRuntimeMap);
         SiddhiAppRuntime siddhiAppRuntime = siddhiAppRuntimeBuilder.build();
@@ -62,7 +66,7 @@ public class SiddhiManager {
     }
 
     public SiddhiAppRuntime createSiddhiAppRuntime(String siddhiApp) {
-        return createSiddhiAppRuntime(SiddhiCompiler.parse(siddhiApp));
+        return createSiddhiAppRuntime(SiddhiCompiler.parse(siddhiApp), siddhiApp);
     }
 
     /**
@@ -76,14 +80,18 @@ public class SiddhiManager {
     }
 
     public void validateSiddhiApp(SiddhiApp siddhiApp) {
-        final SiddhiAppRuntime siddhiAppRuntime = SiddhiAppParser.parse(siddhiApp, siddhiContext)
-                .build();
+        validateSiddhiApp(siddhiApp, null);
+    }
+
+    private void validateSiddhiApp(SiddhiApp siddhiApp, String siddhiAppString) {
+        final SiddhiAppRuntime siddhiAppRuntime = SiddhiAppParser.parse(siddhiApp, siddhiAppString,
+                siddhiContext).build();
         siddhiAppRuntime.start();
         siddhiAppRuntime.shutdown();
     }
 
     public void validateSiddhiApp(String siddhiApp) {
-        validateSiddhiApp(SiddhiCompiler.parse(siddhiApp));
+        validateSiddhiApp(SiddhiCompiler.parse(siddhiApp), siddhiApp);
     }
 
     /**
@@ -155,6 +163,7 @@ public class SiddhiManager {
 
     /**
      * Method used to get all SiddhiAppRuntimes
+     *
      * @return siddhiAppRuntimeMap
      */
     public ConcurrentMap<String, SiddhiAppRuntime> getSiddhiAppRuntimeMap() {

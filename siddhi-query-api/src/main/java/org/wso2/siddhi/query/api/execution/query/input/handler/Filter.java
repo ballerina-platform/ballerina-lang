@@ -25,6 +25,8 @@ import org.wso2.siddhi.query.api.expression.Expression;
 public class Filter implements StreamHandler {
 
     private Expression filterExpression;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public Filter(Expression filterExpression) {
         this.filterExpression = filterExpression;
@@ -63,5 +65,25 @@ public class Filter implements StreamHandler {
     @Override
     public Expression[] getParameters() {
         return new Expression[]{filterExpression};
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

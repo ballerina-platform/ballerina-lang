@@ -443,7 +443,7 @@ public class CollectionExpressionParser {
             Map<String, ExpressionExecutor> multiPrimaryKeyExpressionExecutors =
                     buildMultiPrimaryKeyExpressionExecutors(collectionExpression,
                             matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
-                            siddhiAppContext, isFirst, queryName);
+                            siddhiAppContext, queryName);
             List<Attribute> attributes = matchingMetaInfoHolder.getStoreDefinition().getAttributeList();
             StringBuilder compositePrimaryKey = new StringBuilder();
             List<ExpressionExecutor> sortedExecutors = new ArrayList<ExpressionExecutor>();
@@ -767,7 +767,7 @@ public class CollectionExpressionParser {
     private static Map<String, ExpressionExecutor> buildMultiPrimaryKeyExpressionExecutors(
             CollectionExpression collectionExpression, MatchingMetaInfoHolder matchingMetaInfoHolder,
             List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
-            SiddhiAppContext siddhiAppContext, boolean isFirst, String queryName) {
+            SiddhiAppContext siddhiAppContext, String queryName) {
 
         if (collectionExpression instanceof AndMultiPrimaryKeyCollectionExpression) {
             CollectionExpression leftCollectionExpression = ((AndMultiPrimaryKeyCollectionExpression)
@@ -776,10 +776,10 @@ public class CollectionExpressionParser {
                     collectionExpression).getRightCollectionExpression();
             Map<String, ExpressionExecutor> expressionExecutors = buildMultiPrimaryKeyExpressionExecutors(
                     leftCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
-                    siddhiAppContext, false, queryName);
+                    siddhiAppContext, queryName);
             expressionExecutors.putAll(buildMultiPrimaryKeyExpressionExecutors(
                     rightCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
-                    siddhiAppContext, false, queryName));
+                    siddhiAppContext, queryName));
             return expressionExecutors;
         } else if (collectionExpression instanceof AndCollectionExpression) {
             CollectionExpression leftCollectionExpression = ((AndCollectionExpression)
@@ -788,10 +788,10 @@ public class CollectionExpressionParser {
                     collectionExpression).getLeftCollectionExpression();
             Map<String, ExpressionExecutor> expressionExecutors = buildMultiPrimaryKeyExpressionExecutors(
                     leftCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
-                    siddhiAppContext, false, queryName);
+                    siddhiAppContext, queryName);
             expressionExecutors.putAll(buildMultiPrimaryKeyExpressionExecutors(
                     rightCollectionExpression, matchingMetaInfoHolder, variableExpressionExecutors, tableMap,
-                    siddhiAppContext, false, queryName));
+                    siddhiAppContext, queryName));
             return expressionExecutors;
         } else if (collectionExpression instanceof CompareCollectionExpression) {
 
@@ -812,17 +812,23 @@ public class CollectionExpressionParser {
                 } else {
                     throw new SiddhiAppCreationException("Only attribute EQUAL " +
                             "comparision supported for multiple primary key optimization, " +
-                            "but found  '" + attributeCollectionExpression.getClass() + "'");
+                            "but found  '" + attributeCollectionExpression.getClass() + "'",
+                            collectionExpression.getExpression().getQueryContextStartIndex(),
+                            collectionExpression.getExpression().getQueryContextEndIndex());
                 }
             } else {
                 throw new SiddhiAppCreationException("Only '" + Compare.Operator.EQUAL + "' supported for multiple " +
                         "primary key for multiple primary key optimization, but found '" +
-                        ((CompareCollectionExpression) collectionExpression).getOperator() + "'");
+                        ((CompareCollectionExpression) collectionExpression).getOperator() + "'",
+                        collectionExpression.getExpression().getQueryContextStartIndex(),
+                        collectionExpression.getExpression().getQueryContextEndIndex());
             }
         } else {//Attribute Collection
             throw new SiddhiAppCreationException("Only 'AND' and '" + Compare.Operator.EQUAL + "' operators are " +
                     "supported for multiple primary key optimization, but found '" +
-                    ((CompareCollectionExpression) collectionExpression).getOperator() + "'");
+                    ((CompareCollectionExpression) collectionExpression).getOperator() + "'",
+                    collectionExpression.getExpression().getQueryContextStartIndex(),
+                    collectionExpression.getExpression().getQueryContextEndIndex());
         }
 
     }

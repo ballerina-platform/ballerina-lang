@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.stream.input.source;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
@@ -42,6 +43,7 @@ public abstract class Source implements Snapshotable {
     private SourceMapper mapper;
     private StreamDefinition streamDefinition;
     private String elementId;
+    private SiddhiAppContext siddhiAppContext;
 
     private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
     private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
@@ -56,6 +58,7 @@ public abstract class Source implements Snapshotable {
         this.mapper = sourceMapper;
         this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
+        this.siddhiAppContext = siddhiAppContext;
         init(sourceMapper, transportOptionHolder, transportPropertyNames, configReader, siddhiAppContext);
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }
@@ -122,9 +125,9 @@ public abstract class Source implements Snapshotable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry in '" +
-                        backoffRetryCounter.getTimeInterval() + "'.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
+                        "'. Will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -133,8 +136,8 @@ public abstract class Source implements Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ".", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        "Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() + "'.", e);
                 throw e;
             }
         }
@@ -174,8 +177,9 @@ public abstract class Source implements Snapshotable {
         public void onError(ConnectionUnavailableException e) {
             disconnect();
             isConnected.set(false);
-            LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
-                    "', " + e.getMessage() + ", will retry connection immediately.", e);
+            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                    " Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+                    "', will retry connection immediately.", e);
             connectWithRetry();
         }
     }

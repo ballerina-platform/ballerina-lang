@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -216,7 +217,7 @@ public class ConvertFunctionTestCase {
     }
 
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void convertFunctionTest4() throws InterruptedException {
         log.info("convert function test 4");
 
@@ -251,7 +252,7 @@ public class ConvertFunctionTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void convertFunctionTest5() throws InterruptedException {
         log.info("convert function test 5");
 

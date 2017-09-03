@@ -24,8 +24,11 @@ import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
  */
 public class EveryStateElement implements StateElement {
 
+    private static final long serialVersionUID = 1L;
     private StateElement stateElement;
     private TimeConstant within;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public EveryStateElement(StateElement stateElement, TimeConstant within) {
         this.stateElement = stateElement;
@@ -83,5 +86,25 @@ public class EveryStateElement implements StateElement {
         int result = stateElement != null ? stateElement.hashCode() : 0;
         result = 31 * result + (within != null ? within.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

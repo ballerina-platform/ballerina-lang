@@ -77,7 +77,7 @@ public class SnapshotService {
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization started ...");
             }
-            serializedSnapshots = ByteSerializer.objectToByte(snapshots);
+            serializedSnapshots = ByteSerializer.objectToByte(snapshots, siddhiAppContext);
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization finished.");
             }
@@ -118,7 +118,7 @@ public class SnapshotService {
 
     public void restore(byte[] snapshot) {
         Map<String, Map<String, Object>> snapshots = (Map<String, Map<String, Object>>)
-                ByteSerializer.byteToObject(snapshot);
+                ByteSerializer.byteToObject(snapshot, siddhiAppContext);
         List<Snapshotable> snapshotableList;
         try {
             threadBarrier.lock();
