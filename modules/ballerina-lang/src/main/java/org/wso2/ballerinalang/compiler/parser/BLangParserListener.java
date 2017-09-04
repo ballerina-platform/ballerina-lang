@@ -42,7 +42,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     
     @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) { 
-        this.pkgBuilder.startParamList();
+        this.pkgBuilder.startVarList();
     }
     
     @Override 
@@ -177,12 +177,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { 
         this.pkgBuilder.startBlock();
     }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { }
+    @Override 
+    public void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { 
+        this.pkgBuilder.endCallableUnitBody();
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -254,24 +259,35 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { 
         this.pkgBuilder.startConnectorBody();
     }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { }
+    @Override public void exitConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { 
+        this.pkgBuilder.endConnectorBody();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
+    @Override 
+    public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { 
+        this.pkgBuilder.startActionDef();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
+    @Override 
+    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { 
+        this.pkgBuilder.endActionDef();
+    }
     
     /**
      * {@inheritDoc}
@@ -299,7 +315,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void enterStructBody(BallerinaParser.StructBodyContext ctx) { 
-        this.pkgBuilder.startVariableContainer();
+        this.pkgBuilder.startVarList();
     }
     
     /**
@@ -1633,20 +1649,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitNameReference(BallerinaParser.NameReferenceContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) { 
-        this.pkgBuilder.endReturnParams();
+    @Override 
+    public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) { 
+        this.pkgBuilder.startProcessingReturnParams();
     }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override 
+    public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) { 
+        this.pkgBuilder.endProcessingReturnParams();
+    }
+    
     /**
      * {@inheritDoc}
      *

@@ -72,6 +72,8 @@ public class BLangPackageBuilder {
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
+    
+    private boolean processingReturnParams;
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -83,8 +85,12 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(valueTypeNode);
     }
 
-    public void startParamList() {
-        this.varListStack.add(new ArrayList<>());
+    public void startVarList() {
+        if (this.processingReturnParams) {
+            this.retParamListStack.add(new ArrayList<>());
+        } else {
+            this.varListStack.add(new ArrayList<>());
+        }
     }
 
     public void startFunctionDef() {
@@ -93,10 +99,6 @@ public class BLangPackageBuilder {
 
     public void startBlock() {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
-    }
-
-    public void endReturnParams() {
-        this.retParamListStack.push(this.varListStack.pop());
     }
 
     private IdentifierNode createIdentifier(String identifier) {
@@ -110,7 +112,11 @@ public class BLangPackageBuilder {
         if (this.varListStack.empty()) {
             this.varStack.push(var);
         } else {
-            this.varListStack.peek().add(var);
+            if (this.processingReturnParams) {
+                this.retParamListStack.peek().add(var);
+            } else {
+                this.varListStack.peek().add(var);
+            }
         }
     }
 
@@ -154,8 +160,11 @@ public class BLangPackageBuilder {
     }
 
     public void endFunctionDef() {
-        this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
         this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
+    }
+    
+    public void endCallableUnitBody() {
+        this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
     }
     
     public void addPackageId(List<String> nameComps, String version) {
@@ -212,10 +221,6 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(var);
     }
     
-    public void startVariableContainer() {
-        this.varListStack.add(new ArrayList<>());
-    }
-    
     public void addVariable(String identifier) {
         this.varListStack.peek().add(this.generateBasicVarNode(identifier));
     }
@@ -237,8 +242,8 @@ public class BLangPackageBuilder {
     }
     
     public void startConnectorBody() {
-        /* End of connector definition header, so let's populate 
-         * the connector information before processing the body. */
+        /* end of connector definition header, so let's populate 
+         * the connector information before processing the body */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
         if  (!this.varStack.empty()) {
             connectorNode.setFilteredParamter(this.varStack.pop());
@@ -246,9 +251,10 @@ public class BLangPackageBuilder {
         if (!this.varListStack.empty()) {
             this.varListStack.pop().forEach(e -> connectorNode.addParameter(e));
         }
-        /* add variable definitions and actions lists for the body */
-        this.varListStack.push(new ArrayList<>());
-        this.actionNodeStack.push(new ArrayList<>());
+        /* add a temporary block node to contain connector variable definitions */
+        this.blockNodeStack.add(TreeBuilder.createBlockNode());
+        /* action node list to contain the actions of the connector */
+        this.actionNodeStack.add(new ArrayList<>());
     }
     
     public void endConnectorDef(String identifier) {
@@ -258,9 +264,26 @@ public class BLangPackageBuilder {
     }
     
     public void endConnectorBody() {
-        ConnectorNode connectorNode = this.connectorNodeStack.pop();
-        this.varListStack.pop().stream().forEach(e -> connectorNode.addVariable(e));
+        ConnectorNode connectorNode = this.connectorNodeStack.peek();
+        this.blockNodeStack.pop().getStatements().stream().forEach(
+                e -> connectorNode.addVariableDef((VariableDefinitionNode) e));
         this.actionNodeStack.pop().stream().forEach(e -> connectorNode.addAction(e));
+    }
+    
+    public void startActionDef() {
+        this.invokableNodeStack.push(TreeBuilder.createActionNode());
+    }
+    
+    public void endActionDef() {
+        this.connectorNodeStack.peek().addAction((ActionNode) this.invokableNodeStack.pop());
+    }
+    
+    public void startProcessingReturnParams() {
+        this.processingReturnParams = true;
+    }
+    
+    public void endProcessingReturnParams() {
+        this.processingReturnParams = false;
     }
     
 }

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -31,6 +32,7 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -107,6 +109,10 @@ public class TreeBuilder {
     
     public static ConnectorNode createConnectorNode() {
         return new BLangConnector();
+    }
+    
+    public static ActionNode createActionNode() {
+        return new BLangAction();
     }
         
 }

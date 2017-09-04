@@ -109,4 +109,10 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
     
+    @Override
+    public String toString() {
+        return this.flags + " " + this.getName() + " (" + this.params + 
+                ") (" + this.retParams + ") " + this.body;
+    }
+    
 }

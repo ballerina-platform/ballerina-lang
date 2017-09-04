@@ -34,4 +34,10 @@ public class BLangAction extends BLangInvokableNode implements ActionNode {
     public NodeKind getKind() {
         return NodeKind.ACTION;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangAction: " + super.toString();
+    }
+    
 }
