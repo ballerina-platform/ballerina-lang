@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -52,6 +53,8 @@ public class BLangPackageBuilder {
     private Stack<TypeNode> typeNodeStack = new Stack<>();
 
     private Stack<BlockNode> blockNodeStack = new Stack<>();
+    
+    private Stack<VariableNode> paramStack = new Stack<>();
 
     private Stack<List<VariableNode>> paramListStack = new Stack<>();
 
@@ -66,6 +69,8 @@ public class BLangPackageBuilder {
     private Stack<StructNode> structStack = new Stack<>();
     
     private Stack<FieldDefinitionContainer> fieldDefContainerStack = new Stack<>();
+    
+    private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -103,7 +108,11 @@ public class BLangPackageBuilder {
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(this.createIdentifier(identifier));
         var.setType(this.typeNodeStack.pop());
-        this.paramListStack.peek().add(var);
+        if (this.paramListStack.empty()) {
+            this.paramStack.push(var);
+        } else {
+            this.paramListStack.peek().add(var);
+        }
     }
 
     private List<VariableNode> getLastParamsList() {
@@ -122,8 +131,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void endCallableUnitSignature() {
+    public void endCallableUnitSignature(String identifier) {
         InvocableNode invNode = this.invokableNodeStack.peek();
+        invNode.setName(this.createIdentifier(identifier));
         this.getLastParamsList().stream().forEach(e -> invNode.addParameter(e));
         this.getLastRetParamsList().stream().forEach(e -> invNode.addReturnParameter(e));
     }
@@ -219,6 +229,29 @@ public class BLangPackageBuilder {
         StructNode structNode = this.structStack.pop();
         this.fieldDefContainerStack.pop().vars.stream().forEach(e -> structNode.addField(e));
         this.compUnit.addTopLevelNode(structNode);
+    }
+    
+    public void startConnectorDef() {
+        ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
+        this.connectorNodeStack.push(connectorNode);
+    }
+    
+    public void startConnectorBody() {
+        /* End of connector definition header, so let's populate 
+         * the connector information before processing the body. */
+        ConnectorNode connectorNode = this.connectorNodeStack.peek();
+        if  (!this.paramStack.empty()) {
+            connectorNode.addVariable(this.paramStack.pop());
+        }
+        if (!this.paramListStack.empty()) {
+            this.paramListStack.pop().forEach(e -> connectorNode.addParameter(e));
+        }
+    }
+    
+    public void endConnectorDef(String identifier) {
+        ConnectorNode connectorNode = this.connectorNodeStack.pop();
+        connectorNode.setName(this.createIdentifier(identifier));
+        this.compUnit.addTopLevelNode(connectorNode);
     }
     
     /**

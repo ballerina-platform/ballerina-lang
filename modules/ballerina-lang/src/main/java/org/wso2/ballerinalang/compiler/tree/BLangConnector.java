@@ -118,4 +118,10 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public NodeKind getKind() {
         return NodeKind.CONNECTOR;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangConnector: " + this.name + " <" + this.vars.get(0) + "> (" + this.params + ") Actions: " + this.actions;
+    }
+    
 }

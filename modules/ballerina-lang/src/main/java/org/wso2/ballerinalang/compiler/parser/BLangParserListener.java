@@ -223,26 +223,37 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { 
-        this.pkgBuilder.endCallableUnitSignature();
+        this.pkgBuilder.endCallableUnitSignature(ctx.Identifier().getText());
     }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { }
+    @Override 
+    public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+        this.pkgBuilder.startConnectorDef();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { }
+    @Override 
+    public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { 
+        this.pkgBuilder.endConnectorDef(ctx.Identifier().getText());
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { }
+    @Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { 
+        this.pkgBuilder.startConnectorBody();
+    }
     /**
      * {@inheritDoc}
      *
