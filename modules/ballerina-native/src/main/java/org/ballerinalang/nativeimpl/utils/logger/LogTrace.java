@@ -19,6 +19,8 @@
 package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.BLogger;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -43,10 +45,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                                                       "trace level.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
                                                                         value = "The value to be logged.")})
-public class LogTrace extends AbstractNativeFunction {
+public class LogTrace extends AbstractLogFunction {
+
+    private static final BLogger logger = new BLogger(LogTrace.class.getCanonicalName());
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).trace(getRefArgument(ctx, 0).stringValue());
+        logger.log(BLogLevel.TRACE, getRefArgument(ctx, 0).stringValue(), prepareLogContext(ctx));
         return VOID_RETURN;
     }
 }

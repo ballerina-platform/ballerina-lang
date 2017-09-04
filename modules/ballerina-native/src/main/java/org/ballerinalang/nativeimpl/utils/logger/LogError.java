@@ -19,6 +19,8 @@
 package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.BLogger;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -38,15 +40,17 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "value", type = TypeEnum.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-                                                                              value = "Logs the specified value at " +
-                                                                                      "error level.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The value to be logged.")})
-public class LogError extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = {@Attribute(name = "value", value = "Logs the specified value at error level.")})
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = {
+                             @Attribute(name = "value", value = "The value to be logged.")})
+public class LogError extends AbstractLogFunction {
+
+    private static final BLogger logger = new BLogger(LogError.class.getCanonicalName());
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).error(getRefArgument(ctx, 0).stringValue());
+        logger.log(BLogLevel.ERROR, getRefArgument(ctx, 0).stringValue(), prepareLogContext(ctx));
         return VOID_RETURN;
     }
 }

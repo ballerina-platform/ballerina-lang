@@ -19,6 +19,10 @@
 package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.logging.BLogger;
+import org.ballerinalang.logging.LogContext;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -26,6 +30,11 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.ResourceInfo;
 
 /**
  * Native function ballerina.model.utils:logger.
@@ -43,10 +52,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                                                       "the info level.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
                                                                         value = "The value to be logged.")})
-public class LogInfo extends AbstractNativeFunction {
+public class LogInfo extends AbstractLogFunction {
+
+    private static final BLogger logger = new BLogger(LogInfo.class.getCanonicalName());
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).info(getRefArgument(ctx, 0).stringValue());
+//        BallerinaLogHandler.getLogger(ctx).info(getRefArgument(ctx, 0).stringValue());
+        logger.log(BLogLevel.INFO, getRefArgument(ctx, 0).stringValue(), prepareLogContext(ctx));
         return VOID_RETURN;
     }
 }
