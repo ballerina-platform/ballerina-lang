@@ -153,14 +153,10 @@ class TransformNodeManager {
                 }
 
                 const assignmentStmt = this.findEnclosingAssignmentStatement(funcNode);
-                // unsafe cast/conversion
-                const tempVarName = this.getNextTempVarName();
-                this.insertExplicitAssignmentStatement(tempVarName, sourceExpression,
-                    this._transformStmt.getIndexOfChild(assignmentStmt) - 1);
+                const argumentExpression = this.getTempVertexExpression(sourceExpression,
+                    this._transformStmt.getIndexOfChild(assignmentStmt));
 
-                const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-                tempVarRefExpr.setExpressionFromString(tempVarName);
-                funcNode.addChild(tempVarRefExpr, index);
+                funcNode.addChild(argumentExpression, index);
             }
             return;
         }
@@ -205,6 +201,40 @@ class TransformNodeManager {
         target.funcInv.addChild(source.funcInv, target.index);
     }
 
+    getTempVertexExpression(sourceExpression, assignmentStmtIndex) {
+        const varNameRegex = new RegExp('__temp[\\d]*');
+        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
+        const tempVarIdentifiers = [];
+        let tempVarFound;
+        assignmentStmts.forEach((assStmt) => {
+            const rightExp = assStmt.getRightExpression();
+            assStmt.getLeftExpression().getChildren().forEach((leftExpr) => {
+                if (varNameRegex.test(leftExpr.getExpressionString())) {
+                    if (rightExp.getExpressionString() === sourceExpression.getExpressionString()) {
+                        tempVarFound = leftExpr;
+                    } else {
+                        tempVarIdentifiers.push(leftExpr.getExpressionString());
+                    }
+                }
+            });
+        });
+
+        if (tempVarFound) {
+            return tempVarFound;
+        }
+
+        tempVarIdentifiers.sort();
+        let index = 1;
+        if (tempVarIdentifiers.length > 0) {
+            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(6), 10) + 1;
+        }
+        const tempVarName = '__temp' + index;
+        this.insertExplicitAssignmentStatement(tempVarName, sourceExpression, assignmentStmtIndex - 1);
+        const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+        tempVarRefExpr.setExpressionFromString(tempVarName);
+        return tempVarRefExpr;
+    }
+
     insertExplicitAssignmentStatement(tempVarName, sourceExpression, index) {
         const tempVarAssignmentStmt = BallerinaASTFactory.createAssignmentStatement();
         const varRefList = BallerinaASTFactory.createVariableReferenceList();
@@ -229,6 +259,7 @@ class TransformNodeManager {
                         return (leftExpressionStr === target.name) && (rightExpressionStr === source.name);
                     });
                 }
+                return false;
             });
             this._transformStmt.removeChild(assignmentStmt);
             return;
@@ -459,7 +490,7 @@ class TransformNodeManager {
             if (expression.getVariableName().startsWith('__temp')) {
                 const assignmentStmt = this.findAssignedVertexForTemp(expression);
                 if (assignmentStmt) {
-                    return assignmentStmt.getRightExpression();
+                    return this.getMappingExpression(assignmentStmt.getRightExpression());
                 }
                 return expression;
             }
@@ -571,26 +602,6 @@ class TransformNodeManager {
                 data: {},
             });
         }
-    }
-
-    getNextTempVarName() {
-        const varNameRegex = new RegExp('__temp[\\d]*');
-        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
-        const tempVarIdentifiers = [];
-        assignmentStmts.forEach((assStmt) => {
-            assStmt.getLeftExpression().getChildren().forEach((leftExpr) => {
-                if (varNameRegex.test(leftExpr.getExpressionString())) {
-                    tempVarIdentifiers.push(leftExpr.getExpressionString());
-                }
-            });
-        });
-        tempVarIdentifiers.sort();
-
-        let index = 1;
-        if (tempVarIdentifiers.length > 0) {
-            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(6), 10) + 1;
-        }
-        return '__temp' + index;
     }
  }
 
