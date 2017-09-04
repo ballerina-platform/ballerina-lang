@@ -37,7 +37,7 @@ import java.io.File;
 import java.util.Calendar;
 
 /**
- * Test class for SQL Connector test.
+ * Test class for SQL Connector actions test.
  *
  * @since 0.8.0
  */
@@ -48,7 +48,7 @@ public class SQLActionsTest {
 
     @BeforeClass()
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("samples/sqlConnectorTest.bal");
+        bLangProgram = BTestUtils.getProgramFile("samples/sql-actions-test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
@@ -129,22 +129,6 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testCallProcedureWithResultSet() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testCallProcedureWithResultSet");
-        BString retValue = (BString) returns[0];
-        final String expected = "Peter";
-        Assert.assertEquals(retValue.stringValue(), expected);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testConnectorWithDataSource() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testConnectorWithDataSource");
-        BString retValue = (BString) returns[0];
-        final String expected = "Peter";
-        Assert.assertEquals(retValue.stringValue(), expected);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testConnectionPoolProperties() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testConnectionPoolProperties");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -400,12 +384,6 @@ public class SQLActionsTest {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTimeOutParams", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-    }
-
-    @Test(expectedExceptions = RuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error in sql connector configuration.*")
-    public void testInvalidDBType() {
-        BLangFunctions.invokeNew(bLangProgram, "testInvalidDBType");
     }
 
     @Test(groups = "ConnectorTest")
