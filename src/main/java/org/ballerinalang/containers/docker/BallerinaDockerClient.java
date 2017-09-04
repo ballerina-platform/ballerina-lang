@@ -40,7 +40,10 @@ public interface BallerinaDockerClient {
      * @throws BallerinaDockerClientException If the input parameters are invalid.
      * @throws IOException                    If specified files cannot be accessed.
      * @throws InterruptedException           If the docker image build process was interrupted.
+     *
+     * @deprecated use {@link #createMainImage(String, String, Path, String, String)} instead.
      */
+    @Deprecated
     String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                               String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException;
@@ -74,7 +77,10 @@ public interface BallerinaDockerClient {
      * @throws BallerinaDockerClientException If the input parameters are invalid.
      * @throws IOException                    If specified files cannot be accessed.
      * @throws InterruptedException           If the docker image build process was interrupted.
+     *
+     * @deprecated use {@link #createMainImage(String, String, Path, String, String)} instead.
      */
+    @Deprecated
     String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                            String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException;
