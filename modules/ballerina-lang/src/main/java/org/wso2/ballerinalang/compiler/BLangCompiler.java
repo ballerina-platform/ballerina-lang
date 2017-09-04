@@ -107,10 +107,7 @@ public class BLangCompiler {
         log("* Package Source: " + pkgSource);
         PackageNode pkgNode = this.parser.parse(pkgSource);
         log("* Package Node: " + pkgNode);
-        log("* Compilation Units:");
-        for (CompilationUnitNode cu : pkgNode.getCompilationUnits()) {
-            log("- '" + cu.getName() + "' -> Top Level Elements: " + cu.getTopLevelNodes());
-        }
+        log("* Compilation Units: \n" + pkgNode.getCompilationUnits());
     }
 
     // TODO Define Scopes and Symbols
