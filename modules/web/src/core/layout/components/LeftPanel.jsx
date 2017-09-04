@@ -5,6 +5,10 @@ import { Tab, Nav, NavItem } from 'react-bootstrap';
 import ActivityBar from './ActivityBar';
 import { HISTORY } from './../constants';
 
+
+const activityBarWidth = 42;
+const panelTitleHeight = 37;
+
 /**
  * React component for LeftPanel Region.
  *
@@ -52,8 +56,8 @@ class LeftPanel extends React.Component {
                         <div className="panel-title">{panelTitle}</div>
                         <Scrollbars
                             style={{
-                                width: this.props.width,
-                                height: this.props.height,
+                                width: this.props.width - activityBarWidth,
+                                height: this.props.height - panelTitleHeight,
                             }}
                         >
                             <div className="panel-content">{view}</div>

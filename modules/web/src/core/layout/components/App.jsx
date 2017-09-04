@@ -12,7 +12,7 @@ const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
-
+const headerHeight = 35;
 /**
  * React component for App.
  *
@@ -47,6 +47,11 @@ class App extends React.Component {
         };
         this.leftRightSplitPane = undefined;
         this.topBottomSplitPane = undefined;
+
+        // handle window resize events
+        window.addEventListener('resize', this.handleWindowResize.bind(this));
+        // set the initial width & height of the document.
+        this.handleWindowResize();
     }
 
     /**
@@ -67,6 +72,19 @@ class App extends React.Component {
     getViewsForRegion(region) {
         return this.props.layout[region].map((viewDef) => {
             return this.createViewFromViewDef(viewDef);
+        });
+    }
+
+    /**
+     * This will rerender app when the window is resized.
+     *
+     * @param {object} event event object.
+     * @memberof App
+     */
+    handleWindowResize() {
+        this.setState({
+            documentHeight: window.innerHeight,
+            documentWidth: window.innerWidth,
         });
     }
 
@@ -115,9 +133,7 @@ class App extends React.Component {
                 >
                     <LeftPanel
                         width={this.state.leftPanelSize}
-                        height={
-                            1000
-                        }
+                        height={this.state.documentHeight - (headerHeight)}
                         onActiveViewChange={
                             (newView) => {
                                 if (_.isNil(newView)) {
