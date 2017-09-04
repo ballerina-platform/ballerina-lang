@@ -249,21 +249,23 @@ class TransformRender {
         this.viewId = viewId;
         const funcs = this.container.find('.middle-content  > .func');
         let yFunctionPointer = 20;
-        const functionGap = 0;
+        const functionGap = 20;
         const svgLines = $('#' + this.placeHolderName + '-' + viewId + ' > svg');
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
             // Get bottom and right values relative to the type mapper parent div
-            const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom -
-                (this.container.find('.middle-content').position().top + 120);
+            const arrowBottom = svgLine.children[2].getBoundingClientRect().bottom
+             - (this.container.find('.middle-content').position().top + 100);
             // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
-            if (arrowBotton > yFunctionPointer && svgLine.getBoundingClientRect().width > 400) {
-                yFunctionPointer = arrowBotton;
+            if (arrowBottom > yFunctionPointer && svgLine.getBoundingClientRect().width > 400) {
+                yFunctionPointer = arrowBottom;
             }
         });
         // Traverse through all the function divs
         _.forEach(funcs, (func) => {
             // Position functions and increase yFunctionPointer with gaps
+            this.container.find(func).css('left',
+                (this.container.find('.middle-content').width() - this.container.find(func).width())/2 + 'px');
             this.container.find(func).css('top', yFunctionPointer + 'px');
             yFunctionPointer += this.container.find(func).height() + functionGap;
         });
