@@ -102,16 +102,6 @@ public class Annotation implements SiddhiElement {
         return results;
     }
 
-    private List<String> getFilterOutput(List<String> lines, String filter) {
-        List<String> result = new ArrayList<>();
-        for (String line : lines) {
-            if (!"mkyong".equals(line)) { // we dont like mkyong
-                result.add(line);
-            }
-        }
-        return result;
-    }
-
     public Annotation annotation(Annotation annotation) {
         annotations.add(annotation);
         return this;
