@@ -47,7 +47,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     
     @Override 
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
-        this.pkgBuilder.addVar(ctx.Identifier().getText());
+        this.pkgBuilder.addVar(ctx.Identifier().getText(), false);
     }
     
     /**
@@ -228,7 +228,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { 
-        this.pkgBuilder.endCallableUnitSignature(ctx.Identifier().getText());
+        this.pkgBuilder.endCallableUnitSignature(ctx.Identifier().getText(), 
+                ctx.parameterList() != null, ctx.returnParameters() != null, 
+                ctx.returnParameters() != null ? ctx.returnParameters().typeList() != null : false);
     }
     
     /**
@@ -350,7 +352,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { 
-        this.pkgBuilder.addGlobalVariable(ctx.Identifier().getText());
+        this.pkgBuilder.addGlobalVariable(ctx.Identifier().getText(), ctx.expression() != null);
     }
     
     /**
@@ -1656,32 +1658,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override 
-    public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) { 
-        this.pkgBuilder.startProcessingReturnParams();
+    public void enterTypeList(BallerinaParser.TypeListContext ctx) { 
+        this.pkgBuilder.startProcessingTypeNodeList();
     }
-    
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override 
-    public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) { 
-        this.pkgBuilder.endProcessingReturnParams();
-    }
-    
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterTypeList(BallerinaParser.TypeListContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitTypeList(BallerinaParser.TypeListContext ctx) { }
 
     /**
      * {@inheritDoc}
@@ -1710,7 +1689,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { 
-        this.pkgBuilder.addVar(ctx.Identifier().getText());
+        this.pkgBuilder.addVar(ctx.Identifier().getText(), ctx.simpleLiteral() != null);
     }
     
     /**
