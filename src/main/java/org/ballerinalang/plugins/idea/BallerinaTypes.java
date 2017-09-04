@@ -50,6 +50,12 @@ public class BallerinaTypes {
     public static final TokenIElementType BACK_TICK = tokenIElementTypes.get(BallerinaLexer.BACKTICK);
     public static final TokenIElementType STRING_TEMPLATE_LITERAL_START =
             tokenIElementTypes.get(BallerinaLexer.StringTemplateLiteralStart);
+    public static final TokenIElementType STRING_TEMPLATE_EXPRESSION_START =
+            tokenIElementTypes.get(BallerinaLexer.StringTemplateExpressionStart);
+    public static final TokenIElementType STRING_TEMPLATE_EXPRESSION_END =
+            tokenIElementTypes.get(BallerinaLexer.ExpressionEnd);
+    public static final TokenIElementType STRING_TEMPLATE_TEXT =
+            tokenIElementTypes.get(BallerinaLexer.StringTemplateText);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
 
