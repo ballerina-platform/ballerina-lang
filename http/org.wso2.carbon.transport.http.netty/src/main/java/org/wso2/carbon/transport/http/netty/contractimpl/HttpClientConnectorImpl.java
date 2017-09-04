@@ -79,7 +79,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 targetChannel.setEndPointTimeout(socketIdleTimeout);
                 targetChannel.setCorrelationIdForLogging();
 
-                targetChannel.getChannel().eventLoop().execute(() -> targetChannel.writeContent(httpCarbonRequest));
+                targetChannel.writeContent(httpCarbonRequest);
             } else {
                 targetChannel.getChannelFuture()
                         .addListener(new TargetChannelListener(targetChannel, httpCarbonRequest,
