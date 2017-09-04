@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.semantics.model.types.PackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
@@ -31,11 +31,10 @@ public class BPackageSymbol extends BTypeSymbol {
     public PackageID pkgId;
 
     public BPackageSymbol(PackageID pkgId, BSymbol owner) {
+        super(pkgId.name, null, owner);
         this.pkgId = pkgId;
-        this.owner = owner;
-        this.name = pkgId.name;
         this.version = pkgId.version;
-        this.type = new PackageType(this);
+        this.type = new BPackageType(this);
     }
 
     @Override

@@ -30,6 +30,7 @@ public class TypeTags {
     public static final int STRUCT = 6;
     public static final int CONNECTOR = 7;
     public static final int ARRAY = 8;
+    public static final int PACKAGE = 9;
 
     private TypeTags() {
     }

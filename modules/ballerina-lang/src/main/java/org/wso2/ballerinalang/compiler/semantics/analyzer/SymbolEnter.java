@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -37,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +61,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SymbolTable symTable;
 
+    private Names names;
+
     public Map<BTypeSymbol, SymbolEnv> symbolEnvs;
 
     private SymbolEnv env;
@@ -77,6 +82,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.names = Names.getInstance(context);
 
         this.symbolEnvs = new HashMap<>();
     }
@@ -92,12 +98,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         pkgNode.symbol = pSymbol;
 
-        // TODO Verify the design
-        SymbolEnv pkgEnv = new SymbolEnv(pkgNode, new Scope(pSymbol));
-        symbolEnvs.put(pSymbol, pkgEnv);
+        // TODO Verify this ENV design
+        SymbolEnv prevEnv = env;
+        env = new SymbolEnv(pkgNode, new Scope(pSymbol));
+        symbolEnvs.put(pSymbol, env);
 
         // visit the package node recursively and define package level symbols.
         pkgNode.accept(this);
+        env = prevEnv;
         return pSymbol;
     }
 
@@ -105,6 +113,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create PackageSymbol.
         // And maintain a list of created package symbols.
         // Load each import package
+        defineStructs(pkgNode.structs, env);
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -180,5 +189,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO
                 break;
         }
+    }
+
+    private void defineStructs(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
+        structNodes.forEach(struct -> {
+            BSymbol owner = pkgEnv.scope.owner;
+            BStructSymbol symbol = new BStructSymbol(
+                    Names.fromIdNode(struct.name), null, owner);
+            pkgEnv.scope.define(symbol.name, symbol);
+        });
     }
 }

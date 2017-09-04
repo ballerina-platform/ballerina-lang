@@ -36,6 +36,12 @@ public class BSymbol implements Symbol {
     public BType type;
     public BSymbol owner;
 
+    public BSymbol(Name name, BType type, BSymbol owner) {
+        this.name = name;
+        this.type = type;
+        this.owner = owner;
+    }
+
     @Override
     public Name getName() {
         return name;

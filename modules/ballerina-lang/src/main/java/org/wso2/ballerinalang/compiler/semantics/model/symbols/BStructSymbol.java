@@ -15,22 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.types;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.ballerinalang.model.symbols.StructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class PackageType extends BType {
+public class BStructSymbol extends BTypeSymbol implements StructSymbol {
 
-    public PackageType(BPackageSymbol symbol) {
-        this.tsymbol = symbol;
+    public List<BVarSymbol> fields;
+
+    public BStructSymbol(Name name, BType type, BSymbol owner) {
+        super(name, type, owner);
+        fields = new ArrayList<>();
     }
 
     @Override
-    public TypeKind getKind() {
-        return TypeKind.PACKAGE;
+    public List<BVarSymbol> getFields() {
+        return fields;
     }
 }

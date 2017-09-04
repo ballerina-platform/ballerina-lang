@@ -17,8 +17,16 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
 /**
  * @since 0.94
  */
-public class BTypeSymbol extends BSymbol {
+public class BTypeSymbol extends BSymbol implements TypeSymbol {
+
+    public BTypeSymbol(Name name, BType type, BSymbol owner) {
+        super(name, type, owner);
+    }
 }

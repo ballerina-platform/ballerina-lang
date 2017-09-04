@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompositePackageRepository;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
@@ -76,7 +75,7 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.packages = new HashMap<>();
 
-        Path sourceRoot = Paths.get("/home/laf/Desktop/test");
+        Path sourceRoot = Paths.get("/Users/sameera/rewrite-compiler/bal");
         this.programRepo = loadFSProgramRepository(sourceRoot);
     }
 

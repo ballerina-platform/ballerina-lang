@@ -53,7 +53,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public BLangIdentifier getName() {
         return name;
     }
-    
+
     @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
@@ -63,7 +63,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangVariable> getParameters() {
         return params;
     }
-    
+
     @Override
     public void addParameter(VariableNode param) {
         this.getParameters().add((BLangVariable) param);
@@ -73,7 +73,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangVariable> getVariables() {
         return vars;
     }
-    
+
     @Override
     public void addVariable(VariableNode var) {
         this.getVariables().add((BLangVariable) var);
@@ -83,7 +83,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangAction> getActions() {
         return actions;
     }
-    
+
     @Override
     public void addAction(ActionNode action) {
         this.getActions().add((BLangAction) action);
@@ -93,7 +93,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public Set<Flag> getFlags() {
         return flags;
     }
-    
+
     @Override
     public void addFlag(Flag flag) {
         this.getFlags().add(flag);
@@ -103,7 +103,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
-    
+
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
@@ -118,10 +118,11 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public NodeKind getKind() {
         return NodeKind.CONNECTOR;
     }
-    
+
     @Override
     public String toString() {
-        return "BLangConnector: " + this.name + " <" + this.vars.get(0) + "> (" + this.params + ") Actions: " + this.actions;
+        return "BLangConnector: " + this.name + " <" + this.vars.get(0) +
+                "> (" + this.params + ") Actions: " + this.actions;
     }
-    
+
 }

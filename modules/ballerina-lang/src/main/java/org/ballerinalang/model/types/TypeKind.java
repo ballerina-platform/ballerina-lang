@@ -52,5 +52,7 @@ public enum TypeKind {
     JSON,
     XML,
     PACKAGE,
+    STRUCT,
+    CONNECTOR,
     OTHER
 }

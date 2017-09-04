@@ -17,10 +17,25 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.Name;
+
+import java.util.List;
+
 /**
  * {@code StructType} represents the type of a struct in Ballerina.
  *
  * @since 0.94
  */
 public interface StructType extends ReferenceType {
+
+    /**
+     * @since 0.94
+     */
+    interface Field {
+        Name getName();
+
+        Type getType();
+    }
+
+    List<? extends Field> getFields();
 }

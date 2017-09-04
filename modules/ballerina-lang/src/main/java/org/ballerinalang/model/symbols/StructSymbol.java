@@ -15,23 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.ballerinalang.model.symbols;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public interface StructSymbol extends TypeSymbol {
 
-    public BVarSymbol(Name name, BType type, BSymbol owner) {
-        super(name, type, owner);
-    }
-
-    @Override
-    public Object getConstValue() {
-        return null;
-    }
+    List<? extends VariableSymbol> getFields();
 }

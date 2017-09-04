@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-import org.ballerinalang.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;

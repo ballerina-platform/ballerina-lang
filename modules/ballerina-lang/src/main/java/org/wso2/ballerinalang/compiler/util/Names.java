@@ -17,11 +17,36 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+
 /**
  * @since 0.94
  */
 public class Names {
 
+    public static final CompilerContext.Key<Names> NAMES_KEY =
+            new CompilerContext.Key<>();
+
     public static final Name EMPTY = new Name("");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+
+    public CompilerContext context;
+
+    public static Names getInstance(CompilerContext context) {
+        Names names = context.get(NAMES_KEY);
+        if (names == null) {
+            names = new Names(context);
+            context.put(NAMES_KEY, names);
+        }
+        return names;
+    }
+
+    private Names(CompilerContext context) {
+        this.context = context;
+        this.context.put(NAMES_KEY, this);
+    }
+
+    public static Name fromIdNode(BLangIdentifier identifier) {
+        return new Name(identifier.value);
+    }
 }
