@@ -261,24 +261,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
+    @Override 
+    public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { 
+        this.pkgBuilder.startStructDef();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
+    @Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { 
+        this.pkgBuilder.endStructDef();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStructBody(BallerinaParser.StructBodyContext ctx) { }
+    @Override 
+    public void enterStructBody(BallerinaParser.StructBodyContext ctx) { 
+        this.pkgBuilder.startFieldDefConatiner();
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -1656,12 +1668,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
+    @Override 
+    public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { 
+        this.pkgBuilder.addFieldDefinition(ctx.Identifier().getText());
+    }
+    
     /**
      * {@inheritDoc}
      *
