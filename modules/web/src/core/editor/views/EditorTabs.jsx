@@ -86,7 +86,12 @@ class EditorTabs extends View {
             const { customPropsProvider } = editor;
             return (
                 <TabPane tab={tabTitle(file)} data-extra="tabpane" key={file.fullPath} >
-                    <editor.component file={file} {...customPropsProvider()} />
+                    <editor.component
+                        isActive={this.state.activeEditor === file.fullPath}
+                        file={file}
+                        commandProxy={this.props.editorPlugin.appContext.command}
+                        {...customPropsProvider()}
+                    />
                 </TabPane>
             );
         };

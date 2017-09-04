@@ -85,11 +85,11 @@ class SwaggerView extends React.Component {
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
         this.tryItUrl = undefined;
-        props.commandManager.registerHandler('try-it-url-received', (url) => {
+        props.commandProxy.on('try-it-url-received', (url) => {
             this.tryItUrl = url;
         }, this);
 
-        props.commandManager.registerHandler('save', () => {
+        props.commandProxy.on('save', () => {
             this.updateService();
         }, this);
     }
@@ -271,7 +271,7 @@ class SwaggerView extends React.Component {
             }
 
             // bind app keyboard shortcuts to ace editor
-            this.props.commandManager.getCommands().forEach((command) => {
+            this.props.commandProxy.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
         }
@@ -357,7 +357,11 @@ class SwaggerView extends React.Component {
 
 SwaggerView.propTypes = {
     targetService: PropTypes.instanceOf(ServiceDefinition),
-    commandManager: PropTypes.instanceOf(Object).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
     hideSwaggerAceEditor: PropTypes.bool,
     resetSwaggerViewFun: PropTypes.func.isRequired,
 };

@@ -21,8 +21,7 @@ import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Overlay, Popover } from 'react-bootstrap/lib';
 import classNames from 'classnames';
-import commandManager from 'command';
-import File from './../../workspace/file';
+import File from './../../../src/core/workspace/model/file';
 import { DESIGN_VIEW } from './constants';
 import { GO_TO_POSITION } from './../../constants/commands';
 import SourceEditor from './source-editor';
@@ -109,7 +108,7 @@ class SourceView extends React.Component {
                                         key={error.row + error.column + btoa(error.text) + index}
                                         className="list-group-item syntax-error"
                                         onClick={() => {
-                                            this.props.commandManager
+                                            this.props.commandProxy
                                                 .dispatch(GO_TO_POSITION, {
                                                     file: this.props.file,
                                                     row: error.row,
@@ -144,7 +143,7 @@ class SourceView extends React.Component {
             >
                 <div className="outerSourceDiv">
                     <SourceEditor
-                        commandManager={this.props.commandManager}
+                        commandProxy={this.props.commandProxy}
                         file={this.props.file}
                         parseFailed={this.props.parseFailed}
                         onLintErrors={this.onSourceEditorLintErrors}
@@ -210,7 +209,11 @@ class SourceView extends React.Component {
 
 SourceView.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
     parseFailed: PropTypes.bool.isRequired,
     displayErrorList: PropTypes.bool.isRequired,
 };

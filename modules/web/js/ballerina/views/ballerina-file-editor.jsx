@@ -18,7 +18,6 @@
 import log from 'log';
 import alerts from 'alerts';
 import _ from 'lodash';
-import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
@@ -27,7 +26,7 @@ import DebugManager from './../../debugger/debug-manager';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
-import File from './../../workspace/file';
+import File from './../../../src/core/workspace/model/file';
 import { validateFile, parseFile, getProgramPackages } from '../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
@@ -36,14 +35,13 @@ import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
+import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 import FindLineNumbersVisiter from './../visitors/find-line-numbers';
 import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
 
-const sourceViewTabHeaderClass = 'inverse';
 
 /**
  * React component for BallerinaFileEditor.
@@ -103,21 +101,17 @@ class BallerinaFileEditor extends React.Component {
             }
         });
         this.environment = new PackageScopedEnvironment();
-        // FIXME: ToolPalette doesn't consume full height if tab was
-        // not active while initial loading
-        // listening to 'tab-activate' and calling re-render to avoid that
-        this.props.tab.on(TAB_ACTIVATE, () => this.update());
 
         this.hideSwaggerAceEditor = false;
         // Show the swagger view when 'try it' is invoked.
-        props.commandManager.registerHandler('show-try-it-view', () => {
+        props.commandProxy.on('show-try-it-view', () => {
             // Creating try it service for first service definition.
             this.hideSwaggerAceEditor = true;
             this.showSwaggerViewForService(this.state.model.getServiceDefinitions()[0]);
         }, this);
 
         // Show the swagger view when 'try it' is invoked.
-        props.commandManager.registerHandler('hide-try-it-view', () => {
+        props.commandProxy.on('hide-try-it-view', () => {
             if (this.state.activeView === SWAGGER_VIEW) {
                 this.setState({
                     activeView: DESIGN_VIEW,
@@ -126,7 +120,7 @@ class BallerinaFileEditor extends React.Component {
             }
         }, this);
         // Resize the canvas
-        props.commandManager.registerHandler('resize', () => {
+        props.commandProxy.on('resize', () => {
             this.update();
         }, this);
 
@@ -139,7 +133,7 @@ class BallerinaFileEditor extends React.Component {
      */
     getChildContext() {
         return {
-            isTabActive: this.props.tab.isActive(),
+            isTabActive: this.props.isActive,
             editor: this,
             astRoot: this.state.model,
             environment: this.environment,
@@ -165,6 +159,17 @@ class BallerinaFileEditor extends React.Component {
                     parsePending: false,
                 });
             });
+    }
+
+    /**
+     * lifecycle hook for component will receive props
+     */
+    componentWillReceiveProps(newProps) {
+        // editor tab was not active previously and now becoming active
+        if (!this.props.isActive && newProps.isActive) {
+            // we need to re-render
+            this.update();
+        }
     }
 
     /**
@@ -249,7 +254,7 @@ class BallerinaFileEditor extends React.Component {
      */
     jumpToSourcePosition(line, offset) {
         this.setActiveView(SOURCE_VIEW);
-        this.props.commandManager
+        this.props.commandProxy
             .dispatch(GO_TO_POSITION, {
                 file: this.props.file,
                 row: line,
@@ -277,7 +282,7 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} symbolName
      */
     openDocumentation(pkgName, symbolName) {
-        this.props.commandManager
+        this.props.commandProxy
             .dispatch(OPEN_SYMBOL_DOCS, pkgName, symbolName);
     }
 
@@ -358,7 +363,7 @@ class BallerinaFileEditor extends React.Component {
                         .then((jsonTree) => {
                             // something went wrong with the parser
                             if (_.isNil(jsonTree.root)) {
-                                log.error('Error while parsing the file: ' + file.getName()
+                                log.error('Error while parsing the file: ' + file.name
                                     + ' Error:' + jsonTree.errorMessage || jsonTree);
                                 // cannot be in a view which depends on AST
                                 // hence forward to source view
@@ -387,7 +392,7 @@ class BallerinaFileEditor extends React.Component {
 
                             const pkgName = ast.getPackageDefinition().getPackageName();
                             // update package name of the file
-                            file.setPackageName(pkgName || '.');
+                            file.packageName = pkgName || '.';
                             // init bal env in background
                             BallerinaEnvironment.initialize()
                                 .then(() => {
@@ -425,7 +430,7 @@ class BallerinaFileEditor extends React.Component {
         const findBreakpointsVisiter = new FindBreakpointLinesVisitor(newAst);
         newAst.accept(findBreakpointsVisiter);
         const breakpoints = findBreakpointsVisiter.getBreakpoints();
-        const fileName = this.props.file.getName();
+        const fileName = this.props.file.name;
         const packagePath = newAst.getPackageDefinition().getPackageName() || '.';
         DebugManager.removeAllBreakpoints(fileName);
         breakpoints.forEach((lineNumber) => {
@@ -433,7 +438,7 @@ class BallerinaFileEditor extends React.Component {
         });
     }
     markBreakpointsOnAST(ast) {
-        const fileName = this.props.file.getName();
+        const fileName = this.props.file.name;
         const breakpoints = DebugManager.getDebugPoints(fileName);
         const findBreakpointsVisitor = new FindBreakpointNodesVisitor(ast);
         findBreakpointsVisitor.setBreakpoints(breakpoints);
@@ -483,14 +488,6 @@ class BallerinaFileEditor extends React.Component {
                                         && this.state.activeView === SWAGGER_VIEW;
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
-        // depending on the selected view - change tab header style
-        // FIXME: find a better solution
-        if (showSourceView || showSwaggerView) {
-            this.props.tab.getHeader().addClass(sourceViewTabHeaderClass);
-        } else {
-            this.props.tab.getHeader().removeClass(sourceViewTabHeaderClass);
-        }
-
         return (
             <div id={`bal-file-editor-${this.props.file.id}`} className='bal-file-editor'>
                 <CSSTransitionGroup
@@ -517,13 +514,13 @@ class BallerinaFileEditor extends React.Component {
                     displayErrorList={popupErrorListInSourceView}
                     parseFailed={this.state.parseFailed}
                     file={this.props.file}
-                    commandManager={this.props.commandManager}
+                    commandProxy={this.props.commandProxy}
                     show={showSourceView}
                 />
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView
                         targetService={this.state.swaggerViewTargetService}
-                        commandManager={this.props.commandManager}
+                        commandProxy={this.props.commandProxy}
                         hideSwaggerAceEditor={this.hideSwaggerAceEditor}
                         resetSwaggerViewFun={this.resetSwaggerView}
                     />
@@ -535,8 +532,11 @@ class BallerinaFileEditor extends React.Component {
 
 BallerinaFileEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    tab: PropTypes.instanceOf(Object).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired,
+    isActive: PropTypes.bool.isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 BallerinaFileEditor.childContextTypes = {

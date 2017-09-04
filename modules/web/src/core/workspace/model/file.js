@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import uuid from 'uuid/v1';
 import EventChannel from 'event_channel';
 import { EVENTS } from './../constants';
 
@@ -11,17 +12,34 @@ class File extends EventChannel {
      * File Constructor
      * @param {Object} args File Details
      */
-    constructor({ fullPath, path, name, extension, content, isPersisted, lastPersisted, isDirty }) {
+    constructor({ id, fullPath, path, name, packageName, extension, content, isPersisted, lastPersisted, isDirty }) {
         super();
+        this._id = id || uuid();
         this._fullPath = fullPath || 'temp/untitled';
         this._path = path || 'temp';
         this._name = name || 'untitled';
+        this._packageName = packageName || '.';
         this._ext = extension || 'bal';
         this._content = content || '';
         this._isPersisted = !_.isNil(isPersisted) ? isPersisted : false;
         this._lastPersisted = lastPersisted || _.now();
         this._isDirty = !_.isNil(isDirty) ? isDirty : true;
     }
+
+    /**
+     * Returns id
+     */
+    get id() {
+        return this._id;
+    }
+
+    /**
+     * Sets id
+     */
+    set id(newID) {
+        this._id = newID;
+    }
+
 
     /**
      * Returns fullPath
@@ -65,6 +83,20 @@ class File extends EventChannel {
         this._name = name;
     }
 
+     /**
+     * Returns package name
+     */
+    get packageName() {
+        return this._packageName;
+    }
+
+    /**
+     * Sets package name
+     */
+    set packageName(packageName) {
+        this._packageName = packageName;
+    }
+
     /**
      * Returns content
      */
@@ -75,11 +107,11 @@ class File extends EventChannel {
     /**
      * Set content of the file
      * @param {string} content new file content
-     * @param {Object} changeEvt Originating change event
+     * @param {Object} originEvt Originating change event
      *
      * @emits File#content-modified
      */
-    setContent(content, changeEvt) {
+    setContent(content, originEvt) {
         const oldContent = this._content;
         this._content = content;
 
@@ -91,7 +123,7 @@ class File extends EventChannel {
         const evt = {
             oldContent,
             content,
-            changeEvt,
+            originEvt,
         };
         this.trigger(EVENTS.CONTENT_MODIFIED, evt);
         // if the new content is not equal to old content

@@ -75,7 +75,9 @@ class WorkspacePlugin extends Plugin {
                         editor.open(file);
                         resolve(file);
                     })
-                    .catch(err => reject(JSON.stringify(err)));
+                    .catch((err) => {
+                        reject(JSON.stringify(err));
+                    });
             } else {
                 reject(`File ${filePath} is already opened.`);
             }

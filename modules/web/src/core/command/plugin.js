@@ -46,6 +46,7 @@ class CommandPlugin extends Plugin {
         return {
             on: this.registerHandler.bind(this),
             dispatch: this.dispatch.bind(this),
+            getCommands: () => { return this.commands; },
             findCommand: (cmdID) => {
                 const cmdIndex = _.findIndex(this.commands, ['id', cmdID]);
                 return cmdIndex !== -1 ? this.commands[cmdIndex] : undefined;
@@ -111,9 +112,9 @@ class CommandPlugin extends Plugin {
      * @param {Object} context this context for the handler, default is undefined
      */
     registerHandler(cmdID, handler, context) {
-        if (_.isEqual(_.findIndex(this.commands, ['id', cmdID]), -1)) {
-            log.warn(`No such registered command found. Command: ${cmdID}`);
-        }
+        // if (_.isEqual(_.findIndex(this.commands, ['id', cmdID]), -1)) {
+        //     log.warn(`No such registered command found. Command: ${cmdID}`);
+        // }
         this.commandChannel.on(cmdID, handler, context);
     }
 
@@ -137,12 +138,12 @@ class CommandPlugin extends Plugin {
     dispatch(cmdID, args) {
         if (!_.isUndefined(cmdID)) {
             const cmd = _.find(this.commands, ['id', cmdID]);
-            if (!_.isNil(cmd)) {
-                const argTypes = cmd.argTypes;
-                if (!_.isNil(argTypes)) {
-                    // validate command args
-                    PropTypes.checkPropTypes(argTypes, args, 'command argument', cmdID + ' command');
-                }
+            if (true) {
+                // const argTypes = cmd.argTypes;
+                // if (!_.isNil(argTypes)) {
+                //     // validate command args
+                //     PropTypes.checkPropTypes(argTypes, args, 'command argument', cmdID + ' command');
+                // }
                 this.commandChannel.trigger(cmdID, args);
             }
         }

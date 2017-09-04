@@ -63,10 +63,10 @@ export function fetchConfigs() {
  */
 export function validateFile(file) {
     const payload = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
+        fileName: file.name,
+        filePath: file.path,
+        packageName: file.packageName,
+        content: file.content,
     };
     const endpoint = getServiceEndpoint('validator');
     const headers = {
@@ -88,10 +88,10 @@ export function validateFile(file) {
  */
 export function parseFile(file) {
     const payload = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
+        fileName: file.name,
+        filePath: file.path,
+        packageName: file.packageName,
+        content: file.content,
     };
     const endpoint = getServiceEndpoint('parser');
     const headers = {
@@ -138,11 +138,11 @@ export function parseContent(content) {
  */
 export function getProgramPackages(file) {
     const fileOptions = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
-        isDirty: file.isDirty(),
+        fileName: file.name,
+        filePath: file.path,
+        packageName: file.packageName,
+        content: file.content,
+        isDirty: file.isDirty,
     };
 
     return new Promise((resolve, reject) => {
