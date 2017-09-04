@@ -65,7 +65,7 @@ public class BLangCompiler {
 
         this.parser = BLangParser.getInstance(context);
         
-        Path basePath = Paths.get("/Users/sameera/rewrite-compiler/bal");
+        Path basePath = Paths.get("/home/laf/Desktop/test");
         this.programRepo = this.loadFSProgramRepository(basePath);
         parser = BLangParser.getInstance(context);
         symbolEnter = SymbolEnter.getInstance(context);

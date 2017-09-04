@@ -30,4 +30,6 @@ public interface ImportPackageNode extends Node, TopLevelNode {
 
     IdentifierNode getAlias();
     
+    void setAlias(IdentifierNode aliasNode);
+    
 }

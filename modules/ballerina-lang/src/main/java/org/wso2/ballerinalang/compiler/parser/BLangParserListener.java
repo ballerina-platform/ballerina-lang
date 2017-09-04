@@ -104,12 +104,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) { }
+    @Override 
+    public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
+        String alias;
+        if (ctx.Identifier() != null) {
+            alias = ctx.Identifier().getText();
+        } else {
+            alias = null;
+        }
+        this.pkgBuilder.addImportPackageDeclaration(alias);
+    }
+    
     /**
      * {@inheritDoc}
      *

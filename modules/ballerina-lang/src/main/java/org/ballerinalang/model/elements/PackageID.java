@@ -98,7 +98,8 @@ public class PackageID {
     
     @Override
     public String toString() {
-        return this.getNameCompsAsString() + "[" + this.getVersion().getValue() + "]";
+        return this.getNameCompsAsString() + 
+                (this.getVersion() != null ? "[" + this.getVersion().getValue() + "]" : "");
     }
     
 }

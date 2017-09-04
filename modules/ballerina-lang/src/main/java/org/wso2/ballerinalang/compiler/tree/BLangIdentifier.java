@@ -56,4 +56,10 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
     public NodeKind getKind() {
         return NodeKind.IDENTIFIER;
     }
+    
+    @Override
+    public String toString() {
+        return this.getValue();
+    }
+    
 }

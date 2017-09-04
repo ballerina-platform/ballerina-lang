@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.InvocableNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -151,11 +152,7 @@ public class BLangPackageBuilder {
         } else {
             versionNode = null;
         }
-        nameComps.stream().forEach(e -> {
-            IdentifierNode node = TreeBuilder.createIdentifierNode();
-            node.setValue(e);
-            nameCompNodes.add(node);
-        });
+        nameComps.stream().forEach(e -> nameCompNodes.add(this.createIdentifier(e)));
         this.pkgIdStack.add(new PackageID(nameCompNodes, versionNode));
     }
     
@@ -163,6 +160,19 @@ public class BLangPackageBuilder {
         PackageDeclarationNode pkgDecl = TreeBuilder.createPackageDeclarationNode();
         pkgDecl.setPackageID(this.pkgIdStack.pop());
         this.compUnit.addTopLevelNode(pkgDecl);
+    }
+    
+    public void addImportPackageDeclaration(String alias) {
+        ImportPackageNode impDecl = TreeBuilder.createImportPackageNode();
+        IdentifierNode aliasNode;
+        if (alias != null) {
+            aliasNode = this.createIdentifier(alias);
+        } else {
+            aliasNode = null;
+        }
+        impDecl.setPackageID(this.pkgIdStack.pop());
+        impDecl.setAlias(aliasNode);
+        this.compUnit.addTopLevelNode(impDecl);
     }
 
 }

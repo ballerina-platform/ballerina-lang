@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
 
@@ -43,6 +44,11 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public BLangIdentifier getAlias() {
         return alias;
     }
+    
+    @Override
+    public void setAlias(IdentifierNode alias) {
+        this.alias = (BLangIdentifier) alias;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -53,4 +59,10 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public NodeKind getKind() {
         return NodeKind.IMPORT;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangImportPackage: " + this.pkgId + ((this.alias != null) ? " -> " + this.alias : "");
+    }
+    
 }
