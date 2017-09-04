@@ -46,7 +46,6 @@ import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSo
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketTextMessageImpl;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -79,16 +78,15 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param channelSession session relates to the channel.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param headers Headers obtained from HTTP WebSocket upgrade request.
-     * @param connectionManager connection manager for WebSocket connection.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId given ID for the socket interface.
      * @throws Exception if any error occurred during construction of {@link WebSocketSourceHandler}.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
-                                  Map<String, String> headers, ConnectionManager connectionManager,
-                                  ChannelHandlerContext ctx, String interfaceId) throws Exception {
-        super(connectionManager, new HttpWsServerConnectorFuture(), interfaceId);
+                                  Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId)
+            throws Exception {
+        super(new HttpWsServerConnectorFuture(), interfaceId);
         this.connectorFuture = connectorFuture;
         this.subProtocol = subProtocol;
         this.isSecured = isSecured;

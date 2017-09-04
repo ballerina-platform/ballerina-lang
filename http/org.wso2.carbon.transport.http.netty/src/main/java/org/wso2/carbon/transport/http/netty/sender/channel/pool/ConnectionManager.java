@@ -29,7 +29,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A class which handles connection pool management.
@@ -40,7 +39,6 @@ public class ConnectionManager {
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
     private final Map<String, GenericObjectPool> connGlobalPool;
-    private AtomicInteger index = new AtomicInteger(1);
     private static volatile ConnectionManager connectionManager;
 
     private ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties) {
@@ -186,12 +184,6 @@ public class ConnectionManager {
      */
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         return this.connGlobalPool;
-    }
-
-    public void notifyChannelInactive() {
-        if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
-            index.getAndDecrement();
-        }
     }
 
     /**
