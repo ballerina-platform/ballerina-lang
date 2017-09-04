@@ -51,7 +51,17 @@ service<http> echoDummy {
         message resp = {};
         messages:setStringPayload(resp, "hello world");
         reply resp;
-
     }
+
+    @http:resourceConfig {
+        methods:["OPTIONS"],
+        path:"/getOptions"
+    }
+    resource echoOptions (message m) {
+        message response = {};
+        messages:setStringPayload(response, "hello Options");
+        reply response;
+    }
+
 
 }

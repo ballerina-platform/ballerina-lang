@@ -45,47 +45,7 @@ public class HttpClientRequest {
      */
     public static HttpResponse doGet(String requestUrl, Map<String, String> headers)
             throws IOException {
-        HttpURLConnection conn = null;
-        HttpResponse httpResponse;
-        try {
-            conn = getURLConnection(requestUrl);
-            //setting request headers
-            for (Map.Entry<String, String> e : headers.entrySet()) {
-                conn.setRequestProperty(e.getKey(), e.getValue());
-            }
-            conn.setRequestMethod("GET");
-            conn.connect();
-            StringBuilder sb = new StringBuilder();
-            BufferedReader rd = null;
-            try {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
-                        , Charset.defaultCharset()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-                httpResponse = new HttpResponse(sb.toString(), conn.getResponseCode());
-            } catch (IOException ex) {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
-                        , Charset.defaultCharset()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-                httpResponse = new HttpResponse(sb.toString(), conn.getResponseCode());
-            } finally {
-                if (rd != null) {
-                    rd.close();
-                }
-            }
-            httpResponse.setHeaders(readHeaders(conn));
-            httpResponse.setResponseMessage(conn.getResponseMessage());
-            return httpResponse;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
+        return executeRequestWithoutRequestBody("GET", requestUrl, headers);
     }
 
     /**
@@ -111,7 +71,6 @@ public class HttpClientRequest {
     public static HttpResponse doPost(String endpoint, String postBody, Map<String, String> headers)
             throws IOException {
         HttpURLConnection urlConnection = null;
-        HttpResponse httpResponse;
         try {
             urlConnection = getURLConnection(endpoint);
             //setting request headers
@@ -129,35 +88,7 @@ public class HttpClientRequest {
                     out.close();
                 }
             }
-            // Get the response
-            StringBuilder sb = new StringBuilder();
-            BufferedReader rd = null;
-            try {
-                rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()
-                        , Charset.defaultCharset()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-            } catch (IOException e) {
-                if (urlConnection.getErrorStream() == null) {
-                    return null;
-                }
-                rd = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()
-                        , Charset.defaultCharset()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-            } finally {
-                if (rd != null) {
-                    rd.close();
-                }
-            }
-            Map<String, String> responseHeaders = readHeaders(urlConnection);
-            httpResponse = new HttpResponse(sb.toString(), urlConnection.getResponseCode(), responseHeaders);
-            httpResponse.setResponseMessage(urlConnection.getResponseMessage());
-            return httpResponse;
+            return buildResponse(urlConnection);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -165,7 +96,27 @@ public class HttpClientRequest {
         }
     }
 
+    public static HttpResponse doOptions(String requestUrl, Map<String, String> headers) throws IOException {
+        return executeRequestWithoutRequestBody("OPTIONS", requestUrl, headers);
+    }
 
+    public static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
+            , String> headers) throws IOException {
+        HttpURLConnection conn = null;
+        try {
+            conn = getURLConnection(requestUrl);
+            for (Map.Entry<String, String> e : headers.entrySet()) {
+                conn.setRequestProperty(e.getKey(), e.getValue());
+            }
+            conn.setRequestMethod(method.toUpperCase());
+            conn.connect();
+            return buildResponse(conn);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
 
     private static HttpURLConnection getURLConnection(String requestUrl)
             throws IOException {
@@ -190,5 +141,37 @@ public class HttpClientRequest {
             }
         }
         return headers;
+    }
+
+    private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
+        HttpResponse httpResponse;
+        StringBuilder sb = new StringBuilder();
+        BufferedReader rd = null;
+        try {
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
+                    , Charset.defaultCharset()));
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException ex) {
+            if (conn.getErrorStream() == null) {
+                return null;
+            }
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
+                    , Charset.defaultCharset()));
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+        } finally {
+            if (rd != null) {
+                rd.close();
+            }
+        }
+        Map<String, String> responseHeaders = readHeaders(conn);
+        httpResponse = new HttpResponse(sb.toString(), conn.getResponseCode(), responseHeaders);
+        httpResponse.setResponseMessage(conn.getResponseMessage());
+        return httpResponse;
     }
 }
