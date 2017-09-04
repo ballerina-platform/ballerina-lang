@@ -109,6 +109,17 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
      * {@inheritDoc}
      */
     @Override
+    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
+                                  String imageName, String imageVersion)
+            throws BallerinaDockerClientException, IOException, InterruptedException {
+
+        return createImageFromSingleFile(packageName, dockerEnv, bPackagePath, imageName, imageVersion);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
                                   String imageName, String imageVersion)
             throws InterruptedException, BallerinaDockerClientException, IOException {
@@ -250,6 +261,45 @@ public final class DefaultBallerinaDockerClient implements BallerinaDockerClient
         String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'h:m:ssXX").format(new Date());
         String buildArgs = "{\"" + ENV_SVC_MODE + "\":\"" + String.valueOf(isService) + "\", " +
                 "\"" + ENV_FILE_MODE + "\":\"true\", \"BUILD_DATE\":\"" + timestamp + "\"}";
+        buildImage(dockerEnv, imageName, tmpDir, buildArgs);
+
+        // 4. Cleanup
+        cleanupTempDockerfileContext(tmpDir);
+
+        return getImage(imageName, dockerEnv);
+    }
+
+    /**
+     * Create a Docker image from a give Ballerina configuration in bal or balx.
+     */
+    private String createImageFromSingleFile(String serviceName, String dockerEnv, Path ballerinaConfig,
+                                             String imageName, String imageVersion)
+            throws BallerinaDockerClientException, IOException, InterruptedException {
+
+        imageName = getImageName(serviceName, imageName, imageVersion);
+
+        if (!Files.exists(ballerinaConfig)) {
+            throw new BallerinaDockerClientException("Cannot find Ballerina file: " + ballerinaConfig.toString());
+        }
+
+        if (!FilenameUtils.getExtension(ballerinaConfig.toString()).equalsIgnoreCase("bal") &&
+                !FilenameUtils.getExtension(ballerinaConfig.toString()).equalsIgnoreCase("balx")) {
+            throw new BallerinaDockerClientException("Invalid Ballerina file. " +
+                    "Ballerina files should be of \"bal\" | \"balx\" type.");
+        }
+
+        // 1. Create a tmp docker context
+        Path tmpDir = prepTempDockerfileContext();
+
+        // 2. Copy a .bal or .balx file inside context/files
+        Files.copy(ballerinaConfig,
+                Paths.get(tmpDir.toString() + File.separator + PATH_FILES + File.separator
+                        + ballerinaConfig.toFile().getName()),
+                StandardCopyOption.REPLACE_EXISTING);
+
+        // 3. Create a docker image from the temp context
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'h:m:ssXX").format(new Date());
+        String buildArgs = "{\"BUILD_DATE\":\"" + timestamp + "\"}";
         buildImage(dockerEnv, imageName, tmpDir, buildArgs);
 
         // 4. Cleanup

@@ -32,7 +32,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,78 +102,6 @@ public class DockerCmdTest {
     @Test
     public void testGetName() {
         Assert.assertEquals(new DockerCmd().getName(), "docker", "The Docker command name should be \"docker\"");
-    }
-
-    @Test
-    public void testExecuteSuccessfulServiceImageCreation()
-            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
-            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
-
-        Class<DockerCmd> cmdClass = DockerCmd.class;
-        DockerCmd dockerCmd = cmdClass.newInstance();
-
-        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
-        dockerClientField.setAccessible(true);
-        dockerClientField.set(dockerCmd, new TestBallerinaDockerClient());
-
-        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
-        packageNameField.setAccessible(true);
-        List<Path> packageList = TestUtils.getTestServiceAsPathList();
-        List<String> packageListStr = new ArrayList<>();
-        packageListStr.add(packageList.get(0).toString());
-        packageNameField.set(dockerCmd, packageListStr);
-
-        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
-        assumeYesField.setAccessible(true);
-        assumeYesField.set(dockerCmd, true);
-
-        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
-        PrintStream testPrintStream = new PrintStream(testOutputStream);
-        Field sysout = cmdClass.getDeclaredField("outStream");
-        sysout.setAccessible(true);
-        sysout.set(dockerCmd, testPrintStream);
-
-        dockerCmd.execute();
-
-        String testResultString = new String(testOutputStream.toByteArray(), StandardCharsets.UTF_8);
-        String[] outLines = testResultString.split("\n");
-        Assert.assertEquals(outLines[1], "Docker image testservice:latest successfully built.");
-    }
-
-    @Test
-    public void testExecuteSuccessfulMainImageCreation()
-            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
-            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
-
-        Class<DockerCmd> cmdClass = DockerCmd.class;
-        DockerCmd dockerCmd = cmdClass.newInstance();
-
-        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
-        dockerClientField.setAccessible(true);
-        dockerClientField.set(dockerCmd, new TestBallerinaDockerClient());
-
-        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
-        packageNameField.setAccessible(true);
-        List<Path> packageList = TestUtils.getTestFunctionAsPathList();
-        List<String> packageListStr = new ArrayList<>();
-        packageListStr.add(packageList.get(0).toString());
-        packageNameField.set(dockerCmd, packageListStr);
-
-        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
-        assumeYesField.setAccessible(true);
-        assumeYesField.set(dockerCmd, true);
-
-        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
-        PrintStream testPrintStream = new PrintStream(testOutputStream);
-        Field sysout = cmdClass.getDeclaredField("outStream");
-        sysout.setAccessible(true);
-        sysout.set(dockerCmd, testPrintStream);
-
-        dockerCmd.execute();
-
-        String testResultString = new String(testOutputStream.toByteArray(), StandardCharsets.UTF_8);
-        String[] outLines = testResultString.split("\n");
-        Assert.assertEquals(outLines[1], "Docker image testfunction:latest successfully built.");
     }
 
     @Test(expectedExceptions = {RuntimeException.class})
@@ -399,6 +326,13 @@ public class DockerCmdTest {
             }
 
             return packageName.toLowerCase(Locale.getDefault()) + ":" + Constants.IMAGE_VERSION_LATEST;
+        }
+
+        @Override
+        public String createMainImage(String packageName, String dockerEnv, Path bPackagePaths,
+                                      String imageName, String imageVersion)
+                throws BallerinaDockerClientException, IOException, InterruptedException {
+            throw new BallerinaDockerClientException("Not Implemented.");
         }
 
         @Override

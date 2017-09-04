@@ -27,6 +27,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,12 +62,46 @@ public class DefaultBallerinaDockerClientSingleFileTest {
     }
 
     @Test
+    public void testSuccessfulCreateServiceImageFromFile()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+
+        String serviceName = "TestService1";
+        String imageName = serviceName.toLowerCase();
+        Path ballerinaConfig = Paths.get(Thread.currentThread().getContextClassLoader().
+                getResource("ballerina/TestService.bal").getPath());
+
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
+        createdImages.add(imageName);
+
+        Assert.assertTrue(
+                (result != null) && (result.equals(imageName + ":" + Constants.IMAGE_VERSION_LATEST)),
+                "Docker image creation failed.");
+    }
+
+    @Test
     public void testSuccessfulCreateFunctionImage()
             throws IOException, InterruptedException, BallerinaDockerClientException {
 
         String serviceName = "TestFunction1";
         String imageName = serviceName.toLowerCase();
         String ballerinaConfig = TestUtils.getTestFunctionAsString();
+
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
+        createdImages.add(imageName);
+
+        Assert.assertTrue(
+                (result != null) && (result.equals(imageName + ":" + Constants.IMAGE_VERSION_LATEST)),
+                "Docker image creation failed.");
+    }
+
+    @Test
+    public void testSuccessfulCreateFunctionImageFromFile()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+
+        String serviceName = "TestFunction1";
+        String imageName = serviceName.toLowerCase();
+        Path ballerinaConfig = Paths.get(Thread.currentThread().getContextClassLoader().
+                getResource("ballerina/TestFunction.bal").getPath());
 
         String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
         createdImages.add(imageName);

@@ -47,8 +47,8 @@ import java.util.Locale;
 @Parameters(commandNames = "docker", commandDescription = "create docker images for Ballerina program archives")
 public class DockerCmd implements BLauncherCmd {
 
-    private static final String BALLERINA_MAIN_PACKAGE_EXTENSION = "bmz";
-    private static final String BALLERINA_SERVICE_PACKAGE_EXTENSION = "bsz";
+    private static final String BALLERINA_COMPILED_PACKAGE_EXTENSION = "balx";
+    private static final String BALLERINA_NON_COMPILED_PACKAGE_EXTENSION = "bal";
     private static final String DEFAULT_DOCKER_HOST = "localhost";
     private static final String OS_NAME = "os.name";
     private static final String OS_NAME_WINDOWS = "Windows";
@@ -134,12 +134,16 @@ public class DockerCmd implements BLauncherCmd {
         }
 
         switch (packageExtension) {
-            case BALLERINA_SERVICE_PACKAGE_EXTENSION:
+            case BALLERINA_COMPILED_PACKAGE_EXTENSION:
+            case BALLERINA_NON_COMPILED_PACKAGE_EXTENSION:
+                if (!(packagePathNames.size() == 1)) {
+                    throw LauncherUtils.createUsageException("Only one ballerina bal/balx file can be specified\n");
+                }
                 try {
-                    String createdImageName = dockerClient.createServiceImage(packageName, dockerHost,
-                            packagePaths, imageName, imageVersion);
+                    String createdImageName = dockerClient.createMainImage(packageName, dockerHost, packagePaths.get(0),
+                            imageName, imageVersion);
                     if (createdImageName != null) {
-                        printServiceImageSuccessMessage(createdImageName);
+                        printImageSuccessMessage(createdImageName);
                     } else {
                         throw LauncherUtils.createUsageException("Docker image build failed for image "
                                 + imageName + ":" + imageVersion + ".");
@@ -149,20 +153,6 @@ public class DockerCmd implements BLauncherCmd {
                 }
                 break;
 
-            case BALLERINA_MAIN_PACKAGE_EXTENSION:
-                try {
-                    String createdImageName = dockerClient.createMainImage(packageName, dockerHost, packagePaths,
-                            imageName, imageVersion);
-                    if (createdImageName != null) {
-                        printMainImageSuccessMessage(createdImageName);
-                    } else {
-                        throw LauncherUtils.createUsageException("Docker image build failed for image "
-                                + imageName + ":" + imageVersion + ".");
-                    }
-                } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
-                    throw LauncherUtils.createUsageException(e.getMessage());
-                }
-                break;
 
             default:
                 throw LauncherUtils.createUsageException("invalid package extension\n");
@@ -226,14 +216,17 @@ public class DockerCmd implements BLauncherCmd {
     }
 
     /*
-    Print helpful messages for functionality to perform after image build for a Ballerina Service.
+    Print helpful messages for functionality to perform after image build for a Ballerina bal/balx main/service files.
      */
-    private void printServiceImageSuccessMessage(String imageName) {
+    private void printImageSuccessMessage(String imageName) {
         String containerName = Utils.generateContainerName();
         int portNumber = Utils.generateContainerPort();
         outStream.println("\nDocker image " + imageName + " successfully built.");
         outStream.println();
-        outStream.println("Use the following command to start a container.");
+        outStream.println("\nUse the following command to execute the main program bal/balx in a container.");
+        outStream.println("\tdocker run --name " + containerName + " -it " + imageName);
+        outStream.println();
+        outStream.println("Use the following command to start the main service bal/balx in container.");
         outStream.println("\tdocker run -p " + portNumber + ":9090 --name " + containerName + " -d " + imageName);
         outStream.println();
         outStream.println("Use the following command to inspect the logs.");
@@ -248,17 +241,6 @@ public class DockerCmd implements BLauncherCmd {
         outStream.println();
         outStream.println("Make requests using the format [curl -X <http-method> http://localhost:" + portNumber
                 + "/<service-name>]");
-        outStream.println();
-    }
-
-    /*
-    Print helpful messages for functionality to perform after image build for a Ballerina Main program.
-     */
-    private void printMainImageSuccessMessage(String imageName) {
-        String containerName = Utils.generateContainerName();
-        outStream.println("\nDocker image " + imageName + " successfully built.");
-        outStream.println("\nUse the following command to execute the archive in a container.");
-        outStream.println("\tdocker run --name " + containerName + " -it " + imageName);
         outStream.println();
     }
 }

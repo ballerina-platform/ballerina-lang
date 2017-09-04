@@ -33,8 +33,7 @@ LABEL org.label-schema.vcs-url="https://github.com/ballerinalang/container-suppo
 LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.vendor="WSO2"
 LABEL org.label-schema.version=$BUILD_VERSION
-LABEL org.label-schema.docker.cmd="docker run -v ~/ballerina/packages:/ballerina/files -e 'SVC_MODE=true' -p 9090:9090 -d ballerinalang/ballerina"
-LABEL org.label-schema.docker.params="SVC_MODE=true if packages to be run are Ballerina Services, false if they are Ballerina main programs"
+LABEL org.label-schema.docker.cmd="docker run -v ~/ballerina/packages:/ballerina/files -p 9090:9090 -d ballerinalang/ballerina"
 
 
 # Add Ballerina runtime.
@@ -70,14 +69,8 @@ EXPOSE 9090
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# Instructions for derivative images.
-ONBUILD ARG SVC_MODE=false
-ONBUILD ARG FILE_MODE=false
-
 # Force child images to override the crucial labels
 ONBUILD ARG BUILD_DATE
 ONBUILD RUN if [ -z "$BUILD_DATE" ]; then >&2 echo "ERROR: Haven't set mandatory build argument \"BUILD_DATE\". Please set an RFC 3339 Date value."; exit 1; fi
 LABEL org.label-schema.build-date=$BUILD_DATE
 
-ONBUILD ENV SVC_MODE=${SVC_MODE}
-ONBUILD ENV FILE_MODE=${FILE_MODE}
