@@ -62,8 +62,6 @@ class ConnectorDeclaration extends React.Component {
     constructor(props) {
         super(props);
         this.components = components;
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
 
         this.editorOptions = {
             propertyType: 'text',
@@ -124,8 +122,6 @@ class ConnectorDeclaration extends React.Component {
                         viewState={model.viewState.components.statementViewState}
                         expression={connectorName}
                         editorOptions={this.editorOptions}
-                        designer={this.props.designer}
-                        mode={this.props.mode}
                     />
                 }
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />

@@ -36,8 +36,6 @@ class JoinStatement extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.thisAddTimeout = this.addTimeout.bind(this);
         this.thisOnDelete = this.onDelete.bind(this);
     }
@@ -68,7 +66,7 @@ class JoinStatement extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         const props = this.props;
         const parameterBbox = this.props.model.viewState.components.param;
 
@@ -163,5 +161,8 @@ JoinStatement.propTypes = {
     model: PropTypes.instanceOf(JoinStatementAST).isRequired,
 };
 
+JoinStatement.contextTypes = {
+    mode: PropTypes.string,
+};
 
 export default JoinStatement;

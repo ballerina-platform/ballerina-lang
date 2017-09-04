@@ -37,8 +37,6 @@ class FailedStatement extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.onAddCommittedClick = this.onAddCommittedClick.bind(this);
     }
 
@@ -94,7 +92,7 @@ class FailedStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
-        const children = getComponentForNodeArray(model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(model.getChildren(), this.context.mode);
         if (utilities) {
             return (<BlockStatementDecorator
                 model={model}
@@ -132,6 +130,10 @@ class FailedStatement extends React.Component {
 
 FailedStatement.propTypes = {
     model: PropTypes.instanceOf(FailedStatementAST).isRequired,
+};
+
+FailedStatement.contextTypes = {
+    mode: PropTypes.string,
 };
 
 export default FailedStatement;

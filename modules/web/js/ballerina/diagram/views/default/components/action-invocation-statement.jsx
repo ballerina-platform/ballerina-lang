@@ -50,8 +50,6 @@ class ActionInvocationStatement extends React.Component {
             getterMethod: props.model.getStatementString,
             setterMethod: props.model.setStatementFromString,
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.state = { actionInvocationDelete: 'hidden' };
         this.onDelete = this.onDelete.bind(this);
         this.onDeleteConnectorActionMouseOut = this.onDeleteConnectorActionMouseOut.bind(this);
@@ -237,22 +235,22 @@ class ActionInvocationStatement extends React.Component {
                     >
                         <rect
                             x={((arrowStart.x + arrowEnd.x) / 2) -
-                            this.designer.actionInvocationDelete.iconSize.padding}
-                            y={arrowStart.y + (this.designer.actionInvocationDelete.outerRect.height / 2)}
-                            width={(this.designer.actionInvocationDelete.outerRect.height / 2)}
-                            height={(this.designer.actionInvocationDelete.outerRect.height / 2)}
+                            this.context.designer.actionInvocationDelete.iconSize.padding}
+                            y={arrowStart.y + (this.context.designer.actionInvocationDelete.outerRect.height / 2)}
+                            width={(this.context.designer.actionInvocationDelete.outerRect.height / 2)}
+                            height={(this.context.designer.actionInvocationDelete.outerRect.height / 2)}
                             rx="0"
                             ry="0"
                             className="property-pane-action-button-wrapper"
                         />
                         <image
-                            width={this.designer.actionInvocationDelete.iconSize.width}
-                            height={this.designer.actionInvocationDelete.iconSize.width}
+                            width={this.context.designer.actionInvocationDelete.iconSize.width}
+                            height={this.context.designer.actionInvocationDelete.iconSize.width}
                             className="property-pane-action-button-delete"
                             xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
                             x={((arrowStart.x + arrowEnd.x) / 2) -
-                            this.designer.actionInvocationDelete.iconSize.padding}
-                            y={arrowStart.y + (this.designer.actionInvocationDelete.outerRect.height / 2)}
+                            this.context.designer.actionInvocationDelete.iconSize.padding}
+                            y={arrowStart.y + (this.context.designer.actionInvocationDelete.outerRect.height / 2)}
                             onClick={this.onDelete}
                         >
                             <title>Delete</title> </image>
@@ -260,10 +258,10 @@ class ActionInvocationStatement extends React.Component {
                     }
                     <rect
                         x={((arrowStart.x + arrowEnd.x) / 2) -
-                        (this.designer.actionInvocationDelete.outerRect.width / 2)}
+                        (this.context.designer.actionInvocationDelete.outerRect.width / 2)}
                         y={arrowStart.y}
-                        width={this.designer.actionInvocationDelete.outerRect.width}
-                        height={this.designer.actionInvocationDelete.outerRect.height}
+                        width={this.context.designer.actionInvocationDelete.outerRect.width}
+                        height={this.context.designer.actionInvocationDelete.outerRect.height}
                         rx="0"
                         ry="0"
                         fillOpacity="0.0"
@@ -284,6 +282,7 @@ ActionInvocationStatement.propTypes = {
 ActionInvocationStatement.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
+    designer: PropTypes.instanceOf(Object),
 };
 
 export default ActionInvocationStatement;

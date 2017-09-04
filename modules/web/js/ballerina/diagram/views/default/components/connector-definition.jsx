@@ -43,8 +43,6 @@ class ConnectorDefinition extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
@@ -105,7 +103,7 @@ class ConnectorDefinition extends React.Component {
         /**
          * Here we skip rendering the variables
          */
-        const children = getComponentForNodeArray(childrenWithNoVariables, this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(childrenWithNoVariables, this.context.mode);
 
         const expandedVariablesBBox = {
             x: bBox.x + DesignerDefaults.panel.body.padding.left,
@@ -157,7 +155,8 @@ ConnectorDefinition.propTypes = {
 };
 
 ConnectorDefinition.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired
+    editor: PropTypes.instanceOf(Object).isRequired,
+    mode: PropTypes.string,
 };
 
 export default ConnectorDefinition;

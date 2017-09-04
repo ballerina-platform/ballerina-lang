@@ -31,8 +31,6 @@ class AbortStatement extends React.Component {
 
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -50,8 +48,6 @@ class AbortStatement extends React.Component {
                 model={model}
                 viewState={model.viewState}
                 expression={expression}
-                designer={this.props.designer}
-                mode={this.props.mode}
             />);
     }
 }
