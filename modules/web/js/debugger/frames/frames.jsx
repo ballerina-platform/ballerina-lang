@@ -63,7 +63,7 @@ class Frames extends React.Component {
                 {frame.variables.map((variable, j) => {
                     const { type = '', name, value, scope } = variable;
                     const label = <span className="node"><strong>{name}</strong>{` = (${type})`}</span>;
-                    if (type === 'json' || type === 'struct') {
+                    if (type === 'json' || type === 'struct' || type === 'map') {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
                                 <div className="node">Type: {type}</div>
