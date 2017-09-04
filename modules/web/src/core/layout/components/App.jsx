@@ -44,6 +44,8 @@ class App extends React.Component {
             leftPanelSize,
             showBottomPanel,
             bottomPanelSize,
+            documentHeight: window.innerHeight,
+            documentWidth: window.innerWidth,
         };
         this.leftRightSplitPane = undefined;
         this.topBottomSplitPane = undefined;
