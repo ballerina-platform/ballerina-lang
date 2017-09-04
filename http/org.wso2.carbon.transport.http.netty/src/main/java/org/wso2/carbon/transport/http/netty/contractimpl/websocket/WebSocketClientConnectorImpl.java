@@ -20,6 +20,8 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
@@ -36,25 +38,33 @@ import javax.websocket.Session;
 public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
 
     private final String remoteUrl;
-    private final String subProtocol;
+    private final String subProtocols;
     private final String target;
     private final WebSocketSourceHandler sourceHandler;
     private final boolean allowExtensions;
+    private final Map<String, String> customHeaders;
 
-    public WebSocketClientConnectorImpl(String remoteUrl, String target, String subProtocol, boolean allowExtensions,
-                                        WebSocketSourceHandler sourceHandler) {
-        this.remoteUrl = remoteUrl;
-        this.target = target;
-        this.subProtocol = subProtocol;
-        this.sourceHandler = sourceHandler;
-        this.allowExtensions = allowExtensions;
+    public WebSocketClientConnectorImpl(WSSenderConfiguration configuration) {
+        this.remoteUrl = configuration.getRemoteAddress();
+        this.target = configuration.getTarget();
+        this.subProtocols = configuration.getSubProtocolsAsCSV();
+        this.customHeaders = configuration.getHeaders();
+        this.allowExtensions = configuration.isAllowExtensions();
+
+        WebSocketMessageImpl webSocketMessage = (WebSocketMessageImpl) configuration.getWebSocketMessage();
+        if (webSocketMessage == null) {
+            this.sourceHandler = null;
+        } else {
+            this.sourceHandler =
+                    (WebSocketSourceHandler) webSocketMessage.getProperty(Constants.SRC_HANDLER);
+        }
     }
 
     @Override
-    public Session connect(WebSocketConnectorListener connectorListener, Map<String, String> customHeaders)
+    public Session connect(WebSocketConnectorListener connectorListener)
             throws ClientConnectorException {
 
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
+        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, allowExtensions,
                                                               customHeaders, sourceHandler, connectorListener);
         try {
             return webSocketClient.handshake();

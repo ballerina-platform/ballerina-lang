@@ -136,9 +136,11 @@ public class WebSocketClient {
 
         // Adding custom headers to the handshake request.
 
-        headers.entrySet().forEach(
-                entry -> httpHeaders.add(entry.getKey(), entry.getValue())
-        );
+        if (headers != null) {
+            headers.entrySet().forEach(
+                    entry -> httpHeaders.add(entry.getKey(), entry.getValue())
+            );
+        }
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocols, allowExtensions, httpHeaders);

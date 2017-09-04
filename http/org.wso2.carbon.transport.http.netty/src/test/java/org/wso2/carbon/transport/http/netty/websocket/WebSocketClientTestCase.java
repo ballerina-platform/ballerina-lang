@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
@@ -36,8 +36,6 @@ import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemot
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 
@@ -52,7 +50,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
     private final int threadSleepTime = 100;
-    private Map<String, Object> senderProperties = new HashMap<>();
+    private WSSenderConfiguration configuration = new WSSenderConfiguration();
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT,
                                                                            "xml, json");
@@ -60,8 +58,8 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         remoteServer.run();
-        senderProperties.put(Constants.REMOTE_ADDRESS, url);
-        clientConnector = httpConnectorFactory.createWsClientConnector(senderProperties);
+        configuration.setRemoteAddress(url);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
     @Test(priority = 1, description = "Test the WebSocket handshake and sending and receiving text messages.")
@@ -123,10 +121,11 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
         // Try with a matching sub protocol.
         try {
-            senderProperties.put(Constants.WEBSOCKET_SUBPROTOCOLS, "xmlx, json");
-            clientConnector = httpConnectorFactory.createWsClientConnector(senderProperties);
+            String[] subProtocols = {"xmlx", "json"};
+            configuration.setSubProtocols(subProtocols);
+            clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
             WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
-            Session session = null;
+            Session session;
             session = handshake(connectorListener);
             Assert.assertEquals(session.getNegotiatedSubprotocol(), "json");
         } catch (ClientConnectorException e) {
@@ -135,10 +134,11 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
         // Try with unmatching sub protocol
         try {
-            senderProperties.put(Constants.WEBSOCKET_SUBPROTOCOLS, "xmlx, jsonx");
-            clientConnector = httpConnectorFactory.createWsClientConnector(senderProperties);
+            String[] subProtocols = {"xmlx", "jsonx"};
+            configuration.setSubProtocols(subProtocols);
+            clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
             WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
-            Session session = null;
+            Session session;
             session = handshake(connectorListener);
             Assert.assertFalse(true, "Should not negotiate");
         } catch (ClientConnectorException e) {
@@ -153,8 +153,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     }
 
     private Session handshake(WebSocketConnectorListener connectorListener) throws ClientConnectorException {
-        Map<String, String> customHeaders = new HashMap<>();
-        return clientConnector.connect(connectorListener, customHeaders);
+        return clientConnector.connect(connectorListener);
     }
 
     private void shutDownClient(Session session) throws ClientConnectorException, IOException {

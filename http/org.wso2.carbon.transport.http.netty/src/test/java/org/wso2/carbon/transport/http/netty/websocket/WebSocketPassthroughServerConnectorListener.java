@@ -22,8 +22,8 @@ package org.wso2.carbon.transport.http.netty.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -36,7 +36,6 @@ import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
 import java.net.ProtocolException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
@@ -54,17 +53,16 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
-            Map<String, Object> senderProperties = new HashMap<>();
+            WSSenderConfiguration configuration = new WSSenderConfiguration();
             String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
-            senderProperties.put(Constants.REMOTE_ADDRESS, remoteUrl);
-            senderProperties.put(Constants.TO, "myService");
-            senderProperties.put(Constants.WEBSOCKET_MESSAGE, initMessage);
-            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(senderProperties);
+            configuration.setRemoteAddress(remoteUrl);
+            configuration.setTarget("myService");
+            configuration.setWebSocketMessage(initMessage);
+            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
 
             WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
-            Map<String, String> customHeaders = new HashMap<>();
-            Session clientSession = clientConnector.connect(connectorListener, customHeaders);
+            Session clientSession = clientConnector.connect(connectorListener);
             Session serverSession = initMessage.handshake();
             sessionsMap.put(serverSession.getId(), clientSession);
         } catch (ProtocolException | ClientConnectorException e) {
