@@ -34,12 +34,14 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangConnector extends BLangNode implements ConnectorNode {
+
     public BLangIdentifier name;
     public List<BLangVariable> params;
     public List<BLangVariable> vars;
     public List<BLangAction> actions;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
+    public BLangVariable filteredParam;
 
     public BLangConnector() {
         this.params = new ArrayList<>();
@@ -121,8 +123,17 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
 
     @Override
     public String toString() {
-        return "BLangConnector: " + this.name + " <" + this.vars.get(0) +
-                "> (" + this.params + ") Actions: " + this.actions;
+        return "BLangConnector: " + this.name + " <" + this.filteredParam + "> (" + this.params +
+                ") Actions: " + this.actions;
     }
 
+    @Override
+    public void setFilteredParamter(VariableNode filteredParam) {
+        this.filteredParam = (BLangVariable) filteredParam;
+    }
+
+    @Override
+    public VariableNode getFilteredParameter() {
+        return filteredParam;
+    }
 }

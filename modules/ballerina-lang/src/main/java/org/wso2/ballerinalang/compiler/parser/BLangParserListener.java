@@ -47,7 +47,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     
     @Override 
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
-        this.pkgBuilder.addParam(ctx.Identifier().getText());
+        this.pkgBuilder.addVar(ctx.Identifier().getText());
     }
     
     /**
@@ -289,7 +289,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { 
-        this.pkgBuilder.endStructDef();
+        this.pkgBuilder.endStructDef(ctx.Identifier().getText());
     }
     
     /**
@@ -299,7 +299,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void enterStructBody(BallerinaParser.StructBodyContext ctx) { 
-        this.pkgBuilder.startFieldDefConatiner();
+        this.pkgBuilder.startVariableContainer();
     }
     
     /**
@@ -1687,7 +1687,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { 
-        this.pkgBuilder.addFieldDefinition(ctx.Identifier().getText());
+        this.pkgBuilder.addVar(ctx.Identifier().getText());
     }
     
     /**
