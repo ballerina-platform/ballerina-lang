@@ -97,7 +97,7 @@ public class BLangStruct extends BLangNode implements StructNode {
     
     @Override
     public String toString() {
-        return "BLangStruct: " + this.fields;
+        return "BLangStruct: " + this.name + " -> " + this.fields;
     }
     
 }

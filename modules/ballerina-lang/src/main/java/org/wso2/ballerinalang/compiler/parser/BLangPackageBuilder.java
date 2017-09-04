@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -54,9 +55,9 @@ public class BLangPackageBuilder {
 
     private Stack<BlockNode> blockNodeStack = new Stack<>();
     
-    private Stack<VariableNode> paramStack = new Stack<>();
+    private Stack<VariableNode> varStack = new Stack<>();
 
-    private Stack<List<VariableNode>> paramListStack = new Stack<>();
+    private Stack<List<VariableNode>> varListStack = new Stack<>();
 
     private Stack<List<VariableNode>> retParamListStack = new Stack<>();
 
@@ -67,10 +68,10 @@ public class BLangPackageBuilder {
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
     private Stack<StructNode> structStack = new Stack<>();
-    
-    private Stack<FieldDefinitionContainer> fieldDefContainerStack = new Stack<>();
-    
+        
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
+    
+    private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -83,7 +84,7 @@ public class BLangPackageBuilder {
     }
 
     public void startParamList() {
-        this.paramListStack.add(new ArrayList<>());
+        this.varListStack.add(new ArrayList<>());
     }
 
     public void startFunctionDef() {
@@ -95,7 +96,7 @@ public class BLangPackageBuilder {
     }
 
     public void endReturnParams() {
-        this.retParamListStack.push(this.paramListStack.pop());
+        this.retParamListStack.push(this.varListStack.pop());
     }
 
     private IdentifierNode createIdentifier(String identifier) {
@@ -104,22 +105,20 @@ public class BLangPackageBuilder {
         return node;
     }
 
-    public void addParam(String identifier) {
-        VariableNode var = TreeBuilder.createVariableNode();
-        var.setName(this.createIdentifier(identifier));
-        var.setType(this.typeNodeStack.pop());
-        if (this.paramListStack.empty()) {
-            this.paramStack.push(var);
+    public void addVar(String identifier) {
+        VariableNode var = this.generateBasicVarNode(identifier);
+        if (this.varListStack.empty()) {
+            this.varStack.push(var);
         } else {
-            this.paramListStack.peek().add(var);
+            this.varListStack.peek().add(var);
         }
     }
 
     private List<VariableNode> getLastParamsList() {
-        if (this.paramListStack.empty()) {
+        if (this.varListStack.empty()) {
             return new ArrayList<>(0);
         } else {
-            return this.paramListStack.pop();
+            return this.varListStack.pop();
         }
     }
 
@@ -213,21 +212,22 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(var);
     }
     
-    public void startFieldDefConatiner() {
-        this.fieldDefContainerStack.add(new FieldDefinitionContainer());
+    public void startVariableContainer() {
+        this.varListStack.add(new ArrayList<>());
     }
     
-    public void addFieldDefinition(String identifier) {
-        this.fieldDefContainerStack.peek().vars.add(this.generateBasicVarNode(identifier));
+    public void addVariable(String identifier) {
+        this.varListStack.peek().add(this.generateBasicVarNode(identifier));
     }
     
     public void startStructDef() {
         this.structStack.add(TreeBuilder.createStructNode());
     }
     
-    public void endStructDef() {
+    public void endStructDef(String identifier) {
         StructNode structNode = this.structStack.pop();
-        this.fieldDefContainerStack.pop().vars.stream().forEach(e -> structNode.addField(e));
+        structNode.setName(this.createIdentifier(identifier));
+        this.varListStack.pop().stream().forEach(e -> structNode.addField(e));
         this.compUnit.addTopLevelNode(structNode);
     }
     
@@ -240,12 +240,15 @@ public class BLangPackageBuilder {
         /* End of connector definition header, so let's populate 
          * the connector information before processing the body. */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
-        if  (!this.paramStack.empty()) {
-            connectorNode.addVariable(this.paramStack.pop());
+        if  (!this.varStack.empty()) {
+            connectorNode.setFilteredParamter(this.varStack.pop());
         }
-        if (!this.paramListStack.empty()) {
-            this.paramListStack.pop().forEach(e -> connectorNode.addParameter(e));
+        if (!this.varListStack.empty()) {
+            this.varListStack.pop().forEach(e -> connectorNode.addParameter(e));
         }
+        /* add variable definitions and actions lists for the body */
+        this.varListStack.push(new ArrayList<>());
+        this.actionNodeStack.push(new ArrayList<>());
     }
     
     public void endConnectorDef(String identifier) {
@@ -254,11 +257,10 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(connectorNode);
     }
     
-    /**
-     * Represents a list of field definitions, used in structs and annotations.
-     */
-    private class FieldDefinitionContainer {
-        public List<VariableNode> vars = new ArrayList<>();
+    public void endConnectorBody() {
+        ConnectorNode connectorNode = this.connectorNodeStack.pop();
+        this.varListStack.pop().stream().forEach(e -> connectorNode.addVariable(e));
+        this.actionNodeStack.pop().stream().forEach(e -> connectorNode.addAction(e));
     }
-
+    
 }
