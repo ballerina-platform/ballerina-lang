@@ -488,12 +488,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
+    @Override 
+    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { 
+        this.pkgBuilder.addConstVariable(ctx.Identifier().getText());
+    }
     /**
      * {@inheritDoc}
      *
@@ -535,7 +539,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.valueTypeName() != null) {
-            this.pkgBuilder.addValueType(ctx.valueTypeName().getChild(0).toString());
             return;
         }
     }
@@ -560,6 +563,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override 
+    public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { 
+        this.pkgBuilder.addValueType(ctx.getText());
+    }
 
     /**
      * {@inheritDoc}

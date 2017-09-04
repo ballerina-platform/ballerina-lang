@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -180,7 +181,19 @@ public class BLangPackageBuilder {
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(name);
         var.setType(this.typeNodeStack.pop());
+        if (!this.exprNodeStack.empty()) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        this.compUnit.addTopLevelNode(var);
+    }
+    
+    public void addConstVariable(String identifier) {
+        IdentifierNode name = this.createIdentifier(identifier);
+        VariableNode var = TreeBuilder.createVariableNode();
+        var.setName(name);
+        var.setType(this.typeNodeStack.pop());
         var.setInitialExpression(this.exprNodeStack.pop());
+        var.addFlag(Flag.CONST);
         this.compUnit.addTopLevelNode(var);
     }
 
