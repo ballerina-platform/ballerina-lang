@@ -50,6 +50,7 @@ public class HTTPMessageUtil {
 
             httpCarbonMessage.setWriter(carbonMessage.getWriter());
             httpCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
+            httpCarbonMessage.setAlreadyRead(carbonMessage.isAlreadyRead());
 
             Util.prepareBuiltMessageForTransfer(carbonMessage);
             if (!carbonMessage.isEmpty()) {
