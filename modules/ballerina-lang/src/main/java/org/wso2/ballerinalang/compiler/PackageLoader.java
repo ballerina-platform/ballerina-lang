@@ -70,7 +70,7 @@ public class PackageLoader {
 
     public PackageLoader(CompilerContext context) {
         this.context = context;
-        context.put(PACKAGE_LOADER_KEY, this);
+        this.context.put(PACKAGE_LOADER_KEY, this);
 
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);

@@ -19,12 +19,15 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.InvocableNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
+import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
@@ -59,6 +62,10 @@ public class BLangPackageBuilder {
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
     
     private Stack<PackageID> pkgIdStack = new Stack<>();
+    
+    private Stack<StructNode> structStack = new Stack<>();
+    
+    private Stack<FieldDefinitionContainer> fieldDefContainerStack = new Stack();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -151,11 +158,7 @@ public class BLangPackageBuilder {
         } else {
             versionNode = null;
         }
-        nameComps.stream().forEach(e -> {
-            IdentifierNode node = TreeBuilder.createIdentifierNode();
-            node.setValue(e);
-            nameCompNodes.add(node);
-        });
+        nameComps.stream().forEach(e -> nameCompNodes.add(this.createIdentifier(e)));
         this.pkgIdStack.add(new PackageID(nameCompNodes, versionNode));
     }
     
@@ -163,6 +166,66 @@ public class BLangPackageBuilder {
         PackageDeclarationNode pkgDecl = TreeBuilder.createPackageDeclarationNode();
         pkgDecl.setPackageID(this.pkgIdStack.pop());
         this.compUnit.addTopLevelNode(pkgDecl);
+    }
+    
+    public void addImportPackageDeclaration(String alias) {
+        ImportPackageNode impDecl = TreeBuilder.createImportPackageNode();
+        IdentifierNode aliasNode;
+        if (alias != null) {
+            aliasNode = this.createIdentifier(alias);
+        } else {
+            aliasNode = null;
+        }
+        impDecl.setPackageID(this.pkgIdStack.pop());
+        impDecl.setAlias(aliasNode);
+        this.compUnit.addTopLevelNode(impDecl);
+    }
+    
+    private VariableNode generateBasicVarNode(String identifier) {
+        IdentifierNode name = this.createIdentifier(identifier);
+        VariableNode var = TreeBuilder.createVariableNode();
+        var.setName(name);
+        var.setType(this.typeNodeStack.pop());
+        if (!this.exprNodeStack.empty()) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        return var;
+    }
+    
+    public void addGlobalVariable(String identifier) {
+        VariableNode var = this.generateBasicVarNode(identifier);
+        this.compUnit.addTopLevelNode(var);
+    }
+    
+    public void addConstVariable(String identifier) {
+        VariableNode var = this.generateBasicVarNode(identifier);
+        var.addFlag(Flag.CONST);
+        this.compUnit.addTopLevelNode(var);
+    }
+    
+    public void startFieldDefConatiner() {
+        this.fieldDefContainerStack.add(new FieldDefinitionContainer());
+    }
+    
+    public void addFieldDefinition(String identifier) {
+        this.fieldDefContainerStack.peek().vars.add(this.generateBasicVarNode(identifier));
+    }
+    
+    public void startStructDef() {
+        this.structStack.add(TreeBuilder.createStructNode());
+    }
+    
+    public void endStructDef() {
+        StructNode structNode = this.structStack.pop();
+        this.fieldDefContainerStack.pop().vars.stream().forEach(e -> structNode.addField(e));
+        this.compUnit.addTopLevelNode(structNode);
+    }
+    
+    /**
+     * Represents a list of field definitions, used in structs and annotations.
+     */
+    private class FieldDefinitionContainer {
+        public List<VariableNode> vars = new ArrayList<>();
     }
 
 }

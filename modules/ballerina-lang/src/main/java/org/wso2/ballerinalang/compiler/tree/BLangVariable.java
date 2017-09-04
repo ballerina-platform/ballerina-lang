@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +45,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
 
     public BLangVariable() {
         this.annAttachments = new ArrayList<>();
+        this.flags = new HashSet<>();
     }
 
     @Override
@@ -105,4 +107,11 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public NodeKind getKind() {
         return NodeKind.VARIABLE;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") + 
+                this.name + "[" + this.type + "]" + (this.expr != null ? " = " + this.expr : "");
+    }
+    
 }

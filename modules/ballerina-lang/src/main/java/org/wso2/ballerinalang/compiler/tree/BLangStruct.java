@@ -94,4 +94,10 @@ public class BLangStruct extends BLangNode implements StructNode {
     public NodeKind getKind() {
         return NodeKind.STRUCT;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangStruct: " + this.fields;
+    }
+    
 }

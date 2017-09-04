@@ -75,4 +75,9 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
     public int hashCode() {
         return value.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return this.getValue();
+    }
 }

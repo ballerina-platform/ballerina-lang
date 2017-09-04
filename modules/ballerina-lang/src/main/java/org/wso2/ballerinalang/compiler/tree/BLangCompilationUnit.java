@@ -61,4 +61,13 @@ public class BLangCompilationUnit implements CompilationUnitNode {
     public NodeKind getKind() {
         return NodeKind.COMPILATION_UNIT;
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("'" + this.getName() + "' -> Top Level Elements:-\n");
+        this.getTopLevelNodes().stream().forEach(e -> builder.append("\t" + e + "\n"));
+        return builder.toString();
+    }
+    
 }

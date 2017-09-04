@@ -104,12 +104,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) { }
+    @Override 
+    public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
+        String alias;
+        if (ctx.Identifier() != null) {
+            alias = ctx.Identifier().getText();
+        } else {
+            alias = null;
+        }
+        this.pkgBuilder.addImportPackageDeclaration(alias);
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -250,24 +261,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
+    @Override 
+    public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { 
+        this.pkgBuilder.startStructDef();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
+    @Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { 
+        this.pkgBuilder.endStructDef();
+    }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStructBody(BallerinaParser.StructBodyContext ctx) { }
+    @Override 
+    public void enterStructBody(BallerinaParser.StructBodyContext ctx) { 
+        this.pkgBuilder.startFieldDefConatiner();
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -292,12 +315,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { }
+    @Override 
+    public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { 
+        this.pkgBuilder.addGlobalVariable(ctx.Identifier().getText());
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -472,12 +500,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
+    @Override 
+    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { 
+        this.pkgBuilder.addConstVariable(ctx.Identifier().getText());
+    }
     /**
      * {@inheritDoc}
      *
@@ -519,7 +551,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.valueTypeName() != null) {
-            this.pkgBuilder.addValueType(ctx.valueTypeName().getChild(0).toString());
             return;
         }
     }
@@ -544,6 +575,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override 
+    public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { 
+        this.pkgBuilder.addValueType(ctx.getText());
+    }
 
     /**
      * {@inheritDoc}
@@ -1627,12 +1668,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
+    @Override 
+    public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { 
+        this.pkgBuilder.addFieldDefinition(ctx.Identifier().getText());
+    }
+    
     /**
      * {@inheritDoc}
      *
