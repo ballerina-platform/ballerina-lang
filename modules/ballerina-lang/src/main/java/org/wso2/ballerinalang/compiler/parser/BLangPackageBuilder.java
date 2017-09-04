@@ -174,5 +174,14 @@ public class BLangPackageBuilder {
         impDecl.setAlias(aliasNode);
         this.compUnit.addTopLevelNode(impDecl);
     }
+    
+    public void addGlobalVariable(String identifier) {
+        IdentifierNode name = this.createIdentifier(identifier);
+        VariableNode var = TreeBuilder.createVariableNode();
+        var.setName(name);
+        var.setType(this.typeNodeStack.pop());
+        var.setInitialExpression(this.exprNodeStack.pop());
+        this.compUnit.addTopLevelNode(var);
+    }
 
 }

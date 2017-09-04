@@ -303,12 +303,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { }
+    
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { }
+    @Override 
+    public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { 
+        this.pkgBuilder.addGlobalVariable(ctx.Identifier().getText());
+    }
+    
     /**
      * {@inheritDoc}
      *
