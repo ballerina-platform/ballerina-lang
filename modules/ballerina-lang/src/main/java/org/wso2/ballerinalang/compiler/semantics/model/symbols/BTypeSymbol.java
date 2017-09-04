@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.codegen;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 /**
  * @since 0.94
  */
-public class CompiledPackageReader {
+public class BTypeSymbol extends BSymbol {
 }

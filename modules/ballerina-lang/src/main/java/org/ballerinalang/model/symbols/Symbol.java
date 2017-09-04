@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.symbols;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.types.Type;
 
@@ -30,6 +31,9 @@ import java.util.Set;
  * @since 0.94
  */
 public interface Symbol {
+
+    Name getName();
+
     SymbolKind getKind();
 
     Type getType();

@@ -21,11 +21,11 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.ByteArrayInputStream;
@@ -33,36 +33,37 @@ import java.io.IOException;
 
 /**
  * This represents the Ballerina source parser.
- * 
+ *
  * @since 0.94
  */
-public class BLangParser {
-    
-    private static final CompilerContext.Key<BLangParser> parserKey = new CompilerContext.Key<>();
+public class Parser {
+
+    private static final CompilerContext.Key<Parser> PARSER_KEY = new CompilerContext.Key<>();
 
     private CompilerContext context;
 
-    public static BLangParser getInstance(CompilerContext context) {
-        BLangParser parser = context.get(parserKey);
+    public static Parser getInstance(CompilerContext context) {
+        Parser parser = context.get(PARSER_KEY);
         if (parser == null) {
-            parser = new BLangParser(context);
+            parser = new Parser(context);
         }
 
         return parser;
     }
 
-    public BLangParser(CompilerContext context) {
+    public Parser(CompilerContext context) {
         this.context = context;
-        this.context.put(parserKey, this);
+        this.context.put(PARSER_KEY, this);
     }
 
-    public PackageNode parse(PackageSource pkgSource) {
-        PackageNode pkgNode = TreeBuilder.createPackageNode();
-        pkgSource.getPackageSourceEntries().forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
+    public BLangPackage parse(PackageSource pkgSource) {
+        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        pkgSource.getPackageSourceEntries()
+                .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
         return pkgNode;
     }
-    
-    private CompilationUnitNode generateCompilationUnit(PackageSourceEntry sourceEntry) { 
+
+    private CompilationUnitNode generateCompilationUnit(PackageSourceEntry sourceEntry) {
         try {
             ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
             ais.name = sourceEntry.getEntryName();
@@ -79,5 +80,5 @@ public class BLangParser {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
         }
     }
-    
+
 }

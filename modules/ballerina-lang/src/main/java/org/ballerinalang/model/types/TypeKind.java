@@ -50,5 +50,7 @@ public enum TypeKind {
 
     DATATABLE,
     JSON,
-    XML;
+    XML,
+    PACKAGE,
+    OTHER
 }

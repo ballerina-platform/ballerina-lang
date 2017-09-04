@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BLangSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.HashMap;
@@ -31,16 +31,16 @@ public class Scope implements org.ballerinalang.model.Scope {
 
     public static final ScopeEntry NOT_FOUND_ENTRY = new ScopeEntry(null, null);
 
-    public BLangSymbol owner;
+    public BSymbol owner;
 
     public HashMap<Name, ScopeEntry> entries;
 
-    public Scope(BLangSymbol owner) {
+    public Scope(BSymbol owner) {
         this.owner = owner;
         this.entries = new HashMap<>(10);
     }
 
-    public void define(Name name, BLangSymbol symbol) {
+    public void define(Name name, BSymbol symbol) {
         ScopeEntry current = entries.get(name);
         if (current == null) {
             current = NOT_FOUND_ENTRY;
@@ -64,10 +64,10 @@ public class Scope implements org.ballerinalang.model.Scope {
      */
     public static class ScopeEntry implements org.ballerinalang.model.ScopeEntry {
 
-        public BLangSymbol symbol;
+        public BSymbol symbol;
         public ScopeEntry next;
 
-        public ScopeEntry(BLangSymbol symbol, ScopeEntry next) {
+        public ScopeEntry(BSymbol symbol, ScopeEntry next) {
             this.symbol = symbol;
             this.next = next;
         }

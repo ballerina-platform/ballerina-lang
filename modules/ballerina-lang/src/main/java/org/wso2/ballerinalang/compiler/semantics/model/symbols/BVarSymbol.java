@@ -20,5 +20,5 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 /**
  * @since 0.94
  */
-public class BLangPackageSymbol extends BLangSymbol {
+public class BVarSymbol extends BSymbol {
 }

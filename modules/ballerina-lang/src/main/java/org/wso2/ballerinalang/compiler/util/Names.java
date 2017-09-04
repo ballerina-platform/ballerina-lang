@@ -21,4 +21,7 @@ package org.wso2.ballerinalang.compiler.util;
  * @since 0.94
  */
 public class Names {
+
+    public static final Name EMPTY = new Name("");
+    public static final Name DEFAULT_VERSION = new Name("0.0.0");
 }

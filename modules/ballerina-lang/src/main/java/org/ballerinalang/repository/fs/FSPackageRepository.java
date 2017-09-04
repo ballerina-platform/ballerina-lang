@@ -34,17 +34,17 @@ import java.util.stream.Collectors;
 
 /**
  * This represents a local file system based {@link PackageRepository}.
- * 
+ *
  * @since 0.94
  */
 public class FSPackageRepository implements PackageRepository {
 
     private Path basePath;
-    
+
     public FSPackageRepository(Path basePath) {
         this.basePath = basePath;
     }
-    
+
     private PackageSource lookupPackageSource(PackageID pkgID) {
         Path path = this.generatePath(pkgID);
         if (!Files.isDirectory(path)) {
@@ -52,7 +52,7 @@ public class FSPackageRepository implements PackageRepository {
         }
         return new FSPackageSource(pkgID, path);
     }
-    
+
     private PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
         Path path = this.generatePath(pkgID);
         if (!Files.isDirectory(path)) {
@@ -60,7 +60,7 @@ public class FSPackageRepository implements PackageRepository {
         }
         return new FSPackageSource(pkgID, path, entryName);
     }
-    
+
     @Override
     public PackageEntity loadPackage(PackageID pkgID) {
         PackageEntity result = null;
@@ -70,7 +70,7 @@ public class FSPackageRepository implements PackageRepository {
         }
         return result;
     }
-    
+
     @Override
     public PackageEntity loadPackage(PackageID pkgID, String entryName) {
         PackageEntity result = null;
@@ -80,11 +80,11 @@ public class FSPackageRepository implements PackageRepository {
         }
         return result;
     }
-    
+
     private Path generatePath(PackageID pkgID) {
-        return this.basePath.resolve(pkgID.getNameCompsAsString().replace('.', File.separatorChar));
+        return this.basePath.resolve(pkgID.getPackageName().getValue().replace('.', File.separatorChar));
     }
-    
+
     /**
      * This represents a local file system based {@link FSPackageSource}.
      *
@@ -95,16 +95,16 @@ public class FSPackageRepository implements PackageRepository {
         private static final String BAL_SOURCE_EXT = ".bal";
 
         private PackageID pkgID;
-        
+
         private Path pkgPath;
-        
+
         private List<String> cachedEntryNames;
-                
+
         public FSPackageSource(PackageID pkgID, Path pkgPath) {
             this.pkgID = pkgID;
             this.pkgPath = pkgPath;
         }
-        
+
         public FSPackageSource(PackageID pkgID, Path pkgPath, String entryName) {
             this.pkgID = pkgID;
             this.pkgPath = pkgPath;
@@ -113,12 +113,12 @@ public class FSPackageRepository implements PackageRepository {
             }
             this.cachedEntryNames = Arrays.asList(entryName);
         }
-        
+
         @Override
         public PackageID getPackageId() {
             return pkgID;
         }
-        
+
         @Override
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
@@ -129,7 +129,7 @@ public class FSPackageRepository implements PackageRepository {
                     this.cachedEntryNames = new ArrayList<>(files.size());
                     files.stream().forEach(e -> this.cachedEntryNames.add(e.getFileName().toString()));
                 } catch (IOException e) {
-                    throw new RuntimeException("Error in listing packages at '" + this.pkgID + 
+                    throw new RuntimeException("Error in listing packages at '" + this.pkgID +
                             "': " + e.getMessage(), e);
                 }
             }
@@ -145,29 +145,29 @@ public class FSPackageRepository implements PackageRepository {
         public List<PackageSourceEntry> getPackageSourceEntries() {
             return this.getEntryNames().stream().map(e -> new FSPackageSourceEntry(e)).collect(Collectors.toList());
         }
-        
+
         /**
          * This represents local file system based {@link PackageSourceEntry}.
-         * 
+         *
          * @since 0.94
          */
         public class FSPackageSourceEntry implements PackageSourceEntry {
-            
+
             private String name;
-            
+
             private byte[] code;
-            
+
             public FSPackageSourceEntry(String name) {
                 this.name = name;
                 Path filePath = basePath.resolve(name);
                 try {
                     this.code = Files.readAllBytes(basePath.resolve(pkgPath).resolve(name));
                 } catch (IOException e) {
-                    throw new RuntimeException("Error in loading package source entry '" + filePath + 
+                    throw new RuntimeException("Error in loading package source entry '" + filePath +
                             "': " + e.getMessage(), e);
                 }
             }
-            
+
             @Override
             public PackageID getPackageID() {
                 return pkgID;
@@ -182,7 +182,7 @@ public class FSPackageRepository implements PackageRepository {
             public byte[] getCode() {
                 return code;
             }
-            
+
         }
 
         @Override
@@ -199,7 +199,7 @@ public class FSPackageRepository implements PackageRepository {
         public String getName() {
             return this.getPackageId().toString();
         }
-        
+
     }
 
 }

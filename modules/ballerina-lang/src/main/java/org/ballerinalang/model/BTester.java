@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model;
 
-import org.wso2.ballerinalang.compiler.BLangCompiler;
+import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BTester {
     
     public static void main(String[] args) throws Exception {
-        BLangCompiler.getInstance(new CompilerContext()).compile();
+        Compiler.getInstance(new CompilerContext()).compile();
     }
 
 }

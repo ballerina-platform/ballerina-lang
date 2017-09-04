@@ -15,46 +15,32 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.PackageType;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
  * @since 0.94
  */
-public class BLangIdentifier extends BLangNode implements IdentifierNode {
+public class BPackageSymbol extends BTypeSymbol {
 
-    public String value;
-    public boolean isLiteral;
+    public Name version;
+    public PackageID pkgId;
 
-    @Override
-    public String getValue() {
-        return value;
+    public BPackageSymbol(PackageID pkgId, BSymbol owner) {
+        this.pkgId = pkgId;
+        this.owner = owner;
+        this.name = pkgId.name;
+        this.version = pkgId.version;
+        this.type = new PackageType(this);
     }
 
     @Override
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public boolean isLiteral() {
-        return isLiteral;
-    }
-
-    public void setLiteral(boolean isLiteral) {
-        this.isLiteral = isLiteral;
-    }
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.IDENTIFIER;
+    public SymbolKind getKind() {
+        return SymbolKind.PACKAGE;
     }
 
     @Override
@@ -67,12 +53,12 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
             return false;
         }
 
-        BLangIdentifier that = (BLangIdentifier) o;
-        return value.equals(that.value);
+        BPackageSymbol that = (BPackageSymbol) o;
+        return pkgId.equals(that.pkgId);
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return pkgId.hashCode();
     }
 }

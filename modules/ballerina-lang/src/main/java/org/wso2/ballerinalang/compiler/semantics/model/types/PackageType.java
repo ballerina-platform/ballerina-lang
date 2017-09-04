@@ -15,10 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
+
+import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 /**
  * @since 0.94
  */
-public class BLangTypeSymbol extends BLangSymbol {
+public class PackageType extends BType {
+
+    public PackageType(BPackageSymbol symbol) {
+        this.tsymbol = symbol;
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.PACKAGE;
+    }
 }

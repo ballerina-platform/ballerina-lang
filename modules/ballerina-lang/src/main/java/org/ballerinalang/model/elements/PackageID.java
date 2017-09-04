@@ -18,65 +18,66 @@
 package org.ballerinalang.model.elements;
 
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+
 /**
  * This represents a specific package and its version.
- * 
+ *
  * @since 0.94
  */
 public class PackageID {
-    
-    private List<IdentifierNode> nameComps;
-    
-    private String stringName;
-        
-    private IdentifierNode version;
 
-    private String packageName;
-    private String packageVersion;
+    public static final PackageID EMPTY = new PackageID(Names.EMPTY, Names.EMPTY);
+
+    private List<IdentifierNode> nameComps;
+
+    private IdentifierNode versionNode;
+
+    public Name name;
+    public Name version;
 
     public PackageID(List<IdentifierNode> nameComps, IdentifierNode version) {
         this.nameComps = nameComps;
-        this.version = version;
+        this.versionNode = version;
         this.populateNameCompsAsString();
+        this.version = version != null ? new Name(version.getValue()) : DEFAULT_VERSION;
     }
 
-    public PackageID(String packageName, String packageVersion) {
-        this.packageName = packageName;
-        this.packageVersion = packageVersion;
+    public PackageID(Name name, Name version) {
+        this.name = name;
+        this.version = version;
     }
 
-    public String getPackageName() {
-        return packageName;
+    public Name getPackageName() {
+        return name;
     }
 
-    public String getPackageVersion() {
-        return packageVersion;
+    public Name getPackageVersion() {
+        return version;
     }
 
     public List<IdentifierNode> getNameComps() {
         return nameComps;
     }
-    
+
     private void populateNameCompsAsString() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < this.nameComps.size();  i++) {
+        for (int i = 0; i < this.nameComps.size(); i++) {
             if (i > 0) {
                 builder.append('.');
             }
             builder.append(this.nameComps.get(i).getValue());
         }
-        this.stringName = builder.toString();
+        this.name = new Name(builder.toString());
     }
-    
-    public String getNameCompsAsString() {
-        return stringName;
-    }
-    
+
     public IdentifierNode getVersion() {
-        return version;
+        return versionNode;
     }
 
     public void setNameComps(List<IdentifierNode> nameComps) {
@@ -85,20 +86,41 @@ public class PackageID {
     }
 
     public void setVersion(IdentifierNode version) {
-        this.version = version;
+        this.versionNode = version;
     }
-    
+
     public int getNameCompCount() {
         return this.nameComps.size();
     }
-    
+
     public IdentifierNode getNameComponent(int index) {
         return this.nameComps.get(index);
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PackageID packageID = (PackageID) o;
+        return name.equals(packageID.name) && version.equals(packageID.version);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + version.hashCode();
+        return result;
+    }
+
     @Override
     public String toString() {
-        return this.getNameCompsAsString() + "[" + this.getVersion().getValue() + "]";
+        return this.name + "[" + this.getVersion().getValue() + "]";
     }
-    
+
 }

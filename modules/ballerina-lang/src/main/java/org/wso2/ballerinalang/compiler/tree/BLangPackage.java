@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangAnnotation> annotations;
+
+    public BPackageSymbol symbol;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();

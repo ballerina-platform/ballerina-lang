@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
  * @since 0.94
@@ -27,9 +28,10 @@ public class BType implements ValueType {
 
     public int tag;
     public TypeKind kind;
+    public BTypeSymbol tsymbol;
 
     @Override
     public TypeKind getKind() {
-        return null;
+        return TypeKind.OTHER;
     }
 }

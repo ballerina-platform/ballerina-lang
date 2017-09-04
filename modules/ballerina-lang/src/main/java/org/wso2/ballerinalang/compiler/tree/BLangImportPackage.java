@@ -53,4 +53,25 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public NodeKind getKind() {
         return NodeKind.IMPORT;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BLangImportPackage that = (BLangImportPackage) o;
+        return pkgId.equals(that.pkgId) && alias.equals(that.alias);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pkgId.hashCode();
+        result = 31 * result + alias.hashCode();
+        return result;
+    }
 }

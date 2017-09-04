@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +30,16 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class BLangSymbol implements Symbol {
+public class BSymbol implements Symbol {
 
+    public Name name;
     public BType type;
-    public BLangSymbol owner;
+    public BSymbol owner;
+
+    @Override
+    public Name getName() {
+        return name;
+    }
 
     @Override
     public SymbolKind getKind() {
@@ -50,12 +57,12 @@ public class BLangSymbol implements Symbol {
     }
 
     @Override
-    public BLangSymbol getEnclosingSymbol() {
+    public BSymbol getEnclosingSymbol() {
         return owner;
     }
 
     @Override
-    public List<BLangSymbol> getEnclosedSymbols() {
+    public List<BSymbol> getEnclosedSymbols() {
         return new ArrayList<>(0);
     }
 }

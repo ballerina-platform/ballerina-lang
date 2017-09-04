@@ -17,30 +17,53 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
  */
 public class SymbolEnter extends BLangNodeVisitor {
 
-    private static final CompilerContext.Key<SymbolEnter> symbolEnterKey = new CompilerContext.Key<>();
+    private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
+            new CompilerContext.Key<>();
 
     // Private Log
 
     private CompilerContext context;
 
+    private PackageLoader pkgLoader;
+
+    private SymbolTable symTable;
+
+    public Map<BTypeSymbol, SymbolEnv> symbolEnvs;
+
+    private SymbolEnv env;
+
     public static SymbolEnter getInstance(CompilerContext context) {
-        SymbolEnter symbolEnter = context.get(symbolEnterKey);
+        SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
         if (symbolEnter == null) {
             symbolEnter = new SymbolEnter(context);
         }
@@ -50,14 +73,38 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public SymbolEnter(CompilerContext context) {
         this.context = context;
+        this.context.put(SYMBOL_ENTER_KEY, this);
+
+        this.pkgLoader = PackageLoader.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
+
+        this.symbolEnvs = new HashMap<>();
     }
 
-    public void definePackage(BLangPackage pkgNode) {
+    public BPackageSymbol definePackage(BLangPackage pkgNode) {
+        populatePackageNode(pkgNode);
 
+        BPackageSymbol pSymbol;
+        if (pkgNode.pkgDecl == null) {
+            pSymbol = new BPackageSymbol(PackageID.EMPTY, symTable.rootPkg);
+        } else {
+            pSymbol = new BPackageSymbol(pkgNode.pkgDecl.pkgId, symTable.rootPkg);
+        }
+        pkgNode.symbol = pSymbol;
+
+        // TODO Verify the design
+        SymbolEnv pkgEnv = new SymbolEnv(pkgNode, new Scope(pSymbol));
+        symbolEnvs.put(pSymbol, pkgEnv);
+
+        // visit the package node recursively and define package level symbols.
+        pkgNode.accept(this);
+        return pSymbol;
     }
 
     public void visit(BLangPackage pkgNode) {
-        throw new AssertionError();
+        // Create PackageSymbol.
+        // And maintain a list of created package symbols.
+        // Load each import package
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -72,13 +119,66 @@ public class SymbolEnter extends BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    // TODO Consider move this method to some other place
+    /**
+     * Visit each compilation unit (.bal file) and add each top-level node
+     * in the compilation unit to the package node.
+     *
+     * @param pkgNode current package node
+     */
     private void populatePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
-        compUnits.forEach(compUnit -> populatePackageNode(pkgNode, compUnit));
+        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
     }
 
-    private void populatePackageNode(BLangPackage pkgNode, BLangCompilationUnit compUnit) {
-        List<TopLevelNode> nodes = compUnit.getTopLevelNodes();
+    /**
+     * Visit each top-level node and add it to the package node.
+     *
+     * @param pkgNode  current package node
+     * @param compUnit current compilation unit
+     */
+    private void populateCompilationUnit(BLangPackage pkgNode, BLangCompilationUnit compUnit) {
+        // TODO Check whether package in 'compUnit' is equal to the package in 'pkgNode'
+
+        // TODO If the pkgID is null, then assign an unnamed package/default package.
+        compUnit.getTopLevelNodes().forEach(node -> addTopLevelNode(pkgNode, node));
+    }
+
+    private void addTopLevelNode(BLangPackage pkgNode, TopLevelNode node) {
+        NodeKind kind = node.getKind();
+        switch (kind) {
+            case PACKAGE_DECLARATION:
+                // TODO verify the rules..
+                pkgNode.pkgDecl = (BLangPackageDeclaration) node;
+                break;
+            case IMPORT:
+                // TODO Verify the rules..
+                // TODO Check whether the same package alias (if any) has been used for the same import
+                // TODO The version of an import package can be specified only once for a package
+                if (!pkgNode.imports.contains(node)) {
+                    pkgNode.imports.add((BLangImportPackage) node);
+                }
+                break;
+            case FUNCTION:
+                pkgNode.functions.add((BLangFunction) node);
+                break;
+            case STRUCT:
+                pkgNode.structs.add((BLangStruct) node);
+                break;
+            case CONNECTOR:
+                pkgNode.connectors.add((BLangConnector) node);
+                break;
+            case SERVICE:
+                pkgNode.services.add((BLangService) node);
+                break;
+            case VARIABLE:
+                // TODO There are two kinds of package level variables, constant and regular variables.
+                break;
+            case ANNOTATION:
+                // TODO
+                break;
+            case XMLNS:
+                // TODO
+                break;
+        }
     }
 }

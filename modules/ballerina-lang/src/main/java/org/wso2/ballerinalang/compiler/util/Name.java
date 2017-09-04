@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.util;
  * @since 0.94
  */
 public class Name implements org.ballerinalang.model.Name {
+
     public String value;
 
     public Name(String value) {
