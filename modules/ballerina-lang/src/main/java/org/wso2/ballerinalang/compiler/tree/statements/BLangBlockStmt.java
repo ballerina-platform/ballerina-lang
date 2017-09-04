@@ -55,4 +55,10 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     public NodeKind getKind() {
         return NodeKind.BLOCK;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangBlockStmt: " + this.statements.toString();
+    }
+    
 }

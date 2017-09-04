@@ -51,4 +51,10 @@ public class Name implements org.ballerinalang.model.Name {
     public int hashCode() {
         return value != null ? value.hashCode() : 0;
     }
+    
+    @Override
+    public String toString() {
+        return this.getValue();
+    }
+    
 }

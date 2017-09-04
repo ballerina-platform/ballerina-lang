@@ -37,7 +37,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     
     @Override
     public String toString() {
-        return "BLangFunction: " + this.getKind();
+        return "BLangFunction: " + this.flags + " (" + this.params + ") (" + this.retParams + ") " + this.body;
     }
     
 }

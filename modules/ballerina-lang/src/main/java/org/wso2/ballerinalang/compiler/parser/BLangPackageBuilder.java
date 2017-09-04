@@ -65,7 +65,7 @@ public class BLangPackageBuilder {
     
     private Stack<StructNode> structStack = new Stack<>();
     
-    private Stack<FieldDefinitionContainer> fieldDefContainerStack = new Stack();
+    private Stack<FieldDefinitionContainer> fieldDefContainerStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;

@@ -39,6 +39,7 @@ public class PackageID {
     private IdentifierNode versionNode;
 
     public Name name;
+    
     public Name version;
 
     public PackageID(List<IdentifierNode> nameComps, IdentifierNode version) {
@@ -120,6 +121,7 @@ public class PackageID {
 
     @Override
     public String toString() {
-        return this.name + "[" + this.getVersion().getValue() + "]";
+        return this.name + "[" + this.version + "]";
     }
+    
 }

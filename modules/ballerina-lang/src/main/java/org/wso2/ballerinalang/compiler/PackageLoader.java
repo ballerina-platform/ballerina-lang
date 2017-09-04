@@ -76,7 +76,7 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.packages = new HashMap<>();
 
-        Path sourceRoot = Paths.get("/Users/sameera/rewrite-compiler/bal");
+        Path sourceRoot = Paths.get("/home/laf/Desktop/test");
         this.programRepo = loadFSProgramRepository(sourceRoot);
     }
 
@@ -106,10 +106,7 @@ public class PackageLoader {
         log("* Package Source: " + pkgSource);
         BLangPackage pkgNode = this.parser.parse(pkgSource);
         log("* Package Node: " + pkgNode);
-        log("* Compilation Units:");
-        for (CompilationUnitNode cu : pkgNode.getCompilationUnits()) {
-            log("- '" + cu.getName() + "' -> Top Level Elements: " + cu.getTopLevelNodes());
-        }
+        log("* Compilation Units:- \n" + pkgNode.getCompilationUnits());
 
         return pkgNode;
     }

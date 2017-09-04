@@ -51,4 +51,9 @@ public class BLangVariableDef extends BLangStatement implements VariableDefiniti
     public NodeKind getKind() {
         return NodeKind.VARIABLE;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangVariableDef: " + this.var;
+    }
 }
