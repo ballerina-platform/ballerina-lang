@@ -86,7 +86,7 @@ class ImageUtils {
             async: false,
             dataType: 'json',
             success(response) {
-                if (response.status === 'success') {
+                if (response.status === 'succes') {
                     data = response.content;
                 } else {
                     data = this.getSVGIconString('tool-icons/connector-white');

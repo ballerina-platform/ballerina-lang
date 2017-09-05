@@ -21,19 +21,23 @@ import org.ballerinalang.composer.service.workspace.fileserver.dto.ConnectorIcon
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.msf4j.Request;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Base64;
 
 /**
  * File server Entry point
@@ -44,6 +48,11 @@ import java.util.Base64;
 @Path("/file")
 public class FileContentProvider {
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
+    private String contextRoot;
+
+    public void setContextRoot(String contextRoot) {
+        this.contextRoot = contextRoot;
+    }
 
     @OPTIONS
     @Path("/connector/icon")
@@ -59,17 +68,26 @@ public class FileContentProvider {
     @POST
     @Path("/connector/icon")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConnectorIcon(ConnectorIconRequest connectorIconRequest) {
-        logger.debug(connectorIconRequest.getIconPath());
-        logger.debug(connectorIconRequest.getConnectorName());
+    public Response getConnectorIcon(ConnectorIconRequest connectorIconRequest, @Context Request request) {
         JsonObject responseJson;
 
-        try {
-            InputStream inputStream = getClass().getResourceAsStream(File.separator + "fileserver" + File.separator + "icons" + File.separator
-                    + "resource.svg");
-            responseJson = getImageResponse(inputStream, "svg");
-        } catch (IOException e) {
-            logger.debug("Error Reading File Content");
+        if (this.contextRoot != null && this.contextRoot.endsWith("/resources/composer/web")) {
+            logger.debug(connectorIconRequest.getIconPath());
+            logger.debug(connectorIconRequest.getConnectorName());
+
+            try {
+                String filePath = this.contextRoot + File.separator + "images" + File.separator + "connectors" +
+                        File.separator + "resource.svg";
+                InputStream inputStream = new FileInputStream(new File(filePath));
+                responseJson = getImageResponse(inputStream, "svg");
+            } catch (IOException e) {
+                logger.debug("Error Reading File Content");
+                responseJson = new JsonObject();
+                responseJson.addProperty("status", "failed");
+                responseJson.addProperty("reason", "Cannot read File Content");
+            }
+        } else {
+            logger.debug("Invalid Context Root");
             responseJson = new JsonObject();
             responseJson.addProperty("status", "failed");
             responseJson.addProperty("reason", "Cannot read File Content");
@@ -87,7 +105,7 @@ public class FileContentProvider {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int reads = inputStream.read();
-        while(reads != -1) {
+        while (reads != -1) {
             baos.write(reads);
             reads = inputStream.read();
         }

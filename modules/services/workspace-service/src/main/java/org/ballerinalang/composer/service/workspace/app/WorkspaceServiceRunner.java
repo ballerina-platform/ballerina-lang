@@ -174,6 +174,13 @@ public class WorkspaceServiceRunner {
             workspaceService.setRootPaths(rootDirs);
         }
 
+        String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
+                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB)
+                .toString();
+
+        FileContentProvider fileContentProvider = new FileContentProvider();
+        fileContentProvider.setContextRoot(contextRoot);
+
         new MicroservicesRunner(apiPort)
                 .addExceptionMapper(new SemanticExceptionMapper())
                 .addExceptionMapper(new ParseCancellationExceptionMapper())
@@ -183,14 +190,9 @@ public class WorkspaceServiceRunner {
                 .deploy(new BLangFileRestService())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
                 .deploy(new TypeLatticeService())
-                .deploy(new FileContentProvider())
+                .deploy(fileContentProvider)
                 .start();
 
-
-
-        String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB)
-                .toString();
         FileServer fileServer = new FileServer();
 
         ConfigServiceImpl configService = new ConfigServiceImpl();
