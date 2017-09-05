@@ -5,14 +5,24 @@
             opacity: 1;
         }
     }
-    .whole-row {
-        // position: absolute;
-        // height: 24px;
-        // width: 100%;
-        // left: 0;
-        // margin:-19px
+    .file-tree-item:hover .whole-row {
+        width: calc(100% + 600px);
+        background: #232323;
+        height: 24px;
+        position: absolute;
+        margin-left: -300px;
+        z-index: -2; 
     }
     .file-tree-item:hover {
         background-color: #232323;
+    }
+
+    .active-file-node {
+        width: calc(100% + 600px);
+        background: #232323;
+        height: 24px;
+        position: absolute;
+        margin-left: -600px;
+        z-index: -2;    
     }
 }

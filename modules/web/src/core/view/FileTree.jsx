@@ -35,15 +35,17 @@ const decorators = {
     Loading: (props) => {
         return (
             <div style={props.style}>
-                loading...
+                Loading...
             </div>
         );
     },
     Header: ({ style, node }) => {
+        console.log(node,style);
         const icon = node.type !== 'file' ? 'folder' : 'document';
         const marginLeft = node.children ? '0' : '20px';
         return (
             <div className="unseletable-content file-tree-header" style={style.base}>
+                { node.active ? <div className="active-file-node" /> : '' }
                 <div style={style.title}>
                     <i className={`fw fw-${icon}`} style={{ marginRight: '5px', marginLeft }} />
                     {node.text}
