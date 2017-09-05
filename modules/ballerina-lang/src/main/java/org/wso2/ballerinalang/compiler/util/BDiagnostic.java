@@ -15,10 +15,37 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.diagnostic;
+package org.wso2.ballerinalang.compiler.util;
+
+import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * @since 0.94
  */
-public class Dianostic {
+public class BDiagnostic implements Diagnostic {
+
+    public Kind kind;
+    public BDiagnosticSource source;
+    public BDiagnosticPosition pos;
+    public String msg;
+
+    @Override
+    public Kind getKind() {
+        return kind;
+    }
+
+    @Override
+    public DiagnosticSource getSource() {
+        return source;
+    }
+
+    @Override
+    public DiagnosticPosition getPosition() {
+        return pos;
+    }
+
+    @Override
+    public String getMessage() {
+        return msg;
+    }
 }
