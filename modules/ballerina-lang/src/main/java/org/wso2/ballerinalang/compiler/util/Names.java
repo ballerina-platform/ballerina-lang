@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
@@ -46,7 +47,15 @@ public class Names {
         this.context.put(NAMES_KEY, this);
     }
 
-    public static Name fromIdNode(BLangIdentifier identifier) {
+    public Name fromIdNode(BLangIdentifier identifier) {
         return new Name(identifier.value);
+    }
+
+    public Name fromString(String value) {
+        return new Name(value);
+    }
+
+    public Name fromTypeKind(TypeKind typeKind) {
+        return fromString(typeKind.typeName());
     }
 }

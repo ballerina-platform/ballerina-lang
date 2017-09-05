@@ -26,33 +26,43 @@ public enum TypeKind {
     /**
      * The <em>integer</em> value type.
      */
-    INT,
+    INT("int"),
 
     /**
      * The <em>float</em> value type.
      */
-    FLOAT,
+    FLOAT("float"),
 
     /**
      * The <em>string</em> value type.
      */
-    STRING,
+    STRING("string"),
 
     /**
      * The <em>boolean</em> value type.
      */
-    BOOLEAN,
+    BOOLEAN("boolean"),
 
     /**
      * The <em>blob</em> value type.
      */
-    BLOB,
+    BLOB("blob"),
 
-    DATATABLE,
-    JSON,
-    XML,
-    PACKAGE,
-    STRUCT,
-    CONNECTOR,
-    OTHER
+    DATATABLE("datatable"),
+    JSON("json"),
+    XML("xml"),
+    PACKAGE("package"),
+    STRUCT("struct"),
+    CONNECTOR("connector"),
+    OTHER("other");
+
+    private String name;
+
+    TypeKind(String name) {
+        this.name = name;
+    }
+
+    public String typeName() {
+        return name;
+    }
 }

@@ -141,7 +141,7 @@ public class BLangPackageBuilder {
         VariableDefinitionNode varDefNode = TreeBuilder.createVariableDefinitionNode();
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(this.createIdentifier(identifier));
-        var.setType(this.typeNodeStack.pop());
+        var.setTypeNode(this.typeNodeStack.pop());
         var.setInitialExpression(this.exprNodeStack.pop());
         varDefNode.setVariable(var);
         this.blockNodeStack.peek().addStatement(varDefNode);
@@ -194,7 +194,7 @@ public class BLangPackageBuilder {
         IdentifierNode name = this.createIdentifier(identifier);
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(name);
-        var.setType(this.typeNodeStack.pop());
+        var.setTypeNode(this.typeNodeStack.pop());
         if (!this.exprNodeStack.empty()) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }

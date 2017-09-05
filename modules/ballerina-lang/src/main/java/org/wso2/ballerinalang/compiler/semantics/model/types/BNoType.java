@@ -17,21 +17,14 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.types.NoType;
+
 /**
  * @since 0.94
  */
-public class TypeTags {
+public class BNoType extends BType implements NoType {
 
-    public static final int INT = 1;
-    public static final int FLOAT = 2;
-    public static final int STRING = 3;
-    public static final int BOOLEAN = 4;
-    public static final int BLOB = 5;
-    public static final int STRUCT = 6;
-    public static final int CONNECTOR = 7;
-    public static final int ARRAY = 8;
-    public static final int PACKAGE = 9;
-
-    private TypeTags() {
+    public BNoType(int tag) {
+        super(tag, null);
     }
 }

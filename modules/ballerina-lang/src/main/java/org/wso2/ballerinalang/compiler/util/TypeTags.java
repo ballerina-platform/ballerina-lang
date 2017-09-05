@@ -15,26 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.TypeNode;
+package org.wso2.ballerinalang.compiler.util;
 
 /**
  * @since 0.94
  */
-public interface VariableNode extends AnnotatableNode, TopLevelNode {
-    
-    TypeNode getTypeNode();
-    
-    void setTypeNode(TypeNode type);
+public class TypeTags {
 
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
+    public static final int INT = 1;
+    public static final int FLOAT = 2;
+    public static final int STRING = 3;
+    public static final int BOOLEAN = 4;
+    public static final int BLOB = 5;
+    public static final int JSON = 6;
+    public static final int XML = 7;
+    public static final int DATATABLE = 8;
+    public static final int STRUCT = 9;
+    public static final int CONNECTOR = 10;
+    public static final int ARRAY = 11;
+    public static final int PACKAGE = 12;
+    public static final int NONE = 13;
+    public static final int VOID = 14;
 
-    ExpressionNode getInitialExpression();
-    
-    void setInitialExpression(ExpressionNode expr);
-    
+    private TypeTags() {
+    }
 }
