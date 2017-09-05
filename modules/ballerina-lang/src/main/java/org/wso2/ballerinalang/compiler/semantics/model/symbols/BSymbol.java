@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -32,11 +33,18 @@ import java.util.Set;
  */
 public class BSymbol implements Symbol {
 
+    public int kind;
     public Name name;
     public BType type;
     public BSymbol owner;
 
-    public BSymbol(Name name, BType type, BSymbol owner) {
+    /**
+     * If a symbol has child symbols, then the scope will not be null.
+     */
+    public Scope scope;
+
+    public BSymbol(int kind, Name name, BType type, BSymbol owner) {
+        this.kind = kind;
         this.name = name;
         this.type = type;
         this.owner = owner;

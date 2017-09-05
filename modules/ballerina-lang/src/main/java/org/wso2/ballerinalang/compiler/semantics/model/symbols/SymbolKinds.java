@@ -17,29 +17,18 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.symbols.StructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.STRUCT;
-
 /**
  * @since 0.94
  */
-public class BStructSymbol extends BTypeSymbol implements StructSymbol {
+public class SymbolKinds {
 
-    public List<BVarSymbol> fields;
-
-    public BStructSymbol(Name name, BType type, BSymbol owner) {
-        super(STRUCT, name, type, owner);
-        fields = new ArrayList<>();
-    }
-
-    @Override
-    public List<BVarSymbol> getFields() {
-        return fields;
-    }
+    public static final int NIL = 0;
+    public static final int PACKAGE = 1;
+    public static final int TYPE = 2;
+    public static final int STRUCT = 4;
+    public static final int CONNECTOR = 8;
+    public static final int VARIABLE = 16;
+    public static final int VALUE = 32;
+    public static final int INVOCABLE = 64;
+    public static final int ERROR = 128;
 }
