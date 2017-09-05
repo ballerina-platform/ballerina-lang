@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -37,11 +38,13 @@ import java.util.Set;
  */
 public class BLangVariable extends BLangNode implements VariableNode {
 
-    public BLangType type;
+    public BLangType typeNode;
     public BLangIdentifier name;
     public BLangExpression expr;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
+
+    public BVarSymbol symbol;
 
     public BLangVariable() {
         this.annAttachments = new ArrayList<>();
@@ -49,8 +52,8 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
-    public BLangType getType() {
-        return type;
+    public BLangType getTypeNode() {
+        return typeNode;
     }
 
     @Override
@@ -89,8 +92,8 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
-    public void setType(TypeNode type) {
-        this.type = (BLangType) type;
+    public void setTypeNode(TypeNode typeNode) {
+        this.typeNode = (BLangType) typeNode;
     }
 
     @Override
@@ -107,11 +110,11 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public NodeKind getKind() {
         return NodeKind.VARIABLE;
     }
-    
+
     @Override
     public String toString() {
-        return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") + 
+        return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
                 this.name + "[" + this.type + "]" + (this.expr != null ? " = " + this.expr : "");
     }
-    
+
 }

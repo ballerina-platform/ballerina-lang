@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +39,8 @@ public class BLangStruct extends BLangNode implements StructNode {
     public List<BLangVariable> fields;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
+
+    public BStructSymbol symbol;
 
     public BLangStruct() {
         this.fields = new ArrayList<>();
@@ -94,10 +97,10 @@ public class BLangStruct extends BLangNode implements StructNode {
     public NodeKind getKind() {
         return NodeKind.STRUCT;
     }
-    
+
     @Override
     public String toString() {
         return "BLangStruct: " + this.name + " -> " + this.fields;
     }
-    
+
 }
