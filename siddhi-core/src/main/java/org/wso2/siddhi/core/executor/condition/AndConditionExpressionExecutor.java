@@ -65,14 +65,14 @@ public class AndConditionExpressionExecutor extends ConditionExpressionExecutor 
 
     public Boolean execute(ComplexEvent event) {
         Object leftResult = leftConditionExecutor.execute(event);
-        if (leftResult == null) {
+        if (leftResult == null || !((Boolean) leftResult)) {
             return Boolean.FALSE;
         }
         Object rightResult = rightConditionExecutor.execute(event);
-        if (rightResult == null) {
+        if (rightResult == null || !((Boolean) rightResult)) {
             return Boolean.FALSE;
         }
-        return (Boolean) leftResult && (Boolean) rightResult;
+        return Boolean.TRUE;
     }
 
     @Override
