@@ -18,10 +18,14 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.Node;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * @since 0.94
  */
 public abstract class BLangNode implements Node {
+
+    public BType type;
+
     public abstract void accept(BLangNodeVisitor visitor);
 }
