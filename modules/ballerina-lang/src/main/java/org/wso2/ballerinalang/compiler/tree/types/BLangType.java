@@ -20,17 +20,11 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
  */
 public abstract class BLangType extends BLangNode implements TypeNode {
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-//        visitor.visit(this);
-    }
 
     @Override
     public NodeKind getKind() {

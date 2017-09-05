@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
@@ -32,5 +33,10 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     @Override
     public BLangType getElementType() {
         return etype;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

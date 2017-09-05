@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
@@ -39,5 +40,10 @@ public class BLangConstrainedType extends BLangType implements ConstrainedTypeNo
     @Override
     public BLangType getConstraint() {
         return constraint;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }
