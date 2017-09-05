@@ -36,6 +36,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 /**
  * @since 0.94
@@ -175,6 +179,23 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangVariableReference varRefNode) {
+        throw new AssertionError();
+    }
+
+    // Type nodes
+    public void visit(BLangValueType valueType) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangArrayType arrayType) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangConstrainedType constrainedType) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangUserDefinedType userDefinedType) {
         throw new AssertionError();
     }
 }
