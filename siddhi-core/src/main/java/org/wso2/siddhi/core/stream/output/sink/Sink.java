@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.stream.output.sink;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
@@ -43,6 +44,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private String type;
     private SinkMapper mapper;
     private String elementId;
+    private SiddhiAppContext siddhiAppContext;
 
     private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
     private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
@@ -57,6 +59,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
         this.streamDefinition = streamDefinition;
         this.type = type;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
+        this.siddhiAppContext = siddhiAppContext;
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, this,
@@ -102,14 +105,15 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 publish(payload, dynamicOptions);
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
-                LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
-                            "', " + e.getMessage() + ", will retry connection immediately.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "', will retry connection immediately.", e);
                 connectWithRetry();
                 publish(payload);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
-                        "' as its still trying to reconnect!, events dropped '" + payload + "'");
+            LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Sink '" + type + "' at '" +
+                    streamDefinition.getId() + "' as its still trying to reconnect!, events dropped '" + payload + "'");
         } else {
             connectWithRetry();
             publish(payload);
@@ -161,8 +165,9 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error("Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "', will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -171,8 +176,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error("Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ".", e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() + "'.", e);
                 throw e;
             }
         }

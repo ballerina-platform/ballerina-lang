@@ -24,10 +24,13 @@ import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
  */
 public class LogicalStateElement implements StateElement {
 
+    private static final long serialVersionUID = 1L;
     protected StreamStateElement streamStateElement1;
     protected Type type;
     protected StreamStateElement streamStateElement2;
     protected TimeConstant within;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public LogicalStateElement(StreamStateElement streamStateElement1, Type type,
                                StreamStateElement streamStateElement2) {
@@ -120,5 +123,25 @@ public class LogicalStateElement implements StateElement {
     public enum Type {
         AND,
         OR
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

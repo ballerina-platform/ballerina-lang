@@ -84,12 +84,15 @@ public class PartitionRuntime implements Snapshotable {
             StreamJunction> streamJunctionMap, Partition partition, SiddhiAppContext siddhiAppContext) {
         this.siddhiAppContext = siddhiAppContext;
         try {
-            Element element = AnnotationHelper.getAnnotationElement("info", "name", partition.getAnnotations());
+            Element element = AnnotationHelper.getAnnotationElement("info", "name",
+                    partition.getAnnotations());
             if (element != null) {
                 this.partitionId = element.getValue();
             }
         } catch (DuplicateAnnotationException e) {
-            throw new DuplicateAnnotationException(e.getMessage() + " for the same Query " + partition.toString());
+            throw new DuplicateAnnotationException(e.getMessageWithOutContext() + " for the same Query " +
+                    partition.toString(), e, e.getQueryContextStartIndex(), e.getQueryContextEndIndex(),
+                    siddhiAppContext.getName(), siddhiAppContext.getSiddhiAppString());
         }
         if (partitionId == null) {
             this.partitionId = UUID.randomUUID().toString();

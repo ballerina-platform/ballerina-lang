@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.query.api.execution.query;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -31,14 +32,13 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Siddhi Query
  */
-public class Query implements ExecutionElement, Serializable {
+public class Query implements ExecutionElement, SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private InputStream inputStream;
@@ -46,6 +46,8 @@ public class Query implements ExecutionElement, Serializable {
     private OutputStream outputStream = new ReturnStream();
     private OutputRate outputRate;
     private List<Annotation> annotations = new ArrayList<Annotation>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public static Query query() {
         return new Query();
@@ -211,6 +213,26 @@ public class Query implements ExecutionElement, Serializable {
         result = 31 * result + (outputRate != null ? outputRate.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 
 }

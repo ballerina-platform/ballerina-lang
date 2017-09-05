@@ -17,22 +17,24 @@
  */
 package org.wso2.siddhi.query.api.definition;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Abstract definition used for Streams, Tables and other common artifacts
  */
-public abstract class AbstractDefinition implements Serializable {
+public abstract class AbstractDefinition implements SiddhiElement {
 
     protected String id;
     protected List<Attribute> attributeList = new ArrayList<Attribute>();
     protected List<Annotation> annotations = new ArrayList<Annotation>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     protected AbstractDefinition() {
 
@@ -66,7 +68,8 @@ public abstract class AbstractDefinition implements Serializable {
         for (Attribute attribute : attributeList) {
             if (attribute.getName().equals(attributeName)) {
                 throw new DuplicateAttributeException("'" + attributeName + "' is already defined for with type '" +
-                        attribute.getType() + "' for '" + id + "'; " + this.toString());
+                        attribute.getType() + "' for '" + id + "'; " + this.toString(),
+                        attribute.getQueryContextStartIndex(), attribute.getQueryContextEndIndex());
             }
         }
     }
@@ -103,11 +106,25 @@ public abstract class AbstractDefinition implements Serializable {
 
     @Override
     public String toString() {
-        return "AbstractDefinition{" +
-                "id='" + id + '\'' +
-                ", attributeList=" + attributeList +
-                ", annotations=" + annotations +
-                '}';
+        StringBuilder definitionBuilder = new StringBuilder();
+        if (annotations != null && annotations.size() > 0) {
+            for (Annotation annotation : annotations) {
+                definitionBuilder.append(annotation.toString());
+            }
+        }
+        definitionBuilder.append("define stream ").append(id).append(" (");
+        boolean isFirst = true;
+        for (Attribute attribute : attributeList) {
+            if (!isFirst) {
+                definitionBuilder.append(", ");
+            } else {
+                isFirst = false;
+            }
+            definitionBuilder.append(attribute.getName()).append(" ").
+                    append(attribute.getType().toString().toLowerCase());
+        }
+        definitionBuilder.append(")");
+        return definitionBuilder.toString();
     }
 
     @Override
@@ -161,5 +178,25 @@ public abstract class AbstractDefinition implements Serializable {
         }
 
         return true;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

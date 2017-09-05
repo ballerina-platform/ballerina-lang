@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 public class MaxForeverAggregatorExtensionTestCase {
     private static final Logger log = Logger.getLogger(MaxForeverAggregatorExtensionTestCase.class);
@@ -269,7 +269,7 @@ public class MaxForeverAggregatorExtensionTestCase {
     }
 
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testMaxForeverAggregatorExtension5() throws InterruptedException {
         log.info("MaxForeverAggregator TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();

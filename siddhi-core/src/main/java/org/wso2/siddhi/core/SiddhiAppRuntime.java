@@ -42,6 +42,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.parser.StoreQueryParser;
@@ -53,6 +54,7 @@ import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.exception.SiddhiAppContextException;
 import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
@@ -217,6 +219,10 @@ public class SiddhiAppRuntime {
     }
 
     public Event[] query(StoreQuery storeQuery) {
+        return query(storeQuery, null);
+    }
+
+    private Event[] query(StoreQuery storeQuery, String storeQueryString) {
         try {
             if (storeQueryLatencyTracker != null) {
                 storeQueryLatencyTracker.markIn();
@@ -230,6 +236,11 @@ public class SiddhiAppRuntime {
 
             return storeQueryRuntime.execute();
         } catch (RuntimeException e) {
+            if (e instanceof SiddhiAppContextException) {
+                throw new StoreQueryCreationException(((SiddhiAppContextException) e).getMessageWithOutContext(), e,
+                        ((SiddhiAppContextException) e).getQueryContextStartIndex(),
+                        ((SiddhiAppContextException) e).getQueryContextEndIndex(), null, storeQueryString);
+            }
             throw new StoreQueryCreationException(e.getMessage(), e);
         } finally {
             if (storeQueryLatencyTracker != null) {
@@ -283,9 +294,10 @@ public class SiddhiAppRuntime {
                 try {
                     source.shutdown();
                 } catch (Throwable t) {
-                    log.error("Error in shutting down source '" + source.getType() + "' at '" +
+                    log.error(ExceptionUtil.getMessageWithContext(t, siddhiAppContext) +
+                            " Error in shutting down source '" + source.getType() + "' at '" +
                             source.getStreamDefinition().getId() + "' on Siddhi App '" + siddhiAppContext.getName() +
-                            "', " + t.getMessage(), t);
+                            "'.", t);
                 }
 
             }
@@ -295,9 +307,10 @@ public class SiddhiAppRuntime {
             try {
                 table.shutdown();
             } catch (Throwable t) {
-                log.error("Error in shutting down table '" +
+                log.error(ExceptionUtil.getMessageWithContext(t, siddhiAppContext) +
+                        " Error in shutting down table '" +
                         table.getTableDefinition().getId() + "' on Siddhi App '" + siddhiAppContext.getName() +
-                        "', " + t.getMessage(), t);
+                        "'.", t);
             }
         }
 
@@ -306,9 +319,10 @@ public class SiddhiAppRuntime {
                 try {
                     sink.shutdown();
                 } catch (Throwable t) {
-                    log.error("Error in shutting down sink '" + sink.getType() + "' at '" +
+                    log.error(ExceptionUtil.getMessageWithContext(t, siddhiAppContext) +
+                            " Error in shutting down sink '" + sink.getType() + "' at '" +
                             sink.getStreamDefinition().getId() + "' on Siddhi App '" + siddhiAppContext.getName() +
-                            "', " + t.getMessage(), t);
+                            "'.", t);
                 }
             }
         }
@@ -321,8 +335,9 @@ public class SiddhiAppRuntime {
             try {
                 eternalReferencedHolder.stop();
             } catch (Throwable t) {
-                log.error("Error while stopping EternalReferencedHolder '" + eternalReferencedHolder +
-                        "' down Siddhi app '" + siddhiAppContext.getName() + "', " + t.getMessage(), t);
+                log.error(ExceptionUtil.getMessageWithContext(t, siddhiAppContext) +
+                        " Error while stopping EternalReferencedHolder '" + eternalReferencedHolder +
+                        "' down Siddhi app '" + siddhiAppContext.getName() + "'.", t);
             }
         }
         inputManager.disconnect();

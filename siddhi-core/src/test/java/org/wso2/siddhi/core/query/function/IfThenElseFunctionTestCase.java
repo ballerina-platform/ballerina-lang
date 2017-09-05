@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 public class IfThenElseFunctionTestCase {
     private static final Logger log = Logger.getLogger(IfThenElseFunctionTestCase.class);
@@ -85,7 +85,7 @@ public class IfThenElseFunctionTestCase {
         Assert.assertEquals(2, count);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void ifFunctionExtensionTestCase2() throws InterruptedException {
         log.info("IfThenElseFunctionExtension TestCase2");
 
@@ -131,7 +131,7 @@ public class IfThenElseFunctionTestCase {
         Assert.assertEquals(2, count);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void ifFunctionExtensionTestCase3() throws InterruptedException {
         log.info("IfThenElseFunctionExtension TestCase3");
 
@@ -177,7 +177,7 @@ public class IfThenElseFunctionTestCase {
         Assert.assertEquals(2, count);
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void ifFunctionExtensionTestCase4() throws InterruptedException {
         log.info("IfThenElseFunctionExtension TestCase4");
 

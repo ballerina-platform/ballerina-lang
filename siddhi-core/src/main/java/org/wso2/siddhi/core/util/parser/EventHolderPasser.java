@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.table.holder.IndexEventHolder;
 import org.wso2.siddhi.core.table.holder.ListEventHolder;
+import org.wso2.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -36,8 +37,6 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.wso2.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
 
 /**
  * Class to parse {@link EventHolder}
@@ -81,7 +80,8 @@ public class EventHolderPasser {
                 if (previousValue != null) {
                     throw new SiddhiAppCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " " +
                             "annotations defined with same attribute '" + element.getValue().trim() + "', at '" +
-                            tableDefinition.getId() + "'");
+                            tableDefinition.getId() + "'", indexAnnotation.getQueryContextStartIndex(),
+                            indexAnnotation.getQueryContextEndIndex());
                 }
             }
         }

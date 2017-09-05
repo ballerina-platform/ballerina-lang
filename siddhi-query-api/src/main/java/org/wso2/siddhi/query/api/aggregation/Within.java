@@ -17,19 +17,21 @@
  */
 package org.wso2.siddhi.query.api.aggregation;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * With time period for Incremental Aggregation.
  */
-public class Within implements Serializable {
+public class Within implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private List<Expression> timeRange = new ArrayList<>(2);
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     private Within(Expression start, Expression end) {
         timeRange.add(start);
@@ -76,5 +78,25 @@ public class Within implements Serializable {
         return "Within{" +
                 "timeRange=" + timeRange +
                 '}';
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

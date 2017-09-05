@@ -22,16 +22,12 @@ package org.wso2.siddhi.query.api.exception;
  */
 public class DuplicateAnnotationException extends SiddhiAppValidationException {
 
-    public DuplicateAnnotationException(String message) {
-        super(message);
+    public DuplicateAnnotationException(String message, int[] queryContextStartIndex, int[] queryContextEndIndex) {
+        super(message, queryContextStartIndex, queryContextEndIndex);
     }
 
-    public DuplicateAnnotationException(String message, Throwable throwable) {
-        super(message, throwable);
+    public DuplicateAnnotationException(String message, Throwable throwable, int[] queryContextStartIndex,
+                                        int[] queryContextEndIndex, String siddhiAppName, String siddhiAppString) {
+        super(message, throwable, queryContextStartIndex, queryContextEndIndex, siddhiAppName, siddhiAppString);
     }
-
-    public DuplicateAnnotationException(Throwable throwable) {
-        super(throwable);
-    }
-
 }

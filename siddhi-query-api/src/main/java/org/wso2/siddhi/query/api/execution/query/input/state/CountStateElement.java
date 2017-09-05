@@ -24,11 +24,14 @@ import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
  */
 public class CountStateElement implements StateElement {
 
+    private static final long serialVersionUID = 1L;
     public static final int ANY = -1;
     private StreamStateElement streamStateElement;
     private TimeConstant within;
     private int minCount = ANY;
     private int maxCount = ANY;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public CountStateElement(StreamStateElement streamStateElement, int minCount, int maxCount, TimeConstant within) {
         this.streamStateElement = streamStateElement;
@@ -109,5 +112,25 @@ public class CountStateElement implements StateElement {
         result = 31 * result + minCount;
         result = 31 * result + maxCount;
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

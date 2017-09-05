@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -105,13 +106,15 @@ public class MultiClientDistributedSink extends DistributedTransport {
                     errorMessages = new StringBuilder();
                 }
                 errorMessages.append("[Destination").append(i).append("]:").append(e.getMessage());
-                log.warn("Failed to Connect to destination ID " + i);
+                log.warn(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Failed to Connect to destination ID " + i);
             }
         }
 
         if (errorCount > 0) {
-            throw new ConnectionUnavailableException(errorCount + "/" + transports.size() + " connections failed " +
-                    "while trying to connect with following error messages:" + errorMessages.toString());
+            throw new ConnectionUnavailableException("Error on '" + siddhiAppContext.getName() + "'. " + errorCount +
+                    "/" + transports.size() + " connections failed while trying to connect with following error " +
+                    "messages:" + errorMessages.toString());
         }
     }
 

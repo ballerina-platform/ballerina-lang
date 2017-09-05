@@ -21,10 +21,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.ThreadBarrier;
@@ -44,7 +44,6 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
-import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -66,14 +65,15 @@ public class SiddhiAppParser {
     /**
      * Parse an SiddhiApp returning SiddhiAppRuntime
      *
-     * @param siddhiApp     plan to be parsed
-     * @param siddhiContext SiddhiContext
-     * @return SiddhiAppRuntime
+     * @param siddhiApp       plan to be parsed
+     * @param siddhiAppString
+     * @param siddhiContext   SiddhiContext  @return SiddhiAppRuntime
      */
-    public static SiddhiAppRuntimeBuilder parse(SiddhiApp siddhiApp, SiddhiContext siddhiContext) {
+    public static SiddhiAppRuntimeBuilder parse(SiddhiApp siddhiApp, String siddhiAppString, SiddhiContext siddhiContext) {
 
         SiddhiAppContext siddhiAppContext = new SiddhiAppContext();
         siddhiAppContext.setSiddhiContext(siddhiContext);
+        siddhiAppContext.setSiddhiAppString(siddhiAppString);
 
         try {
             Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_NAME, null,
@@ -186,8 +186,9 @@ public class SiddhiAppParser {
             siddhiAppContext.setElementIdGenerator(new ElementIdGenerator(siddhiAppContext.getName()));
 
         } catch (DuplicateAnnotationException e) {
-            throw new DuplicateAnnotationException(e.getMessage() + " for the same Siddhi app " +
-                    siddhiApp.toString());
+            throw new DuplicateAnnotationException(e.getMessageWithOutContext() + " for the same Siddhi app " +
+                    siddhiApp.toString(), e, e.getQueryContextStartIndex(), e.getQueryContextEndIndex(),
+                    siddhiAppContext.getName(), siddhiAppContext.getSiddhiAppString());
         }
 
         SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder = new SiddhiAppRuntimeBuilder(siddhiAppContext);
@@ -240,12 +241,9 @@ public class SiddhiAppParser {
                 }
 
             }
-        } catch (SiddhiAppCreationException e) {
-            throw new SiddhiAppValidationException(e.getMessage() + " in siddhi app \"" +
-                    siddhiAppContext.getName() + "\"", e);
-        } catch (DuplicateDefinitionException e) {
-            throw new DuplicateDefinitionException(e.getMessage() + " in siddhi app \"" +
-                    siddhiAppContext.getName() + "\"", e);
+        } catch (Throwable t) {
+            ExceptionUtil.populateQueryContext(t, siddhiApp, siddhiAppContext);
+            throw t;
         }
 
         //Done last as they have to be started last
