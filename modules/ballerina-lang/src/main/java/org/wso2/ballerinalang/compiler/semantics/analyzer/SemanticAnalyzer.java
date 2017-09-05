@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -25,11 +24,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -43,7 +37,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolEnter symEnter;
     private SymbolTable symTable;
     private Names names;
     private TypeChecker typeChecker;
@@ -65,18 +58,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public SemanticAnalyzer(CompilerContext context) {
         context.put(SYMBOL_ANALYZER_KEY, this);
 
-        this.symEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
-    }
-
-    BType analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
-        return analyzeTypeNode(typeNode, env, symTable.noType);
-    }
-
-    BType analyzeTypeNode(BLangType typeNode, SymbolEnv env, BType expType) {
-        return analyzeNode(typeNode, env, expType, "");
     }
 
     BType analyzeStmtNode(BLangStatement stmtNode) {
@@ -113,29 +97,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         // Define the variable symbol
-        symEnter.defineNode(varNode, env);
-
         // Analyze the init expression
         // TODO
 
 //        throw new AssertionError();
-    }
-
-    // Type nodes
-    public void visit(BLangValueType valueType) {
-        ScopeEntry entry = symTable.rootScope.lookup(names.fromTypeKind(valueType.typeKind));
-//        throw new AssertionError();
-    }
-
-    public void visit(BLangArrayType arrayType) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangConstrainedType constrainedType) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangUserDefinedType userDefinedType) {
-        throw new AssertionError();
     }
 }

@@ -58,14 +58,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    // Private Log
-
     private CompilerContext context;
     private PackageLoader pkgLoader;
     private SymbolTable symTable;
     private Names names;
-    private SemanticAnalyzer semAnalyzer;
-    private TypeChecker typeChecker;
+    private SymbolResolver symResolver;
 
     public Map<BTypeSymbol, SymbolEnv> symbolEnvs;
 
@@ -89,8 +86,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
-        this.semAnalyzer = SemanticAnalyzer.getInstance(context);
-        this.typeChecker = TypeChecker.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
 
         this.symbolEnvs = new HashMap<>();
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
@@ -109,22 +105,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pSymbol;
         pSymbol.scope = new Scope(pSymbol);
 
-        // TODO Verify this ENV design
+        // visit the package node recursively and define all package level symbols.
         SymbolEnv prevEnv = env;
         env = createPkgEnv(pkgNode, pSymbol.scope);
-//        symbolEnvs.put(pSymbol, env);
-
-        // visit the package node recursively and define package level symbols.
         pkgNode.accept(this);
         env = prevEnv;
         return pSymbol;
-    }
-
-    public void defineNode(BLangNode node, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
-        node.accept(this);
-        this.env = prevEnv;
     }
 
     public void visit(BLangPackage pkgNode) {
@@ -135,6 +121,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         //defineConnector(pkgNode.connectors, env);
         defineStructFields(pkgNode.structs, env);
     }
+
+
+    // Visitor methods
 
     public void visit(BLangImportPackage importPkgNode) {
         throw new AssertionError();
@@ -150,7 +139,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         // assign the type to var type node
-        BType varType = semAnalyzer.analyzeTypeNode(varNode.typeNode, env);
+        BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
 
         // Create variable symbol
         Scope enclScope = env.scope;
@@ -160,10 +149,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         // Find duplicates
-        if (typeChecker.checkForUniqueSymbol(varSymbol, enclScope)) {
+        if (symResolver.checkForUniqueSymbol(varSymbol, enclScope)) {
             enclScope.define(varSymbol.name, varSymbol);
         }
     }
+
+
+    // Private methods
 
     private SymbolEnv createPkgEnv(BLangPackage node, Scope scope) {
         SymbolEnv env = new SymbolEnv(node, scope);
@@ -249,7 +241,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             structSymbol.scope = new Scope(structSymbol);
             struct.symbol = structSymbol;
 
-            if (typeChecker.checkForUniqueSymbol(structSymbol, pkgEnv.scope)) {
+            if (symResolver.checkForUniqueSymbol(structSymbol, pkgEnv.scope)) {
                 pkgEnv.scope.define(structSymbol.name, structSymbol);
             }
         });
@@ -262,10 +254,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         });
     }
 
-    private void defineStructFields(BLangStruct struct, SymbolEnv env) {
-        // TODO Validate initial expression
+    private void defineStructFields(BLangStruct struct, SymbolEnv structEnv) {
         struct.fields.forEach(field -> {
-            semAnalyzer.analyzeNode(field, env);
+            defineNode(field, structEnv);
         });
+    }
+
+    private void defineNode(BLangNode node, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        node.accept(this);
+        this.env = prevEnv;
     }
 }

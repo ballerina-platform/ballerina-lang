@@ -54,6 +54,9 @@ public enum TypeKind {
     PACKAGE("package"),
     STRUCT("struct"),
     CONNECTOR("connector"),
+    ARRAY("[]"),
+    VOID(""),
+    NONE(""),
     OTHER("other");
 
     private String name;

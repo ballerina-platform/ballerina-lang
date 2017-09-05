@@ -17,14 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
  * @since 0.94
@@ -53,18 +48,5 @@ public class TypeChecker {
         this.symEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
-    }
-
-    boolean checkForUniqueSymbol(BSymbol symbol, Scope scope) {
-        ScopeEntry entry = scope.lookup(symbol.name);
-        while (entry != NOT_FOUND_ENTRY) {
-            // Found a scope entry with a symbol with the same name as this symbol
-            if (entry.symbol.kind == symbol.kind) {
-                //out.println("duplicate variable definition");
-                return false;
-            }
-        }
-
-        return true;
     }
 }

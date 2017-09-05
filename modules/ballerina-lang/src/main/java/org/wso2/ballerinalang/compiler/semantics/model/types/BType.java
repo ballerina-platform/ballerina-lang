@@ -21,13 +21,20 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BLOB;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NONE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.VOID;
+
 /**
  * @since 0.94
  */
 public class BType implements ValueType {
 
     public int tag;
-    public TypeKind kind;
     public BTypeSymbol tsymbol;
 
     public BType(int tag, BTypeSymbol tsymbol) {
@@ -37,6 +44,23 @@ public class BType implements ValueType {
 
     @Override
     public TypeKind getKind() {
-        return TypeKind.OTHER;
+        switch (tag) {
+            case INT:
+                return TypeKind.INT;
+            case FLOAT:
+                return TypeKind.FLOAT;
+            case STRING:
+                return TypeKind.STRING;
+            case BOOLEAN:
+                return TypeKind.BOOLEAN;
+            case BLOB:
+                return TypeKind.BLOB;
+            case VOID:
+                return TypeKind.VOID;
+            case NONE:
+                return TypeKind.NONE;
+            default:
+                return TypeKind.OTHER;
+        }
     }
 }
