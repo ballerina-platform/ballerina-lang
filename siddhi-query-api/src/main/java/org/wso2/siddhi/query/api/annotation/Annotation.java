@@ -21,7 +21,6 @@ import org.wso2.siddhi.query.api.SiddhiElement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Annotation for siddhi functions and extensions
@@ -94,10 +93,13 @@ public class Annotation implements SiddhiElement {
     }
 
     public List<Annotation> getAnnotations(String name) {
-        return annotations
-                .stream()
-                .filter(annotation -> annotation.getName().equalsIgnoreCase(name))
-                .collect(Collectors.toList());
+        List<Annotation> results = new ArrayList<>();
+        for (Annotation annotation : annotations) {
+            if (annotation.getName().equalsIgnoreCase(name)) {
+                results.add(annotation);
+            }
+        }
+        return results;
     }
 
     public Annotation annotation(Annotation annotation) {
