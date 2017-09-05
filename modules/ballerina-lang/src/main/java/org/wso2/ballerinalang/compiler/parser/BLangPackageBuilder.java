@@ -53,13 +53,13 @@ public class BLangPackageBuilder {
 
     private Stack<TypeNode> typeNodeStack = new Stack<>();
 
+    private Stack<List<TypeNode>> typeNodeListStack = new Stack<>();
+
     private Stack<BlockNode> blockNodeStack = new Stack<>();
     
     private Stack<VariableNode> varStack = new Stack<>();
 
     private Stack<List<VariableNode>> varListStack = new Stack<>();
-
-    private Stack<List<VariableNode>> retParamListStack = new Stack<>();
 
     private Stack<InvocableNode> invokableNodeStack = new Stack<>();
 
@@ -80,11 +80,15 @@ public class BLangPackageBuilder {
     public void addValueType(String valueType) {
         ValueTypeNode valueTypeNode = TreeBuilder.createValueTypeNode();
         valueTypeNode.setTypeKind(TreeUtils.stringToTypeKind(valueType));
-        this.typeNodeStack.push(valueTypeNode);
+        if (!this.typeNodeListStack.empty()) {
+            this.typeNodeListStack.peek().add(valueTypeNode);
+        } else {
+            this.typeNodeStack.push(valueTypeNode);
+        }
     }
 
-    public void startParamList() {
-        this.varListStack.add(new ArrayList<>());
+    public void startVarList() {
+        this.varListStack.push(new ArrayList<>());
     }
 
     public void startFunctionDef() {
@@ -95,18 +99,14 @@ public class BLangPackageBuilder {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
     }
 
-    public void endReturnParams() {
-        this.retParamListStack.push(this.varListStack.pop());
-    }
-
     private IdentifierNode createIdentifier(String identifier) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         node.setValue(identifier);
         return node;
     }
 
-    public void addVar(String identifier) {
-        VariableNode var = this.generateBasicVarNode(identifier);
+    public void addVar(String identifier, boolean exprAvailable) {
+        VariableNode var = this.generateBasicVarNode(identifier, exprAvailable);
         if (this.varListStack.empty()) {
             this.varStack.push(var);
         } else {
@@ -114,27 +114,24 @@ public class BLangPackageBuilder {
         }
     }
 
-    private List<VariableNode> getLastParamsList() {
-        if (this.varListStack.empty()) {
-            return new ArrayList<>(0);
-        } else {
-            return this.varListStack.pop();
-        }
-    }
-
-    private List<VariableNode> getLastRetParamsList() {
-        if (this.retParamListStack.empty()) {
-            return new ArrayList<>(0);
-        } else {
-            return this.retParamListStack.pop();
-        }
-    }
-
-    public void endCallableUnitSignature(String identifier) {
+    public void endCallableUnitSignature(String identifier, boolean paramsAvail,
+                                         boolean retParamsAvail, boolean retParamTypeOnly) {
         InvocableNode invNode = this.invokableNodeStack.peek();
         invNode.setName(this.createIdentifier(identifier));
-        this.getLastParamsList().stream().forEach(e -> invNode.addParameter(e));
-        this.getLastRetParamsList().stream().forEach(e -> invNode.addReturnParameter(e));
+        if (retParamsAvail) {
+            if (retParamTypeOnly) {
+                this.typeNodeListStack.pop().stream().forEach(e -> {
+                    VariableNode var = TreeBuilder.createVariableNode();
+                    var.setTypeNode(e);
+                    invNode.addReturnParameter(var);
+                });
+            } else {
+                this.varListStack.pop().stream().forEach(e -> invNode.addReturnParameter(e));
+            }
+        }
+        if (paramsAvail) {
+            this.varListStack.pop().stream().forEach(e -> invNode.addParameter(e));
+        }
     }
 
     public void addVariableDefStatement(String identifier) {
@@ -154,10 +151,13 @@ public class BLangPackageBuilder {
     }
 
     public void endFunctionDef() {
-        this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
         this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
     }
-    
+
+    public void endCallableUnitBody() {
+        this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
+    }
+
     public void addPackageId(List<String> nameComps, String version) {
         List<IdentifierNode> nameCompNodes = new ArrayList<>();
         IdentifierNode versionNode;
@@ -189,37 +189,29 @@ public class BLangPackageBuilder {
         impDecl.setAlias(aliasNode);
         this.compUnit.addTopLevelNode(impDecl);
     }
-    
-    private VariableNode generateBasicVarNode(String identifier) {
+
+    private VariableNode generateBasicVarNode(String identifier, boolean exprAvailable) {
         IdentifierNode name = this.createIdentifier(identifier);
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(name);
         var.setTypeNode(this.typeNodeStack.pop());
-        if (!this.exprNodeStack.empty()) {
+        if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
     }
-    
-    public void addGlobalVariable(String identifier) {
-        VariableNode var = this.generateBasicVarNode(identifier);
+
+    public void addGlobalVariable(String identifier, boolean exprAvailable) {
+        VariableNode var = this.generateBasicVarNode(identifier, exprAvailable);
         this.compUnit.addTopLevelNode(var);
     }
     
     public void addConstVariable(String identifier) {
-        VariableNode var = this.generateBasicVarNode(identifier);
+        VariableNode var = this.generateBasicVarNode(identifier, true);
         var.addFlag(Flag.CONST);
         this.compUnit.addTopLevelNode(var);
     }
-    
-    public void startVariableContainer() {
-        this.varListStack.add(new ArrayList<>());
-    }
-    
-    public void addVariable(String identifier) {
-        this.varListStack.peek().add(this.generateBasicVarNode(identifier));
-    }
-    
+
     public void startStructDef() {
         this.structStack.add(TreeBuilder.createStructNode());
     }
@@ -237,18 +229,19 @@ public class BLangPackageBuilder {
     }
     
     public void startConnectorBody() {
-        /* End of connector definition header, so let's populate 
-         * the connector information before processing the body. */
+        /* end of connector definition header, so let's populate 
+         * the connector information before processing the body */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
-        if  (!this.varStack.empty()) {
+        if (!this.varStack.empty()) {
             connectorNode.setFilteredParamter(this.varStack.pop());
         }
         if (!this.varListStack.empty()) {
             this.varListStack.pop().forEach(e -> connectorNode.addParameter(e));
         }
-        /* add variable definitions and actions lists for the body */
-        this.varListStack.push(new ArrayList<>());
-        this.actionNodeStack.push(new ArrayList<>());
+        /* add a temporary block node to contain connector variable definitions */
+        this.blockNodeStack.add(TreeBuilder.createBlockNode());
+        /* action node list to contain the actions of the connector */
+        this.actionNodeStack.add(new ArrayList<>());
     }
     
     public void endConnectorDef(String identifier) {
@@ -258,9 +251,22 @@ public class BLangPackageBuilder {
     }
     
     public void endConnectorBody() {
-        ConnectorNode connectorNode = this.connectorNodeStack.pop();
-        this.varListStack.pop().stream().forEach(e -> connectorNode.addVariable(e));
+        ConnectorNode connectorNode = this.connectorNodeStack.peek();
+        this.blockNodeStack.pop().getStatements().stream().forEach(
+                e -> connectorNode.addVariableDef((VariableDefinitionNode) e));
         this.actionNodeStack.pop().stream().forEach(e -> connectorNode.addAction(e));
     }
-    
+
+    public void startActionDef() {
+        this.invokableNodeStack.push(TreeBuilder.createActionNode());
+    }
+
+    public void endActionDef() {
+        this.connectorNodeStack.peek().addAction((ActionNode) this.invokableNodeStack.pop());
+    }
+
+    public void startProcessingTypeNodeList() {
+        this.typeNodeListStack.push(new ArrayList<>());
+    }
+
 }

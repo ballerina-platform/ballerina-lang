@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,10 +36,10 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangConnector extends BLangNode implements ConnectorNode {
-
+    
     public BLangIdentifier name;
     public List<BLangVariable> params;
-    public List<BLangVariable> vars;
+    public List<BLangVariableDef> varDefs;
     public List<BLangAction> actions;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -45,7 +47,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
 
     public BLangConnector() {
         this.params = new ArrayList<>();
-        this.vars = new ArrayList<>();
+        this.varDefs = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.flags = new HashSet<>();
         this.annAttachments = new ArrayList<>();
@@ -55,7 +57,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public BLangIdentifier getName() {
         return name;
     }
-
+    
     @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
@@ -65,27 +67,27 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangVariable> getParameters() {
         return params;
     }
-
+    
     @Override
     public void addParameter(VariableNode param) {
         this.getParameters().add((BLangVariable) param);
     }
 
     @Override
-    public List<BLangVariable> getVariables() {
-        return vars;
+    public List<BLangVariableDef> getVariableDefs() {
+        return varDefs;
     }
-
+    
     @Override
-    public void addVariable(VariableNode var) {
-        this.getVariables().add((BLangVariable) var);
+    public void addVariableDef(VariableDefinitionNode varDef) {
+        this.getVariableDefs().add((BLangVariableDef) varDef);
     }
 
     @Override
     public List<BLangAction> getActions() {
         return actions;
     }
-
+    
     @Override
     public void addAction(ActionNode action) {
         this.getActions().add((BLangAction) action);
@@ -95,7 +97,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public Set<Flag> getFlags() {
         return flags;
     }
-
+    
     @Override
     public void addFlag(Flag flag) {
         this.getFlags().add(flag);
@@ -105,7 +107,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
-
+    
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
@@ -120,11 +122,11 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public NodeKind getKind() {
         return NodeKind.CONNECTOR;
     }
-
+    
     @Override
     public String toString() {
-        return "BLangConnector: " + this.name + " <" + this.filteredParam + "> (" + this.params +
-                ") Actions: " + this.actions;
+        return "BLangConnector: " + this.name + " <" + this.filteredParam + "> (" + this.params + 
+                ")\n\t Variable Defs: " + this.varDefs + "\n\t Actions: " + this.actions;
     }
 
     @Override
@@ -136,4 +138,5 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public VariableNode getFilteredParameter() {
         return filteredParam;
     }
+    
 }

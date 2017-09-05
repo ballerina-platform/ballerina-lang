@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+
 import java.util.List;
 
 /**
@@ -36,9 +38,9 @@ public interface ConnectorNode extends AnnotatableNode, TopLevelNode {
     
     void addParameter(VariableNode param);
 
-    List<? extends VariableNode> getVariables();
+    List<? extends VariableDefinitionNode> getVariableDefs();
     
-    void addVariable(VariableNode var);
+    void addVariableDef(VariableDefinitionNode var);
 
     List<? extends ActionNode> getActions();
     
