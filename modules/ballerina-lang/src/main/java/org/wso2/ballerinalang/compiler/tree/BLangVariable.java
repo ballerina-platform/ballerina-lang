@@ -114,7 +114,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
     @Override
     public String toString() {
         return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
-                (this.name != null ? this.name : "") + "[" + this.type + "]" + 
+                (this.name != null ? this.name : "") + "[" + this.typeNode + "]" +
                 (this.expr != null ? " = " + this.expr : "");
     }
 }
