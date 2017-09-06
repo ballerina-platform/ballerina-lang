@@ -106,14 +106,14 @@ class File extends EventChannel {
 
     /**
      * Set content of the file
-     * @param {string} content new file content
+     * @param {string} newContent new file content
      * @param {Object} originEvt Originating change event
      *
      * @emits File#content-modified
      */
-    setContent(content, originEvt) {
+    setContent(newContent, originEvt) {
         const oldContent = this._content;
-        this._content = content;
+        this._content = newContent;
 
         /**
          * Fired when a change is made to file content
@@ -122,13 +122,13 @@ class File extends EventChannel {
          */
         const evt = {
             oldContent,
-            content,
+            newContent,
             originEvt,
         };
         this.trigger(EVENTS.CONTENT_MODIFIED, evt);
         // if the new content is not equal to old content
         // set file dirty
-        if (!_.isEqual(oldContent, content)) {
+        if (!_.isEqual(oldContent, newContent)) {
             this.isDirty = true;
         }
     }
