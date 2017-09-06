@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?7ae051d7a8659efab27c045ab798152f");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?6db7b998eb4f99347d02a5b08629d515");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?7ae051d7a8659efab27c045ab798152f") format("woff2"),
-		url("../fonts/font-wso2.woff?7ae051d7a8659efab27c045ab798152f") format("woff"),
-		url("../fonts/font-wso2.ttf?7ae051d7a8659efab27c045ab798152f") format("truetype"),
-		url("../fonts/font-wso2.svg?7ae051d7a8659efab27c045ab798152f#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?6db7b998eb4f99347d02a5b08629d515") format("woff2"),
+		url("../fonts/font-wso2.woff?6db7b998eb4f99347d02a5b08629d515") format("woff"),
+		url("../fonts/font-wso2.ttf?6db7b998eb4f99347d02a5b08629d515") format("truetype"),
+		url("../fonts/font-wso2.svg?6db7b998eb4f99347d02a5b08629d515#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -305,7 +305,7 @@
 }
 
 .fw-active-view:before {
-    content:"\e6f8";
+    content:"\e6ec";
 }
 
 .fw-add:before {
@@ -313,7 +313,7 @@
 }
 
 .fw-aggregate:before {
-    content:"\e6f9";
+    content:"\e6e8";
 }
 
 .fw-airplay:before {
@@ -493,7 +493,7 @@
 }
 
 .fw-compact-view:before {
-    content:"\e6f7";
+    content:"\e6f5";
 }
 
 .fw-compare:before {
@@ -580,8 +580,8 @@
     content:"\e704";
 }
 
-.fw-dgm-import:before {
-    content:"\e717";
+.fw-dgm-action:before {
+    content:"\e711";
 }
 
 .fw-dial-up:before {
@@ -605,7 +605,7 @@
 }
 
 .fw-dollar:before {
-    content:"\e6e9";
+    content:"\e6eb";
 }
 
 .fw-down-arrow:before {
@@ -653,7 +653,7 @@
 }
 
 .fw-expand-all:before {
-    content:"\e6f5";
+    content:"\e6f8";
 }
 
 .fw-expand:before {
@@ -689,7 +689,7 @@
 }
 
 .fw-file:before {
-    content:"\e6e8";
+    content:"\e712";
 }
 
 .fw-filter:before {
@@ -710,6 +710,10 @@
 
 .fw-fork-join:before {
     content:"\e720";
+}
+
+.fw-fork:before {
+    content:"\e6d0";
 }
 
 .fw-format:before {
@@ -825,7 +829,7 @@
 }
 
 .fw-if-else:before {
-    content:"\e711";
+    content:"\e6e9";
 }
 
 .fw-image:before {
@@ -901,7 +905,7 @@
 }
 
 .fw-jms:before {
-    content:"\e6eb";
+    content:"\e6f9";
 }
 
 .fw-jquery:before {
@@ -937,7 +941,7 @@
 }
 
 .fw-lifeline:before {
-    content:"\e712";
+    content:"\e6ea";
 }
 
 .fw-light:before {
@@ -1201,7 +1205,7 @@
 }
 
 .fw-save-as:before {
-    content:"\e6ea";
+    content:"\e6f7";
 }
 
 .fw-save:before {
@@ -1453,7 +1457,7 @@
 }
 
 .fw-users:before {
-    content:"\e6ec";
+    content:"\e717";
 }
 
 .fw-variable:before {
