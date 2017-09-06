@@ -508,7 +508,7 @@ class BallerinaFileEditor extends React.Component {
                     model={this.state.model}
                     show={showDesignView}
                     file={this.props.file}
-                    commandManager={this.props.commandManager}
+                    commandProxy={this.props.commandProxy}
                 />
                 <SourceView
                     displayErrorList={popupErrorListInSourceView}
