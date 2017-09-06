@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -82,8 +83,9 @@ public class BLangProgramRunner {
                         serviceInfo.getProtocolPkgPath());
             }
             // Deploy service
-            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
-                    .serviceRegistered(serviceInfo);
+            ServerConnectorRegistry.getInstance().registerService(serviceInfo);
+//            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
+//                    .serviceRegistered(serviceInfo);
             serviceCount++;
         }
 

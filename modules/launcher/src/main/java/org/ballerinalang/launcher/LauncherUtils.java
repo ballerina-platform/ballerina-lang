@@ -20,6 +20,7 @@ package org.ballerinalang.launcher;
 import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -97,6 +98,8 @@ public class LauncherUtils {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BLangRuntimeRegistry.getInstance().initialize();
 
+        ServerConnectorRegistry.getInstance().initServerConnectors();
+
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
@@ -106,11 +109,13 @@ public class LauncherUtils {
             startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
                     serverConnector));
 
+            ServerConnectorRegistry.getInstance().complete();
+
             // Starting up HTTP Server connectors
-            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
-                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                                                                                       serverConnector));
+//            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
+//                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
+//            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
+//                                                                                       serverConnector));
         } catch (ServerConnectorException e) {
             throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
         }
