@@ -373,7 +373,7 @@ DefaultASTFactory.createAggregatedFunctionInvocationStatement = function (args) 
     const funcInvocationExpression = ASTFactory.createFunctionInvocationExpression(opts);
     if (!_.isNil(args) && _.has(args, 'functionDef')) {
         let functionInvokeString = '';
-        if (!_.isNil(args.packageName)) {
+        if (!_.isNil(args.packageName) && (args.packageName !== 'Current Package')) {
             functionInvokeString += args.packageName + ':';
         }
         functionInvokeString += args.functionDef.getName() + '(';
