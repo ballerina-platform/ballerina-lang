@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?8e653923094f2e847aa2e6f68c534500");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?7ae051d7a8659efab27c045ab798152f");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?8e653923094f2e847aa2e6f68c534500") format("woff2"),
-		url("../fonts/font-wso2.woff?8e653923094f2e847aa2e6f68c534500") format("woff"),
-		url("../fonts/font-wso2.ttf?8e653923094f2e847aa2e6f68c534500") format("truetype"),
-		url("../fonts/font-wso2.svg?8e653923094f2e847aa2e6f68c534500#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?7ae051d7a8659efab27c045ab798152f") format("woff2"),
+		url("../fonts/font-wso2.woff?7ae051d7a8659efab27c045ab798152f") format("woff"),
+		url("../fonts/font-wso2.ttf?7ae051d7a8659efab27c045ab798152f") format("truetype"),
+		url("../fonts/font-wso2.svg?7ae051d7a8659efab27c045ab798152f#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -304,8 +304,16 @@
     content:"\e6cf";
 }
 
+.fw-active-view:before {
+    content:"\e6f8";
+}
+
 .fw-add:before {
     content:"\e615";
+}
+
+.fw-aggregate:before {
+    content:"\e6f9";
 }
 
 .fw-airplay:before {
@@ -378,6 +386,10 @@
 
 .fw-battery:before {
     content:"\e60a";
+}
+
+.fw-bean:before {
+    content:"\e6e7";
 }
 
 .fw-blank-document:before {
@@ -472,8 +484,16 @@
     content:"\e6f1";
 }
 
+.fw-collapse-all:before {
+    content:"\e6f4";
+}
+
 .fw-comment:before {
     content:"\e710";
+}
+
+.fw-compact-view:before {
+    content:"\e6f7";
 }
 
 .fw-compare:before {
@@ -532,6 +552,10 @@
     content:"\e623";
 }
 
+.fw-default-view:before {
+    content:"\e6f6";
+}
+
 .fw-delete:before {
     content:"\e624";
 }
@@ -556,68 +580,8 @@
     content:"\e704";
 }
 
-.fw-dgm-action-invoke:before {
-    content:"\e712";
-}
-
-.fw-dgm-action:before {
-    content:"\e711";
-}
-
-.fw-dgm-connector:before {
-    content:"\e6f4";
-}
-
-.fw-dgm-constant-definition:before {
-    content:"\e6f5";
-}
-
-.fw-dgm-fork:before {
-    content:"\e6e7";
-}
-
-.fw-dgm-header:before {
-    content:"\e6e8";
-}
-
-.fw-dgm-if-else:before {
-    content:"\e6e9";
-}
-
 .fw-dgm-import:before {
     content:"\e717";
-}
-
-.fw-dgm-lifeline:before {
-    content:"\e6ea";
-}
-
-.fw-dgm-logger:before {
-    content:"\e6eb";
-}
-
-.fw-dgm-resource:before {
-    content:"\e6f6";
-}
-
-.fw-dgm-service:before {
-    content:"\e6f7";
-}
-
-.fw-dgm-try-catch:before {
-    content:"\e6ec";
-}
-
-.fw-dgm-type-convertor:before {
-    content:"\e6f8";
-}
-
-.fw-dgm-type:before {
-    content:"\e6f9";
-}
-
-.fw-dgm-while:before {
-    content:"\e707";
 }
 
 .fw-dial-up:before {
@@ -638,6 +602,10 @@
 
 .fw-document:before {
     content:"\e628";
+}
+
+.fw-dollar:before {
+    content:"\e6e9";
 }
 
 .fw-down-arrow:before {
@@ -684,6 +652,10 @@
     content:"\e6e3";
 }
 
+.fw-expand-all:before {
+    content:"\e6f5";
+}
+
 .fw-expand:before {
     content:"\e61c";
 }
@@ -714,6 +686,10 @@
 
 .fw-file-browse:before {
     content:"\e633";
+}
+
+.fw-file:before {
+    content:"\e6e8";
 }
 
 .fw-filter:before {
@@ -848,6 +824,10 @@
     content:"\e705";
 }
 
+.fw-if-else:before {
+    content:"\e711";
+}
+
 .fw-image:before {
     content:"\e70a";
 }
@@ -920,6 +900,10 @@
     content:"\e6c7";
 }
 
+.fw-jms:before {
+    content:"\e6eb";
+}
+
 .fw-jquery:before {
     content:"\e646";
 }
@@ -950,6 +934,10 @@
 
 .fw-lifecycle:before {
     content:"\e64a";
+}
+
+.fw-lifeline:before {
+    content:"\e712";
 }
 
 .fw-light:before {
@@ -1212,6 +1200,10 @@
     content:"\e708";
 }
 
+.fw-save-as:before {
+    content:"\e6ea";
+}
+
 .fw-save:before {
     content:"\e665";
 }
@@ -1460,6 +1452,10 @@
     content:"\e68f";
 }
 
+.fw-users:before {
+    content:"\e6ec";
+}
+
 .fw-variable:before {
     content:"\e6ee";
 }
@@ -1498,6 +1494,10 @@
 
 .fw-website:before {
     content:"\e69b";
+}
+
+.fw-while:before {
+    content:"\e707";
 }
 
 .fw-wifi:before {

@@ -49,8 +49,16 @@
             content:"\e6cf";
         }
   
+        @else if ($icon == "active-view") {
+            content:"\e6f8";
+        }
+  
         @else if ($icon == "add") {
             content:"\e615";
+        }
+  
+        @else if ($icon == "aggregate") {
+            content:"\e6f9";
         }
   
         @else if ($icon == "airplay") {
@@ -123,6 +131,10 @@
   
         @else if ($icon == "battery") {
             content:"\e60a";
+        }
+  
+        @else if ($icon == "bean") {
+            content:"\e6e7";
         }
   
         @else if ($icon == "blank-document") {
@@ -217,8 +229,16 @@
             content:"\e6f1";
         }
   
+        @else if ($icon == "collapse-all") {
+            content:"\e6f4";
+        }
+  
         @else if ($icon == "comment") {
             content:"\e710";
+        }
+  
+        @else if ($icon == "compact-view") {
+            content:"\e6f7";
         }
   
         @else if ($icon == "compare") {
@@ -277,6 +297,10 @@
             content:"\e623";
         }
   
+        @else if ($icon == "default-view") {
+            content:"\e6f6";
+        }
+  
         @else if ($icon == "delete") {
             content:"\e624";
         }
@@ -301,68 +325,8 @@
             content:"\e704";
         }
   
-        @else if ($icon == "dgm-action-invoke") {
-            content:"\e712";
-        }
-  
-        @else if ($icon == "dgm-action") {
-            content:"\e711";
-        }
-  
-        @else if ($icon == "dgm-connector") {
-            content:"\e6f4";
-        }
-  
-        @else if ($icon == "dgm-constant-definition") {
-            content:"\e6f5";
-        }
-  
-        @else if ($icon == "dgm-fork") {
-            content:"\e6e7";
-        }
-  
-        @else if ($icon == "dgm-header") {
-            content:"\e6e8";
-        }
-  
-        @else if ($icon == "dgm-if-else") {
-            content:"\e6e9";
-        }
-  
         @else if ($icon == "dgm-import") {
             content:"\e717";
-        }
-  
-        @else if ($icon == "dgm-lifeline") {
-            content:"\e6ea";
-        }
-  
-        @else if ($icon == "dgm-logger") {
-            content:"\e6eb";
-        }
-  
-        @else if ($icon == "dgm-resource") {
-            content:"\e6f6";
-        }
-  
-        @else if ($icon == "dgm-service") {
-            content:"\e6f7";
-        }
-  
-        @else if ($icon == "dgm-try-catch") {
-            content:"\e6ec";
-        }
-  
-        @else if ($icon == "dgm-type-convertor") {
-            content:"\e6f8";
-        }
-  
-        @else if ($icon == "dgm-type") {
-            content:"\e6f9";
-        }
-  
-        @else if ($icon == "dgm-while") {
-            content:"\e707";
         }
   
         @else if ($icon == "dial-up") {
@@ -383,6 +347,10 @@
   
         @else if ($icon == "document") {
             content:"\e628";
+        }
+  
+        @else if ($icon == "dollar") {
+            content:"\e6e9";
         }
   
         @else if ($icon == "down-arrow") {
@@ -429,6 +397,10 @@
             content:"\e6e3";
         }
   
+        @else if ($icon == "expand-all") {
+            content:"\e6f5";
+        }
+  
         @else if ($icon == "expand") {
             content:"\e61c";
         }
@@ -459,6 +431,10 @@
   
         @else if ($icon == "file-browse") {
             content:"\e633";
+        }
+  
+        @else if ($icon == "file") {
+            content:"\e6e8";
         }
   
         @else if ($icon == "filter") {
@@ -593,6 +569,10 @@
             content:"\e705";
         }
   
+        @else if ($icon == "if-else") {
+            content:"\e711";
+        }
+  
         @else if ($icon == "image") {
             content:"\e70a";
         }
@@ -665,6 +645,10 @@
             content:"\e6c7";
         }
   
+        @else if ($icon == "jms") {
+            content:"\e6eb";
+        }
+  
         @else if ($icon == "jquery") {
             content:"\e646";
         }
@@ -695,6 +679,10 @@
   
         @else if ($icon == "lifecycle") {
             content:"\e64a";
+        }
+  
+        @else if ($icon == "lifeline") {
+            content:"\e712";
         }
   
         @else if ($icon == "light") {
@@ -957,6 +945,10 @@
             content:"\e708";
         }
   
+        @else if ($icon == "save-as") {
+            content:"\e6ea";
+        }
+  
         @else if ($icon == "save") {
             content:"\e665";
         }
@@ -1205,6 +1197,10 @@
             content:"\e68f";
         }
   
+        @else if ($icon == "users") {
+            content:"\e6ec";
+        }
+  
         @else if ($icon == "variable") {
             content:"\e6ee";
         }
@@ -1243,6 +1239,10 @@
   
         @else if ($icon == "website") {
             content:"\e69b";
+        }
+  
+        @else if ($icon == "while") {
+            content:"\e707";
         }
   
         @else if ($icon == "wifi") {
