@@ -49,8 +49,16 @@
             content:"\e6cf";
         }
   
+        @else if ($icon == "active-view") {
+            content:"\e6f8";
+        }
+  
         @else if ($icon == "add") {
             content:"\e615";
+        }
+  
+        @else if ($icon == "aggregate") {
+            content:"\e6f9";
         }
   
         @else if ($icon == "airplay") {
@@ -67,6 +75,14 @@
   
         @else if ($icon == "analytics-extensions") {
             content:"\e6e2";
+        }
+  
+        @else if ($icon == "android-logcat") {
+            content:"\e72c";
+        }
+  
+        @else if ($icon == "android-sense") {
+            content:"\e72d";
         }
   
         @else if ($icon == "android") {
@@ -117,6 +133,10 @@
             content:"\e60a";
         }
   
+        @else if ($icon == "bean") {
+            content:"\e6e7";
+        }
+  
         @else if ($icon == "blank-document") {
             content:"\e60c";
         }
@@ -151,6 +171,10 @@
   
         @else if ($icon == "calendar") {
             content:"\e612";
+        }
+  
+        @else if ($icon == "call-mediator") {
+            content:"\e736";
         }
   
         @else if ($icon == "camera") {
@@ -205,8 +229,16 @@
             content:"\e6f1";
         }
   
+        @else if ($icon == "collapse-all") {
+            content:"\e6f4";
+        }
+  
         @else if ($icon == "comment") {
             content:"\e710";
+        }
+  
+        @else if ($icon == "compact-view") {
+            content:"\e6f7";
         }
   
         @else if ($icon == "compare") {
@@ -237,6 +269,10 @@
             content:"\e620";
         }
   
+        @else if ($icon == "continue") {
+            content:"\e73e";
+        }
+  
         @else if ($icon == "contract") {
             content:"\e614";
         }
@@ -253,8 +289,16 @@
             content:"\e622";
         }
   
+        @else if ($icon == "data-mapper") {
+            content:"\e735";
+        }
+  
         @else if ($icon == "database") {
             content:"\e623";
+        }
+  
+        @else if ($icon == "default-view") {
+            content:"\e6f6";
         }
   
         @else if ($icon == "delete") {
@@ -281,68 +325,8 @@
             content:"\e704";
         }
   
-        @else if ($icon == "dgm-action-invoke") {
-            content:"\e712";
-        }
-  
-        @else if ($icon == "dgm-action") {
-            content:"\e711";
-        }
-  
-        @else if ($icon == "dgm-connector") {
-            content:"\e6f4";
-        }
-  
-        @else if ($icon == "dgm-constant-definition") {
-            content:"\e6f5";
-        }
-  
-        @else if ($icon == "dgm-fork") {
-            content:"\e6e7";
-        }
-  
-        @else if ($icon == "dgm-header") {
-            content:"\e6e8";
-        }
-  
-        @else if ($icon == "dgm-if-else") {
-            content:"\e6e9";
-        }
-  
         @else if ($icon == "dgm-import") {
             content:"\e717";
-        }
-  
-        @else if ($icon == "dgm-lifeline") {
-            content:"\e6ea";
-        }
-  
-        @else if ($icon == "dgm-logger") {
-            content:"\e6eb";
-        }
-  
-        @else if ($icon == "dgm-resource") {
-            content:"\e6f6";
-        }
-  
-        @else if ($icon == "dgm-service") {
-            content:"\e6f7";
-        }
-  
-        @else if ($icon == "dgm-try-catch") {
-            content:"\e6ec";
-        }
-  
-        @else if ($icon == "dgm-type-convertor") {
-            content:"\e6f8";
-        }
-  
-        @else if ($icon == "dgm-type") {
-            content:"\e6f9";
-        }
-  
-        @else if ($icon == "dgm-while") {
-            content:"\e707";
         }
   
         @else if ($icon == "dial-up") {
@@ -363,6 +347,10 @@
   
         @else if ($icon == "document") {
             content:"\e628";
+        }
+  
+        @else if ($icon == "dollar") {
+            content:"\e6e9";
         }
   
         @else if ($icon == "down-arrow") {
@@ -409,6 +397,10 @@
             content:"\e6e3";
         }
   
+        @else if ($icon == "expand-all") {
+            content:"\e6f5";
+        }
+  
         @else if ($icon == "expand") {
             content:"\e61c";
         }
@@ -441,6 +433,10 @@
             content:"\e633";
         }
   
+        @else if ($icon == "file") {
+            content:"\e6e8";
+        }
+  
         @else if ($icon == "filter") {
             content:"\e634";
         }
@@ -451,6 +447,10 @@
   
         @else if ($icon == "folder") {
             content:"\e62e";
+        }
+  
+        @else if ($icon == "foreach") {
+            content:"\e73ab";
         }
   
         @else if ($icon == "fork-join") {
@@ -477,6 +477,14 @@
             content:"\e637";
         }
   
+        @else if ($icon == "geo-fence-inbound") {
+            content:"\e72e";
+        }
+  
+        @else if ($icon == "geo-fence-outbound") {
+            content:"\e72f";
+        }
+  
         @else if ($icon == "github") {
             content:"\e6d4";
         }
@@ -491,6 +499,10 @@
   
         @else if ($icon == "google-drive") {
             content:"\e6da";
+        }
+  
+        @else if ($icon == "google-glass") {
+            content:"\e732";
         }
   
         @else if ($icon == "google-plus") {
@@ -529,6 +541,10 @@
             content:"\e639";
         }
   
+        @else if ($icon == "header") {
+            content:"\e734";
+        }
+  
         @else if ($icon == "heart") {
             content:"\e6c3";
         }
@@ -553,12 +569,20 @@
             content:"\e705";
         }
   
+        @else if ($icon == "if-else") {
+            content:"\e711";
+        }
+  
         @else if ($icon == "image") {
             content:"\e70a";
         }
   
         @else if ($icon == "import") {
             content:"\e63c";
+        }
+  
+        @else if ($icon == "in-sequence") {
+            content:"\e739";
         }
   
         @else if ($icon == "incoming-call") {
@@ -571,6 +595,10 @@
   
         @else if ($icon == "instagram") {
             content:"\e6db";
+        }
+  
+        @else if ($icon == "integration") {
+            content:"\e73f";
         }
   
         @else if ($icon == "invitation") {
@@ -617,6 +645,10 @@
             content:"\e6c7";
         }
   
+        @else if ($icon == "jms") {
+            content:"\e6eb";
+        }
+  
         @else if ($icon == "jquery") {
             content:"\e646";
         }
@@ -647,6 +679,10 @@
   
         @else if ($icon == "lifecycle") {
             content:"\e64a";
+        }
+  
+        @else if ($icon == "lifeline") {
+            content:"\e712";
         }
   
         @else if ($icon == "light") {
@@ -689,6 +725,10 @@
             content:"\e64e";
         }
   
+        @else if ($icon == "log") {
+            content:"\e738";
+        }
+  
         @else if ($icon == "logical") {
             content:"\e702";
         }
@@ -703,6 +743,10 @@
   
         @else if ($icon == "map-location") {
             content:"\e650";
+        }
+  
+        @else if ($icon == "mapping") {
+            content:"\e73c";
         }
   
         @else if ($icon == "menu") {
@@ -733,6 +777,10 @@
             content:"\e655";
         }
   
+        @else if ($icon == "namespace") {
+            content:"\e740";
+        }
+  
         @else if ($icon == "nodejs") {
             content:"\e656";
         }
@@ -743,6 +791,10 @@
   
         @else if ($icon == "organization") {
             content:"\e6ac";
+        }
+  
+        @else if ($icon == "out-sequence") {
+            content:"\e73a";
         }
   
         @else if ($icon == "own") {
@@ -759,6 +811,10 @@
   
         @else if ($icon == "paste") {
             content:"\e658";
+        }
+  
+        @else if ($icon == "payload-factory") {
+            content:"\e733";
         }
   
         @else if ($icon == "pdf") {
@@ -789,6 +845,10 @@
             content:"\e70d";
         }
   
+        @else if ($icon == "property") {
+            content:"\e737";
+        }
+  
         @else if ($icon == "prototype") {
             content:"\e6cc";
         }
@@ -815,6 +875,10 @@
   
         @else if ($icon == "redo") {
             content:"\e65d";
+        }
+  
+        @else if ($icon == "reduce") {
+            content:"\e73d";
         }
   
         @else if ($icon == "refresh") {
@@ -881,6 +945,10 @@
             content:"\e708";
         }
   
+        @else if ($icon == "save-as") {
+            content:"\e6ea";
+        }
+  
         @else if ($icon == "save") {
             content:"\e665";
         }
@@ -933,6 +1001,10 @@
             content:"\e670";
         }
   
+        @else if ($icon == "shell") {
+            content:"\e730";
+        }
+  
         @else if ($icon == "shortcut") {
             content:"\e725";
         }
@@ -967,6 +1039,10 @@
   
         @else if ($icon == "sort") {
             content:"\e673";
+        }
+  
+        @else if ($icon == "speed-alert") {
+            content:"\e731";
         }
   
         @else if ($icon == "square-outline") {
@@ -1121,6 +1197,10 @@
             content:"\e68f";
         }
   
+        @else if ($icon == "users") {
+            content:"\e6ec";
+        }
+  
         @else if ($icon == "variable") {
             content:"\e6ee";
         }
@@ -1159,6 +1239,10 @@
   
         @else if ($icon == "website") {
             content:"\e69b";
+        }
+  
+        @else if ($icon == "while") {
+            content:"\e707";
         }
   
         @else if ($icon == "wifi") {
