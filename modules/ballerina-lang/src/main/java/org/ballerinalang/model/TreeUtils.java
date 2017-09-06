@@ -38,6 +38,8 @@ public class TreeUtils {
         stringTypeKindMap.put("json", TypeKind.JSON);
         stringTypeKindMap.put("xml", TypeKind.XML);
         stringTypeKindMap.put("datatable", TypeKind.DATATABLE);
+        stringTypeKindMap.put("any", TypeKind.ANY);
+        stringTypeKindMap.put("map", TypeKind.MAP);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

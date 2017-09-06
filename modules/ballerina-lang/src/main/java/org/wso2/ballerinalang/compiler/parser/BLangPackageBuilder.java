@@ -36,6 +36,14 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 
@@ -51,6 +59,8 @@ import java.util.Stack;
 public class BLangPackageBuilder {
 
     private CompilationUnitNode compUnit;
+
+    private Stack<BLangNameReference> nameReferenceStack = new Stack<>();
 
     private Stack<TypeNode> typeNodeStack = new Stack<>();
 
@@ -88,6 +98,109 @@ public class BLangPackageBuilder {
         } else {
             this.typeNodeStack.push(typeNode);
         }
+    }
+
+    public void addArrayType(DiagnosticPos pos, int dimensions) {
+        BLangType eType;
+        if (!this.typeNodeListStack.empty()) {
+            List<TypeNode> typeNodeList = this.typeNodeListStack.peek();
+            eType = (BLangType) typeNodeList.get(typeNodeList.size() - 1);
+            typeNodeList.remove(typeNodeList.size() -1);
+        } else {
+            eType = (BLangType) this.typeNodeStack.pop();
+        }
+        BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
+        arrayTypeNode.pos = pos;
+        arrayTypeNode.etype = eType;
+        arrayTypeNode.dimensions = dimensions;
+
+        if (!this.typeNodeListStack.empty()) {
+            this.typeNodeListStack.peek().add(arrayTypeNode);
+        } else {
+            this.typeNodeStack.push(arrayTypeNode);
+        }
+    }
+
+    public void addUserDefineType(DiagnosticPos pos) {
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.pos = pos;
+        userDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        userDefinedType.typeName = (BLangIdentifier) nameReference.name;
+
+        if (!this.typeNodeListStack.empty()) {
+            this.typeNodeListStack.peek().add(userDefinedType);
+        } else {
+            this.typeNodeStack.push(userDefinedType);
+        }
+    }
+
+    public void addBuiltInReferenceType(DiagnosticPos pos, String typeName) {
+        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferanceTypeNode();
+        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
+        refType.pos = pos;
+        if (!this.typeNodeListStack.empty()) {
+            this.typeNodeListStack.peek().add(refType);
+        } else {
+            this.typeNodeStack.push(refType);
+        }
+    }
+
+    public void addConstraintType(DiagnosticPos pos, String typeName) {
+        // TODO : Fix map<int> format.
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        constraintType.pos = pos;
+        constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        constraintType.typeName = (BLangIdentifier) nameReference.name;
+
+        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferanceTypeNode();
+        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
+        refType.pos = pos;
+
+        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+        constrainedType.type = refType;
+        constrainedType.constraint = constraintType;
+        constrainedType.pos = pos;
+
+        if (!this.typeNodeListStack.empty()) {
+            this.typeNodeListStack.peek().add(constrainedType);
+        } else {
+            this.typeNodeStack.push(constrainedType);
+        }
+    }
+
+    public void addFunctionType(DiagnosticPos pos, boolean paramsAvail, boolean paramsTypeOnly,
+                                boolean retParamsAvail, boolean retParamTypeOnly, boolean returnsKeywordExists) {
+        // TODO : Fix function main ()(boolean , function(string x)(float, int)){} issue
+        BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
+        functionTypeNode.pos = pos;
+        functionTypeNode.returnsKeywordExists = returnsKeywordExists;
+
+        if (retParamsAvail) {
+            if (retParamTypeOnly) {
+                functionTypeNode.returnParamTypeNodes.addAll(this.typeNodeListStack.pop());
+            } else {
+                this.varListStack.pop().forEach(v -> functionTypeNode.returnParamTypeNodes.add(v.getTypeNode()));
+            }
+        }
+        if (paramsAvail) {
+            if (paramsTypeOnly) {
+                functionTypeNode.paramTypeNodes.addAll(this.typeNodeListStack.pop());
+            } else {
+                this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
+            }
+        }
+
+        if (!this.typeNodeListStack.empty()) {
+            this.typeNodeListStack.peek().add(functionTypeNode);
+        } else {
+            this.typeNodeStack.push(functionTypeNode);
+        }
+    }
+
+    public void addNameReference(String pkgName, String name) {
+        nameReferenceStack.push(new BLangNameReference(createIdentifier(pkgName), createIdentifier(name)));
     }
 
     public void startVarList() {

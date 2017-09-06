@@ -24,4 +24,6 @@ package org.ballerinalang.model.tree.types;
  */
 public interface ArrayTypeNode extends ReferenceTypeNode {
     TypeNode getElementType();
+
+    int getDimensions();
 }

@@ -27,6 +27,9 @@ public class BLangConstrainedType extends BLangType implements ConstrainedTypeNo
     public BLangType type;
     public BLangType constraint;
 
+    public BLangConstrainedType() {
+    }
+
     public BLangConstrainedType(BLangType type, BLangType constraint) {
         this.type = type;
         this.constraint = constraint;
@@ -45,5 +48,10 @@ public class BLangConstrainedType extends BLangType implements ConstrainedTypeNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return this.type.toString() + "<" + this.constraint.toString() + ">";
     }
 }
