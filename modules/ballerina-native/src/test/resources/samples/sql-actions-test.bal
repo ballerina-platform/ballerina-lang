@@ -31,9 +31,8 @@ function testInsertTableData () (int) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
 
-    sql:Parameter[] parameters = [];
     int insertCount = testDB.update ("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values ('James', 'Clerk', 2, 5000.75, 'USA')", parameters);
+                                     values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
     testDB.close ();
     return insertCount;
 }
@@ -42,9 +41,8 @@ function testCreateTable () (int) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
 
-    sql:Parameter[] parameters = [];
     int returnValue = testDB.update ("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
-                                     parameters);
+                                     null);
     testDB.close ();
     return returnValue;
 }
@@ -65,11 +63,9 @@ function testGeneratedKeyOnInsert () (string) {
 
     int insertCount;
     string[] generatedID;
-    sql:Parameter[] parameters = [];
-    string[] keyColumns = [];
     insertCount, generatedID = testDB.updateWithGeneratedKeys ("insert into Customers (firstName,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
-                             parameters, keyColumns);
+                             null, null);
     testDB.close ();
     return generatedID[0];
 }
@@ -82,10 +78,9 @@ function testGeneratedKeyWithColumn () (string) {
     string[] generatedID;
     string[] keyColumns;
     keyColumns = ["CUSTOMERID"];
-    sql:Parameter[] parameters = [];
     insertCount, generatedID = testDB.updateWithGeneratedKeys ("insert into Customers (firstName,lastName,
                                registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')",
-                               parameters, keyColumns);
+                               null, keyColumns);
     testDB.close ();
     return generatedID[0];
 }
@@ -94,8 +89,7 @@ function testSelectData () (string firstName) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
 
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", null);
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -132,9 +126,8 @@ function testCallProcedure () (string firstName) {
     sql:ConnectionProperties properties = {maximumPoolSize:1};
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
 
-    sql:Parameter[] parameters = [];
-    testDB.call ("{call InsertPersonData(100,'James')}", parameters);
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", parameters);
+    testDB.call ("{call InsertPersonData(100,'James')}", null);
+    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", null);
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {

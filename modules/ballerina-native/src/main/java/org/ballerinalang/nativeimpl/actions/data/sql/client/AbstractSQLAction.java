@@ -43,6 +43,7 @@ import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -84,6 +85,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
+    }
+
+    @Override
+    public BValue getRefArgument(Context context, int index) {
+        if (index > -1 && index < getArgumentTypeNames().length) {
+            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
     }
 
     protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
@@ -198,10 +207,15 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             conn = datasource.getSQLConnection();
             stmt = conn.prepareStatement(query);
             setConnectionAutoCommit(conn, false);
-            int paramArrayCount = (int) parameters.size();
-            for (int index = 0; index < paramArrayCount; index++) {
-                BRefValueArray params = (BRefValueArray) parameters.get(index);
-                createProcessedStatement(conn, stmt, params);
+            if (parameters != null) {
+                int paramArrayCount = (int) parameters.size();
+                for (int index = 0; index < paramArrayCount; index++) {
+                    BRefValueArray params = (BRefValueArray) parameters.get(index);
+                    createProcessedStatement(conn, stmt, params);
+                    stmt.addBatch();
+                }
+            } else {
+                createProcessedStatement(conn, stmt, null);
                 stmt.addBatch();
             }
             int[] updatedCount = stmt.executeBatch();
@@ -226,24 +240,26 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
      */
     private String createProcessedQueryString(String query, BRefValueArray parameters) {
         String currentQuery = query;
-        int start = 0;
-        Object[] vals;
-        int count;
-        int paramCount = (int) parameters.size();
-        for (int i = 0; i < paramCount; i++) {
-            BStruct paramValue = (BStruct) parameters.get(i);
-            if (paramValue != null) {
-                BValue value = paramValue.getRefField(0);
-                String sqlType = paramValue.getStringField(0);
-                if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                        .equalsIgnoreCase(sqlType)) {
-                    count = (int) ((BNewArray) value).size();
-                } else {
-                    count = 1;
+        if (parameters != null) {
+            int start = 0;
+            Object[] vals;
+            int count;
+            int paramCount = (int) parameters.size();
+            for (int i = 0; i < paramCount; i++) {
+                BStruct paramValue = (BStruct) parameters.get(i);
+                if (paramValue != null) {
+                    BValue value = paramValue.getRefField(0);
+                    String sqlType = paramValue.getStringField(0);
+                    if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
+                            .equalsIgnoreCase(sqlType)) {
+                        count = (int) ((BNewArray) value).size();
+                    } else {
+                        count = 1;
+                    }
+                    vals = this.expandQuery(start, count, currentQuery);
+                    start = (Integer) vals[0];
+                    currentQuery = (String) vals[1];
                 }
-                vals = this.expandQuery(start, count, currentQuery);
-                start = (Integer) vals[0];
-                currentQuery = (String) vals[1];
             }
         }
         return currentQuery;
@@ -329,7 +345,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
                statements that have output parameters */
-            if (!hasOutParams(parameters)) {
+            if (parameters != null && !hasOutParams(parameters)) {
                 stmt.setFetchSize(Integer.MIN_VALUE);
             }
         } else {
@@ -398,6 +414,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params) {
+        if (params == null) {
+            return;
+        }
         int paramCount = (int) params.size();
         int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
@@ -540,6 +559,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private void setOutParameters(CallableStatement stmt, BRefValueArray params) {
+        if (params == null) {
+            return;
+        }
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
