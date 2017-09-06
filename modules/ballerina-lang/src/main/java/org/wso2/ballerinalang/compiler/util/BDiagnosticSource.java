@@ -17,12 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
-import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticSource;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * @since 0.94
  */
-public class BDiagnosticSource implements DiagnosticSource {
+public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
 
     public String pkgName;
     public String pkgVersion;

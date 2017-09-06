@@ -26,7 +26,7 @@ public class BDiagnostic implements Diagnostic {
 
     public Kind kind;
     public BDiagnosticSource source;
-    public BDiagnosticPosition pos;
+    public DiagnosticPos pos;
     public String msg;
 
     @Override

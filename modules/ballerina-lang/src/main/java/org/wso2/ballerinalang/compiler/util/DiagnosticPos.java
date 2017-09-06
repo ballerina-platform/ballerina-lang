@@ -22,20 +22,20 @@ import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 /**
  * @since 0.94
  */
-public class BDiagnosticPosition implements DiagnosticPosition {
+public class DiagnosticPos implements DiagnosticPosition {
 
-    public BDiagnosticSource source;
+    public BDiagnosticSource src;
     public int sLine;
     public int eLine;
     public int sCol;
     public int eCol;
 
-    public BDiagnosticPosition(BDiagnosticSource source,
-                               int startLine,
-                               int endLine,
-                               int startCol,
-                               int endCol) {
-        this.source = source;
+    public DiagnosticPos(BDiagnosticSource source,
+                         int startLine,
+                         int endLine,
+                         int startCol,
+                         int endCol) {
+        this.src = source;
         this.sLine = startLine;
         this.eLine = endLine;
         this.sCol = startCol;
@@ -44,7 +44,7 @@ public class BDiagnosticPosition implements DiagnosticPosition {
 
     @Override
     public BDiagnosticSource getSource() {
-        return source;
+        return src;
     }
 
     @Override
