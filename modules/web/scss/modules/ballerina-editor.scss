@@ -60,8 +60,14 @@
             }
         }
     }
-    
-    
+
+    .statement-container .inner-drop-zone{
+        fill-opacity: 0;
+        stroke-width: 0;
+        &.active {
+            fill-opacity: 0.2;
+        }
+    }
     
     .default-worker-life-line {
         stroke: $default-worker-lifeline-color;
