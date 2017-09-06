@@ -26,7 +26,7 @@ import SizingUtil from './../sizing-util';
 class FinallyStatementDimensionCalculatorVisitor {
 
     /**
-     * Constructor for Committed statement dimensions
+     * Constructor for Finally statement dimensions
      * @param {object} options - options
      */
     constructor(options) {

@@ -26,7 +26,7 @@ import SizingUtil from './../sizing-util';
 class AbortedStatementDimensionCalculatorVisitor {
 
     /**
-     * Constructor for If statement dimensions
+     * Constructor for Aborted statement dimensions
      * @param {object} options - options
      */
     constructor(options) {
