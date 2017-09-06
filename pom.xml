@@ -215,6 +215,7 @@
         <module>modules/ballerina-core</module>
         <module>modules/annotation-processor</module>
         <module>modules/ballerina-native</module>
+        <module>modules/ballerina-http</module>
         <module>modules/launcher</module>
         <module>modules/ballerina-samples</module>
         <module>modules/ballerina-logging</module>
