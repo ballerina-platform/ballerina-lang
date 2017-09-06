@@ -953,6 +953,26 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    @Nullable
+    public static PsiElement getNamespaceDefinition(@NotNull IdentifierPSINode identifier) {
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                TopLevelDefinition.class, LowerLevelDefinition.class);
+        if (scope != null) {
+            int caretOffset = identifier.getStartOffset();
+            List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
+                    caretOffset);
+            for (PsiElement namespace : namespaces) {
+                if (namespace == null || namespace.getText().isEmpty()) {
+                    continue;
+                }
+                if (namespace.getText().equals(identifier.getText())) {
+                    return namespace;
+                }
+            }
+        }
+        return null;
+    }
+
     private static boolean isValidVariable(@NotNull VariableDefinitionNode variableDefinitionNode,
                                            @NotNull ScopeNode scope, int caretOffset) {
         PsiElement elementAtCaret = scope.getContainingFile().findElementAt(caretOffset);

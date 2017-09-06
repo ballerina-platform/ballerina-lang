@@ -91,22 +91,7 @@ public class PackageNameReference extends BallerinaElementReference implements P
         ResolveResult[] resolveResults = multiResolve(false);
         if (resolveResults.length == 0) {
             IdentifierPSINode identifier = getElement();
-            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
-                    TopLevelDefinition.class, LowerLevelDefinition.class);
-            if (scope != null) {
-                int caretOffset = identifier.getStartOffset();
-                List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
-                        caretOffset);
-                for (PsiElement namespace : namespaces) {
-                    if (namespace == null || namespace.getText().isEmpty()) {
-                        continue;
-                    }
-                    if (namespace.getText().equals(identifier.getText())) {
-                        return namespace;
-                    }
-                }
-            }
-            return null;
+            return BallerinaPsiImplUtil.getNamespaceDefinition(identifier);
         } else {
             return resolveResults.length == 1 ? resolveResults[0].getElement() : null;
         }

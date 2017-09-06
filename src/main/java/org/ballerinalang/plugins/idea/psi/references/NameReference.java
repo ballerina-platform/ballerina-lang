@@ -112,8 +112,12 @@ public class NameReference extends BallerinaElementReference {
             if (elementInScope != null) {
                 return elementInScope;
             }
-            return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true,
-                    true);
+            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true,
+                    true, true, true, true);
+            if (resolvedElement != null) {
+                return resolvedElement;
+            }
+            return BallerinaPsiImplUtil.getNamespaceDefinition(identifier);
         }
     }
 
@@ -191,6 +195,10 @@ public class NameReference extends BallerinaElementReference {
 
                     List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
                     results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+
+                    List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
+                            caretOffset);
+                    results.addAll(BallerinaCompletionUtils.createNamespaceLookupElements(namespaces));
                 }
             }
 
