@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.PackageDeclarationNode;
 /**
  * @since 0.94
  */
-public class BLangPackageDeclaration implements PackageDeclarationNode {
+public class BLangPackageDeclaration extends BLangNode implements PackageDeclarationNode {
 
     public PackageID pkgId;
 
@@ -46,5 +46,10 @@ public class BLangPackageDeclaration implements PackageDeclarationNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE_DECLARATION;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -50,6 +50,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangCompilationUnit compUnit) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangPackageDeclaration pkgDclNode) {
         throw new AssertionError();
     }

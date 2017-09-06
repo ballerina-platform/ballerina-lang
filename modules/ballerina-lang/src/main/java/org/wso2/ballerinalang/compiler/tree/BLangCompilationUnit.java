@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public class BLangCompilationUnit implements CompilationUnitNode {
+public class BLangCompilationUnit extends BLangNode implements CompilationUnitNode {
 
     public String name;
 
@@ -69,5 +69,9 @@ public class BLangCompilationUnit implements CompilationUnitNode {
         this.getTopLevelNodes().stream().forEach(e -> builder.append("\t" + e + "\n"));
         return builder.toString();
     }
-    
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
