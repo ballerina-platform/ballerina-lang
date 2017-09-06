@@ -41,7 +41,16 @@ export default class Tree extends React.Component {
     }
 
     renderEndpoint(endpoint, kind, level, onClick, isFolded) {
-        const { endpoints, type, makeConnectPoint, onEndpointRemove, viewId, updateVariable } = this.props;
+        const {
+            endpoints,
+            type,
+            makeConnectPoint,
+            onEndpointRemove,
+            viewId,
+            updateVariable,
+            onConnectEndpointMouseOver,
+        } = this.props;
+
         const key = `${endpoint.name}:${viewId}`;
 
         return (
@@ -56,6 +65,8 @@ export default class Tree extends React.Component {
                 onRemove={onEndpointRemove}
                 updateVariable={updateVariable}
                 isFolded={isFolded}
+                onConnectPointMouseEnter={this.props.onConnectPointMouseEnter}
+                onConnectPointMouseLeave={this.props.onConnectPointMouseLeave}
             />
         );
     }

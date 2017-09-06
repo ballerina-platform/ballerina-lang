@@ -1,16 +1,14 @@
 .left-content {
     float: left;
-    height: calc(100% - 100px);
 }
 
 .right-content {
     float: right;
-    height: calc(100% - 100px);
 }
 
 .left-content, .right-content {
     width: 340px;
-    padding: 30px 20px 20px 20px;
+    padding: 0px 20px 0px 20px;
 }
 
 .transformOverlay .react-autosuggest__input {
@@ -60,4 +58,42 @@
     dominant-baseline: central;
     width: 180px;
     max-width: 250px;
+}
+
+.select-source {
+    float: left;
+    left: 20px;
+    top: 20px;
+    position: relative;
+}
+
+.select-target {
+    float: right;
+    right: 35px;
+    top: 20px;
+    position: relative;
+}
+
+.transform-connections {
+    position: absolute;
+    width: 100%;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.transform-dragging-connections {
+    position: absolute;
+    width: calc(100% - 244px);
+    height: calc(100% - 75px);;
+    top: 85px;
+    overflow: hidden;
+}
+
+.middle-content-frame {
+    width: calc(100% - 695px);
+    height: 100%;
+    position: absolute;
+    border: 1px dashed #ccc;
+    left: 340px;
+    background: #fff;
 }

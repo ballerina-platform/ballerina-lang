@@ -44,7 +44,9 @@ class TransformRender {
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
 
-        this.jsPlumbInstance = jsPlumb.getInstance({
+        this.draggingContainer = `transformOverlay-content-dragging-${this.viewId}`;
+
+        const jsPlumbOptions = {
             Connector: this.getConnectorConfig(this.midpoint),
             Container: container.attr('id'),
             PaintStyle: {
@@ -71,17 +73,29 @@ class TransformRender {
                     foldback: 1,
                 }],
             ],
-        });
-        this.jsPlumbInstance.bind('connection', (params, ev) => {
-            if (!_.isUndefined(ev)) {
-                const input = params.connection.getParameters().input;
-                const output = params.connection.getParameters().output;
-                const connection = this.getConnectionObject(input, output);
-                this.midpoint += this.midpointVariance;
-                this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
-                this.onConnection(connection);
-                this.setConnectionMenu(params.connection);
+        };
+
+        this.jsPlumbInstance = jsPlumb.getInstance(jsPlumbOptions);
+
+        jsPlumbOptions.Container = this.draggingContainer;
+        this.jsPlumbInstanceNewConnections = jsPlumb.getInstance(jsPlumbOptions);
+
+        this.jsPlumbInstanceNewConnections.bind('connection', (params, ev) => {
+            if (_.isUndefined(ev)) {
+                return;
             }
+
+            const input = params.connection.getParameters().input;
+            const output = this.getDroppingTarget();
+            const connection = this.getConnectionObject(input, output);
+            this.midpoint += this.midpointVariance;
+            this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+            this.onConnection(connection);
+            this.setConnectionMenu(params.connection);
+        });
+
+        this.jsPlumbInstanceNewConnections.bind('connectionDrag', () => {
+            this.jsPlumbInstanceNewConnections.repaintEverything();
         });
     }
 
@@ -112,7 +126,8 @@ class TransformRender {
     */
     disconnectAll() {
         this.midpoint = 0.1;
-        this.jsPlumbInstance.detachEveryConnection();
+        this.jsPlumbInstance.deleteEveryEndpoint();
+        this.jsPlumbInstanceNewConnections.deleteEveryEndpoint();
     }
 
     /**
@@ -146,6 +161,7 @@ class TransformRender {
         const options = {
             source: sourceId,
             target: targetId,
+            anchors: ['Right', 'Left'],
         };
 
         if (folded) {
@@ -167,6 +183,11 @@ class TransformRender {
         this.markConnected(targetId);
         this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
         this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source: sourceId, target: targetId })[0]);
+    }
+
+    connectionsAdded() {
+        this.jsPlumbInstance.unmakeEverySource();
+        this.jsPlumbInstance.unmakeEveryTarget();
     }
 
     setConnectionMenu(connection) {
@@ -215,14 +236,19 @@ class TransformRender {
      * @param {any} input input
      * @memberof TransformRender
      */
-    addSource(element, input) {
+    addSource(element, input, existingConnectionsAdded) {
+        const jsPlumbInstance = existingConnectionsAdded ? this.jsPlumbInstanceNewConnections : this.jsPlumbInstance;
+        if(jsPlumbInstance.isSource(element)) {
+            return;
+        }
+
         const connectionConfig = {
             anchor: ['Right'],
             parameters: {
                 input,
             },
         };
-        this.jsPlumbInstance.makeSource(element, connectionConfig);
+        jsPlumbInstance.makeSource(element, connectionConfig);
     }
 
     /**
@@ -230,15 +256,21 @@ class TransformRender {
      * @param {any} element
      * @param {any} output
      */
-    addTarget(element, output, validateCallback) {
-        this.jsPlumbInstance.makeTarget(element, {
+    addTarget(element, output, existingConnectionsAdded, validateCallback) {
+        const jsPlumbInstance = existingConnectionsAdded ? this.jsPlumbInstanceNewConnections : this.jsPlumbInstance;
+        if(jsPlumbInstance.isTarget(element)) {
+            return;
+        }
+
+        jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ['Left'],
             parameters: {
                 output,
             },
             beforeDrop: (params) => {
-                return validateCallback(params.connection.getParameters().input.type, output.type);
+                return validateCallback(
+                    params.connection.getParameters().input.type, this.getDroppingTarget().type);
             },
         });
     }
@@ -289,6 +321,14 @@ class TransformRender {
         }];
     }
 
+    setDroppingTarget(endpoint) {
+        this._droppingTarget = endpoint;
+    }
+
+    getDroppingTarget(endpoint) {
+        return this._droppingTarget;
+    }
+
   /**
    * mark specified endpoint in the UI
    * @param  {string} endpointId endpoint identifier to be marked
@@ -319,6 +359,23 @@ class TransformRender {
    */
     hideConnectContextMenu(contextMenuDiv) {
         contextMenuDiv.fadeOut(200);
+    }
+
+    repaintEverything() {
+        this.jsPlumbInstance.repaintEverything();
+    }
+
+    recalculateOffsets(element) {
+        this.jsPlumbInstanceNewConnections.recalculateOffsets(
+            this.jsPlumbInstanceNewConnections.getSelector('.transform-dragging-connections'));
+    }
+
+    repaintDraggingArrows() {
+        this.jsPlumbInstanceNewConnections.repaintEverything();
+    }
+
+    isConnectionDragging() {
+        return this.jsPlumbInstanceNewConnections.isConnectionBeingDragged();
     }
 
 }
