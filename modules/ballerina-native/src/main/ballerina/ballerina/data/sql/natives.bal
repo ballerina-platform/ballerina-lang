@@ -25,6 +25,7 @@ struct Parameter {
 @doc:Field {value:"isolateInternalQueries: Determines whether HikariCP isolates internal pool queries, such as the connection alive test, in their own transaction"}
 @doc:Field {value:"allowPoolSuspension: Whether the pool can be suspended and resumed through JMX"}
 @doc:Field {value:"readOnly:  Whether Connections obtained from the pool are in read-only mode by default"}
+@doc:Field {value:"isXA:  Whether Connections are used for a distributed transaction"}
 @doc:Field {value:"maximumPoolSize: Maximum size that the pool is allowed to reach, including both idle and in-use connections"}
 @doc:Field {value:"connectionTimeout: Maximum number of milliseconds that a client will wait for a connection from the pool"}
 @doc:Field {value:"idleTimeout: Maximum amount of time that a connection is allowed to sit idle in the pool"}
@@ -46,6 +47,7 @@ struct ConnectionProperties {
 	boolean isolateInternalQueries;
 	boolean allowPoolSuspension;
 	boolean readOnly;
+	boolean isXA;
 	int maximumPoolSize = -1;
 	int connectionTimeout = -1;
 	int idleTimeout = -1;

@@ -706,19 +706,17 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     private Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
             throws SQLException {
-        Connection conn;
+        Connection conn = null;
         if (!isInTransaction) {
             conn = datasource.getSQLConnection();
             return conn;
         }
-        BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
-        Object[] connInfo = createDatabaseConnection(datasource, ballerinaTxManager);
-        conn = (Connection) connInfo[0];
-        boolean newConnection = (Boolean) connInfo[1];
+        String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
-        if (newConnection) {
+        BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
+        BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorId);
+        if (txContext == null) {
             if (isXAConnection) {
-                /* Atomikos transaction manager initialize only distributed transaction is present.*/
                 if (!ballerinaTxManager.hasXATransactionManager()) {
                     TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
                             .getTransactionManager();
@@ -734,35 +732,22 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                         XAResource xaResource = xaConn.getXAResource();
                         tx.enlistResource(xaResource);
                         conn = xaConn.getConnection();
+                        txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
+                        ballerinaTxManager.registerTransactionContext(connectorId, txContext);
                     }
-                } catch (SystemException | RollbackException e) {
+                } catch (SystemException | RollbackException | IllegalStateException e) {
                     throw new BallerinaException(
-                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(),
-                            e);
+                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
                 }
             } else {
-                if (conn != null) {
-                    conn.setAutoCommit(false);
-                }
+                conn = datasource.getSQLConnection();
+                conn.setAutoCommit(false);
+                txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
+                ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             }
-        }
-        return conn;
-    }
-
-    private Object[] createDatabaseConnection(SQLDatasource datasource, BallerinaTransactionManager ballerinaTxManager)
-            throws SQLException {
-        Connection conn;
-        boolean newConnection = false;
-        String connectorId = datasource.getConnectorId();
-        BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorId);
-        if (txContext == null) {
-            conn = datasource.getSQLConnection();
-            txContext = new SQLTransactionContext(conn, datasource.isXAConnection());
-            ballerinaTxManager.registerTransactionContext(connectorId, txContext);
-            newConnection = true;
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
-        return new Object[] { conn, newConnection };
+        return conn;
     }
 }

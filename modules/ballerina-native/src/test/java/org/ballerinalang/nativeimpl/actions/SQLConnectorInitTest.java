@@ -96,7 +96,8 @@ public class SQLConnectorInitTest {
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*error in sql connector configuration: unknown database type : TESTDB.*")
+        expectedExceptionsMessageRegExp =
+                ".*error in sql connector configuration: cannot generate url for unknown database type : TESTDB.*")
     public void testInvalidDBType() {
         BLangFunctions.invokeNew(bLangProgram, "testInvalidDBType");
     }

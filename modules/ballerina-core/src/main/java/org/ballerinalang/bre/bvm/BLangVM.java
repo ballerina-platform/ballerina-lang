@@ -2524,7 +2524,7 @@ public class BLangVM {
             } else if (status == -1) { //Transaction failed
                 ballerinaTransactionManager.setTransactionError(true);
                 ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction aborted
+            } else { //status = 1 Transaction end
                 ballerinaTransactionManager.endTransactionBlock();
                 if (ballerinaTransactionManager.isOuterTransaction()) {
                     context.setBallerinaTransactionManager(null);

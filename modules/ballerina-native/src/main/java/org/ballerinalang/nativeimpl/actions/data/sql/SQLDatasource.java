@@ -32,6 +32,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Set;
@@ -108,30 +109,25 @@ public class SQLDatasource implements BValue {
             config.setUsername(username);
             config.setPassword(password);
             if (options != null) {
-                BMap dataSourceConfigMap = (BMap) options.getRefField(0);
+                boolean isXA = options.getBooleanField(4) != 0;
+                BMap<String, BRefType> dataSourceConfigMap = (BMap) options.getRefField(0);
                 String jdbcurl = options.getStringField(0);
                 String dataSourceClassName = options.getStringField(1);
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
-                    if (dataSourceConfigMap != null) {
-                        if (dataSourceConfigMap.get(Constants.URL) == null) {
-                            if (jdbcurl.isEmpty()) {
-                                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
-                            }
-                            dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
-                        }
-                    } else {
-                        dataSourceConfigMap = new BMap<String, BRefType>();
-                        if (jdbcurl.isEmpty()) {
-                            jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
-                        }
-                        dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
-                    }
+                    dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
+                            dbType, hostOrPath, port, dbName);
                 } else {
                     if (jdbcurl.isEmpty()) {
                         jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
                     }
                     config.setJdbcUrl(jdbcurl);
+                    if (isXA) {
+                        String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
+                        config.setDataSourceClassName(datasourceClassName);
+                        dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
+                                dbType, hostOrPath, port, dbName);
+                    }
                 }
                 String connectionTestQuery = options.getStringField(2);
                 if (!connectionTestQuery.isEmpty()) {
@@ -207,6 +203,33 @@ public class SQLDatasource implements BValue {
         }
     }
 
+    private BMap<String, BRefType> setDataSourceProperties(BMap<String, BRefType> dataSourceConfigMap, String jdbcurl,
+            String username, String password, String dbType, String hostOrPath, int port, String dbName) {
+        if (dataSourceConfigMap != null) {
+            if (dataSourceConfigMap.get(Constants.URL) == null) {
+                if (jdbcurl.isEmpty()) {
+                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                }
+                dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
+            }
+            if (dataSourceConfigMap.get(Constants.USER) == null) {
+                dataSourceConfigMap.put(Constants.USER, new BString(username));
+            }
+            if (dataSourceConfigMap.get(Constants.PASSWORD) == null) {
+                dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
+            }
+        } else {
+            dataSourceConfigMap = new BMap<>();
+            if (jdbcurl.isEmpty()) {
+                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+            }
+            dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
+            dataSourceConfigMap.put(Constants.USER, new BString(username));
+            dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
+        }
+        return dataSourceConfigMap;
+    }
+
     private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
             String password) {
         StringBuilder jdbcUrl = new StringBuilder();
@@ -280,9 +303,61 @@ public class SQLDatasource implements BValue {
             jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         default:
-            throw new BallerinaException("unknown database type : " + dbType);
+            throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
         }
         return jdbcUrl.toString();
+    }
+
+    private String getXADatasourceClassName(String dbType, String url, String userName, String password) {
+        String xaDataSource = null;
+        switch (dbType) {
+        case Constants.DBTypes.MYSQL:
+            int driverMajorVersion;
+            try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+                driverMajorVersion = conn.getMetaData().getDriverMajorVersion();
+                if (driverMajorVersion == 5) {
+                    xaDataSource = Constants.XADataSources.MYSQL_5_XA_DATASOURCE;
+                } else if (driverMajorVersion > 5) {
+                    xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
+                }
+            } catch (SQLException e) {
+                throw new BallerinaException(
+                        "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+            }
+            break;
+        case Constants.DBTypes.SQLSERVER:
+            xaDataSource = Constants.XADataSources.SQLSERVER_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.ORACLE:
+            xaDataSource = Constants.XADataSources.ORACLE_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.SYBASE:
+            xaDataSource = Constants.XADataSources.SYBASE_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.POSTGRE:
+            xaDataSource = Constants.XADataSources.POSTGRE_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.IBMDB2:
+            xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.HSQLDB_SERVER:
+        case Constants.DBTypes.HSQLDB_FILE:
+            xaDataSource = Constants.XADataSources.HSQLDB_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.H2_SERVER:
+        case Constants.DBTypes.H2_FILE:
+            xaDataSource = Constants.XADataSources.H2_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.DERBY_SERVER:
+            xaDataSource = Constants.XADataSources.DERBY_SERVER_XA_DATASOURCE;
+            break;
+        case Constants.DBTypes.DERBY_FILE:
+            xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
+            break;
+        default:
+            throw new BallerinaException("unknown database type used for xa connection : " + dbType);
+        }
+        return xaDataSource;
     }
 
     private void setDataSourceProperties(BMap options, HikariConfig config) {
