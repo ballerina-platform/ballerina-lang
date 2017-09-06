@@ -12,7 +12,7 @@ class Editor extends React.Component {
      */
     render() {
         return (
-            <div>
+            <div className="ballerina-editor">
                 <BallerinaFileEditor {...this.props} />
             </div>
         );

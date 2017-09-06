@@ -71,18 +71,3 @@
         }
     }
 }
-
-#tab-content-wrapper {
-    position: relative;
-}
-
-.bottom-right-controls-container {
-    position: absolute;
-    bottom: 0;
-    right: 30px;
-    z-index: 30;
-    background: $bottom-right-controls-bgcolor;
-    color: #fff;
-    padding: 0;
-    line-height: 30px;
-}
