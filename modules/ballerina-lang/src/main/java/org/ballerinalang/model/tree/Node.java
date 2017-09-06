@@ -17,12 +17,18 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
+
 /**
+ * {@code Node} is the base interface for all tree nodes in Ballerina abstract syntax tree.
+ *
+ * @see FunctionNode
+ * @see StructNode
  * @since 0.94
  */
 public interface Node {
 
-    // TODO DD Visitor method..  location and whitespaces
+    // TODO DD Visitor method.. and whitespaces
 
     /**
      * Returns the kind of this node.
@@ -30,4 +36,11 @@ public interface Node {
      * @return the kind of this node.
      */
     NodeKind getKind();
+
+    /**
+     * Returns position of this node in a source file.
+     *
+     * @return the position of this node.
+     */
+    DiagnosticPosition getPosition();
 }
