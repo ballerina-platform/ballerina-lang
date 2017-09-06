@@ -114,7 +114,7 @@ class EditorTabs extends View {
                         )
                     }
                     renderTabContent={() =>
-                        <TabContent />
+                        <TabContent animated={false} />
                     }
                 >
                     {tabs}
