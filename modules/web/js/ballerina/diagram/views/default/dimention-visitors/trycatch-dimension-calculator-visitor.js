@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import * as DesignerDefaults from '../designer-defaults';
 import SimpleBBox from './../../../../ast/simple-bounding-box';
+import { util } from '../sizing-util';
 
 /**
  * Dimension visitor class for Try Catch Statement.
@@ -65,7 +66,8 @@ class TryCatchStatementDimensionCalculatorVisitor {
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
-        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(), child => child.getViewState().bBox.expansionW);
+        const sortedChildrenfromConnectors = _.sortBy(node.getChildren(),
+                child => child.getViewState().bBox.expansionW);
         if (sortedChildren.length <= 0) {
             const exception = {
                 message: 'Invalid number of children for try-catch statement',
@@ -84,6 +86,13 @@ class TryCatchStatementDimensionCalculatorVisitor {
                 child.getViewState().components.statementContainer.w =
                     childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
+                if (child.getViewState().components && child.getViewState().components.expression) {
+                    // Re adjust the space we have to draw the condition
+                    const available = childWithMaxWidth.getViewState().components.statementContainer.w
+                        - DesignerDefaults.blockStatement.heading.width - 10;
+                    child.getViewState().components.expression =
+                        util.getTextWidth(child.getParameterDefString(), 0, available);
+                }
             }
             if (child.getViewState().bBox.expansionW < maxConnectorWidth) {
                 child.getViewState().bBox.expansionW = maxConnectorWidth;
