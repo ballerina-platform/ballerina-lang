@@ -9,6 +9,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public interface Dispatcher {
     void setRegistry(Registry registry);
+    String getProtocolPackage();
 
     Resource findResource();
 

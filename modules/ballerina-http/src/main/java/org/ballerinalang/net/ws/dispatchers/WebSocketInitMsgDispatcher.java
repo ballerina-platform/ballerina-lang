@@ -32,6 +32,11 @@ public class WebSocketInitMsgDispatcher implements Dispatcher {
     }
 
     @Override
+    public String getProtocolPackage() {
+        return Constants.WEBSOCKET_PACKAGE_PATH;
+    }
+
+    @Override
     public Resource findResource() {
         CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(webSocketInitMessage);
         HttpService service = DispatcherUtil.findService(carbonMessage, webSocketInitMessage);

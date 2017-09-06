@@ -71,6 +71,7 @@ public class BLangProgramRunner {
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
             // Invoke service init function
+            //TODO check this to pass a Service
             bContext.setServiceInfo(serviceInfo);
             BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
@@ -78,7 +79,7 @@ public class BLangProgramRunner {
                 throw new BLangRuntimeException("error: " + stackTraceStr);
             }
 
-            if (!DispatcherRegistry.getInstance().protocolPkgExist(serviceInfo.getProtocolPkgPath())) {
+            if (!ServerConnectorRegistry.getInstance().protocolPkgExist(serviceInfo.getProtocolPkgPath())) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
                         serviceInfo.getProtocolPkgPath());
             }

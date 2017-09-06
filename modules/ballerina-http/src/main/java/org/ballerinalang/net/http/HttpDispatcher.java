@@ -81,6 +81,11 @@ public class HttpDispatcher implements Dispatcher {
     }
 
     @Override
+    public String getProtocolPackage() {
+        return Constants.PROTOCOL_PACKAGE_HTTP;
+    }
+
+    @Override
     public Resource findResource() {
         Resource resource = null;
         String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);

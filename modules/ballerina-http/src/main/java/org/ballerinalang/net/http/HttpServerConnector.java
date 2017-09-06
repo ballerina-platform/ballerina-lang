@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +92,13 @@ public class HttpServerConnector implements BallerinaServerConnector {
     @Override
     public void complete() throws BallerinaConnectorException {
         try {
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
+            // Starting up HTTP Server connectors
+            //TODO move this to a common location and use in both http and ws server connectors
+            PrintStream outStream = System.out;
+            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
+                    .startPendingHTTPConnectors();
+            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
+                    "server connector " + serverConnector));
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }

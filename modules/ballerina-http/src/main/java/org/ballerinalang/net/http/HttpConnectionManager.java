@@ -155,7 +155,7 @@ public class HttpConnectionManager {
             startedConnectors.add(serverConnector);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
-        startupDelayedServerConnectors.clear();
+        startupDelayedHTTPServerConnectors.clear();
         return startedConnectors;
     }
 

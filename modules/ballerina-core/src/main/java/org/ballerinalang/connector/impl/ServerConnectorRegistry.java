@@ -71,6 +71,14 @@ public class ServerConnectorRegistry {
         serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
     }
 
+    public boolean protocolPkgExist(String protocolPkgPath) {
+        return serverConnectorMap.containsKey(protocolPkgPath);
+    }
+
+    public BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
+        return serverConnectorMap.get(protocolPkgPath);
+    }
+
     private Service buildService(ServiceInfo serviceInfo) {
         BService service = new BService(serviceInfo.getName());
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
@@ -86,7 +94,7 @@ public class ServerConnectorRegistry {
             service.addResource(resource.getName(), resource);
         }
         //todo
-        return null;
+        return service;
     }
 
 

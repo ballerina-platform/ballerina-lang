@@ -7,6 +7,10 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpService;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Created by rajith on 9/4/17.
@@ -32,7 +36,13 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
     public void complete() throws BallerinaConnectorException {
         try {
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
+            // Starting up HTTP Server connectors
+            //TODO move this to a common location and use in both http and ws server connectors
+            PrintStream outStream = System.out;
+            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
+                    .startPendingHTTPConnectors();
+            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
+                    "server connector " + serverConnector));
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }

@@ -110,12 +110,6 @@ public class LauncherUtils {
                     serverConnector));
 
             ServerConnectorRegistry.getInstance().complete();
-
-            // Starting up HTTP Server connectors
-//            List<org.wso2.carbon.transport.http.netty.contract.ServerConnector> startedHTTPConnectors =
-//                    BallerinaConnectorManager.getInstance().startPendingHTTPConnectors();
-//            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-//                                                                                       serverConnector));
         } catch (ServerConnectorException e) {
             throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
         }

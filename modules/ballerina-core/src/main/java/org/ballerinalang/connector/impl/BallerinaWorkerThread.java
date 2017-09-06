@@ -96,6 +96,8 @@ public class BallerinaWorkerThread implements Runnable {
 //            }
 //        }
 
+        dispatcher.setRegistry(ServerConnectorRegistry.getInstance()
+                .getBallerinaServerConnector(dispatcher.getProtocolPackage()).getRegistry());
         Resource resource = dispatcher.findResource();
         if (resource == null) {
             //todo
