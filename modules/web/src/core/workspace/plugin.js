@@ -32,6 +32,10 @@ import FolderOpenDialog from './dialogs/FolderOpenDialog';
 import { create, update, read, remove } from './fs-util';
 import File from './model/file';
 
+const skipEventSerialization = (key, value) => {
+    return key === '_events' ? undefined : value;
+};
+
 /**
  * Workspace Plugin is responsible for managing workspace.
  *
@@ -71,7 +75,7 @@ class WorkspacePlugin extends Plugin {
                         file.extension = type;
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
-                        history.put(HISTORY.OPENED_FILES, this.openedFiles);
+                        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                         editor.open(file);
                         resolve(file);
                     })
@@ -95,7 +99,7 @@ class WorkspacePlugin extends Plugin {
             if (this.openedFiles.includes(file)) {
                 _.remove(this.openedFiles, file);
                 const { pref: { history } } = this.appContext;
-                history.put(HISTORY.OPENED_FILES, this.openedFiles);
+                history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
             } else {
                 reject(`File ${file.fullPath} cannot be found in opened file set.`);
             }

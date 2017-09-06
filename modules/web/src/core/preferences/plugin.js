@@ -56,12 +56,12 @@ class PreferencesPlugin extends Plugin {
                 return JSON.parse(localStorage.getItem(`${PREF_KEY_PREFIX}-${key}`));
             },
             history: {
-                put: (key, value) => {
+                put: (key, value, replacer = (k, v) => { return v; }) => {
                     const itemKey = `${HISTORY_KEY_PREFIX}-${key}`;
                     if (_.isNil(value)) {
                         localStorage.removeItem(itemKey);
                     } else {
-                        localStorage.setItem(itemKey, JSON.stringify(value));
+                        localStorage.setItem(itemKey, JSON.stringify(value, replacer));
                     }
                 },
                 get: (key) => {
