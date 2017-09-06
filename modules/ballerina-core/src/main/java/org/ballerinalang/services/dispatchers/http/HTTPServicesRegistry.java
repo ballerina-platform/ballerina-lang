@@ -27,7 +27,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -136,7 +136,7 @@ public class HTTPServicesRegistry {
         for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
             Map<String, String> propMap = entry.getValue();
             String entryListenerInterface = getListenerInterface(propMap);
-            ListenerConfiguration listenerConfiguration = HTTPMessageUtil
+            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil
                     .buildListenerConfig(entryListenerInterface, propMap);
             listenerConfigurationSet.add(listenerConfiguration);
         }
