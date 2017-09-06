@@ -111,13 +111,6 @@ class TransformRender {
         this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
         this.jsPlumbInstance.detach(connection);
         this.disconnectCallback(propertyConnection);
-        this.unmarkConnected(connection.targetId);
-        this.unmarkConnected(connection.sourceId);
-        _.forEach(this.jsPlumbInstance.getConnections(), (con) => {
-            if (con.sourceId === connection.sourceId) {
-                this.markConnected(con.sourceId);
-            }
-        });
     }
 
     /**
@@ -179,8 +172,6 @@ class TransformRender {
         }
 
         this.jsPlumbInstance.connect(options);
-        this.markConnected(sourceId);
-        this.markConnected(targetId);
         this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
         this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source: sourceId, target: targetId })[0]);
     }
@@ -327,22 +318,6 @@ class TransformRender {
 
     getDroppingTarget(endpoint) {
         return this._droppingTarget;
-    }
-
-  /**
-   * mark specified endpoint in the UI
-   * @param  {string} endpointId endpoint identifier to be marked
-   */
-    markConnected(endpointId) {
-        this.container.find(document.getElementById(endpointId)).removeClass('fw-circle-outline').addClass('fw-circle');
-    }
-
-  /**
-   * unmark specified endpoint in the UI
-   * @param  {string} endpointId endpoint identifier to be unmarked
-   */
-    unmarkConnected(endpointId) {
-        this.container.find(document.getElementById(endpointId)).removeClass('fw-circle').addClass('fw-circle-outline');
     }
 
   /**

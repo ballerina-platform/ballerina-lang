@@ -474,6 +474,8 @@ class TransformExpanded extends React.Component {
                     this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
         });
 
+        this.markConnectedEndpoints();
+
         this.mapper.reposition(this.props.model.getID());
         if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
             return;
@@ -882,6 +884,11 @@ class TransformExpanded extends React.Component {
     updateVariable(varName, statementString, type) {
         this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type);
         this.loadVertices();
+    }
+
+    markConnectedEndpoints() {
+        $('.variable-endpoint').removeClass('fw-circle').addClass('fw-circle-outline');
+        $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle');
     }
 
     render() {

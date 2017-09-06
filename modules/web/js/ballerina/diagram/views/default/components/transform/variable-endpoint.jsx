@@ -111,7 +111,7 @@ export default class VariableEndpoint extends React.Component {
                     <i
                         id={id}
                         ref={icon => makeConnectPoint(icon, id, variable)}
-                        className='fw fw-circle-outline fw-stack-1x'
+                        className='variable-endpoint fw fw-circle-outline fw-stack-1x'
                     />
                 </span>
             </div>
