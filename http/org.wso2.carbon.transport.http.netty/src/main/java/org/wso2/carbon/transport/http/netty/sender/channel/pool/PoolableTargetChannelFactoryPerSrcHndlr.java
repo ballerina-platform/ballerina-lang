@@ -54,9 +54,12 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
 
     @Override
     public boolean validateObject(Object o) {
-        boolean answer = ((TargetChannel) o).getChannel().isActive();
-        log.debug("Validating channel: {} -> {}", o, answer);
-        return answer;
+        if (((TargetChannel) o).getChannel() != null) {
+            boolean answer = ((TargetChannel) o).getChannel().isActive();
+            log.debug("Validating channel: {} -> {}", o, answer);
+            return answer;
+        }
+        return true;
     }
 
     @Override

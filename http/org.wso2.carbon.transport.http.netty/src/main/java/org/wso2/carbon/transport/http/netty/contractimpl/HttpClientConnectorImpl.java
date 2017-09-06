@@ -19,23 +19,18 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
-import io.netty.channel.ChannelPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
+import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannelListener;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-
-import java.util.Locale;
 
 /**
  * Implementation of the client connector.
@@ -78,32 +73,18 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
                                                                                 httpTraceLogEnabled);
-            targetChannel.getChannel().eventLoop().execute(() -> {
 
-                ChannelPipeline pipeline = targetChannel.getChannel().pipeline();
-                if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-                    HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
-                            Constants.HTTP_TRACE_LOG_HANDLER);
-                    loggingHandler.setCorrelatedSourceId(
-                            srcHandler.getInboundChannelContext().channel().id().asShortText());
-                }
-
-                Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
-                Util.setupTransferEncodingForRequest(httpCarbonRequest);
-
-                targetChannel.configure(httpCarbonRequest, srcHandler, connectionManager, httpResponseFuture);
+            if (targetChannel.getChannel() != null) {
+                targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
                 targetChannel.setEndPointTimeout(socketIdleTimeout);
+                targetChannel.setCorrelationIdForLogging();
 
-                try {
-                    targetChannel.writeContent(httpCarbonRequest);
-                } catch (Exception e) {
-                    String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
-                    log.error(msg, e);
-                    MessagingException messagingException = new MessagingException(msg, e, 101500);
-                    httpCarbonRequest.setMessagingException(messagingException);
-                    httpResponseFuture.notifyHttpListener(httpCarbonRequest);
-                }
-            });
+                targetChannel.writeContent(httpCarbonRequest);
+            } else {
+                targetChannel.getChannelFuture()
+                        .addListener(new TargetChannelListener(targetChannel, httpCarbonRequest,
+                                socketIdleTimeout, httpResponseFuture));
+            }
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }

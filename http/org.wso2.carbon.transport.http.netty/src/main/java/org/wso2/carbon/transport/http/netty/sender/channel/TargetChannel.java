@@ -15,23 +15,29 @@
 
 package org.wso2.carbon.transport.http.netty.sender.channel;
 
-
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,12 +45,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class TargetChannel {
 
+    private static final Logger log = LoggerFactory.getLogger(TargetChannel.class);
+
     private Channel channel;
     private TargetHandler targetHandler;
     private HTTPClientInitializer httpClientInitializer;
     private HttpRoute httpRoute;
     private SourceHandler correlatedSource;
+    private ChannelFuture channelFuture;
+    private ConnectionManager connectionManager;
     private boolean isRequestWritten = false;
+
+    public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
+        this.httpClientInitializer = httpClientInitializer;
+        this.channelFuture = channelFuture;
+    }
 
     public Channel getChannel() {
         return channel;
@@ -65,10 +80,6 @@ public class TargetChannel {
 
     public HTTPClientInitializer getHTTPClientInitializer() {
         return httpClientInitializer;
-    }
-
-    public void setHTTPClientInitializer(HTTPClientInitializer clientInitializer) {
-        this.httpClientInitializer = clientInitializer;
     }
 
     public HttpRoute getHttpRoute() {
@@ -95,13 +106,10 @@ public class TargetChannel {
         this.isRequestWritten = isRequestWritten;
     }
 
-    public void configure(HTTPCarbonMessage httpCarbonMessage, SourceHandler srcHandler,
-            ConnectionManager connectionManager, HttpResponseFuture httpResponseFuture) {
+    public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpResponseFuture) {
         this.setTargetHandler(this.getHTTPClientInitializer().getTargetHandler());
-        this.setCorrelatedSource(srcHandler);
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpResponseFuture);
-//        targetHandler.setListener(httpCarbonMessage.getResponseListener());
         targetHandler.setIncomingMsg(httpCarbonMessage);
         this.getTargetHandler().setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
@@ -113,34 +121,63 @@ public class TargetChannel {
                         TimeUnit.MILLISECONDS));
     }
 
-    public boolean writeContent(HTTPCarbonMessage carbonMessage) {
-        HttpRequest httpRequest = Util.createHttpRequest(carbonMessage);
-        this.setRequestWritten(true);
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                    executeAtTargetRequestReceiving(carbonMessage);
+    public void setCorrelationIdForLogging() {
+        ChannelPipeline pipeline = this.getChannel().pipeline();
+        SourceHandler srcHandler = this.getCorrelatedSource();
+        if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
+            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
+                    Constants.HTTP_TRACE_LOG_HANDLER);
+            loggingHandler.setCorrelatedSourceId(
+                    srcHandler.getInboundChannelContext().channel().id().asShortText());
         }
-        this.getChannel().write(httpRequest);
+    }
 
-        while (true) {
-            if (carbonMessage.isEndOfMsgAdded() && carbonMessage.isEmpty()) {
-                this.getChannel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                break;
+    public void setConnectionManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
+    public ChannelFuture getChannelFuture() {
+        return channelFuture;
+    }
+
+    public void writeContent(HTTPCarbonMessage httpCarbonRequest) {
+        try {
+            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                        executeAtTargetRequestReceiving(httpCarbonRequest);
             }
-            HttpContent httpContent = carbonMessage.getHttpContent();
-            if (httpContent instanceof LastHttpContent) {
-                this.getChannel().writeAndFlush(httpContent);
-                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                            executeAtTargetRequestSending(carbonMessage);
+
+            Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
+            Util.setupTransferEncodingForRequest(httpCarbonRequest);
+            HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
+
+            this.setRequestWritten(true);
+            this.getChannel().write(httpRequest);
+
+            while (true) {
+                if (httpCarbonRequest.isEndOfMsgAdded() && httpCarbonRequest.isEmpty()) {
+                    this.getChannel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    break;
                 }
-                break;
+                HttpContent httpContent = httpCarbonRequest.getHttpContent();
+                if (httpContent instanceof LastHttpContent) {
+                    this.getChannel().writeAndFlush(httpContent);
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+                                executeAtTargetRequestSending(httpCarbonRequest);
+                    }
+                    break;
+                }
+                if (httpContent != null) {
+                    this.getChannel().write(httpContent);
+                }
             }
-            if (httpContent != null) {
-                this.getChannel().write(httpContent);
-            }
+        } catch (Exception e) {
+            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            log.error(msg, e);
+            MessagingException messagingException = new MessagingException(msg, e, 101500);
+            httpCarbonRequest.setMessagingException(messagingException);
+            this.targetHandler.getHttpResponseFuture().notifyHttpListener(httpCarbonRequest);
         }
-
-        return true;
     }
 }

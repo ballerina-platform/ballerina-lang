@@ -152,7 +152,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-        connectionManager.notifyChannelInactive();
+//        connectionManager.notifyChannelInactive();
     }
 
 

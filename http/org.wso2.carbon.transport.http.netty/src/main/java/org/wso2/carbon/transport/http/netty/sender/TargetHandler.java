@@ -221,4 +221,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             }
         }
     }
+
+    public HttpResponseFuture getHttpResponseFuture() {
+        return httpResponseFuture;
+    }
 }

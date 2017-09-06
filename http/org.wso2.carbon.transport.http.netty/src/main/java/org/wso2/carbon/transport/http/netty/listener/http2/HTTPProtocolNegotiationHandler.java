@@ -82,8 +82,8 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
             p.addLast("chunkWriter", new ChunkedWriteHandler());
             try {
                 // TODO: Properly fix this part once we start HTTP2 integration
-                p.addLast("handler", new SourceHandler(connectionManager,
-                                                       new HttpWsServerConnectorFuture(null), null));
+                p.addLast("handler", new SourceHandler(
+                        new HttpWsServerConnectorFuture(null), null));
             } catch (Exception e) {
                 log.error("Cannot Create SourceHandler ", e);
             }
