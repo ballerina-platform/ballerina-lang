@@ -36,7 +36,8 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.ballerinalang.model.tree.types.ValueTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,13 +78,15 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    public void addValueType(String valueType) {
-        ValueTypeNode valueTypeNode = TreeBuilder.createValueTypeNode();
-        valueTypeNode.setTypeKind(TreeUtils.stringToTypeKind(valueType));
+    public void addValueType(DiagnosticPos pos, String typeName) {
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName));
+
         if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(valueTypeNode);
+            this.typeNodeListStack.peek().add(typeNode);
         } else {
-            this.typeNodeStack.push(valueTypeNode);
+            this.typeNodeStack.push(typeNode);
         }
     }
 
@@ -120,17 +123,17 @@ public class BLangPackageBuilder {
         invNode.setName(this.createIdentifier(identifier));
         if (retParamsAvail) {
             if (retParamTypeOnly) {
-                this.typeNodeListStack.pop().stream().forEach(e -> {
+                this.typeNodeListStack.pop().forEach(e -> {
                     VariableNode var = TreeBuilder.createVariableNode();
                     var.setTypeNode(e);
                     invNode.addReturnParameter(var);
                 });
             } else {
-                this.varListStack.pop().stream().forEach(e -> invNode.addReturnParameter(e));
+                this.varListStack.pop().forEach(invNode::addReturnParameter);
             }
         }
         if (paramsAvail) {
-            this.varListStack.pop().stream().forEach(e -> invNode.addParameter(e));
+            this.varListStack.pop().forEach(invNode::addParameter);
         }
     }
 
@@ -167,7 +170,7 @@ public class BLangPackageBuilder {
         } else {
             versionNode = null;
         }
-        nameComps.stream().forEach(e -> nameCompNodes.add(this.createIdentifier(e)));
+        nameComps.forEach(e -> nameCompNodes.add(this.createIdentifier(e)));
         this.pkgIdStack.add(new PackageID(nameCompNodes, versionNode));
     }
     
@@ -219,7 +222,7 @@ public class BLangPackageBuilder {
     public void endStructDef(String identifier) {
         StructNode structNode = this.structStack.pop();
         structNode.setName(this.createIdentifier(identifier));
-        this.varListStack.pop().stream().forEach(e -> structNode.addField(e));
+        this.varListStack.pop().forEach(structNode::addField);
         this.compUnit.addTopLevelNode(structNode);
     }
     
@@ -236,7 +239,7 @@ public class BLangPackageBuilder {
             connectorNode.setFilteredParamter(this.varStack.pop());
         }
         if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(e -> connectorNode.addParameter(e));
+            this.varListStack.pop().forEach(connectorNode::addParameter);
         }
         /* add a temporary block node to contain connector variable definitions */
         this.blockNodeStack.add(TreeBuilder.createBlockNode());
@@ -252,9 +255,9 @@ public class BLangPackageBuilder {
     
     public void endConnectorBody() {
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
-        this.blockNodeStack.pop().getStatements().stream().forEach(
+        this.blockNodeStack.pop().getStatements().forEach(
                 e -> connectorNode.addVariableDef((VariableDefinitionNode) e));
-        this.actionNodeStack.pop().stream().forEach(e -> connectorNode.addAction(e));
+        this.actionNodeStack.pop().forEach(connectorNode::addAction);
     }
 
     public void startActionDef() {

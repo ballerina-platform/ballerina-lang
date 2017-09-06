@@ -26,7 +26,9 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -65,20 +67,31 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnit(PackageSourceEntry sourceEntry) {
         try {
+            String entryName = sourceEntry.getEntryName();
+            CompilationUnitNode compUnit = TreeBuilder.createCompilationUnit();
+            compUnit.setName(sourceEntry.getEntryName());
+
+            BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry);
+
             ANTLRInputStream ais = new ANTLRInputStream(new ByteArrayInputStream(sourceEntry.getCode()));
-            ais.name = sourceEntry.getEntryName();
+            ais.name = entryName;
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
-            CompilationUnitNode compUnit = TreeBuilder.createCompilationUnit();
-            compUnit.setName(sourceEntry.getEntryName());
-            BLangParserListener listener = new BLangParserListener(compUnit);
+            BLangParserListener listener = new BLangParserListener(compUnit, diagnosticSrc);
             parser.addParseListener(listener);
             parser.compilationUnit();
             return compUnit;
         } catch (IOException e) {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
         }
+    }
+
+    private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {
+        Name pkgName = sourceEntry.getPackageID().getPackageName();
+        Name pkgVersion = sourceEntry.getPackageID().getPackageVersion();
+        String entryName = sourceEntry.getEntryName();
+        return new BDiagnosticSource(pkgName.getValue(), pkgVersion.getValue(), entryName);
     }
 
 }

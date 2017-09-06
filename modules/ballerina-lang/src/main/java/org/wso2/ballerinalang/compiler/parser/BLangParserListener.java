@@ -18,12 +18,15 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.util.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -35,13 +38,15 @@ import java.util.List;
 public class BLangParserListener extends BallerinaParserBaseListener {
 
     private BLangPackageBuilder pkgBuilder;
+    private BDiagnosticSource diagnosticSrc;
 
-    public BLangParserListener(CompilationUnitNode compUnit) {
+    public BLangParserListener(CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(compUnit);
+        this.diagnosticSrc = diagnosticSource;
     }
     
     @Override
-    public void enterParameterList(BallerinaParser.ParameterListContext ctx) { 
+    public void enterParameterList(BallerinaParser.ParameterListContext ctx) {
         this.pkgBuilder.startVarList();
     }
     
@@ -201,7 +206,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { 
+    @Override public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         this.pkgBuilder.endFunctionDef();
     }
     /**
@@ -258,7 +263,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { 
+    @Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) {
         this.pkgBuilder.startConnectorBody();
     }
     
@@ -610,9 +615,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override 
-    public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { 
-        this.pkgBuilder.addValueType(ctx.getText());
+    @Override
+    public void exitValueTypeName(BallerinaParser.ValueTypeNameContext ctx) {
+        this.pkgBuilder.addValueType(getCurrentPos(ctx), ctx.getText());
     }
 
     /**
@@ -1681,7 +1686,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
-    
+
     /**
      * {@inheritDoc}
      *
@@ -1966,5 +1971,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         PrintStream writer = System.out;
         writer.println(value);
     }
-    
+
+    private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
+        int startLine = ctx.getStart().getLine();
+        int startCol = ctx.getStart().getCharPositionInLine();
+
+        int endLine = -1;
+        int endCol = -1;
+        Token stop = ctx.getStop();
+        if (stop != null) {
+            endLine = stop.getLine();
+            endCol = stop.getCharPositionInLine();
+        }
+
+        return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
+    }
 }
