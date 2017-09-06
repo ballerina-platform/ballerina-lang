@@ -50,9 +50,11 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
+    private boolean isOpen;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
+        this.isOpen = true;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -74,6 +76,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
         logger.debug("WebSocket Client disconnected!");
         ctx.channel().close().sync();
+        isOpen = false;
     }
 
     @Override
@@ -109,6 +112,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
             ch.close();
+            isOpen = false;
         }
     }
 
@@ -126,6 +130,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         return bufferReceived;
     }
 
+    /**
+     * Check whether the connection is still open or not.
+     *
+     * @return true if connection is still open.
+     */
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
@@ -138,4 +151,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         ctx.channel().writeAndFlush(new CloseWebSocketFrame());
         ctx.channel().closeFuture().sync();
     }
+
+
 }

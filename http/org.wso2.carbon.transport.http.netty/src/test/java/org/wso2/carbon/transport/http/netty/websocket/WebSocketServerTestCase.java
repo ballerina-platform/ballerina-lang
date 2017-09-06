@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -127,6 +128,30 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         primaryClient.sendPing(bufferSent);
         assertWebSocketClientBinaryMessage(primaryClient, bufferSent);
+        primaryClient.shutDown();
+    }
+
+    @Test
+    public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setHost("localhost");
+        listenerConfiguration.setPort(TestUtil.TEST_ALTER_INTERFACE_PORT);
+        ServerConnector alterServerConnector = httpConnectorFactory.createServerConnector(
+                ServerBootstrapConfiguration.getInstance(),
+                listenerConfiguration);
+        ServerConnectorFuture connectorFuture = alterServerConnector.start();
+        WebSocketTestServerConnectorListener listener = new WebSocketTestServerConnectorListener();
+        connectorFuture.setWSConnectorListener(listener);
+        connectorFuture.sync();
+        String url = System.getProperty("url", String.format("ws://%s:%d/%s",
+                                                             TestUtil.TEST_HOST, TestUtil.TEST_ALTER_INTERFACE_PORT,
+                                                             "test"));
+        primaryClient = new WebSocketClient(url);
+        primaryClient.handhshake();
+        Thread.sleep(5000);
+        Assert.assertFalse(primaryClient.isOpen());
+        Assert.assertFalse(listener.isIdleTimeout());
+        alterServerConnector.stop();
     }
 
     @AfterClass

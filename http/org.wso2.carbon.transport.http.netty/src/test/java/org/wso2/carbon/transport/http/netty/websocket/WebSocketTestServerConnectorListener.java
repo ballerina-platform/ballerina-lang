@@ -46,11 +46,15 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
     private List<Session> sessionList = new LinkedList<>();
+    private boolean isIdleTimeout = false;
+
+    public WebSocketTestServerConnectorListener() {
+    }
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
-            Session session = initMessage.handshake();
+            Session session = initMessage.handshake(null, true, 3000);
             sessionList.forEach(
                     currentSession -> {
                         try {
@@ -129,10 +133,22 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onIdleTimeout(Session session) {
+        this.isIdleTimeout = true;
+        try {
+            session.close();
+        } catch (IOException e) {
+            log.error("Error occurred while closing the connection: " + e.getMessage());
+        }
     }
 
     private void handleError(Throwable throwable) {
         log.error(throwable.getMessage());
+    }
+
+    public boolean isIdleTimeout() {
+        boolean temp = isIdleTimeout;
+        isIdleTimeout = false;
+        return temp;
     }
 
 }

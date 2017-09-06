@@ -120,7 +120,9 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      * @return true if idle timeout is triggered.
      */
     public boolean isIdleTimeout() {
-        return isIdleTimeout;
+        boolean temp = isIdleTimeout;
+        isIdleTimeout = false;
+        return temp;
     }
 
     private void handleError(Throwable throwable) {

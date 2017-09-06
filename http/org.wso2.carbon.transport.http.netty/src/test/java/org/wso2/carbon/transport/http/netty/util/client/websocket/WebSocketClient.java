@@ -61,7 +61,7 @@ public class WebSocketClient {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private final String url = System.getProperty("url", String.format("ws://%s:%d/%s",
+    private String url = System.getProperty("url", String.format("ws://%s:%d/%s",
                                                   TestUtil.TEST_HOST, TestUtil.TEST_DEFAULT_INTERFACE_PORT, "test"));
     private final String subProtocol;
     private Map<String, String> customHeaders = new HashMap<>();
@@ -75,7 +75,21 @@ public class WebSocketClient {
         this.subProtocol = null;
     }
 
+    public WebSocketClient(String url) {
+        this.subProtocol = null;
+        if (customHeaders != null) {
+            this.customHeaders = customHeaders;
+        }
+    }
+
     public WebSocketClient(String subProtocol, Map<String, String> customHeaders) {
+        this.subProtocol = subProtocol;
+        if (customHeaders != null) {
+            this.customHeaders = customHeaders;
+        }
+    }
+
+    public WebSocketClient(String url, String subProtocol, Map<String, String> customHeaders) {
         this.subProtocol = subProtocol;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;
@@ -211,6 +225,15 @@ public class WebSocketClient {
      */
     public ByteBuffer getBufferReceived() {
         return handler.getBufferReceived();
+    }
+
+    /**
+     * Check whether the connection is still open or not.
+     *
+     * @return true if connection is still open.
+     */
+    public boolean isOpen() {
+       return handler.isOpen();
     }
 
     /**

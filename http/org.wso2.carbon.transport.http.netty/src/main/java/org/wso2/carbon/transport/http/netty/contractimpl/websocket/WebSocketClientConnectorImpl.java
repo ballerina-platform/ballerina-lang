@@ -51,7 +51,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
         this.subProtocols = configuration.getSubProtocolsAsCSV();
         this.customHeaders = configuration.getHeaders();
         this.allowExtensions = configuration.isAllowExtensions();
-        this.idleTimeout = configuration.getIdleTimeoutInSeconds();
+        this.idleTimeout = configuration.getIdleTimeoutInMillis();
 
         WebSocketMessageImpl webSocketMessage = (WebSocketMessageImpl) configuration.getWebSocketMessage();
         if (webSocketMessage == null) {

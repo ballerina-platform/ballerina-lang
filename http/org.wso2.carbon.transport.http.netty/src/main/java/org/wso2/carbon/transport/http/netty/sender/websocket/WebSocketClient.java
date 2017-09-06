@@ -48,6 +48,7 @@ import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import javax.websocket.Session;
 
@@ -164,7 +165,8 @@ public class WebSocketClient {
                             p.addLast(new HttpObjectAggregator(8192));
                             p.addLast(WebSocketClientCompressionHandler.INSTANCE);
                             if (idleTimeout > 0) {
-                                p.addLast(new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout));
+                                p.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
+                                                               idleTimeout, TimeUnit.MILLISECONDS));
                             }
                             p.addLast(handler);
                         }

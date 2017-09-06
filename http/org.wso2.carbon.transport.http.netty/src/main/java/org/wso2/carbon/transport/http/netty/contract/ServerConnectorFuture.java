@@ -27,6 +27,8 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
+import javax.websocket.Session;
+
 /**
  * Allows to set listeners.
  */
@@ -99,6 +101,14 @@ public interface ServerConnectorFuture {
      * @throws ServerConnectorException if any error occurred during the notification.
      */
     void notifyWSListener(Throwable throwable) throws ServerConnectorException;
+
+    /**
+     * Notify idle timeout of WebSocket connection.
+     *
+     * @param session Session of the connection which timed out.
+     * @throws ServerConnectorException if any error occurred during notification to the listener.
+     */
+    void notifyWSIdleTimeout(Session session) throws ServerConnectorException;
 
     /**
      * Notify error messages to the listener.

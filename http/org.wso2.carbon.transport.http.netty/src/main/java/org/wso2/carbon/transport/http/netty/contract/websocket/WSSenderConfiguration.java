@@ -202,18 +202,18 @@ public class WSSenderConfiguration {
     /**
      * Get idle timeout for WebSocket connection.
      *
-     * @return the idle timeout.
+     * @return the idle timeout in millis seconds.
      */
-    public int getIdleTimeoutInSeconds() {
+    public int getIdleTimeoutInMillis() {
         return idleTimeoutInSeconds;
     }
 
     /**
      * Set the idle timeout for WebSocket connection.
      *
-     * @param idleTimeoutInSeconds the idle timeout.
+     * @param idleTimeoutInSeconds the idle timeout in milli seconds.
      */
-    public void setIdleTimeoutInSeconds(int idleTimeoutInSeconds) {
+    public void setIdleTimeoutInMillis(int idleTimeoutInSeconds) {
         this.idleTimeoutInSeconds = idleTimeoutInSeconds;
     }
 }

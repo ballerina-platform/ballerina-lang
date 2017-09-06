@@ -118,7 +118,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
     @Test(priority = 5, description = "Test the idle timeout for WebSocket")
     public void testIdleTimeout() throws ClientConnectorException, InterruptedException, IOException {
-        configuration.setIdleTimeoutInSeconds(3);
+        configuration.setIdleTimeoutInMillis(3000);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         Session session = handshake(connectorListener);
