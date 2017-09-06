@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.Annotation;
@@ -23,14 +22,15 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.util.codegen.ResourceInfo;
 
 /**
- * Created by rajith on 9/4/17.
+ * {@code BResource} This is the implementation for the {@code Resource} API.
+ *
+ * @since 0.94
  */
 public class BResource extends AbstractServiceResource  implements Resource {
     private String name;
 
+    //reference to the original resourceInfo object.
     private ResourceInfo resourceInfo;
-
-
 
     public BResource(String name, ResourceInfo resourceInfo) {
         this.name = name;
@@ -47,7 +47,12 @@ public class BResource extends AbstractServiceResource  implements Resource {
         return resourceInfo.getServiceInfo().getName();
     }
 
-    public ResourceInfo getResourceInfo() {
+    /**
+     * This is a protected method to access original resourceInfo object within Ballerina.
+     *
+     * @return resourceInfo object.
+     */
+    protected ResourceInfo getResourceInfo() {
         return resourceInfo;
     }
 

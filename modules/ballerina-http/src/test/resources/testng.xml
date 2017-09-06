@@ -21,60 +21,60 @@ under the License.
 
 <suite name="ballerina-natives-test-suite">
 
-    <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
-    <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.nativeimpl.functions"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <!-- Native Function Related Test Cases. -->
+    <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.nativeimpl.functions"/>
+        </packages>
+    </test>
 
-    <!--<test name="ballerina-native-stmt-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.statements"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-native-stmt-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.statements"/>
+        </packages>
+    </test>
 
-    <!--&lt;!&ndash; Service Related Test Cases &ndash;&gt;-->
+    <!-- Service Related Test Cases -->
 
-    <!--<test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">-->
+    <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!-- TODO : Add other testcases. -->
+            <class name="org.ballerinalang.service.ServiceTest"/>
+            <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
+            <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>
+            <class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>
+            <class name="org.ballerinalang.service.HTTPCorsTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-global-var-test-suite">
+        <classes>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test>
+
+    <!--TODO: Should activate these test cases when migrating Ballerina to new transport-->
+    <!--&lt;!&ndash; WebSocket Test Cases &ndash;&gt;-->
+    <!--<test name="websocket-test-cases" parallel="false">-->
         <!--<classes>-->
-            <!--&lt;!&ndash; TODO : Add other testcases. &ndash;&gt;-->
-            <!--<class name="org.ballerinalang.service.ServiceTest"/>-->
-            <!--<class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>-->
-            <!--<class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>-->
-            <!--<class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>-->
-            <!--<class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>-->
-            <!--<class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>-->
-            <!--<class name="org.ballerinalang.service.HTTPCorsTest"/>-->
+            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>-->
+            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>-->
+            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>-->
         <!--</classes>-->
     <!--</test>-->
 
-    <!--<test name="ballerina-global-var-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>-->
-            <!--<class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-identifier-literal-test-suite">
+        <classes>
+            <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
+        </classes>
+    </test>
 
-    <!--&lt;!&ndash;TODO: Should activate these test cases when migrating Ballerina to new transport&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash; WebSocket Test Cases &ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;<test name="websocket-test-cases" parallel="false">&ndash;&gt;-->
-        <!--&lt;!&ndash;<classes>&ndash;&gt;-->
-            <!--&lt;!&ndash;<class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;</classes>&ndash;&gt;-->
-    <!--&lt;!&ndash;</test>&ndash;&gt;-->
-
-    <!--<test name="ballerina-identifier-literal-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
-
-    <!--<test name="ballerina-interceptor-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-interceptor-test-suite">
+        <classes>
+            <class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>
+        </classes>
+    </test>
 </suite>

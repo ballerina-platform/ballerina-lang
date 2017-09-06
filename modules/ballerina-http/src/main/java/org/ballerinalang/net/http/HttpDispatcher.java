@@ -1,28 +1,25 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Dispatcher;
-import org.ballerinalang.connector.api.Registry;
+import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.slf4j.Logger;
@@ -37,20 +34,13 @@ import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 import java.util.Optional;
 
 /**
- * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector.
+ * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
- * @since 0.8.0
+ * @since 0.94
  */
-public class HttpDispatcher implements Dispatcher {
+public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
-
-    private HTTPCarbonMessage httpCarbonMessage;
-    private HttpRegistry httpRegistry;
-
-    public HttpDispatcher(HTTPCarbonMessage httpCarbonMessage) {
-        this.httpCarbonMessage = httpCarbonMessage;
-    }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
         callback.done(cMsg);
@@ -75,18 +65,13 @@ public class HttpDispatcher implements Dispatcher {
 
     }
 
-    @Override
-    public void setRegistry(Registry registry) {
-        this.httpRegistry = (HttpRegistry) registry;
-    }
-
-    @Override
-    public String getProtocolPackage() {
-        return Constants.PROTOCOL_PACKAGE_HTTP;
-    }
-
-    @Override
-    public Resource findResource() {
+    /**
+     * This method finds the matching resource for the incoming request.
+     *
+     * @param httpCarbonMessage incoming message.
+     * @return matching resource.
+     */
+    public static Resource findResource(HTTPCarbonMessage httpCarbonMessage) {
         Resource resource = null;
         String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol == null) {
@@ -94,7 +79,8 @@ public class HttpDispatcher implements Dispatcher {
         }
 
         // Find the Service Dispatcher
-        HttpServerConnector serverConnector = httpRegistry.getHttpServerConnector();
+        HttpServerConnector serverConnector = (HttpServerConnector) Executor
+                .getBallerinaServerConnector(Constants.PROTOCOL_PACKAGE_HTTP);
         if (serverConnector == null) {
             throw new BallerinaConnectorException("no service dispatcher available to handle protocol: " + protocol);
         }
@@ -108,20 +94,14 @@ public class HttpDispatcher implements Dispatcher {
             }
 
             // Find the Resource
-            resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage, getCallback());
+            resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage, getCallback(httpCarbonMessage));
         } catch (Throwable throwable) {
-            handleError(httpCarbonMessage, getCallback(), throwable);
+            handleError(httpCarbonMessage, getCallback(httpCarbonMessage), throwable);
         }
         return resource;
     }
 
-    @Override
-    public BValue[] createParameters() {
-        return new BValue[0];
-    }
-
-    @Override
-    public CarbonCallback getCallback() {
+    public static CarbonCallback getCallback(HTTPCarbonMessage httpCarbonMessage) {
         return (cMsg) -> {
             HTTPCarbonMessage carbonMessage = HTTPMessageUtil.convertCarbonMessage(cMsg);
             try {
@@ -134,10 +114,5 @@ public class HttpDispatcher implements Dispatcher {
                 throw new BallerinaConnectorException("Error occurred during response", e);
             }
         };
-    }
-
-    @Override
-    public CarbonMessage getCarbonMsg() {
-        return httpCarbonMessage;
     }
 }

@@ -109,7 +109,7 @@ public class LauncherUtils {
             startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
                     serverConnector));
 
-            ServerConnectorRegistry.getInstance().complete();
+            ServerConnectorRegistry.getInstance().deploymentComplete();
         } catch (ServerConnectorException e) {
             throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
         }

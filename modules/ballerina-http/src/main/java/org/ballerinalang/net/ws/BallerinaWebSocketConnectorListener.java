@@ -19,17 +19,17 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Dispatcher;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.net.ws.dispatchers.WebSocketCloseMsgDispatcher;
-import org.ballerinalang.net.ws.dispatchers.WebSocketInitMsgDispatcher;
-import org.ballerinalang.net.ws.dispatchers.WebSocketTextMsgDispatcher;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.net.http.HttpService;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
 
 import java.net.ProtocolException;
 import javax.websocket.Session;
@@ -45,8 +45,11 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         try {
             Session session = webSocketInitMessage.handshake();
-            Dispatcher dispatcher = new WebSocketInitMsgDispatcher(webSocketInitMessage, session);
-            Executor.execute(dispatcher);
+            CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(webSocketInitMessage);
+            HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketInitMessage);
+            WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
+            Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
+            Executor.submit(resource, carbonMessage, null);
         } catch (ProtocolException e) {
             throw new BallerinaConnectorException("Error occurred during WebSocket handshake", e);
         }
@@ -54,8 +57,10 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        Dispatcher dispatcher = new WebSocketTextMsgDispatcher(webSocketTextMessage);
-        Executor.execute(dispatcher);
+        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketTextMessage(webSocketTextMessage);
+        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketTextMessage);
+        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
+        Executor.submit(resource, carbonMessage, null);
     }
 
     @Override
@@ -70,12 +75,17 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        Dispatcher dispatcher = new WebSocketCloseMsgDispatcher(webSocketCloseMessage);
-        Executor.execute(dispatcher);
+        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketCloseMessage(webSocketCloseMessage);
+        Session serverSession = webSocketCloseMessage.getChannelSession();
+        WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
+        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketCloseMessage);
+        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
+        Executor.submit(resource, carbonMessage, null);
     }
 
     @Override
     public void onError(Throwable throwable) {
         throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
     }
+
 }

@@ -15,10 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Dispatcher;
 import org.ballerinalang.connector.api.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +33,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        Dispatcher dispatcher = new HttpDispatcher(httpCarbonMessage);
-        Executor.execute(dispatcher);
+        Executor.submit(HttpDispatcher.findResource(httpCarbonMessage), httpCarbonMessage,
+                HttpDispatcher.getCallback(httpCarbonMessage));
     }
 
     @Override

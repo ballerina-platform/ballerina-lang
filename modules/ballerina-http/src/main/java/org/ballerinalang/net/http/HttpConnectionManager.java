@@ -51,7 +51,6 @@ import java.util.Set;
 public class HttpConnectionManager {
 
     private static HttpConnectionManager instance = new HttpConnectionManager();
-    private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
     private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
             startupDelayedHTTPServerConnectors = new HashMap<>();
 

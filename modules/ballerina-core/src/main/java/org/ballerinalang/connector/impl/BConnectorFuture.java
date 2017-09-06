@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -24,7 +23,9 @@ import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * Created by rajith on 9/4/17.
+ * {@code BConnectorFuture} This is the implementation for the {@code ConnectorFuture} API.
+ *
+ * @since 0.94
  */
 public class BConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
@@ -44,7 +45,8 @@ public class BConnectorFuture implements ConnectorFuture {
         ex = null;
     }
 
-    public void notifySuccess(BValue response) {
+    protected void notifySuccess(BValue response) {
+        //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
             connectorFutureListener.notifySuccess(response);
         } else {
@@ -52,7 +54,8 @@ public class BConnectorFuture implements ConnectorFuture {
         }
     }
 
-    public void notifyFailure(BallerinaConnectorException ex) {
+    protected void notifyFailure(BallerinaConnectorException ex) {
+        //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
             connectorFutureListener.notifyFailure(ex);
         } else {
