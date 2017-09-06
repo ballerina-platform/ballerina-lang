@@ -1,0 +1,8 @@
+{
+  "httpMethod": "GET",
+  "appendUrl": "/stockquote/BAR",
+  "contentType": "application/json",
+  "requestUrl": "http://localhost:9090",
+  "requestBody": "",
+  "requestHeaders": []
+}

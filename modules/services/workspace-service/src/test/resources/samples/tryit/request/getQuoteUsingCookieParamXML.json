@@ -1,0 +1,17 @@
+{
+  "httpMethod": "GET",
+  "appendUrl": "/stockquote",
+  "contentType": "text/xml",
+  "requestUrl": "http://localhost:9090",
+  "requestBody": "",
+  "requestHeaders": [
+    {
+      "key": "Cookie",
+      "value": "symbol=AMZN"
+    },
+    {
+      "key": "Accept",
+      "value": "text/xml"
+    }
+  ]
+}
