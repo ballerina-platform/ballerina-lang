@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Util class that provides common functionality.
  */
-public class HTTPMessageUtil {
+public class HTTPConnectorUtil {
 
     /**
      * Convert {@link CarbonMessage} to a {@link HTTPCarbonMessage}.
@@ -141,8 +141,8 @@ public class HTTPMessageUtil {
                         .toMap(senderConf ->
                                 senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
 
-        return Constants.PROTOCOL_HTTPS.equals(scheme) ?
-                senderConfigurations.get(Constants.PROTOCOL_HTTPS) : senderConfigurations.get(Constants.PROTOCOL_HTTP);
+        return Constants.SCHEME_HTTPS.equals(scheme) ?
+                senderConfigurations.get(Constants.SCHEME_HTTPS) : senderConfigurations.get(Constants.SCHEME_HTTP);
     }
 
     /**

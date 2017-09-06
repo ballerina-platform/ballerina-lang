@@ -29,7 +29,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpsServer;
 
@@ -62,8 +62,8 @@ public class HTTPSClientTestCase {
         httpsServer = TestUtil.startHttpsServer(port, testValue, "text/plain");
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPMessageUtil.getTransportProperties(transportsConfiguration),
-                HTTPMessageUtil.getSenderConfiguration(transportsConfiguration, Constants.PROTOCOL_HTTPS));
+                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.SCHEME_HTTPS));
     }
 
     @Test

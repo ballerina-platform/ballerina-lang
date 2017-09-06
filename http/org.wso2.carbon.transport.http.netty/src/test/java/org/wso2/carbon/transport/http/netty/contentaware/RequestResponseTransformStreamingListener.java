@@ -33,7 +33,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -81,7 +81,8 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 }
 
                 String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration, scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
+                                                                                                   scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
