@@ -96,7 +96,7 @@ public class ServerBootstrapConfiguration {
     }
 
     /**
-     * configure transport level properties such as socket timeouts, tcp no delay
+     * configTargetHandler transport level properties such as socket timeouts, tcp no delay
      *
      * @param properties to create new bootstrap configuration.
      */

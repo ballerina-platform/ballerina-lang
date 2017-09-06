@@ -15,17 +15,22 @@
 
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
-
-import io.netty.channel.Channel;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
+import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
+
+import java.net.InetSocketAddress;
+import javax.net.ssl.SSLEngine;
 
 /**
  * A class which creates a TargetChannel pool for each route.
@@ -53,14 +58,17 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     @Override
     public Object makeObject() throws Exception {
-        TargetChannel targetChannel = new TargetChannel();
-        ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
-                                                                       eventLoopGroup, eventLoopClass, httpRoute,
-                                                                       this.sslConfig,
-                                                                       httpTraceLogEnabled);
-        Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
-        log.debug("Created channel: {}", channel);
-        targetChannel.setChannel(channel);
+        Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
+                eventLoopClass, BootstrapConfiguration.getInstance());
+        SSLEngine clientSslEngine = instantiateAndConfigSSL(sslConfig);
+        HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(clientBootstrap,
+                clientSslEngine);
+        clientBootstrap.handler(httpClientInitializer);
+        ChannelFuture channelFuture = clientBootstrap
+                .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
+        TargetChannel targetChannel = new TargetChannel(httpClientInitializer, channelFuture);
+        targetChannel.setHttpRoute(httpRoute);
+        log.debug("Created channel: {}", httpRoute);
         return targetChannel;
     }
 
@@ -75,9 +83,12 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     @Override
     public boolean validateObject(Object o) {
-        boolean answer = ((TargetChannel) o).getChannel().isActive();
-        log.debug("Validating channel: {} -> {}", o, answer);
-        return answer;
+        if (((TargetChannel) o).getChannel() != null) {
+            boolean answer = ((TargetChannel) o).getChannel().isActive();
+            log.debug("Validating channel: {} -> {}", o, answer);
+            return answer;
+        }
+        return true;
     }
 
     @Override
@@ -91,4 +102,38 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     }
 
 
+    private Bootstrap instantiateAndConfigBootStrap(EventLoopGroup eventLoopGroup, Class eventLoopClass,
+            BootstrapConfiguration bootstrapConfiguration) {
+        Bootstrap clientBootstrap = new Bootstrap();
+        clientBootstrap.channel(eventLoopClass);
+        clientBootstrap.group(eventLoopGroup);
+        clientBootstrap.option(ChannelOption.SO_KEEPALIVE, bootstrapConfiguration.isKeepAlive());
+        clientBootstrap.option(ChannelOption.TCP_NODELAY, bootstrapConfiguration.isTcpNoDelay());
+        clientBootstrap.option(ChannelOption.SO_REUSEADDR, bootstrapConfiguration.isSocketReuse());
+        clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
+        return clientBootstrap;
+    }
+
+    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
+        // set the pipeline factory, which creates the pipeline for each newly created channels
+        SSLEngine sslEngine = null;
+        if (sslConfig != null) {
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            sslEngine = sslHandlerFactory.build();
+            sslEngine.setUseClientMode(true);
+            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
+        }
+
+        return sslEngine;
+    }
+
+    private HTTPClientInitializer instantiateAndConfigClientInitializer(Bootstrap clientBootstrap,
+            SSLEngine sslEngine) {
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled);
+        if (log.isDebugEnabled()) {
+            log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
+                    httpRoute.getPort(), clientBootstrap);
+        }
+        return httpClientInitializer;
+    }
 }
