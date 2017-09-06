@@ -24,7 +24,7 @@ export default class VariableEndpoint extends React.Component {
         super(props, context);
         this.state = {
             onEdit: false,
-            statement: this.props.variable.varDeclarationString
+            statement: this.props.variable.varDeclarationString,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -39,7 +39,7 @@ export default class VariableEndpoint extends React.Component {
 
     render() {
         const { variable, makeConnectPoint, level, id, removeTypeCallbackFunc, onClick, onRemove,
-            updateVariable, isFolded } = this.props;
+            updateVariable, isFolded, onConnectPointMouseEnter } = this.props;
         let iconType = 'fw-variable';
         let className = 'transform-endpoint variable';
 
@@ -48,7 +48,7 @@ export default class VariableEndpoint extends React.Component {
             className += ' transform-endpoint-struct';
 
             if (isFolded) {
-                className += '-folded'
+                className += '-folded';
             }
         }
 
@@ -66,13 +66,13 @@ export default class VariableEndpoint extends React.Component {
                     <span
                         className='folder'
                         style={{ left: folderLeft }}
-                        onClick={e => { onClick && onClick(variable.name); }}
+                        onClick={(e) => { onClick && onClick(variable.name); }}
                     />}
                     {(level > 0) && <span className='tree-view-icon' />}
                     <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
-                    <span className='variable-content' onClick={e => { onClick && onClick(variable.name); }}>
+                    <span className='variable-content' onClick={(e) => { onClick && onClick(variable.name); }}>
                         {!this.state.onEdit && variable.displayName &&
                             <span className='property-name'>
                                 {variable.displayName}:
@@ -103,7 +103,11 @@ export default class VariableEndpoint extends React.Component {
                         }
                     </span>
                 </span>
-                <span id={variable.id + '-button'} className='btn connect-point'>
+                <span
+                    id={variable.id + '-button'}
+                    className='btn connect-point'
+                    onMouseEnter={(e) => { onConnectPointMouseEnter(variable, e); }}
+                >
                     <i
                         id={id}
                         ref={icon => makeConnectPoint(icon, id, variable)}
@@ -120,7 +124,7 @@ export default class VariableEndpoint extends React.Component {
     onEdit() {
         this.setState({ onEdit: true });
     }
-    onComplete(){
+    onComplete() {
         this.setState({ onEdit: false });
         this.props.updateVariable(this.props.variable.name, this.state.statement, this.props.type);
     }

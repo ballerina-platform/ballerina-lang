@@ -46,8 +46,6 @@
     color: #3d3d3d;
     float: left;
     position: relative;
-    overflow: auto;
-    margin-top: 30px;
 }
 
 .leftType {
@@ -60,15 +58,10 @@
 
 .middle-content {
     width: calc(100% - 680px);
-    height: calc(100% - 130px);
-    background: #fff;
+    min-height: 100%;
     color: #3d3d3d;
     float: left;
     position: relative;
-    overflow: auto;
-    border: 1px dashed #ccc;
-    margin-top: 30px;
-    padding-top: 30px
 }
 
 .struct {;
