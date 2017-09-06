@@ -30,6 +30,11 @@
     padding-right: 10px;
 }
 
+.transform-expanded-func .fold-indicator {
+    padding-left: 10px;
+    cursor: pointer;
+}
+
 .transform-expanded-func .btn-remove-func {
     float: right;
     height: 30px;

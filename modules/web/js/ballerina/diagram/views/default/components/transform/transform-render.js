@@ -152,7 +152,7 @@ class TransformRender {
     }
 
     remove(elementId) {
-        this.jsPlumbInstance.remove(elementId);
+        this.jsPlumbInstanceNewConnections.remove(elementId);
     }
 
     addConnection(sourceId, targetId, folded = false) {
