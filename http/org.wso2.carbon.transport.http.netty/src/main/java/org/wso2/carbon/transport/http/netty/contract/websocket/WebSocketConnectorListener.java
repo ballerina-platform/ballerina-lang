@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
+import javax.websocket.Session;
+
 /**
  * Message processor for WebSocket inbound messages.
  */
@@ -66,5 +68,12 @@ public interface WebSocketConnectorListener {
      * @param throwable error received from transport.
      */
     void onError(Throwable throwable);
+
+    /**
+     * This is triggered in a IdleTimeout for WebSocket.
+     *
+     * @param session Session for a given WebSocket connection.
+     */
+    void onIdleTimeout(Session session);
 
 }

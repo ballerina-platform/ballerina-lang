@@ -116,7 +116,18 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
         shutDownClient(session2);
     }
 
-    @Test(priority = 5, description = "Test the sub protocol negotiation with the remote server")
+    @Test(priority = 5, description = "Test the idle timeout for WebSocket")
+    public void testIdleTimeout() throws ClientConnectorException, InterruptedException, IOException {
+        configuration.setIdleTimeoutInSeconds(3);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        Session session = handshake(connectorListener);
+        Thread.sleep(5000);
+        Assert.assertTrue(connectorListener.isIdleTimeout());
+        session.close();
+    }
+
+    @Test(priority = 6, description = "Test the sub protocol negotiation with the remote server")
     public void testSubProtocolNegotiation()  {
 
         // Try with a matching sub protocol.
@@ -138,8 +149,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
             configuration.setSubProtocols(subProtocols);
             clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
             WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
-            Session session;
-            session = handshake(connectorListener);
+            Session session = handshake(connectorListener);
             Assert.assertFalse(true, "Should not negotiate");
         } catch (ClientConnectorException e) {
             Assert.assertTrue(true, "Handshake failed: " + e.getMessage());

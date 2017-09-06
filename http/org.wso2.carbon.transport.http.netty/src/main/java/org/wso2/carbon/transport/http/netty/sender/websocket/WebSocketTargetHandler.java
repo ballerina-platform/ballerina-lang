@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,9 +126,22 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
+        if (channelSession != null) {
+            channelSession.setIsOpen(false);
+        }
         int statusCode = 1001;
         String reasonText = "Server is going away";
         notifyCloseMessage(statusCode, reasonText, ctx);
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+            if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
+                connectorListener.onIdleTimeout(channelSession);
+            }
+        }
     }
 
     @Override
@@ -163,6 +177,9 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
             ctx.channel().writeAndFlush(new PongWebSocketFrame(pingFrame.content()));
         } else if (frame instanceof CloseWebSocketFrame) {
+            if (channelSession != null) {
+                channelSession.setIsOpen(false);
+            }
             notifyCloseMessage((CloseWebSocketFrame) frame, ctx);
             ch.close();
         } else {

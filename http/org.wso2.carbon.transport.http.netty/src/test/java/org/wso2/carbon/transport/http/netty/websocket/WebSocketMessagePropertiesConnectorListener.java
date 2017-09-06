@@ -30,6 +30,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.net.ProtocolException;
+import javax.websocket.Session;
 
 /**
  * WebSocket connector listener to identify the properties of a message.
@@ -87,6 +88,11 @@ public class WebSocketMessagePropertiesConnectorListener implements WebSocketCon
 
     @Override
     public void onError(Throwable throwable) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onIdleTimeout(Session session) {
         // Do nothing.
     }
 }

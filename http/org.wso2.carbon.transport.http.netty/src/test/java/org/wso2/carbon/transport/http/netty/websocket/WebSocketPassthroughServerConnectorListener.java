@@ -110,4 +110,8 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     public void onError(Throwable throwable) {
 
     }
+
+    @Override
+    public void onIdleTimeout(Session session) {
+    }
 }

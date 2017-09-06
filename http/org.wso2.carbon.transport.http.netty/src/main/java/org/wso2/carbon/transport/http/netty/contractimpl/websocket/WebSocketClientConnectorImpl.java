@@ -42,6 +42,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     private final String target;
     private final WebSocketSourceHandler sourceHandler;
     private final boolean allowExtensions;
+    private final int idleTimeout;
     private final Map<String, String> customHeaders;
 
     public WebSocketClientConnectorImpl(WSSenderConfiguration configuration) {
@@ -50,6 +51,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
         this.subProtocols = configuration.getSubProtocolsAsCSV();
         this.customHeaders = configuration.getHeaders();
         this.allowExtensions = configuration.isAllowExtensions();
+        this.idleTimeout = configuration.getIdleTimeoutInSeconds();
 
         WebSocketMessageImpl webSocketMessage = (WebSocketMessageImpl) configuration.getWebSocketMessage();
         if (webSocketMessage == null) {
@@ -58,6 +60,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
             this.sourceHandler =
                     (WebSocketSourceHandler) webSocketMessage.getProperty(Constants.SRC_HANDLER);
         }
+
     }
 
     @Override
@@ -65,7 +68,8 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
             throws ClientConnectorException {
 
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, allowExtensions,
-                                                              customHeaders, sourceHandler, connectorListener);
+                                                              idleTimeout, customHeaders, sourceHandler,
+                                                              connectorListener);
         try {
             return webSocketClient.handshake();
         } catch (InterruptedException e) {

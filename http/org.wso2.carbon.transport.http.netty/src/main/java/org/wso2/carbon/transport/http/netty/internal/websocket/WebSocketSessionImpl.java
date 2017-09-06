@@ -70,6 +70,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     @Override
     public void close() throws IOException {
         ctx.channel().close();
+        this.isOpen = false;
     }
 
     @Override
@@ -77,6 +78,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
                                                     closeReason.getReasonPhrase()));
         ctx.channel().close();
+        this.isOpen = false;
     }
 
     @Override

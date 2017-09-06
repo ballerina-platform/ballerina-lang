@@ -38,6 +38,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -66,6 +67,7 @@ public class WebSocketClient {
     private final String subprotocols;
     private final String target;
     private final boolean allowExtensions;
+    private final int idleTimeout;
     private final Map<String, String> headers;
     private final WebSocketSourceHandler sourceHandler;
     private final WebSocketConnectorListener connectorListener;
@@ -80,13 +82,14 @@ public class WebSocketClient {
      * @param sourceHandler {@link WebSocketSourceHandler} for pass through purposes.
      * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String target, String subprotocols, boolean allowExtensions,
+    public WebSocketClient(String url, String target, String subprotocols, boolean allowExtensions, int idleTimeout,
                            Map<String, String> headers, WebSocketSourceHandler sourceHandler,
                            WebSocketConnectorListener connectorListener) {
         this.url = url;
         this.target = target;
         this.subprotocols = subprotocols;
         this.allowExtensions = allowExtensions;
+        this.idleTimeout = idleTimeout;
         this.headers = headers;
         this.sourceHandler = sourceHandler;
         this.connectorListener = connectorListener;
@@ -157,11 +160,13 @@ public class WebSocketClient {
                             if (sslCtx != null) {
                                 p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
                             }
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    handler);
+                            p.addLast(new HttpClientCodec());
+                            p.addLast(new HttpObjectAggregator(8192));
+                            p.addLast(WebSocketClientCompressionHandler.INSTANCE);
+                            if (idleTimeout > 0) {
+                                p.addLast(new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout));
+                            }
+                            p.addLast(handler);
                         }
                     });
 

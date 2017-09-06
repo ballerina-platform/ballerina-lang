@@ -127,6 +127,10 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         handleError(throwable);
     }
 
+    @Override
+    public void onIdleTimeout(Session session) {
+    }
+
     private void handleError(Throwable throwable) {
         log.error(throwable.getMessage());
     }

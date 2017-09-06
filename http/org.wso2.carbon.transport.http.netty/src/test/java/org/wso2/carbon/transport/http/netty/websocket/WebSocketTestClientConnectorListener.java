@@ -30,6 +30,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.nio.ByteBuffer;
+import javax.websocket.Session;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -41,6 +42,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private String receivedTextToClient;
     private ByteBuffer receivedByteBufferToClient;
     private boolean isPongReceived = false;
+    private boolean isIdleTimeout = false;
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
@@ -74,6 +76,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
         handleError(throwable);
     }
 
+    @Override
+    public void onIdleTimeout(Session session) {
+        isIdleTimeout = true;
+    }
+
     /**
      * Retrieve the latest text received to client.
      *
@@ -105,6 +112,15 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
         boolean tmp = isPongReceived;
         isPongReceived = false;
         return tmp;
+    }
+
+    /**
+     * Check whether any idle timeout triggered or not.
+     *
+     * @return true if idle timeout is triggered.
+     */
+    public boolean isIdleTimeout() {
+        return isIdleTimeout;
     }
 
     private void handleError(Throwable throwable) {

@@ -34,6 +34,7 @@ public class WSSenderConfiguration {
     private String target = null;
     private boolean allowExtensions = true;
     private WebSocketMessage webSocketMessage = null;
+    private int idleTimeoutInSeconds = 0;
     private final Map<String, String> headers = new HashMap<>();
 
     /**
@@ -196,5 +197,23 @@ public class WSSenderConfiguration {
      */
     public boolean containsHeader(String key) {
         return headers.containsKey(key);
+    }
+
+    /**
+     * Get idle timeout for WebSocket connection.
+     *
+     * @return the idle timeout.
+     */
+    public int getIdleTimeoutInSeconds() {
+        return idleTimeoutInSeconds;
+    }
+
+    /**
+     * Set the idle timeout for WebSocket connection.
+     *
+     * @param idleTimeoutInSeconds the idle timeout.
+     */
+    public void setIdleTimeoutInSeconds(int idleTimeoutInSeconds) {
+        this.idleTimeoutInSeconds = idleTimeoutInSeconds;
     }
 }
