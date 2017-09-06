@@ -40,7 +40,6 @@ const decorators = {
         );
     },
     Header: ({ style, node }) => {
-        console.log(node,style);
         const icon = node.type !== 'file' ? 'folder' : 'document';
         const marginLeft = node.children ? '0' : '20px';
         return (

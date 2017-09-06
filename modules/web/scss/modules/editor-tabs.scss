@@ -1,5 +1,6 @@
 .editor-area {
     .rc-tabs {
+        overflow: hidden;
         border-bottom: none;
         .rc-tabs-bar {
             border-bottom: none;
@@ -67,7 +68,8 @@
             }
         }
         .rc-tabs-tabpane {
-    
+            overflow: hidden;
+            position: relative;
         }
     }
 }

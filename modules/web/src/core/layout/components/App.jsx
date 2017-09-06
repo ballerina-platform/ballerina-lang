@@ -52,8 +52,6 @@ class App extends React.Component {
 
         // handle window resize events
         window.addEventListener('resize', this.handleWindowResize.bind(this));
-        // set the initial width & height of the document.
-        this.handleWindowResize();
     }
 
     /**
