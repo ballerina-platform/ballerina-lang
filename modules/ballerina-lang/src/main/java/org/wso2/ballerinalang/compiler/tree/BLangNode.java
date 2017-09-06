@@ -19,13 +19,26 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 
 /**
  * @since 0.94
  */
 public abstract class BLangNode implements Node {
 
+    /**
+     * The type of this node.
+     */
     public BType type;
+
+    /**
+     * The position of this node in the source file.
+     */
+    public DiagnosticPos pos;
+
+    public DiagnosticPos getPosition() {
+        return pos;
+    }
 
     public abstract void accept(BLangNodeVisitor visitor);
 }
