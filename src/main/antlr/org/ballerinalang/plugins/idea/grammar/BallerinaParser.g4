@@ -570,7 +570,16 @@ simpleLiteral
 // XML parsing
 
 xmlLiteral
-    :   TYPE_XML BacktickStringLiteral
+    :   XMLStart xmlContent? XMLEnd
+    ;
+
+xmlContent
+    :   (XMLExpressionStart expression ExpressionEnd)+ xmlText?
+    |   xmlText
+    ;
+
+xmlText
+    :   XMLText
     ;
 
 stringTemplateLiteral

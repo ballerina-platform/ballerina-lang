@@ -121,6 +121,7 @@ import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
+import org.ballerinalang.plugins.idea.psi.XmlContentNode;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
@@ -386,6 +387,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TypeCastNode(node);
             case BallerinaParser.RULE_typeConversion:
                 return new TypeConversionNode(node);
+            case BallerinaParser.RULE_xmlContent:
+                return new XmlContentNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
