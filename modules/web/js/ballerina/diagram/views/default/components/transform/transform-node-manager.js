@@ -76,9 +76,9 @@ class TransformNodeManager {
     getVertexExpression(name, isField) {
         let expression;
         if (isField) {
-            expression = BallerinaASTFactory.createFieldBasedVarRefExpression(name);
+            expression = BallerinaASTFactory.createFieldBasedVarRefExpression();
         } else {
-            expression = BallerinaASTFactory.createSimpleVariableReferenceExpression(name);
+            expression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
         }
 
         expression.setExpressionFromString(name);
@@ -244,7 +244,8 @@ class TransformNodeManager {
         tempVarAssignmentStmt.setIsDeclaredWithVar(true);
         const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
         varRefList.addChild(errorVarRef);
-        this._transformStmt.addChild(tempVarAssignmentStmt, index);
+        index = (index < 0) ? 0 : index;
+        this._transformStmt.addChild(tempVarAssignmentStmt, index, true);
     }
 
     removeStatementEdge(connection) {
@@ -275,6 +276,17 @@ class TransformNodeManager {
             const index = funcInvocationExpression.getIndexOfChild(expression);
             funcInvocationExpression.removeChild(expression, true);
             funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
+
+            if (expression.getExpressionString().startsWith('__temp')) {
+                // remove temp variable assignment if it is not used
+                const tempUsages = this.findTempVarUsages(expression.getExpressionString());
+                if (tempUsages.length === 0) {
+                    const tempAssignStmt = this.findAssignedVertexForTemp(expression);
+                    if (tempAssignStmt) {
+                        this._transformStmt.removeChild(tempAssignStmt, true);
+                    }
+                }
+            }
             this._transformStmt.trigger('tree-modified', {
                 origin: this,
                 type: 'function-connection-removed',
@@ -460,34 +472,21 @@ class TransformNodeManager {
         return struct;
     }
 
-    createTypeConversionExpression(type, vertexExpression) {
-        const typeConversionExp = BallerinaASTFactory.createTypeConversionExpression();
-        typeConversionExp.addChild(vertexExpression);
-        typeConversionExp.setTargetType(type);
-        return typeConversionExp;
-    }
-
-    createTypeCastExpression(type, vertexExpression) {
-        const typeCastExp = BallerinaASTFactory.createTypeCastExpression();
-        typeCastExp.addChild(vertexExpression);
-        typeCastExp.setTargetType(type);
-        return typeCastExp;
-    }
-
     /**
      * If the target is a cast expression, we need to find the underlying expression
      * that needs to be mapped in the view. Similarly if the source is a temp variable,
      * corresponding expression that needs to be mapped is also found here.
      * @param {Expression} expression lhs or rhs expression
+     * @param {boolean} isTempResolved should the mapping for temp vars be resolved
      * @returns {Expression} mapping expression
      * @memberof TransformNodeManager
      */
-    getMappingExpression(expression) {
+    getMappingExpression(expression, isTempResolved = true) {
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             return expression;
         }
         if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
-            if (expression.getVariableName().startsWith('__temp')) {
+            if (isTempResolved && (expression.getVariableName().startsWith('__temp'))) {
                 const assignmentStmt = this.findAssignedVertexForTemp(expression);
                 if (assignmentStmt) {
                     return this.getMappingExpression(assignmentStmt.getRightExpression());
@@ -501,6 +500,25 @@ class TransformNodeManager {
             return expression.getRightExpression();
         }
         return expression;
+    }
+
+    findTempVarUsages(tempVarName) {
+        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
+        const tempUsedAssignmentStmts = assignmentStmts.filter((assStmt) => {
+            const rightExp = this.getMappingExpression(assStmt.getRightExpression());
+            if (BallerinaASTFactory.isFunctionInvocationExpression(rightExp)) {
+                const matchingExpressions = rightExp.getChildren().find((exp) => {
+                    return (this.getMappingExpression(exp, false).getExpressionString() === tempVarName);
+                });
+                if (matchingExpressions) {
+                    return true;
+                }
+                return false;
+            } else {
+                return (rightExp.getExpressionString() === tempVarName);
+            }
+        });
+        return tempUsedAssignmentStmts;
     }
 
     findAssignedVertexForTemp(expression) {
@@ -545,10 +563,16 @@ class TransformNodeManager {
     getCompatibleSourceExpression(sourceExpression, compatibilityType, targetType) {
         switch (compatibilityType) {
             case 'explicit' : {
-                return this.createTypeCastExpression(targetType, sourceExpression);
+                const typeCastExp = BallerinaASTFactory.createTypeCastExpression();
+                typeCastExp.addChild(sourceExpression);
+                typeCastExp.setTargetType(targetType);
+                return typeCastExp;
             }
             case 'conversion' : {
-                return this.createTypeConversionExpression(targetType, sourceExpression);
+                const typeConversionExp = BallerinaASTFactory.createTypeConversionExpression();
+                typeConversionExp.addChild(sourceExpression);
+                typeConversionExp.setTargetType(targetType);
+                return typeConversionExp;
             }
             case 'implicit' :
             default :
