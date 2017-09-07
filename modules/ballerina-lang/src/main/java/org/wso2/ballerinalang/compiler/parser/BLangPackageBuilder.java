@@ -93,11 +93,7 @@ public class BLangPackageBuilder {
         typeNode.pos = pos;
         typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName));
 
-        if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(typeNode);
-        } else {
-            this.typeNodeStack.push(typeNode);
-        }
+        addType(typeNode);
     }
 
     public void addArrayType(DiagnosticPos pos, int dimensions) {
@@ -114,11 +110,7 @@ public class BLangPackageBuilder {
         arrayTypeNode.etype = eType;
         arrayTypeNode.dimensions = dimensions;
 
-        if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(arrayTypeNode);
-        } else {
-            this.typeNodeStack.push(arrayTypeNode);
-        }
+        addType(arrayTypeNode);
     }
 
     public void addUserDefineType(DiagnosticPos pos) {
@@ -128,22 +120,14 @@ public class BLangPackageBuilder {
         userDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         userDefinedType.typeName = (BLangIdentifier) nameReference.name;
 
-        if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(userDefinedType);
-        } else {
-            this.typeNodeStack.push(userDefinedType);
-        }
+        addType(userDefinedType);
     }
 
     public void addBuiltInReferenceType(DiagnosticPos pos, String typeName) {
         BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferanceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(typeName);
         refType.pos = pos;
-        if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(refType);
-        } else {
-            this.typeNodeStack.push(refType);
-        }
+        addType(refType);
     }
 
     public void addConstraintType(DiagnosticPos pos, String typeName) {
@@ -163,11 +147,7 @@ public class BLangPackageBuilder {
         constrainedType.constraint = constraintType;
         constrainedType.pos = pos;
 
-        if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(constrainedType);
-        } else {
-            this.typeNodeStack.push(constrainedType);
-        }
+        addType(constrainedType);
     }
 
     public void addFunctionType(DiagnosticPos pos, boolean paramsAvail, boolean paramsTypeOnly,
@@ -192,10 +172,14 @@ public class BLangPackageBuilder {
             }
         }
 
+        addType(functionTypeNode);
+    }
+
+    private void addType(TypeNode typeNode){
         if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(functionTypeNode);
+            this.typeNodeListStack.peek().add(typeNode);
         } else {
-            this.typeNodeStack.push(functionTypeNode);
+            this.typeNodeStack.push(typeNode);
         }
     }
 
