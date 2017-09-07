@@ -41,7 +41,7 @@ public enum OperatorKind {
     NEW("new"),
     NOT("!"),
     LENGTHOF("lengthof"),
-    TYPEOF("typeof"),;
+    TYPEOF("typeof");
 
     private final String opValue;
 
