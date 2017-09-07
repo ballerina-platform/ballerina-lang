@@ -34,7 +34,9 @@ import java.nio.ByteBuffer;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Push binary data to the other end of the connection.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(

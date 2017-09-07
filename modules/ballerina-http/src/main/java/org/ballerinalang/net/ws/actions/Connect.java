@@ -44,7 +44,9 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryI
 import javax.websocket.Session;
 
 /**
- * Initialize the WebSocket client connector.
+ * Connect to the remote endpoint.
+ *
+ * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",

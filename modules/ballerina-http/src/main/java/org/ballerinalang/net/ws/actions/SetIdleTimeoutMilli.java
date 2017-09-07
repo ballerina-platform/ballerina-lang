@@ -32,7 +32,9 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 
 /**
- * Initialize the WebSocket client connector.
+ * Set the idle timeout for the client connector.
+ *
+ * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",

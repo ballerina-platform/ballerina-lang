@@ -38,7 +38,9 @@ import java.util.Map;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Get all the upgrade headers.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(

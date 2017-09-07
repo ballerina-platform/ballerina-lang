@@ -36,7 +36,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.Map;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Get upgrade header for a given key.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(

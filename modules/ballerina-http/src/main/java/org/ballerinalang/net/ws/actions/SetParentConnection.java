@@ -32,7 +32,9 @@ import org.ballerinalang.net.ws.Constants;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * Initialize the WebSocket client connector.
+ * Set a parent connection for the client connector.
+ *
+ * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",

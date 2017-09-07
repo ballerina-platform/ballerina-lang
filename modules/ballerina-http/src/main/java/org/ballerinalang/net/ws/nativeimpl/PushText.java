@@ -33,7 +33,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Push text to the other end of the connection.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(

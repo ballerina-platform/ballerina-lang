@@ -38,7 +38,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Initialize the WebSocket client connector.
+ * Add custom headers to the client connector.
+ *
+ * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",

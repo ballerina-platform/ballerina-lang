@@ -35,7 +35,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Check whether the connection is secure connection or not.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(

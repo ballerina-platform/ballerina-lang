@@ -35,7 +35,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Get the ID of the connection.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(

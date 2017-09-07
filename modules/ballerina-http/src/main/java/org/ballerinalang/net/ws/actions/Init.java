@@ -33,6 +33,8 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfigura
 
 /**
  * Initialize the WebSocket client connector.
+ *
+ * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
