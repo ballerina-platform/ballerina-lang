@@ -45,6 +45,6 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
 
     @Override
     public String toString() {
-        return expressionNode.toString() + "." + fieldName.getValue();
+        return String.valueOf(expressionNode) + "." + String.valueOf(fieldName);
     }
 }

@@ -41,7 +41,11 @@ public class BLangSimpleVariableReference extends BLangVariableReference impleme
 
     @Override
     public String toString() {
-        return packageIdentifier == null || packageIdentifier.getValue() == null ?
-                variableName.getValue() : packageIdentifier.getValue() + ":" + variableName.getValue();
+        StringBuilder br = new StringBuilder();
+        if (packageIdentifier != null && !packageIdentifier.getValue().isEmpty()) {
+            br.append(String.valueOf(packageIdentifier)).append(":");
+        }
+        br.append(String.valueOf(variableName));
+        return br.toString();
     }
 }

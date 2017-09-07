@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
  */
 public class BLangIdentifier extends BLangNode implements IdentifierNode {
 
-    public String value;
+    public String value = "";
     public boolean isLiteral;
 
     @Override

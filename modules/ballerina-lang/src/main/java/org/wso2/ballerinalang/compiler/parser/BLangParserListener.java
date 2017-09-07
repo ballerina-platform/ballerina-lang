@@ -1251,18 +1251,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     @Override public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) { }
     /**
      * {@inheritDoc}
@@ -1342,18 +1330,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) { }
 
     /**
      * {@inheritDoc}

@@ -229,7 +229,9 @@ public class BLangPackageBuilder {
 
     private IdentifierNode createIdentifier(String identifier) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
-        node.setValue(identifier);
+        if (identifier != null) {
+            node.setValue(identifier);
+        }
         return node;
     }
 
@@ -352,12 +354,21 @@ public class BLangPackageBuilder {
 
     public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-        BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) exprNodeStack.pop();
+        invocationNode.pos = pos;
         if (argsAvailable) {
             invocationNode.argsExpressions = exprNodeListStack.pop();
         }
-        invocationNode.functionName = varRef.variableName;
-        invocationNode.packIdentifier = varRef.packageIdentifier;
+        ExpressionNode expressionNode = exprNodeStack.pop();
+        if (expressionNode instanceof BLangSimpleVariableReference) {
+            BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) expressionNode;
+            invocationNode.functionName = varRef.variableName;
+            invocationNode.packIdentifier = varRef.packageIdentifier;
+        } else if (expressionNode instanceof BLangFieldBasedAccess) {
+            BLangFieldBasedAccess fieldRef = (BLangFieldBasedAccess) expressionNode;
+            invocationNode.functionName = fieldRef.fieldName;
+            invocationNode.packIdentifier = createIdentifier(null);
+            invocationNode.variableReferenceNode = fieldRef;
+        }
         addExpressionNode(invocationNode);
     }
 

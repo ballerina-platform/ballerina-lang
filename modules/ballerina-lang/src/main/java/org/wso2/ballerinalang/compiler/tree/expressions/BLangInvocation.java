@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +36,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
 
     public IdentifierNode packIdentifier, functionName;
     public List<ExpressionNode> argsExpressions = new ArrayList<>();
+    public VariableReferenceNode variableReferenceNode;
 
     @Override
     public IdentifierNode getPackageIdentifier() {
@@ -52,6 +54,11 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     }
 
     @Override
+    public VariableReferenceNode getVariableReferenceNode() {
+        return variableReferenceNode;
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.INVOCATION;
     }
@@ -59,10 +66,16 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public String toString() {
         StringBuilder br = new StringBuilder();
-        if (packIdentifier != null && packIdentifier.getValue() != null) {
-            br.append(packIdentifier.getValue()).append(":");
+        if (variableReferenceNode != null) {
+            // Action invocation or lambda invocation.
+            br.append(String.valueOf(variableReferenceNode));
+        } else {
+            if (packIdentifier != null && !packIdentifier.getValue().isEmpty()) {
+                br.append(String.valueOf(packIdentifier)).append(":");
+            }
+            br.append(String.valueOf(functionName));
         }
-        br.append(functionName.getValue()).append("(");
+        br.append("(");
         if (argsExpressions.size() > 0) {
             String s = Arrays.toString(argsExpressions.toArray());
             br.append(s.substring(1,s.length() -1 ));
