@@ -181,7 +181,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         );
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, isSecured, channelSession, httpRequest,
-                                           headers, connectionManager, ctx, interfaceId);
+                                           headers, ctx, interfaceId);
         WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
                                                                             headers);
 
