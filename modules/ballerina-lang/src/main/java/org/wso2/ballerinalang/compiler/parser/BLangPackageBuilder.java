@@ -37,12 +37,17 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -82,6 +87,8 @@ public class BLangPackageBuilder {
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
     private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
+
+    private Stack<RecordTypeLiteralNode> recordTypeLiteralNodes = new Stack<>();
 
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
@@ -137,7 +144,7 @@ public class BLangPackageBuilder {
     }
 
     public void addBuiltInReferenceType(DiagnosticPos pos, String typeName) {
-        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferanceTypeNode();
+        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(typeName);
         refType.pos = pos;
         addType(refType);
@@ -151,7 +158,7 @@ public class BLangPackageBuilder {
         constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         constraintType.typeName = (BLangIdentifier) nameReference.name;
 
-        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferanceTypeNode();
+        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(typeName);
         refType.pos = pos;
 
@@ -276,6 +283,29 @@ public class BLangPackageBuilder {
         exprNodeStack.push(arrayLiteral);
     }
 
+    public void addKeyValueRecord() {
+        ExpressionNode valueExpr = exprNodeStack.pop();
+        ExpressionNode keyExpr = exprNodeStack.pop();
+        IdentifierNode identifierNode = null;
+        if (keyExpr instanceof BLangLiteral) {
+            identifierNode = createIdentifier(((BLangLiteral) keyExpr).getValue().toString());
+        } else if (keyExpr instanceof SimpleVariableReferenceNode) {
+            identifierNode = ((SimpleVariableReferenceNode) keyExpr).getVariableName();
+        }
+        recordTypeLiteralNodes.peek().getKeyValuePairs().put(identifierNode, valueExpr);
+    }
+
+    public void addMapStructLiteral(DiagnosticPos pos) {
+        BLangRecordTypeLiteral recordTypeLiteralNode = (BLangRecordTypeLiteral) recordTypeLiteralNodes.pop();
+        recordTypeLiteralNode.pos = pos;
+        addExpressionNode(recordTypeLiteralNode);
+    }
+
+    public void startMapStructLiteral() {
+        BLangRecordTypeLiteral literalNode = (BLangRecordTypeLiteral) TreeBuilder.createRecordTypeLiteralNode();
+        recordTypeLiteralNodes.push(literalNode);
+    }
+
     private void addExpressionNode(ExpressionNode expressionNode) {
         if (!this.exprNodeListStack.empty()) {
             this.exprNodeListStack.peek().add(expressionNode);
@@ -286,6 +316,16 @@ public class BLangPackageBuilder {
 
     public void startExprNodeList() {
         this.exprNodeListStack.push(new ArrayList<>());
+    }
+
+    public void createSimpleVariableReference(DiagnosticPos pos) {
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) TreeBuilder
+                .createSimpleVariableReferenceNode();
+        varRef.pos = pos;
+        varRef.packageIdentifier = nameReference.pkgAlias;
+        varRef.variableName = nameReference.name;
+        addExpressionNode(varRef);
     }
 
     public void endFunctionDef() {

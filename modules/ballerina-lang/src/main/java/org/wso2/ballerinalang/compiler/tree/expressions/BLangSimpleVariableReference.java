@@ -17,40 +17,31 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.Arrays;
-import java.util.List;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 
 /**
- * Implementation of ArrayLiteralNode.
+ * Implementation of SimpleVariableReferenceNode.
  *
  * @since 0.94
  */
-public class BLangArrayLiteral extends BLangExpression implements ArrayLiteralNode {
+public class BLangSimpleVariableReference extends BLangVariableReference implements SimpleVariableReferenceNode {
 
-    public List<ExpressionNode> expressionNodes;
+    public IdentifierNode packageIdentifier, variableName;
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.ARRAY_LITERAL_EXPR;
+    public IdentifierNode getPackageIdentifier() {
+        return packageIdentifier;
     }
 
     @Override
-    public void accept(BLangNodeVisitor visitor) {
-    }
-
-    @Override
-    public List<? extends ExpressionNode> getExpressions() {
-        return expressionNodes;
+    public IdentifierNode getVariableName() {
+        return variableName;
     }
 
     @Override
     public String toString() {
-        String s = Arrays.toString(expressionNodes.toArray());
-        return "[" + s.substring(1, s.length() - 1) + ']';
+        return packageIdentifier == null || packageIdentifier.getValue() == null ?
+                variableName.getValue() : packageIdentifier.getValue() + ":" + variableName.getValue();
     }
 }

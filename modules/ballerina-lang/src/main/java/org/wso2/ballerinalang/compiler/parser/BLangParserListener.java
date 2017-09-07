@@ -805,31 +805,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { 
         this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText());
     }
-    
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) { }
+
+    @Override
+    public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
+        this.pkgBuilder.startMapStructLiteral();
+    }
+
+    @Override
+    public void exitMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
+        this.pkgBuilder.addMapStructLiteral(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void exitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) {
+        this.pkgBuilder.addKeyValueRecord();
+    }
 
     @Override public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
         boolean argsAvailable = ctx.expressionList() != null;
@@ -1205,18 +1195,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) { }
+
+    @Override
+    public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
+        this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1548,18 +1531,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx) { }
     /**
      * {@inheritDoc}
      *
