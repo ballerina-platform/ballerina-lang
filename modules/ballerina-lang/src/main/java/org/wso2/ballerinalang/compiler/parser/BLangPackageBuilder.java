@@ -35,15 +35,19 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.statements.AbortNode;
+import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -56,6 +60,7 @@ import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * This class builds the package AST of a Ballerina source file.
@@ -257,7 +262,7 @@ public class BLangPackageBuilder {
     public void addLiteralValue(Object value) {
         LiteralNode litExpr = TreeBuilder.createLiteralExpression();
         litExpr.setValue(value);
-        addExpressionNode(litExpr);
+        exprNodeStack.push(litExpr);
     }
 
     public void addArrayInitExpr(DiagnosticPos pos, boolean argsAvailable){
@@ -308,6 +313,11 @@ public class BLangPackageBuilder {
         this.exprNodeListStack.push(new ArrayList<>());
     }
 
+    public void endExprNodeList(int exprCount) {
+        List<ExpressionNode> exprList = this.exprNodeListStack.peek();
+        addExprToList(exprList, exprCount);
+    }
+
     public void createSimpleVariableReference(DiagnosticPos pos) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) TreeBuilder
@@ -315,7 +325,7 @@ public class BLangPackageBuilder {
         varRef.pos = pos;
         varRef.packageIdentifier = nameReference.pkgAlias;
         varRef.variableName = nameReference.name;
-        addExpressionNode(varRef);
+        this.exprNodeStack.push(varRef);
     }
 
     public void endFunctionDef() {
@@ -437,4 +447,39 @@ public class BLangPackageBuilder {
         this.typeNodeListStack.push(new ArrayList<>());
     }
 
+    public void addAssignmentStatement(boolean isVarDeclaration) {
+        ExpressionNode rExprNode = exprNodeStack.pop();
+        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        if (rExprNode instanceof BLangExpression) {
+            List<BLangVariableReference> lVariableReferenceList = lExprList.stream()
+                    .filter(BLangVariableReference.class::isInstance).map(BLangVariableReference.class::cast)
+                    .collect(Collectors.toList());
+            AssignmentNode assignmentNode = TreeBuilder
+                    .createAssignmentNode(lVariableReferenceList, (BLangExpression) rExprNode, isVarDeclaration);
+            this.blockNodeStack.peek().addStatement(assignmentNode);
+        }
+    }
+
+    public void addAbortStatement() {
+        AbortNode abortNode = TreeBuilder.createAbortNode();
+        this.blockNodeStack.peek().addStatement(abortNode);
+    }
+
+    /**
+     * @param exprList List of expression nodes
+     * @param n        number of expressions to be added the given list
+     */
+    private void addExprToList(List<ExpressionNode> exprList, int n) {
+        if (exprNodeStack.isEmpty()) {
+            return;
+        }
+        if (n == 1) {
+            ExpressionNode expr = exprNodeStack.pop();
+            exprList.add(expr);
+        } else {
+            ExpressionNode expr = exprNodeStack.pop();
+            addExprToList(exprList, n - 1);
+            exprList.add(expr);
+        }
+    }
 }

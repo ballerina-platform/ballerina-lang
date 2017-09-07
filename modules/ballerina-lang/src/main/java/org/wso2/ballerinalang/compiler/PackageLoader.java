@@ -75,7 +75,7 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.packages = new HashMap<>();
 
-        Path sourceRoot = Paths.get("/Users/sameera/rewrite-compiler/bal");
+        Path sourceRoot = Paths.get("/home/anupama/Anupama/Workspace/WSO2_SRC/BallerinaLang/DataService/CompilerRewrite/bal");
         this.programRepo = loadFSProgramRepository(sourceRoot);
     }
 

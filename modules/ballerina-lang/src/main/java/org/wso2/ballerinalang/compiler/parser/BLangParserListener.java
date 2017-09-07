@@ -838,13 +838,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { 
-        log("exitAssignmentStatement");
+    @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        this.pkgBuilder.addAssignmentStatement(isVarDeclaration);
     }
 
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
         this.pkgBuilder.startExprNodeList();
+    }
+
+    @Override
+    public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        int noOfArguments = getNoOfArgumentsInList(ctx);
+        this.pkgBuilder.endExprNodeList(noOfArguments);
     }
 
     /**
@@ -1336,7 +1346,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) { }
+    @Override public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+        this.pkgBuilder.addAbortStatement();
+    }
     /**
      * {@inheritDoc}
      *
@@ -1916,5 +1928,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
+    }
+
+    private int getNoOfArgumentsInList(ParserRuleContext ctx) {
+        // Here is the production for the argument list
+        // argumentList
+        //    :   '(' expressionList ')'
+        //    ;
+        //
+        // expressionList
+        //    :   expression (',' expression)*
+        //    ;
+
+        // Now we need to calculate the number of arguments in a function or an action.
+        // We can do the by getting the children of expressionList from the ctx
+        // The following count includes the token for the ","  as well.
+        int childCountExprList = ctx.getChildCount();
+
+        // Therefore we need to subtract the number of ","
+        // e.g. (a, b)          => childCount = 3, noOfArguments = 2;
+        //      (a, b, c)       => childCount = 5, noOfArguments = 3;
+        //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
+        // Here childCount is always an odd number.
+        // noOfArguments = childCount div 2 + 1
+        return childCountExprList / 2 + 1;
     }
 }
