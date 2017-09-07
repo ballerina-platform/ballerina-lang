@@ -1,3 +1,14 @@
+.editor-area {
+    .rc-tabs-tab-active {
+        .tab-title-wrapper {
+            &.ballerina-design-view {
+                background-color: white;
+                color: #7D7D7D;
+            }
+        }
+    }
+}
+
 .ballerina-editor {
     height: 100%;
     color: #333333;

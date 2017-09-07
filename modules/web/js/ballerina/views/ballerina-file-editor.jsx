@@ -34,7 +34,7 @@ import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
-import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
@@ -192,6 +192,13 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
+        if (this.state.activeView !== newView) {
+            if (newView === DESIGN_VIEW) {
+                this.props.editorTab.customTitleClass = CLASSES.TAB_TITLE.DESIGN_VIEW;
+            } else {
+                this.props.editorTab.customTitleClass = '';
+            }
+        }
         // avoid additional re-render by directly updating state
         // next call update() to re-render
         // (and parse before re-render if necessary)
@@ -531,6 +538,7 @@ class BallerinaFileEditor extends React.Component {
 }
 
 BallerinaFileEditor.propTypes = {
+    editorTab: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.instanceOf(File).isRequired,
     isActive: PropTypes.bool.isRequired,
     commandProxy: PropTypes.shape({

@@ -1,4 +1,5 @@
 import EventChannel from 'event_channel';
+import { EVENTS } from './../constants';
 
 /**
  * Class to represent an editor tab
@@ -14,6 +15,7 @@ class EditorTab extends EventChannel {
         super();
         this._file = file;
         this._editor = editor;
+        this._customTitleClass = editor.tabTitleClass || '';
     }
 
     /**
@@ -49,6 +51,21 @@ class EditorTab extends EventChannel {
      */
     set editor(editor) {
         this._editor = editor;
+    }
+
+    /**
+     * Returns custom class for title
+     */
+    get customTitleClass() {
+        return this._customTitleClass;
+    }
+
+    /**
+     * Sets custom class for title
+     */
+    set customTitleClass(customTitleClass) {
+        this._customTitleClass = customTitleClass;
+        this.trigger(EVENTS.UPDATE_TAB_TITLE, this);
     }
 
 }

@@ -20,6 +20,7 @@ class Editor extends React.Component {
 }
 
 Editor.propTypes = {
+    editorTab: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.objectOf(Object).isRequired,
     isActive: PropTypes.bool.isRequired,
     commandProxy: PropTypes.shape({

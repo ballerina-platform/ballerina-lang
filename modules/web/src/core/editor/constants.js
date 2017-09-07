@@ -2,7 +2,9 @@ export const COMMANDS = {
     OPEN_FILE_IN_EDITOR: 'open-file-in-editor',
 };
 
-export const EVENTS = {};
+export const EVENTS = {
+    UPDATE_TAB_TITLE: 'update-tab-title',
+};
 
 export const VIEWS = {
     EDITOR_TABS: 'composer.view.editor.tabs',

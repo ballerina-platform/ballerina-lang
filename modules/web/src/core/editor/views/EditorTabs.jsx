@@ -6,7 +6,7 @@ import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
-import { VIEWS, HISTORY, COMMANDS } from './../constants';
+import { VIEWS, HISTORY, COMMANDS, EVENTS } from './../constants';
 import EditorTab from './../model/EditorTab';
 
 /**
@@ -51,6 +51,9 @@ class EditorTabs extends View {
         } else {
             this.forceUpdate();
         }
+        editorTab.on(EVENTS.UPDATE_TAB_TITLE, () => {
+            this.forceUpdate();
+        });
     }
 
     /**
@@ -90,7 +93,7 @@ class EditorTabs extends View {
         return (
             <TabPane
                 tab={
-                    <div data-extra="tab-bar-title">
+                    <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editorTab.customTitleClass}`}>
                         <i className="fw fw-ballerina tab-icon" />
                         {file.name}
                         <button
@@ -106,6 +109,7 @@ class EditorTabs extends View {
                 key={file.fullPath}
             >
                 <editor.component
+                    editorTab={editorTab}
                     isActive={this.state.activeEditor === file.fullPath}
                     file={file}
                     commandProxy={this.props.editorPlugin.appContext.command}
