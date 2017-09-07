@@ -57,6 +57,7 @@ class TransformExpanded extends React.Component {
             selectedSource: '-1',
             selectedTarget: '-1',
             foldedEndpoints: {},
+            foldedFunctions: {},
         };
         this.sourceElements = {};
         this.targetElements = {};
@@ -80,6 +81,7 @@ class TransformExpanded extends React.Component {
         this.removeSourceType = this.removeSourceType.bind(this);
         this.removeTargetType = this.removeTargetType.bind(this);
         this.foldEndpoint = this.foldEndpoint.bind(this);
+        this.foldFunction = this.foldFunction.bind(this);
         this.removeEndpoint = this.removeEndpoint.bind(this);
         this.updateVariable = this.updateVariable.bind(this);
         this.onDragLeave = this.onDragLeave.bind(this);
@@ -93,6 +95,15 @@ class TransformExpanded extends React.Component {
             {
                 foldedEndpoints: _.extend(this.state.foldedEndpoints, {
                     [key]: !this.state.foldedEndpoints[key],
+                }),
+            });
+    }
+
+    foldFunction(key) {
+        this.setState(
+            {
+                foldedFunctions: _.extend(this.state.foldedFunctions, {
+                    [key]: !this.state.foldedFunctions[key],
                 }),
             });
     }
@@ -221,7 +232,13 @@ class TransformExpanded extends React.Component {
                     sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
                 }
 
-                const targetId = `${functionInvID}:${i}:${viewId}`;
+                let targetId = `${functionInvID}:${i}:${viewId}`;
+                if (!this.targetElements[targetId]) {
+                    // function is folded
+                    folded = true;
+                    targetId = `${functionInvID}:${viewId}`;
+                }
+
                 this.drawConnection(sourceId, targetId, folded);
             }
         });
@@ -230,11 +247,24 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        const sourceId = `${functionInvID}:0:return:${viewId}`;
-        const parentFuncInvID = parentFunctionInvocationExpression.getID();
-        const targetId = `${parentFuncInvID}:${parentParameterIndex}:${viewId}`;
+        let folded = false;
 
-        this.drawConnection(sourceId, targetId);
+        let sourceId = `${functionInvID}:0:return:${viewId}`;
+        if (!this.sourceElements[sourceId]) {
+            // function is folded
+            folded = true;
+            sourceId = `${functionInvID}:${viewId}`;
+        }
+
+        const parentFuncInvID = parentFunctionInvocationExpression.getID();
+        let targetId = `${parentFuncInvID}:${parentParameterIndex}:${viewId}`;
+        if (!this.targetElements[targetId]) {
+            // function is folded
+            folded = true;
+            targetId = `${parentFuncInvID}:${viewId}`;
+        }
+
+        this.drawConnection(sourceId, targetId, folded);
         this.mapper.reposition(this.props.model.getID());
     }
 
@@ -281,7 +311,14 @@ class TransformExpanded extends React.Component {
                         sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
                     }
 
-                    const targetId = `${funcInvID}:${i}:${viewId}`;
+                    let targetId = `${funcInvID}:${i}:${viewId}`;
+
+                    if (!this.targetElements[targetId]) {
+                        // function is folded
+                        folded = true;
+                        targetId = `${funcInvID}:${viewId}`;
+                    }
+
                     this.drawConnection(sourceId, targetId, folded);
                 }
             }
@@ -294,10 +331,17 @@ class TransformExpanded extends React.Component {
             if (!returnParams[i]) {
                 return;
             }
-
-            const sourceId = `${funcInvID}:${i}:return:${viewId}`;
-            let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             let folded = false;
+
+            let sourceId = `${funcInvID}:${i}:return:${viewId}`;
+            if (!this.sourceElements[sourceId]) {
+                // function is folded
+                folded = true;
+                sourceId = `${funcInvID}:${viewId}`;
+            }
+
+
+            let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
             if (!this.targetElements[targetId]) {
                 folded = true;
                 targetId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'target');
@@ -347,11 +391,6 @@ class TransformExpanded extends React.Component {
     }
 
     drawConnection(sourceId, targetId, folded) {
-        // if source or target is not mounted then this draw request is ignored
-        if (!this.sourceElements[sourceId] || !this.targetElements[targetId]) {
-            return;
-        }
-
         this.mapper.addConnection(sourceId, targetId, folded);
     }
 
@@ -434,6 +473,8 @@ class TransformExpanded extends React.Component {
             this.mapper.addTarget(element, output, true,
                     this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
         });
+
+        this.markConnectedEndpoints();
 
         this.mapper.reposition(this.props.model.getID());
         if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
@@ -845,6 +886,11 @@ class TransformExpanded extends React.Component {
         this.loadVertices();
     }
 
+    markConnectedEndpoints() {
+        $('.variable-endpoint').removeClass('fw-circle').addClass('fw-circle-outline');
+        $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle');
+    }
+
     render() {
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
         const inputNodes = this.props.model.getInput();
@@ -973,6 +1019,8 @@ class TransformExpanded extends React.Component {
                                         viewId={this.props.model.getID()}
                                         onEndpointRemove={this.removeEndpoint}
                                         onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                        isCollapsed={this.state.foldedFunctions[funcInv.getID()]}
+                                        onHeaderClick={this.foldFunction}
                                     />
                                 ))
                             }
