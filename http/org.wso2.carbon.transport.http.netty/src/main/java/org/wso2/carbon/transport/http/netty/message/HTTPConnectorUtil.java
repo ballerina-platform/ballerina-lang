@@ -141,8 +141,8 @@ public class HTTPConnectorUtil {
                         .toMap(senderConf ->
                                 senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
 
-        return Constants.SCHEME_HTTPS.equals(scheme) ?
-                senderConfigurations.get(Constants.SCHEME_HTTPS) : senderConfigurations.get(Constants.SCHEME_HTTP);
+        return Constants.HTTPS_SCHEME.equals(scheme) ?
+                senderConfigurations.get(Constants.HTTPS_SCHEME) : senderConfigurations.get(Constants.HTTP_SCHEME);
     }
 
     /**
@@ -195,7 +195,7 @@ public class HTTPConnectorUtil {
                 properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
         int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
         ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String schema = properties.get(Constants.HTTP_SCHEME);
+        String schema = properties.get(Constants.SCHEME);
         if (schema != null && schema.equals("https")) {
             config.setScheme(schema);
             config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));

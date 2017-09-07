@@ -282,7 +282,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, interfaceId);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.SCHEME_HTTP);
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.HTTP_SCHEME);
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecuredConnection = true;
         }

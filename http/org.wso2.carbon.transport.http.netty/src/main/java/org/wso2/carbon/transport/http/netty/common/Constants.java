@@ -134,9 +134,9 @@ public final class Constants {
 
     public static final String PROTOCOL = "PROTOCOL";
 
-    public static final String SCHEME_HTTP = "http";
+    public static final String HTTP_SCHEME = "http";
 
-    public static final String SCHEME_HTTPS = "https";
+    public static final String HTTPS_SCHEME = "https";
 
     public static final String HTTP_PROTOCOL = "HTTP_PROTOCOL";
 
@@ -177,7 +177,7 @@ public final class Constants {
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
     public static final String HTTP_PORT = "port";
-    public static final String HTTP_SCHEME = "scheme";
+    public static final String SCHEME = "scheme";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";
     public static final String HTTP_KEY_STORE_PASS = "keyStorePass";
     public static final String HTTP_CERT_PASS = "certPass";
@@ -239,7 +239,7 @@ public final class Constants {
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP2_VERSION = "HTTP/2.0";
     public static final String STREAM_ID = "STREAM_ID";
-    public static final String SCHEME = "SCHEME";
+//    public static final String SCHEME = "SCHEME";
     public static final String AUTHORITY = "AUTHORITY";
     public static final String HTTP2_METHOD = ":method";
     public static final String HTTP2_PATH = ":path";

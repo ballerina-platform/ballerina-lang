@@ -217,7 +217,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                 ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, listenerConfiguration.getId());
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.SCHEME_HTTP);
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.HTTP_SCHEME);
         if (listenerConfiguration.getSslConfig() != null) {
             cMsg.setProperty(Constants.IS_SECURED_CONNECTION, true);
         } else {

@@ -52,25 +52,25 @@ public class HTTPSClientTestCase {
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
-    private int port = 9092;
+//    private int port = 9092;
     private String testValue = "Test Message";
 
     @BeforeClass
     public void setup() {
         TransportsConfiguration transportsConfiguration =
                 TestUtil.getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        httpsServer = TestUtil.startHttpsServer(port, testValue, "text/plain");
+        httpsServer = TestUtil.startHttpsServer(TestUtil.TEST_HTTPS_SERVER_PORT, testValue, "text/plain");
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.SCHEME_HTTPS));
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
     }
 
     @Test
     public void testHttpsGet() {
         try {
             HTTPCarbonMessage msg = new HTTPCarbonMessage();
-            msg.setProperty("PORT", port);
+            msg.setProperty("PORT", TestUtil.TEST_HTTPS_SERVER_PORT);
             msg.setProperty("PROTOCOL", "https");
             msg.setProperty("HOST", "localhost");
             msg.setProperty("HTTP_METHOD", "GET");
