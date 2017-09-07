@@ -28,7 +28,7 @@ public interface AnnotationNode extends AnnotatableNode, TopLevelNode {
 
     public void setName(IdentifierNode name);
 
-    List<? extends AnnotAttributeNode> getAttributes();
+    List<? extends AnnotationAttributeNode> getAttributes();
 
-    void addAttribute(AnnotAttributeNode attribute);
+    void addAttribute(AnnotationAttributeNode attribute);
 }

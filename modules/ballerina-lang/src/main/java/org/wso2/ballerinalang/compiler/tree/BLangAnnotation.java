@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.AnnotAttributeNode;
+import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -57,12 +57,12 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     }
 
     @Override
-    public List<? extends AnnotAttributeNode> getAttributes() {
+    public List<? extends AnnotationAttributeNode> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void addAttribute(AnnotAttributeNode attribute) {
+    public void addAttribute(AnnotationAttributeNode attribute) {
         this.attributes.add((BLangAnnotAttribute) attribute);
     }
 

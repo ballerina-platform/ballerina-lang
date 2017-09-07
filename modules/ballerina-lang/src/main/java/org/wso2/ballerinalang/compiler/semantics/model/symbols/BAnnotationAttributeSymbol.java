@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.symbols.AnnotAttributeSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -26,7 +26,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKind
 /**
  * @since 0.94
  */
-public class BAnnotationAttributeSymbol extends BSymbol implements AnnotAttributeSymbol {
+public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAttributeSymbol {
 
     public BAnnotationAttributeSymbol(Name name, BType type, BSymbol owner) {
         super(ANNOTATION_ATTRIBUTE, name, type, owner);

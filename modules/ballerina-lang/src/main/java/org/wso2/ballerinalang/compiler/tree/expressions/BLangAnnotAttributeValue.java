@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -28,10 +28,10 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public class BLangAnnotAttributeValue extends BLangExpression implements AnnotAttributeValueNode {
+public class BLangAnnotAttributeValue extends BLangExpression implements AnnotationAttributeValueNode {
 
     public Node value;
-    public List<AnnotAttributeValueNode> arrayValues;
+    public List<AnnotationAttributeValueNode> arrayValues;
 
     public BLangAnnotAttributeValue() {
         arrayValues = new ArrayList<>();
@@ -43,7 +43,7 @@ public class BLangAnnotAttributeValue extends BLangExpression implements AnnotAt
     }
 
     @Override
-    public List<AnnotAttributeValueNode> getValueArray() {
+    public List<AnnotationAttributeValueNode> getValueArray() {
         return arrayValues;
     }
 
@@ -53,7 +53,7 @@ public class BLangAnnotAttributeValue extends BLangExpression implements AnnotAt
     }
 
     @Override
-    public void addValue(AnnotAttributeValueNode value) {
+    public void addValue(AnnotationAttributeValueNode value) {
         this.arrayValues.add(value);
     }
 

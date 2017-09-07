@@ -24,5 +24,5 @@ import java.util.List;
  */
 public interface AnnotationSymbol extends Symbol {
 
-    List<? extends AnnotAttributeSymbol> getAttributes();
+    List<? extends AnnotationAttributeSymbol> getAttributes();
 }

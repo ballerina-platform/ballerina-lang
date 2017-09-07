@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 /**
  * @since 0.94
  */
-public interface AnnotAttributeNode extends AnnotatableNode {
+public interface AnnotationAttributeNode extends AnnotatableNode {
     
     TypeNode getTypeNode();
     

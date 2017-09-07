@@ -15,22 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
-
-import org.ballerinalang.model.tree.Node;
-
-import java.util.List;
+package org.ballerinalang.model.symbols;
 
 /**
  * @since 0.94
  */
-public interface AnnotAttributeValueNode extends ExpressionNode {
+public interface AnnotationAttributeSymbol extends Symbol {
 
-    Node getValue();
-
-    List<AnnotAttributeValueNode> getValueArray();
-
-    void setValue(Node value);
-
-    void addValue(AnnotAttributeValueNode valueArray);
 }

@@ -22,7 +22,8 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
-import org.ballerinalang.model.tree.AnnotAttributeNode;
+import org.ballerinalang.model.tree.AnnotationAttributeNode;
+import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -34,7 +35,7 @@ import org.ballerinalang.model.tree.InvocableNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
@@ -105,7 +106,7 @@ public class BLangPackageBuilder {
     
     private Stack<AnnotationNode> annotationStack = new Stack<>();
     
-    Stack<AnnotAttributeValueNode> annotAttribValStack = new Stack<>();
+    private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
     
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
@@ -218,9 +219,7 @@ public class BLangPackageBuilder {
 
     public void startFunctionDef() {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
-        while (!annotAttachmentStack.empty()) {
-            functionNode.addAnnotationAttachment(annotAttachmentStack.pop());
-        }
+        attachAnnotations(functionNode);
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -442,9 +441,7 @@ public class BLangPackageBuilder {
 
     public void startStructDef() {
         StructNode structNode = TreeBuilder.createStructNode();
-        while (!annotAttachmentStack.empty()) {
-            structNode.addAnnotationAttachment(annotAttachmentStack.pop());
-        }
+        attachAnnotations(structNode);
         this.structStack.add(structNode);
     }
     
@@ -457,9 +454,7 @@ public class BLangPackageBuilder {
     
     public void startConnectorDef() {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
-        while (!annotAttachmentStack.empty()) {
-            connectorNode.addAnnotationAttachment(annotAttachmentStack.pop());
-        }
+        attachAnnotations(connectorNode);
         this.connectorNodeStack.push(connectorNode);
     }
     
@@ -494,9 +489,7 @@ public class BLangPackageBuilder {
 
     public void startActionDef() {
         ActionNode actionNode = TreeBuilder.createActionNode();
-        while (!annotAttachmentStack.empty()) {
-            actionNode.addAnnotationAttachment(annotAttachmentStack.pop());
-        }
+        attachAnnotations(actionNode);
         this.invokableNodeStack.push(actionNode);
     }
 
@@ -510,9 +503,7 @@ public class BLangPackageBuilder {
 
     public void startAnnotationDef() {
         AnnotationNode annotNode = TreeBuilder.createAnnotationNode();
-        while (!annotAttachmentStack.empty()) {
-            annotNode.addAnnotationAttachment(annotAttachmentStack.pop());
-        }
+        attachAnnotations(annotNode);
         this.annotationStack.add(annotNode);
     }
 
@@ -520,7 +511,7 @@ public class BLangPackageBuilder {
         AnnotationNode annotationNode = this.annotationStack.pop();
         annotationNode.setName(this.createIdentifier(identifier));
         this.varListStack.pop().forEach(var -> {
-            AnnotAttributeNode annAttrNode = TreeBuilder.createAnnotAttributeNode();
+            AnnotationAttributeNode annAttrNode = TreeBuilder.createAnnotAttributeNode();
             var.getFlags().forEach(annAttrNode::addFlag);
             var.getAnnotationAttachments().forEach(annAttrNode::addAnnotationAttachment);
             annAttrNode.setTypeNode(var.getTypeNode());
@@ -574,5 +565,11 @@ public class BLangPackageBuilder {
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(exprNodeStack.pop());
         annotAttribValStack.add(annotAttrVal);
+    }
+    
+    private void attachAnnotations(AnnotatableNode annotatableNode) {
+        while (!annotAttachmentStack.empty()) {
+            annotatableNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        }
     }
 }

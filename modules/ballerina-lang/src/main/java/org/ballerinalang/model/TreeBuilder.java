@@ -18,7 +18,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.tree.ActionNode;
-import org.ballerinalang.model.tree.AnnotAttributeNode;
+import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -31,7 +31,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -193,11 +193,11 @@ public class TreeBuilder {
         return new BLangAnnotation();
     }
     
-    public static AnnotAttributeNode createAnnotAttributeNode() {
+    public static AnnotationAttributeNode createAnnotAttributeNode() {
         return new BLangAnnotAttribute();
     }
     
-    public static AnnotAttributeValueNode createAnnotAttributeValueNode() {
+    public static AnnotationAttributeValueNode createAnnotAttributeValueNode() {
         return new BLangAnnotAttributeValue();
     }
 
