@@ -28,6 +28,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.BDiagnostic;
 import org.wso2.ballerinalang.compiler.util.BDiagnosticSource;
@@ -35,6 +38,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
  * This represents the code analyzing pass of semantic analysis. 
+ * 
+ * The following validations are done here:-
+ * 
+ * (*) Loop continuation statement validation.
+ * (*) Function return path existence and unreachable code validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
     
@@ -48,6 +56,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private PackageID pkgId;
     
     private BLangCompilationUnit compUnitNode;
+    
+    private boolean statementReturns;
+    
+    private boolean unreachableCodeCheckDone;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -61,42 +73,92 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
     }
     
-    private void reset() {
+    private void resetPackage() {
         this.pkgId = null;
         this.compUnitNode = null;
         this.loopCount = 0;
     }
     
+    private void resetFunction() {
+        this.unreachableCodeCheckDone = false;
+        this.resetStatementReturns();
+    }
+    
+    private void resetStatementReturns() {
+        this.statementReturns = false;
+    }
+    
     public void analyze(BLangPackage pkgNode, DiagnosticListener diagListener) {
-        this.reset();
+        this.resetPackage();
         this.diagListener = diagListener;
         pkgNode.accept(this);
     }
     
+    @Override
     public void visit(BLangPackage pkgNode) {
         this.pkgId = pkgNode.pkgDecl.pkgId;
         pkgNode.compUnits.forEach(e -> e.accept(this));
     }
     
+    @Override
     public void visit(BLangCompilationUnit compUnitNode) {
         this.compUnitNode = compUnitNode;
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
     }
     
+    @Override
     public void visit(BLangFunction funcNode) {
+        this.resetFunction();
+        boolean functionReturns = funcNode.retParams.size() > 0;
         funcNode.body.accept(this);
+        /* the function returns, but none of the statements surely returns */
+        if (functionReturns && !this.statementReturns) {
+            this.diagListener.received(this.generateFunctionMustReturn(funcNode));
+        }
     }
     
+    private void checkUnreachableCode(BLangStatement stmt) {
+        if (this.statementReturns && !this.unreachableCodeCheckDone) {
+            this.diagListener.received(this.generateUnreachableCodeDiagnostic(stmt));
+            /* to make sure we don't give the same error again to following statements */
+            this.unreachableCodeCheckDone = true;
+        }
+    }
+    
+    @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.statements.forEach(e -> e.accept(this));
+        blockNode.statements.forEach(e -> {
+            this.checkUnreachableCode(blockNode);
+            e.accept(this);
+        });
     }
     
+    @Override
+    public void visit(BLangReturn returnStmt) {
+        this.statementReturns = true;
+    }
+    
+    @Override
+    public void visit(BLangIf ifStmt) {
+        this.checkUnreachableCode(ifStmt);
+        ifStmt.body.accept(this);
+        if (ifStmt.elseStmt != null) {
+            boolean ifStatementReturns = this.statementReturns;
+            this.resetStatementReturns();
+            ifStmt.elseStmt.accept(this);
+            this.statementReturns = ifStatementReturns && this.statementReturns;
+        }
+    }
+        
+    @Override
     public void visit(BLangWhile whileNode) {
+        this.checkUnreachableCode(whileNode);
         this.loopCount++;
         whileNode.body.statements.forEach(e -> e.accept(this));
         this.loopCount--;
     }
     
+    @Override
     public void visit(BLangContinue continueNode) {
         if (this.loopCount == 0) {
             this.diagListener.received(this.generateInvalidContinueDiagnostic(continueNode));
@@ -108,7 +170,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
         diag.kind = Kind.ERROR;
         diag.pos = continueNode.pos;
-        diag.msg = "Invalid 'next' statement";
+        diag.msg = "next cannot be used outside of a loop";
+        return diag;
+    }
+    
+    private Diagnostic generateUnreachableCodeDiagnostic(BLangStatement stmt) {
+        BDiagnostic diag = new BDiagnostic();
+        diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
+        diag.kind = Kind.ERROR;
+        diag.pos = stmt.pos;
+        diag.msg = "Unreachable code";
+        return diag;
+    }
+    
+    private Diagnostic generateFunctionMustReturn(BLangFunction funcNode) {
+        BDiagnostic diag = new BDiagnostic();
+        diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
+        diag.kind = Kind.ERROR;
+        diag.pos = funcNode.pos;
+        diag.msg = "This function must return a result of type " + funcNode.getReturnParameters();
         return diag;
     }
 
