@@ -63,4 +63,6 @@ public enum NodeKind {
     INVOCATION,
     ARRAY_LITERAL_EXPR,
     RECODE_LITERAL_EXPR,
+    BINARY_EXPR,
+    UNARY_EXPR,
 }

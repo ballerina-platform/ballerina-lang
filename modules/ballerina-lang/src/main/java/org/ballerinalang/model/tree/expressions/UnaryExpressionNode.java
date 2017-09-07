@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.OperatorKind;
+
 /**
  * -a
  * !b
@@ -25,4 +27,7 @@ package org.ballerinalang.model.tree.expressions;
  */
 public interface UnaryExpressionNode extends ExpressionNode {
 
+    ExpressionNode getExpression();
+
+    OperatorKind getOperatorKind();
 }
