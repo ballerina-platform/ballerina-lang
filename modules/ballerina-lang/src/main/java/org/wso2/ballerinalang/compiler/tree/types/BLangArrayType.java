@@ -26,7 +26,7 @@ import java.util.Collections;
  * @since 0.94
  */
 public class BLangArrayType extends BLangType implements ArrayTypeNode {
-    public BLangType etype;
+    public BLangType elemtype;
 
     public int dimensions;
 
@@ -35,7 +35,7 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     @Override
     public BLangType getElementType() {
-        return etype;
+        return elemtype;
     }
 
     @Override
@@ -50,6 +50,6 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     @Override
     public String toString() {
-        return this.etype.toString() + String.join("", Collections.nCopies(dimensions, "[]"));
+        return this.elemtype.toString() + String.join("", Collections.nCopies(dimensions, "[]"));
     }
 }

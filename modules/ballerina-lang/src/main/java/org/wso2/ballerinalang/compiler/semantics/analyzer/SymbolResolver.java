@@ -22,15 +22,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -65,37 +68,38 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
     }
 
-    // Type nodes
-    public void visit(BLangValueType valueType) {
-        ScopeEntry entry = symTable.rootScope.lookup(names.fromTypeKind(valueType.typeKind));
-        if (entry == NOT_FOUND_ENTRY) {
-            // TODO Handle error "unknown.type"
+
+    // visit type nodes
+
+    public void visit(BLangValueType valueTypeNode) {
+        visitBuiltInTypeNode(names.fromTypeKind(valueTypeNode.typeKind));
+    }
+
+    public void visit(BLangBuiltInRefTypeNode builtInRefType) {
+        visitBuiltInTypeNode(names.fromTypeKind(builtInRefType.typeKind));
+    }
+
+    public void visit(BLangArrayType arrayTypeNode) {
+        // The value of the dimensions field should always be >= 1
+        result = resolveTypeNode(arrayTypeNode.elemtype, env, errMsgKey);
+        for (int i = 0; i < arrayTypeNode.dimensions; i++) {
+            result = new BArrayType(result);
         }
-
-        result = entry.symbol.type;
     }
 
-    public void visit(BLangArrayType arrayType) {
-        BType eType = resolveTypeNode(arrayType.etype, env, errMsgKey);
-        result = new BArrayType(eType);
-    }
-
-    public void visit(BLangConstrainedType constrainedType) {
+    public void visit(BLangConstrainedType constrainedTypeNode) {
         throw new AssertionError();
     }
 
-    public void visit(BLangUserDefinedType userDefinedType) {
+    public void visit(BLangUserDefinedType userDefinedTypeNode) {
         throw new AssertionError();
     }
+
 
     boolean checkForUniqueSymbol(BSymbol symbol, Scope scope) {
-        ScopeEntry entry = scope.lookup(symbol.name);
-        while (entry != NOT_FOUND_ENTRY) {
-            // Found a scope entry with a symbol with the same name as this symbol
-            if (entry.symbol.tag == symbol.tag) {
-                //TODO log an error out.println("duplicate variable definition");
-                return false;
-            }
+        if (lookupSymbol(scope, symbol.name, symbol.tag) != null) {
+            // TODO out.println("duplicate symbol detected: " + symbol.name);
+            return false;
         }
 
         return true;
@@ -117,5 +121,23 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.errMsgKey = preErrMsgKey;
 
         return result;
+    }
+
+    BSymbol lookupSymbol(Scope scope, Name name, int expSymbolTag) {
+        ScopeEntry entry = scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if (entry.symbol.tag == expSymbolTag) {
+                return entry.symbol;
+            }
+        }
+
+        // TODO return error symbol with error type.
+        return null;
+    }
+
+    private void visitBuiltInTypeNode(Name name) {
+        BSymbol typeSymbol = lookupSymbol(symTable.rootScope,
+                name, SymbolTags.TYPE);
+        result = typeSymbol.type;
     }
 }

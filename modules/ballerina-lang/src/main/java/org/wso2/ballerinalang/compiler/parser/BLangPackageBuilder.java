@@ -55,7 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -133,7 +133,7 @@ public class BLangPackageBuilder {
         }
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
         arrayTypeNode.pos = pos;
-        arrayTypeNode.etype = eType;
+        arrayTypeNode.elemtype = eType;
         arrayTypeNode.dimensions = dimensions;
 
         addType(arrayTypeNode);
@@ -150,7 +150,7 @@ public class BLangPackageBuilder {
     }
 
     public void addBuiltInReferenceType(DiagnosticPos pos, String typeName) {
-        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferenceTypeNode();
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(typeName);
         refType.pos = pos;
         addType(refType);
@@ -164,7 +164,7 @@ public class BLangPackageBuilder {
         constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         constraintType.typeName = (BLangIdentifier) nameReference.name;
 
-        BLangBuiltInReferenceType refType = (BLangBuiltInReferenceType) TreeBuilder.createBuiltInReferenceTypeNode();
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(typeName);
         refType.pos = pos;
 

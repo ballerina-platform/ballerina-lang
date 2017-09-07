@@ -72,7 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableRefer
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -150,7 +150,7 @@ public class TreeBuilder {
     }
 
     public static BuiltInReferenceTypeNode createBuiltInReferenceTypeNode() {
-        return new BLangBuiltInReferenceType();
+        return new BLangBuiltInRefTypeNode();
     }
 
     public static ConstrainedTypeNode createConstrainedTypeNode() {

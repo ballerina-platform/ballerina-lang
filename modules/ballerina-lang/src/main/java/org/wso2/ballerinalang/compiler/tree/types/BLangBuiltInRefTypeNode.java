@@ -24,12 +24,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.94
  */
-public class BLangBuiltInReferenceType extends BLangType implements BuiltInReferenceTypeNode {
+public class BLangBuiltInRefTypeNode extends BLangType implements BuiltInReferenceTypeNode {
 
     public TypeKind typeKind;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
