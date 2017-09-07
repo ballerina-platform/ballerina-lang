@@ -22,7 +22,10 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface StructSymbol extends TypeSymbol {
+public interface InvokableSymbol extends Symbol {
 
-    List<? extends VariableSymbol> getFields();
+    List<? extends VariableSymbol> getParameters();
+
+    List<? extends VariableSymbol> getReturnParameters();
+
 }

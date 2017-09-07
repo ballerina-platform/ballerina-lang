@@ -20,9 +20,10 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.InvocableNode;
+import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
@@ -33,14 +34,16 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public abstract class BLangInvokableNode extends BLangNode implements InvocableNode {
-    
+public abstract class BLangInvokableNode extends BLangNode implements InvokableNode {
+
     public BLangIdentifier name;
     public List<BLangVariable> params;
     public List<BLangVariable> retParams;
     public BLangBlockStmt body;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
+
+    public BSymbol symbol;
 
     public BLangInvokableNode() {
         this.params = new ArrayList<>();
@@ -53,7 +56,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
     public BLangIdentifier getName() {
         return name;
     }
-    
+
     @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
@@ -63,7 +66,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
     public List<BLangVariable> getParameters() {
         return params;
     }
-    
+
     @Override
     public void addParameter(VariableNode param) {
         this.getParameters().add((BLangVariable) param);
@@ -73,7 +76,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
     public List<BLangVariable> getReturnParameters() {
         return retParams;
     }
-    
+
     @Override
     public void addReturnParameter(VariableNode retParam) {
         this.getReturnParameters().add((BLangVariable) retParam);
@@ -83,7 +86,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
     public BLangBlockStmt getBody() {
         return body;
     }
-    
+
     @Override
     public void setBody(BlockNode body) {
         this.body = (BLangBlockStmt) body;
@@ -93,7 +96,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
     public Set<Flag> getFlags() {
         return flags;
     }
-    
+
     @Override
     public void addFlag(Flag flag) {
         this.getFlags().add(flag);
@@ -103,16 +106,16 @@ public abstract class BLangInvokableNode extends BLangNode implements InvocableN
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
-    
+
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
-    
+
     @Override
     public String toString() {
-        return this.flags + " " + this.getName() + " (" + this.params + 
+        return this.flags + " " + this.getName() + " (" + this.params +
                 ") (" + this.retParams + ") " + this.body;
     }
-    
+
 }

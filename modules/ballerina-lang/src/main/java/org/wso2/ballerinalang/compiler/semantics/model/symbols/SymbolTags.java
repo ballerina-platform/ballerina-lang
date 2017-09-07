@@ -20,15 +20,19 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 /**
  * @since 0.94
  */
-public class SymbolKinds {
+public class SymbolTags {
 
     public static final int NIL = 0;
     public static final int PACKAGE = 1;
     public static final int TYPE = 2;
     public static final int STRUCT = 4;
     public static final int CONNECTOR = 8;
+    public static final int SERVICE = 8;
     public static final int VARIABLE = 16;
     public static final int VALUE = 32;
     public static final int INVOCABLE = 64;
-    public static final int ERROR = 128;
+    public static final int FUNCTION = 128;
+    public static final int ACTION = 256;
+    public static final int RESOURCE = 512;
+    public static final int ERROR = 1024;
 }

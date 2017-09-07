@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
-import org.ballerinalang.model.tree.InvocableNode;
+import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -62,7 +62,7 @@ public class BLangPackageBuilder {
 
     private Stack<List<VariableNode>> varListStack = new Stack<>();
 
-    private Stack<InvocableNode> invokableNodeStack = new Stack<>();
+    private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
     
@@ -119,13 +119,18 @@ public class BLangPackageBuilder {
 
     public void endCallableUnitSignature(String identifier, boolean paramsAvail,
                                          boolean retParamsAvail, boolean retParamTypeOnly) {
-        InvocableNode invNode = this.invokableNodeStack.peek();
+        InvokableNode invNode = this.invokableNodeStack.peek();
         invNode.setName(this.createIdentifier(identifier));
         if (retParamsAvail) {
             if (retParamTypeOnly) {
                 this.typeNodeListStack.pop().forEach(e -> {
                     VariableNode var = TreeBuilder.createVariableNode();
                     var.setTypeNode(e);
+
+                    // Create an empty name node
+                    IdentifierNode nameNode = TreeBuilder.createIdentifierNode();
+                    nameNode.setValue("");
+                    var.setName(nameNode);
                     invNode.addReturnParameter(var);
                 });
             } else {

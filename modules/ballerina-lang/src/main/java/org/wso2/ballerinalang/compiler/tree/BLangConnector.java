@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangVariable filteredParam;
+
+    public BSymbol symbol;
 
     public BLangConnector() {
         this.params = new ArrayList<>();

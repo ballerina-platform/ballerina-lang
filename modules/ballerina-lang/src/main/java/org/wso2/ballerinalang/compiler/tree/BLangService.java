@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,6 +42,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangResource> resources;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
+
+    public BSymbol symbol;
 
     public BLangService() {
         this.vars = new ArrayList<>();

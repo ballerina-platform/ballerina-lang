@@ -92,7 +92,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         ScopeEntry entry = scope.lookup(symbol.name);
         while (entry != NOT_FOUND_ENTRY) {
             // Found a scope entry with a symbol with the same name as this symbol
-            if (entry.symbol.kind == symbol.kind) {
+            if (entry.symbol.tag == symbol.tag) {
                 //TODO log an error out.println("duplicate variable definition");
                 return false;
             }

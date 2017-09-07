@@ -20,5 +20,5 @@ package org.ballerinalang.model.tree;
 /**
  * @since 0.94
  */
-public interface FunctionNode extends InvocableNode, AnnotatableNode, TopLevelNode {
+public interface FunctionNode extends InvokableNode, AnnotatableNode, TopLevelNode {
 }
