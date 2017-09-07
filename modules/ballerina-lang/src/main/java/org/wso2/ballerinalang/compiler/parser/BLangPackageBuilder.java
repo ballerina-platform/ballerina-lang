@@ -229,7 +229,9 @@ public class BLangPackageBuilder {
 
     private IdentifierNode createIdentifier(String identifier) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
-        node.setValue(identifier);
+        if (identifier != null) {
+            node.setValue(identifier);
+        }
         return node;
     }
 
@@ -352,6 +354,7 @@ public class BLangPackageBuilder {
 
     public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
         BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) exprNodeStack.pop();
         if (argsAvailable) {
             invocationNode.argsExpressions = exprNodeListStack.pop();

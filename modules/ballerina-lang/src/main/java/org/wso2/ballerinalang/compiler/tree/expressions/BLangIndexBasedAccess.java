@@ -41,6 +41,6 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
 
     @Override
     public String toString() {
-        return expression.toString() + "[" + index.toString() + "]";
+        return String.valueOf(expression) + "[" + String.valueOf(index) + "]";
     }
 }

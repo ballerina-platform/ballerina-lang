@@ -59,10 +59,10 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public String toString() {
         StringBuilder br = new StringBuilder();
-        if (packIdentifier != null && packIdentifier.getValue() != null) {
-            br.append(packIdentifier.getValue()).append(":");
+        if (packIdentifier != null) {
+            br.append(String.valueOf(packIdentifier)).append(":");
         }
-        br.append(functionName.getValue()).append("(");
+        br.append(String.valueOf(functionName)).append("(");
         if (argsExpressions.size() > 0) {
             String s = Arrays.toString(argsExpressions.toArray());
             br.append(s.substring(1,s.length() -1 ));
