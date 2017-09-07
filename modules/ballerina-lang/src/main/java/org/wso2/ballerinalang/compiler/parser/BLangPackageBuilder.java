@@ -41,6 +41,9 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
@@ -254,6 +257,10 @@ public class BLangPackageBuilder {
         this.blockNodeStack.peek().addStatement(varDefNode);
     }
 
+    private void addExpressionNode(ExpressionNode expressionNode) {
+        this.exprNodeStack.push(expressionNode);
+    }
+
     public void addLiteralValue(Object value) {
         LiteralNode litExpr = TreeBuilder.createLiteralExpression();
         litExpr.setValue(value);
@@ -279,6 +286,7 @@ public class BLangPackageBuilder {
         IdentifierNode identifierNode = null;
         if (keyExpr instanceof BLangLiteral) {
             identifierNode = createIdentifier(((BLangLiteral) keyExpr).getValue().toString());
+            identifierNode.setLiteral(true);
         } else if (keyExpr instanceof SimpleVariableReferenceNode) {
             identifierNode = ((SimpleVariableReferenceNode) keyExpr).getVariableName();
         }
@@ -296,17 +304,26 @@ public class BLangPackageBuilder {
         recordTypeLiteralNodes.push(literalNode);
     }
 
-    private void addExpressionNode(ExpressionNode expressionNode) {
-        if (!this.exprNodeListStack.empty()) {
-            this.exprNodeListStack.peek().add(expressionNode);
-        } else {
-            this.exprNodeStack.push(expressionNode);
-        }
-    }
-
     public void startExprNodeList() {
         this.exprNodeListStack.push(new ArrayList<>());
     }
+
+    public void endExprNodeList(int exprCount) {
+        List<ExpressionNode> exprList = exprNodeListStack.peek();
+        addExprToExprNodeList(exprList, exprCount);
+    }
+
+    private void addExprToExprNodeList(List<ExpressionNode> exprList, int n) {
+        if (exprNodeStack.isEmpty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+        }
+        ExpressionNode expr = exprNodeStack.pop();
+        if (n > 1) {
+            addExprToExprNodeList(exprList, n - 1);
+        }
+        exprList.add(expr);
+    }
+
 
     public void createSimpleVariableReference(DiagnosticPos pos) {
         BLangNameReference nameReference = nameReferenceStack.pop();
@@ -316,6 +333,33 @@ public class BLangPackageBuilder {
         varRef.packageIdentifier = nameReference.pkgAlias;
         varRef.variableName = nameReference.name;
         addExpressionNode(varRef);
+    }
+
+    public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) exprNodeStack.pop();
+        if (argsAvailable) {
+            invocationNode.argsExpressions = exprNodeListStack.pop();
+        }
+        invocationNode.functionName = varRef.variableName;
+        invocationNode.packIdentifier = varRef.packageIdentifier;
+        addExpressionNode(invocationNode);
+    }
+
+    public void createFieldBasedAccessNode(DiagnosticPos pos, String fieldName) {
+        BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        fieldBasedAccess.pos = pos;
+        fieldBasedAccess.fieldName = createIdentifier(fieldName);
+        fieldBasedAccess.expressionNode = exprNodeStack.pop();
+        addExpressionNode(fieldBasedAccess);
+    }
+
+    public void createIndexBasedAccessNode(DiagnosticPos pos) {
+        BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        indexBasedAccess.pos = pos;
+        indexBasedAccess.index = exprNodeStack.pop();
+        indexBasedAccess.expression = exprNodeStack.pop();
+        addExpressionNode(indexBasedAccess);
     }
 
     public void endFunctionDef() {
