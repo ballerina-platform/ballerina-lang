@@ -103,6 +103,10 @@ connector ClientConnector(string url, string callbackService) {
     @doc:Param {value:"value: value of the header"}
     native action addCustomHeader(string key, string value);
 
+    @doc:Description {value:"Set Idle timeout"}
+    @doc:Param {value:"value: setIdleTimeout"}
+    native action setIdleTimeoutMilli(int timeoutInMilli);
+
     @doc:Description {value:"Connect to remote endpoint"}
     @doc:Return {value:"Connection: New WebSocket connection for the connected backend"}
     native action connect() (Connection);

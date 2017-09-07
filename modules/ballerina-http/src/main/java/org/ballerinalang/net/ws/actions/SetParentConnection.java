@@ -21,6 +21,7 @@ package org.ballerinalang.net.ws.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -29,42 +30,33 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 
 /**
  * Initialize the WebSocket client connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "<init>",
+        actionName = "setParentConnection",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "callbackService", type = TypeEnum.STRING)
+                @Argument(name = "conn", type = TypeEnum.STRUCT),
         })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
-                                              value = "Initialize the connection") })
+                                              value = "Set parent connection") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
                                                                         value = "WebSocket Client Connector") })
 @Component(
-        name = "action.net.ws.init",
+        name = "action.net.ws.setParentConnection",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Init extends AbstractNativeAction {
+public class SetParentConnection extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        String remoteUrl = bconnector.getStringField(0);
-        String clientServiceName = bconnector.getStringField(1);
-
-        WSSenderConfiguration senderConfiguration = new WSSenderConfiguration();
-        senderConfiguration.setRemoteAddress(remoteUrl);
-        senderConfiguration.setTarget(clientServiceName);
-        bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
+        BStruct parentConnection = (BStruct) getRefArgument(context, 1);
+        bconnector.setNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION, parentConnection);
         return null;
     }
 }

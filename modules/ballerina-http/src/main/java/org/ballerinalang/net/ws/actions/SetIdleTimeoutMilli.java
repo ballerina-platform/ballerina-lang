@@ -36,35 +36,29 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfigura
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "<init>",
+        actionName = "setIdleTimeoutMilli",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "callbackService", type = TypeEnum.STRING)
+                @Argument(name = "idleTimeoutMilli", type = TypeEnum.INT),
         })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
-                                              value = "Initialize the connection") })
+                                              value = "Set the idle timeout for the connection") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
                                                                         value = "WebSocket Client Connector") })
 @Component(
-        name = "action.net.ws.init",
+        name = "action.net.ws.setIdleTimeoutMilli",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Init extends AbstractNativeAction {
+public class SetIdleTimeoutMilli extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        String remoteUrl = bconnector.getStringField(0);
-        String clientServiceName = bconnector.getStringField(1);
-
-        WSSenderConfiguration senderConfiguration = new WSSenderConfiguration();
-        senderConfiguration.setRemoteAddress(remoteUrl);
-        senderConfiguration.setTarget(clientServiceName);
-        bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
+        int idleTimeoutMillis = getIntArgument(context, 0);
+        WSSenderConfiguration senderConfiguration =
+                (WSSenderConfiguration) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        senderConfiguration.setIdleTimeoutInMillis(idleTimeoutMillis);
         return null;
     }
 }

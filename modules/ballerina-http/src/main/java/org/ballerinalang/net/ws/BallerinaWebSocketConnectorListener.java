@@ -88,4 +88,8 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
     }
 
+    @Override
+    public void onIdleTimeout(Session session) {
+        throw new BallerinaConnectorException("Idle timeout is not supported yet");
+    }
 }

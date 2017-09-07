@@ -20,7 +20,7 @@ package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -40,30 +40,28 @@ import javax.websocket.Session;
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "isSecure",
+        functionName = "getParentConnection",
         args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
                           structPackage = "ballerina.net.ws")},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Check whether the connection is secure " +
-                             "connection or not") })
+                     attributes = { @Attribute(name = "value", value = "Get the unique ID of the connection") })
 @BallerinaAnnotation(annotationName = "Return",
-                     attributes = {@Attribute(name = "boolean",
-                                              value = "true if the connection is secure connection")})
-public class IsSecure extends AbstractNativeFunction {
+                     attributes = {@Attribute(name = "conn", value = "Parent connection of the connection")})
+public class GetParentConnection extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+
         if (context.getServiceInfo() == null ||
                 !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
             throw new BallerinaException("This function is only working with WebSocket services");
         }
 
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
-        boolean isSecuredConnection = session.isSecure();
-        return getBValues(new BBoolean(isSecuredConnection));
+        BStruct parentConnection = (BStruct) wsConnection.getNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION);
+        return getBValues(parentConnection);
     }
 }

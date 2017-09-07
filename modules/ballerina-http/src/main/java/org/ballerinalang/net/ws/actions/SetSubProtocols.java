@@ -20,7 +20,9 @@ package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -36,14 +38,11 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfigura
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "<init>",
+        actionName = "setSubProtocols",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "callbackService", type = TypeEnum.STRING)
+                @Argument(name = "conn", type = TypeEnum.STRUCT),
         })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
@@ -51,20 +50,23 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfigura
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
                                                                         value = "WebSocket Client Connector") })
 @Component(
-        name = "action.net.ws.init",
+        name = "action.net.ws.setSubProtocols",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Init extends AbstractNativeAction {
+public class SetSubProtocols extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        String remoteUrl = bconnector.getStringField(0);
-        String clientServiceName = bconnector.getStringField(1);
+        BArray<BString> bSubProtocols = (BArray<BString>) getRefArgument(context, 1);
+        int subProtocolsArraySize = bSubProtocols.size();
+        String[] subProtocols = new String[subProtocolsArraySize];
 
-        WSSenderConfiguration senderConfiguration = new WSSenderConfiguration();
-        senderConfiguration.setRemoteAddress(remoteUrl);
-        senderConfiguration.setTarget(clientServiceName);
-        bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
+        for (int i = 0; i < subProtocolsArraySize; i++) {
+            subProtocols[i] = bSubProtocols.get(i).stringValue();
+        }
+        WSSenderConfiguration senderConfiguration =
+                (WSSenderConfiguration) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        senderConfiguration.setSubProtocols(subProtocols);
         return null;
     }
 }
