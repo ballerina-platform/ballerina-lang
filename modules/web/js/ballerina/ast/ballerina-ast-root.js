@@ -284,10 +284,13 @@ class BallerinaASTRoot extends ASTNode {
     /**
      * Adds a global (a variable or a constant) from a json object
      * @param {Object} jsonNode json object representing the global
+     * @param {number} position - position of the children array, where to include
+     * @param {boolean} ignoreTreeModified - whether need to ignore the tree modified event or not
      * @returns {void}
      */
-    addGlobal(jsonNode) {
+    addGlobal(jsonNode, position, ignoreTreeModified) {
         const globalNode = ASTFactory.createFromJson(jsonNode);
+        let index;
 
         if (!ASTFactory.isConstantDefinition(globalNode) &&
             !ASTFactory.isGlobalVariableDefinition(globalNode)) {
@@ -296,25 +299,31 @@ class BallerinaASTRoot extends ASTNode {
         }
 
         globalNode.initFromJson(jsonNode);
-        // Get the index of the last constant declaration.
-        let index = _.findLastIndex(this.getChildren(), (child) => {
-            return ASTFactory.isConstantDefinition(child) ||
-                   ASTFactory.isGlobalVariableDefinition(child);
-        });
-
-        // If index is still -1, then get the index of the last import.
-        if (index == -1) {
+        if (!_.isNil(position) && position >= 0) {
+            index = position;
+        } else {
+            // Get the index of the last constant declaration.
             index = _.findLastIndex(this.getChildren(), (child) => {
-                return ASTFactory.isImportDeclaration(child);
+                return ASTFactory.isConstantDefinition(child) ||
+                    ASTFactory.isGlobalVariableDefinition(child);
             });
+
+            // If index is still -1, then get the index of the last import.
+            if (index === -1) {
+                index = _.findLastIndex(this.getChildren(), (child) => {
+                    return ASTFactory.isImportDeclaration(child);
+                });
+            }
+
+            // If index is still -1, then consider the package definition.
+            if (_.isEqual(index, -1) && !_.isNil(this.getPackageDefinition())) {
+                index = 0;
+            }
+
+            index += 1;
         }
 
-        // If index is still -1, then consider the package definition.
-        if (_.isEqual(index, -1) && !_.isNil(this.getPackageDefinition())) {
-            index = 0;
-        }
-
-        this.addChild(globalNode, index + 1);
+        this.addChild(globalNode, index, ignoreTreeModified);
     }
 
     /**

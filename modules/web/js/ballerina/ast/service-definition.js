@@ -94,7 +94,6 @@ class ServiceDefinition extends ASTNode {
 
     getConnectionDeclarations() {
         const connectorDeclaration = [];
-        const self = this;
         _.forEach(this.getChildren(), (child) => {
             if (ASTFactory.isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
@@ -112,7 +111,6 @@ class ServiceDefinition extends ASTNode {
      */
     getVariableDefinitionStatements() {
         const variableDefinitionStatements = [];
-        const self = this;
 
         _.forEach(this.getChildren(), (child) => {
             if (ASTFactory.isVariableDefinitionStatement(child)) {
@@ -192,7 +190,6 @@ class ServiceDefinition extends ASTNode {
      * @param {string} modelID - The model ID of variable definition statement.
      */
     removeVariableDefinitionStatement(modelID) {
-        const self = this;
         // Deleting the variable definition statement from the children.
         const variableDefinitionStatementToRemove = _.find(this.getChildren(), child =>
                     ASTFactory.isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID));
