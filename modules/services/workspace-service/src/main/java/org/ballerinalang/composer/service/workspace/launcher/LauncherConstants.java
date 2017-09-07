@@ -30,7 +30,8 @@ public class LauncherConstants {
      * The maximum server currentMinPort number.
      */
     public static final int MAX_PORT_NUMBER = 5999;
-    
+
+    public static final String LOCALHOST = "localhost";
     public static final String LAUNCHER_WEBSOCKET_PATH = "/launch";
     
     public static final String RUN_PROGRAM = "RUN_PROGRAM";

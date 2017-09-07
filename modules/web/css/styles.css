@@ -1750,3 +1750,9 @@ span.fw-stack.fw-lg {
 .protocol-file .protocol-text{
     
 }
+
+/* ------------ console ------*/
+.DATA a {
+    color: #fff;
+    text-decoration: underline;
+}
