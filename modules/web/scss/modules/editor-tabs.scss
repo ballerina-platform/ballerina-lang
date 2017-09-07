@@ -1,7 +1,12 @@
 .editor-area {
+    height: 100%;
     .rc-tabs {
+        height: 100%;
         overflow: hidden;
         border-bottom: none;
+        .rc-tabs-content {
+            height: 100%;
+        }
         .rc-tabs-bar {
             border-bottom: none;
             & .rc-tabs-nav-container {
@@ -66,6 +71,7 @@
             }
         }
         .rc-tabs-tabpane {
+            height: 100%;
             overflow: hidden;
             position: relative;
         }

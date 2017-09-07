@@ -1,4 +1,5 @@
 .ballerina-editor {
+    height: 100%;
     color: #333333;
     .grid-background {
         background-color: $tab-content-wrapper-bgcolor !important;
@@ -42,8 +43,8 @@
 
     .bottom-right-controls-container {
         position: absolute;
-        bottom: 60px;
-        right: 30px;
+        bottom: 100px;
+        right: 60px;
         z-index: 30;
         background: $bottom-right-controls-bgcolor;
         color: #fff;
@@ -3338,7 +3339,7 @@
     }
     
     .bal-file-editor {
-        //height: 100%;
+        height: 100%;
     }
     
     
