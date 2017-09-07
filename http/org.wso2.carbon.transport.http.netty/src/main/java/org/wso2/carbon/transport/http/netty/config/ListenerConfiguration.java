@@ -86,6 +86,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private boolean httpTraceLogEnabled;
 
+    @XmlAttribute
+    private boolean chunkDisabled;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -219,5 +222,13 @@ public class ListenerConfiguration {
 
     public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+    }
+
+    public boolean isChunkDisabled() {
+        return true;
+    }
+
+    public void setChunkDisabled(boolean chunkDisabled) {
+        this.chunkDisabled = chunkDisabled;
     }
 }

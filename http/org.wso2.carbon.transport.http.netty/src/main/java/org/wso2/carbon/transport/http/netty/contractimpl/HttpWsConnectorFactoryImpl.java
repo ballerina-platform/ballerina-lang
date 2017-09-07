@@ -50,6 +50,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addSecurity(listenerConfig.getSslConfig());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
+        serverConnectorBootstrap.addChunkedWriteHandler(listenerConfig.isChunkDisabled());
         serverConnectorBootstrap.addThreadPools(Runtime.getRuntime().availableProcessors(),
                 Runtime.getRuntime().availableProcessors() * 2);
 
@@ -62,12 +63,14 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         SSLConfig sslConfig = senderConfiguration.getSslConfig();
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
         boolean httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
+        boolean chunkDisabled = senderConfiguration.isChunkDisabled();
 
         ConnectionManager.init(transportProperties);
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled);
+        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled
+                , chunkDisabled);
     }
 
     @Override

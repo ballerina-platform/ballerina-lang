@@ -43,13 +43,14 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
+    private boolean chunkDisabled;
 
-    public HttpClientConnectorImpl(ConnectionManager connectionManager,
-                                   SSLConfig sslConfig, int socketIdleTimeout, boolean httpTraceLogEnabled) {
+    public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout
+            , boolean httpTraceLogEnabled, boolean chunkDisabled) {
         this.connectionManager = connectionManager;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.sslConfig = sslConfig;
-        this.socketIdleTimeout = socketIdleTimeout;
+        this.chunkDisabled = chunkDisabled;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
-                                                                                httpTraceLogEnabled);
+                                                                                httpTraceLogEnabled, chunkDisabled);
 
             if (targetChannel.getChannel() != null) {
                 targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
