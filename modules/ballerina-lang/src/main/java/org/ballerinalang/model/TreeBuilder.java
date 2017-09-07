@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -104,7 +106,11 @@ public class TreeBuilder {
     public static LiteralNode createLiteralExpression() {
         return new BLangLiteral();
     }
-    
+
+    public static ArrayLiteralNode createArrayLiteralNode(){
+        return new BLangArrayLiteral();
+    }
+
     public static VariableDefinitionNode createVariableDefinitionNode() {
         return new BLangVariableDef();
     }

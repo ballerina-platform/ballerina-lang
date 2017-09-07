@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -75,7 +76,9 @@ public class BLangPackageBuilder {
     private Stack<InvocableNode> invokableNodeStack = new Stack<>();
 
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
-    
+
+    private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
+
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
     private Stack<StructNode> structStack = new Stack<>();
@@ -247,7 +250,32 @@ public class BLangPackageBuilder {
     public void addLiteralValue(Object value) {
         LiteralNode litExpr = TreeBuilder.createLiteralExpression();
         litExpr.setValue(value);
-        this.exprNodeStack.push(litExpr);
+        addExpressionNode(litExpr);
+    }
+
+    public void addArrayInitExpr(DiagnosticPos pos, boolean argsAvailable){
+        List<ExpressionNode> argExprList;
+        if (argsAvailable) {
+            argExprList = exprNodeListStack.pop();
+        } else {
+            argExprList = new ArrayList<>(0);
+        }
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arrayLiteral.expressionNodes = argExprList;
+        arrayLiteral.pos = pos;
+        exprNodeStack.push(arrayLiteral);
+    }
+
+    private void addExpressionNode(ExpressionNode expressionNode) {
+        if (!this.exprNodeListStack.empty()) {
+            this.exprNodeListStack.peek().add(expressionNode);
+        } else {
+            this.exprNodeStack.push(expressionNode);
+        }
+    }
+
+    public void startExprNodeList() {
+        this.exprNodeListStack.push(new ArrayList<>());
     }
 
     public void endFunctionDef() {

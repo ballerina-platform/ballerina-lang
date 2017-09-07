@@ -794,18 +794,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) { }
+
+    @Override public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
+        boolean argsAvailable = ctx.expressionList() != null;
+        this.pkgBuilder.addArrayInitExpr(getCurrentPos(ctx), argsAvailable);
+    }
     /**
      * {@inheritDoc}
      *
@@ -858,18 +851,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { 
         log("exitAssignmentStatement");
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) { }
+
+    @Override
+    public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        this.pkgBuilder.startExprNodeList();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1266,18 +1253,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) { }
+
+    public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
+        this.pkgBuilder.startExprNodeList();
+    }
+
     /**
      * {@inheritDoc}
      *
