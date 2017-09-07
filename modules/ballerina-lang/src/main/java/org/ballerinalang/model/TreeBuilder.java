@@ -28,9 +28,15 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.ArrayTypeNode;
+import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
+import org.ballerinalang.model.tree.types.FunctionTypeNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -43,9 +49,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInReferenceType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 /**
@@ -94,13 +106,37 @@ public class TreeBuilder {
     public static LiteralNode createLiteralExpression() {
         return new BLangLiteral();
     }
-    
+
+    public static ArrayLiteralNode createArrayLiteralNode(){
+        return new BLangArrayLiteral();
+    }
+
     public static VariableDefinitionNode createVariableDefinitionNode() {
         return new BLangVariableDef();
     }
     
     public static ValueTypeNode createValueTypeNode() {
         return new BLangValueType();
+    }
+
+    public static ArrayTypeNode createArrayTypeNode() {
+        return new BLangArrayType();
+    }
+
+    public static UserDefinedTypeNode createUserDefinedTypeNode() {
+        return new BLangUserDefinedType();
+    }
+
+    public static BuiltInReferenceTypeNode createBuiltInReferanceTypeNode() {
+        return new BLangBuiltInReferenceType();
+    }
+
+    public static ConstrainedTypeNode createConstrainedTypeNode() {
+        return new BLangConstrainedType();
+    }
+
+    public static FunctionTypeNode createFunctionTypeNode() {
+        return new BLangFunctionTypeNode();
     }
     
     public static StructNode createStructNode() {
