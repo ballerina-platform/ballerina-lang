@@ -26,6 +26,7 @@ export default class FunctionInv extends React.Component {
         const {
             func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
             parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter, isCollapsed,
+            foldedEndpoints, foldEndpoint,
         } = this.props;
 
         func.parameters.forEach((param, index) => {
@@ -74,6 +75,8 @@ export default class FunctionInv extends React.Component {
                         viewId={viewId}
                         onEndpointRemove={onEndpointRemove}
                         onConnectPointMouseEnter={onConnectPointMouseEnter}
+                        foldedEndpoints={foldedEndpoints}
+                        foldEndpoint={foldEndpoint}
                     />
                 </div>
                 <div className='func-output'>
@@ -84,6 +87,8 @@ export default class FunctionInv extends React.Component {
                         viewId={viewId}
                         onEndpointRemove={onEndpointRemove}
                         onConnectPointMouseEnter={onConnectPointMouseEnter}
+                        foldedEndpoints={foldedEndpoints}
+                        foldEndpoint={foldEndpoint}
                     />
                 </div>
             </div>

@@ -181,6 +181,10 @@ class TransformRender {
         this.jsPlumbInstance.unmakeEveryTarget();
     }
 
+    onConnectionAborted(callback) {
+        this.jsPlumbInstanceNewConnections.bind('connectionAborted', callback)
+    }
+
     setConnectionMenu(connection) {
         if (!connection) {
             return;
