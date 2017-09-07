@@ -238,12 +238,16 @@ class ActionInvocationExpression extends Expression {
 
     messageDrawTargetAllowed(target) {
         // TODO this needs to be refactord.
-
-        const parent = (ASTFactory.isAssignmentStatement(this.getParent()) ||
-            ASTFactory.isVariableDefinitionStatement(this.getParent())) ? this.getParent().getParent()
-            : this.getParent();
-        const currentNode = (ASTFactory.isAssignmentStatement(this.getParent()) ||
-        ASTFactory.isVariableDefinitionStatement(this.getParent())) ? this.getParent() : this;
+        let parent;
+        let currentNode;
+        if (ASTFactory.isAssignmentStatement(this.getParent()) ||
+            ASTFactory.isVariableDefinitionStatement(this.getParent())) {
+            parent = this.getParent().getParent();
+            currentNode = this.getParent();
+        } else {
+            parent = this.getParent();
+            currentNode = this;
+        }
         const index = _.indexOf(parent.getChildren(), currentNode);
         const childrenBefore = index > 0 ? parent.getChildren().slice(0, index) : [];
         let connectorIndex = _.indexOf(childrenBefore, target);
