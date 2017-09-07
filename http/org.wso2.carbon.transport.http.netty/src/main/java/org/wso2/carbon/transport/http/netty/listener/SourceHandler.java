@@ -46,7 +46,6 @@ import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -62,15 +61,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     protected ChannelHandlerContext ctx;
     private HTTPCarbonMessage cMsg;
-    protected ConnectionManager connectionManager;
     private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     private ServerConnectorFuture serverConnectorFuture;
     private String interfaceId;
 
-    public SourceHandler(ConnectionManager connectionManager, ServerConnectorFuture serverConnectorFuture,
-            String interfaceId)
+    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId)
             throws Exception {
-        this.connectionManager = connectionManager;
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
     }
@@ -185,7 +181,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         );
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           headers, connectionManager, ctx, interfaceId);
+                                           headers, ctx, interfaceId);
         WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
                                                                             headers);
 
@@ -252,8 +248,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 log.error("Couldn't close target channel socket connections", e);
             }
         });
-
-        connectionManager.notifyChannelInactive();
     }
 
     public Map<String, GenericObjectPool> getTargetChannelPool() {

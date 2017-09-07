@@ -66,15 +66,6 @@ public class ServerConnectorBootstrap {
 
         ChannelFuture future = serverBootstrap
                 .bind(new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
-        future.addListener(future1 -> {
-            if (future1.isSuccess()) {
-                log.info("HTTP(S) Interface starting on host " + serverConnector.getHost()
-                        + " and port " + serverConnector.getPort());
-            } else {
-                log.error("Cannot bind port for host " + serverConnector.getHost() + " port "
-                        + serverConnector.getPort());
-            }
-        });
 
         return future;
 
@@ -178,10 +169,20 @@ public class ServerConnectorBootstrap {
 
         @Override
         public ServerConnectorFuture start() {
-            channelFuture = serverConnectorBootstrap.bindInterface(this);
+            channelFuture = bindInterface(this);
             serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
+            channelFuture.addListener(future1 -> {
+                if (future1.isSuccess()) {
+                    log.info("HTTP(S) Interface starting on host " + this.getHost()
+                            + " and port " + this.getPort());
+                } else {
+                    String msg = "Cannot bind server connector to interface " + this.getHost() + " : " + this.getPort();
+                    log.error(msg);
+                    serverConnectorFuture.notifyErrorListener(new Exception(msg));
+                }
+            });
             httpServerChannelInitializer.setServerConnectorFuture(serverConnectorFuture);
-            return getServerConnectorFuture();
+            return serverConnectorFuture;
         }
 
         @Override
@@ -206,10 +207,6 @@ public class ServerConnectorBootstrap {
         @Override
         public String toString() {
             return this.host + "-" + this.port;
-        }
-
-        public ServerConnectorFuture getServerConnectorFuture() {
-            return serverConnectorFuture;
         }
 
         public String getHost() {

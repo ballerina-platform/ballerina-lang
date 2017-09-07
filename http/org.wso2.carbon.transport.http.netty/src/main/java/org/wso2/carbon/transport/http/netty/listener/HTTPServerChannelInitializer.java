@@ -32,7 +32,6 @@ import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +44,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
 
-    private ConnectionManager connectionManager;
     private ServerConnectorFuture serverConnectorFuture;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
@@ -54,16 +52,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     @Override
     public void setup(Map<String, String> parameters) {
-    }
-
-    public void setupConnectionManager(Map<String, Object> transportProperties) {
-        try {
-            ConnectionManager.init(transportProperties);
-            connectionManager = ConnectionManager.getInstance();
-        } catch (Exception e) {
-            log.error("Error initializing the transport ", e);
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -114,7 +102,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                             new SourceHandler(connectionManager, this.serverConnectorFuture, this.interfaceId));
+                             new SourceHandler(this.serverConnectorFuture, this.interfaceId));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
@@ -123,10 +111,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     @Override
     public boolean isServerInitializer() {
         return true;
-    }
-
-    public ConnectionManager getConnectionManager() {
-        return connectionManager;
     }
 
     public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
