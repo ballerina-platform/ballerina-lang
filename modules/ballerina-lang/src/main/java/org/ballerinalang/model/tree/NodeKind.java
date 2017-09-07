@@ -58,4 +58,5 @@ public enum NodeKind {
     VARIABLE_REF,
     WHILE,
     XMLNS,
+    ARRAY_LITERAL,
 }

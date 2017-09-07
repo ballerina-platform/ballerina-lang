@@ -51,6 +51,8 @@ public enum TypeKind {
     DATATABLE("datatable"),
     JSON("json"),
     XML("xml"),
+    ANY("any"),
+    MAP("map"),
     PACKAGE("package"),
     STRUCT("struct"),
     CONNECTOR("connector"),

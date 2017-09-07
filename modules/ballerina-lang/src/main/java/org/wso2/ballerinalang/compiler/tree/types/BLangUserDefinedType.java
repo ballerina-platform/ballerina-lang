@@ -28,6 +28,9 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
 
+    public BLangUserDefinedType() {
+    }
+
     public BLangUserDefinedType(BLangIdentifier pkgAlias, BLangIdentifier typeName) {
         this.pkgAlias = pkgAlias;
         this.typeName = typeName;
@@ -46,5 +49,10 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return pkgAlias.value != null ? pkgAlias.value + ":" + typeName.value : typeName.value;
     }
 }

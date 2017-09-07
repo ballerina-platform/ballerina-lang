@@ -15,41 +15,31 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.types;
+package org.wso2.ballerinalang.compiler.codegen;
 
-import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.Collections;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
  * @since 0.94
  */
-public class BLangArrayType extends BLangType implements ArrayTypeNode {
-    public BLangType etype;
+public class CodeGenerator extends BLangNodeVisitor {
 
-    public int dimensions;
+    private static final CompilerContext.Key<CodeGenerator> CODE_GENERATOR_KEY =
+            new CompilerContext.Key<>();
 
-    public BLangArrayType() {
+    public static CodeGenerator getInstance(CompilerContext context) {
+        CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
+        if (codeGenerator == null) {
+            codeGenerator = new CodeGenerator(context);
+        }
+
+        return codeGenerator;
     }
 
-    @Override
-    public BLangType getElementType() {
-        return etype;
+    public CodeGenerator(CompilerContext context) {
+        context.put(CODE_GENERATOR_KEY, this);
     }
 
-    @Override
-    public int getDimensions() {
-        return dimensions;
-    }
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-        return this.etype.toString() + String.join("", Collections.nCopies(dimensions, "[]"));
-    }
+    
 }
