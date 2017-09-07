@@ -239,7 +239,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Diagnostic generateDeadCodeDiagnostic(BLangStatement stmt) {
         BDiagnostic diag = new BDiagnostic();
         diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
+        diag.kind = Kind.WARNING;
         diag.pos = stmt.pos;
         diag.msg = "Dead code";
         return diag;
