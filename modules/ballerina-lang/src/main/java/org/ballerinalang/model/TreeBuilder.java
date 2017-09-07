@@ -18,6 +18,9 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.AnnotationAttributeNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -28,6 +31,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -44,6 +48,9 @@ import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -54,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -117,7 +125,7 @@ public class TreeBuilder {
         return new BLangLiteral();
     }
 
-    public static ArrayLiteralNode createArrayLiteralNode(){
+    public static ArrayLiteralNode createArrayLiteralNode() {
         return new BLangArrayLiteral();
     }
 
@@ -180,5 +188,20 @@ public class TreeBuilder {
     public static ActionNode createActionNode() {
         return new BLangAction();
     }
-        
+
+    public static AnnotationNode createAnnotationNode() {
+        return new BLangAnnotation();
+    }
+    
+    public static AnnotationAttributeNode createAnnotAttributeNode() {
+        return new BLangAnnotAttribute();
+    }
+    
+    public static AnnotationAttributeValueNode createAnnotAttributeValueNode() {
+        return new BLangAnnotAttributeValue();
+    }
+
+    public static AnnotationAttachmentNode createAnnotAttachmentNode() {
+        return new BLangAnnotationAttachment();
+    }
 }

@@ -15,20 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.expressions;
+
+import org.ballerinalang.model.tree.Node;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface AnnotationNode extends AnnotatableNode, TopLevelNode {
+public interface AnnotationAttributeValueNode extends ExpressionNode {
 
-    IdentifierNode getName();
+    Node getValue();
 
-    public void setName(IdentifierNode name);
+    List<AnnotationAttributeValueNode> getValueArray();
 
-    List<? extends AnnotationAttributeNode> getAttributes();
+    void setValue(Node value);
 
-    void addAttribute(AnnotationAttributeNode attribute);
+    void addValue(AnnotationAttributeValueNode value);
 }

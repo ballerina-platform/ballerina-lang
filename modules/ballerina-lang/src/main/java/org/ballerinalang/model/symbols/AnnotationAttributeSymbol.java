@@ -15,20 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
-
-import java.util.List;
+package org.ballerinalang.model.symbols;
 
 /**
  * @since 0.94
  */
-public interface AnnotationNode extends AnnotatableNode, TopLevelNode {
+public interface AnnotationAttributeSymbol extends Symbol {
 
-    IdentifierNode getName();
-
-    public void setName(IdentifierNode name);
-
-    List<? extends AnnotationAttributeNode> getAttributes();
-
-    void addAttribute(AnnotationAttributeNode attribute);
 }

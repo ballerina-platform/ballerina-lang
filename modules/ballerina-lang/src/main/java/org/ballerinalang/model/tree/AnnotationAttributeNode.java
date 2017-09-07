@@ -17,18 +17,24 @@
 */
 package org.ballerinalang.model.tree;
 
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
  * @since 0.94
  */
-public interface AnnotationNode extends AnnotatableNode, TopLevelNode {
+public interface AnnotationAttributeNode extends AnnotatableNode {
+    
+    TypeNode getTypeNode();
+    
+    void setTypeNode(TypeNode type);
 
     IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
-    public void setName(IdentifierNode name);
-
-    List<? extends AnnotationAttributeNode> getAttributes();
-
-    void addAttribute(AnnotationAttributeNode attribute);
+    ExpressionNode getInitialExpression();
+    
+    void setInitialExpression(ExpressionNode expr);
+    
 }
