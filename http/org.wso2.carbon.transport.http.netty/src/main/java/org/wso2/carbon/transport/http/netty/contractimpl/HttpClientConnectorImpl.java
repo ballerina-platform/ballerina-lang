@@ -50,6 +50,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.connectionManager = connectionManager;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.sslConfig = sslConfig;
+        this.socketIdleTimeout = socketIdleTimeout;
         this.chunkDisabled = chunkDisabled;
     }
 

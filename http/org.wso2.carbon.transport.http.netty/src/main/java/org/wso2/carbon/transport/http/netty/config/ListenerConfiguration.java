@@ -225,7 +225,7 @@ public class ListenerConfiguration {
     }
 
     public boolean isChunkDisabled() {
-        return true;
+        return chunkDisabled;
     }
 
     public void setChunkDisabled(boolean chunkDisabled) {

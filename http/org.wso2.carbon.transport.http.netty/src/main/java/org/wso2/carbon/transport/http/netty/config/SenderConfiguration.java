@@ -178,7 +178,7 @@ public class SenderConfiguration {
     }
 
     public boolean isChunkDisabled() {
-        return true;
+        return chunkDisabled;
     }
 
     public void setChunkDisabled(boolean chunkDisabled) {
