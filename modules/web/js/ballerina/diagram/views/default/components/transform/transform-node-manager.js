@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import BallerinaASTFactory from '../../../../../ast/ast-factory';
 import DefaultBallerinaASTFactory from '../../../../../ast/default-ast-factory';
+import TransformMap from './transform-map';
 
 /**
  * Transform node managing class
@@ -35,10 +36,12 @@ class TransformNodeManager {
         this._transformStmt = _.get(args, 'transformStmt');
         this._typeLattice = _.get(args, 'typeLattice');
         this._environment = _.get(args, 'environment');
+        this._transformMap = new TransformMap({ transformStmt: this._transformStmt });
     }
 
     setTransformStmt(transformStmt) {
         this._transformStmt = transformStmt;
+        this._transformMap.setTransformStmt(this._transformStmt);
     }
 
     /**
@@ -105,6 +108,12 @@ class TransformNodeManager {
 
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             // Connection is from source struct to target struct.
+
+            // remove any existing target mappings to draw the new one
+            const assStmt = this._transformMap.getOutputMapping(targetExpression.getExpressionString());
+            if (assStmt) {
+                this._transformStmt.removeChild(assStmt, true);
+            }
             const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
             const varRefList = BallerinaASTFactory.createVariableReferenceList();
             varRefList.addChild(targetExpression);
@@ -304,9 +313,15 @@ class TransformNodeManager {
                 return (child.getExpressionString().trim() === target.name);
             });
             assignmentStmtSource.getLeftExpression().removeChild(expression, true);
+
+            const errExpression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
+                return (child.getExpressionString().trim() === '_');
+            });
+            assignmentStmtSource.getLeftExpression().removeChild(errExpression, true);
+
             assignmentStmtSource.setIsDeclaredWithVar(true);
             const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-            simpleVarRefExpression.setExpressionFromString('__temp' + (source.index + 1));
+            simpleVarRefExpression.setExpressionFromString('__output' + (source.index + 1));
             assignmentStmtSource.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1);
             return;
         }
