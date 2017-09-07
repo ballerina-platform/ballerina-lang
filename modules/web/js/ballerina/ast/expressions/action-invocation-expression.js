@@ -252,7 +252,7 @@ class ActionInvocationExpression extends Expression {
         const childrenBefore = index > 0 ? parent.getChildren().slice(0, index) : [];
         let connectorIndex = _.indexOf(childrenBefore, target);
         connectorIndex = connectorIndex < 0 ?
-            this.connectorIndexInParent(parent.getParent(), target) : connectorIndex;
+            this.connectorIndexInParent(parent.getParent(), parent, target) : connectorIndex;
 
         if (connectorIndex < 0) {
             return false;
@@ -270,18 +270,25 @@ class ActionInvocationExpression extends Expression {
 
     /**
      * Check whether the target connector is initialized in the parent
-     * @param {ASTNode} parent
+     * @param {ASTNode} parent - parent node
+     * @param {ASTNode} currentNode - current node which the parent belongs
      * @param {ConnectorDeclaration} target - target connector
      * @returns {number} - index of the target connector
      */
-    connectorIndexInParent(parent, target) {
+    connectorIndexInParent(parent, currentNode, target) {
         if (_.isNil(parent)) {
             return -1;
         }
-        let connectorIndex = _.indexOf(parent.getChildren(), target);
-        connectorIndex = connectorIndex < 0 ?
-            this.connectorIndexInParent(parent.getParent(), target) : connectorIndex;
-        return connectorIndex;
+        const connectorIndex = _.indexOf(parent.getChildren(), target);
+        const currentNodeIndex = _.indexOf(parent.getChildren(), currentNode);
+
+        if (connectorIndex >= 0 && currentNodeIndex < connectorIndex) {
+            return -1;
+        } else if (connectorIndex >= 0) {
+            return connectorIndex;
+        } else {
+            return this.connectorIndexInParent(parent.getParent(), parent, target);
+        }
     }
 }
 
