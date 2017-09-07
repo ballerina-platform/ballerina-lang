@@ -294,7 +294,7 @@ public class BLangPackageBuilder {
     public void addLiteralValue(Object value) {
         LiteralNode litExpr = TreeBuilder.createLiteralExpression();
         litExpr.setValue(value);
-        exprNodeStack.push(litExpr);
+        this.exprNodeStack.push(litExpr);
     }
 
     public void addArrayInitExpr(DiagnosticPos pos, boolean argsAvailable) {
@@ -629,23 +629,5 @@ public class BLangPackageBuilder {
     public void addAbortStatement() {
         AbortNode abortNode = TreeBuilder.createAbortNode();
         this.blockNodeStack.peek().addStatement(abortNode);
-    }
-
-    /**
-     * @param exprList List of expression nodes
-     * @param n        number of expressions to be added the given list
-     */
-    private void addExprToList(List<ExpressionNode> exprList, int n) {
-        if (exprNodeStack.isEmpty()) {
-            return;
-        }
-        if (n == 1) {
-            ExpressionNode expr = exprNodeStack.pop();
-            exprList.add(expr);
-        } else {
-            ExpressionNode expr = exprNodeStack.pop();
-            addExprToList(exprList, n - 1);
-            exprList.add(expr);
-        }
     }
 }
