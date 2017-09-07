@@ -31,7 +31,7 @@ public interface IfNode extends StatementNode {
     
     StatementNode getElseIfStatements();
 
-    void setCondition(ExpressionNode expression);
+    void setCondition(ExpressionNode condition);
 
     void setBody(BlockNode body);
 

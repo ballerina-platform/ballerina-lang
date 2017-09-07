@@ -73,8 +73,8 @@ public class BLangIf extends BLangStatement implements IfNode {
     }
 
     @Override
-    public void setCondition(ExpressionNode expression) {
-        this.condition = (BLangExpression) expression;
+    public void setCondition(ExpressionNode condition) {
+        this.condition = (BLangExpression) condition;
     }
 
     @Override

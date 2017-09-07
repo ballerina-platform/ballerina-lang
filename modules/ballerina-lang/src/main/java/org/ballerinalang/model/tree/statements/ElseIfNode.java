@@ -28,7 +28,7 @@ public interface ElseIfNode extends StatementNode {
 
     BlockNode getBody();
 
-    void setCondition(ExpressionNode expression);
+    void setCondition(ExpressionNode condition);
 
     void setBody(BlockNode body);
 }

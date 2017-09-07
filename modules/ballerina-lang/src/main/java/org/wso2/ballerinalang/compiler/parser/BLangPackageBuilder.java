@@ -289,8 +289,8 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    private void addStmtToCurrentBlock(StatementNode stmt) {
-        this.blockNodeStack.peek().addStatement(stmt);
+    private void addStmtToCurrentBlock(StatementNode statement) {
+        this.blockNodeStack.peek().addStatement(statement);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
