@@ -20,14 +20,17 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.Collections;
+
 /**
  * @since 0.94
  */
 public class BLangArrayType extends BLangType implements ArrayTypeNode {
     public BLangType etype;
 
-    public BLangArrayType(BLangType eType) {
-        this.etype = eType;
+    public int dimensions;
+
+    public BLangArrayType() {
     }
 
     @Override
@@ -36,7 +39,17 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     }
 
     @Override
+    public int getDimensions() {
+        return dimensions;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return this.etype.toString() + String.join("", Collections.nCopies(dimensions, "[]"));
     }
 }

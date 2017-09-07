@@ -15,23 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * i = foo:getName(a, b);
- *
  * @since 0.94
  */
-public interface InvocationNode extends VariableReferenceNode {
-    IdentifierNode getPackageIdentifier();
+public interface AnnotationAttributeNode extends AnnotatableNode {
+    
+    TypeNode getTypeNode();
+    
+    void setTypeNode(TypeNode type);
 
-    IdentifierNode getFunctionName();
+    IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
-    List<? extends ExpressionNode> getArgumentExpressions();
-
-    VariableReferenceNode getVariableReferenceNode();
+    ExpressionNode getInitialExpression();
+    
+    void setInitialExpression(ExpressionNode expr);
+    
 }

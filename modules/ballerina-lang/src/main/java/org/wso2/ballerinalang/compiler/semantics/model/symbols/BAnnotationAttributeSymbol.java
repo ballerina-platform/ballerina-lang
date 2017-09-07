@@ -15,23 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.symbols.AnnotationAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.List;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ANNOTATION_ATTRIBUTE;
 
 /**
- * i = foo:getName(a, b);
- *
  * @since 0.94
  */
-public interface InvocationNode extends VariableReferenceNode {
-    IdentifierNode getPackageIdentifier();
+public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAttributeSymbol {
 
-    IdentifierNode getFunctionName();
-
-    List<? extends ExpressionNode> getArgumentExpressions();
-
-    VariableReferenceNode getVariableReferenceNode();
+    public BAnnotationAttributeSymbol(Name name, BType type, BSymbol owner) {
+        super(ANNOTATION_ATTRIBUTE, name, type, owner);
+    }
 }
