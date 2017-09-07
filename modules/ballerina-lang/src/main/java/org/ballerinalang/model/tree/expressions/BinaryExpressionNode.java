@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.OperatorKind;
+
 /**
  * @since 0.94
  */
@@ -24,4 +26,6 @@ public interface BinaryExpressionNode extends ExpressionNode {
     ExpressionNode getLeftExpression();
 
     ExpressionNode getRightExpression();
+
+    OperatorKind getOperatorKind();
 }
