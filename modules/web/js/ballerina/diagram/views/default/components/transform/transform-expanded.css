@@ -8,6 +8,7 @@
 
 .left-content, .right-content {
     width: 340px;
+    min-height: 100%;
     padding: 0px 20px 0px 20px;
 }
 
