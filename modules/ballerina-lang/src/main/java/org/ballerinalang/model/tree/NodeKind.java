@@ -59,6 +59,7 @@ public enum NodeKind {
     WHILE,
     XMLNS,
     /* Expressions */
+    INVOCATION,
     ARRAY_LITERAL_EXPR,
     RECODE_LITERAL_EXPR,
 }

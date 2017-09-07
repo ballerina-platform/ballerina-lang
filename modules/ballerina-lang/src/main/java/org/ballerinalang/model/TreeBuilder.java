@@ -33,6 +33,9 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
+import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
+import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
+import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
@@ -60,6 +63,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
@@ -157,6 +163,18 @@ public class TreeBuilder {
 
     public static SimpleVariableReferenceNode createSimpleVariableReferenceNode() {
         return new BLangSimpleVariableReference();
+    }
+
+    public static InvocationNode createInvocationNode() {
+        return new BLangInvocation();
+    }
+
+    public static FieldBasedAccessNode createFieldBasedAccessNode() {
+        return new BLangFieldBasedAccess();
+    }
+
+    public static IndexBasedAccessNode createIndexBasedAccessNode() {
+        return new BLangIndexBasedAccess();
     }
 
     public static StructNode createStructNode() {

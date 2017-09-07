@@ -886,6 +886,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.startExprNodeList();
     }
 
+    @Override
+    public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        this.pkgBuilder.endExprNodeList(ctx.getChildCount() / 2 + 1);
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1203,83 +1208,32 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
         this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx));
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterField(BallerinaParser.FieldContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitField(BallerinaParser.FieldContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterIndex(BallerinaParser.IndexContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitIndex(BallerinaParser.IndexContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterXmlAttrib(BallerinaParser.XmlAttribContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) { }
+
+    @Override
+    public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+        boolean argsAvailable = ctx.expressionList() != null;
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), argsAvailable);
+    }
+
+    @Override
+    public void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
+        String fieldName = ctx.field().Identifier().getText();
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), fieldName);
+    }
+
+    @Override
+    public void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) {
+        this.pkgBuilder.createIndexBasedAccessNode(getCurrentPos(ctx));
+    }
 
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         this.pkgBuilder.startExprNodeList();
     }
 
+    @Override
+    public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
+        this.pkgBuilder.endExprNodeList(ctx.getChildCount() / 2 + 1);
+    }
     /**
      * {@inheritDoc}
      *
