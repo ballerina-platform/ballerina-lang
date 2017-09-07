@@ -18,6 +18,8 @@
 import $ from 'jquery';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
+import LinkifyHtml from 'linkifyjs/html';
+
 /**
  * Displays messages sent From Launcher/Debugger backend
  *
@@ -81,7 +83,8 @@ class Console extends EventChannel {
      */
     println(message) {
         const specialCharsEscapedStr = _.escape(message.message);
-        this.console.append(`<div class="${message.type}"><pre>${specialCharsEscapedStr}</pre></div>`);
+        this.console.append(`<div class="${message.type}"><pre>` +
+            `${LinkifyHtml(specialCharsEscapedStr, { defaultProtocol: 'http' })}</pre></div>`);
         // todo need a proper fix
         this.console.scrollTop(100000);
     }
