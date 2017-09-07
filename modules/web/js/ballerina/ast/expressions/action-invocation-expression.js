@@ -238,6 +238,26 @@ class ActionInvocationExpression extends Expression {
 
     messageDrawTargetAllowed(target) {
         // TODO this needs to be refactord.
+        let parent;
+        let currentNode;
+        if (ASTFactory.isAssignmentStatement(this.getParent()) ||
+            ASTFactory.isVariableDefinitionStatement(this.getParent())) {
+            parent = this.getParent().getParent();
+            currentNode = this.getParent();
+        } else {
+            parent = this.getParent();
+            currentNode = this;
+        }
+        const index = _.indexOf(parent.getChildren(), currentNode);
+        const childrenBefore = index > 0 ? parent.getChildren().slice(0, index) : [];
+        let connectorIndex = _.indexOf(childrenBefore, target);
+        connectorIndex = connectorIndex < 0 ?
+            this.connectorIndexInParent(parent.getParent(), parent, target) : connectorIndex;
+
+        if (connectorIndex < 0) {
+            return false;
+        }
+
         return (ASTFactory.isConnectorDeclaration(target) || (ASTFactory.isAssignmentStatement(target) &&
             ASTFactory.isConnectorInitExpression(target.getChildren()[1]))) &&
             (
@@ -246,6 +266,29 @@ class ActionInvocationExpression extends Expression {
                 // if the target has a top level parent we will check if the id's are equal.
                 this.getTopLevelParent().getID() === target.getTopLevelParent().getID()
             );
+    }
+
+    /**
+     * Check whether the target connector is initialized in the parent
+     * @param {ASTNode} parent - parent node
+     * @param {ASTNode} currentNode - current node which the parent belongs
+     * @param {ConnectorDeclaration} target - target connector
+     * @returns {number} - index of the target connector
+     */
+    connectorIndexInParent(parent, currentNode, target) {
+        if (_.isNil(parent)) {
+            return -1;
+        }
+        const connectorIndex = _.indexOf(parent.getChildren(), target);
+        const currentNodeIndex = _.indexOf(parent.getChildren(), currentNode);
+
+        if (connectorIndex >= 0 && currentNodeIndex < connectorIndex) {
+            return -1;
+        } else if (connectorIndex >= 0) {
+            return connectorIndex;
+        } else {
+            return this.connectorIndexInParent(parent.getParent(), parent, target);
+        }
     }
 }
 
