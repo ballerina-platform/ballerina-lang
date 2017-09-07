@@ -362,7 +362,7 @@ group_by_query_selection
     ;
 
 query_section
-    : group_by_query_selection having?
+    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
     ;
 
 group_by

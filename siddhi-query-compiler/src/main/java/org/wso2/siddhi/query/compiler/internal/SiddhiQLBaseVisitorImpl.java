@@ -1553,16 +1553,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         Selector selector = new Selector();
 
-        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(
-                ctx.group_by_query_selection().output_attribute().size());
-        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.group_by_query_selection()
-                .output_attribute()) {
+        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(ctx.output_attribute().size());
+        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.output_attribute()) {
             attributeList.add((OutputAttribute) visit(output_attributeContext));
         }
         selector.addSelectionList(attributeList);
 
-        if (ctx.group_by_query_selection().group_by() != null) {
-            selector.addGroupByList((List<Variable>) visit(ctx.group_by_query_selection().group_by()));
+        if (ctx.group_by() != null) {
+            selector.addGroupByList((List<Variable>) visit(ctx.group_by()));
         }
         if (ctx.having() != null) {
             selector.having((Expression) visit(ctx.having()));

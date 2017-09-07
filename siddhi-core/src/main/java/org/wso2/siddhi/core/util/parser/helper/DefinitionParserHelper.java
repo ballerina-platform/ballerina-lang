@@ -344,6 +344,7 @@ public class DefinitionParserHelper {
                             sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_SOURCE);
                     Source source = (Source) SiddhiClassLoader.loadExtensionImplementation(sourceExtension,
                             SourceExecutorExtensionHolder.getInstance(siddhiAppContext));
+                    siddhiAppContext.getSnapshotService().addSnapshotable(source.getStreamDefinition().getId(), source);
 
                     // load input mapper extension
                     Extension mapperExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
@@ -473,6 +474,8 @@ public class DefinitionParserHelper {
                         } else {
                             sink = createSink(sinkExtension, siddhiAppContext);
                         }
+                        siddhiAppContext.getSnapshotService().addSnapshotable(sink.getStreamDefinition().getId(), sink);
+
                         if (supportedDynamicOptions == null) {
                             supportedDynamicOptions = sink.getSupportedDynamicOptions();
                         }
