@@ -17,23 +17,24 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.VARIABLE;
-
 /**
  * @since 0.94
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public class SymbolTags {
 
-    public BVarSymbol(Name name, BType type, BSymbol owner) {
-        super(VARIABLE, name, type, owner);
-    }
-
-    @Override
-    public Object getConstValue() {
-        return null;
-    }
+    public static final int NIL = 0;
+    public static final int PACKAGE = 1;
+    public static final int TYPE = 2;
+    public static final int STRUCT = 4;
+    public static final int CONNECTOR = 8;
+    public static final int SERVICE = 8;
+    public static final int VARIABLE = 16;
+    public static final int VALUE = 32;
+    public static final int INVOKABLE = 64;
+    public static final int FUNCTION = 128;
+    public static final int ACTION = 256;
+    public static final int RESOURCE = 512;
+    public static final int ANNOTATION = 1024;
+    public static final int ANNOTATION_ATTRIBUTE = 2048;
+    public static final int ERROR = 4096;
 }

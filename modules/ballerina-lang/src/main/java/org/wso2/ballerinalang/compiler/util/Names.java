@@ -48,11 +48,13 @@ public class Names {
     }
 
     public Name fromIdNode(BLangIdentifier identifier) {
-        return new Name(identifier.value);
+        // identifier.value cannot be null
+        return identifier.value.equals("") ? EMPTY : new Name(identifier.value);
     }
 
     public Name fromString(String value) {
-        return new Name(value);
+        // value cannot be null
+        return value.equals("") ? EMPTY : new Name(value);
     }
 
     public Name fromTypeKind(TypeKind typeKind) {

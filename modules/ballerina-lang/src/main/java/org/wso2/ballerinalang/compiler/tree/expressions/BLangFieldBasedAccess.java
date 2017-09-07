@@ -15,30 +15,36 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.types;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 
 /**
+ * Implementation of {@link FieldBasedAccessNode}.
+ *
  * @since 0.94
  */
-public class BLangBuiltInReferenceType extends BLangType implements BuiltInReferenceTypeNode {
+public class BLangFieldBasedAccess extends BLangVariableReference implements FieldBasedAccessNode {
 
-    public TypeKind typeKind;
+    public IdentifierNode fieldName;
+
+    public ExpressionNode expressionNode;
 
     @Override
-    public void accept(BLangNodeVisitor visitor) {
+    public ExpressionNode getExpression() {
+        return expressionNode;
     }
 
     @Override
-    public TypeKind getTypeKind() {
-        return this.typeKind;
+    public IdentifierNode getFieldName() {
+        return fieldName;
     }
 
     @Override
     public String toString() {
-        return this.typeKind.name();
+        return String.valueOf(expressionNode) + "." + String.valueOf(fieldName);
     }
 }

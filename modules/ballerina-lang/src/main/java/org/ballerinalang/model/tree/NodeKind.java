@@ -26,6 +26,8 @@ public enum NodeKind {
     ACTION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
+    ANNOTATION_ATTRIBUTE,
+    ANNOTATION_ATTRIBUTE_VALUE,
     ASSIGNMENT,
     BREAK,
     BLOCK,
@@ -57,6 +59,9 @@ public enum NodeKind {
     WHILE,
     XMLNS,
     /* Expressions */
+    INVOCATION,
     ARRAY_LITERAL_EXPR,
     RECODE_LITERAL_EXPR,
+    BINARY_EXPR,
+    UNARY_EXPR,
 }

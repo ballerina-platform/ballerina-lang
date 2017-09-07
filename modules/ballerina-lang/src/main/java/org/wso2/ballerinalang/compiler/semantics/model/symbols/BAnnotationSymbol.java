@@ -17,18 +17,29 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ANNOTATION;
+
 /**
  * @since 0.94
  */
-public class SymbolKinds {
+public class BAnnotationSymbol extends BSymbol implements AnnotationSymbol {
 
-    public static final int NIL = 0;
-    public static final int PACKAGE = 1;
-    public static final int TYPE = 2;
-    public static final int STRUCT = 4;
-    public static final int CONNECTOR = 8;
-    public static final int VARIABLE = 16;
-    public static final int VALUE = 32;
-    public static final int INVOCABLE = 64;
-    public static final int ERROR = 128;
+    public List<BAnnotationAttributeSymbol> attributes;
+
+    public BAnnotationSymbol(Name name, BType type, BSymbol owner) {
+        super(ANNOTATION, name, type, owner);
+        attributes = new ArrayList<>();
+    }
+
+    @Override
+    public List<BAnnotationAttributeSymbol> getAttributes() {
+        return attributes;
+    }
 }

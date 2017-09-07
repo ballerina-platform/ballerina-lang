@@ -15,29 +15,46 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
+public class BLangAnnotAttributeValue extends BLangExpression implements AnnotationAttributeValueNode {
 
-    public Map<String, AnnotationAttributeValueNode> attributesMap;
+    public Node value;
+    public List<AnnotationAttributeValueNode> arrayValues;
 
-    public BLangAnnotationAttachment() {
-        this.attributesMap = new LinkedHashMap<>();
+    public BLangAnnotAttributeValue() {
+        arrayValues = new ArrayList<>();
+    }
+    
+    @Override
+    public Node getValue() {
+        return value;
     }
 
     @Override
-    public void addAttribute(String attrName, AnnotationAttributeValueNode value) {
-        attributesMap.put(attrName, value);
+    public List<AnnotationAttributeValueNode> getValueArray() {
+        return arrayValues;
+    }
+
+    @Override
+    public void setValue(Node value) {
+        this.value = value;
+    }
+
+    @Override
+    public void addValue(AnnotationAttributeValueNode value) {
+        this.arrayValues.add(value);
     }
 
     @Override
@@ -47,11 +64,11 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ANNOTATION_ATTACHMENT;
+        return NodeKind.ANNOTATION_ATTRIBUTE_VALUE;
     }
-    
+
     @Override
     public String toString() {
-        return "BLangAnnotationAttachment: " + attributesMap;
+        return "BLangAnnotAttributeValue: " + (value != null ? value.toString() : arrayValues.toString());
     }
 }

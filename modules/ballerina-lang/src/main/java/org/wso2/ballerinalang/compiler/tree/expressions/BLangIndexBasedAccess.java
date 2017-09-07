@@ -17,35 +17,30 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 
 /**
- * Implementation of SimpleVariableReferenceNode.
+ * Implementation of {@link IndexBasedAccessNode}.
  *
  * @since 0.94
  */
-public class BLangSimpleVariableReference extends BLangVariableReference implements SimpleVariableReferenceNode {
+public class BLangIndexBasedAccess extends BLangVariableReference implements IndexBasedAccessNode {
 
-    public IdentifierNode packageIdentifier, variableName;
+    public ExpressionNode index, expression;
 
     @Override
-    public IdentifierNode getPackageIdentifier() {
-        return packageIdentifier;
+    public ExpressionNode getExpression() {
+        return expression;
     }
 
     @Override
-    public IdentifierNode getVariableName() {
-        return variableName;
+    public ExpressionNode getIndex() {
+        return index;
     }
 
     @Override
     public String toString() {
-        StringBuilder br = new StringBuilder();
-        if (packageIdentifier != null && !packageIdentifier.getValue().isEmpty()) {
-            br.append(String.valueOf(packageIdentifier)).append(":");
-        }
-        br.append(String.valueOf(variableName));
-        return br.toString();
+        return String.valueOf(expression) + "[" + String.valueOf(index) + "]";
     }
 }

@@ -17,15 +17,20 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.Node;
+
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface BinaryExpressionNode extends ExpressionNode {
-    ExpressionNode getLeftExpression();
+public interface AnnotationAttributeValueNode extends ExpressionNode {
 
-    ExpressionNode getRightExpression();
+    Node getValue();
 
-    OperatorKind getOperatorKind();
+    List<AnnotationAttributeValueNode> getValueArray();
+
+    void setValue(Node value);
+
+    void addValue(AnnotationAttributeValueNode value);
 }

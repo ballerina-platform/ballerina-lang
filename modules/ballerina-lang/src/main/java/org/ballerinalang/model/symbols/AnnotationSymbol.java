@@ -15,17 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.symbols;
 
-import org.ballerinalang.model.tree.OperatorKind;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface BinaryExpressionNode extends ExpressionNode {
-    ExpressionNode getLeftExpression();
+public interface AnnotationSymbol extends Symbol {
 
-    ExpressionNode getRightExpression();
-
-    OperatorKind getOperatorKind();
+    List<? extends AnnotationAttributeSymbol> getAttributes();
 }

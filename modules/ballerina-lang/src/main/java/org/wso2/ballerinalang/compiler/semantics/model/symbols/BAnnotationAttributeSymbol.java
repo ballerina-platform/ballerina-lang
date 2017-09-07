@@ -15,17 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.symbols.AnnotationAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ANNOTATION_ATTRIBUTE;
 
 /**
  * @since 0.94
  */
-public interface BinaryExpressionNode extends ExpressionNode {
-    ExpressionNode getLeftExpression();
+public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAttributeSymbol {
 
-    ExpressionNode getRightExpression();
-
-    OperatorKind getOperatorKind();
+    public BAnnotationAttributeSymbol(Name name, BType type, BSymbol owner) {
+        super(ANNOTATION_ATTRIBUTE, name, type, owner);
+    }
 }

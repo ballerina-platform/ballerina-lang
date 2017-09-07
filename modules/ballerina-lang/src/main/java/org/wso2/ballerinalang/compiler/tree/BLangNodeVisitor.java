@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -99,6 +101,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangAnnotAttribute bLangAnnotationAttribute) {
         throw new AssertionError();
     }
 
@@ -186,12 +192,20 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangAnnotAttributeValue bLangAnnotAttributeValue) {
+        throw new AssertionError();
+    }
+
     // Type nodes
     public void visit(BLangValueType valueType) {
         throw new AssertionError();
     }
 
     public void visit(BLangArrayType arrayType) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         throw new AssertionError();
     }
 

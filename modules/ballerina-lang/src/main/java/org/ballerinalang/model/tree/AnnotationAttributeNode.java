@@ -17,29 +17,24 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.statements.BlockNode;
-
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
  * @since 0.94
  */
-public interface InvocableNode extends AnnotatableNode {
+public interface AnnotationAttributeNode extends AnnotatableNode {
     
-    IdentifierNode getName();
+    TypeNode getTypeNode();
+    
+    void setTypeNode(TypeNode type);
 
+    IdentifierNode getName();
+    
     void setName(IdentifierNode name);
+
+    ExpressionNode getInitialExpression();
     
-    List<? extends VariableNode> getParameters();
-    
-    void addParameter(VariableNode param);
-    
-    List<? extends VariableNode> getReturnParameters();
-    
-    void addReturnParameter(VariableNode retParam);
-    
-    BlockNode getBody();
-    
-    void setBody(BlockNode body);
+    void setInitialExpression(ExpressionNode expr);
     
 }
