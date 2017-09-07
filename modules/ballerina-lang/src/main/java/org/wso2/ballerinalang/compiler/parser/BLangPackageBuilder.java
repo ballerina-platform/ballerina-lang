@@ -22,6 +22,9 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.AnnotAttributeNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -31,6 +34,7 @@ import org.ballerinalang.model.tree.InvocableNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -73,6 +77,12 @@ public class BLangPackageBuilder {
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
+    
+    private Stack<AnnotationNode> annotationStack = new Stack<AnnotationNode>();
+    
+    Stack<AnnotAttributeValueNode> annotAttribValStack = new Stack<AnnotAttributeValueNode>();
+    
+    private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<AnnotationAttachmentNode>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -272,4 +282,51 @@ public class BLangPackageBuilder {
         this.typeNodeListStack.push(new ArrayList<>());
     }
 
+    public void startAnnotationDef() {
+        this.annotationStack.add(TreeBuilder.createAnnotationNode());
+    }
+
+    public void endAnnotationDef(String identifier) {
+        AnnotationNode annotationNode = this.annotationStack.pop();
+        annotationNode.setName(this.createIdentifier(identifier));
+        this.varListStack.pop().forEach(var -> {
+            AnnotAttributeNode annAttrNode = TreeBuilder.createAnnotationAttributeNode();
+            var.getFlags().forEach(annAttrNode::addFlag);
+            var.getAnnotationAttachments().forEach(annAttrNode::addAnnotationAttachment);
+            annAttrNode.setTypeNode(var.getTypeNode());
+            annAttrNode.setInitialExpression(var.getInitialExpression());
+            annAttrNode.setName(var.getName());
+
+            // add the attribute to the annotation def
+            annotationNode.addAttribute(annAttrNode);
+        });
+
+        this.compUnit.addTopLevelNode(annotationNode);
+    }
+
+    public void createLiteralTypeAttributeValue(DiagnosticPos currentPos) {
+        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.setValue(exprNodeStack.pop());
+        annotAttribValStack.add(annotAttrVal);
+    }
+
+    public void createVarRefTypeAttributeValue(DiagnosticPos currentPos) {
+        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.setValue(exprNodeStack.pop());
+        annotAttribValStack.add(annotAttrVal);
+    }
+
+    public void createAnnotationTypeAttributeValue(DiagnosticPos currentPos) {
+        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.setValue(annotAttachmentStack.pop());
+        annotAttribValStack.add(annotAttrVal);
+    }
+
+    public void createArrayTypeAttributeValue(DiagnosticPos currentPos) {
+        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
+        while(!annotAttribValStack.isEmpty()) {
+            annotAttrVal.addValue(annotAttribValStack.pop());
+        }
+        annotAttribValStack.add(annotAttrVal);
+    }
 }

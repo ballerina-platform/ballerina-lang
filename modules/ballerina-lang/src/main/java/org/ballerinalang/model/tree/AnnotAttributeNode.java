@@ -15,33 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
+package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.NodeKind;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
  * @since 0.94
  */
-public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
+public interface AnnotAttributeNode extends AnnotatableNode {
     
-    // FIXME
-    public Map<String, ?> attributesMap;
+    TypeNode getTypeNode();
     
-    public BLangAnnotationAttachment() {
-        this.attributesMap =  new HashMap<>();
-    }
-    
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+    void setTypeNode(TypeNode type);
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.ANNOTATION_ATTACHMENT;
-    }
+    IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
+
+    ExpressionNode getInitialExpression();
+    
+    void setInitialExpression(ExpressionNode expr);
+    
 }

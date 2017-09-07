@@ -17,13 +17,76 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.AnnotAttributeNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.94
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
+    public BLangIdentifier name;
+    public List<BLangAnnotAttribute> attributes;
+    public Set<Flag> flags;
+    public List<BLangAnnotationAttachment> annAttachments;
+    public BAnnotationSymbol symbol;
+
+    public BLangAnnotation() {
+        this.attributes = new ArrayList<>();
+        this.flags = new HashSet<>();
+        this.annAttachments = new ArrayList<>();
+    }
+
+    @Override
+    public IdentifierNode getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
+    }
+
+    @Override
+    public List<? extends AnnotAttributeNode> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public void addAttribute(AnnotAttributeNode attribute) {
+        this.attributes.add((BLangAnnotAttribute) attribute);
+    }
+
+    @Override
+    public Set<? extends Flag> getFlags() {
+        return flags;
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.flags.add(flag);
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
+        return annAttachments;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.annAttachments.add((BLangAnnotationAttachment) annAttachment);
+    }
+
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -32,5 +95,10 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.ANNOTATION;
+    }
+
+    @Override
+    public String toString() {
+        return "BLangAnnotation: " + this.name + " -> " + this.attributes;
     }
 }

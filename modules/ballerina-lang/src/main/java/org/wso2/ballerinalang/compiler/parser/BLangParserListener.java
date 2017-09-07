@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -331,18 +332,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitStructBody(BallerinaParser.StructBodyContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) { }
+    @Override
+    public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
+        this.pkgBuilder.startAnnotationDef();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) { }
+    @Override public void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
+        this.pkgBuilder.endAnnotationDef(ctx.Identifier().getText());
+    }
     /**
      * {@inheritDoc}
      *
@@ -480,12 +488,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) { }
+    @Override
+    public void enterAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) {
+        this.pkgBuilder.startVarList();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -714,12 +727,26 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx) { }
+    @Override
+    public void exitAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx) {
+        ParseTree childContext = ctx.getChild(0);
+        if (childContext instanceof BallerinaParser.SimpleLiteralContext) {
+            this.pkgBuilder.createLiteralTypeAttributeValue(getCurrentPos(ctx));
+        } else if (childContext instanceof BallerinaParser.NameReferenceContext) {
+            this.pkgBuilder.createVarRefTypeAttributeValue(getCurrentPos(ctx));
+        } else if (childContext instanceof BallerinaParser.AnnotationAttachmentContext) {
+            this.pkgBuilder.createAnnotationTypeAttributeValue(getCurrentPos(ctx));
+        } else if (childContext instanceof BallerinaParser.AnnotationAttributeArrayContext) {
+            this.pkgBuilder.createArrayTypeAttributeValue(getCurrentPos(ctx));
+        }
+    }
+
     /**
      * {@inheritDoc}
      *

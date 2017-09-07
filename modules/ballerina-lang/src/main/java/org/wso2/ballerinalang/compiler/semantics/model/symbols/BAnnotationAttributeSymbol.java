@@ -15,33 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.NodeKind;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ANNOTATION_ATTRIBUTE;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.ballerinalang.model.symbols.AnnotAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
  * @since 0.94
  */
-public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
-    
-    // FIXME
-    public Map<String, ?> attributesMap;
-    
-    public BLangAnnotationAttachment() {
-        this.attributesMap =  new HashMap<>();
-    }
-    
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public class BAnnotationAttributeSymbol extends BSymbol implements AnnotAttributeSymbol {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.ANNOTATION_ATTACHMENT;
+    public BAnnotationAttributeSymbol(Name name, BType type, BSymbol owner) {
+        super(ANNOTATION_ATTRIBUTE, name, type, owner);
     }
 }

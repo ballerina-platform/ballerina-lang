@@ -18,6 +18,8 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.AnnotAttributeNode;
+import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -28,11 +30,14 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -43,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -114,5 +120,16 @@ public class TreeBuilder {
     public static ActionNode createActionNode() {
         return new BLangAction();
     }
-        
+
+    public static AnnotationNode createAnnotationNode() {
+        return new BLangAnnotation();
+    }
+    
+    public static AnnotAttributeNode createAnnotationAttributeNode() {
+        return new BLangAnnotAttribute();
+    }
+    
+    public static AnnotAttributeValueNode createAnnotAttributeValueNode() {
+        return new BLangAnnotAttributeValue();
+    }
 }
