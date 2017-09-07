@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import $ from 'jquery';
 import alerts from 'alerts';
+import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
@@ -514,6 +515,10 @@ class TransformExpanded extends React.Component {
         }
 
         this.mapper.reposition(this.props.model.getID());
+
+        this.mapper.onConnectionAborted(() => {
+            clearInterval(this.scrollTimer);
+        });
     }
 
     componentWillUnmount() {
@@ -524,16 +529,15 @@ class TransformExpanded extends React.Component {
         if (!this.mapper.isConnectionDragging()) {
             return;
         }
-        const boundingRect = this.transformOverlayContentDiv.getBoundingClientRect();
-        const middle = (boundingRect.top + boundingRect.bottom) / 2;
-
+        const boundingRect = this.transformOverlayDraggingContentDiv.getBoundingClientRect();
+        const middle = (boundingRect.bottom - boundingRect.top) / 2;
         let offset = -5;
         if (e.pageY > middle) {
             offset = 5;
         }
 
         this.scrollTimer = setInterval(() => {
-            this.transformOverlayContentDiv.scrollTop += offset;
+            this.scroll.scrollTop(this.scroll.getScrollTop() + offset);
         }, 10);
     }
 
@@ -983,66 +987,72 @@ class TransformExpanded extends React.Component {
                     onMouseEnter={this.onDragEnter}
                 >
                     <div className="middle-content-frame" />
-                    <div
-                        id={`transformOverlay-content-${this.props.model.getID()}`}
-                        ref={(div) => { this.transformOverlayContentDiv = div; }}
-                        className='transform-connections'
+                    <Scrollbars
+                        ref={ scroll => {this.scroll = scroll;} }
                         onScroll={this.onConnectionsScroll}
                     >
-                        <div className='left-content'>
-                            <div className="leftType">
-                                <Tree
-                                    viewId={this.props.model.getID()}
-                                    endpoints={inputs}
-                                    type='source'
-                                    makeConnectPoint={this.recordSourceElement}
-                                    removeTypeCallbackFunc={this.removeSourceType}
-                                    updateVariable={this.updateVariable}
-                                    onEndpointRemove={this.removeEndpoint}
-                                    onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                    foldEndpoint={this.foldEndpoint}
-                                    foldedEndpoints={this.state.foldedEndpoints}
-                                />
-                            </div>
-                        </div>
-                        <div className="middle-content">
-                            {
-                                functions.map(({ func, assignmentStmt, parentFunc, funcInv }) => (
-                                    <FunctionInv
-                                        key={funcInv.getID()}
-                                        func={func}
-                                        enclosingAssignmentStatement={assignmentStmt}
-                                        parentFunc={parentFunc}
-                                        funcInv={funcInv}
-                                        recordSourceElement={this.recordSourceElement}
-                                        recordTargetElement={this.recordTargetElement}
+                        <div
+                            id={`transformOverlay-content-${this.props.model.getID()}`}
+                            ref={(div) => { this.transformOverlayContentDiv = div; }}
+                            className='transform-connections'
+                        >
+                            <div className='left-content'>
+                                <div className="leftType">
+                                    <Tree
                                         viewId={this.props.model.getID()}
+                                        endpoints={inputs}
+                                        type='source'
+                                        makeConnectPoint={this.recordSourceElement}
+                                        removeTypeCallbackFunc={this.removeSourceType}
+                                        updateVariable={this.updateVariable}
                                         onEndpointRemove={this.removeEndpoint}
                                         onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                        isCollapsed={this.state.foldedFunctions[funcInv.getID()]}
-                                        onHeaderClick={this.foldFunction}
+                                        foldEndpoint={this.foldEndpoint}
+                                        foldedEndpoints={this.state.foldedEndpoints}
                                     />
-                                ))
-                            }
-                        </div>
-                        <div className='right-content'>
-                            <div className='rightType'>
-                                <Tree
-                                    viewId={this.props.model.getID()}
-                                    endpoints={outputs}
-                                    type='target'
-                                    makeConnectPoint={this.recordTargetElement}
-                                    removeTypeCallbackFunc={this.removeTargetType}
-                                    updateVariable={this.updateVariable}
-                                    onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                    foldEndpoint={this.foldEndpoint}
-                                    foldedEndpoints={this.state.foldedEndpoints}
-                                    onEndpointRemove={this.removeEndpoint}
-                                />
+                                </div>
                             </div>
+                            <div className="middle-content">
+                                {
+                                    functions.map(({ func, assignmentStmt, parentFunc, funcInv }) => (
+                                        <FunctionInv
+                                            key={funcInv.getID()}
+                                            func={func}
+                                            enclosingAssignmentStatement={assignmentStmt}
+                                            parentFunc={parentFunc}
+                                            funcInv={funcInv}
+                                            recordSourceElement={this.recordSourceElement}
+                                            recordTargetElement={this.recordTargetElement}
+                                            viewId={this.props.model.getID()}
+                                            onEndpointRemove={this.removeEndpoint}
+                                            onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                            foldEndpoint={this.foldEndpoint}
+                                            foldedEndpoints={this.state.foldedEndpoints}
+                                            isCollapsed={this.state.foldedFunctions[funcInv.getID()]}
+                                            onHeaderClick={this.foldFunction}
+                                        />
+                                    ))
+                                }
+                            </div>
+                            <div className='right-content'>
+                                <div className='rightType'>
+                                    <Tree
+                                        viewId={this.props.model.getID()}
+                                        endpoints={outputs}
+                                        type='target'
+                                        makeConnectPoint={this.recordTargetElement}
+                                        removeTypeCallbackFunc={this.removeTargetType}
+                                        updateVariable={this.updateVariable}
+                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                        foldEndpoint={this.foldEndpoint}
+                                        foldedEndpoints={this.state.foldedEndpoints}
+                                        onEndpointRemove={this.removeEndpoint}
+                                    />
+                                </div>
+                            </div>
+                            <div id='transformContextMenu' className='transformContextMenu' />
                         </div>
-                        <div id='transformContextMenu' className='transformContextMenu' />
-                    </div>
+                    </Scrollbars>
                 </div>
             </div>
         );
