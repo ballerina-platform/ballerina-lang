@@ -687,10 +687,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
-        this.pkgBuilder.endAnnotationAttachment(getCurrentPos(ctx));
-    }
-
+    public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) { }
     /**
      * {@inheritDoc}
      *
@@ -709,12 +706,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) { }
+    @Override
+    public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
+        String attrName = ctx.Identifier().getText();
+        this.pkgBuilder.createAnnotationKeyValue(attrName, getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *

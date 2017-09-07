@@ -42,8 +42,10 @@ import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
@@ -98,11 +100,11 @@ public class BLangPackageBuilder {
     
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
     
-    private Stack<AnnotationNode> annotationStack = new Stack<AnnotationNode>();
+    private Stack<AnnotationNode> annotationStack = new Stack<>();
     
-    Stack<AnnotAttributeValueNode> annotAttribValStack = new Stack<AnnotAttributeValueNode>();
+    Stack<AnnotAttributeValueNode> annotAttribValStack = new Stack<>();
     
-    private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<AnnotationAttachmentNode>();
+    private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -121,7 +123,7 @@ public class BLangPackageBuilder {
         if (!this.typeNodeListStack.empty()) {
             List<TypeNode> typeNodeList = this.typeNodeListStack.peek();
             eType = (BLangType) typeNodeList.get(typeNodeList.size() - 1);
-            typeNodeList.remove(typeNodeList.size() -1);
+            typeNodeList.remove(typeNodeList.size() - 1);
         } else {
             eType = (BLangType) this.typeNodeStack.pop();
         }
@@ -195,7 +197,7 @@ public class BLangPackageBuilder {
         addType(functionTypeNode);
     }
 
-    private void addType(TypeNode typeNode){
+    private void addType(TypeNode typeNode) {
         if (!this.typeNodeListStack.empty()) {
             this.typeNodeListStack.peek().add(typeNode);
         } else {
@@ -212,7 +214,11 @@ public class BLangPackageBuilder {
     }
 
     public void startFunctionDef() {
-        this.invokableNodeStack.push(TreeBuilder.createFunctionNode());
+        FunctionNode functionNode = TreeBuilder.createFunctionNode();
+        while (!annotAttachmentStack.empty()) {
+            functionNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        }
+        this.invokableNodeStack.push(functionNode);
     }
 
     public void startBlock() {
@@ -270,7 +276,7 @@ public class BLangPackageBuilder {
         addExpressionNode(litExpr);
     }
 
-    public void addArrayInitExpr(DiagnosticPos pos, boolean argsAvailable){
+    public void addArrayInitExpr(DiagnosticPos pos, boolean argsAvailable) {
         List<ExpressionNode> argExprList;
         if (argsAvailable) {
             argExprList = exprNodeListStack.pop();
@@ -391,7 +397,11 @@ public class BLangPackageBuilder {
     }
 
     public void startStructDef() {
-        this.structStack.add(TreeBuilder.createStructNode());
+        StructNode structNode = TreeBuilder.createStructNode();
+        while (!annotAttachmentStack.empty()) {
+            structNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        }
+        this.structStack.add(structNode);
     }
     
     public void endStructDef(String identifier) {
@@ -403,6 +413,9 @@ public class BLangPackageBuilder {
     
     public void startConnectorDef() {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
+        while (!annotAttachmentStack.empty()) {
+            connectorNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        }
         this.connectorNodeStack.push(connectorNode);
     }
     
@@ -436,7 +449,11 @@ public class BLangPackageBuilder {
     }
 
     public void startActionDef() {
-        this.invokableNodeStack.push(TreeBuilder.createActionNode());
+        ActionNode actionNode = TreeBuilder.createActionNode();
+        while (!annotAttachmentStack.empty()) {
+            actionNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        }
+        this.invokableNodeStack.push(actionNode);
     }
 
     public void endActionDef() {
@@ -448,58 +465,70 @@ public class BLangPackageBuilder {
     }
 
     public void startAnnotationDef() {
-        this.annotationStack.add(TreeBuilder.createAnnotationNode());
+        AnnotationNode annotNode = TreeBuilder.createAnnotationNode();
+        while (!annotAttachmentStack.empty()) {
+            annotNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        }
+        this.annotationStack.add(annotNode);
     }
 
     public void endAnnotationDef(String identifier) {
         AnnotationNode annotationNode = this.annotationStack.pop();
         annotationNode.setName(this.createIdentifier(identifier));
         this.varListStack.pop().forEach(var -> {
-            AnnotAttributeNode annAttrNode = TreeBuilder.createAnnotationAttributeNode();
+            AnnotAttributeNode annAttrNode = TreeBuilder.createAnnotAttributeNode();
             var.getFlags().forEach(annAttrNode::addFlag);
             var.getAnnotationAttachments().forEach(annAttrNode::addAnnotationAttachment);
             annAttrNode.setTypeNode(var.getTypeNode());
             annAttrNode.setInitialExpression(var.getInitialExpression());
             annAttrNode.setName(var.getName());
 
-            // add the attribute to the annotation def
+            // add the attribute to the annotation definition
             annotationNode.addAttribute(annAttrNode);
         });
 
         this.compUnit.addTopLevelNode(annotationNode);
     }
 
+    public void startAnnotationAttachment(DiagnosticPos currentPos) {
+        BLangAnnotationAttachment annotAttachmentNode =
+                (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        annotAttachmentNode.pos = currentPos;
+        this.annotAttachmentStack.push(TreeBuilder.createAnnotAttachmentNode());
+    }
+
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos) {
-        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
-        annotAttrVal.setValue(exprNodeStack.pop());
-        annotAttribValStack.add(annotAttrVal);
+        createAnnotAttribValueFromExpr(currentPos);
     }
 
     public void createVarRefTypeAttributeValue(DiagnosticPos currentPos) {
-        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
-        annotAttrVal.setValue(exprNodeStack.pop());
-        annotAttribValStack.add(annotAttrVal);
+        createAnnotAttribValueFromExpr(currentPos);
     }
 
     public void createAnnotationTypeAttributeValue(DiagnosticPos currentPos) {
-        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
+        BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(annotAttachmentStack.pop());
         annotAttribValStack.add(annotAttrVal);
     }
 
     public void createArrayTypeAttributeValue(DiagnosticPos currentPos) {
-        AnnotAttributeValueNode annotAttrVal = TreeBuilder.createAnnotAttributeValueNode();
-        while(!annotAttribValStack.isEmpty()) {
+        BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.pos = currentPos;
+        while (!annotAttribValStack.isEmpty()) {
             annotAttrVal.addValue(annotAttribValStack.pop());
         }
         annotAttribValStack.add(annotAttrVal);
     }
 
-    public void startAnnotationAttachment(DiagnosticPos currentPos) {
-
+    public void createAnnotationKeyValue(String attrName, DiagnosticPos currentPos) {
+        annotAttachmentStack.peek().addAttribute(attrName, annotAttribValStack.pop());
     }
 
-    public void endAnnotationAttachment(DiagnosticPos currentPos) {
-
+    private void createAnnotAttribValueFromExpr(DiagnosticPos currentPos) {
+        BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.pos = currentPos;
+        annotAttrVal.setValue(exprNodeStack.pop());
+        annotAttribValStack.add(annotAttrVal);
     }
 }

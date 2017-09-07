@@ -17,14 +17,14 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ANNOTATION;
-
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ANNOTATION;
 
 /**
  * @since 0.94

@@ -17,11 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ANNOTATION_ATTRIBUTE;
-
 import org.ballerinalang.model.symbols.AnnotAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ANNOTATION_ATTRIBUTE;
 
 /**
  * @since 0.94

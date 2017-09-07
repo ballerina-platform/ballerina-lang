@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotAttributeValueNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +33,10 @@ public class BLangAnnotAttributeValue extends BLangExpression implements AnnotAt
     public Node value;
     public List<AnnotAttributeValueNode> arrayValues;
 
+    public BLangAnnotAttributeValue() {
+        arrayValues = new ArrayList<>();
+    }
+    
     @Override
     public Node getValue() {
         return value;
@@ -64,7 +69,6 @@ public class BLangAnnotAttributeValue extends BLangExpression implements AnnotAt
 
     @Override
     public String toString() {
-        // FIXME
-        return value.toString();
+        return "BLangAnnotAttributeValue: " + (value != null ? value.toString() : arrayValues.toString());
     }
 }

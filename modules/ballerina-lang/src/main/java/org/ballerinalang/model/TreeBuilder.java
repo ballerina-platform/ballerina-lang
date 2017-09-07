@@ -19,6 +19,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotAttributeNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
@@ -44,8 +45,9 @@ import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -117,7 +119,7 @@ public class TreeBuilder {
         return new BLangLiteral();
     }
 
-    public static ArrayLiteralNode createArrayLiteralNode(){
+    public static ArrayLiteralNode createArrayLiteralNode() {
         return new BLangArrayLiteral();
     }
 
@@ -173,11 +175,15 @@ public class TreeBuilder {
         return new BLangAnnotation();
     }
     
-    public static AnnotAttributeNode createAnnotationAttributeNode() {
+    public static AnnotAttributeNode createAnnotAttributeNode() {
         return new BLangAnnotAttribute();
     }
     
     public static AnnotAttributeValueNode createAnnotAttributeValueNode() {
         return new BLangAnnotAttributeValue();
+    }
+
+    public static AnnotationAttachmentNode createAnnotAttachmentNode() {
+        return new BLangAnnotationAttachment();
     }
 }
