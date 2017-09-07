@@ -78,7 +78,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         br.append("(");
         if (argsExpressions.size() > 0) {
             String s = Arrays.toString(argsExpressions.toArray());
-            br.append(s.substring(1,s.length() -1 ));
+            br.append(s.substring(1, s.length() - 1));
         }
         br.append(")");
         return br.toString();
