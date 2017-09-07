@@ -238,6 +238,22 @@ class ActionInvocationExpression extends Expression {
 
     messageDrawTargetAllowed(target) {
         // TODO this needs to be refactord.
+
+        const parent = (ASTFactory.isAssignmentStatement(this.getParent()) ||
+            ASTFactory.isVariableDefinitionStatement(this.getParent())) ? this.getParent().getParent()
+            : this.getParent();
+        const currentNode = (ASTFactory.isAssignmentStatement(this.getParent()) ||
+        ASTFactory.isVariableDefinitionStatement(this.getParent())) ? this.getParent() : this;
+        const index = _.indexOf(parent.getChildren(), currentNode);
+        const childrenBefore = index > 0 ? parent.getChildren().slice(0, index) : [];
+        let connectorIndex = _.indexOf(childrenBefore, target);
+        connectorIndex = connectorIndex < 0 ?
+            this.connectorIndexInParent(parent.getParent(), target) : connectorIndex;
+
+        if (connectorIndex < 0) {
+            return false;
+        }
+
         return (ASTFactory.isConnectorDeclaration(target) || (ASTFactory.isAssignmentStatement(target) &&
             ASTFactory.isConnectorInitExpression(target.getChildren()[1]))) &&
             (
@@ -246,6 +262,22 @@ class ActionInvocationExpression extends Expression {
                 // if the target has a top level parent we will check if the id's are equal.
                 this.getTopLevelParent().getID() === target.getTopLevelParent().getID()
             );
+    }
+
+    /**
+     * Check whether the target connector is initialized in the parent
+     * @param {ASTNode} parent
+     * @param {ConnectorDeclaration} target - target connector
+     * @returns {number} - index of the target connector
+     */
+    connectorIndexInParent(parent, target) {
+        if (_.isNil(parent)) {
+            return -1;
+        }
+        let connectorIndex = _.indexOf(parent.getChildren(), target);
+        connectorIndex = connectorIndex < 0 ?
+            this.connectorIndexInParent(parent.getParent(), target) : connectorIndex;
+        return connectorIndex;
     }
 }
 
