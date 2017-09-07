@@ -22,21 +22,13 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 /**
  * @since 0.94
  */
-public interface IfNode extends StatementNode {
+public interface ElseIfNode extends StatementNode {
+
     ExpressionNode getCondition();
 
     BlockNode getBody();
 
-    StatementNode getElseStatement();
-    
-    StatementNode getElseIfStatements();
-
     void setCondition(ExpressionNode expression);
 
     void setBody(BlockNode body);
-
-    void setElseStatement(StatementNode elseStatement);
-
-    void addElseIfClause(ElseIfNode elseIfNode);
-
 }

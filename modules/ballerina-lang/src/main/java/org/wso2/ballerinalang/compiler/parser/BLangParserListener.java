@@ -805,8 +805,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { 
-        this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText());
+    @Override
+    public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
+        this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText(), ctx.ASSIGN() != null);
     }
 
     @Override
@@ -824,7 +825,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addKeyValueRecord();
     }
 
-    @Override public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
+    @Override
+    public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
         boolean argsAvailable = ctx.expressionList() != null;
         this.pkgBuilder.addArrayInitExpr(getCurrentPos(ctx), argsAvailable);
     }
@@ -896,49 +898,81 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) { }
+    @Override
+    public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
+        this.pkgBuilder.startIfElseNode();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) { }
+    @Override
+    public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
+        this.pkgBuilder.endIfElseNode();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterIfClause(BallerinaParser.IfClauseContext ctx) { }
+    @Override
+    public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
+        this.pkgBuilder.startBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitIfClause(BallerinaParser.IfClauseContext ctx) { }
+    @Override
+    public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
+        this.pkgBuilder.addIfBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) { }
+    @Override
+    public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
+        this.pkgBuilder.startBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) { }
+    @Override
+    public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
+        this.pkgBuilder.addElseIfBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterElseClause(BallerinaParser.ElseClauseContext ctx) { }
+    @Override
+    public void enterElseClause(BallerinaParser.ElseClauseContext ctx) {
+        this.pkgBuilder.startBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitElseClause(BallerinaParser.ElseClauseContext ctx) { }
+    @Override
+    public void exitElseClause(BallerinaParser.ElseClauseContext ctx) {
+        this.pkgBuilder.addElseBlock();
+    }
+
     /**
      * {@inheritDoc}
      *

@@ -41,6 +41,9 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.ElseIfNode;
+import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -109,6 +112,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
     
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
+    
+    private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -269,14 +274,20 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void addVariableDefStatement(String identifier) {
+    public void addVariableDefStatement(String identifier, boolean exprAvailable) {
         VariableDefinitionNode varDefNode = TreeBuilder.createVariableDefinitionNode();
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.setInitialExpression(this.exprNodeStack.pop());
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
         varDefNode.setVariable(var);
-        this.blockNodeStack.peek().addStatement(varDefNode);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    private void addStmtToCurrentBlock(StatementNode stmt) {
+        this.blockNodeStack.peek().addStatement(stmt);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -582,10 +593,35 @@ public class BLangPackageBuilder {
         annotAttrVal.setValue(exprNodeStack.pop());
         annotAttribValStack.add(annotAttrVal);
     }
-    
+
     private void attachAnnotations(AnnotatableNode annotatableNode) {
         while (!annotAttachmentStack.empty()) {
             annotatableNode.addAnnotationAttachment(annotAttachmentStack.pop());
         }
+    }
+
+    public void startIfElseNode() {
+        ifElseStatementStack.add(TreeBuilder.createIfElseStatementNode());
+    }
+
+    public void addIfBlock() {
+        IfNode ifNode = ifElseStatementStack.peek();
+        ifNode.setCondition(exprNodeStack.pop());
+        ifNode.setBody(blockNodeStack.pop());
+    }
+
+    public void addElseIfBlock() {
+        ElseIfNode elseIf = TreeBuilder.createElseIfStatementNode();
+        elseIf.setCondition(exprNodeStack.pop());
+        elseIf.setBody(blockNodeStack.pop());
+        ifElseStatementStack.peek().addElseIfClause(elseIf);
+    }
+
+    public void addElseBlock() {
+        ifElseStatementStack.peek().setElseStatement(blockNodeStack.pop());
+    }
+
+    public void endIfElseNode() {
+        addStmtToCurrentBlock(ifElseStatementStack.pop());
     }
 }
