@@ -226,7 +226,6 @@ statement
     |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-    |   actionInvocationStatement
     |   functionInvocationStatement
     |   transformStatement
     |   transactionStatement
@@ -255,7 +254,7 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | actionInvocation | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN (connectorInitExpression | expression) )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -283,7 +282,7 @@ filterInitExpressionList
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | actionInvocation | expression) SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | expression) SEMICOLON
     ;
 
 variableReferenceList
@@ -421,11 +420,6 @@ functionInvocationStatement
     :   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
     ;
 
-actionInvocationStatement
-    :   actionInvocation SEMICOLON
-    |   variableReferenceList ASSIGN actionInvocation SEMICOLON
-    ;
-
 transactionStatement
     :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
     ;
@@ -452,10 +446,6 @@ abortStatement
 
 retryStatement
     :   RETRY expression SEMICOLON
-    ;
-
-actionInvocation
-    :   nameReference DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

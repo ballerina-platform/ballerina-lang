@@ -1,4 +1,4 @@
-// Generated from /home/laf/dev/wso2/ballerina-1/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1026,16 +1026,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocationStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#actionInvocationStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#transactionStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1105,16 +1095,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocation}.
-	 * @param ctx the parse tree
-	 */
-	void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#actionInvocation}.
-	 * @param ctx the parse tree
-	 */
-	void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
 	 * @param ctx the parse tree

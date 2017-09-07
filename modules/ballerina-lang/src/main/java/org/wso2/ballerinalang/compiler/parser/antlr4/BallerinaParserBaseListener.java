@@ -1,4 +1,4 @@
-// Generated from /home/laf/dev/wso2/ballerina-1/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -1192,18 +1192,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1283,18 +1271,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
