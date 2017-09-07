@@ -20,6 +20,9 @@ package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -27,9 +30,11 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -38,18 +43,17 @@ import javax.websocket.Session;
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushText",
+        functionName = "getUpgradeHeaders",
         args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
-                          structPackage = "ballerina.net.ws"),
-                @Argument(name = "text", type = TypeEnum.STRING)},
+                          structPackage = "ballerina.net.ws")},
+        returnType = {@ReturnType(type = TypeEnum.MAP)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
-                             "client who sent the message.") })
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushText extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "value", value = "Get upgrade headers") })
+@BallerinaAnnotation(annotationName = "Return",
+                     attributes = {@Attribute(name = "map", value = "map of all the headers")})
+public class GetUpgradeHeaders extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
@@ -59,14 +63,14 @@ public class PushText extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with WebSocket services");
         }
 
-        try {
-            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
-            String text = getStringArgument(context, 0);
-            session.getBasicRemote().sendText(text);
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
-        }
-        return VOID_RETURN;
+        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+        Map<String, String> upgradeHeaders =
+                (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
+        BMap<BString, BString> bUpgradeHeaders = new BMap<>();
+        upgradeHeaders.entrySet().forEach(
+                upgradeHeader -> bUpgradeHeaders.put(new BString(upgradeHeader.getKey()),
+                                                     new BString(upgradeHeader.getValue()))
+        );
+        return getBValues(bUpgradeHeaders);
     }
 }

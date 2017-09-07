@@ -36,6 +36,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 
 import java.util.HashMap;
@@ -65,40 +66,17 @@ import javax.websocket.Session;
         name = "action.net.ws.init",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Init extends AbstractWebSocketAction {
+public class Init extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         String remoteUrl = bconnector.getStringField(0);
         String clientServiceName = bconnector.getStringField(1);
-        ServiceInfo parentService = context.getServiceInfo();
 
-        // Initializing a client connection.
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(Constants.REMOTE_ADDRESS, remoteUrl);
-        properties.put(Constants.TO, clientServiceName);
-        WebSocketClientConnector clientConnector = HttpConnectionManager.getInstance().
-                getWebSocketClientConnector(properties);
-        Map<String, String> customHeaders = new HashMap<>();
-        Session clientSession;
-        try {
-            clientSession = clientConnector.connect(new BallerinaWebSocketConnectorListener(), customHeaders);
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
-        }
-
-        // Setting parent service to client service if parent service is a WS service.
-        WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
-        if (parentService != null && parentService.getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
-            WebSocketServicesRegistry.getInstance().
-                    setParentServiceToClientService(clientServiceName, parentService);
-
-            // Adding client connector to parent service in connection manager.
-            connectionManager.addClientConnector(parentService, bconnector, clientSession);
-        } else {
-            connectionManager.addClientConnectorWithoutParentService(bconnector, clientSession);
-        }
-
+        WSSenderConfiguration senderConfiguration = new WSSenderConfiguration();
+        senderConfiguration.setRemoteAddress(remoteUrl);
+        senderConfiguration.setTarget(clientServiceName);
+        bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
         return null;
     }
 }
