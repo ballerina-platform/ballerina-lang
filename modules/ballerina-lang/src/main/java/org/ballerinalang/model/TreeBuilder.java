@@ -30,6 +30,8 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
@@ -51,6 +53,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -111,6 +115,10 @@ public class TreeBuilder {
         return new BLangArrayLiteral();
     }
 
+    public static RecordTypeLiteralNode createRecordTypeLiteralNode() {
+        return new BLangRecordTypeLiteral();
+    }
+
     public static VariableDefinitionNode createVariableDefinitionNode() {
         return new BLangVariableDef();
     }
@@ -127,7 +135,7 @@ public class TreeBuilder {
         return new BLangUserDefinedType();
     }
 
-    public static BuiltInReferenceTypeNode createBuiltInReferanceTypeNode() {
+    public static BuiltInReferenceTypeNode createBuiltInReferenceTypeNode() {
         return new BLangBuiltInReferenceType();
     }
 
@@ -138,7 +146,11 @@ public class TreeBuilder {
     public static FunctionTypeNode createFunctionTypeNode() {
         return new BLangFunctionTypeNode();
     }
-    
+
+    public static SimpleVariableReferenceNode createSimpleVariableReferenceNode() {
+        return new BLangSimpleVariableReference();
+    }
+
     public static StructNode createStructNode() {
         return new BLangStruct();
     }

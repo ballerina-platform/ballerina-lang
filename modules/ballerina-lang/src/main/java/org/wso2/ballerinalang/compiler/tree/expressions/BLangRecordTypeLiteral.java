@@ -17,26 +17,27 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * Implementation of ArrayLiteralNode.
+ * Implementation of RecordTypeLiteralNode.
  *
  * @since 0.94
  */
-public class BLangArrayLiteral extends BLangExpression implements ArrayLiteralNode {
+public class BLangRecordTypeLiteral extends BLangExpression implements RecordTypeLiteralNode {
 
-    public List<ExpressionNode> expressionNodes;
+    Map<IdentifierNode, ExpressionNode> keyValuePairs = new LinkedHashMap<>();
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ARRAY_LITERAL_EXPR;
+        return NodeKind.RECODE_LITERAL_EXPR;
     }
 
     @Override
@@ -44,13 +45,12 @@ public class BLangArrayLiteral extends BLangExpression implements ArrayLiteralNo
     }
 
     @Override
-    public List<? extends ExpressionNode> getExpressions() {
-        return expressionNodes;
+    public Map<IdentifierNode, ExpressionNode> getKeyValuePairs() {
+        return keyValuePairs;
     }
 
     @Override
     public String toString() {
-        String s = Arrays.toString(expressionNodes.toArray());
-        return "[" + s.substring(1, s.length() - 1) + ']';
+        return keyValuePairs.toString();
     }
 }
