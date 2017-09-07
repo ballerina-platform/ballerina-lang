@@ -1,13 +1,12 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Tabs from 'rc-tabs';
+import Tabs, { TabPane } from 'rc-tabs';
 import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
 import { VIEWS, HISTORY, COMMANDS } from './../constants';
-import EditorTab from './EditorTab';
 
 /**
  * Editor Tabs
@@ -41,7 +40,6 @@ class EditorTabs extends View {
             activeEditor: history.get(HISTORY.ACTIVE_EDITOR),
             openedEditors: [],
         };
-        this.onTabClose = this.onTabClose.bind(this);
     }
 
     /**
@@ -56,38 +54,51 @@ class EditorTabs extends View {
     }
 
     /**
-     * On Tab Close
-     * @param {File} targetFile File attached to tab.
-     */
-    onTabClose(targetFile) {
-        const { workspace } = this.props.editorPlugin.appContext;
-        const searchByFilePath = ({ file }) => file.fullPath === targetFile.fullPath;
-        const editorIndex = _.findIndex(this.state.openedEditors, searchByFilePath);
-        const newEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
-        const newEditorKey = !_.isNil(this.state.openedEditors[newEditorIndex])
-                                ? this.state.openedEditors[newEditorIndex].file.fullPath
-                                : undefined;
-        _.remove(this.state.openedEditors, searchByFilePath);
-        this.setActiveEditor(newEditorKey);
-        workspace.closeFile(targetFile);
-    }
-
-    /**
      * @inheritdoc
      */
     render() {
-        const appContext = this.props.editorPlugin.appContext;
+        const { workspace } = this.props.editorPlugin.appContext;
+        const onTabClose = (targetFile) => {
+            const searchByFilePath = ({ file }) => file.fullPath === targetFile.fullPath;
+            const editorIndex = _.findIndex(this.state.openedEditors, searchByFilePath);
+            const newEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
+            const newEditorKey = !_.isNil(this.state.openedEditors[newEditorIndex])
+                                    ? this.state.openedEditors[newEditorIndex].file.fullPath
+                                    : undefined;
+            _.remove(this.state.openedEditors, searchByFilePath);
+            this.setActiveEditor(newEditorKey);
+            workspace.closeFile(targetFile);
+        };
+        const tabTitle = file => (
+            <div data-extra="tab-bar-title">
+                <i className="fw fw-ballerina tab-icon" />
+                {file.name}
+                <button
+                    type="button"
+                    className="close close-tab pull-right"
+                    onClick={() => onTabClose(file)}
+                >
+                    ×
+                </button>
+            </div>
+        );
+        const makeTabPane = (file, editor) => {
+            const { customPropsProvider } = editor;
+            return (
+                <TabPane tab={tabTitle(file)} data-extra="tabpane" key={file.fullPath} >
+                    <editor.component
+                        isActive={this.state.activeEditor === file.fullPath}
+                        file={file}
+                        commandProxy={this.props.editorPlugin.appContext.command}
+                        {...customPropsProvider()}
+                    />
+                </TabPane>
+            );
+        };
+
         const tabs = [];
         this.state.openedEditors.forEach(({ file, editor }) => {
-            tabs.push((
-                <EditorTab
-                    key={file.fullPath}
-                    file={file}
-                    editor={editor}
-                    appContext={appContext}
-                    onTabClose={this.onTabClose}
-                />
-            ));
+            tabs.push(makeTabPane(file, editor));
         });
 
         return (
