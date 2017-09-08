@@ -34,4 +34,9 @@ public class BLangAbort extends BLangStatement implements AbortNode {
     public NodeKind getKind() {
         return NodeKind.ABORT;
     }
+
+    @Override
+    public String toString() {
+        return "Abort";
+    }
 }

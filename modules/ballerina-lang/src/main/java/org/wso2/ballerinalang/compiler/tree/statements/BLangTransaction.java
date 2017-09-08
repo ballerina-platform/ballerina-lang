@@ -30,16 +30,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt committedBody;
     public BLangBlockStmt abortedBody;
 
-    public BLangTransaction(BLangBlockStmt transactionBody,
-                            BLangBlockStmt failedBody,
-                            BLangBlockStmt committedBody,
-                            BLangBlockStmt abortedBody) {
-        this.transactionBody = transactionBody;
-        this.failedBody = failedBody;
-        this.committedBody = committedBody;
-        this.abortedBody = abortedBody;
-    }
-
     @Override
     public BLangBlockStmt getTransactionBody() {
         return transactionBody;
@@ -68,5 +58,13 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public NodeKind getKind() {
         return NodeKind.TRANSACTION;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction: {" + transactionBody + "} "
+                + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
+                + (committedBody != null ? " committed {" + String.valueOf(committedBody) + "}" : "")
+                + (abortedBody != null ? " aborted {" + String.valueOf(abortedBody) + "}" : "");
     }
 }

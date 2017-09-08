@@ -61,6 +61,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -117,6 +119,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
+
+    private Stack<BLangTransaction> transactionNodeStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -624,6 +628,57 @@ public class BLangPackageBuilder {
                     .createAssignmentNode(lVariableReferenceList, (BLangExpression) rExprNode, isVarDeclaration);
             this.blockNodeStack.peek().addStatement(assignmentNode);
         }
+    }
+
+    public void startTransactionStmt() {
+        transactionNodeStack.push((BLangTransaction) TreeBuilder.createTransactionNode());
+        startBlock();
+    }
+
+    public void addTransactionBlock(DiagnosticPos pos) {
+        BLangTransaction transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        transactionBlock.pos = pos;
+        transactionNode.transactionBody = transactionBlock;
+    }
+
+    public void startFailedBlock() {
+        startBlock();
+    }
+
+    public void addFailedBlock(DiagnosticPos pos) {
+        BLangTransaction transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        failedBlock.pos = pos;
+        transactionNode.failedBody = failedBlock;
+    }
+
+    public void startCommittedBlock() {
+        startBlock();
+    }
+
+    public void addCommittedBlock(DiagnosticPos pos) {
+        BLangTransaction transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        committedBlock.pos = pos;
+        transactionNode.committedBody = committedBlock;
+    }
+
+    public void startAbortedBlock() {
+        startBlock();
+    }
+
+    public void addAbortedBlock(DiagnosticPos pos) {
+        BLangTransaction transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        abortedBlock.pos = pos;
+        transactionNode.abortedBody = abortedBlock;
+    }
+
+    public void endTransactionStmt(DiagnosticPos pos) {
+        BLangTransaction transaction = transactionNodeStack.pop();
+        transaction.pos = pos;
+        this.blockNodeStack.peek().addStatement(transaction);
     }
 
     public void addAbortStatement() {
