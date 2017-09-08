@@ -28,18 +28,30 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
+import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.ballerinalang.model.tree.statements.AbortNode;
+import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.CatchNode;
+import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
+import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.ThrowNode;
+import org.ballerinalang.model.tree.statements.TransactionNode;
+import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -58,18 +70,30 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -120,7 +144,23 @@ public class TreeBuilder {
     public static BlockNode createBlockNode() {
         return new BLangBlockStmt();
     }
-    
+
+    public static TryCatchFinallyNode createTryCatchFinallyNode() {
+        return new BLangTryCatchFinally();
+    }
+
+    public static CatchNode createCatchNode() {
+        return new BLangCatch();
+    }
+
+    public static ThrowNode createThrowNode() {
+        return new BLangThrow();
+    }
+
+    public static ExpressionStatementNode createExpressionStatementNode() {
+        return new BLangExpressionStmt();
+    }
+
     public static LiteralNode createLiteralExpression() {
         return new BLangLiteral();
     }
@@ -177,6 +217,14 @@ public class TreeBuilder {
         return new BLangIndexBasedAccess();
     }
 
+    public static BinaryExpressionNode createBinaryExpressionNode() {
+        return new BLangBinaryExpression();
+    }
+
+    public static UnaryExpressionNode createUnaryExpressionNode() {
+        return new BLangUnaryExpression();
+    }
+
     public static StructNode createStructNode() {
         return new BLangStruct();
     }
@@ -189,19 +237,43 @@ public class TreeBuilder {
         return new BLangAction();
     }
 
+    public static AssignmentNode createAssignmentNode() {
+        return new BLangAssignment();
+    }
+
+    public static AbortNode createAbortNode() {
+        return new BLangAbort();
+    }
+
+    public static TransactionNode createTransactionNode() {
+        return new BLangTransaction();
+    }
+
     public static AnnotationNode createAnnotationNode() {
         return new BLangAnnotation();
     }
-    
+
     public static AnnotationAttributeNode createAnnotAttributeNode() {
         return new BLangAnnotAttribute();
     }
-    
+
     public static AnnotationAttributeValueNode createAnnotAttributeValueNode() {
         return new BLangAnnotAttributeValue();
     }
 
     public static AnnotationAttachmentNode createAnnotAttachmentNode() {
         return new BLangAnnotationAttachment();
+    }
+
+    public static IfNode createIfElseStatementNode() {
+        return new BLangIf();
+    }
+    
+    public static ServiceNode createServiceNode() {
+        return new BLangService();
+    }
+    
+    public static ResourceNode createResourceNode() {
+        return new BLangResource();
     }
 }

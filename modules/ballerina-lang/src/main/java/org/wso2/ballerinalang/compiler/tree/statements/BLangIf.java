@@ -18,7 +18,10 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -26,19 +29,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.94
  */
 public class BLangIf extends BLangStatement implements IfNode {
-    public BLangExpression expr;
+    public BLangExpression condition;
     public BLangBlockStmt body;
     public BLangStatement elseStmt;
 
-    public BLangIf(BLangExpression expr, BLangBlockStmt body, BLangStatement elseStmt) {
-        this.expr = expr;
-        this.body = body;
-        this.elseStmt = elseStmt;
-    }
-
     @Override
     public BLangExpression getCondition() {
-        return expr;
+        return condition;
     }
 
     @Override
@@ -59,5 +56,25 @@ public class BLangIf extends BLangStatement implements IfNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.IF;
+    }
+
+    @Override
+    public void setCondition(ExpressionNode condition) {
+        this.condition = (BLangExpression) condition;
+    }
+
+    @Override
+    public void setBody(BlockNode body) {
+        this.body = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setElseStatement(StatementNode elseStatement) {
+        this.elseStmt = (BLangStatement) elseStatement;
+    }
+
+    @Override
+    public String toString() {
+        return "BLangIf: (" + condition + ") " + body + (elseStmt != null ? (" Else: " + elseStmt) : "");
     }
 }

@@ -18,11 +18,14 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,10 +34,16 @@ import java.util.List;
 public class BLangAssignment extends BLangStatement implements AssignmentNode {
     public List<BLangVariableReference> varRefs;
     public BLangExpression expr;
+    private boolean isDeclaredWithVar;
 
-    public BLangAssignment(List<BLangVariableReference> varRefs, BLangExpression expr) {
+    public BLangAssignment() {
+        this.varRefs = new ArrayList<>();
+    }
+
+    public BLangAssignment(List<BLangVariableReference> varRefs, BLangExpression expr, boolean isDeclaredWithVar) {
         this.varRefs = varRefs;
         this.expr = expr;
+        this.isDeclaredWithVar = isDeclaredWithVar;
     }
 
     @Override
@@ -48,6 +57,26 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     }
 
     @Override
+    public boolean isDeclaredWithVar() {
+        return isDeclaredWithVar;
+    }
+
+    @Override
+    public void setExpression(ExpressionNode expression) {
+        this.expr = (BLangExpression) expression;
+    }
+
+    @Override
+    public void setDeclaredWithVar(boolean isDeclaredWithVar) {
+        this.isDeclaredWithVar = isDeclaredWithVar;
+    }
+
+    @Override
+    public void addVariable(VariableReferenceNode variableReferenceNode) {
+        this.varRefs.add((BLangVariableReference) variableReferenceNode);
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -55,5 +84,12 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.ASSIGNMENT;
+    }
+
+    @Override
+    public String toString() {
+        return "BLangAssignment: " + (this.isDeclaredWithVar ? "var " : "") +
+                (this.varRefs != null ? this.varRefs : "") +
+                (this.expr != null ? " = " + this.expr : "");
     }
 }

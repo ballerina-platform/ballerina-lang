@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
 /**
  * @since 0.94
  */
@@ -28,5 +30,17 @@ public interface TransactionNode extends StatementNode {
     BlockNode getCommittedBody();
 
     BlockNode getAbortedBody();
+
+    ExpressionNode getCondition();
+
+    void setTransactionBody(BlockNode body);
+
+    void setFailedBody(BlockNode body);
+
+    void setCommittedBody(BlockNode body);
+
+    void setAbortedBody(BlockNode body);
+
+    void setRetryCount(ExpressionNode condition);
 
 }

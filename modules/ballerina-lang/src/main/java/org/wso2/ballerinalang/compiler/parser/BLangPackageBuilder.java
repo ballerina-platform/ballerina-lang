@@ -32,7 +32,10 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.InvokableNode;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
@@ -40,7 +43,13 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.ballerinalang.model.tree.statements.AbortNode;
+import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -51,12 +60,22 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -67,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -99,6 +119,8 @@ public class BLangPackageBuilder {
 
     private Stack<RecordTypeLiteralNode> recordTypeLiteralNodes = new Stack<>();
 
+    private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
+
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
     private Stack<StructNode> structStack = new Stack<>();
@@ -106,12 +128,18 @@ public class BLangPackageBuilder {
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
-    
+
     private Stack<AnnotationNode> annotationStack = new Stack<>();
-    
+
     private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
-    
+
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
+
+    private Stack<IfNode> ifElseStatementStack = new Stack<>();
+
+    private Stack<TransactionNode> transactionNodeStack = new Stack<>();
+
+    private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -238,8 +266,9 @@ public class BLangPackageBuilder {
         return node;
     }
 
-    public void addVar(DiagnosticPos pos, String identifier, boolean exprAvailable) {
+    public void addVar(DiagnosticPos pos, String identifier, boolean exprAvailable, int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(identifier, exprAvailable);
+        attachAnnotations(var, annotCount);
         var.pos = pos;
         if (this.varListStack.empty()) {
             this.varStack.push(var);
@@ -273,14 +302,75 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void addVariableDefStatement(String identifier) {
+    public void addVariableDefStatement(String identifier, boolean exprAvailable) {
         VariableDefinitionNode varDefNode = TreeBuilder.createVariableDefinitionNode();
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.setInitialExpression(this.exprNodeStack.pop());
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
         varDefNode.setVariable(var);
-        this.blockNodeStack.peek().addStatement(varDefNode);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    private void addStmtToCurrentBlock(StatementNode statement) {
+        this.blockNodeStack.peek().addStatement(statement);
+    }
+
+    public void startTryCatchFinallyStmt() {
+        this.tryCatchFinallyNodesStack.push((BLangTryCatchFinally) TreeBuilder.createTryCatchFinallyNode());
+        startBlock();
+    }
+
+    public void addTryClause(DiagnosticPos pos) {
+        BLangBlockStmt tryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        tryBlock.pos = pos;
+        tryCatchFinallyNodesStack.peek().tryBody = tryBlock;
+    }
+
+    public void startCatchClause() {
+        startBlock();
+    }
+
+    public void addCatchClause(DiagnosticPos poc, String paramName) {
+        BLangSimpleVariableReference varRef =
+                (BLangSimpleVariableReference) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.variableName = createIdentifier(paramName);
+
+        BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
+        variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
+        variableNode.name = (BLangIdentifier) createIdentifier(paramName);
+        variableNode.expr = varRef;
+
+        BLangCatch catchNode = (BLangCatch) TreeBuilder.createCatchNode();
+        catchNode.pos = poc;
+        catchNode.body = (BLangBlockStmt) this.blockNodeStack.pop();
+        catchNode.param = variableNode;
+        tryCatchFinallyNodesStack.peek().catchBlocks.add(catchNode);
+    }
+
+    public void startFinallyBlock() {
+        startBlock();
+    }
+
+    public void addFinallyBlock(DiagnosticPos poc) {
+        tryCatchFinallyNodesStack.peek().finallyBody = (BLangBlockStmt) this.blockNodeStack.pop();
+        tryCatchFinallyNodesStack.peek().finallyBody.pos = poc;
+    }
+
+    public void addTryCatchFinallyStmt(DiagnosticPos poc) {
+        BLangTryCatchFinally stmtNode = tryCatchFinallyNodesStack.pop();
+        stmtNode.pos = poc;
+        this.blockNodeStack.peek().addStatement(stmtNode);
+    }
+
+    public void addThrowStmt(DiagnosticPos poc) {
+        ExpressionNode throwExpr = this.exprNodeStack.pop();
+        BLangThrow throwNode = (BLangThrow) TreeBuilder.createThrowNode();
+        throwNode.pos = poc;
+        throwNode.expr = (BLangExpression) throwExpr;
+        this.blockNodeStack.peek().addStatement(throwNode);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -303,7 +393,7 @@ public class BLangPackageBuilder {
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         arrayLiteral.expressionNodes = argExprList;
         arrayLiteral.pos = pos;
-        exprNodeStack.push(arrayLiteral);
+        addExpressionNode(arrayLiteral);
     }
 
     public void addKeyValueRecord() {
@@ -358,26 +448,30 @@ public class BLangPackageBuilder {
         varRef.pos = pos;
         varRef.packageIdentifier = nameReference.pkgAlias;
         varRef.variableName = nameReference.name;
-        addExpressionNode(varRef);
+        this.exprNodeStack.push(varRef);
     }
 
-    public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
+    public void createFunctionInvocation(DiagnosticPos pos, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         if (argsAvailable) {
             invocationNode.argsExpressions = exprNodeListStack.pop();
         }
-        ExpressionNode expressionNode = exprNodeStack.pop();
-        if (expressionNode instanceof BLangSimpleVariableReference) {
-            BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) expressionNode;
-            invocationNode.functionName = varRef.variableName;
-            invocationNode.packIdentifier = varRef.packageIdentifier;
-        } else if (expressionNode instanceof BLangFieldBasedAccess) {
-            BLangFieldBasedAccess fieldRef = (BLangFieldBasedAccess) expressionNode;
-            invocationNode.functionName = fieldRef.fieldName;
-            invocationNode.packIdentifier = createIdentifier(null);
-            invocationNode.variableReferenceNode = fieldRef;
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        invocationNode.functionName = nameReference.name;
+        invocationNode.packIdentifier = nameReference.pkgAlias;
+        addExpressionNode(invocationNode);
+    }
+
+    public void createInvocationNode(DiagnosticPos pos, String invocation, boolean argsAvailable) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        if (argsAvailable) {
+            invocationNode.argsExpressions = exprNodeListStack.pop();
         }
+        invocationNode.variableReferenceNode = (VariableReferenceNode) exprNodeStack.pop();
+        invocationNode.functionName = createIdentifier(invocation);
+        invocationNode.packIdentifier = createIdentifier(null);
         addExpressionNode(invocationNode);
     }
 
@@ -395,6 +489,23 @@ public class BLangPackageBuilder {
         indexBasedAccess.index = exprNodeStack.pop();
         indexBasedAccess.expression = exprNodeStack.pop();
         addExpressionNode(indexBasedAccess);
+    }
+
+    public void createBinaryExpr(DiagnosticPos pos, String operator) {
+        BLangBinaryExpression binaryExpressionNode = (BLangBinaryExpression) TreeBuilder.createBinaryExpressionNode();
+        binaryExpressionNode.pos = pos;
+        binaryExpressionNode.rightExpression = exprNodeStack.pop();
+        binaryExpressionNode.leftExpression = exprNodeStack.pop();
+        binaryExpressionNode.operator = OperatorKind.valueFrom(operator);
+        addExpressionNode(binaryExpressionNode);
+    }
+
+    public void createUnaryExpr(DiagnosticPos pos, String operator) {
+        BLangUnaryExpression unaryExpressionNode = (BLangUnaryExpression) TreeBuilder.createUnaryExpressionNode();
+        unaryExpressionNode.pos = pos;
+        unaryExpressionNode.expressionNode = exprNodeStack.pop();
+        unaryExpressionNode.operator = OperatorKind.valueFrom(operator);
+        addExpressionNode(unaryExpressionNode);
     }
 
     public void endFunctionDef() {
@@ -511,12 +622,13 @@ public class BLangPackageBuilder {
 
     public void startActionDef() {
         ActionNode actionNode = TreeBuilder.createActionNode();
-        attachAnnotations(actionNode);
         this.invokableNodeStack.push(actionNode);
     }
 
-    public void endActionDef() {
-        this.connectorNodeStack.peek().addAction((ActionNode) this.invokableNodeStack.pop());
+    public void endActionDef(int annotCount) {
+        ActionNode actionNode = (ActionNode) this.invokableNodeStack.pop();
+        attachAnnotations(actionNode, annotCount);
+        this.connectorNodeStack.peek().addAction(actionNode);
     }
 
     public void startProcessingTypeNodeList() {
@@ -551,7 +663,11 @@ public class BLangPackageBuilder {
         BLangAnnotationAttachment annotAttachmentNode =
                 (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         annotAttachmentNode.pos = currentPos;
-        this.annotAttachmentStack.push(TreeBuilder.createAnnotAttachmentNode());
+        annotAttachmentStack.push(annotAttachmentNode);
+    }
+
+    public void setAnnotationAttachmentName(String annotationName) {
+        annotAttachmentStack.peek().setAnnotationName(createIdentifier(annotationName));
     }
 
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos) {
@@ -566,7 +682,7 @@ public class BLangPackageBuilder {
         BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(annotAttachmentStack.pop());
-        annotAttribValStack.add(annotAttrVal);
+        annotAttribValStack.push(annotAttrVal);
     }
 
     public void createArrayTypeAttributeValue(DiagnosticPos currentPos) {
@@ -575,7 +691,7 @@ public class BLangPackageBuilder {
         while (!annotAttribValStack.isEmpty()) {
             annotAttrVal.addValue(annotAttribValStack.pop());
         }
-        annotAttribValStack.add(annotAttrVal);
+        annotAttribValStack.push(annotAttrVal);
     }
 
     public void createAnnotationKeyValue(String attrName, DiagnosticPos currentPos) {
@@ -586,12 +702,174 @@ public class BLangPackageBuilder {
         BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(exprNodeStack.pop());
-        annotAttribValStack.add(annotAttrVal);
+        annotAttribValStack.push(annotAttrVal);
     }
-    
+
     private void attachAnnotations(AnnotatableNode annotatableNode) {
-        while (!annotAttachmentStack.empty()) {
-            annotatableNode.addAnnotationAttachment(annotAttachmentStack.pop());
+        annotAttachmentStack.forEach(annot -> annotatableNode.addAnnotationAttachment(annot));
+        annotAttachmentStack.clear();
+    }
+
+    private void attachAnnotations(AnnotatableNode annotatableNode, int count) {
+        if (count == 0 || annotAttachmentStack.empty()) {
+            return;
         }
+
+        List<AnnotationAttachmentNode> tempAnnotAttachments = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            if (annotAttachmentStack.empty()) {
+                break;
+            }
+            tempAnnotAttachments.add(annotAttachmentStack.pop());
+        }
+        // reversing the collected annotations to preserve the original order
+        Collections.reverse(tempAnnotAttachments);
+        tempAnnotAttachments.forEach(annot -> annotatableNode.addAnnotationAttachment(annot));
+    }
+
+    public void addAssignmentStatement(boolean isVarDeclaration) {
+        ExpressionNode rExprNode = exprNodeStack.pop();
+        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        AssignmentNode assignmentNode = TreeBuilder.createAssignmentNode();
+        assignmentNode.setExpression(rExprNode);
+        assignmentNode.setDeclaredWithVar(isVarDeclaration);
+        lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
+        this.blockNodeStack.peek().addStatement(assignmentNode);
+    }
+
+    public void startTransactionStmt() {
+        transactionNodeStack.push(TreeBuilder.createTransactionNode());
+        startBlock();
+    }
+
+    public void addTransactionBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        transactionBlock.pos = pos;
+        transactionNode.setTransactionBody(transactionBlock);
+    }
+
+    public void startFailedBlock() {
+        startBlock();
+    }
+
+    public void addFailedBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        failedBlock.pos = pos;
+        transactionNode.setFailedBody(failedBlock);
+    }
+
+    public void startCommittedBlock() {
+        startBlock();
+    }
+
+    public void addCommittedBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        committedBlock.pos = pos;
+        transactionNode.setCommittedBody(committedBlock);
+    }
+
+    public void startAbortedBlock() {
+        startBlock();
+    }
+
+    public void addAbortedBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        abortedBlock.pos = pos;
+        transactionNode.setAbortedBody(abortedBlock);
+    }
+
+    public void endTransactionStmt(DiagnosticPos pos) {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
+        transaction.pos = pos;
+        this.blockNodeStack.peek().addStatement(transaction);
+    }
+
+    public void addAbortStatement() {
+        AbortNode abortNode = TreeBuilder.createAbortNode();
+        this.blockNodeStack.peek().addStatement(abortNode);
+    }
+
+    public void startIfElseNode() {
+        ifElseStatementStack.push(TreeBuilder.createIfElseStatementNode());
+        startBlock();
+    }
+
+    public void addRetrytmt() {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        transactionNode.setRetryCount(exprNodeStack.pop());
+    }
+
+    public void addIfBlock() {
+        IfNode ifNode = ifElseStatementStack.peek();
+        ifNode.setCondition(exprNodeStack.pop());
+        ifNode.setBody(blockNodeStack.pop());
+    }
+
+    public void addElseIfBlock() {
+        IfNode elseIfNode = ifElseStatementStack.pop();
+        elseIfNode.setCondition(exprNodeStack.pop());
+        elseIfNode.setBody(blockNodeStack.pop());
+
+        IfNode parentIfNode = ifElseStatementStack.peek();
+        while (parentIfNode.getElseStatement() != null) {
+            parentIfNode = (IfNode) parentIfNode.getElseStatement();
+        }
+        parentIfNode.setElseStatement(elseIfNode);
+    }
+
+    public void addElseBlock() {
+        IfNode ifNode = ifElseStatementStack.peek();
+        while (ifNode.getElseStatement() != null) {
+            ifNode = (IfNode) ifNode.getElseStatement();
+        }
+        ifNode.setElseStatement(blockNodeStack.pop());
+    }
+
+    public void endIfElseNode() {
+        addStmtToCurrentBlock(ifElseStatementStack.pop());
+    }
+
+
+    public void addExpressionStmt(DiagnosticPos pos) {
+        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.pos = pos;
+        exprStmt.expr = (BLangExpression) exprNodeStack.pop();
+        addStmtToCurrentBlock(exprStmt);
+    }
+
+    public void startServiceDef() {
+        ServiceNode serviceNode = TreeBuilder.createServiceNode();
+        attachAnnotations(serviceNode);
+        serviceNodeStack.push(serviceNode);
+    }
+
+    public void addServiceBody() {
+        ServiceNode serviceNode = serviceNodeStack.peek();
+        blockNodeStack.pop().getStatements()
+                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+    }
+
+    public void endServiceDef(String protocolPkg, String serviceName) {
+        ServiceNode serviceNode = serviceNodeStack.pop();
+        serviceNode.setName(createIdentifier(serviceName));
+        serviceNode.setProtocolPackageIdentifier(createIdentifier(protocolPkg));
+        this.compUnit.addTopLevelNode(serviceNode);
+    }
+
+    public void startResourceDef() {
+        ResourceNode resourceNode = TreeBuilder.createResourceNode();
+        invokableNodeStack.push(resourceNode);
+    }
+
+    public void endResourceDef(String resourceName, int annotCount) {
+        ResourceNode resourceNode = (ResourceNode) invokableNodeStack.pop();
+        resourceNode.setName(createIdentifier(resourceName));
+        attachAnnotations(resourceNode, annotCount);
+        varListStack.pop().forEach(resourceNode::addParameter);
+        serviceNodeStack.peek().addResource(resourceNode);
     }
 }

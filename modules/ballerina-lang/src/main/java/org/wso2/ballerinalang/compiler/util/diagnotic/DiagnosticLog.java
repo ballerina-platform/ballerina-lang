@@ -52,7 +52,7 @@ public class DiagnosticLog {
 
     public void error(DiagnosticPos pos, String key, Object... args) {
 
-        // TODO FIXME
+        // TODO generate the proper message with args
         String msg = key;
         BDiagnostic diagnostic = new BDiagnostic(
                 Diagnostic.Kind.ERROR, pos.src, pos, msg);
