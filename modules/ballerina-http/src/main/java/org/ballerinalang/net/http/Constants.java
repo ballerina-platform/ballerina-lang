@@ -117,12 +117,7 @@ public class Constants {
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
 
-    /* Annotations */
-    public static final String ANNOTATION_NAME_SOURCE = "Source";
-    public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
-    public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-
+    public static final String TRANSPORT_MESSAGE = "transport_message";
 
     /**
      * Content type HTTP header.

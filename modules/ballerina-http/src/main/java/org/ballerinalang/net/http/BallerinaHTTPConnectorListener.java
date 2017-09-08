@@ -41,6 +41,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        breLog.error("Error in http server connector", throwable);
+        log.error("Error in http server connector", throwable);
     }
 }

@@ -30,8 +30,6 @@ public class BResource extends AbstractServiceResource  implements Resource {
 
     private ResourceInfo resourceInfo;
 
-
-
     public BResource(String name, ResourceInfo resourceInfo) {
         this.name = name;
         this.resourceInfo = resourceInfo;
