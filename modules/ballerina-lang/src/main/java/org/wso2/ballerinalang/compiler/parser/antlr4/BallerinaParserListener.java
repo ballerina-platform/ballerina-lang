@@ -1,4 +1,4 @@
-// Generated from /home/laf/dev/wso2/ballerina-1/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -960,6 +960,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code invocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterInvocationReference(BallerinaParser.InvocationReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code invocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code functionInvocationReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -1026,6 +1038,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#functionInvocation}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#functionInvocation}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#invocation}.
+	 * @param ctx the parse tree
+	 */
+	void enterInvocation(BallerinaParser.InvocationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#invocation}.
+	 * @param ctx the parse tree
+	 */
+	void exitInvocation(BallerinaParser.InvocationContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#expressionList}.
 	 * @param ctx the parse tree
 	 */
@@ -1036,25 +1068,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitExpressionList(BallerinaParser.ExpressionListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#functionInvocationStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#expressionStmt}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx);
+	void enterExpressionStmt(BallerinaParser.ExpressionStmtContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#functionInvocationStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#expressionStmt}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocationStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#actionInvocationStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
+	void exitExpressionStmt(BallerinaParser.ExpressionStmtContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#transactionStatement}.
 	 * @param ctx the parse tree
@@ -1125,16 +1147,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocation}.
-	 * @param ctx the parse tree
-	 */
-	void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#actionInvocation}.
-	 * @param ctx the parse tree
-	 */
-	void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
 	 * @param ctx the parse tree

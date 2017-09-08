@@ -32,4 +32,12 @@ public interface AssignmentNode extends StatementNode {
     List<? extends VariableReferenceNode> getVariables();
 
     ExpressionNode getExpression();
+
+    boolean isDeclaredWithVar();
+
+    void setExpression(ExpressionNode expression);
+
+    void setDeclaredWithVar(boolean isDeclaredWithVar);
+
+    void addVariable(VariableReferenceNode variableReferenceNode);
 }

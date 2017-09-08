@@ -15,28 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.AbortNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.ballerinalang.model.tree.Node;
+
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangAbort extends BLangStatement implements AbortNode {
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public interface AnnotationAttributeValueNode extends ExpressionNode {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.ABORT;
-    }
+    Node getValue();
 
-    @Override
-    public String toString() {
-        return "Abort";
-    }
+    List<AnnotationAttributeValueNode> getValueArray();
+
+    void setValue(Node value);
+
+    void addValue(AnnotationAttributeValueNode value);
 }

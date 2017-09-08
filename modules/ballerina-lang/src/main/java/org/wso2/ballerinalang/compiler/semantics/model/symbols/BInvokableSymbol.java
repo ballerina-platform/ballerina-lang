@@ -17,23 +17,37 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
+import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.VARIABLE;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public class BInvokableSymbol extends BSymbol implements InvokableSymbol {
 
-    public BVarSymbol(Name name, BType type, BSymbol owner) {
-        super(VARIABLE, name, type, owner);
+    public List<BVarSymbol> params;
+    public List<BVarSymbol> retParams;
+
+    public BInvokableSymbol(int tag,
+                            Name name,
+                            BType type,
+                            BSymbol owner) {
+        super(tag, name, type, owner);
+        this.params = new ArrayList<>();
+        this.retParams = new ArrayList<>();
     }
 
     @Override
-    public Object getConstValue() {
-        return null;
+    public List<BVarSymbol> getParameters() {
+        return params;
+    }
+
+    @Override
+    public List<BVarSymbol> getReturnParameters() {
+        return retParams;
     }
 }

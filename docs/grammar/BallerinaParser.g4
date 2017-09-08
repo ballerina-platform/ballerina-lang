@@ -235,8 +235,7 @@ statement
     |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-    |   actionInvocationStatement
-    |   functionInvocationStatement
+    |   expressionStmt
     |   transformStatement
     |   transactionStatement
     |   abortStatement
@@ -264,7 +263,7 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | actionInvocation | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN (connectorInitExpression | expression) )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -292,7 +291,7 @@ filterInitExpressionList
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | actionInvocation | expression) SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | expression) SEMICOLON
     ;
 
 variableReferenceList
@@ -404,10 +403,11 @@ commentStatement
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationReference
+    |   variableReference invocation                                            # invocationReference
     ;
 
 field
@@ -422,17 +422,20 @@ xmlAttrib
     : AT (LEFT_BRACKET expression RIGHT_BRACKET)?
     ;
 
+functionInvocation
+    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+invocation
+    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
-functionInvocationStatement
-    :   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
-    ;
-
-actionInvocationStatement
-    :   actionInvocation SEMICOLON
-    |   variableReferenceList ASSIGN actionInvocation SEMICOLON
+expressionStmt
+    :   expression SEMICOLON
     ;
 
 transactionStatement
@@ -461,10 +464,6 @@ abortStatement
 
 retryStatement
     :   RETRY expression SEMICOLON
-    ;
-
-actionInvocation
-    :   nameReference DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

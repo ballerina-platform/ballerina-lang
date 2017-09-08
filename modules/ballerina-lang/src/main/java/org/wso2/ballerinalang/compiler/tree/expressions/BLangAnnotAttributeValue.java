@@ -15,51 +15,60 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.CatchNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangCatch extends BLangNode implements CatchNode {
-    public BLangVariable param;
-    public BLangBlockStmt body;
+public class BLangAnnotAttributeValue extends BLangExpression implements AnnotationAttributeValueNode {
 
-    public BLangCatch() {
+    public Node value;
+    public List<AnnotationAttributeValueNode> arrayValues;
+
+    public BLangAnnotAttributeValue() {
+        arrayValues = new ArrayList<>();
     }
-
-    public BLangCatch(BLangVariable param, BLangBlockStmt body) {
-        this.param = param;
-        this.body = body;
+    
+    @Override
+    public Node getValue() {
+        return value;
     }
 
     @Override
-    public BLangVariable getParameter() {
-        return param;
+    public List<AnnotationAttributeValueNode> getValueArray() {
+        return arrayValues;
     }
 
     @Override
-    public BLangBlockStmt getBody() {
-        return body;
+    public void setValue(Node value) {
+        this.value = value;
+    }
+
+    @Override
+    public void addValue(AnnotationAttributeValueNode value) {
+        this.arrayValues.add(value);
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-//        visitor.visit(this);
+        visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CATCH;
+        return NodeKind.ANNOTATION_ATTRIBUTE_VALUE;
     }
 
     @Override
     public String toString() {
-        return NodeKind.CATCH + "(" + String.valueOf(param) + "){" + String.valueOf(body) + "}";
+        return "BLangAnnotAttributeValue: " + (value != null ? value.toString() : arrayValues.toString());
     }
 }

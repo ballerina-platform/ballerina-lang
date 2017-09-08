@@ -22,10 +22,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface InvocableSymbol extends Symbol {
+public interface AnnotationSymbol extends Symbol {
 
-    List<? extends VariableSymbol> getParameters();
-
-    List<? extends VariableSymbol> getReturnParameters();
-
+    List<? extends AnnotationAttributeSymbol> getAttributes();
 }

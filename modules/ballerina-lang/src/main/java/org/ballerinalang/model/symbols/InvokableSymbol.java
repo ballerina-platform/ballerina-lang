@@ -15,31 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.ballerinalang.model.symbols;
 
-import org.ballerinalang.model.symbols.StructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.STRUCT;
 
 /**
  * @since 0.94
  */
-public class BStructSymbol extends BTypeSymbol implements StructSymbol {
+public interface InvokableSymbol extends Symbol {
 
-    public List<BVarSymbol> fields;
+    List<? extends VariableSymbol> getParameters();
 
-    public BStructSymbol(Name name, BType type, BSymbol owner) {
-        super(STRUCT, name, type, owner);
-        fields = new ArrayList<>();
-    }
+    List<? extends VariableSymbol> getReturnParameters();
 
-    @Override
-    public List<BVarSymbol> getFields() {
-        return fields;
-    }
 }

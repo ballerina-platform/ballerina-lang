@@ -19,11 +19,14 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.StructNode;
-import org.ballerinalang.model.tree.VariableNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,19 +36,24 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class BLangStruct extends BLangNode implements StructNode {
+public class BLangAnnotAttribute extends BLangNode implements AnnotationAttributeNode {
 
+    public BLangType typeNode;
     public BLangIdentifier name;
-    public List<BLangVariable> fields;
+    public BLangExpression expr;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BSymbol symbol;
+    public BVarSymbol symbol;
 
-    public BLangStruct() {
-        this.fields = new ArrayList<>();
-        this.flags = new HashSet<>();
+    public BLangAnnotAttribute() {
         this.annAttachments = new ArrayList<>();
+        this.flags = new HashSet<>();
+    }
+
+    @Override
+    public BLangType getTypeNode() {
+        return typeNode;
     }
 
     @Override
@@ -54,13 +62,8 @@ public class BLangStruct extends BLangNode implements StructNode {
     }
 
     @Override
-    public List<BLangVariable> getFields() {
-        return fields;
-    }
-
-    @Override
-    public void addField(VariableNode var) {
-        this.getFields().add((BLangVariable) var);
+    public BLangExpression getInitialExpression() {
+        return expr;
     }
 
     @Override
@@ -74,18 +77,23 @@ public class BLangStruct extends BLangNode implements StructNode {
     }
 
     @Override
-    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
-        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
     public void addFlag(Flag flag) {
-        this.getFlags().add(flag);
+        this.flags.add(flag);
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
+    }
+
+    @Override
+    public void setTypeNode(TypeNode typeNode) {
+        this.typeNode = (BLangType) typeNode;
     }
 
     @Override
@@ -94,13 +102,19 @@ public class BLangStruct extends BLangNode implements StructNode {
     }
 
     @Override
+    public void setInitialExpression(ExpressionNode expr) {
+        this.expr = (BLangExpression) expr;
+    }
+
+    @Override
     public NodeKind getKind() {
-        return NodeKind.STRUCT;
+        return NodeKind.ANNOTATION_ATTRIBUTE;
     }
 
     @Override
     public String toString() {
-        return "BLangStruct: " + this.name + " -> " + this.fields;
+        return "BLangAnnotAttribute: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
+                (this.name != null ? this.name : "") + "[" + this.typeNode + "]" +
+                (this.expr != null ? " = " + this.expr : "");
     }
-
 }

@@ -17,21 +17,21 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
+import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link FieldBasedAccessNode}.
+ * Implementation of {@link UnaryExpressionNode}.
  *
  * @since 0.94
  */
-public class BLangFieldBasedAccess extends BLangVariableReference implements FieldBasedAccessNode {
-
-    public IdentifierNode fieldName;
+public class BLangUnaryExpression extends BLangExpression implements UnaryExpressionNode {
 
     public ExpressionNode expressionNode;
+    public OperatorKind operator;
 
     @Override
     public ExpressionNode getExpression() {
@@ -39,12 +39,21 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
     }
 
     @Override
-    public IdentifierNode getFieldName() {
-        return fieldName;
+    public OperatorKind getOperatorKind() {
+        return operator;
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.UNARY_EXPR;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
     }
 
     @Override
     public String toString() {
-        return String.valueOf(expressionNode) + "." + String.valueOf(fieldName);
+        return String.valueOf(operator) + String.valueOf(expressionNode);
     }
 }

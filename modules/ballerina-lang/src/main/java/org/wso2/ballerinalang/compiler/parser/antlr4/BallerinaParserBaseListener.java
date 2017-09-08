@@ -1,4 +1,4 @@
-// Generated from /home/laf/dev/wso2/ballerina-1/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -1120,6 +1120,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterInvocationReference(BallerinaParser.InvocationReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1192,6 +1204,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInvocation(BallerinaParser.InvocationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInvocation(BallerinaParser.InvocationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1204,25 +1240,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) { }
+	@Override public void enterExpressionStmt(BallerinaParser.ExpressionStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) { }
+	@Override public void exitExpressionStmt(BallerinaParser.ExpressionStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1307,18 +1331,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

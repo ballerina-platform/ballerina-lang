@@ -17,23 +17,29 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
+import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.VARIABLE;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ANNOTATION;
 
 /**
  * @since 0.94
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public class BAnnotationSymbol extends BSymbol implements AnnotationSymbol {
 
-    public BVarSymbol(Name name, BType type, BSymbol owner) {
-        super(VARIABLE, name, type, owner);
+    public List<BAnnotationAttributeSymbol> attributes;
+
+    public BAnnotationSymbol(Name name, BType type, BSymbol owner) {
+        super(ANNOTATION, name, type, owner);
+        attributes = new ArrayList<>();
     }
 
     @Override
-    public Object getConstValue() {
-        return null;
+    public List<BAnnotationAttributeSymbol> getAttributes() {
+        return attributes;
     }
 }

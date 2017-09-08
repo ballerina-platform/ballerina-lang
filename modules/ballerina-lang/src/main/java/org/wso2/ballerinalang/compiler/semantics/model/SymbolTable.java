@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -100,7 +100,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        BTypeSymbol tSymbol = new BTypeSymbol(SymbolKinds.TYPE, name, type, rootPkg);
+        BTypeSymbol tSymbol = new BTypeSymbol(SymbolTags.TYPE, name, type, rootPkg);
         type.tsymbol = tSymbol;
         rootScope.define(name, tSymbol);
     }

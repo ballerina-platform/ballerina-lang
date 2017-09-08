@@ -22,7 +22,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.PACKAGE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.PACKAGE;
 
 /**
  * @since 0.94
@@ -37,11 +37,12 @@ public class BPackageSymbol extends BTypeSymbol {
         this.pkgId = pkgId;
         this.version = pkgId.version;
         this.type = new BPackageType(this);
+        this.kind = SymbolKind.PACKAGE;
     }
 
     @Override
     public SymbolKind getKind() {
-        return SymbolKind.PACKAGE;
+        return kind;
     }
 
     @Override

@@ -15,14 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.tree;
 
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
  * @since 0.94
  */
-public interface StructSymbol extends TypeSymbol {
+public interface AnnotationAttributeNode extends AnnotatableNode {
+    
+    TypeNode getTypeNode();
+    
+    void setTypeNode(TypeNode type);
 
-    List<? extends VariableSymbol> getFields();
+    IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
+
+    ExpressionNode getInitialExpression();
+    
+    void setInitialExpression(ExpressionNode expr);
+    
 }
