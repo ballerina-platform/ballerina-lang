@@ -360,6 +360,14 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    public static List<LookupElement> getWorkerInteractionKeywords() {
+        List<LookupElement> keywords = new LinkedList<>();
+        keywords.add(createLookupElement("fork",null));
+        keywords.add(createLookupElement("default",null));
+        return keywords;
+    }
+
+    @NotNull
     public static List<String> getAllLambdaFunctions() {
         List<String> lambdaFunctions = new LinkedList<>();
         lambdaFunctions.add("foreach");
