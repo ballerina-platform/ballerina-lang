@@ -29,14 +29,9 @@ public interface IfNode extends StatementNode {
 
     StatementNode getElseStatement();
     
-    StatementNode getElseIfStatements();
-
     void setCondition(ExpressionNode condition);
 
     void setBody(BlockNode body);
 
     void setElseStatement(StatementNode elseStatement);
-
-    void addElseIfClause(ElseIfNode elseIfNode);
-
 }

@@ -20,14 +20,10 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.ElseIfNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 0.94
@@ -35,12 +31,7 @@ import java.util.List;
 public class BLangIf extends BLangStatement implements IfNode {
     public BLangExpression condition;
     public BLangBlockStmt body;
-    public List<BLangElseIf> elseIfStmts;
     public BLangStatement elseStmt;
-
-    public BLangIf() {
-        elseIfStmts = new ArrayList<>();
-    }
 
     @Override
     public BLangExpression getCondition() {
@@ -57,11 +48,6 @@ public class BLangIf extends BLangStatement implements IfNode {
         return elseStmt;
     }
 
-    @Override
-    public BLangStatement getElseIfStatements() {
-        return elseStmt;
-    }
-    
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -88,12 +74,7 @@ public class BLangIf extends BLangStatement implements IfNode {
     }
 
     @Override
-    public void addElseIfClause(ElseIfNode elseIfNode) {
-        elseIfStmts.add((BLangElseIf) elseIfNode);
-    }
-
-    @Override
     public String toString() {
-        return "BLangIf: (" + condition + ") " + body + " " + elseIfStmts + " " + elseStmt;
+        return "BLangIf: (" + condition + ") " + body + (elseStmt != null ? (" Else: " + elseStmt) : "");
     }
 }

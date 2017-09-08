@@ -919,9 +919,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
-        this.pkgBuilder.startBlock();
-    }
+    public void enterIfClause(BallerinaParser.IfClauseContext ctx) { }
 
     /**
      * {@inheritDoc}
@@ -940,7 +938,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
-        this.pkgBuilder.startBlock();
+        // else-if clause is also modeled as an if-else statement
+        this.pkgBuilder.startIfElseNode();
     }
 
     /**
