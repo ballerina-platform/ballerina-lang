@@ -1,7 +1,9 @@
-import Plugin from './../../core/plugin/plugin';
-import { CONTRIBUTIONS } from './../../core/plugin/constants';
+import Plugin from 'core/plugin/plugin';
+import { CONTRIBUTIONS } from 'core/plugin/constants';
+import { REGIONS } from 'core/layout/constants';
 import Editor from './editor/Editor';
-import { PLUGIN_ID, EDITOR_ID } from './constants';
+import TryIt from './try-it/try-it-container';
+import { PLUGIN_ID, EDITOR_ID, TRY_IT_ID } from './constants';
 import { CLASSES } from './../../../js/ballerina/views/constants';
 
 /**
@@ -20,8 +22,9 @@ class BallerinaPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
+        const { EDITORS, VIEWS } = CONTRIBUTIONS;
         return {
-            [CONTRIBUTIONS.EDITORS]: [
+            [EDITORS]: [
                 {
                     id: EDITOR_ID,
                     extension: 'bal',
@@ -32,6 +35,21 @@ class BallerinaPlugin extends Plugin {
                         };
                     },
                     tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
+                },
+            ],
+            [VIEWS]: [
+                {
+                    id: TRY_IT_ID,
+                    component: TryIt,
+                    propsProvider: () => {
+                        return {
+                        };
+                    },
+                    region: REGIONS.BOTTOM_PANEL,
+                    regionOptions: {
+                        panelTitle: 'Try It',
+                    },
+                    displayOnLoad: true,
                 },
             ],
         };

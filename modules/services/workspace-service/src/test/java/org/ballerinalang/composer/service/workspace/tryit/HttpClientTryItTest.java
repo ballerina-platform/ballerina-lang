@@ -43,6 +43,7 @@ import java.util.List;
 public class HttpClientTryItTest {
     private MicroservicesRunner microservicesRunner;
     private JsonParser parser = new JsonParser();
+    private int microservicePort = 9595;
     
     /**
      * Data provider for try it test cases.
@@ -91,8 +92,8 @@ public class HttpClientTryItTest {
      */
     @BeforeClass
     public void startService() {
-        microservicesRunner = new MicroservicesRunner();
-        microservicesRunner.deploy(new StockQuoteService()).start();
+        this.microservicesRunner = new MicroservicesRunner(this.microservicePort);
+        this.microservicesRunner.deploy(new StockQuoteService()).start();
     }
     
     /**
@@ -103,7 +104,8 @@ public class HttpClientTryItTest {
      */
     @Test(dataProvider = "tryItSamples")
     public void executeRequest(String requestContent, String responseContent) throws TryItException {
-        HttpTryItClient httpTryItClient = new HttpTryItClient("localhost:8080", requestContent);
+        HttpTryItClient httpTryItClient = new HttpTryItClient("localhost:" + Integer.toString(this.microservicePort),
+                                                                                                        requestContent);
         httpTryItClient.disableTimeDurationCalculation();
         String receivedResponse = httpTryItClient.execute();
     

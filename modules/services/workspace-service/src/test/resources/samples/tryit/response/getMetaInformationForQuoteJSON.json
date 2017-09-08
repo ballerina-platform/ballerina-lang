@@ -7,10 +7,10 @@
   },
   "returnedRequestHeaders": {
     "Content-Type": "application/json",
-    "Host": "localhost:8080",
+    "Host": "localhost:9595",
     "Connection": "Keep-Alive",
     "User-Agent": "Ballerina Composer",
     "Accept-Encoding": "gzip,deflate"
   },
-  "requestUrl": "http://localhost:8080/stockquote/IBM"
+  "requestUrl": "http://localhost:9595/stockquote/IBM"
 }
