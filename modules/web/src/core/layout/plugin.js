@@ -20,12 +20,13 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
+import { MENU_DEF_TYPES as MENU_TYPES } from './../menu/constants';
 
 import App from './components/App';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
-import { REGIONS, PLUGIN_ID } from './constants';
+import { REGIONS, PLUGIN_ID, LABELS, MENUS as MENU_IDS, COMMANDS as CMD_IDS } from './constants';
 
 /**
  * LayoutPlugin is responsible for loading view components in to the layout.
@@ -87,7 +88,7 @@ class LayoutPlugin extends Plugin {
      */
     render() {
         const { layout, appContext } = this;
-        const root = React.createElement(App, { layout, appContext }, null);
+        const root = React.createElement(App, { layoutPlugin: this, layout, appContext }, null);
         ReactDOM.render(root, document.getElementById(this.config.container));
     }
 
@@ -95,10 +96,32 @@ class LayoutPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
+            [MENUS]: [
+                {
+                    id: MENU_IDS.VIEW_MENU,
+                    label: LABELS.VIEW,
+                    isActive: (appContext) => {
+                        return true;
+                    },
+                    icon: '',
+                    type: MENU_TYPES.ROOT,
+                },
+                {
+                    id: MENU_IDS.TOGGOLE_BOTTOM_PANEL,
+                    label: LABELS.TOGGLE_BOTTOM_PANLEL,
+                    isActive: (appContext) => {
+                        return true;
+                    },
+                    icon: '',
+                    command: CMD_IDS.TOGGLE_BOTTOM_PANEL,
+                    parent: MENU_IDS.VIEW_MENU,
+                    type: MENU_TYPES.ITEM,
+                },
+            ],
         };
     }
 

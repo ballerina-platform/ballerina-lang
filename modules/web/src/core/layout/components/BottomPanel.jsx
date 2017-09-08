@@ -21,8 +21,27 @@ class BottomPanel extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
+            maximized: false,
             activeView: context.history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW) || undefined,
         };
+    }
+
+    /**
+     * upon maximize toggle
+     */
+    onToggleMaximizedState() {
+        const maximized = !this.state.maximized;
+        this.setState({
+            maximized,
+        });
+        this.props.onToggleMaximizedState(maximized);
+    }
+
+    /**
+     * upon close
+     */
+    onClose() {
+        this.props.onClose();
     }
 
     /**
@@ -73,8 +92,14 @@ class BottomPanel extends React.Component {
                             <ScrollableInkTabBar
                                 extraContent={
                                     <div className="actions">
-                                        <i className="fw fw-up" />
-                                        <i className="fw fw-cancel" />
+                                        <i
+                                            className={`fw fw-${this.state.maximized ? 'down' : 'up'}`}
+                                            onClick={() => this.onToggleMaximizedState()}
+                                        />
+                                        <i
+                                            className="fw fw-cancel"
+                                            onClick={() => this.onClose()}
+                                        />
                                     </div>
                                 }
                             />
@@ -92,6 +117,8 @@ class BottomPanel extends React.Component {
 }
 
 BottomPanel.propTypes = {
+    onClose: PropTypes.func.isRequired,
+    onToggleMaximizedState: PropTypes.func.isRequired,
     onActiveViewChange: PropTypes.func.isRequired,
     children: PropTypes.arrayOf(PropTypes.element).isRequired,
 };

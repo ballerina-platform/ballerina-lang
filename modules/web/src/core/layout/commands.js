@@ -27,5 +27,11 @@ export function getCommandDefinitions() {
                 id: PropTypes.string.isRequired,
             },
         },
+        {
+            id: COMMANDS.TOGGLE_BOTTOM_PANEL,
+            shortcut: {
+                default: 'ctrl+`',
+            },
+        },
     ];
 }

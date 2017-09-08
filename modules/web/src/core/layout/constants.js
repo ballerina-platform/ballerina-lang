@@ -3,6 +3,21 @@ export const COMMANDS = {
     SHOW_DIALOG: 'show-dialog',
     SHOW_VIEW: 'show-view',
     HIDE_VIEW: 'hide-view',
+    TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
+};
+
+export const EVENTS = {
+    TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
+};
+
+export const LABELS = {
+    VIEW: 'View',
+    TOGGLE_BOTTOM_PANLEL: 'Toggle Bottom Panel',
+};
+
+export const MENUS = {
+    VIEW_MENU: 'composer.menu.layout.view',
+    TOGGLE_BOTTOM_PANEL: 'composer.menu.layout.toggle-bottom-panel',
 };
 
 export const HISTORY = {
@@ -10,6 +25,7 @@ export const HISTORY = {
     BOTTOM_PANEL_SIZE: 'bottom-split-pane-size',
     ACTIVE_LEFT_PANEL_VIEW: 'active-left-panel-view',
     ACTIVE_BOTTOM_PANEL_VIEW: 'active-bottom-panel-view',
+    BOTTOM_PANEL_IS_ACTIVE: 'bottom-panel-is-active',
 };
 
 export const REGIONS = {

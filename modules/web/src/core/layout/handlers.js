@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import log from 'log';
-import { COMMANDS } from './constants';
+import { COMMANDS, EVENTS } from './constants';
 
 /**
  * Provides command handler definitions of layout manager plugin.
@@ -15,13 +15,19 @@ export function getHandlerDefinitions(layoutManager) {
         {
             cmdID: COMMANDS.SHOW_VIEW,
             handler: (id, region, viewProps) => {
-                
+               
             },
         },
         {
             cmdID: COMMANDS.HIDE_VIEW,
             handler: (id) => {
                 // TODO
+            },
+        },
+        {
+            cmdID: COMMANDS.TOGGLE_BOTTOM_PANEL,
+            handler: () => {
+                layoutManager.trigger(EVENTS.TOGGLE_BOTTOM_PANLEL);
             },
         },
         {

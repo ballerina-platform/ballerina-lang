@@ -6,7 +6,7 @@ import LeftPanel from './LeftPanel';
 import EditorArea from './EditorArea';
 import BottomPanel from './BottomPanel';
 import Header from './Header';
-import { REGIONS, HISTORY } from './../constants';
+import { REGIONS, HISTORY, EVENTS } from './../constants';
 
 const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
@@ -33,7 +33,8 @@ class App extends React.Component {
                                         .pref.history.get(HISTORY.LEFT_PANEL_SIZE), 10)
                                             || leftPanelDefaultSize)
                                     : 0;
-        const showBottomPanel = !_.isNil(history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW));
+        const bottomPanelIsActive = history.get(HISTORY.BOTTOM_PANEL_IS_ACTIVE);
+        const showBottomPanel = !_.isNil(bottomPanelIsActive) ? bottomPanelIsActive : false;
         const bottomPanelSize = showBottomPanel
                                     ? (parseInt(this.props.appContext
                                         .pref.history.get(HISTORY.BOTTOM_PANEL_SIZE), 10)
@@ -52,6 +53,12 @@ class App extends React.Component {
 
         // handle window resize events
         window.addEventListener('resize', this.handleWindowResize.bind(this));
+        this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
+            this.setState({
+                showBottomPanel: !this.state.showBottomPanel,
+                bottomPanelSize: !this.state.showBottomPanel ? 0 : bottomPanelDefaultSize,
+            });
+        });
     }
 
     /**
@@ -99,6 +106,7 @@ class App extends React.Component {
             <View {...propsProvider()} key={viewDef.id} definition={viewDef} />
         );
     }
+
 
     /**
      * @inheritdoc
@@ -176,11 +184,32 @@ class App extends React.Component {
                             });
                         }
                         }
+                        pane1Style={{
+                            height: this.state.documentHeight - (headerHeight + this.state.bottomPanelSize),
+                        }}
                     >
                         <EditorArea>
                             {this.getViewsForRegion(REGIONS.EDITOR_AREA)}
                         </EditorArea>
                         <BottomPanel
+                            onClose={
+                                () => {
+                                    this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_IS_ACTIVE, false);
+                                    this.setState({
+                                        showBottomPanel: false,
+                                        bottomPanelSize: 0,
+                                    });
+                                }
+                            }
+                            onToggleMaximizedState={
+                                (isMaximized) => {
+                                    const newSize = isMaximized ? bottomPanelMaxSize : bottomPanelDefaultSize;
+                                    this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, newSize);
+                                    this.setState({
+                                        bottomPanelSize: newSize,
+                                    });
+                                }
+                            }
                             onActiveViewChange={
                                 (newView) => {
                                     if (_.isNil(newView)) {
@@ -212,6 +241,7 @@ class App extends React.Component {
 }
 
 App.propTypes = {
+    layoutPlugin: PropTypes.objectOf(Object).isRequired,
     appContext: PropTypes.objectOf(Object).isRequired,
     layout: PropTypes.objectOf(Object).isRequired,
 };
