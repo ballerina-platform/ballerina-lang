@@ -142,7 +142,7 @@ ActionBox.propTypes = {
 ActionBox.defaultProps = {
     show: false,
     isBreakpoint: false,
-    onBreakpointClick: () => {},
+    onBreakpointClick: undefined,
     disableButtons: {
         debug: false,
         delete: false,
