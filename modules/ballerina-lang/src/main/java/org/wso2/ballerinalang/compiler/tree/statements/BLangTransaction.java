@@ -18,9 +18,11 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.94
@@ -30,6 +32,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt failedBody;
     public BLangBlockStmt committedBody;
     public BLangBlockStmt abortedBody;
+    public BLangExpression retryCount;
 
     public BLangTransaction() {
     }
@@ -37,11 +40,13 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangTransaction(BLangBlockStmt transactionBody,
                             BLangBlockStmt failedBody,
                             BLangBlockStmt committedBody,
-                            BLangBlockStmt abortedBody) {
+                            BLangBlockStmt abortedBody,
+                            BLangExpression retryCount) {
         this.transactionBody = transactionBody;
         this.failedBody = failedBody;
         this.committedBody = committedBody;
         this.abortedBody = abortedBody;
+        this.retryCount = retryCount;
     }
 
     @Override
@@ -65,6 +70,11 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
+    public ExpressionNode getCondition() {
+        return retryCount;
+    }
+
+    @Override
     public void setTransactionBody(BlockNode body) {
         this.transactionBody = (BLangBlockStmt) body;
     }
@@ -85,6 +95,11 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
+    public void setRetryCount(ExpressionNode condition) {
+        this.retryCount = (BLangExpression) condition;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -99,6 +114,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
         return "Transaction: {" + transactionBody + "} "
                 + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
                 + (committedBody != null ? " committed {" + String.valueOf(committedBody) + "}" : "")
-                + (abortedBody != null ? " aborted {" + String.valueOf(abortedBody) + "}" : "");
+                + (abortedBody != null ? " aborted {" + String.valueOf(abortedBody) + "}" : "")
+                + (retryCount != null ? " retry (" + retryCount + ")" : "");
     }
 }

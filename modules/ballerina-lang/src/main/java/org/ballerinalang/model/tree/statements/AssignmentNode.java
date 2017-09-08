@@ -34,4 +34,10 @@ public interface AssignmentNode extends StatementNode {
     ExpressionNode getExpression();
 
     boolean isDeclaredWithVar();
+
+    void setExpression(ExpressionNode expression);
+
+    void setDeclaredWithVar(boolean isDeclaredWithVar);
+
+    void addVariable(VariableReferenceNode variableReferenceNode);
 }

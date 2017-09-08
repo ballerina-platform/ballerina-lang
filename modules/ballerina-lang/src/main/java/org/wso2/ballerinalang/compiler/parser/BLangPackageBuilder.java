@@ -43,6 +43,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -85,7 +87,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * This class builds the package AST of a Ballerina source file.
@@ -447,23 +448,27 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(varRef);
     }
 
-    public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
+    public void createFunctionInvocation(DiagnosticPos pos, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         if (argsAvailable) {
             invocationNode.argsExpressions = exprNodeListStack.pop();
         }
-        ExpressionNode expressionNode = exprNodeStack.pop();
-        if (expressionNode instanceof BLangSimpleVariableReference) {
-            BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) expressionNode;
-            invocationNode.functionName = varRef.variableName;
-            invocationNode.packIdentifier = varRef.packageIdentifier;
-        } else if (expressionNode instanceof BLangFieldBasedAccess) {
-            BLangFieldBasedAccess fieldRef = (BLangFieldBasedAccess) expressionNode;
-            invocationNode.functionName = fieldRef.fieldName;
-            invocationNode.packIdentifier = createIdentifier(null);
-            invocationNode.variableReferenceNode = fieldRef;
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        invocationNode.functionName = nameReference.name;
+        invocationNode.packIdentifier = nameReference.pkgAlias;
+        addExpressionNode(invocationNode);
+    }
+
+    public void createInvocationNode(DiagnosticPos pos, String invocation, boolean argsAvailable) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        if (argsAvailable) {
+            invocationNode.argsExpressions = exprNodeListStack.pop();
         }
+        invocationNode.variableReferenceNode = (VariableReferenceNode) exprNodeStack.pop();
+        invocationNode.functionName = createIdentifier(invocation);
+        invocationNode.packIdentifier = createIdentifier(null);
         addExpressionNode(invocationNode);
     }
 
@@ -720,18 +725,15 @@ public class BLangPackageBuilder {
     public void addAssignmentStatement(boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         List<ExpressionNode> lExprList = exprNodeListStack.pop();
-        if (rExprNode instanceof BLangExpression) {
-            List<BLangVariableReference> lVariableReferenceList = lExprList.stream()
-                    .filter(BLangVariableReference.class::isInstance).map(BLangVariableReference.class::cast)
-                    .collect(Collectors.toList());
-            AssignmentNode assignmentNode = TreeBuilder
-                    .createAssignmentNode(lVariableReferenceList, (BLangExpression) rExprNode, isVarDeclaration);
-            this.blockNodeStack.peek().addStatement(assignmentNode);
-        }
+        AssignmentNode assignmentNode = TreeBuilder.createAssignmentNode();
+        assignmentNode.setExpression(rExprNode);
+        assignmentNode.setDeclaredWithVar(isVarDeclaration);
+        lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
+        this.blockNodeStack.peek().addStatement(assignmentNode);
     }
 
     public void startTransactionStmt() {
-        transactionNodeStack.push((BLangTransaction) TreeBuilder.createTransactionNode());
+        transactionNodeStack.push(TreeBuilder.createTransactionNode());
         startBlock();
     }
 
@@ -791,6 +793,11 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
+    public void addRetrytmt() {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        transactionNode.setRetryCount(exprNodeStack.pop());
+    }
+
     public void addIfBlock() {
         IfNode ifNode = ifElseStatementStack.peek();
         ifNode.setCondition(exprNodeStack.pop());
@@ -819,6 +826,14 @@ public class BLangPackageBuilder {
 
     public void endIfElseNode() {
         addStmtToCurrentBlock(ifElseStatementStack.pop());
+    }
+
+
+    public void addExpressionStmt(DiagnosticPos pos) {
+        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.pos = pos;
+        exprStmt.expr = (BLangExpression) exprNodeStack.pop();
+        addStmtToCurrentBlock(exprStmt);
     }
 
     public void startServiceDef() {

@@ -68,13 +68,11 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         StringBuilder br = new StringBuilder();
         if (variableReferenceNode != null) {
             // Action invocation or lambda invocation.
-            br.append(String.valueOf(variableReferenceNode));
-        } else {
-            if (packIdentifier != null && !packIdentifier.getValue().isEmpty()) {
+            br.append(String.valueOf(variableReferenceNode)).append(".");
+        } else if (packIdentifier != null && !packIdentifier.getValue().isEmpty()) {
                 br.append(String.valueOf(packIdentifier)).append(":");
-            }
-            br.append(String.valueOf(functionName));
         }
+        br.append(String.valueOf(functionName));
         br.append("(");
         if (argsExpressions.size() > 0) {
             String s = Arrays.toString(argsExpressions.toArray());
