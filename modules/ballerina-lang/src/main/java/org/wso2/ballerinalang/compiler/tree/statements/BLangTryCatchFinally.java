@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +31,10 @@ public class BLangTryCatchFinally extends BLangStatement implements TryCatchFina
     public BLangBlockStmt tryBody;
     public List<BLangCatch> catchBlocks;
     public BLangBlockStmt finallyBody;
+
+    public BLangTryCatchFinally() {
+        catchBlocks = new ArrayList<>();
+    }
 
     public BLangTryCatchFinally(BLangBlockStmt tryBody, List<BLangCatch> catchBlocks, BLangBlockStmt finallyBody) {
         this.tryBody = tryBody;
@@ -60,5 +65,15 @@ public class BLangTryCatchFinally extends BLangStatement implements TryCatchFina
     @Override
     public NodeKind getKind() {
         return NodeKind.TRY;
+    }
+
+    @Override
+    public String toString() {
+        String catchString = "";
+        for (BLangCatch catchNode : catchBlocks) {
+            catchString += String.valueOf(catchNode);
+        }
+        return "try{" + String.valueOf(tryBody) + "}" + catchString +
+                (finallyBody != null ? "finally{" + String.valueOf(finallyBody) + "}" : "");
     }
 }

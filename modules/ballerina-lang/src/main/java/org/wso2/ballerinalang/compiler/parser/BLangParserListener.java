@@ -1084,54 +1084,42 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
+
+    @Override
+    public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
+        this.pkgBuilder.startTryCatchFinallyStmt();
+    }
+
+    @Override
+    public void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
+        this.pkgBuilder.addTryCatchFinallyStmt(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) {
+        this.pkgBuilder.addTryClause(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) {
+        this.pkgBuilder.startCatchClause();
+    }
+
+    @Override
+    public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) {
+        String paramName = ctx.Identifier().getText();
+        this.pkgBuilder.addCatchClause(getCurrentPos(ctx), paramName);
+    }
+
+    @Override
+    public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        this.pkgBuilder.startFinallyBlock();
+    }
+
+    @Override
+    public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        this.pkgBuilder.addFinallyBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
