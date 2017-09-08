@@ -44,6 +44,8 @@ import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -117,6 +119,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
+    
+    private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -277,14 +281,20 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void addVariableDefStatement(String identifier) {
+    public void addVariableDefStatement(String identifier, boolean exprAvailable) {
         VariableDefinitionNode varDefNode = TreeBuilder.createVariableDefinitionNode();
         VariableNode var = TreeBuilder.createVariableNode();
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.setInitialExpression(this.exprNodeStack.pop());
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
         varDefNode.setVariable(var);
-        this.blockNodeStack.peek().addStatement(varDefNode);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    private void addStmtToCurrentBlock(StatementNode statement) {
+        this.blockNodeStack.peek().addStatement(statement);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -585,7 +595,7 @@ public class BLangPackageBuilder {
         BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(annotAttachmentStack.pop());
-        annotAttribValStack.add(annotAttrVal);
+        annotAttribValStack.push(annotAttrVal);
     }
 
     public void createArrayTypeAttributeValue(DiagnosticPos currentPos) {
@@ -594,7 +604,7 @@ public class BLangPackageBuilder {
         while (!annotAttribValStack.isEmpty()) {
             annotAttrVal.addValue(annotAttribValStack.pop());
         }
-        annotAttribValStack.add(annotAttrVal);
+        annotAttribValStack.push(annotAttrVal);
     }
 
     public void createAnnotationKeyValue(String attrName, DiagnosticPos currentPos) {
@@ -605,7 +615,7 @@ public class BLangPackageBuilder {
         BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(exprNodeStack.pop());
-        annotAttribValStack.add(annotAttrVal);
+        annotAttribValStack.push(annotAttrVal);
     }
 
     private void attachAnnotations(AnnotatableNode annotatableNode) {
@@ -613,6 +623,7 @@ public class BLangPackageBuilder {
             annotatableNode.addAnnotationAttachment(annotAttachmentStack.pop());
         }
     }
+
     public void addAssignmentStatement(boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         List<ExpressionNode> lExprList = exprNodeListStack.pop();
@@ -629,5 +640,40 @@ public class BLangPackageBuilder {
     public void addAbortStatement() {
         AbortNode abortNode = TreeBuilder.createAbortNode();
         this.blockNodeStack.peek().addStatement(abortNode);
+    }
+
+    public void startIfElseNode() {
+        ifElseStatementStack.push(TreeBuilder.createIfElseStatementNode());
+        startBlock();
+    }
+
+    public void addIfBlock() {
+        IfNode ifNode = ifElseStatementStack.peek();
+        ifNode.setCondition(exprNodeStack.pop());
+        ifNode.setBody(blockNodeStack.pop());
+    }
+
+    public void addElseIfBlock() {
+        IfNode elseIfNode = ifElseStatementStack.pop();
+        elseIfNode.setCondition(exprNodeStack.pop());
+        elseIfNode.setBody(blockNodeStack.pop());
+
+        IfNode parentIfNode = ifElseStatementStack.peek();
+        while (parentIfNode.getElseStatement() != null) {
+            parentIfNode = (IfNode) parentIfNode.getElseStatement();
+        }
+        parentIfNode.setElseStatement(elseIfNode);
+    }
+
+    public void addElseBlock() {
+        IfNode ifNode = ifElseStatementStack.peek();
+        while (ifNode.getElseStatement() != null) {
+            ifNode = (IfNode) ifNode.getElseStatement();
+        }
+        ifNode.setElseStatement(blockNodeStack.pop());
+    }
+
+    public void endIfElseNode() {
+        addStmtToCurrentBlock(ifElseStatementStack.pop());
     }
 }
