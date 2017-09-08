@@ -102,6 +102,11 @@ class BallerinaASTRoot extends ASTNode {
                     functionInvocationExpression.getFullPackageName()) {
                     addImport(functionInvocationExpression.getFullPackageName(), options);
                 }
+            } else if (factory.isTryCatchStatement(child)) {
+                const catchStatement = child.findChild(factory.isCatchStatement);
+                if (catchStatement.getParameterDefString().includes('errors:')) {
+                    addImport('ballerina.lang.errors', options);
+                }
             }
         };
 
