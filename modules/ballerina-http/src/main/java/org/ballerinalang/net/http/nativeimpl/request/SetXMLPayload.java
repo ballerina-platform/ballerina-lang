@@ -18,18 +18,15 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Set the payload of the Message as a XML.
@@ -54,13 +51,6 @@ public class SetXMLPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-        BXML payload = (BXML) getRefArgument(context, 1);
-
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-        httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
-        return VOID_RETURN;
+        return RequestResponseUtil.setXMLPayload(context, this, log);
     }
 }

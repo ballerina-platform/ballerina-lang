@@ -21,11 +21,14 @@ package org.ballerinalang.net.http.util;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -133,5 +136,102 @@ public class RequestResponseUtil {
         byte[] bytes = output.toByteArray();
         output.close();
         return bytes;
+    }
+
+    public static BValue[] removeAllHeaders(Context context, AbstractNativeFunction abstractNativeFunction,
+                                            Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        httpCarbonMessage.getHeaders().clear();
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] removeHeader(Context context, AbstractNativeFunction abstractNativeFunction,
+                                        Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        String headerName = abstractNativeFunction.getStringArgument(context, 0);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        httpCarbonMessage.removeHeader(headerName);
+        if (log.isDebugEnabled()) {
+            log.debug("Remove header:" + headerName);
+        }
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] setHeader(Context context, AbstractNativeFunction abstractNativeFunction,
+                                      Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        String headerName = abstractNativeFunction.getStringArgument(context, 0);
+        String headerValue = abstractNativeFunction.getStringArgument(context, 1);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        httpCarbonMessage.setHeader(headerName, headerValue);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Set " + headerName + " header with value: " + headerValue);
+        }
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] setJsonPayload(Context context, AbstractNativeFunction abstractNativeFunction,
+                                          Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BJSON payload = (BJSON) abstractNativeFunction.getRefArgument(context, 1);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        httpCarbonMessage.setMessageDataSource(payload);
+        httpCarbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE, org.ballerinalang
+                .nativeimpl.lang.utils.Constants.APPLICATION_JSON);
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] setProperty(Context context, AbstractNativeFunction abstractNativeFunction,
+                                       Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        String propertyName = abstractNativeFunction.getStringArgument(context, 0);
+        String propertyValue = abstractNativeFunction.getStringArgument(context, 1);
+
+        if (propertyName != null && propertyValue != null) {
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+            httpCarbonMessage.setProperty(propertyName, propertyValue);
+        }
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] setStringPayload(Context context, AbstractNativeFunction abstractNativeFunction,
+                                          Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        String payload = abstractNativeFunction.getStringArgument(context, 0);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        StringDataSource stringDataSource = new StringDataSource(payload);
+        httpCarbonMessage.setMessageDataSource(stringDataSource);
+        httpCarbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE, org.ballerinalang
+                .nativeimpl.lang.utils.Constants.TEXT_PLAIN);
+        if (log.isDebugEnabled()) {
+            log.debug("Setting new payload: " + payload);
+        }
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] setXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction,
+                                         Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        httpCarbonMessage.setMessageDataSource(payload);
+        httpCarbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE, org.ballerinalang
+                .nativeimpl.lang.utils.Constants.APPLICATION_XML);
+        return abstractNativeFunction.VOID_RETURN;
     }
 }

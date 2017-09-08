@@ -20,16 +20,15 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Set the payload of the Message as a JSON.
@@ -50,15 +49,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         value = "The JSON payload object") })
 public class SetJsonPayload extends AbstractNativeFunction {
 
+    private static final Logger log = LoggerFactory.getLogger(SetJsonPayload.class);
+
     @Override
     public BValue[] execute(Context ctx) {
-        BStruct requestStruct = (BStruct) getRefArgument(ctx, 0);
-        BJSON payload = (BJSON) getRefArgument(ctx, 1);
-
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-        httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        return VOID_RETURN;
+        return RequestResponseUtil.setJsonPayload(ctx, this, log);
     }
 }
