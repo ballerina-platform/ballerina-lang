@@ -53,8 +53,10 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -81,7 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -264,9 +266,10 @@ public class BLangPackageBuilder {
         return node;
     }
 
-    public void addVar(String identifier, boolean exprAvailable, int annotCount) {
-        VariableNode var = this.generateBasicVarNode(identifier, exprAvailable);
+    public void addVar(DiagnosticPos pos, String identifier, boolean exprAvailable, int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(identifier, exprAvailable);
         attachAnnotations(var, annotCount);
+        var.pos = pos;
         if (this.varListStack.empty()) {
             this.varStack.push(var);
         } else {
@@ -572,9 +575,10 @@ public class BLangPackageBuilder {
         attachAnnotations(structNode);
         this.structStack.add(structNode);
     }
-    
-    public void endStructDef(String identifier) {
-        StructNode structNode = this.structStack.pop();
+
+    public void endStructDef(DiagnosticPos pos, String identifier) {
+        BLangStruct structNode = (BLangStruct) this.structStack.pop();
+        structNode.pos = pos;
         structNode.setName(this.createIdentifier(identifier));
         this.varListStack.pop().forEach(structNode::addField);
         this.compUnit.addTopLevelNode(structNode);
@@ -602,8 +606,9 @@ public class BLangPackageBuilder {
         this.actionNodeStack.add(new ArrayList<>());
     }
     
-    public void endConnectorDef(String identifier) {
-        ConnectorNode connectorNode = this.connectorNodeStack.pop();
+    public void endConnectorDef(DiagnosticPos pos, String identifier) {
+        BLangConnector connectorNode = (BLangConnector) this.connectorNodeStack.pop();
+        connectorNode.pos = pos;
         connectorNode.setName(this.createIdentifier(identifier));
         this.compUnit.addTopLevelNode(connectorNode);
     }

@@ -68,4 +68,6 @@ public interface Diagnostic {
     DiagnosticPosition getPosition();
 
     String getMessage();
+
+    String getCode();
 }

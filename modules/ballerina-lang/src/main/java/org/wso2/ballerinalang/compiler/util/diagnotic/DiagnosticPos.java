@@ -15,9 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util;
+package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
+
+import java.io.File;
 
 /**
  * @since 0.94
@@ -65,5 +67,22 @@ public class DiagnosticPos implements DiagnosticPosition {
     @Override
     public int endColumn() {
         return eCol;
+    }
+
+    @Override
+    public String toString() {
+        boolean pkgNameAvailable = src.pkgName != null && !src.pkgName.isEmpty();
+        boolean cUnitNameAvailable = src.cUnitName != null && !src.cUnitName.isEmpty();
+        String strPos = "";
+
+        if (pkgNameAvailable && cUnitNameAvailable) {
+            strPos = strPos + src.pkgName + File.separator + src.cUnitName + ":";
+        } else if (pkgNameAvailable) {
+            strPos = strPos + src.pkgName + ":";
+        } else {
+            strPos = strPos + src.cUnitName + ":";
+        }
+
+        return strPos + sLine + ":" + sCol + ":";
     }
 }
