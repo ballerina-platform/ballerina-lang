@@ -34,4 +34,9 @@ public class BLangResource extends BLangInvokableNode implements ResourceNode {
     public NodeKind getKind() {
         return NodeKind.RESOURCE;
     }
+    
+    @Override
+    public String toString() {
+        return "BLangResource: " + super.toString();
+    }
 }

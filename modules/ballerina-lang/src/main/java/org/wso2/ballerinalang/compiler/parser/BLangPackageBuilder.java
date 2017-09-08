@@ -34,6 +34,8 @@ import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
@@ -119,8 +121,10 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
-    
+
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
+
+    private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -580,7 +584,11 @@ public class BLangPackageBuilder {
         BLangAnnotationAttachment annotAttachmentNode =
                 (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         annotAttachmentNode.pos = currentPos;
-        this.annotAttachmentStack.push(TreeBuilder.createAnnotAttachmentNode());
+        annotAttachmentStack.push(annotAttachmentNode);
+    }
+
+    public void setAnnotationAttachmentName(String annotationName) {
+        annotAttachmentStack.peek().setAnnotationName(createIdentifier(annotationName));
     }
 
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos) {
@@ -675,5 +683,37 @@ public class BLangPackageBuilder {
 
     public void endIfElseNode() {
         addStmtToCurrentBlock(ifElseStatementStack.pop());
+    }
+
+    public void startServiceDef() {
+        ServiceNode serviceNode = TreeBuilder.createServiceNode();
+        attachAnnotations(serviceNode);
+        serviceNodeStack.push(serviceNode);
+    }
+
+    public void addServiceBody() {
+        ServiceNode serviceNode = serviceNodeStack.peek();
+        blockNodeStack.pop().getStatements()
+                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+    }
+
+    public void endServiceDef(String protocolPkg, String serviceName) {
+        ServiceNode serviceNode = serviceNodeStack.pop();
+        serviceNode.setName(createIdentifier(serviceName));
+        serviceNode.setProtocolPackageIdentifier(createIdentifier(protocolPkg));
+        this.compUnit.addTopLevelNode(serviceNode);
+    }
+
+    public void startResourceDef() {
+        ResourceNode resourceNode = TreeBuilder.createResourceNode();
+        attachAnnotations(resourceNode);
+        invokableNodeStack.push(resourceNode);
+    }
+
+    public void endResourceDef(String resourceName) {
+        ResourceNode resourceNode = (ResourceNode) invokableNodeStack.pop();
+        resourceNode.setName(createIdentifier(resourceName));
+        varListStack.pop().forEach(resourceNode::addParameter);
+        serviceNodeStack.peek().addResource(resourceNode);
     }
 }

@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
@@ -63,6 +65,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -220,7 +224,6 @@ public class TreeBuilder {
         return new BLangAbort();
     }
 
-
     public static AnnotationNode createAnnotationNode() {
         return new BLangAnnotation();
     }
@@ -239,5 +242,13 @@ public class TreeBuilder {
     
     public static IfNode createIfElseStatementNode() {
         return new BLangIf();
+    }
+    
+    public static ServiceNode createServiceNode() {
+        return new BLangService();
+    }
+    
+    public static ResourceNode createResourceNode() {
+        return new BLangResource();
     }
 }
