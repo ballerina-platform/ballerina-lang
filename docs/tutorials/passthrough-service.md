@@ -117,3 +117,5 @@ Now that you have added a service, you need a connector to connect to the extern
     ```
     resource getBooksByTitle (message m, @http:QueryParam {value:"title"} string title)
     ```
+1. Now that you have specified a query parameter, you can use the value of the query parameter in your connector call. Change the message passed to the following.
+    ![alt text](../images/ConnectorMessage2.png)
