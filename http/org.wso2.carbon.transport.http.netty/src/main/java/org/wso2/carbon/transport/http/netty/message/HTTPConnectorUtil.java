@@ -195,9 +195,9 @@ public class HTTPConnectorUtil {
                 properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
         int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
         ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String schema = properties.get(Constants.SCHEME);
-        if (schema != null && schema.equals("https")) {
-            config.setScheme(schema);
+        String scheme = properties.get(Constants.SCHEME);
+        if (scheme != null && scheme.equals(Constants.HTTPS_SCHEME)) {
+            config.setScheme(scheme);
             config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
             config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
             config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
