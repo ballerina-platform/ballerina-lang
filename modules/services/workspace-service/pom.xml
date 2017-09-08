@@ -60,6 +60,10 @@
             <artifactId>ballerina-native</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.ballerina.connectors</groupId>
             <artifactId>connectors</artifactId>
         </dependency>

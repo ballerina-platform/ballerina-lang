@@ -18,15 +18,15 @@
 
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -34,6 +34,8 @@ import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -146,12 +148,44 @@ public class BLangFileRestService {
      */
     private static String parseJsonDataModel(InputStream stream, java.nio.file.Path filePath) throws IOException {
 
-        BallerinaFile bFile = Utils.getBFile(stream, filePath);
-        JsonObject response = new JsonObject();
-        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
-        bFile.accept(jsonModelBuilder);
 
-        return response.toString();
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model =
+                Compiler.getInstance(new CompilerContext()).getModel();
+        String response = generateJSON(model);
+
+//        BallerinaFile bFile = Utils.getBFile(stream, filePath);
+//        JsonObject response = new JsonObject();
+//        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
+//        bFile.accept(jsonModelBuilder);
+
+        return response;
+    }
+
+
+    public static String generateJSON(org.wso2.ballerinalang.compiler.tree.BLangPackage model) {
+
+
+        final CustomObjectMapper om =
+                new CustomObjectMapper();
+
+        //For testing
+        //User user = createDummyUser();
+
+        try {
+            //Convert object to JSON string and save into file directly
+            //mapper.writeValue(new File("D:\\user.json"), user);
+
+            String result = om.writeValueAsString(model);
+            return result;
+
+
+        } catch (JsonGenerationException e) {
+        } catch (JsonMappingException e) {
+        } catch (IOException e) {
+        }
+
+        return null;
+
     }
 
     /**
