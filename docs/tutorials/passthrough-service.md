@@ -114,6 +114,6 @@ Now that you have added a service, you need a connector to connect to the extern
     ![alt text](../images/ConnectorMessage.png)
     > Note that a message is passed by default in a service. This will not be the case in a main program application. In this case, it is message `m` that is passed. The full endpoint URL is https://www.googleapis.com/books/v1/volumes?q=intitle:wso2.
 1. Add the query parameter to the resource by going to the source view and modifying the resource to the following.
-```
+    ```
 resource getBooksByTitle (message m, @http:QueryParam {value:"title"} string title)
 ```
