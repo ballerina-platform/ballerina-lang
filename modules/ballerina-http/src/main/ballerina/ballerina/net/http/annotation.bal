@@ -2,6 +2,12 @@ package ballerina.net.http;
 
 import ballerina.net.ws;
 
+struct request {
+}
+
+struct response {
+}
+
 annotation configuration attach service<>, service<ws> {
     string host;
     int port;

@@ -172,6 +172,7 @@ public class ServerConnectorRegistry {
                 for (int i = 0; i < length; i++) {
                     annotationValues[i] = getAttributeValue(annAttributeValues[i]);
                 }
+                annotationValue = new BAnnAttrValue(AnnotationValueType.ARRAY);
                 annotationValue.setAnnotationValueArray(annotationValues);
                 break;
             default:
