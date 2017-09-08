@@ -19,8 +19,10 @@
 package org.ballerinalang.net.http.nativeimpl.request;
 
 
+import net.sf.saxon.value.StringValue;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -54,8 +56,8 @@ public class GetHeaders extends AbstractNativeFunction {
 //        MessageValue msg = (MessageValue) getArgument(ctx, 0);
 //        String headerName = getArgument(ctx, 1).stringValue();
 //        String[] headerValue = msg.getHeaders(headerName);
-
-        // TODO Fix this with the proper arrays implementation
+//
+//         TODO Fix this with the proper arrays implementation
 //        ArrayValue<BString> headers = new ArrayValue<>(headerValue.length);
 //        int i = 0;
 //        for (String header : headerValue) {
