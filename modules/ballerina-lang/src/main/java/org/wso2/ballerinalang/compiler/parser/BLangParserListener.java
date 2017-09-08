@@ -1367,7 +1367,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
+    @Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+        this.pkgBuilder.addRetrytmt();
+    }
 
     /**
      * {@inheritDoc}

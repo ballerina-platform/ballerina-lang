@@ -82,7 +82,6 @@ import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * This class builds the package AST of a Ballerina source file.
@@ -693,18 +692,15 @@ public class BLangPackageBuilder {
     public void addAssignmentStatement(boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         List<ExpressionNode> lExprList = exprNodeListStack.pop();
-        if (rExprNode instanceof BLangExpression) {
-            List<BLangVariableReference> lVariableReferenceList = lExprList.stream()
-                    .filter(BLangVariableReference.class::isInstance).map(BLangVariableReference.class::cast)
-                    .collect(Collectors.toList());
-            AssignmentNode assignmentNode = TreeBuilder
-                    .createAssignmentNode(lVariableReferenceList, (BLangExpression) rExprNode, isVarDeclaration);
-            this.blockNodeStack.peek().addStatement(assignmentNode);
-        }
+        AssignmentNode assignmentNode = TreeBuilder.createAssignmentNode();
+        assignmentNode.setExpression(rExprNode);
+        assignmentNode.setDeclaredWithVar(isVarDeclaration);
+        lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
+        this.blockNodeStack.peek().addStatement(assignmentNode);
     }
 
     public void startTransactionStmt() {
-        transactionNodeStack.push((BLangTransaction) TreeBuilder.createTransactionNode());
+        transactionNodeStack.push(TreeBuilder.createTransactionNode());
         startBlock();
     }
 
@@ -762,6 +758,11 @@ public class BLangPackageBuilder {
     public void startIfElseNode() {
         ifElseStatementStack.push(TreeBuilder.createIfElseStatementNode());
         startBlock();
+    }
+
+    public void addRetrytmt() {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        transactionNode.setRetryCount(exprNodeStack.pop());
     }
 
     public void addIfBlock() {
