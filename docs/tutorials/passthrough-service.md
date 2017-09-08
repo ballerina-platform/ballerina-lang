@@ -119,3 +119,9 @@ Now that you have added a service, you need a connector to connect to the extern
     ```
 1. Now that you have specified a query parameter, you can use the value of the query parameter in your connector call. Change the message passed to the following.
     ![alt text](../images/ConnectorMessage2.png)
+
+## Extract content from the JSON
+
+1. Use the search, or navigate to a function called getJsonPayload, which is in the ballerina.lang.messages library. This library contains functions that enable you to modify and use messages in various ways.
+1. Drag and drop this onto the main program in the canvas. This automatically applies this function on message m since that is the default message.
+    ![alt text](../images/getJSONPayload2.gif)
