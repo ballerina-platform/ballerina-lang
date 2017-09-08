@@ -18,11 +18,12 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
-import org.ballerinalang.services.dispatchers.session.Session;
-import org.ballerinalang.services.dispatchers.session.SessionManager;
+//import org.ballerinalang.services.dispatchers.session.Session;
+//import org.ballerinalang.services.dispatchers.session.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -44,12 +45,13 @@ public class Context {
     private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
+    private ConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
-    private Session currentSession = null;
+//    private Session currentSession = null;
 
     private int startIP;
     private BStruct unhandledError;
@@ -136,7 +138,15 @@ public class Context {
     public void setBalCallback(BalCallback balCallback) {
         this.balCallback = balCallback;
     }
-    
+
+    public ConnectorFuture getConnectorFuture() {
+        return connectorFuture;
+    }
+
+    public void setConnectorFuture(ConnectorFuture connectorFuture) {
+        this.connectorFuture = connectorFuture;
+    }
+
     public ServiceInfo getServiceInfo() {
         return this.serviceInfo;
     }
@@ -184,18 +194,18 @@ public class Context {
         return programFile;
     }
 
-    public SessionManager getSessionManager() {
-        return SessionManager.getInstance();
-    }
-
-    public Session getCurrentSession() {
-        if (currentSession != null && currentSession.isValid()) {
-            return currentSession;
-        }
-        return null;
-    }
-
-    public void setCurrentSession(Session currentSession) {
-        this.currentSession = currentSession;
-    }
+//    public SessionManager getSessionManager() {
+//        return SessionManager.getInstance();
+//    }
+//
+//    public Session getCurrentSession() {
+//        if (currentSession != null && currentSession.isValid()) {
+//            return currentSession;
+//        }
+//        return null;
+//    }
+//
+//    public void setCurrentSession(Session currentSession) {
+//        this.currentSession = currentSession;
+//    }
 }

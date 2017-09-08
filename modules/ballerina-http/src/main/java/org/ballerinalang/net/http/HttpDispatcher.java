@@ -21,6 +21,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +106,11 @@ public class HttpDispatcher {
         return (cMsg) -> {
             HTTPCarbonMessage carbonMessage = HTTPMessageUtil.convertCarbonMessage(cMsg);
             try {
+                //TODO enable once new resource signature enabled
+//                Session session = context.getCurrentSession();
+//                if (session != null) {
+//                    session.generateSessionHeader(carbonMessage);
+//                }
                 //Process CORS if exists.
                 if (httpCarbonMessage.getHeader("Origin") != null) {
                     CorsHeaderGenerator.process(httpCarbonMessage, carbonMessage, true);

@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
@@ -68,7 +69,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.services.dispatchers.session.Session;
+//import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -2486,8 +2487,8 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
-        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
-        generateSessionAndCorsHeaders(message);
+//        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
+//        generateSessionAndCorsHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
@@ -3568,21 +3569,25 @@ public class BLangVM {
         if (controlStack.getCurrentFrame() == null) {
             // root level error handling.
             ip = -1;
-            if (context.getServiceInfo() != null) {
-                // Invoke ServiceConnector error handler.
-                CarbonMessage carbonMessage = context.getCarbonMessage();
-                if (carbonMessage != null) {
-                    Object protocol = carbonMessage.getProperty("PROTOCOL");
-                    Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
-                            .getServerConnectorErrorHandler((String) protocol);
-                    try {
-                        optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
-                                new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
-                                context.getCarbonMessage(), context.getBalCallback());
-                    } catch (Exception e) {
-                        logger.error("cannot handle error using the error handler for: " + protocol, e);
-                    }
-                }
+            if (context.getServiceInfo() == null) {
+                return;
+            }
+            // Invoke ServiceConnector error handler.
+            CarbonMessage carbonMessage = context.getCarbonMessage();
+            if (carbonMessage == null) {
+                return;
+            }
+            ConnectorFuture connectorFuture = context.getConnectorFuture();
+
+            Object protocol = carbonMessage.getProperty("PROTOCOL");
+            Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
+                    .getServerConnectorErrorHandler((String) protocol);
+            try {
+                optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
+                        new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
+                        context.getCarbonMessage(), context.getBalCallback());
+            } catch (Exception e) {
+                logger.error("cannot handle error using the error handler for: " + protocol, e);
             }
             return;
         }
@@ -3600,13 +3605,13 @@ public class BLangVM {
         logger.error("fatal error. incorrect error table entry.");
     }
 
-    private void generateSessionAndCorsHeaders(BMessage message) {
-        //check session cookie header
-        Session session = context.getCurrentSession();
-        if (session != null) {
-            session.generateSessionHeader(message);
-        }
-    }
+//    private void generateSessionAndCorsHeaders(BMessage message) {
+//        //check session cookie header
+//        Session session = context.getCurrentSession();
+//        if (session != null) {
+//            session.generateSessionHeader(message);
+//        }
+//    }
 
     private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
         for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {

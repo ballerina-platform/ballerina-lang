@@ -73,10 +73,18 @@ public class Executor {
     }
 
     //Temp method until resource signatures are changed(with thread pooling)
-    public static void submit(Resource resource, CarbonMessage carbonMessage,
-                               CarbonCallback carbonCallback) {
+//    public static void submit(Resource resource, CarbonMessage carbonMessage,
+//                               CarbonCallback carbonCallback) {
+//        ThreadPoolFactory.getInstance().getExecutor().
+//                execute(new BallerinaOldWorkerThread(resource, carbonMessage, carbonCallback));
+//    }
+
+    //Temp method until resource signatures are changed(with thread pooling)
+    public static ConnectorFuture submit(Resource resource, CarbonMessage carbonMessage) {
+        ConnectorFuture connectorFuture = new BConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaOldWorkerThread(resource, carbonMessage, carbonCallback));
+                execute(new BallerinaOldWorkerThread(resource, carbonMessage, connectorFuture));
+        return connectorFuture;
     }
 
     /**

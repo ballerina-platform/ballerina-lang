@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.services.dispatchers.session;
+package org.ballerinalang.net.http.session;
 
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;

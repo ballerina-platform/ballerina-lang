@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +30,13 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
-
-
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        Executor.submit(HttpDispatcher.findResource(httpCarbonMessage), httpCarbonMessage,
-                HttpDispatcher.getCallback(httpCarbonMessage));
+        ConnectorFuture future = Executor.submit(HttpDispatcher.findResource(httpCarbonMessage),
+                httpCarbonMessage);
+        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(HttpDispatcher
+                .getCallback(httpCarbonMessage));
+        future.setConnectorFutureListener(futureListener);
     }
 
     @Override

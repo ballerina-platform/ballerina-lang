@@ -37,6 +37,7 @@ import java.util.Map;
         name = "ballerina.net.http.error.handler",
         immediate = true,
         service = ServerConnectorErrorHandler.class)
+//TODO need to remove
 public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);

@@ -18,6 +18,7 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.model.values.BValue;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code ConnectorFutureListener} API provides the functionality to listen to ballerina side events after
@@ -40,4 +41,10 @@ public interface ConnectorFutureListener {
      * @param ex failure cause.
      */
     void notifyFailure(BallerinaConnectorException ex);
+
+    //Temp solution until resource signature change
+    void notifySuccess(CarbonMessage carbonMessage);
+
+    //Temp solution until resource signature change
+    void notifyFailure(Exception ex, CarbonMessage carbonMessage);
 }

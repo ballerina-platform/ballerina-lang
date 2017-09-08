@@ -19,6 +19,8 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.http.HttpService;
@@ -49,7 +51,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
             HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketInitMessage);
             WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
             Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-            Executor.submit(resource, carbonMessage, null);
+            submitResource(resource, carbonMessage);
         } catch (ProtocolException e) {
             throw new BallerinaConnectorException("Error occurred during WebSocket handshake", e);
         }
@@ -60,7 +62,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketTextMessage(webSocketTextMessage);
         HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketTextMessage);
         Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
-        Executor.submit(resource, carbonMessage, null);
+        submitResource(resource, carbonMessage);
     }
 
     @Override
@@ -80,12 +82,18 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
         HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketCloseMessage);
         Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
-        Executor.submit(resource, carbonMessage, null);
+        submitResource(resource, carbonMessage);
     }
 
     @Override
     public void onError(Throwable throwable) {
         throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
+    }
+
+    private void submitResource(Resource resource, CarbonMessage carbonMessage) {
+        ConnectorFuture connectorFuture = Executor.submit(resource, carbonMessage);
+        ConnectorFutureListener futureListener = new WebSocketConnectorFutureListener();
+        connectorFuture.setConnectorFutureListener(futureListener);
     }
 
 }

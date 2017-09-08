@@ -16,9 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.services.dispatchers.session;
-
-import org.ballerinalang.services.dispatchers.http.HTTPSession;
+package org.ballerinalang.net.http.session;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
