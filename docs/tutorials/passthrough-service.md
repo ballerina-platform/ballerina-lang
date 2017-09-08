@@ -37,6 +37,10 @@ If you are accessing a resource within this service, like book titles for exampl
 
 This is how resources and services can equate to the URL that you are calling.
 
+In addition to this, there can be a query parameter added to the title. In this scenario, you are querying books that have "WSO2" in the title, so the title is as follows.
+
+> http://localhost:9090/books/title?title=wso2
+
 ## Add a service
 
 1. To define a service in the Composer, drag the service from the tool palette to the canvas. You can then set the base path annotation using the `Annotations` button in the upper right corner of the service, and define any variables the service needs by clicking the `Variables` button in the upper left corner. 
