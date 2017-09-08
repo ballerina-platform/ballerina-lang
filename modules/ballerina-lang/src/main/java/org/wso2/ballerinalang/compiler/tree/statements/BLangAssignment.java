@@ -31,10 +31,12 @@ import java.util.List;
 public class BLangAssignment extends BLangStatement implements AssignmentNode {
     public List<BLangVariableReference> varRefs;
     public BLangExpression expr;
+    private boolean isDeclaredWithVar;
 
-    public BLangAssignment(List<BLangVariableReference> varRefs, BLangExpression expr) {
+    public BLangAssignment(List<BLangVariableReference> varRefs, BLangExpression expr, boolean isDeclaredWithVar) {
         this.varRefs = varRefs;
         this.expr = expr;
+        this.isDeclaredWithVar = isDeclaredWithVar;
     }
 
     @Override
@@ -48,6 +50,11 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     }
 
     @Override
+    public boolean isDeclaredWithVar() {
+        return isDeclaredWithVar;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -55,5 +62,12 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.ASSIGNMENT;
+    }
+
+    @Override
+    public String toString() {
+        return "BLangAssignment: " + (this.isDeclaredWithVar ? "var " : "") +
+                (this.varRefs != null ? this.varRefs : "") +
+                (this.expr != null ? " = " + this.expr : "");
     }
 }

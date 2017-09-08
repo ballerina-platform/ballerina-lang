@@ -41,6 +41,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.statements.AbortNode;
+import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -52,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -59,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -71,6 +75,7 @@ import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * This class builds the package AST of a Ballerina source file.
@@ -108,11 +113,11 @@ public class BLangPackageBuilder {
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
-    
+
     private Stack<AnnotationNode> annotationStack = new Stack<>();
-    
+
     private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
-    
+
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
     
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
@@ -312,7 +317,7 @@ public class BLangPackageBuilder {
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         arrayLiteral.expressionNodes = argExprList;
         arrayLiteral.pos = pos;
-        exprNodeStack.push(arrayLiteral);
+        addExpressionNode(arrayLiteral);
     }
 
     public void addKeyValueRecord() {
@@ -367,7 +372,7 @@ public class BLangPackageBuilder {
         varRef.pos = pos;
         varRef.packageIdentifier = nameReference.pkgAlias;
         varRef.variableName = nameReference.name;
-        addExpressionNode(varRef);
+        this.exprNodeStack.push(varRef);
     }
 
     public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
@@ -619,6 +624,24 @@ public class BLangPackageBuilder {
         }
     }
 
+    public void addAssignmentStatement(boolean isVarDeclaration) {
+        ExpressionNode rExprNode = exprNodeStack.pop();
+        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        if (rExprNode instanceof BLangExpression) {
+            List<BLangVariableReference> lVariableReferenceList = lExprList.stream()
+                    .filter(BLangVariableReference.class::isInstance).map(BLangVariableReference.class::cast)
+                    .collect(Collectors.toList());
+            AssignmentNode assignmentNode = TreeBuilder
+                    .createAssignmentNode(lVariableReferenceList, (BLangExpression) rExprNode, isVarDeclaration);
+            this.blockNodeStack.peek().addStatement(assignmentNode);
+        }
+    }
+
+    public void addAbortStatement() {
+        AbortNode abortNode = TreeBuilder.createAbortNode();
+        this.blockNodeStack.peek().addStatement(abortNode);
+    }
+
     public void startIfElseNode() {
         ifElseStatementStack.push(TreeBuilder.createIfElseStatementNode());
         startBlock();
@@ -634,7 +657,7 @@ public class BLangPackageBuilder {
         IfNode elseIfNode = ifElseStatementStack.pop();
         elseIfNode.setCondition(exprNodeStack.pop());
         elseIfNode.setBody(blockNodeStack.pop());
-        
+
         IfNode parentIfNode = ifElseStatementStack.peek();
         while (parentIfNode.getElseStatement() != null) {
             parentIfNode = (IfNode) parentIfNode.getElseStatement();

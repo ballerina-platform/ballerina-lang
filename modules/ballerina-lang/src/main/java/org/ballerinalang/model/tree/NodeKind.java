@@ -40,7 +40,6 @@ public enum NodeKind {
     FUNCTION,
     IDENTIFIER,
     IF,
-    ELSE_IF,
     IMPORT,
     LITERAL,
     PACKAGE,

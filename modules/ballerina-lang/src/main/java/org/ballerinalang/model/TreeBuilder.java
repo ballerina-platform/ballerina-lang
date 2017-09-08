@@ -41,6 +41,8 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.ballerinalang.model.tree.statements.AbortNode;
+import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -67,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -74,6 +77,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -83,6 +89,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+
+import java.util.List;
 
 /**
  * This contains the functionality of building the nodes in the AST.
@@ -203,14 +211,24 @@ public class TreeBuilder {
         return new BLangAction();
     }
 
+    public static AssignmentNode createAssignmentNode(List<BLangVariableReference> varRefs, BLangExpression expr,
+            boolean isDeclaredWithVar) {
+        return new BLangAssignment(varRefs, expr, isDeclaredWithVar);
+    }
+
+    public static AbortNode createAbortNode() {
+        return new BLangAbort();
+    }
+
+
     public static AnnotationNode createAnnotationNode() {
         return new BLangAnnotation();
     }
-    
+
     public static AnnotationAttributeNode createAnnotAttributeNode() {
         return new BLangAnnotAttribute();
     }
-    
+
     public static AnnotationAttributeValueNode createAnnotAttributeValueNode() {
         return new BLangAnnotAttributeValue();
     }
