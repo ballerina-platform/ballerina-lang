@@ -1,10 +1,26 @@
+/*
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
-import org.ballerinalang.connector.api.Registry;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.DispatcherUtil;
@@ -14,24 +30,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Created by rajith on 9/4/17.
+ * {@code HttpServerConnector} This is the http implementation for the {@code BallerinaServerConnector} API.
+ *
+ * @since 0.94
  */
 public class HttpServerConnector implements BallerinaServerConnector {
     private static final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);
 
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
-    private HttpRegistry httpRegistry;
-
     public HttpServerConnector() {
-        httpRegistry = new HttpRegistry(this);
     }
 
     @Override
@@ -88,17 +105,18 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
     @Override
-    public void complete() throws BallerinaConnectorException {
+    public void deploymentComplete() throws BallerinaConnectorException {
         try {
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
+            // Starting up HTTP Server connectors
+            //TODO move this to a common location and use in both http and ws server connectors
+            PrintStream outStream = System.out;
+            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
+                    .startPendingHTTPConnectors();
+            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
+                    "server connector " + serverConnector));
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
-    }
-
-    @Override
-    public Registry getRegistry() {
-        return httpRegistry;
     }
 
     public HttpService findService(CarbonMessage cMsg) {

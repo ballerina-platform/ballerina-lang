@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.model.values.BValue;

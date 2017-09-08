@@ -15,11 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.api;
 
 /**
- * {@code ServerConnector} API provides the functionality to register ballerina servers in respective server
+ * {@code ServerConnector} This API provides the functionality to register ballerina servers in respective server
  * connector.
  *
  * @since 0.94
@@ -49,7 +48,11 @@ public interface BallerinaServerConnector {
      */
     void serviceUnregistered(Service service) throws BallerinaConnectorException;
 
-    void complete() throws BallerinaConnectorException;
+    /**
+     * This will fire a deployment complete event so to the server connector implementation.
+     *
+     * @throws BallerinaConnectorException
+     */
+    void deploymentComplete() throws BallerinaConnectorException;
 
-    Registry getRegistry();
 }
