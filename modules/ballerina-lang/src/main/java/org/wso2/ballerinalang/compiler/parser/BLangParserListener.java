@@ -877,8 +877,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { 
-        log("exitAssignmentStatement");
+    @Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        this.pkgBuilder.addAssignmentStatement(isVarDeclaration);
     }
 
     @Override
@@ -1317,7 +1321,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) { }
+    @Override public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+        this.pkgBuilder.addAbortStatement();
+    }
     /**
      * {@inheritDoc}
      *
