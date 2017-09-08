@@ -35,7 +35,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                 newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
-                HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
+                HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(newMsg);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -87,7 +87,9 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
 
                 }
 
-                SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
+                                                                                                   scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
@@ -110,7 +112,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                             }
                             newMsg.setEndOfMsgAdded(true);
 
-                            HTTPCarbonMessage httpCarbonMessage1 = HTTPMessageUtil.convertCarbonMessage(newMsg);
+                            HTTPCarbonMessage httpCarbonMessage1 = HTTPConnectorUtil.convertCarbonMessage(newMsg);
 
                             try {
                                 httpRequest.respond(httpCarbonMessage1);

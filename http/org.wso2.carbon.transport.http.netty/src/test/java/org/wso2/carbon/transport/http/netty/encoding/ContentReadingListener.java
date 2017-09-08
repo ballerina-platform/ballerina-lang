@@ -27,7 +27,7 @@ import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +57,7 @@ public class ContentReadingListener implements HttpConnectorListener {
                 newMsg.addMessageBody(ByteBuffer.wrap(alteredContent.getBytes(Charset.defaultCharset())));
                 newMsg.setEndOfMsgAdded(true);
 
-                httpMessage.respond(HTTPMessageUtil.convertCarbonMessage(newMsg));
+                httpMessage.respond(HTTPConnectorUtil.convertCarbonMessage(newMsg));
             } catch (IOException | ServerConnectorException e) {
                 logger.error("Error occurred during message processing ", e);
             }
