@@ -21,12 +21,14 @@ package org.ballerinalang.net.http.util;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -188,7 +190,7 @@ public class RequestResponseUtil {
         return abstractNativeFunction.getBValues(result);
     }
 
-    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+    public static BValue[] getXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
         BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
         CarbonMessage carbonMessage = msg.value();
         String mapKey = abstractNativeFunction.getStringArgument(context, 0);
@@ -200,6 +202,33 @@ public class RequestResponseUtil {
             throw new BallerinaException("Given property " + mapKey + " is not found in the Map message");
         }
         return abstractNativeFunction.getBValues(new BString(mapValue));
+    }
+
+    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+        BXML result = null;
+        try {
+            // Accessing First Parameter Value.
+            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+
+            if (msg.isAlreadyRead()) {
+                MessageDataSource payload = msg.getMessageDataSource();
+                if (payload instanceof BXML) {
+                    // if the payload is already xml, return it as it is.
+                    result = (BXML) payload;
+                } else {
+                    // else, build the xml from the string representation of the payload.
+                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
+                }
+            } else {
+                result = XMLUtils.parse(msg.value().getInputStream());
+                msg.setMessageDataSource(result);
+                msg.setAlreadyRead(true);
+            }
+        } catch (Throwable e) {
+            //            ErrorHandler.handleJsonException(OPERATION, e);
+        }
+        // Setting output value.
+        return abstractNativeFunction.getBValues(result);
     }
 
     private static BStruct createRequestStruct(Context context) {

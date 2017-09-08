@@ -16,6 +16,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
+import com.sun.org.apache.regexp.internal.RE;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.util.XMLUtils;
@@ -28,6 +29,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.wso2.carbon.messaging.MessageDataSource;
 
 /**
@@ -47,34 +49,8 @@ import org.wso2.carbon.messaging.MessageDataSource;
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
         value = "The XML representation of the message payload") })
 public class GetXMLPayload extends AbstractNativeFunction {
-
-    private static final String OPERATION = "get xml payload";
-    
     @Override
     public BValue[] execute(Context context) {
-        BXML result = null;
-        try {
-            // Accessing First Parameter Value.
-            BMessage msg = (BMessage) getRefArgument(context, 0);
-            
-            if (msg.isAlreadyRead()) {
-                MessageDataSource payload = msg.getMessageDataSource();
-                if (payload instanceof BXML) {
-                    // if the payload is already xml, return it as it is.
-                    result = (BXML) payload;
-                } else {
-                    // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
-                }
-            } else {
-                result = XMLUtils.parse(msg.value().getInputStream());
-                msg.setMessageDataSource(result);
-                msg.setAlreadyRead(true);
-            }
-        } catch (Throwable e) {
-//            ErrorHandler.handleJsonException(OPERATION, e);
-        }
-        // Setting output value.
-        return getBValues(result);
+        return RequestResponseUtil.getXMLPayload(context, this, null);
     }
 }
