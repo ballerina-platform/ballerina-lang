@@ -29,4 +29,12 @@ public interface TransactionNode extends StatementNode {
 
     BlockNode getAbortedBody();
 
+    void setTransactionBody(BlockNode body);
+
+    void setFailedBody(BlockNode body);
+
+    void setCommittedBody(BlockNode body);
+
+    void setAbortedBody(BlockNode body);
+
 }

@@ -1269,19 +1269,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) { }
+    @Override public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        this.pkgBuilder.startTransactionStmt();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) { }
+    @Override public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
+    @Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1293,37 +1299,49 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+    @Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        this.pkgBuilder.startFailedBlock();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+    @Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        this.pkgBuilder.addFailedBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
+    @Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        this.pkgBuilder.startAbortedBlock();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
+    @Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        this.pkgBuilder.addAbortedBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
+    @Override public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        this.pkgBuilder.startCommittedBlock();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
+    @Override public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        this.pkgBuilder.addCommittedBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -29,6 +30,9 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt failedBody;
     public BLangBlockStmt committedBody;
     public BLangBlockStmt abortedBody;
+
+    public BLangTransaction() {
+    }
 
     public BLangTransaction(BLangBlockStmt transactionBody,
                             BLangBlockStmt failedBody,
@@ -61,6 +65,26 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
+    public void setTransactionBody(BlockNode body) {
+        this.transactionBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setFailedBody(BlockNode body) {
+        this.failedBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setCommittedBody(BlockNode body) {
+        this.committedBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setAbortedBody(BlockNode body) {
+        this.abortedBody = (BLangBlockStmt) body;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -68,5 +92,13 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public NodeKind getKind() {
         return NodeKind.TRANSACTION;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction: {" + transactionBody + "} "
+                + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
+                + (committedBody != null ? " committed {" + String.valueOf(committedBody) + "}" : "")
+                + (abortedBody != null ? " aborted {" + String.valueOf(abortedBody) + "}" : "");
     }
 }
