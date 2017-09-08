@@ -34,7 +34,7 @@ import java.util.Map;
 import javax.websocket.Session;
 
 /**
- * Util Class contains method for generating a message.
+ * RequestResponseUtil Class contains method for generating a message.
  *
  * @since 0.8.0
  */

@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,34 +64,6 @@ public class GetBinaryPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BBlob result;
-        try {
-            BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
-            if (httpCarbonMessage.isAlreadyRead()) {
-                result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
-            } else {
-                result = new BBlob(toByteArray(httpCarbonMessage.getInputStream()));
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-        }
-        return getBValues(result);
-    }
-
-    private static byte[] toByteArray(InputStream input) throws IOException {
-        byte[] buffer = new byte[4096];
-        int n1;
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        for (; -1 != (n1 = input.read(buffer));) {
-            output.write(buffer, 0, n1);
-        }
-        byte[] bytes = output.toByteArray();
-        output.close();
-        return bytes;
+        return RequestResponseUtil.getBinaryPayload(context, this, log);
     }
 }

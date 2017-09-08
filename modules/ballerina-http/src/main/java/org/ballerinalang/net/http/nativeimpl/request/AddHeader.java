@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Header;
@@ -63,20 +64,6 @@ public class AddHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-        String headerName = getStringArgument(context, 0);
-        String headerValue = getStringArgument(context, 1);
-        // Add new header.
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-
-        List<Header> headerList = new ArrayList<>();
-        headerList.add(new Header(headerName, headerValue));
-        httpCarbonMessage.setHeaders(headerList);
-
-        if (log.isDebugEnabled()) {
-            log.debug("Add " + headerName + " to header with value: " + headerValue);
-        }
-        return VOID_RETURN;
+        return RequestResponseUtil.addHeader(context, this, log);
     }
 }
