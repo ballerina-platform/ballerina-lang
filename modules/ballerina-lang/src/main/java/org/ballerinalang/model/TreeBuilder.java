@@ -155,7 +155,7 @@ public class TreeBuilder {
         return new BLangThrow();
     }
 
-    public static ExpressionStatementNode createExpressionStatementNode(){
+    public static ExpressionStatementNode createExpressionStatementNode() {
         return new BLangExpressionStmt();
     }
 
