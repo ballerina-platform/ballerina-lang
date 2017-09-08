@@ -18,6 +18,7 @@
 
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
@@ -34,6 +35,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -215,6 +217,9 @@ public class Main {
         @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
         private boolean httpTraceLogEnabled;
 
+        @Parameter(names = "-Blog.level", hidden = true, description = "set log API log level")
+        private String logLevel;
+
         public void execute() {
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
@@ -228,6 +233,10 @@ public class Main {
 
             if (httpTraceLogEnabled) {
                 System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
+            }
+
+            if(logLevel != null) {
+                System.setProperty("log.level", logLevel);
             }
 
             // Enable remote debugging

@@ -20,9 +20,7 @@ package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.BLogRecord;
-import org.ballerinalang.logging.LogContext;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -33,7 +31,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 
 /**
- * {@code AbstractHTTPAction} is the base class for all the log functions
+ * {@code AbstractLogFunction} is the base class for all the log functions
  *
  * @since 0.94
  */
@@ -60,13 +58,6 @@ public abstract class AbstractLogFunction extends AbstractNativeFunction {
         String fileName = lineNumberInfo.getFileName();
         int lineNumber = lineNumberInfo.getLineNumber();
 
-//        LogContext logCtx = new LogContext();
-//        logCtx.setLocation(callableUnitName);
-//        logCtx.setPackageName(packageName);
-//        logCtx.setWorkerName(workerName);
-//        logCtx.setLineNumber(String.valueOf(lineNumber));
-//        logCtx.setTimestamp(timestamp);
-
         BLogRecord logRecord = new BLogRecord(level, getRefArgument(ctx, 0).stringValue());
         logRecord.setPackageName(packageName);
         logRecord.setCallableUnitName(callableUnitName);
@@ -75,18 +66,5 @@ public abstract class AbstractLogFunction extends AbstractNativeFunction {
         logRecord.setWorkerName(workerName);
 
         return logRecord;
-    }
-
-    protected boolean isLoggable(BLogLevel level, String pkg) {
-//        BLogManager logManager = (BLogManager) BLogManager.getLogManager();
-//        String property = pkg + ".level";
-//
-//        if(logManager.getProperty(property) != null) {
-//            return level.value() >=  logManager.getProperty(property)).intValue();
-//        } else {
-//            // If no package level configs are set, use the Ballerina root log level
-//            return level.value() >= BLogLevel.parse(logManager.getProperty(Constants.BALLERINA_LEVEL)).intValue();
-//        }
-        return true;
     }
 }
