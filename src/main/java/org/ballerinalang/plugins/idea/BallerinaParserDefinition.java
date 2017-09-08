@@ -317,8 +317,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new MapStructKeyValueNode(node);
             case BallerinaParser.RULE_forkJoinStatement:
                 return new ForkJoinStatementNode(node);
-            case BallerinaParser.RULE_workerInteractionStatement:
-                return new WorkerInterationStatementNode(node);
             case BallerinaParser.RULE_returnStatement:
                 return new ReturnStatementNode(node);
             case BallerinaParser.RULE_throwStatement:
