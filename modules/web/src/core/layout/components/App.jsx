@@ -202,7 +202,7 @@ class App extends React.Component {
                                 }
                             }
                         >
-                            {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
+                            {this.getViewsForRegion(REGIONS.BOTTOM_PANEL)}
                         </BottomPanel>
                     </SplitPane>
                 </SplitPane>

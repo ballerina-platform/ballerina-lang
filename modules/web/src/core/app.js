@@ -26,7 +26,6 @@ import LayoutPlugin from './layout/plugin';
 import MenuPlugin from './menu/plugin';
 import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
-import DebuggerPlugin from './debugger/plugin';
 import PreferencesPlugin from './preferences/plugin';
 import { makeImutable } from './utils/object-utils';
 
@@ -62,7 +61,6 @@ class Application {
         this.menuPlugin = new MenuPlugin();
         this.workspacePlugin = new WorkspacePlugin();
         this.editorPlugin = new EditorPlugin();
-        this.debuggerPlugin = new DebuggerPlugin();
         this.preferencesPlugin = new PreferencesPlugin();
 
         // Unless the necessities to keep direct references within app
@@ -73,7 +71,6 @@ class Application {
         this.loadPlugin(this.menuPlugin);
         this.loadPlugin(this.workspacePlugin);
         this.loadPlugin(this.editorPlugin);
-        this.loadPlugin(this.debuggerPlugin);
         this.loadPlugin(this.preferencesPlugin);
 
         // load plugins contributed via config
