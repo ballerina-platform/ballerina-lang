@@ -91,6 +91,7 @@ import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
 import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
+import org.ballerinalang.plugins.idea.psi.scopes.RestrictedScope;
 import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
 import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
@@ -842,7 +843,7 @@ public class BallerinaPsiImplUtil {
         if (scope instanceof VariableContainer || scope instanceof CodeBlockScope) {
             results.addAll(getAllLocalVariablesInScope(scope, caretOffset));
             ScopeNode context = scope.getContext();
-            if (context != null) {
+            if (context != null && !(scope instanceof RestrictedScope)) {
                 results.addAll(getAllLocalVariablesInResolvableScope(context, caretOffset));
             }
         } else if (scope instanceof ParameterContainer || scope instanceof LowerLevelDefinition) {
