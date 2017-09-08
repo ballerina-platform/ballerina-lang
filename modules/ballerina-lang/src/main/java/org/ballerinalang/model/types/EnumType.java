@@ -15,21 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+
+package org.ballerinalang.model.types;
+
+import org.ballerinalang.model.Name;
+
+import java.util.List;
 
 /**
+ * {@code EnumType} represents the type of a enum in Ballerina.
+ *
  * @since 0.94
  */
-public class SymbolKinds {
+public interface EnumType extends Type {
 
-    public static final int NIL = 0;
-    public static final int PACKAGE = 1;
-    public static final int TYPE = 2;
-    public static final int STRUCT = 4;
-    public static final int CONNECTOR = 8;
-    public static final int VARIABLE = 16;
-    public static final int VALUE = 32;
-    public static final int INVOCABLE = 64;
-    public static final int ERROR = 128;
-    public static final int ENUM = 256;
+  /**
+   * @since 0.94
+   */
+  interface EnumField {
+    Name getName();
+  }
+
+  List<? extends EnumField> getFields();
+
 }

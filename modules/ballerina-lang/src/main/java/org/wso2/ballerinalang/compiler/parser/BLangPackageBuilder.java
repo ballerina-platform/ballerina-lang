@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -92,6 +93,10 @@ public class BLangPackageBuilder {
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
     private Stack<StructNode> structStack = new Stack<>();
+
+    private Stack<EnumNode> enumStack = new Stack<>();
+
+    private Stack<List<IdentifierNode>> identifierNodeListStack = new Stack<>();
         
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
@@ -433,6 +438,23 @@ public class BLangPackageBuilder {
         structNode.setName(this.createIdentifier(identifier));
         this.varListStack.pop().forEach(structNode::addField);
         this.compUnit.addTopLevelNode(structNode);
+    }
+
+    public void startEnumDef() {
+        this.enumStack.add(TreeBuilder.createEnumNode());
+    }
+
+    public void endEnumDef(String identifier) {
+        EnumNode enumNode = this.enumStack.pop();
+        enumNode.setName(this.createIdentifier(identifier));
+        this.identifierNodeListStack.pop().forEach(identifierNode -> enumNode.addEnumField(identifierNode));
+        this.compUnit.addTopLevelNode(enumNode);
+    }
+
+    public void addEnumFieldList(List<String> enumFieldList) {
+        List<IdentifierNode> identifierList = new ArrayList<>();
+        enumFieldList.forEach(identifier -> identifierList.add(this.createIdentifier(identifier)));
+        this.identifierNodeListStack.push(identifierList);
     }
     
     public void startConnectorDef() {

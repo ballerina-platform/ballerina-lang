@@ -34,6 +34,7 @@ public enum NodeKind {
     COMMENT,
     CONNECTOR,
     CONTINUE,
+    ENUM,
     EXPRESSION_STATEMENT,
     FUNCTION,
     IDENTIFIER,

@@ -331,6 +331,43 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitStructBody(BallerinaParser.StructBodyContext ctx) { }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
+        this.pkgBuilder.startEnumDef();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
+        this.pkgBuilder.endEnumDef(ctx.Identifier().getText());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterEnumFieldList(BallerinaParser.EnumFieldListContext ctx) { }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitEnumFieldList(BallerinaParser.EnumFieldListContext ctx) {
+        List<String> enumFieldList = new ArrayList<>();
+        ctx.Identifier().forEach(terminalNode->enumFieldList.add(terminalNode.getText()));
+        this.pkgBuilder.addEnumFieldList(enumFieldList);
+    }
+
     /**
      * {@inheritDoc}
      *

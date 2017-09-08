@@ -90,6 +90,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangEnum enumNode) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangVariable varNode) {
         throw new AssertionError();
     }

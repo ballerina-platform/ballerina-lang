@@ -15,21 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+
+import org.ballerinalang.model.symbols.EnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolKinds.ENUM;
 
 /**
  * @since 0.94
  */
-public class SymbolKinds {
+public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
 
-    public static final int NIL = 0;
-    public static final int PACKAGE = 1;
-    public static final int TYPE = 2;
-    public static final int STRUCT = 4;
-    public static final int CONNECTOR = 8;
-    public static final int VARIABLE = 16;
-    public static final int VALUE = 32;
-    public static final int INVOCABLE = 64;
-    public static final int ERROR = 128;
-    public static final int ENUM = 256;
+    public BEnumSymbol(Name name, BType type, BSymbol owner) {
+        super(ENUM, name, type, owner);
+    }
 }
