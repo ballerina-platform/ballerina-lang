@@ -53,7 +53,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     
     @Override 
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
-        this.pkgBuilder.addVar(ctx.Identifier().getText(), false);
+        this.pkgBuilder.addVar(ctx.Identifier().getText(), false, ctx.annotationAttachment().size());
     }
     
     /**
@@ -197,7 +197,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
-        this.pkgBuilder.endResourceDef(ctx.Identifier().getText());
+        this.pkgBuilder.endResourceDef(ctx.Identifier().getText(), ctx.annotationAttachment().size());
     }
 
     /**
@@ -316,17 +316,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { 
         this.pkgBuilder.startActionDef();
     }
-    
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override 
-    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { 
-        this.pkgBuilder.endActionDef();
+    @Override
+    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
+        this.pkgBuilder.endActionDef(ctx.annotationAttachment().size());
     }
-    
+
     /**
      * {@inheritDoc}
      *
@@ -1608,7 +1608,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { 
-        this.pkgBuilder.addVar(ctx.Identifier().getText(), ctx.simpleLiteral() != null);
+        this.pkgBuilder.addVar(ctx.Identifier().getText(), ctx.simpleLiteral() != null, 0);
     }
     
     /**
