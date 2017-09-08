@@ -44,6 +44,7 @@ import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -120,7 +121,7 @@ public class BLangPackageBuilder {
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
-    private Stack<BLangTransaction> transactionNodeStack = new Stack<>();
+    private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
@@ -636,10 +637,10 @@ public class BLangPackageBuilder {
     }
 
     public void addTransactionBlock(DiagnosticPos pos) {
-        BLangTransaction transactionNode = transactionNodeStack.peek();
+        TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         transactionBlock.pos = pos;
-        transactionNode.transactionBody = transactionBlock;
+        transactionNode.setTransactionBody(transactionBlock);
     }
 
     public void startFailedBlock() {
@@ -647,10 +648,10 @@ public class BLangPackageBuilder {
     }
 
     public void addFailedBlock(DiagnosticPos pos) {
-        BLangTransaction transactionNode = transactionNodeStack.peek();
+        TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         failedBlock.pos = pos;
-        transactionNode.failedBody = failedBlock;
+        transactionNode.setFailedBody(failedBlock);
     }
 
     public void startCommittedBlock() {
@@ -658,10 +659,10 @@ public class BLangPackageBuilder {
     }
 
     public void addCommittedBlock(DiagnosticPos pos) {
-        BLangTransaction transactionNode = transactionNodeStack.peek();
+        TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         committedBlock.pos = pos;
-        transactionNode.committedBody = committedBlock;
+        transactionNode.setCommittedBody(committedBlock);
     }
 
     public void startAbortedBlock() {
@@ -669,14 +670,14 @@ public class BLangPackageBuilder {
     }
 
     public void addAbortedBlock(DiagnosticPos pos) {
-        BLangTransaction transactionNode = transactionNodeStack.peek();
+        TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         abortedBlock.pos = pos;
-        transactionNode.abortedBody = abortedBlock;
+        transactionNode.setAbortedBody(abortedBlock);
     }
 
     public void endTransactionStmt(DiagnosticPos pos) {
-        BLangTransaction transaction = transactionNodeStack.pop();
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         this.blockNodeStack.peek().addStatement(transaction);
     }

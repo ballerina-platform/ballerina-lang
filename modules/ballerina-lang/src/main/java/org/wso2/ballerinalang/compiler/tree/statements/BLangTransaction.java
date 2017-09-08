@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -61,6 +62,26 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public BLangBlockStmt getAbortedBody() {
         return abortedBody;
+    }
+
+    @Override
+    public void setTransactionBody(BlockNode body) {
+        this.transactionBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setFailedBody(BlockNode body) {
+        this.failedBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setCommittedBody(BlockNode body) {
+        this.committedBody = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setAbortedBody(BlockNode body) {
+        this.abortedBody = (BLangBlockStmt) body;
     }
 
     @Override
