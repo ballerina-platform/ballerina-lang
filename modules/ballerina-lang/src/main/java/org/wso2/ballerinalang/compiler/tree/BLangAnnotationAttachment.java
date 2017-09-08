@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
 
@@ -30,6 +31,7 @@ import java.util.Map;
 public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 
     public Map<String, AnnotationAttributeValueNode> attributesMap;
+    BLangIdentifier annotationName;
 
     public BLangAnnotationAttachment() {
         this.attributesMap = new LinkedHashMap<>();
@@ -38,6 +40,21 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     @Override
     public void addAttribute(String attrName, AnnotationAttributeValueNode value) {
         attributesMap.put(attrName, value);
+    }
+
+    @Override
+    public Map<String, AnnotationAttributeValueNode> geAttributes() {
+        return attributesMap;
+    }
+
+    @Override
+    public IdentifierNode getAnnotationName() {
+        return annotationName;
+    }
+
+    @Override
+    public void setAnnotationName(IdentifierNode name) {
+        this.annotationName = (BLangIdentifier) name;
     }
 
     @Override
@@ -52,6 +69,6 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     
     @Override
     public String toString() {
-        return "BLangAnnotationAttachment: " + attributesMap;
+        return "BLangAnnotationAttachment: " + annotationName + " " + attributesMap;
     }
 }
