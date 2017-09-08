@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvid
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -746,6 +747,28 @@ public class BallerinaCompletionUtils {
             }
             LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
                     definitionName, insertHandler);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
+    @NotNull
+    public static LookupElement createWorkerLookupElement(@NotNull IdentifierPSINode workerName) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(workerName.getText(), workerName)
+                .withTypeText("Worker").withIcon(BallerinaIcons.WORKER);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createWorkerLookupElements(@NotNull Collection<WorkerDeclarationNode>
+                                                                         workerDeclarationNodes) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (WorkerDeclarationNode workerDeclarationNode : workerDeclarationNodes) {
+            IdentifierPSINode workerName = PsiTreeUtil.getChildOfType(workerDeclarationNode, IdentifierPSINode.class);
+            if (workerName == null) {
+                continue;
+            }
+            LookupElement lookupElement = createWorkerLookupElement(workerName);
             lookupElements.add(lookupElement);
         }
         return lookupElements;

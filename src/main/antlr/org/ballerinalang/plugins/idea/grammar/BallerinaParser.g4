@@ -396,13 +396,13 @@ workerInteractionStatement
 
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
-    :   variableReference (COMMA variableReference)* RARROW Identifier SEMICOLON #invokeWorker
+    :   variableReference (COMMA variableReference)* RARROW workerReference SEMICOLON #invokeWorker
     |   variableReference (COMMA variableReference)* RARROW FORK SEMICOLON     #invokeFork
     ;
 
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
-    :   variableReference (COMMA variableReference)* LARROW Identifier SEMICOLON
+    :   variableReference (COMMA variableReference)* LARROW workerReference SEMICOLON
     ;
 
 commentStatement
@@ -537,6 +537,10 @@ annotationReference
 
 structReference
     :   (packageName COLON)? Identifier
+    ;
+
+workerReference
+    :   Identifier
     ;
 
 returnParameters

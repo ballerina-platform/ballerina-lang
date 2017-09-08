@@ -47,6 +47,7 @@ import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
 import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
 import org.ballerinalang.plugins.idea.psi.references.VariableReference;
+import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -172,6 +173,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new AnnotationReference(this);
                 case RULE_connectorReference:
                     return new ConnectorReference(this);
+                case RULE_workerReference:
+                    return new WorkerReference(this);
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_attachmentPoint:

@@ -88,6 +88,7 @@ import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
 import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
@@ -100,6 +101,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1359,6 +1361,18 @@ public class BallerinaPsiImplUtil {
             }
         }
         return null;
+    }
+
+    @NotNull
+    public static List<WorkerDeclarationNode> getWorkerDeclarationsInScope(@NotNull ScopeNode scopeNode) {
+        List<WorkerDeclarationNode> results = new LinkedList<>();
+        WorkerDeclarationNode[] workerDeclarationNodes = PsiTreeUtil.getChildrenOfType(scopeNode,
+                WorkerDeclarationNode.class);
+        if (workerDeclarationNodes == null) {
+            return results;
+        }
+        results.addAll(Arrays.asList(workerDeclarationNodes));
+        return results;
     }
 
     /**
