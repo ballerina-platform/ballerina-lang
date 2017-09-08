@@ -36,6 +36,11 @@ const config = [{
             }],
         },
         {
+            test: /\.scss$/,
+            exclude: /node_modules/,
+            loader: 'style-loader!css-loader!sass-loader',
+        },
+        {
             test: /\.css$/,
             use: extractCSSBundle.extract({
                 fallback: 'style-loader',
