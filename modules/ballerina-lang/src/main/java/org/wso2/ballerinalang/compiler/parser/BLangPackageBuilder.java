@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -348,6 +349,14 @@ public class BLangPackageBuilder {
         BLangTryCatchFinally stmtNode = tryCatchFinallyNodesStack.pop();
         stmtNode.pos = poc;
         this.blockNodeStack.peek().addStatement(stmtNode);
+    }
+
+    public void addThrowStmt(DiagnosticPos poc) {
+        ExpressionNode throwExpr = this.exprNodeStack.pop();
+        BLangThrow throwNode = (BLangThrow) TreeBuilder.createThrowNode();
+        throwNode.pos = poc;
+        throwNode.expr = (BLangExpression) throwExpr;
+        this.blockNodeStack.peek().addStatement(throwNode);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {

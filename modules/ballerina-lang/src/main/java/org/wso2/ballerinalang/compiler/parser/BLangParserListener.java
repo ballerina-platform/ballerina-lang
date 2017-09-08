@@ -1120,18 +1120,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
         this.pkgBuilder.addFinallyBlock(getCurrentPos(ctx));
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterThrowStatement(BallerinaParser.ThrowStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) { }
+
+    @Override
+    public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) {
+        this.pkgBuilder.addThrowStmt(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
